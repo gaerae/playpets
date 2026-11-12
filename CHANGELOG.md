@@ -50,6 +50,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In the narrowest windows, Import background and Background studio stay on one line over the gallery, and Invite's title stays on one line beside Import's icon.
 - Settings' switches no longer turn smaller in windows narrower than about 860px.
 - In dark mode, the Remove button in a friend's settings, the Quit button under the pointer, the Settings sheet's shadow and the picture placeholder in Place & atmosphere now darken instead of staying light.
+- The note under **Start PlayPets when you log in** says that what you put out comes out on the desktop, not only your friends.
 - A friend's chips (how you know each other, its status, closeness) and the yard count use the same pink and green as the rest of the app, a little deeper, so their words read more clearly.
 
 ### Website and docs
@@ -59,6 +60,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The website's moving friends load smaller pictures, drawn at the size the page shows them, and each friend's `playpets-<name>.zip` now carries the same lossless WebP sheets the app uses, about a third smaller.
 - The desktop guide explains flowers and trees on the desktop, and the yard guide says how to move a flower and where pulling up and removing went.
 - The yard guide says how to bring Christmas night on any day: pick winter, night and snow with the tree out.
+- The yard guide no longer says a snowman never goes out on the desktop. The desktop guide says the snowman and the Christmas gifts show there only while the yard shows them, dressed and decorated, and that the switch and the next start cover flowers and trees too; the settings guide and the README say the same.
 
 ## [1.6.0] - 2026-11-10
 

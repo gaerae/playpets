@@ -373,7 +373,7 @@ While the yard shows winter, which leaves out the Cozy living room, **Snowman** 
 Then choose its hat, scarf and carrot nose. Press the snowman, or choose **Dress up** from its menu, to change them later.
 
 - A new snowman replaces the old one, which melts away; with company, a friend says goodbye to it.
-- The snowman stays in the yard only while the yard shows winter. It never goes out on the desktop, and putting it away melts it.
+- The snowman stays in the yard only while the yard shows winter. **Show on desktop** in its menu takes it out on the desktop, dressed as in the yard, while the yard shows winter. Putting it away melts it.
 - With 12 decorations in the yard and no snowman, a friend says the yard is full, and the game doesn't start.
 
 ## A window beside your work

@@ -80,7 +80,7 @@
    | `effects` | See below |
    | `size` | `[width, height]` in catalogue units, in the drawing's shape. Usually its SVG view box; furniture may need a different footprint. The desktop draws the gift at this size too (`gift_size` in `pets/content.rs`) |
    | `event` | An event's id. The gift comes only during that event. Several gifts of one event come in catalogue order, one each time a gift is due |
-   | `shown` | `"december"`: shows in the yard and on the desktop from December 1 to January 7, and is hidden with its state kept otherwise. It goes back into the gift box when put away. The windows are `SHOWN` in `src/yard/decor-shown.js` |
+   | `shown` | `"december"`: shows in the yard and on the desktop from December 1 to January 7, and is hidden with its state kept otherwise, unless its `seasons` show it. It goes back into the gift box when put away. The windows are `SHOWN` in `src/yard/decor-shown.js` |
    | `seasons` | Shows while the yard shows one of these seasons; never in a place without seasons (`seasonalEffects: false`, the studio). The season the yard shows is `yardSeason` in `src/yard/decor-shown.js`. A kind with both `shown` and `seasons` shows when either says so: the Christmas gifts show in December and in any winter yard ([why](../decisions/2026-11-12-scenes-before-dates.md)) |
    | `built` | `true`: never brought by a friend; it comes from building it (the snowman) |
    | `ball` | The drawing a built kind is rolled from |

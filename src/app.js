@@ -266,7 +266,7 @@ setupDecor({
   drawn: () => {
     christmasNightCheck();
     drawTreeOrnaments(shownDecor('xmas_tree')?.button, data.garden);
-    // The decorating view follows the tree: put away, back with Undo, or gone after January 7.
+    // The decorating view follows the tree: put away, back with Undo, or hidden with the yard's season.
     renderDecorating();
     // The dress tray follows its snowman the same way.
     renderDress();

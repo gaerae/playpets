@@ -791,7 +791,7 @@ export const strings = {
   'settings.language_note': 'Changing it reloads the page',
   'settings.autostart': 'Start PlayPets when you log in',
   'settings.autostart_note':
-    'With desktop mode on, only your friends come out on the desktop; the window stays in the tray.',
+    'With desktop mode on, the window stays in the tray and only what you put out comes out on the desktop.',
   'settings.update': 'App updates',
   'settings.update_current': 'This is version {version}',
   'settings.update_store':

@@ -18,7 +18,7 @@ To send every friend at once:
 2. Turn on **Show on desktop**.
 3. If you like, also turn on **Stroll on desktop**, right below it. It works only while something is out on the desktop.
 
-Both switches show their current state, and the menu stays open while you adjust them. Turn off **Show on desktop** and everything on the desktop, friends and gifts, comes back to the yard.
+Both switches show their current state, and the menu stays open while you adjust them. Turn off **Show on desktop** and everything on the desktop, friends, gifts, flowers and trees, comes back to the yard.
 
 - Desktop mode is unavailable when you have no friends.
 - The tray icon's menu has the same items, so you can turn it on and off without opening the yard window.
@@ -44,6 +44,7 @@ Decorate your desk with the gifts from your yard. Right-click a gift in the yard
 - Drag a gift to move it, onto another monitor too. It stays where you leave it.
 - Friends strolling on the desktop walk over to a gift now and then, stand beside it and say something about it.
 - Putting a gift away in the yard takes it off the desktop too. A gift that came before can be set out again from the album ([Gifts](./play.md#gifts)).
+- The snowman and the Christmas gifts are on the desktop only while the yard shows them. The snowman keeps its scarf, hat and nose and the tree its ornaments, and on [Christmas night](./play.md#seasonal-events) the tree grows on the desktop too.
 
 ## Flowers and trees on the desktop <Since v="1.6.1" /> {#flowers-and-trees-on-the-desktop}
 
@@ -94,4 +95,4 @@ Click the tray icon in the menu bar (macOS) or taskbar (Windows, Linux) and choo
   - <kbd>⌘</kbd> <kbd>Q</kbd> on macOS
 - In a small window, the corner button and a right-click on empty scenery lead to Friends & settings.
 
-Conversations aren't saved when you quit, and your friends on the desktop go too. PlayPets remembers each friend's name, personality and size for next time, and which friends and gifts were out on the desktop.
+Conversations aren't saved when you quit, and your friends on the desktop go too. PlayPets remembers each friend's name, personality and size for next time, and which friends, gifts, flowers and trees were out on the desktop.

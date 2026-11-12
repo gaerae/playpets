@@ -785,7 +785,8 @@ export const strings = {
   'settings.language': '言語',
   'settings.language_note': '変えると画面を読み込み直します',
   'settings.autostart': 'ログインしたらPlayPetsも起動する',
-  'settings.autostart_note': 'デスクトップモードがオンなら、ウィンドウは開かず友だちだけがデスクトップに出てきます。',
+  'settings.autostart_note':
+    'デスクトップモードがオンなら、ウィンドウは開かず、デスクトップに出しておいたものだけが出てきます。',
   'settings.update': 'アプリのアップデート',
   'settings.update_current': '現在のバージョン {version}',
   'settings.update_store':

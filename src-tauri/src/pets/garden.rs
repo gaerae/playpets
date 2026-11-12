@@ -6,8 +6,8 @@
 //! limit, and which gift comes next, is kept here. Growth is not stored: a plant's stage follows
 //! from when it was planted (src/yard/garden.js). What can grow and what friends bring are the
 //! catalogue's (content.rs).
-//! In December what the album found hangs on the Christmas tree, three a day on its twelve hooks;
-//! each December's first hang takes last year's down, so every December starts a fresh tree.
+//! What the album found hangs on the Christmas tree whenever it is out, three a day on its twelve
+//! hooks; each December's first hang takes last year's down, so every December starts a fresh tree.
 //! Design: docs/design/2026-10-09-a-yard-that-grows.md, docs/design/2026-10-29-gifts-from-friends.md.
 use super::album::Album;
 use super::content::catalog;

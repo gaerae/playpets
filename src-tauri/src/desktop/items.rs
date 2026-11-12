@@ -318,7 +318,7 @@ mod tests {
         assert!(!anything_out(&pets, &garden, None));
         assert!(anything_out(&pets, &garden, Some(&[])));
         // The switch sends the friends out, then brings them in, and the tree keeps its place for
-        // next December.
+        // when the yard shows it again.
         assert!(flip(&mut pets, &mut garden, Some(&hidden)));
         assert!(pets.iter().all(|p| p.on_desktop) && tree_out(&garden));
         assert!(!flip(&mut pets, &mut garden, Some(&hidden)));

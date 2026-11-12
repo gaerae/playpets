@@ -764,7 +764,7 @@ export const strings = {
   'settings.language': '언어',
   'settings.language_note': '바꾸면 화면을 다시 불러와요',
   'settings.autostart': '컴퓨터를 켜면 PlayPets도 시작해요',
-  'settings.autostart_note': '바탕화면 모드가 켜져 있으면 창은 띄우지 않고 친구들만 바탕화면에 나와요.',
+  'settings.autostart_note': '바탕화면 모드가 켜져 있으면 창은 띄우지 않고, 바탕화면에 꺼내 둔 것만 나와요.',
   'settings.update': '앱 업데이트',
   'settings.update_current': '지금 버전 {version}',
   'settings.update_store': 'Microsoft Store에서 업데이트해요. 새 버전이 Store에 나오면 여기와 마당에서 알려 드려요.',

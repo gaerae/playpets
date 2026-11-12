@@ -753,7 +753,7 @@ export const strings = {
   'settings.language': '语言',
   'settings.language_note': '更改后会重新载入界面',
   'settings.autostart': '登录时启动 PlayPets',
-  'settings.autostart_note': '桌面模式开着时，不打开窗口，只有伙伴们出现在桌面上。',
+  'settings.autostart_note': '桌面模式开着时，不打开窗口，只有放到桌面上的伙伴和东西会出现。',
   'settings.update': '应用更新',
   'settings.update_current': '当前版本 {version}',
   'settings.update_store': '更新由 Microsoft Store 安装。Store 中有新版本时，会在这里和乐园里提醒你。',

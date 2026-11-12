@@ -20,10 +20,12 @@ struct Kind {
     /// What a built gift can wear, in the order it is drawn (the snowman's scarf, nose and hat).
     #[serde(default)]
     dress: Vec<DressPart>,
-    /// A gift drawn only during part of the year ("december"); it waits in the box the rest of it.
+    /// A gift drawn during part of the year ("december"), and also in its `seasons` when it has
+    /// them; put away, it waits in the box.
     #[serde(default)]
     shown: Option<String>,
-    /// A gift drawn only while the yard shows one of these seasons (only gift methods read it).
+    /// A gift drawn while the yard shows one of these seasons; with `shown`, either one is enough
+    /// (only gift methods read it).
     #[serde(default)]
     seasons: Vec<String>,
     #[serde(default = "one")]
