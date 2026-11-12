@@ -592,7 +592,9 @@ pub fn bridge_js() -> String {
     )
 }
 
-/// Set by the e2e harness: the scenario to run in the page, which reports through `e2eLog`.
+/// Set by the e2e harness: the path of the scenario script to run in the page, which reports
+/// through `e2eLog`. A file, not the script itself: Linux caps one environment variable at
+/// 128 KiB, and the scenario outgrew it.
 pub const E2E_ENV: &str = "PLAYPETS_E2E_EVAL";
 /// Whether this run is an e2e run: a build with the `e2e` feature, started with the scenario.
 pub fn e2e_mode() -> bool {

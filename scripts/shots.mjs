@@ -1,6 +1,6 @@
 // Takes the website's screenshots from the real app: pnpm run shots 0.2.0   (macOS only)
 // For each language the release binary starts with an isolated data folder, the four starter pets and a
-// fake AI server, then a scenario (PLAYPETS_E2E_EVAL, as in tests/e2e.mjs) walks it through the
+// fake AI server, then a scenario (the file PLAYPETS_E2E_EVAL names, as in tests/e2e.mjs) walks it through the
 // states below and reports each one with the window's frame; this script captures that frame with
 // `screencapture`. The site's languages land in website/public/shots/<version>/<lang>/<name>.webp (2x on
 // Retina); every app language also gets the store pictures under release/store/<lang>/.
@@ -690,6 +690,9 @@ async function run(lang, dataDir, codexHome, outDir, code) {
   // The backdrop fills the screen, so every margin and the window's rounded corners show it and
   // nothing else. Chrome wants the real size: a larger request falls back to a default window.
   await backdrop({ x: 0, y: 0, ...screenSize() });
+  // The app reads the scenario from a file (an environment variable is capped at 128 KiB on Linux).
+  const scenarioFile = path.join(dataDir, 'scenario.js');
+  await writeFile(scenarioFile, code);
   return new Promise(resolve => {
     // The film's take: one recording of the window, and when each marked part began in it.
     const film = { recorder: undefined, started: 0, marks: [], dir: path.join(root, 'release/reel', lang) };
@@ -699,7 +702,7 @@ async function run(lang, dataDir, codexHome, outDir, code) {
         PLAYPETS_DATA: dataDir,
         CODEX_HOME: codexHome,
         PLAYPETS_LANG: lang,
-        PLAYPETS_E2E_EVAL: code,
+        PLAYPETS_E2E_EVAL: scenarioFile,
       },
     });
     let outcome = 'TIMEOUT';

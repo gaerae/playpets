@@ -1,5 +1,5 @@
 // PlayPets Tauri E2E: launches the release binary with an isolated data dir,
-// drives the real UI bridge via PLAYPETS_E2E_EVAL, reads results from the
+// drives the real UI bridge with the scenario in the file PLAYPETS_E2E_EVAL names, reads results from the
 // [e2e] stdout channel. A fake ollama server covers the HTTP chat path.
 // Run: pnpm run test:e2e   (repo root)
 
@@ -1390,6 +1390,9 @@ try {
   console.error(`The e2e scenario does not parse: ${error.message}`);
   process.exit(1);
 }
+// A file, not the variable itself: Linux caps one environment variable at 128 KiB.
+const scenarioFile = path.join(dataDir, 'scenario.js');
+await writeFile(scenarioFile, scenario);
 const child = spawn(binary, [], {
   env: {
     ...process.env,
@@ -1397,7 +1400,7 @@ const child = spawn(binary, [], {
     CODEX_HOME: codexHome,
     PLAYPETS_E2E_HOME: agentHome,
     PLAYPETS_LANG: 'ko',
-    PLAYPETS_E2E_EVAL: scenario,
+    PLAYPETS_E2E_EVAL: scenarioFile,
   },
 });
 const lines = [];

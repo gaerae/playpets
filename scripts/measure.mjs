@@ -80,8 +80,17 @@ function snapshot() {
 }
 const WEBKIT = /com\.apple\.WebKit\.(WebContent|GPU)|WebKit(Web|GPU)Process/;
 const before = snapshot();
+// The app reads the scenario from a file (an environment variable is capped at 128 KiB on Linux).
+const scenarioFile = path.join(data, 'scenario.js');
+await writeFile(scenarioFile, scenario);
 const child = spawn(binary, [], {
-  env: { ...process.env, PLAYPETS_DATA: data, CODEX_HOME: codexHome, PLAYPETS_LANG: 'en', PLAYPETS_E2E_EVAL: scenario },
+  env: {
+    ...process.env,
+    PLAYPETS_DATA: data,
+    CODEX_HOME: codexHome,
+    PLAYPETS_LANG: 'en',
+    PLAYPETS_E2E_EVAL: scenarioFile,
+  },
   stdio: ['ignore', 'pipe', 'inherit'],
 });
 const ours = snap => [...snap].filter(([pid, p]) => pid === child.pid || (!before.has(pid) && WEBKIT.test(p.cmd)));

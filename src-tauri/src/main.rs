@@ -115,8 +115,13 @@ fn main() {
                     }
                 }
             }
-            // The e2e scenario is handed over as a script and runs once the page has had time to load.
-            if let Some(scenario) = commands::e2e_mode().then(|| std::env::var(commands::E2E_ENV).ok()).flatten() {
+            // The e2e scenario is a script in the file the harness names (commands::E2E_ENV), run once
+            // the page has had time to load. An empty name (a CLI check) runs nothing.
+            let scenario = commands::e2e_mode()
+                .then(|| std::env::var_os(commands::E2E_ENV))
+                .flatten()
+                .and_then(|path| std::fs::read_to_string(path).ok());
+            if let Some(scenario) = scenario {
                 let page = win.clone();
                 std::thread::spawn(move || {
                     std::thread::sleep(std::time::Duration::from_secs(3));
