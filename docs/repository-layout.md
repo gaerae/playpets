@@ -121,7 +121,6 @@ Ignore rules:
 - `.gitignore` controls untracked local files.
 - `.dockerignore` repeats every entry for the container builds, in patterns Docker and rsync read alike: `/name` at the top, `**/name` anywhere, no `!`.
 - `tests/repository-config.test.mjs` fails when an entry is missing there.
-- Root-scoped caches and test reports stay local: `.npm/`, `.cache/`, `coverage/`, `.nyc_output/`, `test-results/` and `playwright-report/`.
 - Isolated app data: `.dev-data/` or `.dev-data-<scenario>/`.
 - Temporary artwork and audit output: `scratch/`.
 - These paths are conventions for optional tools, not dependencies the app requires.
@@ -131,7 +130,7 @@ Secrets:
 - `.credentials/` is also ignored, as a backstop against accidental local staging.
 - Git cannot recognize every secret by name.
 - If configuration later needs a secret, track only a root `.env.example` that holds placeholders.
-- Public `.key.pub` files and sanitized `tests/fixtures/**/*.log` stay visible.
+- Public `.key.pub` files stay visible.
 - Don't add blanket ignores for JSON, archives, `generated` folders or all hidden files. They can hide manifests, reusable sources and regression fixtures.
 
 Attributes:

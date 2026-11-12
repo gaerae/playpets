@@ -44,6 +44,8 @@ test('the landing lets visitors play a chat and a coding session instead of look
     assert.equal(sections.heroFacts.length, 3, lang);
     for (const key of ['togetherTitle', 'togetherBody', 'workTitle', 'workBody', 'workNote', 'heroAgents'])
       assert.ok(sections[key]?.length, `${lang}: ${key}`);
+    // Which tool reports what is a short list, not one long sentence.
+    assert.equal(sections.workReports.length, 3, `${lang}: workReports`);
   }
 });
 
@@ -84,6 +86,42 @@ test('the first title and the search result say friends come with the app, not o
       assert.ok(four >= 0 && four < text.indexOf('Codex'), `${lang}: ${what}`);
     }
   }
+});
+
+// People search in their own script: the landing names the app as it is said there, once, where a
+// search engine reads it, and uses the words Steam files this kind of app under (its real tags).
+test('each landing says the app’s name in its own script and the kind of app it is', async () => {
+  const config = read('website/.vitepress/config.mts');
+  const descriptions = [...config.matchAll(/^ {6}description:\s*'([^']+)'/gm)].map(([, d]) => d);
+  const { STEAM_TAGS } = await import('../scripts/site-content.mjs');
+  assert.deepEqual(STEAM_TAGS.slice(0, 2), ['Desktop Companion', 'Idler']);
+  assert.ok(!STEAM_TAGS.includes('Desktop Pet'), 'not a Steam tag');
+  for (const [i, lang] of ['en', 'ko', 'ja', 'zh-hans'].entries()) {
+    const { copy, sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    const page = read(`website/${lang === 'en' ? '' : `${lang}/`}index.md`);
+    const template = page.match(/^titleTemplate: (.+)$/m)[1];
+    if (lang === 'ko' || lang === 'ja') {
+      assert.ok(copy.nativeName?.length, lang);
+      for (const [what, text] of [
+        ['eyebrow', copy.eyebrow],
+        ['titleTemplate', template],
+        ['description', descriptions[i]],
+      ])
+        assert.equal(text.split(copy.nativeName).length, 2, `${lang}: ${what} names it once`);
+    } else assert.equal(copy.nativeName, '', `${lang}: no name of its own`);
+    // Chinese has no settled name for it, so the words people search with carry it.
+    if (lang === 'zh-hans') for (const text of [template, descriptions[i]]) assert.match(text, /桌面宠物/);
+    // Steam's own names for the genre in this language: Desktop Companion, then Idler. The
+    // description and the keywords carry both; one line a person reads says the first.
+    assert.equal(copy.steamTags.length, 2, lang);
+    for (const tag of copy.steamTags) {
+      assert.ok(descriptions[i].includes(tag), `${lang}: description says ${tag}`);
+      assert.ok(copy.keywords.includes(tag), `${lang}: keywords say ${tag}`);
+    }
+    assert.ok(sections.moments.kind.includes(copy.steamTags[0]), `${lang}: moments kind`);
+  }
+  const landing = read('website/.vitepress/theme/Landing.vue');
+  assert.match(landing, /t\.moments\.kind/);
 });
 
 test("the top of the landing sets a Codex pet's features beside PlayPets', in every language", async () => {
@@ -205,7 +243,7 @@ test('the landing offers four places, outdoor seasons and an explicitly labelled
     ['en', 'ko', 'ja', 'zh-hans'].map(lang => import(`../website/.vitepress/theme/landing-${lang}.ts`)),
   );
   for (const { worldCopy } of locales) {
-    assert.equal(worldCopy.places.length, 4);
+    assert.equal(worldCopy.places.length, 4, 'one name for each place the preview shows');
     assert.equal(worldCopy.seasons.length, 4);
     assert.ok(
       worldCopy.previewNote && worldCopy.greet && worldCopy.seasonLabel && worldCopy.viewLabel && worldCopy.desktopNote,
@@ -214,15 +252,22 @@ test('the landing offers four places, outdoor seasons and an explicitly labelled
     assert.equal(worldCopy.views.length, 2);
     assert.deepEqual(Object.keys(worldCopy.greetings).sort(), ['clover', 'daisy', 'miso', 'pip']);
   }
+  const { PREVIEW_PLACES } = await import('../scripts/site-content.mjs');
+  // Each place the preview shows is a shipped one with its pictures; the garden workshop has one
+  // picture and no season, so the season choices stay in place but cannot be pressed.
+  const shipped = JSON.parse(read('src/content/worlds.json'));
+  assert.deepEqual(PREVIEW_PLACES.map(p => p.id).sort(), shipped.map(w => w.id).sort());
+  for (const shown of PREVIEW_PLACES) {
+    const world = shipped.find(w => w.id === shown.id);
+    assert.equal(!!shown.still, world.capabilities.seasonalEffects === false, `${shown.id}: one picture indoors`);
+    const files = shown.still ? [shown.still] : ['spring', 'green', 'autumn', 'winter'].map(s => shown.seasons + s);
+    for (const file of files) assert.ok(existsSync(`src/art/environments/${file}.webp`), file);
+  }
   const preview = read('website/.vitepress/theme/WorldPreview.vue');
   assert.match(preview, /:aria-pressed=/);
-  // The garden workshop has one picture and no season, so the season choices stay in place but
-  // cannot be pressed.
-  assert.match(preview, /place\.value === 3 \? 'workshop' : null/);
-  assert.match(preview, /:disabled="place >= 3"/);
+  assert.match(preview, /:disabled="seasonless"/);
   // The desktop has neither, so its row says why instead of showing dead chips.
   assert.match(preview, /v-if="loose" class="dock-row"><p class="dock-note">\{\{ words.desktopNote \}\}/);
-  assert.doesNotMatch(preview, /v-if="place !== 3"/);
   assert.match(preview, /IntersectionObserver/);
   assert.match(preview, /observer\?\.disconnect/);
   assert.match(preview, /clearTimeout\(greetingTimer\)/);
@@ -469,6 +514,18 @@ test('the moving scenes wait until they are seen and stop for paused or reduced 
   assert.match(preview, /strollTimer/);
 });
 
+// The app string keys a recipe's chips are named with (SceneChips.vue).
+const chipKeys = tokens =>
+  tokens.flatMap(token => {
+    const [type, value] = token.split(':');
+    const values = value.split(/[|>]/);
+    if (type === 'season') return values.map(v => `catch.season_${v}`);
+    if (type === 'period' || type === 'weather' || type === 'change')
+      return values.map(v => `${type === 'period' ? 'period' : 'weather'}.${v}`);
+    if (type === 'gift') return [`decor.kind_${value}`];
+    return ['controls.play', value];
+  });
+
 // A visitor sees everything there is to collect and every time of year the yard changes, and how
 // to take part in each, not only the games.
 test('the landing shows every album book and every seasonal event with how to enjoy it, in every language', async () => {
@@ -512,13 +569,40 @@ test('the landing shows every album book and every seasonal event with how to en
   assert.equal(letterTime(day(letter.from)), 'write');
   assert.equal(letterTime(day(letter.to)), 'write');
   assert.equal(letterTime(new Date(day(letter.from).getTime() - 864e5)), null);
+  // Each card is a recipe: the conditions as chips named by the app's own words, and what happens
+  // in one short line. Christmas night's chips are the scene christmas-night.js waits for.
+  const recipe = id => shown.find(item => item.id === id).recipes;
+  const [grows, sleigh] = recipe('christmas');
+  for (const token of ['season:winter', 'period:evening|night', 'weather:snow', 'gift:xmas_tree'])
+    assert.ok(grows.when.includes(token), `christmas: ${token}`);
+  assert.equal(sleigh.gives, 'sleigh');
+  for (const token of ['gift:baby_reindeer', 'gift:santa', 'period:night'])
+    assert.ok(sleigh.when.includes(token), `sleigh: ${token}`);
+  const gives = new Set(shown.flatMap(item => (item.recipes ?? [{}]).map(r => r.gives ?? item.id)));
+  const tokens = shown.flatMap(item => (item.recipes ?? []).flatMap(r => r.when));
+  for (const token of tokens) {
+    const [type, value] = token.split(':');
+    assert.ok(['season', 'period', 'weather', 'change', 'gift', 'play'].includes(type), token);
+    if (type === 'gift')
+      assert.ok(
+        catalog.gifts.some(kind => kind.id === value),
+        token,
+      );
+  }
   for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
     const { sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    const { strings } = await import(`../src/core/strings/${lang}.js`);
     for (const book of ALBUM_BOOKS) assert.ok(sections.album.books[book]?.length > 20, `${lang}: ${book}`);
-    for (const item of shown) assert.ok(sections.year.items[item.id]?.length > 20, `${lang}: ${item.id}`);
-    for (const key of ['title', 'lead', 'link']) assert.ok(sections.album[key]?.length, `${lang}: album ${key}`);
+    // One short line each: a card is read at a glance, the guide holds the rest.
+    for (const id of gives) {
+      const line = sections.year.gives[id];
+      assert.ok(line?.length > 8 && line.length <= (lang === 'en' ? 110 : 60), `${lang}: ${id}`);
+    }
+    for (const key of chipKeys(tokens)) assert.ok(strings[key], `${lang}: ${key}`);
     for (const key of ['title', 'lead', 'south', 'link', 'letter', 'christmas'])
       assert.ok(sections.year[key]?.length, `${lang}: year ${key}`);
+    for (const key of ['title', 'lead', 'link']) assert.ok(sections.album[key]?.length, `${lang}: album ${key}`);
+    for (const key of ['when', 'or', 'also']) assert.ok(sections.recipe[key]?.length, `${lang}: recipe ${key}`);
   }
   const landing = read('website/.vitepress/theme/Landing.vue');
   assert.match(landing, /ALBUM_BOOKS/);
@@ -530,11 +614,29 @@ test('the landing shows the weather’s moments and every closeness level, in ev
   const { strings } = await import('../src/core/strings/en.js');
   const levels = Object.keys(strings).filter(key => /^bond\.level_\d$/.test(key)).length;
   assert.ok(levels >= 5);
+  // The moments' chips come from the app's own rows, so the landing cannot drift from them.
+  const { MOMENTS } = await import('../src/yard/sky-moments.js');
+  const { SKY_SCENES } = await import('../scripts/site-content.mjs');
+  assert.deepEqual(
+    SKY_SCENES.map(m => m.id),
+    [...MOMENTS.map(m => m.id), 'flock'],
+  );
+  for (const moment of MOMENTS)
+    assert.equal(
+      SKY_SCENES.find(m => m.id === moment.id),
+      moment,
+      moment.id,
+    );
   for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
     const { sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
     const { moments } = sections;
-    assert.equal(moments.items.length, 6, `${lang}: weather moments`);
-    for (const [title, body] of moments.items) assert.ok(title.length && body.length > 8, `${lang}: ${title}`);
+    assert.deepEqual(
+      Object.keys(moments.items),
+      SKY_SCENES.map(m => m.id),
+      `${lang}: weather moments`,
+    );
+    for (const [title, line] of Object.values(moments.items))
+      assert.ok(title.length && line.length > 8 && line.length <= (lang === 'en' ? 100 : 50), `${lang}: ${title}`);
     // One line per level the app has, read beside the app's own level name.
     assert.equal(moments.levels.length, levels, `${lang}: closeness levels`);
     for (const key of ['title', 'lead', 'closenessTitle', 'closenessLead', 'secret', 'link', 'weatherLink'])
@@ -544,6 +646,7 @@ test('the landing shows the weather’s moments and every closeness level, in ev
       assert.match(guide, new RegExp(`\\{#${anchor}\\}`), `${lang}: #${anchor}`);
   }
   const landing = read('website/.vitepress/theme/Landing.vue');
+  assert.match(landing, /<SceneChips[^>]*:when="sceneWhen\(scene\)"/);
   assert.match(landing, /bond\.level_\$\{level \+ 1\}/);
   assert.ok(landing.indexOf('<YearStory') < landing.indexOf('class="moments-story"'));
 });

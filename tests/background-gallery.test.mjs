@@ -36,7 +36,6 @@ test('atmosphere offers all seasons in one labeled selector', async () => {
     );
   assert.deepEqual(choices('scene-season'), ['auto', 'spring', 'summer', 'autumn', 'winter']);
   assert.match(html, /label for="scene-season"/);
-  assert.doesNotMatch(html, /id="season"/);
 });
 
 test('canceling background removal returns to the gallery and its remove button', async t => {

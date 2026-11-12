@@ -18,5 +18,20 @@ export function shuffle(list, rng = Math.random) {
   }
   return out;
 }
-/** A share of a layer (0 to 1) as the percentage a style takes, to a tenth: `0.29` is `29%`. */
-export const percent = share => `${+(share * 100).toFixed(1)}%`;
+/** A share of a layer (0 to 1) as the percentage a style takes, to a tenth (or `places`): `0.29` is `29%`. */
+export const percent = (share, places = 1) => `${+(share * 100).toFixed(places)}%`;
+
+/** Chance from a seed: the same seed gives the same numbers (mulberry32). */
+export function seeded(seed) {
+  let s = seed >>> 0;
+  return () => {
+    s = (s + 0x6d2b79f5) >>> 0;
+    let t = s;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** How far apart two points are. */
+export const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);

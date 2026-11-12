@@ -4,7 +4,7 @@
 
 - PlayPets는 펫 친구들이 바탕화면에 사는 무료 오픈소스 데스크톱 펫 앱이에요. 기본 친구 넷이 함께 오고, 갖고 있는 Codex 펫도 데려올 수 있어요. 한 번에 12명까지 함께 지내요. macOS, Windows, Linux에서 써요.
 - 펫들은 한 놀이터에서 지내고, 바탕화면으로 나올 수도 있어요. ChatGPT 데스크톱 앱은 고른 펫 하나만 보여 줘요([OpenAI 안내](https://learn.chatgpt.com/docs/pets), 2026년 10월 기준).
-- 연결한 AI로 나와 이야기하고 친구끼리도 수다를 떨어요. Claude Code, Codex, Gemini CLI, Cursor가 일할 때 반응해요.
+- 연결한 AI로 나와 이야기하고 친구끼리도 수다를 떨어요. Claude Code, Codex, Gemini CLI, Cursor, Grok Build, Qoder, Kimi Code가 일할 때 반응해요.
 
 ## Codex 펫도 쓸 수 있나요?
 
@@ -16,12 +16,13 @@
 ## 돈이 드나요?
 
 - 앱은 무료고, MIT 라이선스의 오픈소스예요.
-- 구독으로 로그인한 Claude Code나 Codex CLI는 별도 API 결제 없이 플랜 한도를 써요.
-  - 사용 한도가 적용돼요.
-  - 선택해서 구매하는 크레딧에는 비용이 들 수 있어요.
-- 로컬 Ollama 모델은 내 컴퓨터에서 돌아가고 서버 추론 요금이 없어요.
-- API 키 연결, 호환 서버, Ollama 클라우드 모델은 제공 업체의 요금 정책을 따라요.
-- 자세한 내용: [AI 연결 종류](./chat.md#connections)
+- 대화에 드는 비용은 연결한 AI에 따라 달라요([AI 연결 종류](./chat.md#connections)).
+
+| 연결 | 비용 |
+|---|---|
+| 구독으로 로그인한 Claude Code나 Codex CLI | 별도 API 결제 없이 플랜 한도를 써요. 플랜의 사용 한도와 따로 사는 크레딧 비용은 그대로 적용돼요 |
+| 로컬 Ollama 모델 | 내 컴퓨터에서 돌아가서 서버 추론 요금이 없어요 |
+| API 키 연결, 호환 서버, Ollama 클라우드 모델 | 제공 업체의 요금 정책을 따라요 |
 
 ## 인터넷 없이 되나요?
 

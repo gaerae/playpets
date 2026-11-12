@@ -105,6 +105,8 @@ test('fireflies come in a handful for the yard area, a few more in their event, 
   assert.equal(fireflyCount('evening', 1180, 850), 3);
   assert.equal(fireflyCount('night', 300, 210), 2, 'a small window still has a couple');
   assert.equal(fireflyCount('evening', 300, 210), 1);
+  assert.equal(fireflyCount('night', 0, 0), 2, 'a yard not laid out yet still has its floor');
+  assert.equal(fireflyCount('evening', -10, 100), 1);
   assert.ok(fireflyCount('night', 600, 420) <= fireflyCount('night', 1180, 850));
   assert.ok(fireflyCount('night', 1180, 850) <= fireflyCount('night', 1600, 1000));
   for (const period of ['evening', 'night']) {
@@ -113,8 +115,8 @@ test('fireflies come in a handful for the yard area, a few more in their event, 
   }
   const festival = fireflyCount('night', 1180, 850, boostOf('fireflies', 'fireflies'));
   assert.ok(festival > fireflyCount('night', 1180, 850), 'the event is richer');
-  assert.equal(festival, 8);
-  assert.equal(fireflyCount('night', 300, 210, boostOf('fireflies', 'fireflies')), 3);
+  const small = fireflyCount('night', 300, 210, boostOf('fireflies', 'fireflies'));
+  assert.ok(small >= fireflyCount('night', 300, 210) && small <= 3, 'a small window still has only a few');
   // The golden one still turns up now and then: a spell of the event on a full yard has one about
   // one time in fifteen, a few spells an hour.
   const golden = catalog

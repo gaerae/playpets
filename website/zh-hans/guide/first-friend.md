@@ -17,7 +17,15 @@ description: 在邀请伙伴里选一只宠物让它成为伙伴，然后在乐�
 
 这四位也可以单独下载。在[首页](../index.md#companions)的伙伴介绍里下载 `playpets-<名字>.zip`，里面带着各季服装。在 PlayPets 里按 [ZIP 文件](./import.md#zip-文件)导入；解压到 Codex 宠物文件夹（`~/.codex/pets`，Windows 为 `%USERPROFILE%\.codex\pets`），在 ChatGPT 和 Codex 里也能陪着你。
 
-从旧版本升级的话，之前的内置伙伴会保留已保存的名字、设置和亲密度，只换外观：Aria 换成 Daisy，Noah 换成 Pip，原来的猫咪换成 Clover。自己导入的宠物不变。对话只在本次运行中保留，重启后不会恢复。
+正式的伙伴是 Daisy、Clover、Pip 和 Miso。旧版本里的内置伙伴会保留已保存的 ID、名字、设置和亲密度，只把外观换成这几位：
+
+| 之前的伙伴 | 现在的样子 |
+|---|---|
+| Aria | Daisy |
+| Noah | Pip |
+| 原来的猫咪 | Clover |
+
+自己导入的宠物不变。对话只在本次运行中保留，重启后不会恢复。
 
 Daisy、Clover、Pip 和 Miso 会跟着设置里选的季节自动换衣服，乐园和桌面模式里都一样；选自动时跟随本地日历。夏天穿轻便的夏装，冬天穿温暖的冬装，春秋共用一套日常叠穿。面容、配饰和动作都不变，换了衣服也认得出来。
 

@@ -12,12 +12,7 @@
 /scratch
 /.dev-data
 /.dev-data-*
-/.npm
-/.cache
-/coverage
-/.nyc_output
-/test-results
-/playwright-report
+**/*.log
 /.claude
 **/.idea
 **/.vscode

@@ -1,23 +1,11 @@
 import { worldAllows, worldFor } from './worlds.js';
 
 const DAYLIGHT = { filter: 'none', tint: null };
-const AUTHORED_LIGHT = {
-  morning: { filter: 'brightness(0.98)', tint: '#ffe3b811' },
-  day: DAYLIGHT,
-  evening: { filter: 'brightness(0.9) saturate(0.95)', tint: '#eeb47222' },
-  night: { filter: 'brightness(0.82) saturate(0.9)', tint: '#eeb47222' },
-};
 const OUTDOOR_LIGHT = {
   morning: { filter: 'brightness(0.95) saturate(0.9)', tint: '#ffd6a52b' },
   day: DAYLIGHT,
   evening: { filter: 'brightness(0.78) saturate(0.85)', tint: '#eaa27845' },
   night: { filter: 'saturate(0.65)', tint: '#132c58b8' },
-};
-const WINDOW_LIGHT = {
-  morning: OUTDOOR_LIGHT.morning,
-  day: DAYLIGHT,
-  evening: { filter: 'brightness(0.7) saturate(0.85)', tint: '#eaa27845' },
-  night: { filter: 'brightness(0.45) saturate(0.65)', tint: '#132c5888' },
 };
 
 // Raster land shares the live sky's time and weather. Loading stays inside easel setup.
@@ -39,13 +27,6 @@ export function environmentLook({ season, weather, period, world }) {
               : null,
     };
   }
-  if (place.art) {
-    const light = AUTHORED_LIGHT[period] || DAYLIGHT;
-    return {
-      art: place.art[period] || place.art[period === 'night' ? 'night' : 'day'],
-      ...(place.authoredLighting ? { filter: 'none', tint: null } : light),
-    };
-  }
   const art =
     season === 'winter' ? 'winter' : season === 'autumn' ? 'autumn' : season === 'spring' ? 'spring' : 'green';
   const light = OUTDOOR_LIGHT[period] || DAYLIGHT;
@@ -57,16 +38,6 @@ export function environmentLook({ season, weather, period, world }) {
         : light.filter,
     tint: light.tint || (weather === 'rain' ? '#526d8555' : null),
   };
-}
-
-/** Seasonal outdoor views are independently lit and clipped to a room's glass. */
-export function environmentWindowLook(scene) {
-  const place = worldFor(scene.world);
-  const season = scene.season;
-  const art = place.windowArt?.[season];
-  if (!art) return null;
-  const light = WINDOW_LIGHT[scene.period] || DAYLIGHT;
-  return { art, ...light };
 }
 
 /** Keeps the source's proportions while aligning its walkable floor with the yard's. */
@@ -94,7 +65,7 @@ export function weatherPanes(w, h, frame, panes) {
 }
 
 /** Paints a loaded transparent land layer without touching the sky behind it. */
-export function paintEnvironment(ctx, image, w, h, scene, windowImage = null) {
+export function paintEnvironment(ctx, image, w, h, scene) {
   const { filter, tint } = environmentLook(scene);
   ctx.save();
   ctx.filter = filter;
@@ -108,21 +79,6 @@ export function paintEnvironment(ctx, image, w, h, scene, windowImage = null) {
   }
   ctx.restore();
   const panes = weatherPanes(w, h, frame, worldFor(scene.world).windowPanes);
-  const windowLook = environmentWindowLook(scene);
-  if (windowImage && windowLook && panes?.length) {
-    ctx.save();
-    ctx.beginPath();
-    for (const pane of panes) ctx.rect(pane.x, pane.y, pane.width, pane.height);
-    ctx.clip();
-    ctx.filter = windowLook.filter;
-    ctx.drawImage(windowImage, frame.x, frame.y, frame.width, frame.height);
-    ctx.filter = 'none';
-    if (windowLook.tint) {
-      ctx.fillStyle = windowLook.tint;
-      ctx.fillRect(0, 0, w, h);
-    }
-    ctx.restore();
-  }
   // A painted window gets the weather's grey; glass over the yard's own sky shows that sky's.
   if (
     panes?.length &&

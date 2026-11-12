@@ -104,15 +104,15 @@ mod tests {
     #[test]
     fn a_friend_belongs_to_the_monitor_it_stands_on() {
         // Two 1920×1080 monitors side by side: a friend set down on the right part of the left
-        // one stays there (the old rule measured to each monitor's top-left corner and moved it).
+        // one stays there, though it is nearer the right one's top-left corner.
         let twins = [
             mon("0", 0.0, 0.0, 1920.0, 1080.0, 1.0),
             mon("1", 1920.0, 0.0, 1920.0, 1080.0, 1.0),
         ];
         assert_eq!(monitor_for(&twins, 1500.0, 800.0).map(|m| m.id.as_str()), Some("0"));
         assert_eq!(monitor_for(&twins, 2000.0, 100.0).map(|m| m.id.as_str()), Some("1"));
-        // A wide monitor beside a small one: near the shared edge, still the wide one
-        // (the old layout rule picked the monitor whose centre was closer).
+        // A wide monitor beside a small one: near the shared edge, still the wide one, though the
+        // small one's centre is closer.
         let mixed = [
             mon("0", 0.0, 0.0, 2560.0, 1440.0, 1.0),
             mon("1", 2560.0, 0.0, 1280.0, 1024.0, 1.0),

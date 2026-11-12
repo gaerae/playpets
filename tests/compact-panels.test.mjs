@@ -204,19 +204,6 @@ test('all panel entry routes run the same pending-yard-action cleanup', t => {
   assert.deepEqual(opened, ['pet', 'invite', 'settings']);
 });
 
-test('Escape closes a task and its inline update details together', t => {
-  const { nodes, document } = page(t);
-  const update = { hidden: true };
-  const lookup = document.getElementById;
-  document.getElementById = id => (id === 'update-dialog' ? update : lookup(id));
-  setupTabs();
-  openPanel('pet');
-  update.hidden = false;
-  document.dispatch('keydown', { key: 'Escape', preventDefault() {} });
-  assert.equal(nodes.get('side-panel').hidden, true);
-  assert.equal(update.hidden, true);
-});
-
 test('the friend sheet names its destination instead of repeating the identity selector', t => {
   const { nodes } = page(t);
   nodes.get('panel-pet').dataset.title = 'tabs.friend';

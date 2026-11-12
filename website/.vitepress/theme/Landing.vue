@@ -17,11 +17,12 @@ import * as ko from './landing-ko';
 import * as zh from './landing-zh-hans';
 import PetGallery from './PetGallery.vue';
 import PlayReel from './PlayReel.vue';
+import SceneChips from './SceneChips.vue';
 import VisibleSprite from './VisibleSprite.vue';
 import WorldPreview from './WorldPreview.vue';
 import YearStory from './YearStory.vue';
 import './landing.css';
-import { LANDING_PETS, localePath } from '../../../scripts/site-content.mjs';
+import { LANDING_PETS, localePath, SKY_SCENES } from '../../../scripts/site-content.mjs';
 import { useWords } from './words';
 
 const { lang } = useWords();
@@ -39,6 +40,13 @@ const albumCount = ALBUM_BOOKS.reduce((n, book) => n + catalog[book].length, 0);
 const counted = (text: string) => text.replace('{count}', String(albumCount));
 // Product names, the same in every language; the guide lists what each one reports.
 const AGENT_TOOLS = AGENT_DEMOS.map(demo => demo.name);
+// A sky scene's row (sky-moments.js) as the chips SceneChips names: the season, the weather or its
+// turn, and the times of day it comes at.
+const sceneWhen = (scene: { before?: string; weather: string; periods: string[]; seasons?: string[] }) => [
+  ...(scene.seasons ?? []).map(season => `season:${season}`),
+  scene.before ? `change:${scene.before}>${scene.weather}` : `weather:${scene.weather}`,
+  `period:${scene.periods.join('|')}`,
+];
 </script>
 <template>
   <main class="landing" :class="{ 'no-motion': paused }">
@@ -84,14 +92,14 @@ const AGENT_TOOLS = AGENT_DEMOS.map(demo => demo.name);
     </section>
     <section class="seasons-story" id="seasons">
       <header><h2>{{ t.year.title }}</h2><p class="section-lead">{{ t.year.lead }}</p></header>
-      <YearStory :lang="lang" :seasons="t.seasons" :copy="t.year" />
+      <YearStory :lang="lang" :seasons="t.seasons" :copy="t.year" :recipe="t.recipe" />
       <p class="year-south">{{ t.year.south }}</p>
       <p class="play-more"><a class="more" :href="path('/guide/play#seasonal-events')">{{ t.year.link }} →</a></p>
     </section>
     <!-- What happens without being asked: the weather's moments, and closeness level by level. -->
     <section class="moments-story" id="moments">
-      <header><h2>{{ t.moments.title }}</h2><p class="section-lead">{{ t.moments.lead }}</p></header>
-      <ul class="moments-list"><li v-for="([title, body]) in t.moments.items" :key="title"><h3>{{ title }}</h3><p>{{ body }}</p></li></ul>
+      <header><h2>{{ t.moments.title }}</h2><p class="section-lead">{{ t.moments.kind }} {{ t.moments.lead }}</p></header>
+      <ul class="moments-list"><li v-for="scene in SKY_SCENES" :key="scene.id"><h3>{{ t.moments.items[scene.id][0] }}</h3><SceneChips :lang="lang" :when="sceneWhen(scene)" :label="t.recipe.when" /><p class="recipe-gives">{{ t.moments.items[scene.id][1] }}</p></li></ul>
       <p class="play-more"><a class="more" :href="path('/guide/play#weather')">{{ t.moments.weatherLink }} →</a></p>
       <div class="closeness">
         <h3>{{ t.moments.closenessTitle }}</h3>
@@ -102,7 +110,7 @@ const AGENT_TOOLS = AGENT_DEMOS.map(demo => demo.name);
       <p class="moments-secret">{{ t.moments.secret }}</p>
     </section>
     <section class="work-story feature">
-      <div class="feature-text"><h2>{{ t.workTitle }}</h2><p>{{ t.workBody }}</p><p class="work-note">{{ t.workNote }}</p><a class="more" :href="path('/guide/agents')">{{ t.agentGuide }} →</a></div>
+      <div class="feature-text"><h2>{{ t.workTitle }}</h2><p>{{ t.workBody }}</p><ul class="work-reports"><li v-for="line in t.workReports" :key="line">{{ line }}</li></ul><p class="work-note">{{ t.workNote }}</p><a class="more" :href="path('/guide/agents')">{{ t.agentGuide }} →</a></div>
       <AgentDemo :words="t" :paused="paused" />
     </section>
     <PetGallery :words="t" :guide="path('/guide/first-friend#companion-stories')" :creator="path('/guide/creator-kit')" />

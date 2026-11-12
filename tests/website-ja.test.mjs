@@ -69,7 +69,12 @@ test('each landing describes the app to search and answer engines, and only the 
     ['ja/index.md', 'ja'],
     ['zh-hans/index.md', 'zh-Hans'],
   ]) {
-    const [[tag, attrs, json]] = appStructuredData(page, site, { description: 'About', version: '1.2.0' });
+    const [[tag, attrs, json]] = appStructuredData(page, site, {
+      description: 'About',
+      version: '1.2.0',
+      alternateName: lang === 'en' ? undefined : `Name-${lang}`,
+      genre: ['Desktop Companion', `Tag-${lang}`],
+    });
     assert.equal(tag, 'script');
     assert.equal(attrs.type, 'application/ld+json');
     const data = JSON.parse(json);
@@ -78,6 +83,12 @@ test('each landing describes the app to search and answer engines, and only the 
     assert.equal(data.description, 'About');
     assert.equal(data.softwareVersion, '1.2.0');
     assert.equal(data.offers.price, '0');
+    // The name as said in the page's language, and the kind of app in Steam's own tag words.
+    assert.equal(data.alternateName, lang === 'en' ? undefined : `Name-${lang}`);
+    assert.equal(data.applicationSubCategory, 'Desktop Companion');
+    assert.deepEqual(data.genre.slice(0, 2), ['Desktop Companion', 'Idler']);
+    assert.ok(data.genre.includes(`Tag-${lang}`), data.genre);
+    assert.equal(data.genre.filter(tag => tag === 'Desktop Companion').length, 1, 'said once');
     assert.match(data.operatingSystem, /macOS.*Windows.*Linux/);
     assert.ok(data.url.startsWith(site));
     // A real screen of the app in the page's language, from the published captures.
@@ -95,6 +106,12 @@ test('each landing describes the app to search and answer engines, and only the 
   const [[, , json]] = appStructuredData('index.md', site, { description: '</script><b>', version: '1' });
   assert.doesNotMatch(json, /<\/script/i);
   assert.equal(JSON.parse(json).description, '</script><b>');
+});
+
+test('each landing gives search engines its keywords, and only the landing does', async () => {
+  const { landingKeywords } = await import('../website/.vitepress/locale-head.mjs');
+  assert.deepEqual(landingKeywords('ja/index.md', ['a', 'b']), [['meta', { name: 'keywords', content: 'a, b' }]]);
+  for (const page of ['guide/faq.md', 'ko/guide/chat.md']) assert.deepEqual(landingKeywords(page, ['a']), []);
 });
 
 test('a page without its own description is described by its first paragraph', async () => {

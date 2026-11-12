@@ -15,6 +15,7 @@
 // answer only confirms it and sets it moving (hangMotion).
 
 import { closeOnBackdrop } from '../core/confirm.js';
+import { span } from '../core/dom.js';
 import { joinSentences, list, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { clamp, percent, pick } from '../core/math.js';
@@ -29,6 +30,7 @@ import { localDay } from './growth.js';
 import {
   bauble,
   bookName,
+  freeHooks,
   hangable,
   leftToday,
   ORNAMENT_BOOKS,
@@ -153,12 +155,12 @@ export function renderDecorating() {
   if (view.gone && !listed(view.gone)) view.gone = null;
   const coming = view.hanging && !listed(view.hanging) ? [view.hanging] : [],
     hanging = [...saved.filter(o => !same(o, view.gone)), ...coming],
-    count = limit(data, 'ornamentHooks'),
-    taken = new Set(hanging.map(o => o.hook)),
-    free = Array.from({ length: count }, (_, i) => i).filter(i => !taken.has(i)),
+    // The tree as it shows: the hang on its way on it, the one taken down off it.
+    shown = { ...garden, ornaments: hanging, ornamentYear: ornamentSeason(now) },
+    free = freeHooks(shown, now, limit(data, 'ornamentHooks')),
     left = Math.max(0, leftToday(garden, now, limit(data, 'ornamentsPerDay')) - coming.length),
     // What could hang, with the hang on its way off the list and the one taken down back on it.
-    items = hangable({ ...data, garden: { ...garden, ornaments: hanging, ornamentYear: ornamentSeason(now) } }, now);
+    items = hangable({ ...data, garden: shown }, now);
   if (view.picked && !items.some(i => same(i, view.picked))) view.picked = null;
   const picking = !!view.picked && !view.busy && free.length > 0 && left > 0;
   if (!picking) view.picked = null;
@@ -498,8 +500,8 @@ function hangMotion(node, from) {
     });
     return;
   }
-  const across = span('bauble-fly-x'),
-    up = span('bauble-fly-y'),
+  const across = span('bauble-fly-x', true),
+    up = span('bauble-fly-y', true),
     hook = node.getBoundingClientRect(),
     glints = [];
   up.append(ball);
@@ -527,7 +529,7 @@ function hangMotion(node, from) {
     tree.classList.add('dip');
     node.classList.add('swing');
     GLINTS.forEach(([x, y], i) => {
-      const glint = span('ornament-glint');
+      const glint = span('ornament-glint', true);
       glint.style.left = `calc(50% ${x < 0 ? '-' : '+'} ${Math.abs(x)}px)`;
       glint.style.top = `calc(50% ${y < 0 ? '-' : '+'} ${Math.abs(y)}px)`;
       glint.style.animationDelay = `${i * GLINT_STEP}ms`;
@@ -545,12 +547,6 @@ function stopMotion() {
   const end = motion.end;
   motion = { timers: [], end: null };
   end?.();
-}
-function span(className) {
-  const node = document.createElement('span');
-  node.className = className;
-  node.setAttribute('aria-hidden', 'true');
-  return node;
 }
 
 // The nearest friend's line after a hang: in the yard (shown and read aloud as its own) and in

@@ -4,6 +4,7 @@
 // the trail was laid, so a passing flurry leaves the prints alone. Weather the person fixed by hand
 // is the same in every block, so it never has a block where snow begins: it covers no trail and
 // makes no snowy morning, and only the yard's own weather draw can.
+import { distance, seeded } from '../core/math.js';
 import { groundAllows, tileOf } from './discovery-rules.js';
 
 // One weather block, as `autoWeather` draws it from epoch 0.
@@ -79,25 +80,11 @@ export function trailAnimal(day, n, ids) {
   return ids[(i0 + 1 + (seedOf(day, 1) % (ids.length - 1))) % ids.length];
 }
 
-// mulberry32, kept here so the rules import nothing but the ground and the day.
-function chance(seed) {
-  let s = seed >>> 0;
-  return () => {
-    s = (s + 0x6d2b79f5) >>> 0;
-    let t = s;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
-
 function walksOnGround(points, profile) {
   for (let i = 1; i < points.length; i++) {
     const a = points[i - 1],
       b = points[i];
-    const steps = Math.max(1, Math.ceil(dist(a, b) / 0.01));
+    const steps = Math.max(1, Math.ceil(distance(a, b) / 0.01));
     for (let k = 0; k <= steps; k++) {
       const t = k / steps;
       if (!groundAllows({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t }, profile)) return false;
@@ -114,7 +101,7 @@ export function trailPath(seed, profile, { taken = [], other = null } = {}) {
     bandHeight = (bottom - top) * 0.7;
   const takenTiles = new Set(taken.map(tileOf));
   for (let attempt = 0; attempt < 20; attempt++) {
-    const rng = chance(seed + attempt);
+    const rng = seeded(seed + attempt);
     const fromLeft = rng() < 0.5;
     const startX = fromLeft ? left : right;
     const startY = bandTop + rng() * bandHeight;
@@ -138,9 +125,9 @@ export function trailPath(seed, profile, { taken = [], other = null } = {}) {
     const end = points[points.length - 1];
     if (end.x < 0.06 || end.x > 0.94) continue;
     if (takenTiles.has(tileOf(end))) continue;
-    if (other && (dist(end, other) < 0.15 || tileOf(end) === tileOf(other))) continue;
+    if (other && (distance(end, other) < 0.15 || tileOf(end) === tileOf(other))) continue;
     let length = 0;
-    for (let i = 1; i < points.length; i++) length += dist(points[i - 1], points[i]);
+    for (let i = 1; i < points.length; i++) length += distance(points[i - 1], points[i]);
     if (length < 0.6 || length > 1.6) continue;
     if (!walksOnGround(points, profile)) continue;
     const last = points[points.length - 2];

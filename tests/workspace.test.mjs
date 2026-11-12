@@ -9,15 +9,16 @@ import { element, installDom } from './support/dom.mjs';
 globalThis.playPets = { updatePet: async () => ({ ok: true, data: null }) };
 const { reduced } = await import('../src/core/sprites.js');
 const { setData, views } = await import('../src/core/state.js');
-const { DEPTH_FAR, depthScale, EDGE, field, footTarget, geometry, measureYard, yardZoom } =
+const { FADE_MS } = await import('../src/core/status.js');
+const { DEPTH_FAR, depthScale, EDGE, field, footTarget, geometry, measureYard, sizeOf, yardZoom } =
   await import('../src/yard/field.js');
 const { moveFriends } = await import('../src/yard/motion.js');
 const { scene } = await import('../src/yard/world.js');
 const { useWorlds, worldHasSoil, worlds } = await import('../src/yard/worlds.js');
-const { den } = await import('./support/den.mjs');
 const { blocked, frontsIn, stationAt } = await import('../src/yard/workspace.js');
 const { loungeTarget, sitOut } = await import('../src/yard/lounge.js');
 const { forPerson, release, rest } = await import('../src/yard/trips.js');
+const { dutyAfresh, station } = await import('../src/yard/duty.js');
 
 // A picture of 1536 by 1024 in a yard of the same size: its fractions are the yard's.
 const room = {
@@ -96,10 +97,11 @@ const agent = states =>
 const at = (v, x, y) => footTarget(v, 1536 * x, 1024 * y, 0);
 
 test('a floor without soil is told apart from a place without a sky', () => {
-  useWorlds([...shipped, room, den]);
+  const cellar = { id: 'cellar', capabilities: { sky: false } };
+  useWorlds([...shipped, room, cellar]);
   try {
     assert.equal(worldHasSoil('woodland'), true);
-    assert.equal(worldHasSoil(den.id), false, 'no sky and no soil said: none');
+    assert.equal(worldHasSoil(cellar.id), false, 'no sky and no soil said: none');
     assert.equal(worldHasSoil(room.id), false, 'a sky through the glass, a paved floor');
   } finally {
     useWorlds(shipped);
@@ -186,6 +188,38 @@ test('with its station cropped away, a friend is not sent behind the furniture i
   assert.equal(c.target, null, 'done, it rests where it stands');
 });
 
+// The shipped workshop, not the test room: its stations stand on its floor, clear of its furniture,
+// and a small window keeps the approval spot and two desks in view (the design's "Small windows").
+test("the garden workshop's stations stand on its floor, off its furniture, and in view down to 300 by 210", t => {
+  inRoom(t);
+  scene.world = 'workshop';
+  const { geometry: shape } = shipped.find(w => w.id === 'workshop'),
+    { desks, approval, rest } = shape.stations;
+  for (const s of [...desks, approval, rest]) {
+    assert.ok(s.y > shape.fieldTop && s.y <= 1 && s.x >= 0 && s.x <= 1, `${s.x},${s.y} is on the floor`);
+  }
+  const seen = (width, height) => {
+    wide(width, height);
+    const v = friend('seen');
+    return { approval: station(v, approval), desks: desks.filter(d => station(v, d)).length };
+  };
+  for (const [width, height] of [
+    [1180, 850],
+    [800, 560],
+    [300, 210],
+  ]) {
+    wide(width, height);
+    for (const s of [approval, rest]) {
+      const at = stationAt(s);
+      assert.equal(blocked(at.x, at.y), false, `at ${width} by ${height}, ${s.x},${s.y} is clear of furniture`);
+    }
+    const { approval: spot, desks: shown } = seen(width, height);
+    assert.ok(spot, `at ${width} by ${height}, the approval spot shows`);
+    assert.ok(shown >= 2, `at ${width} by ${height}, ${shown} desks show`);
+  }
+  assert.ok(seen(900, 260).approval, 'in a strip, the approval spot still shows');
+});
+
 test('working friends sit at desks in turn, keep theirs, and the extra one stands beside one', t => {
   inRoom(t);
   const a = friend('a'),
@@ -205,6 +239,44 @@ test('working friends sit at desks in turn, keep theirs, and the extra one stand
   moveFriends(1100, 50);
   assert.deepEqual(a.target, at(a, 0.3, 0.55));
   assert.deepEqual(b.target, at(b, 0.6, 0.55));
+});
+
+test('past two beside each desk, a working friend works where it stands', t => {
+  inRoom(t);
+  const ids = ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
+    all = ids.map(id => friend(id));
+  agent(Object.fromEntries(ids.map(id => [id, 'working'])));
+  moveFriends(1000, 50);
+  const [a, b, ...rest] = all,
+    body = sizeOf(a.pet);
+  assert.deepEqual(a.target, at(a, 0.3, 0.55));
+  assert.deepEqual(b.target, at(b, 0.6, 0.55));
+  // Beside a desk: a body to the right of each desk in turn, then a body to the left.
+  const beside = [1, -1].flatMap(side => [0.3, 0.6].map(x => footTarget(a, 1536 * x + side * body, 1024 * 0.55, 0)));
+  rest.slice(0, 4).forEach((v, i) => assert.deepEqual(v.target, beside[i], `${v.pet.id} stands beside a desk`));
+  assert.equal(rest[4].target, null, 'the seventh works where it stands');
+});
+
+// A finished or failed agent fades (status.js FADE_MS): the friend leaves its station with no word.
+test('a done or failed friend leaves its station when the state fades, without a new word', t => {
+  t.mock.timers.enable({ apis: ['Date'], now: 1_000_000 });
+  inRoom(t);
+  const a = friend('a'),
+    b = friend('b');
+  agent({ a: 'done', b: 'error' });
+  moveFriends(1000, 50);
+  assert.deepEqual(a.target, at(a, 0.15, 0.6), 'done, it rests in the corner');
+  assert.deepEqual(b.target, at(b, 0.3, 0.55), 'failed, it stays at a desk');
+  for (const v of [a, b]) {
+    v.target = null;
+    v.trip = null;
+  }
+  t.mock.timers.tick(FADE_MS + 1000);
+  moveFriends(1050, 50);
+  for (const v of [a, b]) {
+    assert.deepEqual(v.target, { x: 0.5, y: 0.3 }, `${v.pet.id} walks back to its own place`);
+    assert.equal(v.spot, null);
+  }
 });
 
 test('an error stays at the desk; waiting goes to the approval spot; done rests in the corner and stays', t => {
@@ -227,6 +299,33 @@ test('an error stays at the desk; waiting goes to the approval spot; done rests 
   agent({ a: 'idle' });
   moveFriends(60050, 50);
   assert.deepEqual(a.target, { x: 0.5, y: 0.3 }, 'idle again, it walks back to its own place');
+});
+
+// A new place is a new look at the friends: one whose agent already works sits down in the room,
+// and leaving the room lets go of the desk, so the friend stands at its own place again.
+test('entering a workspace seats each friend for the state its agent already reported, and leaving lets go of the station', t => {
+  inRoom(t);
+  scene.world = 'woodland';
+  measureYard();
+  const a = friend('a');
+  agent({ a: 'working' });
+  moveFriends(1000, 50);
+  assert.equal(a.target, null, 'outdoors, it works where it stands');
+  // The place changes as app.js worldChanged does it: trips end, the scene moves, each friend afresh.
+  const go = world => {
+    release(a);
+    scene.world = world;
+    measureYard();
+    dutyAfresh(a);
+  };
+  go(room.id);
+  moveFriends(1050, 50);
+  assert.deepEqual(a.target, at(a, 0.3, 0.55), 'in the room, it sits at a desk');
+  assert.equal(a.spot?.kind, 'desk');
+  go('woodland');
+  assert.equal(a.spot, null, 'the desk stays in the room');
+  moveFriends(1100, 50);
+  assert.equal(a.target, null, 'outdoors again, it works where it stands');
 });
 
 test('two waiting friends stand side by side at the approval spot', t => {

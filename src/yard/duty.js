@@ -43,6 +43,15 @@ export function keepDuty(v) {
   if (state === 'done') rest(v);
 }
 
+/** A new place for the friends (app.js worldChanged): the station a friend held stays behind, and
+ * its agent's state is seen to afresh there, so a friend already at work sits down in a room and
+ * stands at its own place again outdoors. */
+export function dutyAfresh(v) {
+  v.spot = null;
+  v.back = false;
+  v.agent = undefined;
+}
+
 // Where the state sends the friend, or null to leave it be.
 function spotFor(v, state) {
   const here = stations();

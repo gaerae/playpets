@@ -71,6 +71,7 @@ import {
   setupDiscovery,
   syncDiscovery,
 } from './yard/discovery.js';
+import { dutyAfresh } from './yard/duty.js';
 import { pullPlant, renderGarden, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { setupLetterCard } from './yard/letter-card.js';
@@ -205,6 +206,7 @@ setupSky({
     for (const v of views.values()) {
       release(v);
       v.away = false;
+      dutyAfresh(v);
     }
     enter();
     syncViews();

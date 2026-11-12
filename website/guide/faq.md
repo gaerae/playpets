@@ -4,7 +4,7 @@
 
 - PlayPets is a free, open-source desktop pet app for macOS, Windows and Linux. Four friends come with it, any Codex pet can join, and up to 12 play at once.
 - They share a small yard and can head out onto your desktop. The ChatGPT desktop app shows the one pet you pick ([OpenAI's guide](https://learn.chatgpt.com/docs/pets), October 2026).
-- They talk with you and with each other through the AI you connect, and react while Claude Code, Codex, Gemini CLI or Cursor works.
+- They talk with you and with each other through the AI you connect, and react while Claude Code, Codex, Gemini CLI, Cursor, Grok Build, Qoder or Kimi Code works.
 
 ## Does it work with Codex pets?
 

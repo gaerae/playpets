@@ -81,7 +81,6 @@ const TABLE: &[(&str, &str)] = &[
     ("error.friend_missing", "找不到这位伙伴。"),
     ("error.autostart", "无法更改登录时启动的设置。请检查系统设置中的登录项。"),
     ("error.autostart_in_settings", "Windows 已关闭 PlayPets 的登录时启动。请在 Windows 设置 → 应用 → 启动中打开。"),
-    ("error.seeds_full", "口袋里装满了种子，先种下几颗吧。"),
     ("error.no_seeds", "没有可以种的种子。让伙伴挖挖土找一找吧。"),
     ("error.no_saplings", "没有这种树的树苗。让伙伴挖挖土找一找吧。"),
     ("error.garden_full", "花园里最多能种 {limit} 株，拔掉一株就能再种。"),

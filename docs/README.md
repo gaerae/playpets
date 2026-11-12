@@ -108,6 +108,7 @@ New here? Read in this order.
 - [Make the yard livelier on the current renderer before reaching for a game engine](decisions/2026-11-11-living-yard-on-the-current-renderer.md)
 - [Write release notes for each reader, with one user page per version for every system](decisions/2026-10-28-release-notes-by-audience.md)
 - [Track the Linux GTK advisories without hiding them](decisions/2026-10-15-linux-gtk-advisories.md)
+- [Keep releases compact and let GitHub define publication state](decisions/2026-10-16-release-assets-and-publication-state.md)
 - [Keep Linux publication gated on the stable Tauri GTK migration](decisions/2026-10-16-linux-release-readiness.md)
 - [Keep source art and optimize accepted exports](decisions/2026-10-12-art-storage.md)
 - [Consolidate the October design reports into topic records before the first publication](decisions/2026-10-13-design-records.md)
@@ -134,7 +135,17 @@ Records are dated and never rewritten. When two disagree, the later one holds. T
 - [Agent workspaces](design/2026-11-11-agent-workspaces.md) (2026-11-11): what a friend does for each coding-agent state in every place, and the garden workshop built around desks, an approval spot by the bell and a rest corner.
 - [The website](design/2026-10-12-website.md) (2026-10-12): four languages and their parity, the world-first landing, the companion gallery, the creator studio, release pages and captures.
 - [In-app creation studio proposal](design/2026-10-17-in-app-studio.md) (2026-10-17): unimplemented, with a follow-up on the current web KIT and SKILL handoff. The maintained workflow is in [Edit and check the website](how-to/website.md#creation-kit-and-skill).
-- [Places: Woodland and Window studio](design/2026-10-11-places.md) (2026-10-11): the place registry, capabilities, floor geometry and fit, authored lighting, weather behind window panes and switching places.
+- [A winter to share](design/2026-11-09-a-winter-to-share.md) (2026-11-09): things to do with friends in winter, the snowman, decorating the Christmas tree and Christmas night.
+- [Flower viewing](design/2026-11-09-flower-viewing.md) (2026-11-09): friends gathering under a blossoming tree in spring.
+- [Gifts from friends](design/2026-10-29-gifts-from-friends.md) (2026-10-29): a gift follows what the person and a friend did together, not time passing.
+- [Discovery pockets and quiet updates](design/2026-10-19-discovery-pockets-and-quiet-updates.md) (2026-10-19): short play actions near the yard and update checks that never steal focus.
+- [Quiet yard navigation and updates](design/2026-10-19-quiet-yard-navigation.md) (2026-10-19): the dock's entry points, kept apart from friend management and preferences.
+- [Friend-led discovery and growing trees](design/2026-10-19-friend-led-discovery.md) (2026-10-19): asking a friend to explore or garden without an AI, and the friend menu.
+- [Environmental discoveries and a calm collection pace](design/2026-10-19-environmental-discovery.md) (2026-10-19): where and when to dig, with no energy meter or streak.
+- [Calm collection information](design/2026-10-19-calm-collection-information.md) (2026-10-19): a readable album in place of spontaneous seed pickup.
+- [One hundred small discoveries](design/2026-10-19-hundred-small-discoveries.md) (2026-10-19): the album's ordinary nature, seasonal colour and everyday objects.
+- [Replaceable backgrounds and four places](design/2026-10-13-background-packs.md) (2026-10-13): background packs of your own and the built-in places they sit beside.
+- [Places: Woodland and Window studio](design/2026-10-11-places.md) (2026-10-11): the place registry, capabilities, floor geometry and fit, authored lighting, weather behind window panes and switching places. Follow-ups: four places, the garden workshop, and the sky-less room drawing removed.
 - [Companions and pet identity](design/2026-10-11-companions.md) (2026-10-11): the historical companion catalog and compatibility contract. The current four-pet cast and accepted artwork: [Companion artwork](../assets/pets/README.md).
 - [Art direction and the art pipeline](design/2026-10-11-art-direction.md) (2026-10-11): the sculpted cozy-game look, depth cues, raster layers and the procedural fallback, specimen art, accepting new art, the brand and where sources live.
 - [Product direction](design/2026-10-11-product-direction.md) (2026-10-11): companions who talk to you and each other, claims kept precise, interface commitments and the bar for the first release.
@@ -154,6 +165,11 @@ Records are dated and never rewritten. When two disagree, the later one holds. T
 | `.github/workflows/release.yml` | Builds every environment from a version tag into a release draft |
 | `.github/workflows/distribute.yml` | winget manifest and Homebrew cask from a published release |
 | `.github/workflows/pages.yml` | Builds and publishes GitHub Pages when its source or shared inputs change on main |
+| `.github/workflows/codeql.yml` | CodeQL analysis of the workflows, JavaScript, Python and Rust on every PR, on main and weekly |
+| `.github/workflows/security.yml` | `pnpm run security:check` (redacted Git history, dependency audit, RustSec) on every PR, on main and weekly |
+| `.github/workflows/store.yml` | After a release is published: builds and certifies the Microsoft Store MSIX and sends a new submission, while `STORE_SUBMISSION_ENABLED` is true |
+| `.github/workflows/store-retry.yml` | By hand: sends a published release to Partner Center again with main's submission script |
+| `.github/workflows/store-api.yml` | By hand: tests the Store API script, then reads the product with the Store credentials after approval |
 | `website/` | The VitePress site. Developer docs are copied from `docs/` at build time |
 | `packaging/` | Local distribution builds (macOS dmg; Linux and Windows through Docker) |
 | `scripts/` | Icon generation, release, distribution file generation, CPU measurement, site preparation, screen capture, mascot pets |

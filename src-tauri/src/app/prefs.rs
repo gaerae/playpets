@@ -348,6 +348,15 @@ mod tests {
         assert_eq!(scene_choice("world", ""), None);
     }
 
+    // The backend keeps no list of places: a place the page has retired comes back as saved, and the
+    // page maps it to the one that replaced it (worlds.js REPLACED).
+    #[test]
+    fn a_place_the_page_has_retired_is_kept_for_the_page_to_map() {
+        let lang = i18n::Lang::parse("en").unwrap();
+        let scene = Prefs::restore(&json!({"scene": {"world": "studio"}}), lang).scene;
+        assert_eq!(scene.get("world"), Some(&json!("studio")));
+    }
+
     fn asked(year: u32, previous: Option<&str>) -> Option<WinterAsked> {
         Some(WinterAsked {
             year,

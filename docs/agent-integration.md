@@ -67,6 +67,9 @@ flowchart LR
    - It picks the friend: `pet`/`petId` is an id or a name. Without one, it uses the first friend.
    - A code becomes a sentence in the current language (`@tool Bash` → "Using Bash") and shows above the friend.
    - It is remembered among that friend's 8 most recent activities.
+6. **In the yard:**
+   - The friend acts on the state (`src/yard/duty.js`): working or failed, it stays where it stands; waiting, it comes to the front of the yard; done, it rests a moment.
+   - In a place with stations (the garden workshop), it works and fails at a desk, waits at the approval spot and rests in the rest corner ([agent workspaces](design/2026-11-11-agent-workspaces.md)).
 
 ## Import links
 - A gallery adds a `playpets://import?url=<pet page address>` link.
@@ -236,6 +239,7 @@ MSIX install on Windows:
 ## Related decisions
 - Design record "[Stronger agent integration, community import, personality and activity memory](design/2026-09-29-agent-link-import-persona.md)": hook-first integration, CLI mode without Node, activity memory
 - "[Strings live in two per-language tables, one for the page and one for the backend, and agent status is sent as codes](decisions/2026-09-30-strings-in-two-tables.md)": why hooks send codes
+- Design record "[Agent workspaces](design/2026-11-11-agent-workspaces.md)": what a friend does for each state, and the workshop's desks, approval spot and rest corner
 
 ## Change history
 - 2026-09-29 Moved hooks, MCP and status commands into the CLI mode of the app executable (no Node needed)

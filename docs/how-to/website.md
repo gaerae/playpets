@@ -60,7 +60,7 @@ pnpm run site:dev
    - Nothing the system draws over the screen (the screen-sharing indicator, notifications, the screen's rounded corners) can appear in it.
    - `SHOT_SCENE=desktop` refreshes it alone.
    - A second pass starts the app again from a lived-in garden (`playGarden` in `scripts/shots-lib.mjs`: flowers in bloom, grown trees, gifts, an album of finds) and takes the five play pictures. `SHOT_SCENE=play` takes only those.
-   - `SHOT_SCENE=reel` films one take of that garden per language instead: a dig that finds something, a catch at the lake, a chat and a show at night. The window alone is recorded with ScreenCaptureKit (`scripts/shot-video.swift`, macOS 15 or later), without sound, into `release/reel/<lang>/` with a mark at each part.
+   - `SHOT_SCENE=reel` films one take of that garden per language instead: a dig that finds something, a catch at the lake, a chat and a show at night. The window alone is recorded with ScreenCaptureKit (`scripts/shot-video.swift`, macOS 15 or later), without sound, into `scratch/reel/<lang>/` with a mark at each part.
    - `pnpm run reel` cuts the takes (ffmpeg and cwebp: `brew install ffmpeg webp`) into the landing's `reel.mp4` and its still `reel.webp` in each language, and the English take into `assets/demo.gif`, the README's moving picture.
    - Before each picture and the film, keyboard focus is cleared, so no focus ring shows.
 

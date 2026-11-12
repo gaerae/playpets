@@ -7,10 +7,11 @@ import { discoveryFindChances } from '../src/yard/discovery-rewards.js';
 import { groundAllows } from '../src/yard/discovery-rules.js';
 import { environmentLake } from '../src/yard/environment.js';
 import { buildGroundProfile } from '../src/yard/ground.js';
-import { worlds } from '../src/yard/worlds.js';
+import { worldHasSoil, worlds } from '../src/yard/worlds.js';
 
 const catalog = JSON.parse(await readFile(new URL('../src/content/catalog.json', import.meta.url)));
-const places = ['woodland', 'courtyard', 'lakeside'];
+// The places where a find's liking for a place counts: the shipped places with soil (content.rs AFFINITY_PLACES).
+const places = worlds.filter(world => worldHasSoil(world.id)).map(world => world.id);
 const contexts = ['spring', 'summer', 'autumn', 'winter'].flatMap(season =>
   ['clear', 'rain', 'snow'].flatMap(weather => places.map(place => ({ season, weather, place }))),
 );

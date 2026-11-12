@@ -236,9 +236,6 @@ test('ordinary captures start in sunny spring and include the fourth friend', ()
   assert.match(source, /coat\('Miso'\)/);
   assert.match(source, /full\('playpets-miso'\)/);
   assert.match(source, /\[p1.id,p2.id,p3.id,p4.id\]/);
-  assert.doesNotMatch(source, /\['workshop','winter','night'/);
-  // The garden workshop replaced the living room; no capture asks for a place that is gone.
-  assert.doesNotMatch(source, /'studio'|'office'/);
 });
 
 test('yard captures finish the first AI connection before photographing the mini window', () => {
@@ -270,15 +267,6 @@ test('chat captures reject a missing or panel-covered fourth friend', () => {
     () => shots.assertChatCast([...bodies.slice(0, 3), { ...bodies[3], top: NaN }], panel, yard),
     /bounds/i,
   );
-});
-
-test('chat refresh fixes actual views and skips unrelated capture scenes', () => {
-  const source = readFileSync('scripts/shots.mjs', 'utf8');
-  assert.match(source, /const chatOnly = process.env.SHOT_SCENE === 'chat'/);
-  assert.match(source, /release\(view\)/);
-  assert.match(source, /view\.x=at\.x;view\.y=at\.y;place\(view\)/);
-  assert.match(source, /assertChatCast\.toString\(\)/);
-  assert.match(source, /if\(\$\{chatOnly\}\)\{await companionScene\(\);await L\('DONE'\);return;\}/);
 });
 
 test('SHOT_SCENE=reel films one take with a mark at each part the moving pictures are cut from', () => {

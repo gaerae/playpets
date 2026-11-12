@@ -62,6 +62,13 @@ html[lang^="ja"] .landing {
   font-size: 13px;
   letter-spacing: 0.12em;
   margin: 0 0 24px;
+  text-wrap: balance;
+}
+/* Wide tracking suits Latin capitals; Korean, Japanese and Chinese read better close set. */
+html:lang(ko) .landing .eyebrow,
+html:lang(ja) .landing .eyebrow,
+html:lang(zh-Hans) .landing .eyebrow {
+  letter-spacing: 0.04em;
 }
 .hero {
   padding: 32px max(24px, calc((100vw - 1440px) / 2)) 0;
@@ -973,6 +980,81 @@ html[lang^="ja"] .landing {
   border-radius: 18px;
   background: color-mix(in srgb, #bcd6f0 28%, var(--world-paper));
 }
+/* A scene's recipe: what has to come together as chips, then what happens in one line. */
+.scene-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 8px;
+  padding: 0;
+  list-style: none;
+}
+.scene-chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 26px;
+  margin: 0;
+  padding: 2px 10px 2px 7px;
+  border-radius: 999px;
+  background: var(--world-paper);
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--world-ink);
+}
+.scene-chips svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.scene-chips img {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: -2px 0;
+  object-fit: contain;
+}
+.scene-chips .chip-season svg circle {
+  fill: var(--chip-season, #e98aa6);
+  stroke: none;
+}
+.scene-chips .chip-summer {
+  --chip-season: #6dbb5a;
+}
+.scene-chips .chip-autumn {
+  --chip-season: #e0a040;
+}
+.scene-chips .chip-winter {
+  --chip-season: #7fa7d8;
+}
+.scene-chips .chip-play {
+  background: color-mix(in srgb, var(--vp-c-brand-1) 14%, var(--world-paper));
+}
+.year-story .recipe-gives,
+.moments-list .recipe-gives {
+  display: flex;
+  gap: 6px;
+  color: var(--vp-c-text-1);
+}
+.recipe-gives::before {
+  content: "→" / "";
+  color: var(--vp-c-text-3);
+}
+.year-story .recipe-or,
+.year-story .recipe-also {
+  margin: 10px 0 -4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vp-c-text-3);
+}
+.year-story .recipe-also::before {
+  content: "+ " / "";
+}
 .closeness {
   margin-top: 48px;
   padding: 26px 26px 20px;
@@ -1120,6 +1202,13 @@ html[lang^="ja"] .landing {
 .feature-text .more {
   display: block;
   margin-top: 10px;
+}
+.feature .work-reports {
+  margin: 10px 0 0;
+  padding-left: 1.2em;
+}
+.feature .work-reports li + li {
+  margin-top: 4px;
 }
 .feature .work-note {
   font-size: 13px;

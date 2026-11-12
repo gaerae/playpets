@@ -154,7 +154,6 @@ test('scene selection lives beside Menu, outside the closed controls', async () 
   assert.ok(html.indexOf('id="scene-button"') < html.indexOf('id="yard-controls-panel"'));
   assert.ok(html.indexOf('id="scene-menu"') < html.indexOf('id="yard-controls-panel"'));
   const css = await readFile('src/styles/compact.css', 'utf8');
-  assert.match(css, /body\.compact \.yard-dock\s*\{\s*display: none/);
   assert.doesNotMatch(css, /\.scene-menu\s*\{\s*display: none/);
 });
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { withBase } from 'vitepress';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { LANDING_PETS } from '../../../scripts/site-content.mjs';
+import { LANDING_PETS, PREVIEW_PLACES } from '../../../scripts/site-content.mjs';
 import { lookFrame } from '../../../src/core/animation.js';
 import { whenDecoded } from './site-runtime.mjs';
 import { sceneryUrl } from './scenery';
@@ -131,12 +131,11 @@ function tabChanged() {
 }
 let observer: IntersectionObserver | undefined;
 let greetingTimer: ReturnType<typeof setTimeout> | undefined;
+// A place with one picture for every season (the garden workshop) leaves the season choices unpressable.
+const seasonless = computed(() => !!PREVIEW_PLACES[place.value].still);
 const image = computed(() => {
-  const suffix = ['spring', 'green', 'autumn', 'winter'][season.value];
-  // The garden workshop has one picture for every season.
-  const room = place.value === 3 ? 'workshop' : null;
-  const file = room ?? `${['', 'courtyard-', 'lakeside-'][place.value]}${suffix}`;
-  return sceneryUrl(file);
+  const shown = PREVIEW_PLACES[place.value];
+  return sceneryUrl(shown.still ?? `${shown.seasons}${['spring', 'green', 'autumn', 'winter'][season.value]}`);
 });
 function greet(id: string) {
   if (selected.value !== id) held.value = 'idle';
@@ -205,7 +204,7 @@ onBeforeUnmount(() => {
       <div v-if="loose" class="dock-row"><p class="dock-note">{{ words.desktopNote }}</p></div>
       <div v-else class="dock-row" role="group" :aria-label="words.sceneLabel">
         <div class="choice-group place-choices"><button v-for="(name, index) in words.places" :key="name" type="button" :aria-pressed="place === index" @click="place = index">{{ name }}</button></div>
-        <div class="choice-group" role="group" :aria-label="words.seasonLabel"><button v-for="(name, index) in words.seasons" :key="name" type="button" :aria-pressed="season === index" :disabled="place >= 3" @click="season = index">{{ name }}</button></div>
+        <div class="choice-group" role="group" :aria-label="words.seasonLabel"><button v-for="(name, index) in words.seasons" :key="name" type="button" :aria-pressed="season === index" :disabled="seasonless" @click="season = index">{{ name }}</button></div>
       </div>
       <div class="dock-row">
         <p class="dock-friend" aria-live="polite"><strong>{{ selectedFriend?.displayName }}</strong><span>{{ words.greetings[selected] }}</span></p>

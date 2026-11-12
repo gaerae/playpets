@@ -96,6 +96,7 @@
   | Lakeside | `lakeside-*` |
   | Village study | `studio-cozy-*` |
 
+- The village study has since given way to the garden workshop; see the 2026-11-12 follow-up below.
 - The earlier sections record previous accepted directions, not the current runtime selection.
 - The three outdoor places each have four seasonal images.
 - The study has four time-of-day images and seasonal window views.

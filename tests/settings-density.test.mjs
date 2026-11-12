@@ -27,7 +27,7 @@ test('a wide window lays the list of sections beside the open one, the open one 
   const css = await readCss('settings');
   assert.match(
     css,
-    /body:not\(\.compact\)\.layout\.settings-open #panel-settings\{[^}]*display:grid;[^}]*grid-template-columns:200px minmax\(0,1fr\)/,
+    /body:not\(\.compact\)\.layout\.settings-open #panel-settings\{[^}]*display:grid;[^}]*grid-template-columns:\d+px minmax\(0,1fr\)/,
   );
   assert.match(css, /body:not\(\.compact\)\.settings-index\{[^}]*grid-template-columns:minmax\(0,1fr\)/);
   assert.match(

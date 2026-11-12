@@ -815,7 +815,8 @@ impl Garden {
         self.thanked.remove(pet);
     }
 
-    /// Moves a decoration to (x, y).
+    /// Moves a decoration to (x, y), held to its place on the field (decor_place);
+    /// a place that is not a number is a bad request.
     pub fn move_decor(&mut self, id: &str, x: f64, y: f64) -> Result<(), String> {
         let Some((x, y)) = decor_place(x, y) else {
             return Err(i18n::t("error.bad_request"));

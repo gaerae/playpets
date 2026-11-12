@@ -57,7 +57,7 @@ A friend with an agent carries the agent's name on its name tag (Clover, Claude 
 
 The pill in the Friend panel shows the agent's state as well. Chat answers go to the log.
 
-### Where friends go {#where-friends-go}
+### Where friends go <Since v="1.7.0" /> {#where-friends-go}
 
 A friend also shows its agent's state in what it does.
 
@@ -158,7 +158,7 @@ playpets run -- <command>
 - The hooks stay on this computer.
   - The app opens a random port on `127.0.0.1` and checks a random token on every request.
   - The port and token are in `bridge.json` in the data folder and change each time the app starts.
-- [Coding-agent hooks](./agents.md) leave out your prompts and tool inputs.
+- Coding-agent hooks leave out your prompts and tool inputs.
   - The local bridge uses `127.0.0.1` and token authentication.
   - Short completion and notification reports, including a clipped agent answer, can carry work details. Those details can end up in a friend's conversation with the AI provider you chose.
   - Check what you send through terminal or MCP messages.

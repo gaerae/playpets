@@ -68,12 +68,6 @@ test('repository ignores generated files, local state and signing credentials', 
     '.env.store',
     '.dev-data/state.json',
     '.dev-data-ja/state.json',
-    '.npm/_cacache/index',
-    '.cache/browser/session.json',
-    'coverage/lcov.info',
-    '.nyc_output/process.json',
-    'test-results/run/trace.zip',
-    'playwright-report/index.html',
     '.credentials/signing-password.txt',
     '.DS_Store',
     '.claude/settings.local.json',
@@ -131,7 +125,6 @@ test('ignore rules retain examples, fixtures, artwork sources and shared configu
     '.env.example',
     '.vscode/extensions.json',
     'tests/fixtures/trace.json',
-    'tests/fixtures/process.log',
     'tests/fixtures/archive.zip',
     'assets/pets/daisy/generated-originals/identity.png',
     'assets/pets/daisy/ART-SOURCES.json',
@@ -231,11 +224,9 @@ test('.dockerignore patterns mean the same to Docker and to rsync', () => {
 
 test('.dockerignore keeps out of containers everything Git ignores', () => {
   const docker = dockerignore();
-  // Sanitized parser fixtures (tests/fixtures/**/*.log) are source a build may read.
-  const readable = new Set(['*.log']);
   for (const raw of read('.gitignore').split('\n')) {
     const line = raw.trim();
-    if (!line || line.startsWith('#') || line.startsWith('!') || readable.has(line)) continue;
+    if (!line || line.startsWith('#') || line.startsWith('!')) continue;
     const name = line.replace(/\/\*?$/, '');
     const pattern = name.startsWith('/') ? name : name.includes('/') ? `/${name}` : `**/${name}`;
     assert.ok(

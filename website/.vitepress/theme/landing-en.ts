@@ -5,6 +5,11 @@ export const copy = {
   github: 'View on GitHub',
   guide: 'Read the guide',
   more: 'Details',
+  // No name of its own in this language: PlayPets is read as written.
+  nativeName: '',
+  // Steam's own names, in this language, for Desktop Companion and Idler (store.steampowered.com/tag/browse).
+  steamTags: ['Desktop Companion', 'Idler'],
+  keywords: ['PlayPets', 'desktop pet', 'Desktop Companion', 'Idler', 'cozy', 'Codex pets', 'coding agent'],
   eyebrow: 'Free desktop pet app for macOS, Windows and Linux',
   download: 'Download PlayPets',
   meet: 'See what you can do',
@@ -85,7 +90,7 @@ export const sections = {
       flowers:
         'Dig up seeds, then plant them with Play → Plant a seed. They bloom in four hours; each season has its own.',
       fish: 'Click the water and click again when ! shows over the float. Some come only at night, in rain or in one season.',
-      bugs: 'Click one outdoors on a clear day: butterflies and dragonflies by day, fireflies on spring and summer nights, crickets on autumn ones.',
+      bugs: 'Click one outdoors on a clear day: butterflies, dragonflies, beetles and grasshoppers by day, fireflies on spring and summer nights, crickets on autumn ones.',
       gifts:
         'A friend you played with brings one now and then. A few come only during an event, and the snowman you build together.',
       trees:
@@ -97,32 +102,25 @@ export const sections = {
     },
     link: 'What you can find, and when',
   },
+  recipe: { when: 'What it takes', or: 'or', also: 'Add' },
   year: {
     title: 'Something new every season',
-    lead: 'The yard follows the calendar on your computer. These are the times it changes, and what to do then.',
+    lead: 'The yard follows the calendar on your computer. When these come together, this is what happens.',
     letter: 'Year-end letter',
     christmas: 'Christmas night',
-    items: {
-      blossom:
-        'Petals drift and more butterflies come out. Choose Play → Flower viewing to gather your friends under a cherry tree, and click a falling petal to catch it. A friend brings a cherry sapling.',
-      shoots:
-        'After rain, and on fair mornings, a few shoots come up outdoors. Click one before it goes, in a few hours.',
-      fireflies:
-        'Many more fireflies glow at night, and a golden one is out there to catch. A friend brings a watermelon.',
-      harvest:
-        'Around the full moon it rises big and golden, and the moonlight carp comes to the lake at night. A friend brings a pumpkin.',
-      lights:
-        'Lights glow along the trees. Friends bring a little Christmas tree, a baby reindeer and Santa, and they come out whenever the yard shows winter too. Press the tree to hang up to three album finds a day.',
-      christmas:
-        'On any day, with the yard showing winter and the little tree out, pick a snowy evening or night and the tree grows into a grand tree. With the reindeer and Santa out, a sleigh crosses the moon. A tree on your desktop grows too.',
-      snowman:
-        'While the yard shows winter, choose Play → Snowman. Roll three snowballs with your friends, stack them, then pick a hat, scarf and nose.',
-      footprints:
-        'Animal tracks cross the snow. Click them and a friend follows, sniffing, to a bush where a tail peeks out and a small find waits.',
-      letter:
-        'Your closest friend writes about the year you had together. Write back in up to 200 characters if you like.',
-      newyear:
-        'Friends greet the new year and a friend brings a kite. The answer you wrote to the letter comes back with a cheer.',
+    gives: {
+      blossom: 'Petals drift down. Call a flower viewing and friends gather under the cherry tree.',
+      shoots: 'A few shoots come up. Click one to dig it up before it goes, six hours later.',
+      fireflies: 'More fireflies, a golden one among them. A friend brings a watermelon.',
+      harvest: 'A big golden moon rises, and moonlight carp come to the lake. A friend brings a pumpkin.',
+      lights: 'Lights glow along the trees. Friends bring a little tree, a baby reindeer and Santa.',
+      ornaments: 'Click the tree to hang up to three album finds a day.',
+      christmas: 'The tree grows into a grand tree, and the one on your desktop grows too.',
+      sleigh: 'A sleigh crosses the moon.',
+      snowman: 'Roll and stack three snowballs with friends, then pick a hat, scarf and nose.',
+      footprints: 'Click the tracks in the snow and a friend follows them to whoever left them.',
+      letter: 'Your closest friend writes about your year together. Reply in up to 200 characters.',
+      newyear: 'Friends greet the new year and bring a kite. Your reply comes back with a cheer.',
     },
     south:
       'South of the equator, the cherry blossom festival, firefly nights and harvest moon come six months later; the winter lights, the letter and the New Year keep their dates.',
@@ -130,18 +128,16 @@ export const sections = {
   },
   moments: {
     title: 'The yard on its own',
-    lead: 'With time and weather on Auto, the yard follows your clock and picks its own weather. Some turns of it bring a moment worth catching.',
-    items: [
-      [
-        'Rainbow',
-        'When rain clears in daylight, a rainbow stands for a few minutes. Dig where it ends before it fades, and you never come up empty-handed.',
-      ],
-      ['Sunshower', 'Rain from a clear daytime sky falls with the sun still out.'],
-      ['Autumn mist', 'Mist lies on the field on clear autumn mornings.'],
-      ['Moonlit snow', 'Snow that stops at night glitters under the moon.'],
-      ['Shooting stars', 'They come often all through clear summer nights.'],
-      ['Birds', 'On clear days a flock crosses the sky now and then.'],
-    ],
+    kind: 'It’s a Desktop Companion you leave running while you work.',
+    lead: 'With time and weather on Auto, the yard follows your clock and picks its own weather. Watch for these.',
+    items: {
+      rainbow: ['Rainbow', 'A rainbow stands for a few minutes. Dig where it ends.'],
+      sunshower: ['Sunshower', 'Rain falls with the sun still out.'],
+      mist: ['Autumn mist', 'Mist lies on the field.'],
+      snowlight: ['Moonlit snow', 'The snow glitters under the moon.'],
+      meteors: ['Shooting stars', 'They fall often, all night long.'],
+      flock: ['Birds', 'Now and then a flock crosses the sky.'],
+    },
     closenessTitle: 'Growing closer',
     closenessLead:
       'Hearts on a name tag show how close a friend is. Time in the yard and things you do together count, a little each day.',
@@ -244,7 +240,12 @@ export const sections = {
   togetherLink: 'How chatting together works',
   workTitle: 'Coding agents',
   workBody:
-    'While your coding agent works, a friend tells you what it is doing. In Friends & settings → Settings → Coding tools, press Connect beside the tool you use. Claude Code, Gemini CLI, Grok Build, Qoder and Kimi Code report each step, Cursor when it edits and finishes, and Codex when it finishes a reply. Ask your friend “What were you up to?” and it tells you what just happened.',
+    'While your coding agent works, a friend tells you what it is doing. In Friends & settings → Settings → Coding tools, press Connect beside the tool you use. Ask your friend “What were you up to?” and it tells you what just happened.',
+  workReports: [
+    'Claude Code, Gemini CLI, Grok Build, Qoder and Kimi Code report each step.',
+    'Cursor reports when it edits and when it finishes.',
+    'Codex reports when it finishes a reply.',
+  ],
   workNote:
     'The connection stays on this computer. Hooks leave out your prompts and tool inputs; short status reports can still mention your work.',
   chatPlay: 'Let them chat',

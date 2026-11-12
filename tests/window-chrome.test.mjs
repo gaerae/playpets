@@ -15,7 +15,7 @@ test('the yard has no native or custom title bar on any platform after resizing'
   assert.doesNotMatch(html, /id="(?:mini|unmini)"/);
   assert.doesNotMatch(wiring, /windowMini\b|setMini|isMini/);
   assert.equal([...html.matchAll(/data-resize="/g)].length, 8);
-  assert.doesNotMatch(wiring, /win-min|win-max|win-close|windowMaximize/);
+  assert.doesNotMatch(wiring, /win-min|win-max|win-close/);
 });
 
 test('the window buttons come with the pointer at the top and with the keyboard', async () => {

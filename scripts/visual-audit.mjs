@@ -390,7 +390,7 @@ try {
   const sound = await page.evaluate(async () => {
     const { createSoundscape } = await import('./yard/soundscape.js');
     const { mixFor, CUES } = await import('./yard/soundmix.js');
-    const { seeded } = await import('./yard/brush.js');
+    const { seeded } = await import('./core/math.js');
     const random = Math.random;
     const results = [];
     Math.random = seeded(20261011);

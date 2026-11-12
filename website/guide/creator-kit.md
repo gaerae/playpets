@@ -1,5 +1,5 @@
 ---
-title: "Creator studio"
+title: "Character studio"
 sidebar: false
 outline: false
 aside: false
@@ -14,30 +14,50 @@ description: "Describe your character and download one creation KIT with its SKI
 import CreationStudio from "../.vitepress/theme/CreationStudio.vue";
 </script>
 
-# Creator studio
+# Character studio
 
 <CreationStudio lang="en" kind="pet" />
+
+## How the app uses the work rows
+
+A friend linked to a coding agent shows the agent's state in what it does, with the sheet's own rows.
+
+| Row | The agent is | Outdoor places and your backgrounds | Garden workshop |
+|---|---|---|---|
+| `working` | working | Stops and works where it stands | Sits at a table |
+| `waiting` | waiting for your approval | Comes to the front, near the middle | Stands by the bell post at the front |
+| `done` | finished | Plays it once, then strolls on | Rests in the tea corner |
+| `error` | stuck on an error | Stops where it stands | Stays at its table |
+
+- At a table only the upper body shows, so let `working` read from the waist up.
+- Keep the four rows easy to tell apart at a small size.
 
 <details>
 <summary>Environment and file requirements</summary>
 
-This free website builds the KIT locally in your browser. It doesn't generate images or upload your files. Everything after that happens in the AI tool you choose, so what's possible depends on that tool.
+The website only builds the KIT in your browser. It doesn't generate images or upload files; the rest happens in your AI tool.
 
-Your AI environment needs:
-- An AI agent that can work with files. An image-only tool can't run the supplied validation and packaging scripts.
-- Python 3, Pillow and an image generation tool.
+| You need | Note |
+|---|---|
+| An AI agent that works with files | An image-only tool can't run the validation and packaging scripts |
+| Python 3 and Pillow | Not installed for you |
+| An image generation tool | Check its price first. A ChatGPT plan doesn't include image API access |
 
-Dependencies aren't installed for you. Check what your tool can do and what the provider charges before you start. A ChatGPT subscription doesn't automatically include image API access.
+Steps:
+1. Approve eleven 4 × 2 image batches as the SKILL guides you.
+2. The supplied Python script assembles them into a transparent 1536 × 2288 RGBA v2 atlas.
+3. Check the nine animation rows and sixteen gaze directions.
+4. Import the finished ZIP.
 
-What the SKILL does:
-1. Guides you through eleven 4 × 2 image batches, each one for you to approve.
-2. Assembles them with the supplied Python script into a transparent 1536 × 2288 RGBA v2 atlas: nine animation states, sixteen gaze directions.
+| Outfit | Worn in |
+|---|---|
+| Base | Spring and autumn |
+| Summer | Summer |
+| Winter | Winter |
 
-Review the art and animation in your AI environment before you import the final ZIP.
-
-A pet gets three complete outfits by default: a base set for spring and autumn, one for summer and one for winter. Each set has all nine animation states and sixteen gaze directions. Separate spring or autumn outfits are made only when you explicitly ask for them. Backgrounds keep their own four-season workflow.
-
-The same SKILL can also improve an official friend. It keeps the friend's identity and approved movements.
+- Every outfit has all nine rows and sixteen gaze directions.
+- Separate spring or autumn outfits are made only when you ask.
+- The same SKILL can improve an official friend and keeps its identity and approved movements.
 
 [Import a pet](./import.md), [Pet format reference](/dev/standards/pet-files)
 

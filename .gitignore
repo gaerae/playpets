@@ -6,18 +6,9 @@ src-tauri/gen/schemas/
 # Local audits, review captures, backups and experiments; never a source or a package.
 /scratch/
 *.log
-# Sanitized parser fixtures are source, not local process logs.
-!tests/fixtures/**/*.log
 # a local data folder for development (docs/getting-started.md)
 /.dev-data/
 /.dev-data-*/
-# Optional local npm/browser caches and test reports; fixtures remain visible.
-/.npm/
-/.cache/
-/coverage/
-/.nyc_output/
-/test-results/
-/playwright-report/
 .DS_Store
 .env*
 # A future template contains placeholders only; never copy live credentials into it.

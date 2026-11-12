@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
 import test from 'node:test';
 import './support/content.mjs';
+import { seeded } from '../src/core/math.js';
 import { paintLand } from '../src/yard/backdrop.js';
-import { color, mix, seeded } from '../src/yard/brush.js';
+import { color, mix } from '../src/yard/brush.js';
 import { paintSky } from '../src/yard/clouds.js';
 import { lightFor, readPalette } from '../src/yard/palette.js';
 

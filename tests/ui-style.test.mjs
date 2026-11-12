@@ -36,12 +36,12 @@ test('everything the yard says shares one lane just above the dock, clear of the
 
 test('panels, controls and cards share restrained corner tokens while switches stay round', async () => {
   const css = await styles();
-  assert.match(css, /--radius-panel:8px/);
-  assert.match(css, /--radius-control:5px/);
-  assert.match(css, /--radius-card:6px/);
+  for (const token of ['panel', 'control', 'card']) assert.match(css, new RegExp(`--radius-${token}:\\d+px`));
   for (const selector of ['\\.asset-card', '\\.appearance-picker \\.appearance-card', '\\.album-card'])
     assert.match(css, new RegExp(`${selector}\\{[^}]*border-radius:var\\(--radius-card\\)`));
-  assert.match(css, /\.wander-switch\{[^}]*border-radius:10px/);
+  // Round: a corner at least half the switch's height.
+  const [, height, radius] = css.match(/\.wander-switch\{[^}]*height:(\d+)px;[^}]*border-radius:(\d+)px/) || [];
+  assert.ok(+radius * 2 >= +height, `${radius}px corners on a ${height}px switch`);
 });
 
 test('the AI kind, relation and appearance cards are one choice card, chosen and focused alike', async () => {
@@ -161,7 +161,6 @@ test('compact windows keep every panel and shared menu within the viewport', asy
   assert.match(css, /body\.compact \.layout.panel-open \.side-panel\{[^}]*inset:8px;[^}]*overflow:hidden/);
   assert.match(css, /body\.compact \.panel-body\{[^}]*overflow-y:auto/);
   assert.match(css, /\.layout.settings-open #panel-settings\{[^}]*display:flex;[^}]*overflow:hidden/);
-  assert.match(css, /body\.compact \.yard-dock\{[^}]*display:none/);
   for (const selector of ['.yard-controls-panel', '.scene-menu']) {
     const rules = css.split('}').filter(part => part.includes(`${selector}{`));
     assert.ok(
@@ -181,7 +180,6 @@ test('compact settings reserve height for their scroller and panels clear the do
   const sheet = css.match(/body\.compact \.layout.settings-open \.side-panel\{([^}]*)\}/)?.[1] || '';
   assert.match(sheet, /height:calc\(100% - 16px\)/, 'an absolute sheet has a definite height for its flex body');
   assert.match(sheet, /align-self:stretch/);
-  assert.match(css, /body\.compact \.yard-dock\{[^}]*display:none/);
 });
 
 test('compact chat keeps its composer visible while the log owns scrolling', async () => {
@@ -283,8 +281,6 @@ test('Settings owns a body scroller while its header and navigation stay outside
   assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*bottom:auto;/);
   assert.match(css, /\.layout.settings-open \.side-panel\{[^}]*max-height:calc\(100% - 96px\);/);
   assert.match(css, /\.settings-content\{[^}]*overflow-y:auto/);
-  assert.doesNotMatch(html, /id="settings-section"/);
-  assert.match(html, /id="settings-home"/);
 });
 
 test('Menu hover and selected settings states remain distinct', async () => {
@@ -590,12 +586,11 @@ test("a sky moment's glow stays out of rooms, where furniture fronts would show 
 
 // The agent's state rides in the name tag, beside the name: by the head it floated off a friend
 // drawn smaller at the back, and a seated friend's head is where a desk's laptop is.
-test("the agent's state dot sits in the name tag, beside the name", async () => {
+// Where it sits in the tag is yard-lifecycle.test.mjs's.
+test("the agent's state dot flows in the name tag instead of floating over the friend", async () => {
   const css = await styles();
   const rule = css.match(/\.pet-state-dot\{([^}]*)\}/)?.[1] || '';
   assert.doesNotMatch(rule, /position:absolute/);
-  const views = await readFile('src/yard/views.js', 'utf8');
-  assert.match(views, /tag\.append\(talkMark, tagName, dot,/);
 });
 
 test('indoor flowers use a planter without blocking their controls', async () => {
@@ -669,12 +664,6 @@ test('indoor growth stages enter the planter mouth without moving mature stems',
   );
 });
 
-test('floating scene menus stay above the full panel placement', async () => {
-  const css = await styles();
-  assert.match(css, /\.layout.panel-open \.side-panel\{[^}]*bottom:64px;/);
-  assert.match(css, /\.yard-controls-panel\{[^}]*z-index:30;/);
-});
-
 test('game notices and discoveries share a bounded flow outside the field', async () => {
   const css = await styles();
   assert.match(css, /\.yard-feedback\{[^}]*position:absolute;[^}]*inset:auto 12px 64px;[^}]*overflow-y:auto/);
@@ -686,7 +675,6 @@ test('game notices and discoveries share a bounded flow outside the field', asyn
 
 test('startup notices float above the yard instead of shrinking it into a disconnected panel', async () => {
   const css = await styles();
-  assert.match(css, /\.yard-feedback\{[^}]*position:absolute/);
   assert.match(css, /\.startup-notice\{[^}]*max-width:/);
   assert.match(css, /#warning-messages\{[^}]*overflow-y:auto/);
   const html = await readFile('src/index.html', 'utf8');

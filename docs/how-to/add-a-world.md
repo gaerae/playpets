@@ -13,14 +13,13 @@
    - `geometry.lake` takes `from`, `to`, `center` and `radius`: fractions that describe the same raster water people click.
    - `geometry.fishingSpot` takes normalized `x` and `y`: a separate standing position on the floor.
    - The fishing spot follows the same image transform as the water.
-4. Set each capability on purpose: `sky`, `weather`, `wildlife`, `fishing`, `seasonalEffects` and `ambient`.
+4. Set each capability on purpose: `sky`, `weather`, `soil`, `wildlife`, `fishing`, `seasonalEffects` and `ambient`.
    - An indoor place usually turns off outdoor activities.
    - For weather through windows, enable `weather` and define `windowPanes` as normalized `x`, `y`, `width` and `height` rectangles over the glass.
    - Rain, snow and overcast shading share the background crop and stay inside those panes.
    - Do not enable fishing to make an activity button work when the image has no usable water.
 5. Put generated or illustrated images in `assets/art/environments/` and run `pnpm run assets:webp` for the copies in `src/art/environments/`. Keep earlier source assets.
-   - With authored lighting, name the images in `art.morning`, `art.day`, `art.evening` and `art.night`, and set `"authoredLighting": true` so `environmentLook` does not tint the painted light again.
-   - Without it, `environmentLook` lights each time of day in a place with pictures with its own gentle filter and tint.
+   - `environmentLook` lights each time of day with its own gentle filter and tint, so one picture per season serves the whole day.
 6. Set `fit` to keep the image's proportions as the window changes shape.
    - `"cover-floor"` anchors the image's floor to `geometry.fieldTop`.
    - `"cover-bottom"` aligns the image's bottom edge instead of its floor line.
@@ -64,7 +63,7 @@
 - Set the `soil` capability to `false` for a paved floor: flowers stand in pots and nothing is dug.
 - Use `"fit": "cover-bottom"` so a short window keeps the front of the room.
 - Draw the furniture at the friends' size for a window 850px tall: in a room, friends grow with the picture in larger windows (up to twice), so that size holds at full screen. With `cover-bottom`, the field follows the picture's floor line in a window wider than the picture.
-- A room whose glass shows the live sky takes the outdoor light: name its picture under `seasonArt` (the same id for every season is fine), not under `art`. Its panes are not washed over again in rain.
+- A room whose glass shows the live sky takes the outdoor light: name its picture under `seasonArt` (the same id for every season is fine). Its panes are not washed over again in rain.
 - A station the window crops away is not used: a waiting friend comes to the front of the yard, and a working or resting friend stays where it stands.
 - Put a station where the friend standing there reads clearly: beside a narrow post, not behind it.
 - Check the room with every friend working, at day and night, in rain, and in a short wide window.
@@ -113,11 +112,9 @@ Ids:
 Built-in places:
 - The courtyard, hillside garden and lakeside each have four seasonal images.
 - The renderer adds time-of-day lighting, a dynamic sky and weather.
-- Snow selects the winter artwork even when another season is selected.
+- Season and weather are separate: snow falls over the selected season's artwork.
 - The garden workshop (`workshop`) has one picture. Its glass shows the live sky and weather, and the renderer lights it for the time of day.
-- A room without sky can still give an image per time of day (`art` with `authoredLighting`) and seasonal scenery inside its window masks (`windowArt`); `tests/indoor-environment.test.mjs` checks both with a fixture room.
-  - The seasonal views get time-of-day lighting before window weather is drawn.
-  - Snow and winter are independent: snow keeps the selected season's window view.
+- A room without a sky, such as a background of your own, shows rain and snow only inside its window panes; `tests/indoor-environment.test.mjs` checks it with a fixture room.
 - Indoor places hide outdoor creatures, fishing and seasonal particles, and keep friends and collections.
 
 Version 1 imported packages:

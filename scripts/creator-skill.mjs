@@ -64,7 +64,7 @@ export async function copyCreatorSkill(destination = 'website/public/creator-kit
       backgroundSheet({ indoor: id === 'interior', ...backgroundLayout(id) }),
     );
   }
-  // The interior example is the retired living room's daylight picture, kept with the sources.
+  // The interior example is a daylight room kept with the sources; no place ships it.
   for (const [id, file] of [
     ['garden', 'art/environments/green'],
     ['lakeside', 'art/environments/lakeside-spring'],

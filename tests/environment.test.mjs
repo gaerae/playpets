@@ -57,9 +57,9 @@ test('fishing targets stay inside the generated pond at wide and narrow sizes', 
 test('wide and portrait environments preserve image proportions and keep the floor anchored', async () => {
   const { environmentFrame } = await import('../src/yard/environment.js');
   const { useWorlds, worldFor } = await import('../src/yard/worlds.js');
-  const { den } = await import('./support/den.mjs');
-  useWorlds([...JSON.parse(await readFile(new URL('../src/content/worlds.json', import.meta.url))), den]);
-  for (const world of ['woodland', 'den']) {
+  const { attic } = await import('./support/attic.mjs');
+  useWorlds([...JSON.parse(await readFile(new URL('../src/content/worlds.json', import.meta.url))), attic]);
+  for (const world of ['woodland', attic.id]) {
     const floor = worldFor(world).geometry.fieldTop;
     for (const [w, h] of [
       [1200, 260],
@@ -134,32 +134,6 @@ test('woodland walking floor stays below the visible pond shoreline in a wide st
   assert.ok(woodland.geometry.fieldTop >= 0.65, 'the source pond reaches about 65% of its image height');
 });
 
-// docs/how-to/add-a-world.md: a place with its own pictures but without "authoredLighting" has each
-// time of day lit by the page; with it, the pictures are shown as painted.
-test('a place with its own pictures is lit by the time of day unless its lighting is authored', async t => {
-  const { useWorlds } = await import('../src/yard/worlds.js');
-  const definitions = JSON.parse(await readFile(new URL('../src/content/worlds.json', import.meta.url)));
-  const art = { day: 'gallery-day', night: 'gallery-night' },
-    capabilities = { sky: false, weather: false };
-  useWorlds([
-    ...definitions,
-    { id: 'gallery', art, capabilities },
-    { id: 'lamplit', art, authoredLighting: true, capabilities },
-  ]);
-  t.after(() => useWorlds(definitions));
-  const look = (world, period) => environmentLook({ world, period, weather: 'clear', season: 'summer' });
-  assert.deepEqual(look('gallery', 'day'), { art: 'gallery-day', filter: 'none', tint: null });
-  assert.equal(look('gallery', 'morning').art, 'gallery-day', 'a missing time of day falls back to the day');
-  assert.equal(look('gallery', 'evening').art, 'gallery-day');
-  assert.equal(look('gallery', 'night').art, 'gallery-night');
-  for (const period of ['morning', 'evening', 'night']) {
-    assert.notEqual(look('gallery', period).filter, 'none', `${period} is lit`);
-    assert.ok(look('gallery', period).tint, `${period} is tinted`);
-    assert.deepEqual(look('lamplit', period), { art: look('gallery', period).art, filter: 'none', tint: null });
-  }
-  assert.notEqual(look('gallery', 'night').filter, look('gallery', 'morning').filter);
-});
-
 test('festival lights follow each tree through wide and mini crops and never light indoor rooms', async () => {
   const { environmentFrame, environmentLightStrands, paintEnvironment } = await import('../src/yard/environment.js');
   const { worldFor } = await import('../src/yard/worlds.js');
@@ -199,23 +173,17 @@ test('festival lights follow each tree through wide and mini crops and never lig
   assert.deepEqual(environmentLightStrands(500, 350, { world: 'workshop' }), []);
 });
 
-test('snow preserves imported and indoor seasonal imagery', async () => {
+test('snow preserves imported seasonal imagery', async () => {
   const { worlds } = await import('../src/yard/worlds.js');
-  const { environmentWindowLook } = await import('../src/yard/environment.js');
   const place = {
     id: 'weather-season-fixture',
     imageSources: { base: 'base', spring: 'spring', winter: 'winter' },
-    windowArt: { spring: 'spring-window', winter: 'winter-window' },
   };
   worlds.push(place);
   try {
     assert.equal(
       environmentLook({ world: place.id, season: 'spring', weather: 'snow', period: 'day' }).art,
       `${place.id}:spring`,
-    );
-    assert.equal(
-      environmentWindowLook({ world: place.id, season: 'spring', weather: 'snow', period: 'day' }).art,
-      'spring-window',
     );
     assert.equal(
       environmentLook({ world: place.id, season: 'winter', weather: 'clear', period: 'day' }).art,

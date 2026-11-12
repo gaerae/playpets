@@ -34,11 +34,16 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Fireflies in the yard are mostly their light, a soft halo with a warm-white heart, over a small body that shows as the light fades, instead of a long beetle with a faint glow. Each kind keeps its own colour, size and blink.
 - Fewer, quieter fireflies: a handful on a full yard and one or two in a small window instead of nine whatever the size, up to eight on firefly nights instead of twenty-two. Each glows as a soft halo around one bright point, and about half are lit at any moment, so they no longer wash over friends and gifts. The Firefly nights announcement and the guide now say more fireflies, not many more.
 - A friend holds the bug net in its paws and leans it out under its face, instead of the handle starting behind its hip. A friend from an imported pet file holds the fishing rod in front of its body too.
+- A friend whose agent is already working, waiting or done takes its seat in the Garden workshop as soon as you go there, and lets it go when you leave for another place, instead of waiting for its agent's next report.
 
 ### Website and docs
 
+- The guide is easier to scan: the Garden workshop compared with the gardens in one table, weather moments in a table, rules as bullets and steps, and the same headings and tables in every language. It says the agent dot sits in the name tag, lists Grok Build, Qoder and Kimi Code, names daytime beetles and grasshoppers, and calls the creator page Character studio everywhere. The landing says more fireflies, not many more.
 - The guide lists the Garden workshop in place of the Cozy living room, says where a friend goes for each state of its agent, and shows the state dot beside the name. Its living room picture is gone.
 - The website's place picker shows four places, with the Garden workshop's day sky through its glass, and the site and README count four places.
+- The landing's seasons and the yard's own moments read as recipes: what has to come together (season, time of day, weather, a gift out in the yard, a Play menu item) as small chips, then what happens in one short line. Christmas night shows its two steps: the tree that grows, then the sleigh.
+- The Korean and Japanese landings also name the app in their own script, the Chinese landing calls it a desktop pet in the words people search with, and each landing says it is a Desktop Companion you leave running, in Steam's own words for that language.
+- The creator studio shows what the work rows (`working`, `waiting`, `done`, `error`) make a friend do in each place, and the background studio compares the built-in places with your own background in a table. Requirements and steps are short tables and lists.
 
 ## [1.6.1] - 2026-11-12
 
