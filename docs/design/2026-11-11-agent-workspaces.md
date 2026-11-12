@@ -179,3 +179,4 @@ New `geometry.stations` in `worlds.json`, in source-image fractions like `geomet
 - Waiting: the approval spot is to the right of the bell post, on the open floor. A waiting friend is not drawn behind the bench, and in a 300×210 window it stands by the bell, fully visible, above the floor's edge.
 - Furniture keeps the friends' size: a seated friend's tag rests on the table top, and the bench is about two friends wide.
 - The bench, the post and its lantern are one front, cut along their outline.
+- The tables' fronts follow the top board and the legs too, not their boxes: a lantern's ground glow or a gift's shade behind a table stops at the table, not at a straight edge beside it.
