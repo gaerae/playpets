@@ -9,7 +9,7 @@ import { appWord, dayRange, kindArt, kindName } from './album-art';
 const props = defineProps<{
   lang: string;
   seasons: string[];
-  copy: { letter: string; items: Record<string, string> };
+  copy: { letter: string; christmas: string; items: Record<string, string> };
 }>();
 const SEASONS = ['spring', 'summer', 'autumn', 'winter'];
 const cards = YEAR.flatMap(({ season, items }) => items.map(item => ({ season, ...item })));
@@ -21,6 +21,7 @@ const title = (id: string, event: boolean) =>
         shoots: appWord(props.lang, 'album.shoots'),
         footprints: appWord(props.lang, 'album.tracks'),
         letter: props.copy.letter,
+        christmas: props.copy.christmas,
       }[id] || id;
 const when = (item: { id: string; event?: boolean; from?: string; to?: string }) => {
   const days = item.event ? events.events.find(e => e.id === item.id) : item;

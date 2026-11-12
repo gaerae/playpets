@@ -55,6 +55,7 @@ import {
   refreshShownDecor,
   renderDecor,
   setupDecor,
+  shownDecor,
   thanksTick,
 } from './yard/decor.js';
 import { openDecorating, renderDecorating, setupDecorating } from './yard/decorating.js';
@@ -70,20 +71,20 @@ import {
   setupDiscovery,
   syncDiscovery,
 } from './yard/discovery.js';
-import { renderGarden, setupGarden } from './yard/garden.js';
+import { pullPlant, renderGarden, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { setupLetterCard } from './yard/letter-card.js';
 import { answered, letterPress, letterReadable, openReadable, setupLetters, syncLetter } from './yard/letter.js';
 import { moveFriends } from './yard/motion.js';
 import { drawTreeOrnaments } from './yard/ornaments.js';
 import { petalTick, setupPetals, wishAt } from './yard/petals.js';
-import { renderTrees, setupTrees } from './yard/planted-trees.js';
+import { removeTree, renderTrees, setupTrees } from './yard/planted-trees.js';
 import { after, endGame, gameTap, judge, playGame, setupPlay, startGame, syncGameUi } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
 import { cancelShootDigs, renderShoots, setupShoots, shootsMinute } from './yard/shoots.js';
 import { chosenSeason, setupSky, showSeason } from './yard/sky.js';
 import { resizeTrail, setupSnowTrail } from './yard/snow-trail.js';
-import { canDress, canGoOut, closeDress, openDress, renderDress, setupDress } from './yard/snowman-dress.js';
+import { canDress, closeDress, openDress, renderDress, setupDress } from './yard/snowman-dress.js';
 import { resizeSnowman, setupSnowman, showsWinter, snowmanTick } from './yard/snowman.js';
 import { cue, setupSound, soundSeen } from './yard/sound.js';
 import { setupTouches } from './yard/touches.js';
@@ -132,9 +133,10 @@ setupTabs({ beforeOpen: cancelDiscovery });
 setupControls({
   openChat,
   putAway,
+  pullPlant,
+  removeTree,
   dress: openDress,
   canDress,
-  canGoOut,
   canDigAt,
   digAt,
   letterReadable,
@@ -263,8 +265,8 @@ setupChristmasNight({ seen: () => shown });
 setupDecor({
   drawn: () => {
     christmasNightCheck();
-    drawTreeOrnaments();
-    // The decorating view follows the tree: put away, back with Undo, or gone after January 7.
+    drawTreeOrnaments(shownDecor('xmas_tree')?.button, data.garden);
+    // The decorating view follows the tree: put away, back with Undo, or hidden with the yard's season.
     renderDecorating();
     // The dress tray follows its snowman the same way.
     renderDress();

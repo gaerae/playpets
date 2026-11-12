@@ -197,28 +197,27 @@ export function place(v) {
   // The body goes by translate, so its depth (scale, below) shrinks it about its feet and not its
   // place; the canvas inside keeps transform for a press, a tilt or a step.
   v.button.style.translate = `${v.px}px ${v.py}px`;
-  v.label.style.transform = `translate(${v.px}px,${v.py}px)`;
   // Nearer the bottom is nearer the viewer: drawn on top, in front of what stands behind it. By
   // its feet, as the garden's plants and gifts in the same layer are (depthAt). Written only when
   // it changes: this runs every frame a friend moves.
-  const z = depthAt(v.py + petHeight(v.pet));
+  const height = petHeight(v.pet),
+    z = depthAt(v.py + height);
   if (v.z !== z) {
     v.z = z;
     v.button.style.zIndex = String(z);
   }
-  // Farther back is smaller, about the feet, and so is where it is pressed; the tag stays its
-  // size, and the body's room in the label shrinks too, so the bubble stays on the head. Rounded,
-  // so a step does not write it again.
-  // Seated at a desk, its feet and the tag's place over them are behind the desk's front
-  // (workspace.js): the tag goes down to the feet, on that front, and leaves the face above it seen.
-  const depth = Math.round(depthScale(v.y) * 100) / 100,
-    room = v.spot?.kind === 'desk' ? 1 : depth;
-  if (v.depth !== depth || v.room !== room) {
+  // Farther back is smaller, about the feet, and so is where it is pressed. The tag stays its size
+  // under the feet: the label starts where the shrunk body does, its body room shrinks with it, and
+  // what sits on the head (the line, a petal) goes by the head shrunk the same
+  // way (--depth, friends.css). Rounded, so a step does not write it again.
+  const depth = Math.round(depthScale(v.y) * 100) / 100;
+  if (v.depth !== depth) {
     v.depth = depth;
-    v.room = room;
     v.button.style.scale = String(depth);
-    if (v.body) v.body.style.height = `${petHeight(v.pet) * room}px`;
+    v.label.style.setProperty('--depth', String(depth));
+    if (v.body) v.body.style.height = `${height * depth}px`;
   }
+  v.label.style.transform = `translate(${v.px}px,${v.py + height * (1 - depth)}px)`;
   stackLabel(v);
 }
 // Labels are a layer above everything on the field, in the same order, the selected friend's first.

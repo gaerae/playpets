@@ -115,8 +115,9 @@ test('a gift that came before comes back out of its card, once, unless it is out
   assert.equal(full.title, t('album.set_out_full'));
 });
 
-// Set out in July, a Christmas gift would go into a spot no one sees: it waits, and says when it shows.
-test('a December gift waits in the album until December', async ctx => {
+// Set out in July in a yard kept in autumn, a Christmas gift would go into a spot no one sees: it
+// waits, and says when it shows. A winter yard shows it any day.
+test('a December gift waits in the album until December or a winter yard', async ctx => {
   ctx.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: new Date(2026, 6, 1, 12).getTime() });
   const { GIFTS } = await import('../src/yard/catalog.js');
   const { scene } = await import('../src/yard/world.js');
@@ -124,7 +125,7 @@ test('a December gift waits in the album until December', async ctx => {
   ctx.after(() => {
     scene.season = was;
   });
-  scene.season = 'winter';
+  scene.season = 'autumn';
   // A card's Set out button; cards are in catalogue order.
   const cardOf = (nodes, kind) => {
     const card = nodes.get('album-grid').children[GIFTS.findIndex(g => g.id === kind)];
@@ -149,6 +150,9 @@ test('a December gift waits in the album until December', async ctx => {
   ctx.mock.timers.setTime(new Date(2026, 6, 1, 12).getTime());
   nodes = album(ctx, { received: ['xmas_tree'], decor: [{ id: 'x', kind: 'xmas_tree', x: 0.5, y: 0.5 }] });
   assert.equal(cardOf(nodes, 'xmas_tree').title, t('album.shown_december'));
+  scene.season = 'winter';
+  nodes = album(ctx, garden);
+  assert.equal(cardOf(nodes, 'xmas_tree').disabled, false, 'a winter yard in July shows it');
 });
 
 // A snowman is built in the snow, never set out: its card offers nothing until one stands in the yard.

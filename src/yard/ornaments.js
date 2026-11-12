@@ -9,15 +9,14 @@
 // In the yard a bauble is tint, rim and shine only (garden.css "Ornaments"): in a full-width yard
 // it is about 8 px on the small tree and 11 on the grand one, where the item's drawing would be
 // noise. The view that hangs them is large enough to draw it inside. Each tree's layer is rebuilt
-// only when what hangs on it changed, not at every drawing of the gifts.
+// only when what hangs on it changed, not at every drawing of the gifts. A tree out on the desktop
+// wears them too (overlay.js), so this module keeps to the catalogue and the drawings: no yard.
 
 import { t } from '../core/i18n.js';
-import { data } from '../core/state.js';
+import { percent } from '../core/math.js';
 import { artSvg } from './art.js';
 import { FLOWERS, GIFTS, TREASURES, TREES, flowerKind, giftKind, treasureKind, treeKind } from './catalog.js';
-import { percent } from './christmas-night.js';
 import { flowerSvg, giftSvg } from './creatures.js';
-import { shownDecor } from './decor.js';
 import { localDay } from './growth.js';
 
 /** The books an ornament comes from, in the order they are offered (album.js BOOKS ids). */
@@ -149,19 +148,18 @@ function hang(layer, hanging, hooks, season) {
   );
 }
 
-/** Brings the yard's Christmas tree's baubles in line with what hangs on it: on the small drawing,
- * and on the grand one once it is made, with the grand tree's tree-shaped handle beside them. Run
- * after every drawing of the gifts, after the Christmas night check. */
-export function drawTreeOrnaments() {
-  const found = shownDecor('xmas_tree');
-  if (!found) return;
-  const now = new Date(),
-    season = ornamentSeason(now),
-    hanging = treeOrnaments(data.garden, now),
+/** Brings a Christmas tree's baubles in line with what hangs on it in `garden`: on the small
+ * drawing in `button` (the yard's tree, or one out on the desktop), and on the grand one once the
+ * yard has made it, with the grand tree's tree-shaped handle beside them. The yard runs it after
+ * every drawing of the gifts, after the Christmas night check. */
+export function drawTreeOrnaments(button, garden, now = new Date()) {
+  if (!button) return;
+  const season = ornamentSeason(now),
+    hanging = treeOrnaments(garden, now),
     gift = giftKind('xmas_tree');
-  hang(layerIn(found.button), hanging, gift.hooks, season);
-  const art = found.button.querySelector('.xmas-art'),
-    night = found.button.querySelector('.xmas-night');
+  hang(layerIn(button), hanging, gift.hooks, season);
+  const art = button.querySelector('.xmas-art'),
+    night = button.querySelector('.xmas-night');
   if (!art || !night) return;
   hang(layerIn(art), hanging, gift.night.hooks, season);
   if (!night.querySelector('.xmas-hit')) night.append(span('xmas-hit'));

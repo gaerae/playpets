@@ -318,131 +318,12 @@
 .period-night .decor[data-effects~="glow"] svg {
   filter: none;
 }
-/* Christmas night (yard/christmas-night.js): on a snowy December evening or night the little tree
-   grows into the grand one. The grand tree is a layer inside the small tree's button, standing on
-   the same foot and taking presses only through its handle (.xmas-hit, under "Ornaments");
-   .xmas-grand shows it, and every turn either way is a short crossfade. .xmas-rise is the change
-   itself, once a night: a gold veil climbs from the roots and uncovers the grand tree while the
-   small one fades, the star swells once and warm light pools on the snow. */
-.decor .xmas-night {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  translate: -50% 0;
-  pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.6s,
-    visibility 0s 0.6s;
-}
-.decor.xmas-grand .xmas-night {
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 0.6s;
-}
-.decor[data-kind="xmas_tree"] > svg {
-  transition:
-    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 0.6s;
-}
-.decor.xmas-grand > svg {
-  opacity: 0;
-}
-/* The window the grand tree shows through while it rises. It reaches 15 % of the tree's height
-   above it, room for its soft top edge (masked during the change) to clear the star at the end. */
-.xmas-reveal {
-  position: absolute;
-  inset: -15% 0 0;
-  overflow: hidden;
-}
-.xmas-art {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 86.96%;
-}
-/* The lit tree is dimmed at night a little, not as much as the rest, so it is lit but not pasted
-   on. */
+/* Christmas night (yard/christmas-night.js): the grand tree and its change are drawn in worn.css,
+   alike in the yard and on the desktop. Here is what only the yard has: its light on the tree,
+   the guests looking up and the gold after the sleigh. The lit tree is dimmed at night a little,
+   not as much as the rest, so it is lit but not pasted on. */
 .period-night .decor .xmas-art svg {
   filter: brightness(0.86);
-}
-.xmas-pool {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  width: 170%;
-  height: 22%;
-  translate: -50% 50%;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, #ffd27a66, #ffd27a00);
-}
-/* The veil rides the window's soft top edge, and is soft on every side, so it reads as light
-   rather than a band. */
-.xmas-veil {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -18.5%;
-  height: 22%;
-  background: radial-gradient(closest-side, #ffd98acc, #ffd98a00);
-  opacity: 0;
-}
-.xmas-star {
-  position: absolute;
-  width: 26%;
-  aspect-ratio: 1;
-  translate: -50% -50%;
-  border-radius: 50%;
-  background: radial-gradient(circle, #fff3c4cc, #ffd27a00 70%);
-  opacity: 0.85;
-}
-/* A single bulb glints now and then (christmas-night.js GLINT_MS): a soft four-point sparkle, a
-   glow with two thin bars, centred on the bulb the script names with left and top. */
-.xmas-glint {
-  position: absolute;
-  width: 15%;
-  min-width: 6px;
-  aspect-ratio: 1;
-  translate: -50% -50%;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, #fff0, #fff 50%, #fff0) center / 100% 5% no-repeat,
-    linear-gradient(0deg, #fff0, #fff 50%, #fff0) center / 5% 100% no-repeat,
-    radial-gradient(closest-side, #fff 0%, #fff 12%, #ffe9a8dd 30%, #ffd27a66 60%, #ffd27a00);
-  opacity: 0;
-}
-.xmas-glint.glinting {
-  animation: xmas-glint 0.7s ease-in-out both;
-}
-/* The change: every part runs 2.6 s on one curve (christmas-night.js RISE_MS ends it). The window
-   rises while the drawing in it moves down as much (115 % of the tree's height each), so the tree
-   stays put and is uncovered from the roots up. */
-.decor.xmas-rise > svg,
-.decor.xmas-rise > .ornaments,
-.decor.xmas-rise .xmas-night {
-  transition: none;
-}
-.decor.xmas-rise > svg,
-.decor.xmas-rise > .ornaments {
-  animation: xmas-small-out 2.6s ease-in-out both;
-}
-.decor.xmas-rise .xmas-reveal {
-  mask-image: linear-gradient(to bottom, #0000, #000 13%);
-  animation: xmas-reveal-out 2.6s ease-in-out both;
-}
-.decor.xmas-rise .xmas-art {
-  animation: xmas-reveal-in 2.6s ease-in-out both;
-}
-.decor.xmas-rise .xmas-veil {
-  animation: xmas-veil-rise 2.6s ease-in-out both;
-}
-.decor.xmas-rise .xmas-star {
-  animation: xmas-star-swell 2.6s ease-in-out both;
-}
-.decor.xmas-rise .xmas-pool {
-  animation: xmas-pool-in 2.6s ease-in-out both;
 }
 /* With the sleigh (christmas-night.js), the baby reindeer and Santa look up in turn: a short tilt
    back from the foot. */
@@ -522,195 +403,8 @@
     opacity: 0;
   }
 }
-@keyframes xmas-glint {
-  0% {
-    transform: scale(0.2);
-    opacity: 0;
-  }
-  35% {
-    transform: scale(1.3);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(0.2);
-    opacity: 0;
-  }
-}
-@keyframes xmas-small-out {
-  0%,
-  15% {
-    opacity: 1;
-  }
-  85%,
-  100% {
-    opacity: 0;
-  }
-}
-@keyframes xmas-reveal-out {
-  0%,
-  8% {
-    transform: translateY(100%);
-  }
-  85%,
-  100% {
-    transform: translateY(0);
-  }
-}
-@keyframes xmas-reveal-in {
-  0%,
-  8% {
-    transform: translateY(-115%);
-  }
-  85%,
-  100% {
-    transform: translateY(0);
-  }
-}
-@keyframes xmas-veil-rise {
-  0%,
-  8% {
-    transform: translateY(0);
-    opacity: 0;
-  }
-  15% {
-    opacity: 1;
-  }
-  85% {
-    transform: translateY(-523%);
-  }
-  90% {
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(-523%);
-    opacity: 0;
-  }
-}
-@keyframes xmas-star-swell {
-  0%,
-  70% {
-    transform: scale(0.3);
-    opacity: 0;
-  }
-  85% {
-    transform: scale(1.5);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0.85;
-  }
-}
-@keyframes xmas-pool-in {
-  0%,
-  40% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-/* Ornaments (yard/ornaments.js): found things hung on the Christmas tree, each a small bauble
-   tinted by its book with a gold rim, a cap and a shine; the rim and the shine grow with the bauble
-   (cqi of its own width), so a small one is not all rim. In the yard there is no drawing inside:
-   about 8 px wide on the small tree and 11 on the grand one in a full-width yard, it would be
-   noise. A tree's layer covers its drawing (hooks are shares of it) and follows it: scaled with it
-   from the foot, faded with the small tree as it turns grand, dimmed with each tree at night. The
-   tints are the decorating view's too (dialog.css): its books' swatches and the tray's chips. */
-.bauble {
-  position: absolute;
-  aspect-ratio: 1;
-  translate: -50% -10%;
-  container-type: inline-size;
-}
-/* The cap; in the decorating view it rides with the ball while the bauble flies (dialog.css). */
-.bauble::before,
-.bauble-fly-y::before {
-  content: "";
-  position: absolute;
-  left: 35%;
-  top: -16%;
-  width: 30%;
-  height: 20%;
-  border-radius: 1px 1px 0 0;
-  background: linear-gradient(#f3d58c, #b98d3a);
-}
-.bauble-ball {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: radial-gradient(circle at 34% 30%, #fff 0 3%, var(--c1) 14%, var(--c) 44%, var(--c2) 86%);
-  box-shadow:
-    inset 0 0 0 1px #d9b25e,
-    0 1px 2px #0004;
-}
-.bauble-ball::after {
-  content: "";
-  position: absolute;
-  left: 18%;
-  top: 10%;
-  width: 38%;
-  height: 22%;
-  border-top: 1px solid #fff2d8e6;
-  border-radius: 50%;
-  rotate: -24deg;
-}
-/* The rim and the shine at a share of the bauble where cqi is known. WebKitGTK before 2.40 has no
-   cqi, would drop a whole declaration using it, and keeps the plain 1 px ones above; the CSS lint
-   forbids a property twice in one rule, so the fallback lives outside this block. */
-@supports (width: 1cqi) {
-  .bauble-ball {
-    box-shadow:
-      inset 0 0 0 clamp(0.5px, 6cqi, 1.5px) #d9b25e,
-      0 1px 2px #0004;
-  }
-  .bauble-ball::after {
-    border-top-width: clamp(0.5px, 9cqi, 1.5px);
-  }
-}
-.bauble.flower,
-.decorating-kind.flower,
-.ornament-chip.flower {
-  --c: #dfa4aa;
-  --c1: #f6d7da;
-  --c2: #b06f78;
-}
-.bauble.tree,
-.decorating-kind.tree,
-.ornament-chip.tree {
-  --c: #9cbf96;
-  --c1: #dbead6;
-  --c2: #5f8a5f;
-}
-.bauble.gift,
-.decorating-kind.gift,
-.ornament-chip.gift {
-  --c: #b9a8d6;
-  --c1: #e6def3;
-  --c2: #7d6aa3;
-}
-.bauble.treasure,
-.decorating-kind.treasure,
-.ornament-chip.treasure {
-  --c: #ddbb70;
-  --c1: #f5e6bf;
-  --c2: #a8843a;
-}
-.decor .ornaments {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  transform-origin: 50% 100%;
-  transition:
-    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 0.6s;
-}
-.decor > .ornaments .bauble {
-  width: 13%;
-}
-.xmas-art .ornaments .bauble {
-  width: 10.5%;
-}
+/* A tree's ornaments in the yard (worn.css draws them, and sizes and fades them with the grand
+   tree) follow its drawing: scaled with it from the foot, dimmed with each tree at night. */
 .decor:hover > .ornaments,
 .decor:focus-visible > .ornaments,
 .decor.dragging > .ornaments,
@@ -718,9 +412,6 @@
 .decor:focus-visible .xmas-art .ornaments,
 .decor.dragging .xmas-art .ornaments {
   transform: scale(1.06);
-}
-.decor.xmas-grand > .ornaments {
-  opacity: 0;
 }
 .period-night .decor > .ornaments {
   filter: brightness(0.62) saturate(0.75);
@@ -756,16 +447,7 @@
 .yard.period-evening .plant[data-stage="bloom"]:focus-visible svg {
   filter: brightness(0.88) saturate(0.85) drop-shadow(0 0 2px var(--focus));
 }
-/* What a built snowman wears (yard/snowman-dress.js): each part placed over the drawing by its
-   anchor, free to rise above the box (the hat), and scaled with the snowman as one when it is
-   pointed at, chosen or dragged. */
-.decor .dress-layers {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  transform-origin: 50% 100%;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
+/* What a snowman wears (worn.css) scales with it as one when it is pointed at, chosen or dragged. */
 .decor:hover > .dress-layers,
 .decor:focus-visible > .dress-layers,
 .decor.dragging > .dress-layers {
@@ -808,14 +490,6 @@
     transform: scaleY(0.15) translateY(4px);
     opacity: 0;
   }
-}
-.dress-part {
-  position: absolute;
-}
-.decor .dress-part svg {
-  display: block;
-  height: auto;
-  transform: none;
 }
 /* The dress-up tray stands above the snowman inside the yard: a toggle for each part, then Done. */
 .dress-tray {

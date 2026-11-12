@@ -1,9 +1,11 @@
 // The garden: plants where they were put, at the stage the clock says, and seeds found by digging.
 // The rules for stages and seasonal flowers are in growth.js; the backend keeps the
 // garden and its limits (src-tauri/src/pets/garden.rs). Plants are drawn once and looked at again
-// once a minute; nothing here moves on its own.
+// once a minute; nothing here moves on its own. The person drags one to move it, and its menu sends
+// it out to the desktop or pulls it up.
 
 import { companionImage, playCompanionAction, prepareCompanionAction } from '../core/companion-actions.js';
+import { openPlantMenu } from '../core/controls.js';
 import { joinList, list, t } from '../core/i18n.js';
 import { onEscape } from '../core/keys.js';
 import { pick } from '../core/math.js';
@@ -14,12 +16,12 @@ import { artHref, artSize, colorStyle } from './art.js';
 import { befriend } from './bond.js';
 import { showCard } from './card.js';
 import { setAimingMode } from './care.js';
-import { flowerKind, STAGES } from './catalog.js';
+import { flowerKind } from './catalog.js';
 import { flowerSvg } from './creatures.js';
 import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
-import { flowerFor, hoursMinutes, stageOf, untilBloom } from './growth.js';
+import { flowerFor, hoursMinutes, plantArt, plantStature, stageOf, untilBloom } from './growth.js';
 import { shapeHits } from './hit-shape.js';
-import { propButton, propScale, reconcile, removeWithUndo, setDown } from './props.js';
+import { movable, moveSaved, propButton, propScale, reconcile, removeWithUndo, setDown } from './props.js';
 import { cue } from './sound.js';
 import { forPerson, release, rest, sendTo } from './trips.js';
 import { bubble, cheer } from './views.js';
@@ -31,10 +33,6 @@ const UNIT = 1.25;
 const shown = new Map();
 const RETRY_MS = 15 * 1000;
 
-// What a plant is drawn with at a stage: the stage's drawing, or in bloom its flower's.
-function artAt(plant, stage) {
-  return STAGES.find(s => s.name === stage)?.art || flowerKind(plant.kind)?.art || '';
-}
 function wait(ms) {
   const { hours, minutes } = hoursMinutes(ms);
   return hours ? t('garden.hm', { hours, minutes }) : t('garden.m', { minutes });
@@ -50,53 +48,77 @@ function label(plant, now) {
   const what = joinList([name, t(`garden.stage_${stage}`)]);
   return left ? joinList([what, t('garden.until', { time: wait(left) })]) : what;
 }
+const current = id => data.garden?.plants?.find(p => p.id === id);
+// Where a plant stands, drawn at the stage the clock says (a drag shows it at `point` first).
+function position(v, plant, now = Date.now(), point = plant) {
+  const stage = stageOf(plant.planted, now).name,
+    art = plantArt(plant, stage);
+  if (v.art !== art) {
+    v.art = art;
+    v.use.setAttribute('href', artHref(art));
+    v.svg.setAttribute('viewBox', `0 0 ${artSize(art).join(' ')}`);
+    v.button.dataset.stage = stage;
+    shapeHits(v.button, art);
+  }
+  // Some flowers stand taller than others once grown (catalog.json "stature").
+  const [aw, ah] = artSize(art),
+    { x, y } = fieldToYard(point),
+    scale = propScale(),
+    tall = plantStature(plant, stage),
+    w = aw * UNIT * scale * tall,
+    h = ah * UNIT * scale * tall;
+  // Nearer the front, drawn over the ones behind it.
+  setDown(v.button, x, y, w, h, 1 + Math.round(point.y * 100));
+}
+// Moved at once and saved after, as a tree is (props.js moveSaved); refused, it goes back.
+const save = guard(async (v, point) => {
+  const plant = current(v.id);
+  if (!plant || v.busy) return;
+  await moveSaved(v, plant, point, {
+    send: () => call('movePlant', plant.id, point.x, point.y),
+    current: () => current(plant.id),
+    show: () => position(v, plant),
+    settle: () => renderGarden(),
+  });
+});
 function create(plant) {
   const button = propButton('plant', plant.kind);
   // The flower's colours, for the bud and the bloom.
   button.style.cssText = colorStyle(flowerKind(plant.kind)?.colors);
   button.innerHTML = '<svg aria-hidden="true"><use/></svg>';
-  // A click waters it (the nearest friend walks over); placing a seed, the click plants there.
-  button.addEventListener('click', e => {
-    if (aiming) return;
-    e.stopPropagation();
-    water(plant.id);
+  const v = {
+    id: plant.id,
+    button,
+    svg: button.querySelector('svg'),
+    use: button.querySelector('use'),
+    art: '',
+    drag: null,
+    busy: false,
+  };
+  // Moved as a planted tree is; its menu sends it out to the desktop or pulls it up, and Delete pulls
+  // it up at once (with Undo). A click waters it (the nearest friend walks over); placing a seed, the
+  // click plants there.
+  movable(v, {
+    current: () => current(v.id),
+    show: at => position(v, current(v.id), Date.now(), at),
+    save: at => save(v, at),
+    menu: at => openPlantMenu(v.id, at),
+    remove: () => pullPlant(v.id),
+    settle: () => renderGarden(),
+    press: e => {
+      if (aiming) return;
+      e.stopPropagation();
+      water(v.id);
+    },
   });
-  // Aiming a treat or seed, or in a game, a plant is left alone, as a tree and a gift are.
-  button.addEventListener('contextmenu', e => {
-    e.preventDefault();
-    if (!aiming && !game) pull(plant.id);
-  });
-  button.addEventListener('keydown', e => {
-    if (aiming || game) return;
-    if (e.key === 'Delete' || e.key === 'Backspace') {
-      e.preventDefault();
-      pull(plant.id);
-    }
-  });
-  return { button, svg: button.querySelector('svg'), use: button.querySelector('use'), art: '' };
+  return v;
 }
 /** Brings the field in line with the backend's garden, at the stage the clock says. */
 export function renderGarden(now = Date.now()) {
-  const scale = propScale();
   reconcile(shown, data.garden?.plants || [], create, (v, plant) => {
-    const stage = stageOf(plant.planted, now).name,
-      art = artAt(plant, stage);
-    if (stage === 'bloom' && !plant.bloomed) bloomed(plant, now);
-    if (v.art !== art) {
-      v.art = art;
-      v.use.setAttribute('href', artHref(art));
-      v.svg.setAttribute('viewBox', `0 0 ${artSize(art).join(' ')}`);
-      v.button.dataset.stage = stage;
-      shapeHits(v.button, art);
-    }
-    // Some flowers stand taller than others once grown (catalog.json "stature").
-    const [aw, ah] = artSize(art),
-      { x, y } = fieldToYard(plant),
-      tall = stage === 'bloom' || stage === 'bud' ? flowerKind(plant.kind)?.stature || 1 : 1,
-      w = aw * UNIT * scale * tall,
-      h = ah * UNIT * scale * tall;
-    // Nearer the front, drawn over the ones behind it.
-    setDown(v.button, x, y, w, h, 1 + Math.round(plant.y * 100));
+    if (stageOf(plant.planted, now).name === 'bloom' && !plant.bloomed) bloomed(plant, now);
+    // A plant being dragged stays under the pointer.
+    if (!v.drag?.moved) position(v, plant, now);
     v.button.title = label(plant, now);
     v.button.setAttribute('aria-label', v.button.title);
   });
@@ -163,8 +185,9 @@ export function visitTarget(v) {
   walkTo(v, pick(blooms), { arrive: visited, slow: true, own: true });
   return v.target;
 }
-// Pulled up at once with a moment to undo it (props.js); the backend removes it only after that.
-function pull(id) {
+/** Pulls a plant up at once, with a moment to undo it (props.js); the backend removes it only after
+ * that. Its menu (core/controls.js) and Delete come here. */
+export function pullPlant(id) {
   const plant = data.garden?.plants.find(p => p.id === id),
     view = shown.get(id);
   if (!plant || !view) return;

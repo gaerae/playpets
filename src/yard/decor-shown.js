@@ -1,10 +1,11 @@
-// Whether a kind of decoration is in the yard now. A Christmas gift ("shown" in catalog.json) shows
-// only inside its window and a built snowman ("seasons") only while the yard shows one of them, but
-// neither leaves the garden: the rest of the year it waits out of sight with its place and its
-// desktop spot, so it comes back where it was. A hidden one still counts toward the yard's 12, so
-// the yard never holds more than that when the window opens; out of sight, it takes no ground. The
-// yard, its ground, friends' visits and the album's Set out ask here rather than reading a gift's
-// `shown` or `seasons` themselves.
+// Whether a kind of decoration is in the yard now. A built snowman ("seasons" in catalog.json) shows
+// only while the yard shows one of its seasons; a Christmas gift ("shown" and "seasons") inside its
+// window or while the yard shows winter, so a person who wants it picks the winter yard any day
+// (docs/decisions/2026-11-12-scenes-before-dates.md). Neither leaves the garden: the rest of the
+// time it waits out of sight with its place and its desktop spot, so it comes back where it was. A
+// hidden one still counts toward the yard's 12, so the yard never holds more than that when it
+// shows; out of sight, it takes no ground. The yard, its ground, friends' visits and the album's
+// Set out ask here rather than reading a gift's `shown` or `seasons` themselves.
 
 import { GIFTS, giftKind } from './catalog.js';
 import { inEvent } from './events.js';
@@ -14,10 +15,13 @@ import { worldAllows } from './worlds.js';
 export const SHOWN = Object.freeze({ december: Object.freeze({ from: '12-01', to: '01-07', fixed: true }) });
 
 const monthDay = date => `${date.getMonth() + 1}-${date.getDate()}`;
-// An unknown window name hides nothing (the content tests keep every name in SHOWN).
-const shows = (gift, md, season) =>
-  !(gift.shown && SHOWN[gift.shown] && !inEvent(SHOWN[gift.shown], md)) &&
-  !(gift.seasons && !gift.seasons.includes(season));
+// A kind with a rule shows when any of its rules lets it; one with none always. An unknown window
+// name is no rule (the content tests keep every name in SHOWN).
+const shows = (gift, md, season) => {
+  const window = gift.shown && SHOWN[gift.shown];
+  if (!window && !gift.seasons) return true;
+  return (!!window && inEvent(window, md)) || !!gift.seasons?.includes(season);
+};
 
 /** The season the yard shows in `scene` (world.js), or null in a place with no seasons to show
  * (worlds.json `seasonalEffects`), such as the studio: no snow there, so no snowman either. The

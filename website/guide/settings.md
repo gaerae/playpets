@@ -32,7 +32,7 @@ Friends greet you and chatter in the language you picked, and AI replies use it 
 
 Turn this on and PlayPets starts whenever you log in to your computer. It's off by default.
 
-If desktop mode is on, the yard window doesn't open at login. Your friends come out on the desktop, and the window waits in the tray.
+If desktop mode is on, the yard window doesn't open at login. What you put out on the desktop comes out, and the window waits in the tray.
 
 Your system keeps this choice: Login Items on macOS, Startup apps on Windows, an autostart entry on Linux. Turning it off in either place turns it off.
 

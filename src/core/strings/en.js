@@ -12,7 +12,7 @@ export const strings = {
   'album.gift_rule':
     'A friend you did something with that day may bring a gift, one every other day. Friends also bring one when you grow closer.',
   'album.set_out_full': 'The yard is full. Put a decoration away to set this out.',
-  'album.shown_december': 'Shows in the yard from December 1 to January 7',
+  'album.shown_december': 'Shows in the yard from December 1 to January 7, and whenever the yard shows winter',
   'album.shown_winter': 'Shows while the yard shows winter',
   'album.set_out': '{kind}: set it out in the yard',
   'album.take_out': 'Set out',
@@ -108,7 +108,9 @@ export const strings = {
   'tree.cherry': 'Cherry tree',
   'tree.maple': 'Maple',
   'tree.pine': 'Pine',
-  'tree.drag': '{kind}, drag to move, right-click to remove',
+  'tree.drag': '{kind}, drag to move, right-click for its menu',
+  'tree.remove': 'Remove',
+  'tree.visit': ['What a nice tree!', 'Let’s rest in the shade~', 'Grow big and tall!'],
   'tree.growth': 'Sapling',
   'tree.young': 'Young tree',
   'tree.mature': 'Mature tree',
@@ -354,6 +356,7 @@ export const strings = {
   'garden.m': '{minutes} min',
   'garden.pulled': '{kind} pulled up',
   'garden.pulled_young': 'Young plant pulled up',
+  'garden.pull': 'Pull up',
   'garden.water': ['Grow, grow!', 'Here is some water~', 'Thirsty?'],
   'garden.visit': ['Smells nice~', 'It bloomed!', 'A flower!'],
   'decor.kind_bench': 'Bench',
@@ -811,7 +814,7 @@ export const strings = {
   'settings.language_note': 'Changing it reloads the page',
   'settings.autostart': 'Start PlayPets when you log in',
   'settings.autostart_note':
-    'With desktop mode on, only your friends come out on the desktop; the window stays in the tray.',
+    'With desktop mode on, the window stays in the tray and only what you put out comes out on the desktop.',
   'settings.update': 'App updates',
   'settings.update_current': 'This is version {version}',
   'settings.update_store':

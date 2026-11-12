@@ -26,7 +26,7 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
 
 ## Why PlayPets
 - 🐾 Reads Codex pet files (the custom pets made for ChatGPT and Codex) as they are: every action, and the sixteen look directions when the sheet has them. Codex is not needed.
-- 👥 Up to 12 friends at once, in the yard and out on your desktop, one by one, with gifts from the yard to decorate it. Keep your pet in the ChatGPT desktop app too: both read the same pet files.
+- 👥 Up to 12 friends at once, in the yard and out on your desktop, one by one, with gifts, flowers and trees from the yard to decorate it. Keep your pet in the ChatGPT desktop app too: both read the same pet files.
 - 💬 They chat with you, and with each other, through the AI you pick.
 - 🧑‍💻 They react to Claude Code, Codex, Gemini CLI, Cursor and other MCP tools.
 - 🏡 A yard of their own: six places or your own backgrounds, gifts like a swing or a pond, four games (one only in winter), a garden, fishing and a 169-entry album.
@@ -48,7 +48,7 @@ Site in: [English](https://playpets.gaerae.com/) · [Korean](https://playpets.ga
 | Places | Six places and imported backgrounds; season, time and weather controls |
 | Play | Hide and seek, parade, tag |
 | Garden and album | Dig for seeds, saplings and keepsakes; plant; fish and catch bugs; fill a 169-entry album |
-| Desktop mode | Send friends and gifts out one by one from their right-click menu; friends stroll and visit the gifts (on macOS, over full-screen apps too) |
+| Desktop mode | Send friends, gifts, flowers and trees out one by one from their right-click menu; friends stroll and visit them (on macOS, over full-screen apps too) |
 | Coding company | Hooks and MCP for Claude Code, Codex, Gemini CLI, Cursor, Grok Build, Qoder, Kimi Code and other MCP tools |
 | Languages | English, Korean, Japanese, Simplified Chinese |
 

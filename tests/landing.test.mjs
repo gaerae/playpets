@@ -501,6 +501,11 @@ test('the landing shows every album book and every seasonal event with how to en
         catalog[book].some(kind => kind.id === id),
         `${item.id}: ${id}`,
       );
+  // Christmas night is called up by the scene, not the calendar (docs/decisions/2026-11-12): a
+  // winter card of its own with no dates, apart from the December lights.
+  const christmas = shown.find(item => item.id === 'christmas');
+  assert.ok(christmas && !christmas.event && !christmas.from, 'christmas night has no dates');
+  assert.ok(YEAR.find(s => s.season === 'winter').items.includes(christmas));
   // The letter's days are the app's.
   const letter = shown.find(item => item.id === 'letter');
   const day = md => new Date(2026, Number(md.slice(0, 2)) - 1, Number(md.slice(3)));
@@ -512,7 +517,7 @@ test('the landing shows every album book and every seasonal event with how to en
     for (const book of ALBUM_BOOKS) assert.ok(sections.album.books[book]?.length > 20, `${lang}: ${book}`);
     for (const item of shown) assert.ok(sections.year.items[item.id]?.length > 20, `${lang}: ${item.id}`);
     for (const key of ['title', 'lead', 'link']) assert.ok(sections.album[key]?.length, `${lang}: album ${key}`);
-    for (const key of ['title', 'lead', 'south', 'link', 'letter'])
+    for (const key of ['title', 'lead', 'south', 'link', 'letter', 'christmas'])
       assert.ok(sections.year[key]?.length, `${lang}: year ${key}`);
   }
   const landing = read('website/.vitepress/theme/Landing.vue');

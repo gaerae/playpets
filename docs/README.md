@@ -104,6 +104,7 @@ New here? Read in this order.
 
 ## Deep dives and reference
 **Decision records**: why the structure is the way it is. The standards cite them as their basis.
+- [Let the scene, not the date, call up the yard's moments](decisions/2026-11-12-scenes-before-dates.md)
 - [Make the yard livelier on the current renderer before reaching for a game engine](decisions/2026-11-11-living-yard-on-the-current-renderer.md)
 - [Write release notes for each reader, with one user page per version for every system](decisions/2026-10-28-release-notes-by-audience.md)
 - [Track the Linux GTK advisories without hiding them](decisions/2026-10-15-linux-gtk-advisories.md)

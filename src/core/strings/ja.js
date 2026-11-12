@@ -16,7 +16,7 @@ export const strings = {
   'album.gift_rule':
     '友だちと何かをした日に、その友だちが二日に一度プレゼントを持ってきます。仲良くなったときにも届きます。',
   'album.set_out_full': '庭がいっぱいです。飾りを一つ片付けると出せます。',
-  'album.shown_december': '12月1日から1月7日まで庭に出ます',
+  'album.shown_december': '12月1日から1月7日までと、庭が冬のときに出ます',
   'album.shown_winter': '庭が冬のときに出ます',
   'album.set_out': '{kind}を庭に出す',
   'album.take_out': '庭に出す',
@@ -112,7 +112,9 @@ export const strings = {
   'tree.cherry': '桜',
   'tree.maple': 'カエデ',
   'tree.pine': '松',
-  'tree.drag': '{kind}、ドラッグで移動、右クリックで片づける',
+  'tree.drag': '{kind}、ドラッグで移動、右クリックでメニュー',
+  'tree.remove': '片づける',
+  'tree.visit': ['すてきな木だ！', '木かげでひと休み〜', '大きく育ってね！'],
   'tree.growth': '苗木',
   'tree.young': '若木',
   'tree.mature': '成木',
@@ -353,6 +355,7 @@ export const strings = {
   'garden.m': '{minutes}分',
   'garden.pulled': '{kind}を抜きました',
   'garden.pulled_young': 'まだ咲いていない花を抜きました',
+  'garden.pull': '抜く',
   'garden.water': ['すくすく育て！', 'お水どうぞ〜', 'のど乾いた？'],
   'garden.visit': ['いい匂い〜', 'きれいに咲いた！', 'お花だ！'],
   'decor.kind_bench': 'ベンチ',
@@ -805,7 +808,8 @@ export const strings = {
   'settings.language': '言語',
   'settings.language_note': '変えると画面を読み込み直します',
   'settings.autostart': 'ログインしたらPlayPetsも起動する',
-  'settings.autostart_note': 'デスクトップモードがオンなら、ウィンドウは開かず友だちだけがデスクトップに出てきます。',
+  'settings.autostart_note':
+    'デスクトップモードがオンなら、ウィンドウは開かず、デスクトップに出しておいたものだけが出てきます。',
   'settings.update': 'アプリのアップデート',
   'settings.update_current': '現在のバージョン {version}',
   'settings.update_store':

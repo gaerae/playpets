@@ -2,8 +2,10 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   decorFloor,
+  DEPTH_FAR,
   depthAt,
   dockBox,
+  drawnBox,
   field,
   fieldTop,
   fieldToYard,
@@ -110,6 +112,33 @@ test('a friend kept or dropped behind the dock is lifted to stand just above it'
   place(beside);
   clearOfDock(beside);
   assert.equal(beside.y, 1, 'beside the dock it stays where it is');
+});
+// A friend farther back is drawn smaller about its feet. What goes with it follows the drawing, not
+// its unshrunk box: the tag under its feet, its line and the agent's dot on its head (--depth), and
+// the rod in its paws (drawnBox), or they float above a friend at the back.
+test('what sits on a friend far back follows its shrunk drawing', t => {
+  yardIn(t);
+  for (const [y, depth] of [
+    [0, DEPTH_FAR],
+    [1, 1],
+  ]) {
+    const v = friendAt(0.5, y);
+    place(v);
+    const width = 96,
+      height = petHeight(v.pet),
+      foot = footOf(v);
+    assert.equal(v.depth, depth);
+    assert.equal(v.label.style['--depth'], String(depth), 'the head offset shrinks with it');
+    assert.equal(
+      v.label.style.transform,
+      `translate(${v.px}px,${v.py + height * (1 - depth)}px)`,
+      'the label starts where the shrunk drawing does, so the tag stays under its feet',
+    );
+    const box = drawnBox(v);
+    assert.ok(Math.abs(box.y + box.height - foot.y) < 1e-9, 'the drawing still stands on its feet');
+    assert.ok(Math.abs(box.x + box.width / 2 - foot.x) < 1e-9, 'about its middle');
+    assert.ok(Math.abs(box.width - width * depth) < 1e-9 && Math.abs(box.height - height * depth) < 1e-9);
+  }
 });
 // Plants and gifts are ordered by where their foot is on the field (depthAt); friends walk on
 // further down, so they are ordered by their feet the same way, or one standing just in front of a

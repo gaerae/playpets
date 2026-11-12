@@ -23,7 +23,7 @@ import { setAimingMode } from './care.js';
 import { bite, kindOf } from './catalog.js';
 import { bugSvg, fishSvg } from './creatures.js';
 import { environmentFishingSpot, environmentLake } from './environment.js';
-import { field, footTarget, petHeight, sizeOf } from './field.js';
+import { drawnBox, field, footTarget, petHeight, sizeOf } from './field.js';
 import { authoredRodTip, castGeometry, castLandingX, linePath, ROD, rodPlacement, rodUrl } from './fishing-rod.js';
 import { hint } from './hint.js';
 import { composition, lakeShape, trace } from './layout.js';
@@ -143,9 +143,8 @@ function fishArrived(v) {
     float = document.createElement('button'),
     rod = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
     line = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
-    rodX = v.px + sizeOf(v.pet) * 0.6;
-  const water = lake();
-  fishing.x = castLandingX(rodX, fishing.x, sizeOf(v.pet), water.ends);
+    water = lake();
+  fishing.x = castLandingX(gripX(v), fishing.x, sizeOf(v.pet), water.ends);
   fishing.y = floatY(water, fishing.x);
   float.type = 'button';
   float.className = 'bobber';
@@ -247,20 +246,17 @@ function reel() {
   land();
 }
 
+// Where a friend holds its rod: from the friend as drawn, shrunk by its depth, so the rod is in its
+// paws and the line leaves the painted rod's tip.
+const grip = body => ({ x: body.x + body.width * 0.6, y: body.y + body.height * 0.74 });
+const gripX = v => grip(drawnBox(v)).x;
 function paintFishingArtwork(tackle, now) {
   if (!tackle.line || !tackle.rod) return;
   const v = tackle.v;
-  const width = sizeOf(v.pet);
-  const height = petHeight(v.pet);
-  const cast = castGeometry(
-    { x: v.px + width * 0.6, y: v.py + height * 0.74 },
-    { x: tackle.x, y: tackle.y },
-    width,
-    height,
-  );
+  const body = drawnBox(v);
+  const cast = castGeometry(grip(body), { x: tackle.x, y: tackle.y }, body.width, body.height);
   const action = companionAction(v, now);
-  const paintedTip =
-    companionImage(action) && authoredRodTip(action, { x: v.px, y: v.py, width, height }, reduced.matches);
+  const paintedTip = companionImage(action) && authoredRodTip(action, body, reduced.matches);
   if (paintedTip) {
     if (!tackle.rod.hasAttribute('hidden')) tackle.rod.setAttribute('hidden', '');
   } else {
@@ -502,7 +498,7 @@ export function refitFishing() {
   }
   Object.assign(v, standAt(v, x));
   place(v);
-  fishing.x = castLandingX(v.px + sizeOf(v.pet) * 0.6, x, sizeOf(v.pet), water.ends);
+  fishing.x = castLandingX(gripX(v), x, sizeOf(v.pet), water.ends);
   fishing.y = floatY(water, fishing.x);
   fishing.float.style.left = `${fishing.x}px`;
   fishing.float.style.top = `${fishing.y}px`;

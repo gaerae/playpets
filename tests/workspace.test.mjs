@@ -279,21 +279,19 @@ test("a desk's front is drawn over a friend whose feet are behind its foot line"
   }
 });
 
-test("a friend seated at a desk wears its tag at its feet, on the desk's front, not over its face", async t => {
+test("a friend wears its tag at its feet, standing or seated at a desk, so a desk's front never puts it over the face", async t => {
   inOffice(t);
   const { place } = await import('../src/yard/views.js');
   const { petHeight } = await import('../src/yard/field.js');
   const a = friend('a', { y: 0.2 });
   a.body = element();
-  place(a);
-  const full = petHeight(a.pet);
-  assert.ok(parseFloat(a.body.style.height) < full, 'at the back, standing, its tag rises with its smaller body');
-  a.spot = { kind: 'desk', x: 0.5, y: 0.2 };
-  place(a);
-  assert.equal(parseFloat(a.body.style.height), full, 'seated, the tag goes down to its feet');
-  a.spot = null;
-  place(a);
-  assert.ok(parseFloat(a.body.style.height) < full, 'up again, it rises again');
+  // Where the tag starts: the label's top plus the body's room in it.
+  const tagTop = () => Number(/,([-\d.]+)px\)/.exec(a.label.style.transform)[1]) + parseFloat(a.body.style.height);
+  for (const spot of [null, { kind: 'desk', x: 0.5, y: 0.2 }]) {
+    a.spot = spot;
+    place(a);
+    assert.ok(Math.abs(tagTop() - (a.py + petHeight(a.pet))) < 1e-6, spot ? 'seated' : 'standing');
+  }
 });
 
 test('a workspace takes the outdoor light, and its glass is not washed over as a painted window is', async () => {

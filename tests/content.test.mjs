@@ -233,6 +233,8 @@ test('the snowman has a ball, a stack and three things to wear, all drawn', () =
     'drawn in this order',
   );
   for (const p of s.dress) assert.ok(p.at.length === 3 && p.at.every(v => v > 0 && v < 1), p.id);
+  // A part may be turned a little, never so far it reads as falling off.
+  for (const p of s.dress) assert.ok(p.turn === undefined || (p.turn !== 0 && Math.abs(p.turn) <= 15), p.id);
   assert.ok(s.stack.length === 2 && s.stack[0] > 0.5 && s.stack[0] < 1 && s.stack[1] >= 0 && s.stack[1] < 0.3);
   const arts = artOf(catalog);
   for (const art of [s.ball, ...s.dress.map(p => p.art)])

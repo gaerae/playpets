@@ -20,6 +20,7 @@ import { showCard } from './card.js';
 import { giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
 import { decorShown, hiddenKinds, yardSeason } from './decor-shown.js';
+import { dressLayers } from './dress-layers.js';
 import { effectLayers, effectsVisited } from './effects.js';
 import { giftEvent } from './events.js';
 import { decorFloor, depthAt, EDGE, field, fieldToYard, footTarget, petHeight, sizeOf, yardToDecor } from './field.js';
@@ -36,7 +37,7 @@ import {
   setDown,
   giftSize as size,
 } from './props.js';
-import { dressLayers, wornDress } from './snowman-dress.js';
+import { wornDress } from './snowman-dress.js';
 import { cue } from './sound.js';
 import { forPerson, isFree, rest, sendTo } from './trips.js';
 import { bubble, cheer, effect } from './views.js';

@@ -101,6 +101,7 @@ export const sections = {
     title: 'Something new every season',
     lead: 'The yard follows the calendar on your computer. These are the times it changes, and what to do then.',
     letter: 'Year-end letter',
+    christmas: 'Christmas night',
     items: {
       blossom:
         'Petals drift and more butterflies come out. Choose Play → Flower viewing to gather your friends under a cherry tree, and click a falling petal to catch it. A friend brings a cherry sapling.',
@@ -111,7 +112,9 @@ export const sections = {
       harvest:
         'Around the full moon it rises big and golden, and the moonlight carp comes to the lake at night. A friend brings a pumpkin.',
       lights:
-        'Lights glow along the trees. Friends bring a little Christmas tree, a baby reindeer and Santa. Press the tree to hang up to three album finds a day. On a snowy night it grows into a grand tree, and with the reindeer and Santa out, a sleigh crosses the moon.',
+        'Lights glow along the trees. Friends bring a little Christmas tree, a baby reindeer and Santa, and they come out whenever the yard shows winter too. Press the tree to hang up to three album finds a day.',
+      christmas:
+        'On any day, with the yard showing winter and the little tree out, pick a snowy evening or night and the tree grows into a grand tree. With the reindeer and Santa out, a sleigh crosses the moon. A tree on your desktop grows too.',
       snowman:
         'While the yard shows winter, choose Play → Snowman. Roll three snowballs with your friends, stack them, then pick a hat, scarf and nose.',
       footprints:

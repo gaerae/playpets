@@ -106,6 +106,9 @@ pub struct AppData {
     /// The gift kinds the yard hides right now, as it last reported (hideDecor); the desktop leaves
     /// them out too. Not saved; `None` until the yard reports.
     pub hidden_decor: Option<Vec<String>>,
+    /// The gift kinds the yard shows in their night look right now (decorNight: the Christmas tree
+    /// standing grand); the desktop shows them so too. Not saved.
+    pub night_decor: Vec<String>,
 }
 
 pub type Shared = Mutex<AppData>;
@@ -271,6 +274,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "busy": d.talks.busy_ids().collect::<Vec<_>>(),
         "desktopLayout": layout,
         "desktop": desktop_on(d),
+        "nightDecor": d.night_decor,
         "communities": importer::communities_json(),
         // The paths shown are the ones Explorer finds, as Open folder opens them (system.rs).
         "petFolders": {"builtin": crate::system::outside_view(&d.builtin_pets), "codex": d.codex_pets, "downloaded": crate::system::outside_view(&d.store.dir.join("pets"))},
@@ -580,6 +584,7 @@ pub(crate) mod tests {
             detected: json!({}),
             activity: HashMap::new(),
             hidden_decor: None,
+            night_decor: Vec::new(),
         }
     }
 
