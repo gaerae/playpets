@@ -449,23 +449,24 @@ static COMMANDS: &[Command] = &[
     }),
     // (kinds): the gift kinds the yard hides now, so the desktop leaves them out too (not saved).
     main("hideDecor", |c| {
-        let kinds = c
-            .arg(0)
-            .as_array()
-            .and_then(|list| {
-                list.iter()
-                    .map(|k| k.as_str().map(str::to_string))
-                    .collect::<Option<Vec<_>>>()
-            })
-            .ok_or_else(|| i18n::t("error.bad_request"))?;
-        if !kinds.iter().all(|k| crate::pets::content::catalog().is_gift(k)) {
-            return Err(i18n::t("error.bad_request"));
-        }
+        let kinds = gift_kinds(c.arg(0))?;
         let mut d = lock(&c.state);
         if d.hidden_decor.as_ref() == Some(&kinds) {
             return Ok(Value::Null);
         }
         d.hidden_decor = Some(kinds);
+        crate::app::changed(c.app, &d);
+        Ok(Value::Null)
+    }),
+    // (kinds): the gift kinds the yard shows in their night look now (the Christmas tree standing
+    // grand, yard/christmas-night.js), so the desktop shows them so too (not saved).
+    main("decorNight", |c| {
+        let kinds = gift_kinds(c.arg(0))?;
+        let mut d = lock(&c.state);
+        if d.night_decor == kinds {
+            return Ok(Value::Null);
+        }
+        d.night_decor = kinds;
         crate::app::changed(c.app, &d);
         Ok(Value::Null)
     }),
@@ -576,6 +577,22 @@ static COMMANDS: &[Command] = &[
         })
     }),
 ];
+
+/// A list of gift kinds the page sent (hideDecor, decorNight), each one the catalogue has.
+fn gift_kinds(arg: &Value) -> Result<Vec<String>, String> {
+    let kinds = arg
+        .as_array()
+        .and_then(|list| {
+            list.iter()
+                .map(|k| k.as_str().map(str::to_string))
+                .collect::<Option<Vec<_>>>()
+        })
+        .ok_or_else(|| i18n::t("error.bad_request"))?;
+    if !kinds.iter().all(|k| crate::pets::content::catalog().is_gift(k)) {
+        return Err(i18n::t("error.bad_request"));
+    }
+    Ok(kinds)
+}
 
 fn command(name: &str) -> Option<&'static Command> {
     COMMANDS.iter().find(|c| c.name == name)
@@ -754,6 +771,7 @@ mod tests {
             "growTrees",
             "setOnDesktop",
             "hideDecor",
+            "decorNight",
             "takeOut",
             "hangOrnament",
             "takeDownOrnament",

@@ -73,6 +73,8 @@
 | Keeping | Ornaments stay on the tree all winter and show on it in the yard. At the next `lights` they are taken down, so each December starts a fresh tree |
 | Data | `garden.ornaments` (`[{book, id, hook}]`), `garden.ornamentDay` (`{day, count}`), `garden.ornamentYear` |
 
+Follow-up (2026-11-12, [scenes before dates](../decisions/2026-11-12-scenes-before-dates.md)): the tree, the reindeer and Santa also show whenever the yard shows winter. Christmas night no longer needs `lights`: a winter yard, a snowy evening or night and the tree out, on any date. The tree grows each time that night comes together in sight, and the sleigh can fly once each time it grows; a restart the same night keeps it grand without the change. The desktop's tree turns grand and grows with the yard's. The tree can be decorated whenever it is out; a new December still starts a fresh tree.
+
 Follow-up (2026-11-10): the decorating view lets a person take a bauble down from its card. It frees the hook and does not return the day's count. With three a day the tree fills in about four days, and taking one down lets it keep changing through the season.
 
 ## Building a snowman

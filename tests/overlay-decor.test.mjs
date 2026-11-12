@@ -77,3 +77,36 @@ test('a gift is drawn once, named, and a flower changes only when its look does'
   assert.notEqual(flower.button.innerHTML, drawn);
   assert.equal(flower.button.dataset.stage, 'sprout');
 });
+
+test('the desktop tree stands grand while the yard says so, and grows when it turns grand out here', async t => {
+  const { wearArt } = await import('../src/overlay/wear.js');
+  const { reduced } = await import('../src/core/sprites.js');
+  await drawYard(t, { now: NOW, art: wearArt('xmas_tree') });
+  assert.ok(wearArt('xmas_tree').includes(giftKind('xmas_tree').night.art), 'the grand drawing is loaded too');
+  const tree = desktopThing('x', 'xmas_tree');
+  const garden = { plants: [], decor: [{ id: 'x', kind: 'xmas_tree', x: 0.5, y: 0.5 }] };
+  const has = name => tree.button.classList.contains(name);
+  const layers = () => tree.button.children.filter(c => typeof c === 'object' && c.classList.contains('xmas-night'));
+  await drawDecor(
+    tree,
+    () => garden,
+    () => 'winter',
+    () => ['xmas_tree'],
+  );
+  assert.ok(has('xmas-grand'), 'out on a Christmas night, it is grand at once');
+  assert.ok(!has('xmas-rise'));
+  dressDecor(tree, garden, 'winter', new Date(NOW), []);
+  assert.ok(!has('xmas-grand'));
+  dressDecor(tree, garden, 'winter', new Date(NOW), ['xmas_tree']);
+  assert.ok(has('xmas-grand'));
+  assert.ok(has('xmas-rise'), 'turning grand while out, it grows');
+  t.mock.timers.tick(2600);
+  assert.ok(!has('xmas-rise'));
+  assert.equal(layers().length, 1, 'the grand layer is made once');
+  dressDecor(tree, garden, 'winter', new Date(NOW), []);
+  reduced.matches = true;
+  t.after(() => (reduced.matches = false));
+  dressDecor(tree, garden, 'winter', new Date(NOW), ['xmas_tree']);
+  assert.ok(has('xmas-grand'));
+  assert.ok(!has('xmas-rise'), 'with reduced motion it is a crossfade');
+});

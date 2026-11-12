@@ -1,20 +1,24 @@
-// Christmas night: on a snowy December evening or night, with the yard showing winter and the
-// lights event on, the little Christmas tree lights up and grows into the grand tree, once a night
-// (about 2.6 s: a gold veil climbs from the roots and reveals it while the small one fades, the
-// star swells once, a warm light pools on the snow, and nearby friends look up). It stays while
-// the snow falls and goes back with a short crossfade when it stops; a later turn the same night,
-// and reduced motion, are that crossfade too. A night begins on its evening: before 05:00 it is
-// still the evening before's.
+// Christmas night: on a snowy evening or night in a winter yard, with the little Christmas tree
+// out, the tree lights up and grows into the grand tree (about 2.6 s: a gold veil climbs from the
+// roots and reveals it while the small one fades, the star swells once, a warm light pools on the
+// snow, and nearby friends look up). It stays while the snow falls and goes back with a short
+// crossfade when it stops. No date is asked for: December brings the winter yard and its gifts on
+// its own, and on any other day a person who picks a snowy winter night calls it up
+// (docs/decisions/2026-11-12-scenes-before-dates.md). It grows each time the night comes together
+// in sight; the first look after a restart or a reload the same night, and reduced motion, are the
+// crossfade. A night begins on its evening: before 05:00 it is still the evening before's.
 //
-// DOM and CSS only: the grand tree is a layer inside the small tree's own button (made the first
-// time it turns grand), the change is keyframes on that layer (garden.css), and one timer ends it,
-// so the frame loop (app.js animate) does no more work for it. It is checked when the gifts are
-// drawn, at the scene's minute repaint, and when the window is seen again.
+// DOM and CSS only: the grand tree is a layer inside the small tree's own button (grand-tree.js,
+// made the first time it turns grand), the change is keyframes on that layer (worn.css), and one
+// timer ends it, so the frame loop (app.js animate) does no more work for it. It is checked when
+// the gifts are drawn, at the scene's minute repaint, and when the window is seen again. The
+// desktop's tree follows: the backend is told whether the tree stands grand, seen or not.
 //
 // With the baby reindeer and Santa out on a night (the moon stands only from 20:00), a while after
 // the tree stands grand they look up, the moon brightens through the snow, a sleigh crosses it
-// right to left, and gold drifts down from the star; once a night, then calm. With reduced motion
-// it is a still sleigh over the moon for a moment. Its few timers end it, as the change's does.
+// right to left, and gold drifts down from the star; once each time the tree grows, then calm.
+// With reduced motion it is a still sleigh over the moon for a moment. Its few timers end it, as
+// the change's does.
 //
 // The night it last played, and the night the sleigh last flew, are kept in webview storage, as
 // the event card's year is (festival.js): the app starts at login and reloads after an update, and
@@ -22,20 +26,19 @@
 
 import { between, percent } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
-import { $, data, forget, recall, remember, views } from '../core/state.js';
-import { artSize, artSvg } from './art.js';
-import { giftKind } from './catalog.js';
-import { decorShown } from './decor-shown.js';
+import { $, call, data, forget, recall, remember, views } from '../core/state.js';
+import { artSvg } from './art.js';
+import { decorShown, yardSeason } from './decor-shown.js';
 import { renderDecor, shownDecor } from './decor.js';
 import { petHeight, sizeOf } from './field.js';
+import { grandLayers, RISE_MS, treeSizes as sizes } from './grand-tree.js';
 import { localDay } from './growth.js';
 import { isFree } from './trips.js';
 import { gaze, pose } from './views.js';
 import { scene } from './world.js';
 
-// How long the change takes (garden.css .xmas-rise), and how long a nearby friend looks up.
-const RISE_MS = 2600,
-  GAZE_MS = 2400;
+// How long a nearby friend looks up (the change itself takes RISE_MS).
+const GAZE_MS = 2400;
 // A friend whose foot is within this many grand-tree widths of the tree's is nearby.
 const NEAR_WIDTHS = 2;
 // Webview storage: the night (nightOf) the change last played.
@@ -65,9 +68,13 @@ const MOTE_JITTER = 0.04,
   MOTES_MS = MOTE_DELAY[1] + MOTE_FALL[1];
 
 let seen = () => true;
-// The tree's button while it stands grand, and the timer that ends its change.
+// The tree's button while it stands grand, and the timer that ends its change. `calmSeen`: this page
+// saw the tree out and small since it last grew, so the night coming together now is new to it.
 let grand = null,
-  riseTimer = null;
+  riseTimer = null,
+  calmSeen = false;
+// Whether the backend was last told the tree stands grand (null: not told yet, or the telling failed).
+let toldGrand = null;
 // The glint chain: its timers, and the bulb that glinted last; each button's sparkle node.
 let glintTimer = null,
   glintOff = null,
@@ -82,15 +89,16 @@ let sleighWait = null,
   lookers = [],
   motes = [];
 
-/** Whether `scene` (world.js) and the yard's `decor` make Christmas night at `date`. */
+/** Whether `scene` (world.js) and the yard's `decor` make Christmas night at `date`: a place with
+ * seasons showing winter, evening or night, snow, and the tree out. */
 export function christmasNight(scene, decor, date) {
+  const season = yardSeason(scene);
   return (
-    scene.event === 'lights' &&
-    scene.season === 'winter' &&
+    season === 'winter' &&
     (scene.period === 'evening' || scene.period === 'night') &&
     scene.weather === 'snow' &&
     decor.some(d => d.kind === 'xmas_tree') &&
-    decorShown('xmas_tree', date, scene.season)
+    decorShown('xmas_tree', date, season)
   );
 }
 /** Whether the sleigh can fly: Christmas night, with the moon up, and every one of `guests` (gift
@@ -99,7 +107,7 @@ export function sleighReady(scene, decor, date, guests) {
   return (
     christmasNight(scene, decor, date) &&
     scene.period === 'night' &&
-    guests.every(kind => decor.some(d => d.kind === kind) && decorShown(kind, date, scene.season))
+    guests.every(kind => decor.some(d => d.kind === kind) && decorShown(kind, date, yardSeason(scene)))
   );
 }
 /** The local day whose evening `date` belongs to: before 05:00, the day before. */
@@ -108,36 +116,25 @@ export function nightOf(date) {
   return localDay(new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1, 12));
 }
 
-// The small tree's drawing's size and the grand one's, in their own units.
-function sizes() {
-  const gift = giftKind('xmas_tree');
-  return { small: gift.size || artSize(gift.art), big: artSize(gift.night.art), night: gift.night };
-}
 const span = className => {
   const node = document.createElement('span');
   node.className = className;
   return node;
 };
-// The grand tree's layers, made once inside the tree's button: sized from the two drawings and
-// standing on the same foot, taking no presses but through the tree-shaped handle ornaments.js adds.
+// The grand tree's layers in the tree's button (grand-tree.js), taking no presses but through the
+// tree-shaped handle ornaments.js adds; its glint node is kept for the glints.
 function layers(button) {
-  if (button.querySelector('.xmas-night')) return;
-  const { small, big, night } = sizes();
-  const layer = span('xmas-night'),
-    reveal = span('xmas-reveal'),
-    art = span('xmas-art'),
-    star = span('xmas-star');
-  layer.setAttribute('aria-hidden', 'true');
-  layer.style.width = percent(big[0] / small[0]);
-  layer.style.height = percent(big[1] / small[1]);
-  art.innerHTML = artSvg(night.art);
-  reveal.append(art);
-  star.style.left = percent(night.star[0]);
-  star.style.top = percent(night.star[1]);
-  const glint = span('xmas-glint');
-  sparkles.set(button, glint);
-  layer.append(span('xmas-pool'), reveal, span('xmas-veil'), star, glint);
-  button.append(layer);
+  const layer = grandLayers(button);
+  if (!sparkles.has(button)) sparkles.set(button, layer.querySelector('.xmas-glint'));
+}
+// The backend hears whether the tree stands grand, so the desktop's tree does too; told once per
+// change, and again at the next check when a telling failed.
+function tellDesktop(on) {
+  if (toldGrand === on) return;
+  toldGrand = on;
+  call('decorNight', on ? ['xmas_tree'] : []).catch(() => {
+    if (toldGrand === on) toldGrand = null;
+  });
 }
 
 // Free friends near the tree look up at its star; a sheet with no look rows waves instead.
@@ -291,24 +288,33 @@ function calm() {
 
 /** Brings the tree in line with Christmas night: safe to call at any time, as often as needed. */
 export function christmasNightCheck() {
+  const now = new Date(),
+    night = christmasNight(scene, data.garden?.decor || [], now);
+  // The desktop is not hidden with the window.
+  tellDesktop(night);
   if (document.hidden || !seen()) {
     stopSleigh();
     return stopGlints();
   }
-  const now = new Date(),
-    found = shownDecor('xmas_tree'),
-    on = !!found && christmasNight(scene, data.garden?.decor || [], now);
+  const found = shownDecor('xmas_tree'),
+    on = !!found && night;
   // Put away, or replaced: the old button lets go, and is named small again for Undo.
   if (grand && grand !== found?.button) {
     calm();
     renderDecor();
   }
+  if (found && !on) calmSeen = true;
   if (on && !grand) {
     const button = found.button,
-      night = nightOf(now),
-      rise = recall(NIGHT_KEY) !== night && !reduced.matches;
+      tonight = nightOf(now),
+      // New to this page: a new night, or one called up again after it was seen small.
+      fresh = recall(NIGHT_KEY) !== tonight || calmSeen,
+      rise = fresh && !reduced.matches;
     layers(button);
-    remember(NIGHT_KEY, night);
+    remember(NIGHT_KEY, tonight);
+    // Each time the tree grows, the sleigh may cross the moon once more.
+    if (fresh) forget(SLEIGH_KEY);
+    calmSeen = false;
     grand = button;
     button.classList.add('xmas-grand');
     if (rise) {
@@ -334,5 +340,7 @@ export function christmasNightCheck() {
 /** Christmas night follows the window: `seen` says whether the app shows it (app.js). */
 export function setupChristmasNight({ seen: shows = () => true } = {}) {
   seen = shows;
+  calmSeen = false;
+  toldGrand = null;
   document.addEventListener('visibilitychange', christmasNightCheck);
 }

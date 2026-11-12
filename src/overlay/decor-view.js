@@ -10,8 +10,9 @@ import { wear, wearArt } from './wear.js';
 /** Draws the desktop thing `view` ({ id, kind, button }) once its drawings are in: as a flower or a
  * tree when `garden` lists it so, else as a gift. A flower placed on the screen before the garden
  * that names it has arrived is left for a later call, so it is never drawn as a gift. Then brought
- * in line with `garden` in `season` (dressDecor). Does nothing once drawn or while loading. */
-export async function drawDecor(view, garden, season) {
+ * in line with `garden` in `season` and the yard's `night` (dressDecor). Does nothing once drawn or
+ * while loading. */
+export async function drawDecor(view, garden, season, night = () => []) {
   if (view.drawn || view.loading) return;
   const thing = growing(garden(), view.id),
     art = thing ? growingArt(view.kind) : wearArt(view.kind);
@@ -31,14 +32,15 @@ export async function drawDecor(view, garden, season) {
     view.button.title = t(`decor.kind_${view.kind}`);
     view.button.setAttribute('aria-label', view.button.title);
   }
-  dressDecor(view, garden(), season());
+  dressDecor(view, garden(), season(), new Date(), night());
 }
 
 /** Brings a drawn desktop thing in line with `garden` at `now`: a flower or a tree as grown, in
- * `season`; a gift in what it wears. Each draws again only when how it looks changed. */
-export function dressDecor(view, garden, season, now = new Date()) {
+ * `season`; a gift in what it wears, and in its night look when `night` (the kinds the yard shows
+ * so) names it. Each draws again only when how it looks changed. */
+export function dressDecor(view, garden, season, now = new Date(), night = []) {
   if (!view.drawn) return;
-  if (!view.growing) return wear(view, garden, now);
+  if (!view.growing) return wear(view, garden, now, night);
   const thing = growing(garden, view.id);
   if (thing) drawGrowing(view, thing, season, now.getTime());
 }

@@ -35,6 +35,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - On a touch screen, Settings' sections, the right-click menu and the friend picker keep 44px targets in small windows too.
 - A built snowman wears its scarf wrapped around its neck, redrawn as worn, and its hat on top of its head, a little askew, instead of a scarf laid on its chest and a hat pulled down to its eyes.
 - A snowman can go out on the desktop too, from its right-click menu. Out there, a snowman wears its scarf, hat and nose and the Christmas tree its ornaments, as in the yard; before, the tree went out bare.
+- The Christmas tree, the baby reindeer and Santa show whenever the yard shows winter, not only from December 1 to January 7, and ornaments can be hung on the tree on any day it is out.
+- Christmas night no longer waits for December: a snowy evening or night in a winter yard grows the tree on any day. It grows again each time the snow comes back, a sleigh crosses the moon each time, and a tree out on the desktop grows along with it.
 
 ### Fixed
 
@@ -56,6 +58,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Right after a release is published, the website's download buttons offer it, instead of the previous release until the next site update.
 - The website's moving friends load smaller pictures, drawn at the size the page shows them, and each friend's `playpets-<name>.zip` now carries the same lossless WebP sheets the app uses, about a third smaller.
 - The desktop guide explains flowers and trees on the desktop, and the yard guide says how to move a flower and where pulling up and removing went.
+- The yard guide says how to bring Christmas night on any day: pick winter, night and snow with the tree out.
 
 ## [1.6.0] - 2026-11-10
 

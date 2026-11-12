@@ -144,10 +144,11 @@ function create(pet) {
   };
   return view;
 }
-// Gifts, flowers and trees out here, brought in line with the garden, the season and the clock
-// (decor-view.js): when one of those changed, never for a friend's step.
+// Gifts, flowers and trees out here, brought in line with the garden, the season, the yard's night
+// and the clock (decor-view.js): when one of those changed, never for a friend's step.
+const night = () => data.nightDecor || [];
 function redress() {
-  for (const v of decorations.values()) dressDecor(v, data.garden, season);
+  for (const v of decorations.values()) dressDecor(v, data.garden, season, new Date(), night());
 }
 // A gift, a flower or a planted tree out on the desktop: dragged to move, and its menu takes it off
 // the desktop.
@@ -218,6 +219,7 @@ function renderDecor(local) {
           v,
           () => data.garden,
           () => season,
+          night,
         ),
       );
     v.wrap.style.visibility = 'visible';

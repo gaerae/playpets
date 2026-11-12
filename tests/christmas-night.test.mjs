@@ -1,6 +1,8 @@
-// On a snowy December evening or night the little Christmas tree grows into the grand tree, once a
-// night; it goes back when the snow stops (src/yard/christmas-night.js).
+// On a snowy winter evening or night, whatever the date, the little Christmas tree grows into the
+// grand tree; it goes back when the snow stops and grows again when the night comes together again
+// (src/yard/christmas-night.js).
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import './support/content.mjs';
@@ -26,10 +28,16 @@ const TREE = { id: 'tree', kind: 'xmas_tree', x: 0.5, y: 0.5 };
 const ART = ['decor/xmas_tree.svg', 'decor/xmas_tree_grand.svg', 'decor/sleigh.svg'];
 
 const NIGHT = { world: 'woodland', event: 'lights', season: 'winter', period: 'night', weather: 'snow' };
+// What the yard tells the desktop about its night look (decorNight), in order.
+const told = [];
+globalThis.playPets.decorNight = async kinds => {
+  told.push(kinds);
+  return { ok: true, data: null };
+};
 
-async function yard(ctx, { decor = [TREE], seen, before } = {}) {
+async function yard(ctx, { decor = [TREE], seen, before, now = NOW } = {}) {
   const parts = await drawYard(ctx, {
-    now: NOW,
+    now,
     scene: NIGHT,
     art: ART,
     garden: { decor },
@@ -43,9 +51,9 @@ async function yard(ctx, { decor = [TREE], seen, before } = {}) {
 const layers = button => button.children.filter(c => typeof c === 'object' && c.classList.contains('xmas-night'));
 const has = (button, name) => button.classList.contains(name);
 
-test('Christmas night needs the lights, a winter yard, evening or night, snow and the tree', () => {
+test('Christmas night needs a winter yard, evening or night, snow and the tree, on any date', () => {
   const at = (y, m, d, h) => new Date(y, m - 1, d, h);
-  const night = { event: 'lights', season: 'winter', period: 'night', weather: 'snow' };
+  const night = { world: 'woodland', season: 'winter', period: 'night', weather: 'snow' };
   const tree = [{ kind: 'xmas_tree' }];
   assert.equal(christmasNight(night, tree, at(2026, 12, 24, 21)), true);
   assert.equal(christmasNight({ ...night, period: 'evening' }, tree, at(2026, 12, 24, 18)), true);
@@ -57,15 +65,12 @@ test('Christmas night needs the lights, a winter yard, evening or night, snow an
     'no snow play in a kept season',
   );
   assert.equal(
-    christmasNight({ ...night, event: null }, tree, at(2026, 12, 24, 21)),
+    christmasNight({ ...night, world: 'studio' }, tree, at(2026, 12, 24, 21)),
     false,
     'the studio has no seasonal effects',
   );
-  assert.equal(
-    christmasNight({ ...night, event: 'newyear' }, tree, at(2027, 1, 3, 21)),
-    false,
-    'the tree still shows, the lights are over',
-  );
+  assert.equal(christmasNight(night, tree, at(2027, 1, 3, 21)), true, 'the lights are over, the winter night is not');
+  assert.equal(christmasNight(night, tree, at(2026, 7, 15, 21)), true, 'a snowy winter night picked in July');
   assert.equal(christmasNight(night, [{ kind: 'santa' }], at(2026, 12, 24, 21)), false);
   assert.equal(nightOf(at(2026, 12, 24, 21)), '2026-12-24');
   assert.equal(nightOf(new Date(2026, 11, 25, 4, 59)), '2026-12-24');
@@ -94,7 +99,7 @@ test('a restart the same night shows the grand tree without the change', async c
   assert.ok(!has(tree(), 'xmas-rise'));
 });
 
-test('when the snow stops the tree goes back, and comes back the same night without the full change', async ctx => {
+test('when the snow stops the tree goes back, and snow again the same night grows it again', async ctx => {
   const { tree } = await yard(ctx);
   ctx.mock.timers.tick(2600);
   scene.weather = 'clear';
@@ -104,7 +109,26 @@ test('when the snow stops the tree goes back, and comes back the same night with
   scene.weather = 'snow';
   christmasNightCheck();
   assert.ok(has(tree(), 'xmas-grand'));
-  assert.ok(!has(tree(), 'xmas-rise'));
+  assert.ok(has(tree(), 'xmas-rise'), 'the night called up again is seen growing again');
+});
+
+test('a night that comes together after a restart grows the tree, though it grew earlier that night', async ctx => {
+  const { tree } = await yard(ctx, {
+    before: ({ storage }) => {
+      storage.setItem('xmas-night', '2026-12-24');
+      scene.weather = 'clear';
+    },
+  });
+  assert.ok(!has(tree(), 'xmas-grand'));
+  scene.weather = 'snow';
+  christmasNightCheck();
+  assert.ok(has(tree(), 'xmas-rise'));
+});
+
+test('a snowy winter night picked in July grows the tree too', async ctx => {
+  const { tree, storage } = await yard(ctx, { now: new Date(2026, 6, 15, 21).getTime() });
+  assert.ok(has(tree(), 'xmas-rise'));
+  assert.equal(storage.getItem('xmas-night'), '2026-07-15');
 });
 
 test('the next evening plays it again', async ctx => {
@@ -137,6 +161,21 @@ test('nothing plays while the window is hidden by the app', async ctx => {
   const { tree, storage } = await yard(ctx, { seen: () => false });
   assert.ok(!has(tree(), 'xmas-grand'));
   assert.equal(storage.getItem('xmas-night'), null);
+});
+
+test('the yard tells the desktop when the tree stands grand, seen or not, once per change', async ctx => {
+  told.length = 0;
+  let shown = false;
+  await yard(ctx, { seen: () => shown });
+  // The empty yard drawn first says no; the yard with the tree, yes.
+  assert.deepEqual(told, [[], ['xmas_tree']], 'the desktop is not hidden with the window');
+  christmasNightCheck();
+  shown = true;
+  christmasNightCheck();
+  assert.equal(told.length, 2, 'the same look is not sent twice');
+  scene.weather = 'clear';
+  christmasNightCheck();
+  assert.deepEqual(told.at(-1), []);
 });
 
 // Two friends beside the tree's foot and one far off, on an 800 px yard with the tree at x 0.5.
@@ -439,6 +478,22 @@ test('a restart the same night after the sleigh brings no second one', async ctx
   }
 });
 
+test('snow that stops and comes back the same night grows the tree and brings the sleigh again', async ctx => {
+  const { moon } = await sleighYard(ctx),
+    { timers } = ctx.mock;
+  for (const step of [20_000, 1200, 4200, 4800]) timers.tick(step);
+  assert.ok(!moon(), 'the first flight is over');
+  scene.weather = 'clear';
+  christmasNightCheck();
+  scene.weather = 'snow';
+  christmasNightCheck();
+  timers.tick(2600);
+  timers.tick(19_999);
+  assert.ok(!moon());
+  timers.tick(1);
+  assert.ok(moon(), 'a second flight for the night called up again');
+});
+
 test('with reduced motion the sleigh is a still vignette and no gold falls', async ctx => {
   const { sleigh, reindeer, santa, moon, motes } = await sleighYard(ctx, {
     before: () => {
@@ -578,9 +633,13 @@ function blocks(css, head) {
 
 test("the change's keyframes move only transform and opacity, never loop, and read no variables", async () => {
   const garden = uncommented(await readFile('src/styles/garden.css', 'utf8'));
+  const worn = uncommented(await readFile('src/styles/worn.css', 'utf8'));
   const scenery = uncommented(await readFile('src/styles/scenery.css', 'utf8'));
-  assert.ok(blocks(garden, /@keyframes\s+xmas-[\w-]+/g).length > 0, 'garden.css draws the change');
-  for (const css of [garden, scenery]) {
+  const drawn = blocks(worn, /@keyframes\s+xmas-[\w-]+/g).map(b => b.head.split(/\s+/)[1]);
+  for (const name of ['xmas-small-out', 'xmas-reveal-in', 'xmas-star-swell'])
+    assert.ok(drawn.includes(name), `worn.css draws the change for the yard and the desktop: ${name}`);
+  assert.ok(readFileSync('src/overlay.html', 'utf8').includes('styles/worn.css'), 'the desktop loads it');
+  for (const css of [garden, worn, scenery]) {
     for (const { head, body } of blocks(css, /@keyframes\s+xmas-[\w-]+/g)) {
       assert.ok(!body.includes('var('), `${head} reads no variable`);
       for (const [, property] of body.matchAll(/([\w-]+)\s*:/g))

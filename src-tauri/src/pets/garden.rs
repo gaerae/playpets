@@ -107,12 +107,6 @@ pub struct OrnamentDay {
     pub count: u32,
 }
 
-/// Whether the Christmas tree shows on `day`: 12-01 to 01-07, the window `"shown": "december"`
-/// has in src/yard/decor-shown.js (SHOWN; tests/limits.test.mjs keeps the two the same).
-fn tree_dates(day: &str) -> bool {
-    is_day(day) && (&day[5..] >= "12-01" || &day[5..] <= "01-07")
-}
-
 /// The December a day decorates for: its year in December, the year before in January.
 fn ornament_season(day: &str) -> u32 {
     let year = day.get(0..4).and_then(|y| y.parse::<u32>().ok()).unwrap_or(0);
@@ -441,13 +435,14 @@ impl Garden {
         }
     }
 
-    /// The decorating season of `day` if the tree can be decorated then: a date in its window,
-    /// with the tree out in the yard, not before the last hang (a clock set back) nor in an
-    /// earlier December than it.
+    /// The decorating season of `day` if the tree can be decorated then: a date, with the tree out
+    /// in the yard, not before the last hang (a clock set back) nor in an earlier December than it.
+    /// No window of dates: the tree shows in December and in any winter yard the page picks, and
+    /// whatever shows can be decorated.
     fn decorating(&self, day: &str) -> Result<u32, String> {
         let season = ornament_season(day);
         let set_back = day < self.ornament_day.day.as_str() || season < self.ornament_year;
-        if !tree_dates(day) || set_back || !self.decor.iter().any(|d| d.kind == ORNAMENT_TREE) {
+        if !is_day(day) || set_back || !self.decor.iter().any(|d| d.kind == ORNAMENT_TREE) {
             return Err(i18n::t("error.bad_request"));
         }
         Ok(season)
@@ -1593,7 +1588,7 @@ mod tests {
     }
 
     #[test]
-    fn an_ornament_needs_a_found_item_a_free_hook_and_the_tree_out_in_its_dates() {
+    fn an_ornament_needs_a_found_item_a_free_hook_and_the_tree_out() {
         let (mut g, album) = (tree_out(), found());
         g.hang_ornament(&album, "flower", "camellia", 0, "2026-12-20").unwrap();
         let bad = Err(i18n::t("error.bad_request"));
@@ -1607,7 +1602,6 @@ mod tests {
             ("tree", "pine", 0, "2026-12-20"),
             ("tree", "pine", ORNAMENT_HOOKS, "2026-12-20"),
             ("tree", "pine", 1, "2026-11-30"),
-            ("tree", "pine", 1, "2027-01-08"),
             ("tree", "pine", 1, "soon"),
         ] {
             assert_eq!(
@@ -1640,6 +1634,22 @@ mod tests {
         assert_eq!(g.ornaments, [again]);
         assert_eq!((g.ornament_year, g.ornament_day.count), (2027, 1));
         assert_eq!(g.ornament_day.day, "2027-12-01");
+    }
+
+    #[test]
+    fn a_tree_out_in_a_winter_yard_is_decorated_on_any_day_until_the_next_december() {
+        let (mut g, album) = (tree_out(), found());
+        g.hang_ornament(&album, "flower", "camellia", 0, "2027-07-15").unwrap();
+        assert_eq!(
+            (g.ornament_year, g.ornament_day.count),
+            (2026, 1),
+            "July belongs to the December before"
+        );
+        g.hang_ornament(&album, "tree", "pine", 1, "2027-11-30").unwrap();
+        g.take_down_ornament("tree", "pine", "2027-11-30").unwrap();
+        assert_eq!(g.ornaments, [ornament("flower", "camellia", 0)]);
+        let again = g.hang_ornament(&album, "tree", "pine", 1, "2027-12-01").unwrap();
+        assert_eq!(g.ornaments, [again], "the next December starts a bare tree");
     }
 
     #[test]
@@ -1686,7 +1696,6 @@ mod tests {
             ("flower", "tulip", "2026-12-20"),
             ("tree", "camellia", "2026-12-20"),
             ("flower", "camellia", "2026-12-19"),
-            ("flower", "camellia", "2027-01-08"),
             ("flower", "camellia", "2027-12-01"),
             ("flower", "camellia", "soon"),
         ] {

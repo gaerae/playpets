@@ -38,6 +38,7 @@ const { ARC_MS, CHEER_AT, GLINT_STEP, SETTLE_MS, openDecorating, renderDecoratin
 const { fieldToYard, petHeight } = await import('../src/yard/field.js');
 const { drawTreeOrnaments, hangable, ornamentLook } = await import('../src/yard/ornaments.js');
 const { drawYard } = await import('./support/yard.mjs');
+const { scene } = await import('../src/yard/world.js');
 
 const ART = ['decor/xmas_tree.svg', 'decor/xmas_tree_grand.svg', 'decor/sleigh.svg'];
 const TREE = { id: 'tree', kind: 'xmas_tree', x: 0.5, y: 0.6 };
@@ -719,9 +720,11 @@ test('the view closes when the tree leaves the yard', async ctx => {
   assert.equal(v.tree().hidden, false);
   openDecorating();
   assert.ok(v.dialog.open);
+  // A yard kept in autumn shows the tree only in its dates.
+  scene.season = 'autumn';
   ctx.mock.timers.setTime(new Date(2027, 0, 8, 9).getTime());
   refreshShownDecor();
-  assert.ok(!v.dialog.open, 'closed when the season ends');
+  assert.ok(!v.dialog.open, 'closed when its dates end');
 });
 
 test('closing gives focus back to the tree', async ctx => {
