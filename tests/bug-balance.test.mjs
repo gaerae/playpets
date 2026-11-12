@@ -105,6 +105,8 @@ test('fireflies come in a handful for the yard area, a few more in their event, 
   assert.equal(fireflyCount('evening', 1180, 850), 3);
   assert.equal(fireflyCount('night', 300, 210), 2, 'a small window still has a couple');
   assert.equal(fireflyCount('evening', 300, 210), 1);
+  assert.equal(fireflyCount('night', 0, 0), 2, 'a yard not laid out yet still has its floor');
+  assert.equal(fireflyCount('evening', -10, 100), 1);
   assert.ok(fireflyCount('night', 600, 420) <= fireflyCount('night', 1180, 850));
   assert.ok(fireflyCount('night', 1180, 850) <= fireflyCount('night', 1600, 1000));
   for (const period of ['evening', 'night']) {

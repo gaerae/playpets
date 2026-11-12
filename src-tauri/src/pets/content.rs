@@ -131,6 +131,9 @@ impl DiscoveryContext {
     }
 }
 
+/// The shipped places with soil, where a find's liking for a place counts; a test ties it to worlds.json.
+const AFFINITY_PLACES: &[&str] = &["woodland", "courtyard", "lakeside"];
+
 #[derive(Deserialize, Default)]
 struct Affinity {
     #[serde(default)]
@@ -145,8 +148,7 @@ impl Affinity {
         let Some(context) = context else { return 1 };
         let season = self.seasons.iter().any(|season| season == &context.season);
         let weather = self.weather.iter().any(|weather| weather == &context.weather);
-        let place =
-            matches!(world, "woodland" | "courtyard" | "lakeside") && self.places.iter().any(|place| place == world);
+        let place = AFFINITY_PLACES.contains(&world) && self.places.iter().any(|place| place == world);
         (if season { 2 } else { 1 }) * (if weather { 2 } else { 1 }) * (if place { 2 } else { 1 })
     }
 }
@@ -397,6 +399,44 @@ impl Catalog {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn affinity_places_are_the_shipped_places_with_soil() {
+        let worlds: serde_json::Value =
+            serde_json::from_str(include_str!("../../../src/content/worlds.json")).expect("src/content/worlds.json");
+        // As the page's worldHasSoil reads it: soil if the place says so, else wherever there is a sky.
+        let with_soil: Vec<&str> = worlds
+            .as_array()
+            .expect("a list of places")
+            .iter()
+            .filter(|world| {
+                let can = &world["capabilities"];
+                can["soil"].as_bool().unwrap_or(can["sky"].as_bool() != Some(false))
+            })
+            .map(|world| world["id"].as_str().expect("an id"))
+            .collect();
+        assert_eq!(AFFINITY_PLACES, with_soil.as_slice());
+        let catalog: serde_json::Value =
+            serde_json::from_str(include_str!("../../../src/content/catalog.json")).expect("src/content/catalog.json");
+        let mut liked = Vec::new();
+        fn places<'a>(value: &'a serde_json::Value, liked: &mut Vec<&'a str>) {
+            match value {
+                serde_json::Value::Object(map) => {
+                    if let Some(list) = map.get("affinity").and_then(|a| a["places"].as_array()) {
+                        liked.extend(list.iter().filter_map(|place| place.as_str()));
+                    }
+                    map.values().for_each(|inner| places(inner, liked));
+                }
+                serde_json::Value::Array(list) => list.iter().for_each(|inner| places(inner, liked)),
+                _ => {}
+            }
+        }
+        places(&catalog, &mut liked);
+        assert!(!liked.is_empty(), "some finds like a place");
+        for place in liked {
+            assert!(AFFINITY_PLACES.contains(&place), "{place} is a place with soil");
+        }
+    }
 
     fn trail_context(season: &str, weather: &str, trail: Option<&str>) -> DiscoveryContext {
         DiscoveryContext {

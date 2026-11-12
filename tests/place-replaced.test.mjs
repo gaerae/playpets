@@ -16,10 +16,14 @@ const settled = () => new Promise(resolve => setImmediate(resolve));
 const anything = () => new Proxy(() => anything(), { get: (_, key) => (key === 'then' ? undefined : anything()) });
 
 test('the living room opens as the garden workshop, which replaced it', async () => {
-  const { worldFor } = await import('../src/yard/worlds.js');
+  const { replacedBy, worldFor } = await import('../src/yard/worlds.js');
   assert.equal(worldFor('studio').id, 'workshop');
   assert.equal(worldFor('workshop').id, 'workshop');
   assert.equal(worldFor('office').id, 'woodland', 'a place never released falls back as any other');
+  // Only a replaced place is saved over (sky.js setupSky); one never released keeps its save.
+  assert.equal(replacedBy('studio'), 'workshop');
+  assert.equal(replacedBy('workshop'), null);
+  assert.equal(replacedBy('office'), null);
 });
 
 test('a scene saved in the living room starts in the garden workshop and is saved there', async t => {
