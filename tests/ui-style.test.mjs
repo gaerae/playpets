@@ -528,6 +528,7 @@ const SET_FROM_CODE = {
   '--shade-h': 'src/yard/decor.js',
   '--shade-y': 'src/yard/decor.js',
   '--shade-x': 'src/yard/decor.js',
+  '--sway': 'src/yard/props.js',
 };
 // A misspelt or removed token silently falls back to the property's initial value (no colour, no
 // size), so every one a stylesheet reads has to come from somewhere.

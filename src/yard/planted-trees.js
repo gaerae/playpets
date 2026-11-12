@@ -76,7 +76,7 @@ const remove = view => {
 };
 
 function create(tree) {
-  const button = propButton('planted-tree', tree.kind),
+  const button = propButton('planted-tree', tree.kind, tree.id),
     view = { id: tree.id, button, drag: null, busy: false, art: null };
   button.dataset.id = tree.id;
   // Dragged, or moved with the arrow keys, only onto ground a tree may stand on; its menu sends it

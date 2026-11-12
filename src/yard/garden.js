@@ -82,7 +82,7 @@ const save = guard(async (v, point) => {
   });
 });
 function create(plant) {
-  const button = propButton('plant', plant.kind);
+  const button = propButton('plant', plant.kind, plant.id);
   // The flower's colours, for the bud and the bloom.
   button.style.cssText = colorStyle(flowerKind(plant.kind)?.colors);
   button.innerHTML = '<svg aria-hidden="true"><use/></svg>';

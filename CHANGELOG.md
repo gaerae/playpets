@@ -35,6 +35,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Fewer, quieter fireflies: a handful on a full yard and one or two in a small window instead of nine whatever the size, up to eight on firefly nights instead of twenty-two. Each glows as a soft halo around one bright point, and about half are lit at any moment, so they no longer wash over friends and gifts. The Firefly nights announcement and the guide now say more fireflies, not many more.
 - A friend holds the bug net in its paws and leans it out under its face, instead of the handle starting behind its hip. A friend from an imported pet file holds the fishing rod in front of its body too.
 - A friend whose agent is already working, waiting or done takes its seat in the Garden workshop as soon as you go there, and lets it go when you leave for another place, instead of waiting for its agent's next report.
+- A flower you drag stays right under the pointer instead of trailing behind it and jumping to the spot when you let go. A flower or a tree in your hand stops swaying where it leans and sways on once it is put down, and trees and flowers no longer all jump in their sway when something new appears in the yard or goes away.
 
 ### Website and docs
 

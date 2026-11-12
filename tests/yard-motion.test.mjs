@@ -82,3 +82,34 @@ test('trees and flowers sway outdoors on the compositor, and not with reduced mo
   assert.ok(!/\.decor\b/.test(swaying.join(' ')), 'gifts, and the ornaments hung on them, stay still');
   assert.match(reducedRules(css), /animation:\s*none/);
 });
+
+// props.js setDown places these by their transform. The base button rule eases a transform, which
+// would trail each drag step behind the pointer and catch up only after the drop.
+test('what stands on the field follows the pointer: no easing on the transform that places it', async () => {
+  const css = uncommented(
+    (await Promise.all(['garden.css', 'play.css'].map(f => readFile(`src/styles/${f}`, 'utf8')))).join('\n'),
+  );
+  for (const name of ['plant', 'shoot', 'decor', 'planted-tree', 'snowball']) {
+    const base = blocks(css, new RegExp(`(^|\\})\\s*\\.${name}\\s*(?=\\{)`, 'g'));
+    assert.equal(base.length, 1, `.${name} has one base rule`);
+    assert.match(base[0].body, /(^|;)\s*transition:\s*none\s*(;|$)/, `.${name} is not eased into place`);
+  }
+});
+
+test('a tree or a flower held in a drag stops swaying where it leans, and goes on from there', async () => {
+  const css = uncommented(await readFile('src/styles/garden.css', 'utf8'));
+  for (const name of ['plant', 'planted-tree']) {
+    const held = blocks(css, new RegExp(`\\.${name}\\.dragging[^,{\\s]*\\s+svg\\s*(?=[,{])`, 'g'));
+    assert.ok(
+      held.some(b => /animation-play-state:\s*paused/.test(b.body)),
+      `a dragged .${name} pauses its breeze instead of snapping upright`,
+    );
+  }
+});
+
+test('each tree and flower keeps its own beat when others come and go', async () => {
+  const css = uncommented(await readFile('src/styles/garden.css', 'utf8'));
+  // A beat by place in the layer changes for everything after a thing that comes or goes, and a new
+  // delay makes a running sway jump.
+  assert.doesNotMatch(css, /:nth-child\([^)]*\)\s*\{[^}]*--sway/, 'no beat comes from a place in the layer');
+});

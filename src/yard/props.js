@@ -38,12 +38,22 @@ export function setDown(button, x, y, w, h, z) {
   button.style.transform = `translate(${x - w / 2}px,${y - h}px)`;
   button.style.zIndex = String(z);
 }
-/** A new button for a prop in the garden layer. */
-export function propButton(className, kind) {
+// A tree's sway takes 7 s one way (garden.css breeze), so a start this far into it covers the swing.
+const SWAY_SPAN = 7;
+/** Where in the breeze a thing on the field starts, as a CSS delay: from its id, so it keeps its
+ * beat while other things come and go in the layer, and neighbours do not sway together. */
+export function swayDelay(id) {
+  let hash = 0;
+  for (const ch of String(id)) hash = (hash * 31 + ch.codePointAt(0)) >>> 0;
+  return `-${((hash % (SWAY_SPAN * 10)) / 10).toFixed(1)}s`;
+}
+/** A new button for a prop in the garden layer; with an `id`, it sways to its own beat. */
+export function propButton(className, kind, id) {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = className;
   button.dataset.kind = kind;
+  if (id !== undefined) button.style.setProperty('--sway', swayDelay(id));
   $('garden-layer').append(button);
   return button;
 }
