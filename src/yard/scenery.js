@@ -561,12 +561,11 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     // Without a canvas for its light, the same halo and core as plain dots.
     const size = (c.look.size ?? 1) * scale;
     ctx.fillStyle = c.look.glow || `rgb(${INK.firefly})`;
-    const glow = lit ** 1.5;
-    ctx.globalAlpha = (0.05 + glow * 0.35) * c.light * 0.4;
+    ctx.globalAlpha = (0.08 + lit * 0.47) * c.light * 0.4;
     ctx.beginPath();
     ctx.arc(c.x, c.y, 5.5 * size, 0, TAU);
     ctx.fill();
-    ctx.globalAlpha = (0.12 + glow * 0.88) * c.light;
+    ctx.globalAlpha = (0.15 + lit * 0.85) * c.light;
     ctx.beginPath();
     ctx.arc(c.x, c.y, 2.5 * size, 0, TAU);
     ctx.fill();

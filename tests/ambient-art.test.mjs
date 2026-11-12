@@ -102,12 +102,14 @@ test('a firefly is drawn and glows at its own size, so a small kind stays small'
   assert.ok(Math.abs(dy - (60 - 9 * 0.82)) < 1e-9, 'its lantern at the light');
   assert.deepEqual(halo.args.slice(1), [50 - 12, 60 - 12, 24, 24], 'a soft halo');
   assert.deepEqual(core.args.slice(1), [50 - 5, 60 - 5, 10, 10], 'and a core');
-  // Quieter than a lantern's pool, the stars or the moon: the halo is a hint even fully lit, the
-  // core the only bright point, and halfway through its blink a firefly is still mostly dark, so
-  // with random phases only some of them are lit at once.
-  assert.ok(Math.abs(halo.alpha - 0.4) < 1e-9, 'the halo stays a hint');
+  // Quieter than a lantern's pool or the moon: the halo is soft even fully lit and the core is the
+  // only bright point. The light follows the blink evenly, so with random phases about half of
+  // them show at once, and a dark one is nearly gone.
+  assert.ok(Math.abs(halo.alpha - 0.55) < 1e-9, 'the halo stays soft');
   assert.equal(core.alpha, 1, 'the core is the bright point');
-  assert.ok(half.calls[1].alpha < 0.2 && half.calls[2].alpha < 0.5, 'half lit is mostly dark');
+  assert.ok(half.calls[1].alpha > 0.25 && half.calls[1].alpha < 0.4, 'half lit still glows');
+  assert.ok(half.calls[2].alpha > 0.5 && half.calls[2].alpha < 0.7);
+  assert.ok(dim.calls[1].alpha < 0.1 && dim.calls[2].alpha < 0.2, 'a dark one is nearly gone');
   assert.ok(dim.calls[0].alpha > body.alpha, 'the body shows most while the light is low');
   assert.ok(halo.alpha > dim.calls[1].alpha && core.alpha > dim.calls[2].alpha, 'the light is brightest lit');
   for (const [i, part] of lit.calls.entries()) assert.ok(Math.abs(faint.calls[i].alpha - part.alpha / 2) < 1e-9);
