@@ -89,11 +89,12 @@ export const YEAR = Object.freeze([
         id: 'lights',
         event: true,
         art: [
-          ['gifts', 'xmas_tree'],
           ['gifts', 'baby_reindeer'],
           ['gifts', 'santa'],
         ],
       },
+      // Called up by the scene on any day, so it has no dates.
+      { id: 'christmas', art: [['gifts', 'xmas_tree']] },
       { id: 'snowman', art: [['gifts', 'snowman']] },
       {
         id: 'footprints',
