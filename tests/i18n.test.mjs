@@ -123,7 +123,7 @@ const BUILT = [
   /^decor\.(kind|visit)_[a-z_]+$/, // yard/decor.js, panel/album.js, overlay/overlay.js
   /^catch\.(fish|bug)_[a-z_]+$/, // yard/catch.js, panel/album.js
   /^catch\.season_(spring|summer|autumn|winter)$/, // panel/album.js
-  /^event\.[a-z]+\.(name|about|lines)$/, // yard/festival.js, yard/remarks.js, panel/album.js
+  /^event\.[a-z]+\.(name|about|gift|lines)$/, // yard/festival.js, yard/remarks.js, panel/album.js
   /^chatter\.(rainbow|sunshower|mist|snowlight|meteors)$/, // yard/remarks.js, one per sky moment
   /^bond\.(level_[1-5]|unlock_[2-5])$/, // yard/bond.js, panel/friend.js
   /^bond\.(welcome|up_line|dear)_(partner|senior|junior)$/, // yard/bond.js lineFor

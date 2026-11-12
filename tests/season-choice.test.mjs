@@ -31,6 +31,53 @@ test('season selection preserves real festival dates without mismatched seasonal
   assert.equal(events.sceneEvent(new Date(2026, 11, 15), true, 'spring')?.id, 'lights');
 });
 
+// docs/decisions/2026-11-12-scenes-before-dates.md: a season picked by hand calls an event up on
+// any day when the scene is the one it asks for; on Auto only the calendar does.
+test('a season picked by hand calls up the event its scene asks for, on any day', () => {
+  const june = new Date(2026, 5, 10, 12),
+    picked = (season, period, weather, date = june) =>
+      events.sceneEvent(date, false, season, { chosen: true, period, weather })?.id ?? null;
+  assert.equal(picked('spring', 'morning', 'clear'), 'blossom');
+  assert.equal(picked('spring', 'day', 'clear'), 'blossom');
+  assert.equal(picked('spring', 'night', 'clear'), null, 'the blossom is a daytime festival');
+  assert.equal(picked('spring', 'day', 'rain'), null);
+  assert.equal(picked('summer', 'evening', 'clear'), 'fireflies');
+  assert.equal(picked('summer', 'night', 'clear'), 'fireflies');
+  assert.equal(picked('summer', 'day', 'clear'), null);
+  assert.equal(picked('autumn', 'night', 'clear'), 'harvest');
+  assert.equal(picked('autumn', 'evening', 'clear'), null);
+  assert.equal(picked('winter', 'evening', 'snow'), 'lights');
+  assert.equal(picked('winter', 'night', 'clear'), 'lights');
+  assert.equal(picked('winter', 'morning', 'snow'), 'newyear');
+  assert.equal(picked('winter', 'day', 'clear'), null);
+  // Picked by hand, the scene asks; the calendar's own event still comes first.
+  assert.equal(picked('summer', 'night', 'clear', new Date(2026, 11, 15)), 'lights', 'December keeps its lights');
+  assert.equal(picked('spring', 'day', 'clear', april), 'blossom');
+  assert.equal(picked('summer', 'night', 'clear', april), 'fireflies', 'a summer night in April');
+  // On Auto the scene calls nothing up: the season is the calendar's, and so are its festivals.
+  const auto = (date, season, period, weather) =>
+    events.sceneEvent(date, false, season, { chosen: false, period, weather })?.id ?? null;
+  assert.equal(auto(june, 'summer', 'night', 'clear'), null);
+  assert.equal(auto(new Date(2026, 6, 25, 22), 'summer', 'night', 'clear'), 'fireflies');
+  assert.equal(events.sceneEvent(june, false, 'summer'), null, 'without a scene it is the calendar alone');
+});
+
+test('each event names the scene that calls it up, in the choices the scene picker offers', async () => {
+  const { events: list } = JSON.parse(await readFile('src/content/events.json', 'utf8'));
+  const html = await readFile('src/index.html', 'utf8'),
+    offered = id =>
+      new Set(
+        [...html.match(new RegExp(`<select id="${id}"[^]*?</select>`))[0].matchAll(/value="(\w+)"/g)].map(m => m[1]),
+      );
+  const choices = { seasons: offered('scene-season'), periods: offered('period'), weathers: offered('weather') };
+  for (const event of list) {
+    assert.ok(event.scene?.seasons?.length, `${event.id} names its seasons`);
+    for (const [key, values] of Object.entries(event.scene))
+      for (const value of values)
+        assert.ok(choices[key]?.has(value) && value !== 'auto', `${event.id} ${key} ${value}`);
+  }
+});
+
 test('automatic weather uses the chosen season without moving the clock', () => {
   const base = april.getTime();
   const weather = season =>

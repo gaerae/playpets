@@ -8,7 +8,7 @@ import { reduced } from '../core/sprites.js';
 import { $, call, data, forget, ownsWebview, recall, remember, sceneValue } from '../core/state.js';
 import { everyMinute } from '../core/ticker.js';
 import { createEasel } from './easel.js';
-import { eventStart, sceneEvent } from './events.js';
+import { byDate, eventStart, sceneEvent } from './events.js';
 import { eventChanged } from './festival.js';
 import { clearRainbowEnd, placeMark, placeRainbowEnd } from './rainbow-end.js';
 import { cancelRemarks, momentRemark, remark } from './remarks.js';
@@ -99,9 +99,19 @@ export function paintScene() {
       : weatherChoice
     : 'clear';
   // A seasonal event (events.js): a class on the yard, and one for each way it looks (scenery.css).
-  const event = worldAllows(scene.world, 'seasonalEffects') ? sceneEvent(now, south, scene.season) : null;
+  // With the season picked by hand, the scene can call one up on any day.
+  const event = worldAllows(scene.world, 'seasonalEffects')
+    ? sceneEvent(now, south, scene.season, {
+        chosen: isSeason(seasonChoice),
+        period: scene.period,
+        weather: scene.weather,
+      })
+    : null;
   scene.event = event?.id ?? null;
-  const fullMoon = !!event?.looks?.length && harvestMoon(now.getTime(), eventStart(event, now, south).getTime());
+  // On the calendar the full moon comes on its own nights; a picked scene asked for it tonight.
+  const fullMoon =
+    !!event?.looks?.length &&
+    (!byDate(event.id, now, south) || harvestMoon(now.getTime(), eventStart(event, now, south).getTime()));
   scenery.set(scene.period, scene.weather, scene.season, scene.event, scene.world);
   // After the scenery, so a meteor shower lands on tonight's stars. The harvest moon's look is the
   // event's own night, and no moment shares it.

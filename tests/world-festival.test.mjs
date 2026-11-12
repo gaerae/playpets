@@ -6,7 +6,7 @@ import { scene } from '../src/yard/world.js';
 import { element, installStorage, keepGlobals } from './support/dom.mjs';
 
 function page(t) {
-  t.mock.timers.enable({ apis: ['setTimeout'] });
+  t.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: new Date(2026, 5, 15, 22) });
   const previous = { ...scene };
   t.after(() => {
     eventChanged(null);
@@ -55,4 +55,22 @@ test('a festival hidden during its reveal delay waits until the window is visibl
   t.mock.timers.tick(1800);
   assert.equal(card.hidden, false, 'the announcement appears after the window returns');
   assert.equal(stored.size, 1);
+});
+
+// A scene picked by hand calls an event's look up on any day; its gifts keep to its dates, so the
+// chip and the card speak of them only then.
+test('an event names its gift only on its own dates', async t => {
+  const { t: say } = await import('../src/core/i18n.js');
+  page(t);
+  const chip = document.getElementById('event-chip'),
+    gift = say('event.harvest.gift');
+  eventChanged({ id: 'harvest' });
+  assert.equal(chip.title, say('event.harvest.about'), 'a summer day calls up the moon, not the pumpkin');
+  t.mock.timers.setTime(new Date(2026, 8, 20, 22).getTime());
+  eventChanged({ id: 'harvest' });
+  assert.ok(
+    chip.title.startsWith(say('event.harvest.about')) && chip.title.endsWith(gift),
+    'its dates bring the pumpkin',
+  );
+  assert.notEqual(gift, 'event.harvest.gift', 'the gift line is in the tables');
 });

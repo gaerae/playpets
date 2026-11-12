@@ -5,7 +5,7 @@ import { t as translate } from '../src/core/i18n.js';
 import { data, setData } from '../src/core/state.js';
 import { renderAlbum, setupAlbum } from '../src/panel/album.js';
 import { BUGS, FISH, GIFTS, TREASURES, TREES } from '../src/yard/catalog.js';
-import { eventDates } from '../src/yard/events.js';
+import { eventDates, eventScene } from '../src/yard/events.js';
 import { scene } from '../src/yard/world.js';
 import { installDom } from './support/dom.mjs';
 
@@ -103,7 +103,12 @@ test('tree and keepsake books use saved counts, mature artwork and explicit keep
     for (const [index, kind] of kinds.entries()) {
       const badge = cards[index].children.find(child => child.className === 'album-rare');
       assert.equal(!!badge, kind.rarity === 'rare' || !!kind.event, `${book} ${kind.id}`);
-      if (kind.event) assert.ok(cards[index].children[2].textContent.includes(eventDates(kind.event)), kind.id);
+      if (!kind.event) continue;
+      const hint = cards[index].children[2].textContent;
+      assert.ok(hint.includes(eventDates(kind.event)), kind.id);
+      // A catch comes whenever its event is on, so the scene that calls it up by hand is named;
+      // a gift keeps to the dates (events.js giftEvent), so it is not.
+      assert.equal(hint.includes(eventScene(kind.event)), book === 'fish', `${book} ${kind.id} names its scene`);
     }
   }
 });

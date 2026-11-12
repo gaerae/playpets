@@ -20,6 +20,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The Garden workshop replaces the Cozy living room, so there are four places. If the living room was your place, the app opens the workshop. Flowers stand in pots there, and rain and snow stay beyond the glass.
 - A friend's agent state dot sits in its name tag, beside its name, instead of by its head.
 - In the Garden workshop, friends grow with the room in a large window, so the furniture never looks up to twice as big next to them at full screen.
+- Seasonal events come on any day when you pick the season yourself and the scene fits: a clear spring morning or day brings the cherry blossom festival, a clear summer evening or night the firefly nights, a clear autumn night the harvest moon, a winter evening or night the winter lights, and a winter morning the New Year. Their dates still bring them on their own, and the gifts they bring still come only on those dates. The album says which scene calls up the golden firefly and the moonlight carp.
 - A friend linked to a coding agent shows what the agent is doing: it stays put while the agent works or hits an error, comes to the front of the yard when the agent waits for your approval, and goes back to its own place and strolls again once that is over.
 
 ### Fixed

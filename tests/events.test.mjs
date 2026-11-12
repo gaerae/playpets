@@ -95,4 +95,8 @@ test('a gift during a calendar festival brings its event in any world', () => {
   assert.equal(giftEvent(at('2026-04-05'), false, null), null, 'a seasonal festival still needs its season');
   assert.equal(giftEvent(at('2026-04-05'), false, 'blossom'), 'blossom');
   assert.equal(giftEvent(at('2026-06-15'), false, null), null);
+  // An event a picked scene calls up shows, but its gifts keep to its dates (the backend checks
+  // them by the day too, src-tauri/src/pets/content.rs).
+  assert.equal(giftEvent(at('2026-06-15'), false, 'blossom'), null, 'no cherry sapling in June');
+  assert.equal(giftEvent(at('2026-04-05'), false, 'fireflies'), null, 'nor a watermelon in April');
 });
