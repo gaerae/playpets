@@ -12,18 +12,19 @@ globalThis.playPets = {
     return { ok: true, data: null };
   },
 };
-const { openDecorMenu, openFriendMenu, setupControls } = await import('../src/core/controls.js');
+const { openDecorMenu, openFriendMenu, openPlantMenu, openTreeMenu, setupControls } =
+  await import('../src/core/controls.js');
 const state = await import('../src/core/state.js');
 const flush = () => new Promise(resolve => setImmediate(resolve));
 
-function menu(t, { pets = [], decor = [] } = {}) {
+function menu(t, { pets = [], decor = [], plants = [], trees = [] } = {}) {
   keepGlobals(t, 'innerWidth', 'innerHeight');
   globalThis.innerWidth = 600;
   globalThis.innerHeight = 400;
   installDom(t, { anyId: true });
   installStorage(t);
   const previous = state.data;
-  state.setData({ pets, assets: [], garden: { decor, boxed: [], received: [] } });
+  state.setData({ pets, assets: [], garden: { decor, plants, trees, boxed: [], received: [] } });
   t.after(() => state.setData(previous));
   calls.length = 0;
   const context = document.getElementById('yard-context-menu');
@@ -42,6 +43,10 @@ function menu(t, { pets = [], decor = [] } = {}) {
     item('decor', 'desktop-decor', 'menuitemcheckbox'),
     item('decor', 'dress-decor'),
     item('decor', 'put-away'),
+    item('plant', 'desktop-plant', 'menuitemcheckbox'),
+    item('plant', 'pull-plant'),
+    item('tree', 'desktop-tree', 'menuitemcheckbox'),
+    item('tree', 'remove-tree'),
   ];
   context.querySelectorAll = () => all;
   context.querySelector = selector =>
@@ -88,8 +93,9 @@ test("a gift's menu sends it out to the desktop or puts it away", async t => {
   assert.equal(context.hidden, true);
 });
 
-// A snowman is dressed in the yard and stays there; other gifts go out and have nothing to wear.
-test("a snowman's menu dresses it and has no desktop item; a bench's is as before", async t => {
+// Everything the yard shows can go out on the desktop, a snowman too (the overlay draws what it
+// wears); only a snowman has things to wear.
+test("a snowman's menu dresses it and sends it out as any gift's does; a bench's has nothing to wear", async t => {
   const { context, shown, find } = menu(t, {
     decor: [
       { id: 's', kind: 'snowman', x: 0.5, y: 0.7 },
@@ -97,13 +103,46 @@ test("a snowman's menu dresses it and has no desktop item; a bench's is as befor
     ],
   });
   const dressed = [];
-  setupControls({ dress: id => dressed.push(id), canDress: id => id === 's', canGoOut: id => id !== 's' });
+  setupControls({ dress: id => dressed.push(id), canDress: id => id === 's' });
   openDecorMenu('s', { x: 40, y: 40 });
-  assert.deepEqual(shown(), ['dress-decor', 'put-away']);
+  assert.deepEqual(shown(), ['desktop-decor', 'dress-decor', 'put-away']);
   await context.dispatch('click', { target: find('dress-decor') });
   assert.deepEqual(dressed, ['s']);
   assert.equal(context.hidden, true);
   setupControls();
   openDecorMenu('g1', { x: 40, y: 40 });
   assert.deepEqual(shown(), ['desktop-decor', 'put-away']);
+});
+
+// A flower and a planted tree have a menu as a gift does: out to the desktop, or pulled up.
+test("a flower's and a planted tree's menus send them out or pull them up", async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { context, shown, find } = menu(t, {
+    plants: [{ id: 'p1', kind: 'tulip', x: 0.5, y: 0.5, planted: 1 }],
+    trees: [{ id: 't1', kind: 'cherry', world: 'meadow', x: 0.4, y: 0.4, planted: 1, stage: 2, onDesktop: true }],
+  });
+  const pulled = [],
+    removed = [];
+  setupControls({ pullPlant: id => pulled.push(id), removeTree: id => removed.push(id) });
+  openPlantMenu('p1', { x: 40, y: 40 });
+  assert.equal(context.hidden, false);
+  assert.deepEqual(shown(), ['desktop-plant', 'pull-plant']);
+  assert.equal(find('desktop-plant').getAttribute('aria-checked'), 'false');
+  await context.dispatch('click', { target: find('desktop-plant') });
+  await flush();
+  assert.deepEqual(calls, [['setOnDesktop', 'p1', true]]);
+  openPlantMenu('p1', { x: 40, y: 40 });
+  await context.dispatch('click', { target: find('pull-plant') });
+  assert.deepEqual(pulled, ['p1']);
+  assert.equal(context.hidden, true);
+  openTreeMenu('t1', { x: 40, y: 40 });
+  assert.deepEqual(shown(), ['desktop-tree', 'remove-tree']);
+  assert.equal(find('desktop-tree').getAttribute('aria-checked'), 'true');
+  await context.dispatch('click', { target: find('desktop-tree') });
+  await flush();
+  assert.deepEqual(calls.at(-1), ['setOnDesktop', 't1', false]);
+  openTreeMenu('t1', { x: 40, y: 40 });
+  await context.dispatch('click', { target: find('remove-tree') });
+  assert.deepEqual(removed, ['t1']);
+  assert.deepEqual(pulled, ['p1'], 'a tree is not pulled as a flower is');
 });

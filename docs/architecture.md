@@ -325,7 +325,7 @@ What each arrow in the diagram carries, path by path.
 | `PLAYPETS_DATA` | Changes the data folder (E2E, measurement) |
 | `CODEX_HOME` | Changes the Codex pet folder (`<value>/pets`) |
 | `PLAYPETS_LANG` | Pins the language to one of `ko`, `en`, `ja`, `zh-hans` |
-| `PLAYPETS_E2E_EVAL` | The E2E scenario script. Runs 3 seconds after the page loads. Honored only by the `e2e` build (below) |
+| `PLAYPETS_E2E_EVAL` | The path of the E2E scenario script, which runs 3 seconds after the page loads. Honored only by the `e2e` build (below) |
 | `PLAYPETS_BRIDGE`, `PLAYPETS_PET` | The `bridge.json` path and default friend for CLI mode |
 | `PLAYPETS_DEBUG` | Makes `playpets hook …` print to standard error why it could not reach the app. Without it, a hook stays silent |
 | `WEBKIT_DISABLE_DMABUF_RENDERER` | Linux: WebKitGTK's renderer switch (below) |

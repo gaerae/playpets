@@ -20,6 +20,7 @@ import { showCard } from './card.js';
 import { giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
 import { decorShown, hiddenKinds, yardSeason } from './decor-shown.js';
+import { dressLayers } from './dress-layers.js';
 import { effectLayers, effectsVisited } from './effects.js';
 import { giftEvent } from './events.js';
 import { decorFloor, depthAt, EDGE, field, fieldToYard, footTarget, petHeight, sizeOf, yardToDecor } from './field.js';
@@ -36,7 +37,7 @@ import {
   setDown,
   giftSize as size,
 } from './props.js';
-import { dressLayers, wornDress } from './snowman-dress.js';
+import { wornDress } from './snowman-dress.js';
 import { cue } from './sound.js';
 import { forPerson, isFree, rest, sendTo } from './trips.js';
 import { bubble, cheer, effect } from './views.js';
@@ -113,11 +114,13 @@ function create(d) {
   // A drawing with no ground of its own stands on a contact shade, under it (garden.css).
   if (gift?.shade) {
     const shade = document.createElement('span'),
-      [w, h, y] = gift.shade;
+      [w, h, y, x] = gift.shade;
     shade.className = 'decor-shade';
     shade.style.setProperty('--shade-w', String(w));
     shade.style.setProperty('--shade-h', String(h));
     shade.style.setProperty('--shade-y', String(y));
+    // A foot off the middle of the drawing (a kite's stand) keeps its shade under it.
+    if (x !== undefined) shade.style.setProperty('--shade-x', String(x));
     button.insertBefore(shade, button.firstChild);
   }
   const v = { id: d.id, kind: d.kind, button, drag: null, busy: false, dressLayer: null, worn: null };

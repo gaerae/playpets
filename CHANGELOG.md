@@ -10,8 +10,27 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Fixed
+
+- Baubles hung on the Christmas tree sit on its painted baubles or in the gaps between branches, at the painted baubles' size with a thin rim, instead of floating over the needles. The grand tree's baubles take the places of its painted ones.
+- Gifts that stand on the grass or the snow, such as the bench, the scarecrow, the lantern, the tent, Santa and the baby reindeer, cast a soft shadow on the ground instead of floating over it.
+- At night, gifts, flowers, trees and the bush at the trail's end take on the night's blue instead of turning grey, and white things such as the snowman stay a pale moonlit white.
+- The birds peeking out of the bush at the trail's end are drawn at a bird's size next to it.
+- A lantern or a campfire at night lights a warm pool on the ground under it, and the snow around it no longer turns grey.
+- The fishing float sits in the water with a ripple at its waterline.
+- With reduced motion, the sleigh over the moon on Christmas night is a dark blue shape against the moon instead of a black sticker.
+- A friend holds the bug net in its paws and leans it out under its face, instead of the handle starting behind its hip. A friend from an imported pet file holds the fishing rod in front of its body too.
+
+## [1.6.1] - 2026-11-12
+
+### Added
+
+- A flower or a planted tree can go out on the desktop: right-click it in the yard and choose **Show on desktop**. It grows there as in the yard, a grown tree wears the yard's season, and friends strolling on the desktop walk over to it.
+- Flowers can be moved: drag one, or use the arrow keys on it. It keeps growing where you put it.
+
 ### Changed
 
+- Right-clicking a flower or a planted tree opens its menu, with **Show on desktop** and **Pull up** or **Remove**, instead of pulling it up at once. **Delete** still pulls it up at once, with Undo.
 - Friends farther back in the yard look a little smaller, bob along as they walk and settle as they stop, and no longer stroll onto a tree or a flower.
 - Friends walk all the way down to the foot of the yard, with their name tags still in view, and do not stop behind the tools in the corner.
 - Outdoors, trees and flowers sway in the breeze. Indoors, and with reduced motion, they stay still.
@@ -27,6 +46,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In a short window, the message box keeps its own line, so its hint and the AI's name show whole.
 - In a small window, a friend's status shows under its name when the window has room for the line.
 - On a touch screen, Settings' sections, the right-click menu and the friend picker keep 44px targets in small windows too.
+- A built snowman wears its scarf wrapped around its neck, redrawn as worn, and its hat on top of its head, a little askew, instead of a scarf laid on its chest and a hat pulled down to its eyes.
+- A snowman can go out on the desktop too, from its right-click menu. Out there, a snowman wears its scarf, hat and nose and the Christmas tree its ornaments, as in the yard; before, the tree went out bare.
+- The Christmas tree, the baby reindeer and Santa show whenever the yard shows winter, not only from December 1 to January 7, and ornaments can be hung on the tree on any day it is out.
+- Christmas night no longer waits for December: a snowy evening or night in a winter yard grows the tree on any day. It grows again each time the snow comes back, a sleigh crosses the moon each time, and a tree out on the desktop grows along with it.
 
 ### Fixed
 
@@ -38,16 +61,9 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The keyboard focus ring on the buttons in Play and Friends & settings is drawn whole instead of cut at the panel's edge.
 - In Japanese, the Updates row in Settings no longer runs the current version into the Check for updates button in a small window.
 - In the narrowest windows, Import background and Background studio stay on one line over the gallery, and Invite's title stays on one line beside Import's icon.
-- Baubles hung on the Christmas tree sit on its painted baubles or in the gaps between branches, at the painted baubles' size with a thin rim, instead of floating over the needles. The grand tree's baubles take the places of its painted ones.
-- Santa, the baby reindeer, the bench, the swing and the hammock cast a soft shadow on the ground instead of floating over it.
-- At night, gifts, flowers, trees and the bush at the trail's end take on the night's blue instead of turning grey.
-- The birds peeking out of the bush at the trail's end are drawn at a bird's size next to it.
-- A lantern or a campfire at night lights a warm pool on the ground under it, and the snow around it no longer turns grey.
-- The fishing float sits in the water with a ripple at its waterline.
-- With reduced motion, the sleigh over the moon on Christmas night is a dark blue shape against the moon instead of a black sticker.
-- A friend from an imported pet file holds the fishing rod and the bug net in front of its body instead of from behind its hip.
 - Settings' switches no longer turn smaller in windows narrower than about 860px.
 - In dark mode, the Remove button in a friend's settings, the Quit button under the pointer, the Settings sheet's shadow and the picture placeholder in Place & atmosphere now darken instead of staying light.
+- The note under **Start PlayPets when you log in** says that what you put out comes out on the desktop, not only your friends.
 - A friend's chips (how you know each other, its status, closeness) and the yard count use the same pink and green as the rest of the app, a little deeper, so their words read more clearly.
 
 ### Website and docs
@@ -55,6 +71,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The guide's first-friend page no longer says a double-click opens the conversation.
 - Right after a release is published, the website's download buttons offer it, instead of the previous release until the next site update.
 - The website's moving friends load smaller pictures, drawn at the size the page shows them, and each friend's `playpets-<name>.zip` now carries the same lossless WebP sheets the app uses, about a third smaller.
+- The desktop guide explains flowers and trees on the desktop, and the yard guide says how to move a flower and where pulling up and removing went.
+- The yard guide says how to bring Christmas night on any day: pick winter, night and snow with the tree out.
+- The landing page's year has a **Christmas night** card of its own, with no dates, saying what brings it on any day and that the desktop tree grows too; the Winter lights card says its gifts also come out in any winter yard.
+- The yard guide no longer says a snowman never goes out on the desktop. The desktop guide says the snowman and the Christmas gifts show there only while the yard shows them, dressed and decorated, and that the switch and the next start cover flowers and trees too; the settings guide and the README say the same.
 
 ## [1.6.0] - 2026-11-10
 

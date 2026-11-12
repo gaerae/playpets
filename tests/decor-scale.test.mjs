@@ -59,11 +59,13 @@ test('a gift whose drawing has no ground stands on a shade, under its drawing', 
   nodes.get('yard').getBoundingClientRect = () => ({ width: 1180, height: 780 });
   setData({
     ...before,
-    garden: { decor: ['bench', 'pond'].map((kind, i) => ({ id: `shade-${i}`, kind, x: 0.5, y: 0.5 })) },
+    garden: {
+      decor: ['bench', 'pond', 'kite'].map((kind, i) => ({ id: `shade-${i}`, kind, x: 0.2 + i * 0.3, y: 0.5 })),
+    },
   });
   measureYard();
   renderDecor();
-  const [bench, pond] = nodes.get('garden-layer').children;
+  const [bench, pond, kite] = nodes.get('garden-layer').children;
   const [shade] = bench.children;
   assert.equal(shade?.className, 'decor-shade', 'a bench stands on a shade');
   const [w, h, y] = giftKind('bench').shade;
@@ -71,7 +73,10 @@ test('a gift whose drawing has no ground stands on a shade, under its drawing', 
     [shade.style['--shade-w'], shade.style['--shade-h'], shade.style['--shade-y']],
     [w, h, y].map(String),
   );
+  assert.equal(shade.style['--shade-x'], undefined, 'a bench stands in the middle of its box');
   assert.ok(!pond.children.some(c => c.className === 'decor-shade'), 'a flat gift lies on the ground already');
+  // The kite's stand is at the left of its drawing, and its shade with it.
+  assert.equal(kite.children[0].style['--shade-x'], String(giftKind('kite').shade[3]));
 });
 
 // A lit gift's light falls on the ground too: a warm pool at its foot, under the drawing, beside

@@ -75,6 +75,9 @@ struct Inner {
     mons: Vec<Mon>,
     mons_at: Option<Instant>,
     primary_scale: f64,
+    /// Things whose box changed size since it was last kept (a tree grew): kept again on the next
+    /// step, where the new place is saved.
+    resized: Vec<String>,
 }
 
 pub struct Overlay {
@@ -184,6 +187,11 @@ impl Overlay {
         }
         let ids: Vec<String> = pets.iter().map(|p| p.id.clone()).collect();
         d.positions.retain(|k, _| ids.contains(k));
+        let Inner {
+            pets: old, positions, ..
+        } = &mut *d;
+        let grown = keep_feet(old, &pets, positions);
+        d.resized.extend(grown);
         d.roams.retain(|k, _| ids.contains(k));
         if d.drag.as_ref().map(|g| !ids.contains(&g.id)).unwrap_or(false) {
             d.drag = None;
@@ -240,6 +248,23 @@ fn bridge_js(display: &str) -> String {
     format!("{}\nwindow.__DISPLAY='{}';", crate::commands::bridge_js(), display)
 }
 
+/// A thing out whose box changed size (a tree that grew) keeps standing where it stood: the bottom
+/// middle of its box stays put. Returns the ones moved.
+fn keep_feet(old: &[Item], new: &[Item], positions: &mut HashMap<String, (f64, f64)>) -> Vec<String> {
+    let mut moved = Vec::new();
+    for item in new {
+        let (Some(before), Some(at)) = (old.iter().find(|o| o.id == item.id), positions.get_mut(&item.id)) else {
+            continue;
+        };
+        let ((w0, h0), (w1, h1)) = (dims(before), dims(item));
+        if (w0, h0) != (w1, h1) {
+            *at = (at.0 + (w0 - w1) / 2.0, at.1 + h0 - h1);
+            moved.push(item.id.clone());
+        }
+    }
+    moved
+}
+
 /// One step. Returns whether the next should come soon: something moves, a friend is being
 /// dragged, or the pointer is near one.
 fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt_ms: f64) -> bool {
@@ -250,6 +275,12 @@ fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt
     let (moved, busy) = {
         let mut d = crate::app::hold(inner);
         let placed = place_newcomers(&mut d, &mons);
+        // Saved as a drop is, on the screen it is on now.
+        for id in std::mem::take(&mut d.resized) {
+            if let Some(&(x, y)) = d.positions.get(&id) {
+                arrivals.push((id, x.round() as i64, y.round() as i64));
+            }
+        }
         let dragged = follow_drag(&mut d, &mons, cursor, &mut arrivals);
         let strolled = stroll(&mut d, &mons, cursor, dt_ms, &mut arrivals, &mut visits);
         let moved = placed || dragged || strolled;
@@ -601,5 +632,25 @@ mod tests {
             "a friend carried over is drawn as it arrives"
         );
         assert!(!needs_window(false, true, &layout, "1"), "a hidden desktop has none");
+    }
+
+    #[test]
+    fn a_tree_that_grows_on_the_desktop_keeps_its_foot_where_it_stood() {
+        let tree = |w, h| Item {
+            id: "cherry".into(),
+            size: 0.0,
+            saved: None,
+            decor: Some(("cherry".into(), w, h)),
+        };
+        let mut positions = HashMap::from([("cherry".to_string(), (500.0, 600.0))]);
+        assert!(keep_feet(&[tree(35.0, 40.0)], &[tree(35.0, 40.0)], &mut positions).is_empty());
+        assert_eq!(
+            keep_feet(&[tree(35.0, 40.0)], &[tree(71.0, 95.0)], &mut positions),
+            ["cherry"]
+        );
+        // The bottom middle stays at (517.5, 640).
+        assert_eq!(positions["cherry"], (482.0, 545.0));
+        // Something new has no size before: it is placed as a newcomer is.
+        assert!(keep_feet(&[], &[tree(160.0, 170.0)], &mut positions).is_empty());
     }
 }

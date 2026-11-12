@@ -197,6 +197,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         detected: nothing_detected(),
         activity: HashMap::new(),
         hidden_decor: None,
+        night_decor: Vec::new(),
     })
 }
 

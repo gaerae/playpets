@@ -73,6 +73,32 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.6.1" date="2026-11-12">
+      <description>
+        <p>The yard feels more alive: friends bob along as they walk, look smaller farther back, and trees and flowers sway in the breeze.</p>
+        <ul>
+          <li>Friends bob along as they walk and settle as they stop.</li>
+          <li>Friends farther back look a little smaller, and strolls no longer end on a tree or a flower.</li>
+          <li>Friends walk down to the foot of the yard, with their name tags still in view.</li>
+          <li>Outdoors, trees and flowers sway in the breeze.</li>
+          <li>A double-click on a friend is two pats. To talk, click its name tag.</li>
+          <li>Small windows fit better: the tools sit in one row and a new find's card takes one line.</li>
+          <li>Panels come in three sizes and open in their usual place, from the right-click menu too.</li>
+          <li>Text is never smaller than 11px.</li>
+          <li>A flower keeps its kind a surprise until its bud shows.</li>
+          <li>Planting a tree lists only the saplings you have.</li>
+          <li>A gift or a friend behind a tree or a flower can be clicked through its empty corners.</li>
+          <li>The rainbow's end glimmers only on ground not dug that day.</li>
+          <li>The album counts grown trees in their own words and says a gift was received.</li>
+          <li>A snowman wears its scarf around its neck and its hat on top of its head.</li>
+          <li>A snowman can go out on the desktop too, dressed as in the yard, and a tree keeps its ornaments.</li>
+          <li>Christmas night comes on any snowy winter night, and the desktop tree grows too.</li>
+          <li>Flowers and planted trees can go out on the desktop from their menu, and flowers can be moved.</li>
+          <li>In dark mode, a few buttons and panels that stayed light now darken.</li>
+        </ul>
+      </description>
+      <url type="details">https://playpets.gaerae.com/releases/1.6.1</url>
+    </release>
     <release version="1.6.0" date="2026-11-10">
       <description>
         <p>Winter comes to the yard: roll a snowman together, follow footprints in the snow, trim the Christmas tree and read a letter from your closest friend. Then spring shoots and cherry blossoms.</p>

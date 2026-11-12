@@ -95,6 +95,22 @@ pub struct Tree {
     pub stage: u8,
     #[serde(default)]
     pub matured: bool,
+    /// Out on the desktop too, as a gift can be (src-tauri/src/desktop/).
+    #[serde(
+        rename = "onDesktop",
+        default,
+        deserialize_with = "super::or_default",
+        skip_serializing_if = "std::ops::Not::not"
+    )]
+    pub on_desktop: bool,
+    /// Where it was last left on the desktop, in logical screen pixels.
+    #[serde(
+        rename = "desktopPosition",
+        default,
+        deserialize_with = "super::or_default",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub desktop_position: Option<super::model::Pos>,
 }
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -356,6 +372,8 @@ pub fn plant_tree(
         planted: now,
         stage: 0,
         matured: false,
+        on_desktop: false,
+        desktop_position: None,
     };
     garden.trees.push(tree.clone());
     Ok(tree)
@@ -1172,6 +1190,26 @@ mod tests {
         assert!(!result.repeated);
         assert_eq!(garden.seeds, 1);
         assert_eq!(garden.digs.len(), 1);
+    }
+
+    #[test]
+    fn a_tree_out_on_the_desktop_stays_out_across_a_restart_and_a_move() {
+        let mut g = Garden::restore(Some(&json!({"saplings": {"cherry":1}})), 0);
+        let tree = plant_tree(&mut g, "meadow", "cherry", 0.5, 0.5, &ground(), 1).unwrap();
+        assert!(!tree.on_desktop && tree.desktop_position.is_none());
+        g.trees[0].on_desktop = true;
+        g.trees[0].desktop_position = Some(crate::pets::model::Pos { x: 300, y: 500 });
+        move_tree(&mut g, &tree.id, 0.3, 0.6, &ground()).unwrap();
+        let saved = serde_json::to_value(&g).unwrap();
+        assert_eq!(saved["trees"][0]["onDesktop"], true);
+        let back = Garden::restore(Some(&saved), 0);
+        assert!(back.trees[0].on_desktop);
+        assert_eq!(back.trees[0].desktop_position, g.trees[0].desktop_position);
+        // A tree saved before trees could go out reads as one in the yard only.
+        let old = restore_trees(Some(
+            &json!([{"id":"t","world":"meadow","kind":"cherry","x":0.5,"y":0.5,"planted":1,"stage":0}]),
+        ));
+        assert!(!old[0].on_desktop && old[0].desktop_position.is_none());
     }
 
     #[test]

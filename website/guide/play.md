@@ -133,9 +133,13 @@ What flowers depends on the season you planted it in, with four kinds per season
 
 Hover over a plant to see what it is and how long until it flowers. Click it and the nearest friend walks over to water it. Friends also go and look at the flowers on their own.
 
-To pull a plant up, right-click it or press **Delete** or **Backspace** on it. It goes at once, without a question. The notice at the bottom shows **Undo** for about six seconds, and Undo puts the plant back.
+Drag a plant to move it, or use the arrow keys on it. It keeps growing where you put it.
+
+To pull a plant up, right-click it and choose **Pull up**, or press **Delete** or **Backspace** on it. It goes at once, without a question. The notice at the bottom shows **Undo** for about six seconds, and Undo puts the plant back.
 
 Only after that is the plant gone for good. If the app closes first, it stays. The seed doesn't come back.
+
+The same right-click menu has **Show on desktop**, for a plant or a tree, so it grows on your desk too ([Desktop mode](./desktop.md#flowers-and-trees-on-the-desktop)).
 
 - Limits: 20 seeds and 24 plants.
 - Saved as `garden` in `state.json`.
@@ -230,9 +234,9 @@ An event's gifts come the first times a gift is due during the event, one each t
 
 South of the equator, judged by your computer's time zone, seasonal events come six months later. The winter lights and the new year keep their dates.
 
-In December, if the yard isn't showing winter, PlayPets asks once whether to show it until January 7. If you say yes, your season comes back on January 8. The Christmas tree, the baby reindeer and Santa show in the yard and on the desktop from December 1 to January 7, and wait out of sight the rest of the year. They still count toward the 12 decorations, and when you put one away it goes back into the gift box.
+In December, if the yard isn't showing winter, PlayPets asks once whether to show it until January 7. If you say yes, your season comes back on January 8. The Christmas tree, the baby reindeer and Santa show in the yard and on the desktop from December 1 to January 7, and whenever the yard shows winter. The rest of the time they wait out of sight. They still count toward the 12 decorations, and when you put one away it goes back into the gift box.
 
-On a snowy evening or night during the winter lights, if the yard is showing winter and the little Christmas tree is out, the tree lights up and grows into a grand tree. This happens once a night. The grand tree stays while the snow falls, with a bulb glinting now and then, and shrinks back when the snow stops. If the baby reindeer and Santa are out in the yard, they look up late that night, and a sleigh crosses the moon once. In the Cozy living room the snow stays beyond the glass, so Christmas night happens only in the gardens, and the desktop keeps the little tree.
+On a snowy evening or night, if the yard is showing winter and the little Christmas tree is out, the tree lights up and grows into a grand tree. December brings this on its own, but it works on any day: pick winter, night and snow for the yard. The grand tree stays while the snow falls, with a bulb glinting now and then, and shrinks back when the snow stops. When the snow comes back, it grows again. If the baby reindeer and Santa are out in the yard, they look up at night, and a sleigh crosses the moon each time the tree grows. A tree out on the desktop grows along with the one in the yard. In the Cozy living room the snow stays beyond the glass, so Christmas night happens only in the gardens.
 
 Press the Christmas tree to decorate it. Each day you can hang up to three things you've found in the album: flowers, trees, gifts and keepsakes. They become small ornaments tinted by kind, and pointing at one shows what it is. To change the tree, take an ornament down from its card; the day's three stay used. Aquatic life and bugs stay in the water and the grass. The ornaments stay on the tree in the yard, on the grand tree too, until the next December starts with a bare tree. Decorating works in every place, the Cozy living room too.
 
@@ -314,7 +318,7 @@ Daisy, Pip and Miso wear the same everyday outfits in spring and autumn, and cha
 - A mature tree is recorded once in **Album → Trees**.
 - Each place holds six trees, up to twenty-four overall. Trees stay in the place where they were planted.
 - Drag a tree to move it.
-- To remove one at once, right-click it or press **Delete** on it. As with flowers, **Undo** in the notice brings it back for about six seconds. Its album entry stays, but no sapling comes back.
+- To remove one at once, right-click it and choose **Remove**, or press **Delete** on it. As with flowers, **Undo** in the notice brings it back for about six seconds. Its album entry stays, but no sapling comes back.
 - Indoor places don't offer digging or tree planting. Imported backgrounds can explicitly allow or turn off soil.
 
 ### Footprints in the snow
@@ -369,7 +373,7 @@ While the yard shows winter, which leaves out the Cozy living room, **Snowman** 
 Then choose its hat, scarf and carrot nose. Press the snowman, or choose **Dress up** from its menu, to change them later.
 
 - A new snowman replaces the old one, which melts away; with company, a friend says goodbye to it.
-- The snowman stays in the yard only while the yard shows winter. It never goes out on the desktop, and putting it away melts it.
+- The snowman stays in the yard only while the yard shows winter. **Show on desktop** in its menu takes it out on the desktop, dressed as in the yard, while the yard shows winter. Putting it away melts it.
 - With 12 decorations in the yard and no snowman, a friend says the yard is full, and the game doesn't start.
 
 ## A window beside your work

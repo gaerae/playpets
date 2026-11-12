@@ -6,8 +6,8 @@
 //! limit, and which gift comes next, is kept here. Growth is not stored: a plant's stage follows
 //! from when it was planted (src/yard/garden.js). What can grow and what friends bring are the
 //! catalogue's (content.rs).
-//! In December what the album found hangs on the Christmas tree, three a day on its twelve hooks;
-//! each December's first hang takes last year's down, so every December starts a fresh tree.
+//! What the album found hangs on the Christmas tree whenever it is out, three a day on its twelve
+//! hooks; each December's first hang takes last year's down, so every December starts a fresh tree.
 //! Design: docs/design/2026-10-09-a-yard-that-grows.md, docs/design/2026-10-29-gifts-from-friends.md.
 use super::album::Album;
 use super::content::catalog;
@@ -105,12 +105,6 @@ pub struct Ornament {
 pub struct OrnamentDay {
     pub day: String,
     pub count: u32,
-}
-
-/// Whether the Christmas tree shows on `day`: 12-01 to 01-07, the window `"shown": "december"`
-/// has in src/yard/decor-shown.js (SHOWN; tests/limits.test.mjs keeps the two the same).
-fn tree_dates(day: &str) -> bool {
-    is_day(day) && (&day[5..] >= "12-01" || &day[5..] <= "01-07")
 }
 
 /// The December a day decorates for: its year in December, the year before in January.
@@ -224,6 +218,22 @@ pub struct Plant {
     /// Whether its flower has been counted in the album.
     #[serde(default)]
     pub bloomed: bool,
+    /// Out on the desktop too, as a gift can be (src-tauri/src/desktop/).
+    #[serde(
+        rename = "onDesktop",
+        default,
+        deserialize_with = "super::or_default",
+        skip_serializing_if = "std::ops::Not::not"
+    )]
+    pub on_desktop: bool,
+    /// Where it was last left on the desktop, in logical screen pixels.
+    #[serde(
+        rename = "desktopPosition",
+        default,
+        deserialize_with = "super::or_default",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub desktop_position: Option<super::model::Pos>,
 }
 
 /// Things kept on the field (plants, decorations) as state.json has them: the ones of a kind there
@@ -264,8 +274,7 @@ fn decor_place(x: f64, y: f64) -> Option<(f64, f64)> {
     Some((place(x)?, y.is_finite().then(|| y.clamp(0.0, DECOR_FLOOR_MAX))?))
 }
 
-/// A decoration as state.json has it: it wears only what its kind can, once each in drawing order,
-/// and a built kind (the snowman) is never out on the desktop, as an older file may have it.
+/// A decoration as state.json has it: it wears only what its kind can, once each in drawing order.
 fn tidy(d: &mut Decor) {
     d.dress = catalog()
         .dress_of(&d.kind)
@@ -273,7 +282,6 @@ fn tidy(d: &mut Decor) {
         .filter(|part| d.dress.iter().any(|w| w == part))
         .map(String::from)
         .collect();
-    d.on_desktop &= !catalog().is_built(&d.kind);
 }
 
 /// Ornaments as state.json has them: a book of the four, an id shaped like a kind (not the tree
@@ -427,13 +435,14 @@ impl Garden {
         }
     }
 
-    /// The decorating season of `day` if the tree can be decorated then: a date in its window,
-    /// with the tree out in the yard, not before the last hang (a clock set back) nor in an
-    /// earlier December than it.
+    /// The decorating season of `day` if the tree can be decorated then: a date, with the tree out
+    /// in the yard, not before the last hang (a clock set back) nor in an earlier December than it.
+    /// No window of dates: the tree shows in December and in any winter yard the page picks, and
+    /// whatever shows can be decorated.
     fn decorating(&self, day: &str) -> Result<u32, String> {
         let season = ornament_season(day);
         let set_back = day < self.ornament_day.day.as_str() || season < self.ornament_year;
-        if !tree_dates(day) || set_back || !self.decor.iter().any(|d| d.kind == ORNAMENT_TREE) {
+        if !is_day(day) || set_back || !self.decor.iter().any(|d| d.kind == ORNAMENT_TREE) {
             return Err(i18n::t("error.bad_request"));
         }
         Ok(season)
@@ -520,6 +529,8 @@ impl Garden {
             y,
             planted: now,
             bloomed: false,
+            on_desktop: false,
+            desktop_position: None,
         };
         self.seeds -= 1;
         self.plants.push(plant.clone());
@@ -533,6 +544,20 @@ impl Garden {
         if self.plants.len() == before {
             return Err(i18n::t("error.plant_missing"));
         }
+        Ok(())
+    }
+
+    /// Moves a plant to another spot on the field; it keeps growing as it was.
+    pub fn move_plant(&mut self, id: &str, x: f64, y: f64) -> Result<(), String> {
+        let (Some(x), Some(y)) = (place(x), place(y)) else {
+            return Err(i18n::t("error.bad_request"));
+        };
+        let plant = self
+            .plants
+            .iter_mut()
+            .find(|p| p.id == id)
+            .ok_or_else(|| i18n::t("error.plant_missing"))?;
+        (plant.x, plant.y) = (x, y);
         Ok(())
     }
 
@@ -960,7 +985,7 @@ mod tests {
                          "snowmanDay": "2026-12-15", "plants": [], "received": [], "giftDay": "", "seeds": 0});
         let g = Garden::restore(Some(&raw), 0);
         assert_eq!(g.decor[0].dress, ["nose", "hat"]);
-        assert!(!g.decor[0].on_desktop, "a snowman never goes out on the desktop");
+        assert!(g.decor[0].on_desktop, "a snowman out on the desktop stays out");
         assert!(g.decor[1].dress.is_empty());
         assert_eq!(g.snowman_day, "2026-12-15");
         assert_eq!(serde_json::to_value(&g).unwrap()["snowmanDay"], "2026-12-15");
@@ -1142,6 +1167,45 @@ mod tests {
         assert_eq!(g.pull(&id), Ok(()));
         assert!(g.pull(&id).is_err(), "pulled already");
         assert_eq!(g.plants.len(), PLANT_MAX - 1);
+    }
+
+    #[test]
+    fn a_plant_moves_to_another_spot_on_the_field_and_keeps_its_growth() {
+        let mut g = Garden {
+            seeds: 1,
+            ..Default::default()
+        };
+        let id = g.plant("tulip", 0.5, 0.5, 7).unwrap().id;
+        assert_eq!(g.move_plant(&id, 0.2, 0.9), Ok(()));
+        let p = &g.plants[0];
+        assert_eq!((p.x, p.y, p.planted), (0.2, 0.9, 7));
+        // Kept on the field, as planting is.
+        assert_eq!(g.move_plant(&id, -1.0, 3.0), Ok(()));
+        assert_eq!((g.plants[0].x, g.plants[0].y), (0.0, 1.0));
+        assert!(g.move_plant(&id, f64::NAN, 0.5).is_err());
+        assert!(g.move_plant("gone", 0.5, 0.5).is_err());
+    }
+
+    #[test]
+    fn a_plant_out_on_the_desktop_stays_out_across_a_restart() {
+        let mut g = Garden {
+            seeds: 1,
+            ..Default::default()
+        };
+        g.plant("tulip", 0.5, 0.5, 1).unwrap();
+        g.plants[0].on_desktop = true;
+        g.plants[0].desktop_position = Some(super::super::model::Pos { x: 40, y: 700 });
+        let saved = serde_json::to_value(&g).unwrap();
+        assert_eq!(saved["plants"][0]["onDesktop"], true);
+        assert_eq!(saved["plants"][0]["desktopPosition"]["x"], 40);
+        let back = Garden::restore(Some(&saved), 0);
+        assert!(back.plants[0].on_desktop);
+        assert_eq!(back.plants[0].desktop_position, g.plants[0].desktop_position);
+        // One that never went out writes neither.
+        g.plants[0].on_desktop = false;
+        g.plants[0].desktop_position = None;
+        let plain = serde_json::to_value(&g).unwrap();
+        assert!(plain["plants"][0].get("onDesktop").is_none() && plain["plants"][0].get("desktopPosition").is_none());
     }
 
     #[test]
@@ -1524,7 +1588,7 @@ mod tests {
     }
 
     #[test]
-    fn an_ornament_needs_a_found_item_a_free_hook_and_the_tree_out_in_its_dates() {
+    fn an_ornament_needs_a_found_item_a_free_hook_and_the_tree_out() {
         let (mut g, album) = (tree_out(), found());
         g.hang_ornament(&album, "flower", "camellia", 0, "2026-12-20").unwrap();
         let bad = Err(i18n::t("error.bad_request"));
@@ -1538,7 +1602,6 @@ mod tests {
             ("tree", "pine", 0, "2026-12-20"),
             ("tree", "pine", ORNAMENT_HOOKS, "2026-12-20"),
             ("tree", "pine", 1, "2026-11-30"),
-            ("tree", "pine", 1, "2027-01-08"),
             ("tree", "pine", 1, "soon"),
         ] {
             assert_eq!(
@@ -1571,6 +1634,22 @@ mod tests {
         assert_eq!(g.ornaments, [again]);
         assert_eq!((g.ornament_year, g.ornament_day.count), (2027, 1));
         assert_eq!(g.ornament_day.day, "2027-12-01");
+    }
+
+    #[test]
+    fn a_tree_out_in_a_winter_yard_is_decorated_on_any_day_until_the_next_december() {
+        let (mut g, album) = (tree_out(), found());
+        g.hang_ornament(&album, "flower", "camellia", 0, "2027-07-15").unwrap();
+        assert_eq!(
+            (g.ornament_year, g.ornament_day.count),
+            (2026, 1),
+            "July belongs to the December before"
+        );
+        g.hang_ornament(&album, "tree", "pine", 1, "2027-11-30").unwrap();
+        g.take_down_ornament("tree", "pine", "2027-11-30").unwrap();
+        assert_eq!(g.ornaments, [ornament("flower", "camellia", 0)]);
+        let again = g.hang_ornament(&album, "tree", "pine", 1, "2027-12-01").unwrap();
+        assert_eq!(g.ornaments, [again], "the next December starts a bare tree");
     }
 
     #[test]
@@ -1617,7 +1696,6 @@ mod tests {
             ("flower", "tulip", "2026-12-20"),
             ("tree", "camellia", "2026-12-20"),
             ("flower", "camellia", "2026-12-19"),
-            ("flower", "camellia", "2027-01-08"),
             ("flower", "camellia", "2027-12-01"),
             ("flower", "camellia", "soon"),
         ] {

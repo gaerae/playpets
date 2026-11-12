@@ -96,12 +96,12 @@ test('every effect a gift names exists', () => {
   for (const g of catalog.gifts)
     for (const name of g.effects || []) assert.ok(EFFECT_NAMES.includes(name), `${g.id}: ${name}`);
   for (const g of catalog.gifts) assert.ok(!g.stand || g.stand === 'on', `${g.id}: stand is "on" or left out`);
-  // A contact shade: its width, its height and where its centre is, as shares of the gift's, for a
-  // drawing with no ground.
+  // A contact shade: its width, its height, where its centre is and, for a foot off the middle,
+  // how far across, as shares of the gift's, for a drawing with no ground.
   for (const g of catalog.gifts.filter(g => g.shade)) {
     assert.ok(!g.flat, `${g.id}: a flat gift lies on the ground already`);
     assert.ok(
-      g.shade.length === 3 &&
+      (g.shade.length === 3 || (g.shade.length === 4 && g.shade[3] > 0.1 && g.shade[3] < 0.9)) &&
         g.shade[0] > 0.2 &&
         g.shade[0] <= 1.2 &&
         g.shade[1] > 0 &&
@@ -111,7 +111,28 @@ test('every effect a gift names exists', () => {
       `${g.id}: shade`,
     );
   }
-  for (const id of ['bench', 'swing', 'hammock', 'santa', 'baby_reindeer'])
+  for (const id of [
+    'bench',
+    'swing',
+    'hammock',
+    'santa',
+    'baby_reindeer',
+    'birdhouse',
+    'bunny_watering_can',
+    'flowerpot',
+    'hedgehog_planter',
+    'kite',
+    'lantern',
+    'mailbox',
+    'pinwheel',
+    'pumpkin',
+    'scarecrow',
+    'signpost',
+    'stump',
+    'tent',
+    'water_wheel',
+    'windchime',
+  ])
     assert.ok(giftKind(id).shade, `${id}: drawn without ground, so it stands on a shade`);
 });
 
@@ -257,6 +278,8 @@ test('the snowman has a ball, a stack and three things to wear, all drawn', () =
     'drawn in this order',
   );
   for (const p of s.dress) assert.ok(p.at.length === 3 && p.at.every(v => v > 0 && v < 1), p.id);
+  // A part may be turned a little, never so far it reads as falling off.
+  for (const p of s.dress) assert.ok(p.turn === undefined || (p.turn !== 0 && Math.abs(p.turn) <= 15), p.id);
   assert.ok(s.stack.length === 2 && s.stack[0] > 0.5 && s.stack[0] < 1 && s.stack[1] >= 0 && s.stack[1] < 0.3);
   const arts = artOf(catalog);
   for (const art of [s.ball, ...s.dress.map(p => p.art)])

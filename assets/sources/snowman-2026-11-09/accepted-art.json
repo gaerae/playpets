@@ -29,6 +29,21 @@
       "runtimeAtlas": "collection-extension/snowman-dress.png",
       "acceptedIds": ["snow_hat", "snow_scarf", "snow_nose"],
       "notes": "Columns: hat, scarf, carrot nose. Accepted on the first try. The nose is asked front-facing with its tip slightly to the right, since the snowman faces front. Placed on the snowman by the anchors in src/content/catalog.json (snowman.dress[].at), measured on a fit sheet."
+    },
+    {
+      "name": "snowscarf-worn",
+      "generated": "2026-11-12",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game asset for a cozy, cute, healing desktop pet game. Style: match the references exactly: softly sculpted miniature, SMOOTH MATTE surfaces, soft painterly shading, muted cozy palette, key light from the UPPER LEFT, rounded silhouette readable at small size. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO floor, NO cast shadow, NO text. Square 1024x1024 canvas, ONE object centred with generous margins.\nThe object: the red cable-knit scarf of the second reference, redrawn exactly as it looks while WORN around the neck of the snowman in the first reference, seen straight from the front. Draw ONLY the parts of the scarf that are visible in front: a thick soft band wrapped snugly around the neck, its top edge tucked right under the round head (the head would hide it, so the top edge is a gentle upward-curving arc matching the bottom of the head), the band curving softly down and around the round snow like a shallow U, its two sides turning back and getting darker and narrower where they wrap behind the neck. The back of the loop is hidden behind the head and NOT drawn: no visible opening, no inside of the loop. One short tail hangs from a small knot at the front, slightly right of centre, straight down with a little fringe at the end, lying against the round body (gently curved, shaded on its right side). Same knit pattern and the same muted red as the second reference.\nDo NOT draw any part of the snowman: no head, no eyes, no arms, no snow.",
+      "references": [
+        "the plain snowman's crop of assets/art/collection-extension/snowman-set.png at x 1099, y 270, 404 x 526",
+        "the old scarf's crop of assets/art/collection-extension/snowman-dress.png at x 589, y 390, 446 x 354"
+      ],
+      "file": "snowscarf-worn.png",
+      "sha256": "fdfe02c911d89b893e9f2847e34032c434ca6bac8e46d91370ecdcf116b282d8",
+      "size": [1254, 1254],
+      "runtimeAtlas": "collection-extension/snowman-dress.png",
+      "acceptedIds": ["snow_scarf"],
+      "notes": "Replaces the scarf from snowdress.png, a loop seen from above: on the snowman its open inside showed and it read as laid on the chest. This one is drawn as worn: the head hides the back of the loop, the band follows the round snow and the tail lies against the body. Accepted on the first try."
     }
   ],
   "composed": [
@@ -46,12 +61,13 @@
     {
       "name": "snowman-dress",
       "file": "assets/art/collection-extension/snowman-dress.png",
-      "sha256": "dc417ea9ff0c96152d0c32cc8cace0eaf7e474c46805a1705445ab57d055191f",
+      "sha256": "be742116bf26fc0af2a795bda114e007af9acb020fda0c186e438af725b16f28",
       "size": [1536, 1024],
-      "inputs": ["snowdress.png"],
+      "inputs": ["snowdress.png", "snowscarf-worn.png"],
       "runtimeAtlas": "collection-extension/snowman-dress.png",
       "processing": [
-        "Every pixel with alpha below 50 set to 0,0,0,0 (all other samples unchanged); written as 8-bit RGBA, 1536 x 1024. 50 is the lowest cut that leaves no ring: the soft alpha is a 1-3 px antialiased edge (the sheet viewer shows the transparent pixels' white or red colour as a broad aura), and on #121e3c and #eef1ee no ring wider than 2 px is left, while the white balls keep their soft edge."
+        "Every pixel with alpha below 50 set to 0,0,0,0 (all other samples unchanged); written as 8-bit RGBA, 1536 x 1024. 50 is the lowest cut that leaves no ring: the soft alpha is a 1-3 px antialiased edge (the sheet viewer shows the transparent pixels' white or red colour as a broad aura), and on #121e3c and #eef1ee no ring wider than 2 px is left, while the white balls keep their soft edge.",
+        "2026-11-12: the scarf's crop (589, 390, 446 x 354) cleared to 0,0,0,0; snowscarf-worn.png cut at alpha 50, its silhouette (158, 298, 927 x 755) scaled to 418 x 340 by area averaging in premultiplied colour, cut at alpha 50 again and set at 603, 397, centred where the old scarf was. The hat's and the nose's pixels are unchanged."
       ]
     }
   ],
@@ -81,7 +97,7 @@
       },
       {
         "id": "snow_scarf",
-        "box": [603, 404, 418, 326]
+        "box": [603, 397, 418, 340]
       },
       {
         "id": "snow_nose",

@@ -151,6 +151,11 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   wrappers with `node scripts/pack-collection.mjs`.
 - Accepted sources, prompts, hashes and measured boxes:
   `assets/sources/snowman-2026-11-09/accepted-art.json`.
+- Later: the scarf was redrawn on 2026-11-12 as it looks worn (`snowscarf-worn`):
+  the first one was a loop seen from above, whose open inside showed on the
+  snowman. It takes the old scarf's place in `snowman-dress`; the hat and the
+  nose are unchanged. The hat now rests on the crown, turned a little
+  (`snowman.dress[].turn`).
 
 ## Winter tails and trail bushes (2026-11-09)
 

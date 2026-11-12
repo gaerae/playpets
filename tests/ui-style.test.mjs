@@ -523,6 +523,7 @@ const SET_FROM_CODE = {
   '--moon-lit': 'src/yard/sky.js',
   '--bubble-lift': 'src/yard/views.js',
   '--bubble-shift': 'src/yard/views.js',
+  '--depth': 'src/yard/views.js',
   '--album-found': 'src/panel/album.js',
   '--trail-opacity': 'src/yard/trails.js',
   '--petal-x': 'src/yard/petals.js',
@@ -530,6 +531,7 @@ const SET_FROM_CODE = {
   '--shade-w': 'src/yard/decor.js',
   '--shade-h': 'src/yard/decor.js',
   '--shade-y': 'src/yard/decor.js',
+  '--shade-x': 'src/yard/decor.js',
 };
 // A misspelt or removed token silently falls back to the property's initial value (no colour, no
 // size), so every one a stylesheet reads has to come from somewhere.
@@ -625,6 +627,20 @@ test('at night the drawings in the yard darken toward the blue of the night, all
   const gain = row => m.slice(row * 5, row * 5 + 3).reduce((a, b) => a + b, 0);
   assert.ok(gain(2) > gain(1) && gain(1) > gain(0), 'blue kept most, red least');
   assert.ok(gain(0) < 0.62 && gain(2) < 0.9, 'darker than day');
+  // A white, a warm cream or the snowman's painted white (a touch pink) reads as moonlit white: a
+  // pale grey-blue with the night snow's own hue (green about a third of the way from red to blue,
+  // as on the yard's snow at night), not lilac.
+  const tint = rgb => [0, 1, 2].map(row => m.slice(row * 5, row * 5 + 3).reduce((a, k, i) => a + k * rgb[i], 0));
+  for (const white of [
+    [1, 1, 1],
+    [1, 0.95, 0.88],
+    [0.85, 0.81, 0.84],
+  ]) {
+    const [r, g, b] = tint(white);
+    assert.ok((g - r) / (b - r) >= 0.3, `${white}: the night snow's blue, not lilac`);
+    assert.ok((b - r) / b < 0.3, `${white}: pale, not a strong blue`);
+    assert.ok(r > 0.42, `${white}: still light beside the night's snow`);
+  }
   assert.deepEqual(m.slice(15), [0, 0, 0, 1, 0], 'alpha untouched');
 });
 
@@ -744,7 +760,7 @@ test('the narrowest windows keep the Invite title on one line', async () => {
 // colours were spread over the rules, and some (the Remove button, the Quit hover, the Settings
 // shadow) stayed light in dark mode.
 test('the interface takes its colours from tokens', async () => {
-  const art = new Set(['scenery.css', 'garden.css', 'play.css']);
+  const art = new Set(['scenery.css', 'garden.css', 'play.css', 'worn.css']);
   const drawn =
     /\.(?:sun-dot|treat|yard-pet|pet-state-dot|particle|head-petal|album-specimen|album-card\.rare|decorating-stage|decorating-tree|ornament-glint|ornament-hook|decorating-bubble|decorating-status|decorating-kind|ornament-chip::before|pet-label\.dear)\b/;
   const raw = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?)\(|:(?:white|black)\b/i;

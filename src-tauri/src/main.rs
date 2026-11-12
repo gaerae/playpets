@@ -115,8 +115,19 @@ fn main() {
                     }
                 }
             }
-            // The e2e scenario is handed over as a script and runs once the page has had time to load.
-            if let Some(scenario) = commands::e2e_mode().then(|| std::env::var(commands::E2E_ENV).ok()).flatten() {
+            // The e2e scenario is a script in the file the harness names (commands::E2E_ENV), run once
+            // the page has had time to load. An empty name (a CLI check) runs nothing.
+            let scenario = commands::e2e_mode()
+                .then(|| std::env::var_os(commands::E2E_ENV))
+                .flatten()
+                .filter(|path| !path.is_empty())
+                .and_then(|path| {
+                    // Said, so a harness that wrote it to the wrong place does not just wait.
+                    std::fs::read_to_string(&path)
+                        .inspect_err(|e| eprintln!("[e2e] cannot read the scenario {}: {e}", path.to_string_lossy()))
+                        .ok()
+                });
+            if let Some(scenario) = scenario {
                 let page = win.clone();
                 std::thread::spawn(move || {
                     std::thread::sleep(std::time::Duration::from_secs(3));
@@ -190,5 +201,20 @@ fn start_overlay(app: &tauri::App) {
         let d = lock(&state);
         overlay.sync(app::desktop_items(&d), app::desktop_on(&d), d.prefs.wander);
     }
+    // A flower out there stands taller once it buds, by the clock alone, which changes nothing
+    // saved: its box (desktop/items.rs plant_box) is looked at again each minute while one is out,
+    // under the state's lock as every other sync is.
+    let again = overlay.clone();
+    let handle = app.handle().clone();
+    std::thread::spawn(move || {
+        loop {
+            std::thread::sleep(std::time::Duration::from_secs(60));
+            let state = handle.state::<Shared>();
+            let d = lock(&state);
+            if d.garden.plants.iter().any(|p| p.on_desktop) {
+                again.sync(app::desktop_items(&d), app::desktop_on(&d), d.prefs.wander);
+            }
+        }
+    });
     app.manage(OverlayHandle(overlay));
 }

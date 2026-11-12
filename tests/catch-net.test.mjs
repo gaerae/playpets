@@ -13,6 +13,7 @@ installStorage();
 const { setData, views } = await import('../src/core/state.js');
 const { setupCatch, endFishing } = await import('../src/yard/catch.js');
 const { setScenery } = await import('../src/yard/world.js');
+const { sizeOf, petHeight } = await import('../src/yard/field.js');
 
 test('a saved bug catch has a decorative net that expires or clears on a scene transition', async context => {
   context.mock.timers.enable({ apis: ['setTimeout'] });
@@ -47,6 +48,21 @@ test('a saved bug catch has a decorative net that expires or clears on a scene t
       assert.equal(grip.getAttribute('aria-hidden'), 'true');
       assert.equal(grip.style.left, net.style.left, 'the grip sits on the handle of the same net');
       assert.equal(grip.style.top, net.style.top);
+      // The handle's end (12, 114 of the 90 by 126 drawing) is in the paws, about the middle of the
+      // friend and a little below its chin, and the net leans out from there, so the handle passes
+      // under the face instead of across it.
+      const width = parseFloat(net.style.width),
+        height = parseFloat(net.style.height);
+      assert.ok(
+        Math.abs(parseFloat(net.style.left) + (width * 12) / 90 - sizeOf(pet) * 0.55) < 0.5,
+        'held at the middle',
+      );
+      assert.ok(
+        Math.abs(parseFloat(net.style.top) + (height * 114) / 126 - petHeight(pet) * 0.7) < 1,
+        'and at the paws',
+      );
+      for (const part of [net, grip])
+        assert.match(part.innerHTML, /<g transform="rotate\(30 12 114\)">/, 'leaning out');
       if (cleanup === 'timeout') context.mock.timers.tick(900);
       else endFishing();
       assert.equal(net.removed, true, `${cleanup} removes the capture tool`);

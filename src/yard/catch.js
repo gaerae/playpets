@@ -23,7 +23,7 @@ import { setAimingMode } from './care.js';
 import { bite, kindOf } from './catalog.js';
 import { bugSvg, fishSvg } from './creatures.js';
 import { environmentFishingSpot, environmentLake } from './environment.js';
-import { field, footTarget, petHeight, sizeOf } from './field.js';
+import { drawnBox, field, footTarget, petHeight, sizeOf } from './field.js';
 import { authoredRodTip, castGeometry, castLandingX, linePath, ROD, rodPlacement, rodUrl } from './fishing-rod.js';
 import { hint } from './hint.js';
 import { composition, lakeShape, trace } from './layout.js';
@@ -144,9 +144,8 @@ function fishArrived(v) {
     float = document.createElement('button'),
     rod = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
     line = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
-    rodX = v.px + sizeOf(v.pet) * 0.6;
-  const water = lake();
-  fishing.x = castLandingX(rodX, fishing.x, sizeOf(v.pet), water.ends);
+    water = lake();
+  fishing.x = castLandingX(gripX(v), fishing.x, sizeOf(v.pet), water.ends);
   fishing.y = floatY(water, fishing.x);
   float.type = 'button';
   float.className = 'bobber';
@@ -252,20 +251,17 @@ function reel() {
   land();
 }
 
+// Where a friend holds its rod: from the friend as drawn, shrunk by its depth, so the rod is in its
+// paws and the line leaves the painted rod's tip.
+const grip = body => ({ x: body.x + body.width * 0.6, y: body.y + body.height * 0.74 });
+const gripX = v => grip(drawnBox(v)).x;
 function paintFishingArtwork(tackle, now) {
   if (!tackle.line || !tackle.rod) return;
   const v = tackle.v;
-  const width = sizeOf(v.pet);
-  const height = petHeight(v.pet);
-  const cast = castGeometry(
-    { x: v.px + width * 0.6, y: v.py + height * 0.74 },
-    { x: tackle.x, y: tackle.y },
-    width,
-    height,
-  );
+  const body = drawnBox(v);
+  const cast = castGeometry(grip(body), { x: tackle.x, y: tackle.y }, body.width, body.height);
   const action = companionAction(v, now);
-  const paintedTip =
-    companionImage(action) && authoredRodTip(action, { x: v.px, y: v.py, width, height }, reduced.matches);
+  const paintedTip = companionImage(action) && authoredRodTip(action, body, reduced.matches);
   const rods = [tackle.rod, tackle.grip].filter(Boolean);
   if (paintedTip) {
     for (const r of rods) if (!r.hasAttribute('hidden')) r.setAttribute('hidden', '');
@@ -277,7 +273,8 @@ function paintFishingArtwork(tackle, now) {
         image = `<image href="${rodUrl}" width="${ROD.width}" height="${ROD.height}" transform="matrix(${matrix.a} ${matrix.b} ${matrix.c} ${matrix.d} ${matrix.e} ${matrix.f})"/>`;
       for (const r of rods) r.innerHTML = image;
       // Only the handle and the reel, about a seventh of the friend's width round the grip.
-      if (tackle.grip) tackle.grip.style.clipPath = `circle(${width * 0.14}px at ${cast.grip.x}px ${cast.grip.y}px)`;
+      if (tackle.grip)
+        tackle.grip.style.clipPath = `circle(${body.width * 0.14}px at ${cast.grip.x}px ${cast.grip.y}px)`;
       tackle.rodKey = key;
     }
   }
@@ -330,10 +327,12 @@ function sweepNet(v) {
   net.dataset.side = leftSide ? 'left' : 'right';
   net.style.width = `${width}px`;
   net.style.height = `${width * 1.4}px`;
-  net.style.top = `${petHeight(v.pet) * 0.74 - width * 1.4 * 0.9}px`;
-  net.style[leftSide ? 'right' : 'left'] = `${sizeOf(v.pet) * 0.58 - (width * 12) / 90}px`;
+  // The handle's end (12, 114 of the drawing) in the paws, about the middle of the friend and a
+  // little below its chin; the net leans out from there (TILT), so the handle passes under the face.
+  net.style.top = `${petHeight(v.pet) * 0.7 - (width * 1.4 * 114) / 126}px`;
+  net.style[leftSide ? 'right' : 'left'] = `${sizeOf(v.pet) * 0.55 - (width * 12) / 90}px`;
   net.innerHTML =
-    '<svg viewBox="0 0 90 126" fill="none"><g class="net-sweep"><path d="M12 114L53 44" stroke="#493e30" stroke-width="6" stroke-linecap="round"/><path d="M12 114L53 44" stroke="#cda56c" stroke-width="3.6" stroke-linecap="round"/><path d="M12 114L20 100" stroke="#765840" stroke-width="5" stroke-linecap="round"/><g transform="rotate(-22 65 29)"><path d="M42 25Q43 60 65 59Q87 58 88 25" fill="#e9f4dc33" stroke="#496158" stroke-width="1.8"/><path d="M47 34Q65 43 83 34M50 44Q65 52 80 44M55 52Q65 57 75 52M52 26Q51 47 60 57M65 29V59M78 26Q79 47 70 57" stroke="#f4f4dc" stroke-width="1.3"/><ellipse cx="65" cy="25" rx="23" ry="12" fill="#e9f4dc22" stroke="#3a544a" stroke-width="4"/><ellipse cx="65" cy="25" rx="23" ry="12" stroke="#dbe8c7" stroke-width="2"/></g></g></svg>';
+    '<svg viewBox="0 0 90 126" fill="none"><g transform="rotate(30 12 114)"><g class="net-sweep"><path d="M12 114L53 44" stroke="#493e30" stroke-width="6" stroke-linecap="round"/><path d="M12 114L53 44" stroke="#cda56c" stroke-width="3.6" stroke-linecap="round"/><path d="M12 114L20 100" stroke="#765840" stroke-width="5" stroke-linecap="round"/><g transform="rotate(-22 65 29)"><path d="M42 25Q43 60 65 59Q87 58 88 25" fill="#e9f4dc33" stroke="#496158" stroke-width="1.8"/><path d="M47 34Q65 43 83 34M50 44Q65 52 80 44M55 52Q65 57 75 52M52 26Q51 47 60 57M65 29V59M78 26Q79 47 70 57" stroke="#f4f4dc" stroke-width="1.3"/><ellipse cx="65" cy="25" rx="23" ry="12" fill="#e9f4dc22" stroke="#3a544a" stroke-width="4"/><ellipse cx="65" cy="25" rx="23" ry="12" stroke="#dbe8c7" stroke-width="2"/></g></g></g></svg>';
   // The end of the handle again, over the body: the net sweeps behind the friend's painted face,
   // and the paws hold its grip in front instead of it starting from behind the hip.
   const grip = document.createElement('span');
@@ -341,7 +340,7 @@ function sweepNet(v) {
   grip.setAttribute('aria-hidden', 'true');
   grip.dataset.side = net.dataset.side;
   for (const side of ['width', 'height', 'top', 'left', 'right']) grip.style[side] = net.style[side];
-  grip.innerHTML = `<svg viewBox="0 0 90 126" fill="none"><g class="net-sweep">${NET_GRIP}</g></svg>`;
+  grip.innerHTML = `<svg viewBox="0 0 90 126" fill="none"><g transform="rotate(30 12 114)"><g class="net-sweep">${NET_GRIP}</g></g></svg>`;
   // Children of the friend follow its movement; the net stays behind its painted face.
   v.button.append(grip, net);
   const remove = () => {
@@ -523,7 +522,7 @@ export function refitFishing() {
   }
   Object.assign(v, standAt(v, x));
   place(v);
-  fishing.x = castLandingX(v.px + sizeOf(v.pet) * 0.6, x, sizeOf(v.pet), water.ends);
+  fishing.x = castLandingX(gripX(v), x, sizeOf(v.pet), water.ends);
   fishing.y = floatY(water, fishing.x);
   fishing.float.style.left = `${fishing.x}px`;
   fishing.float.style.top = `${fishing.y}px`;
