@@ -166,7 +166,7 @@ SHOT_SCENE=reel SHOT_LANGS=en,ko,ja,zh-hans pnpm run shots
 pnpm run reel
 ```
 
-- The take is the app window alone, recorded by `shot-video.swift` (ScreenCaptureKit, macOS 15 or later) into `release/reel/<lang>/take.mov` with `marks.json`.
+- The take is the app window alone, recorded by `shot-video.swift` (ScreenCaptureKit, macOS 15 or later) into `scratch/reel/<lang>/take.mov` with `marks.json`.
 - The first take asks for Screen Recording permission for the terminal.
 - There is no sound: the page plays it from a WebKit process the window capture does not carry.
 - `reel.mjs` needs ffmpeg and cwebp (`brew install ffmpeg webp`); the cuts are in `reel-lib.mjs`.

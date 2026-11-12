@@ -1,5 +1,5 @@
 // Cuts the moving pictures from the takes `SHOT_SCENE=reel pnpm run shots` films into
-// release/reel/<lang>/ (take.mov and its marks): pnpm run reel   (needs ffmpeg)
+// scratch/reel/<lang>/ (take.mov and its marks): pnpm run reel   (needs ffmpeg)
 // - website/public/shots/<capture version>/<lang>/reel.mp4 and reel.webp (its still) for the landing
 // - assets/demo.gif, the README's picture, from the English take
 
@@ -24,7 +24,7 @@ function ffmpeg(args) {
 }
 
 async function take(lang) {
-  const dir = path.join(root, 'release/reel', lang);
+  const dir = path.join(root, 'scratch/reel', lang);
   const file = path.join(dir, 'take.mov');
   try {
     await access(file);
@@ -39,7 +39,7 @@ const shown = file => path.relative(root, file);
 for (const lang of SITE_LANGS) {
   const filmed = await take(lang);
   if (!filmed) {
-    console.log(`  ${lang}: no take in release/reel/${lang}, skipped`);
+    console.log(`  ${lang}: no take in scratch/reel/${lang}, skipped`);
     continue;
   }
   const dir = path.join(root, 'website/public/shots', CAPTURE_VERSION, lang);

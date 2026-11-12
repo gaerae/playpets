@@ -693,7 +693,7 @@ async function run(lang, dataDir, codexHome, outDir, code) {
   await writeFile(scenarioFile, code);
   return new Promise(resolve => {
     // The film's take: one recording of the window, and when each marked part began in it.
-    const film = { recorder: undefined, started: 0, marks: [], dir: path.join(root, 'release/reel', lang) };
+    const film = { recorder: undefined, started: 0, marks: [], dir: path.join(root, 'scratch/reel', lang) };
     const child = spawn(binary, [], {
       env: {
         ...process.env,

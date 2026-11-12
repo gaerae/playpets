@@ -12,6 +12,9 @@
 | `creator-kit/` | Reusable reference sheets and metadata used to build public creator downloads |
 | `banner.png`, `demo.gif` | Repository-facing product media |
 
+- Retired originals: `mascot.svg` and the creator kits in `creator-kit/` for Aria and Noah
+  (with their realistic variants), Tabby, Smoky and Mochi are kept as source; nothing builds them.
+
 - Environment layers, weather, collection artwork and props: reviewed as PNG in
   `art/`, shipped as WebP in `src/art/`, near their runtime content definitions
   in `src/content/`.
