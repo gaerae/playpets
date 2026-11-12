@@ -10,6 +10,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.6.1] - 2026-11-12
+
 ### Added
 
 - A flower or a planted tree can go out on the desktop: right-click it in the yard and choose **Show on desktop**. It grows there as in the yard, a grown tree wears the yard's season, and friends strolling on the desktop walk over to it.
