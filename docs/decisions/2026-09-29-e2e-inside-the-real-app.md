@@ -23,7 +23,7 @@ The E2E-only commands are the `test_only` rows of the `COMMANDS` table in `src-t
 The e2e, capture and measurement builds use their own Cargo profile (`cargo build --profile e2e --features e2e`, `[profile.e2e]` inheriting `release`), so they land in `src-tauri/target/e2e/` and no longer replace the executable in `target/release/` that `npm start` runs.
 
 ## Follow-up (2026-11-12)
-- `PLAYPETS_E2E_EVAL` now names a file holding the scenario, not the scenario itself; the e2e, capture and measurement harnesses write it into their data folder.
+- `PLAYPETS_E2E_EVAL` now names a file holding the scenario, not the scenario itself; the e2e, capture and measurement harnesses write it into their data folder, and the Windows MSIX gate (`packaging/windows/msix/ci.ps1`) names the scenario file it writes for each phase.
 - Why: Linux caps one environment variable at 128 KiB, and the scenario passed that (about 132 KB), so the Linux e2e failed to start the app (`spawn E2BIG`).
 - An empty value still turns on e2e mode with no scenario, as the CLI checks use it.
 

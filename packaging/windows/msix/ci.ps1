@@ -85,7 +85,7 @@ $ErrorActionPreference = 'Stop'
 Remove-Item Env:PLAYPETS_DATA -ErrorAction SilentlyContinue
 $env:CODEX_HOME = CODEX
 $env:PLAYPETS_LANG = 'en'
-$env:PLAYPETS_E2E_EVAL = [IO.File]::ReadAllText(JS)
+$env:PLAYPETS_E2E_EVAL = JS
 $process = $null
 $resultText = $null
 try {
