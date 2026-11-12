@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
 import { element } from './support/dom.mjs';
+import { flatField } from './support/flat-field.mjs';
 
 const built = [];
 const answer = (data = null) => ({ ok: true, data });
@@ -206,6 +207,7 @@ test('a press helps push: the ball grows a step and squashes', async ctx => {
 });
 
 test('dragging rolls the ball toward the pointer and grows it by the way it went', async ctx => {
+  flatField(ctx);
   const y = await yard(ctx);
   start();
   y.run(300);

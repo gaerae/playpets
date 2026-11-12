@@ -65,7 +65,7 @@ test('the Spring shoots book shows each shoot, its name and the season', t => {
 const { readFile } = await import('node:fs/promises');
 const { recall } = state;
 const { artHref } = await import('../src/yard/art.js');
-const { EDGE, fieldToYard, geometry, measureYard, sizeOf } = await import('../src/yard/field.js');
+const { depthAt, EDGE, fieldToYard, geometry, measureYard, sizeOf } = await import('../src/yard/field.js');
 const { behind, groundAllows } = await import('../src/yard/discovery-rules.js');
 const { groundProfile } = await import('../src/yard/ground.js');
 const { clearRainbowEnd, placeRainbowEnd } = await import('../src/yard/rainbow-end.js');
@@ -114,7 +114,8 @@ test('one shoot comes up on a fair morning', async ctx => {
   const [svg] = button.children;
   assert.equal(svg.getAttribute('aria-hidden'), 'true');
   assert.equal(svg.children[0].getAttribute('href'), artHref(SHOOTS.find(s => s.id === shoot.kind).art));
-  assert.equal(button.style.zIndex, String(1 + Math.round(shoot.y * 100)));
+  // Ordered by where it comes up, on the scale friends, plants and gifts share.
+  assert.equal(button.style.zIndex, String(depthAt(fieldToYard(shoot).y)));
   assert.ok(button.classList.contains('sprouted'), 'it rises as it comes');
   shootsMinute();
   assert.equal(y.live().length, 1);

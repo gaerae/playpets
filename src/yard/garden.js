@@ -18,7 +18,7 @@ import { showCard } from './card.js';
 import { setAimingMode } from './care.js';
 import { flowerKind } from './catalog.js';
 import { flowerSvg } from './creatures.js';
-import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
+import { depthAt, field, fieldToYard, footTarget, petHeight, sizeOf, topAt, yardToField } from './field.js';
 import { flowerFor, hoursMinutes, plantArt, plantStature, stageOf, untilBloom } from './growth.js';
 import { shapeHits } from './hit-shape.js';
 import { movable, moveSaved, propButton, propScale, reconcile, removeWithUndo, setDown } from './props.js';
@@ -68,7 +68,7 @@ function position(v, plant, now = Date.now(), point = plant) {
     w = aw * UNIT * scale * tall,
     h = ah * UNIT * scale * tall;
   // Nearer the front, drawn over the ones behind it.
-  setDown(v.button, x, y, w, h, 1 + Math.round(point.y * 100));
+  setDown(v.button, x, y, w, h, depthAt(y));
 }
 // Moved at once and saved after, as a tree is (props.js moveSaved); refused, it goes back.
 const save = guard(async (v, point) => {
@@ -247,7 +247,7 @@ function sendPlanting(v, point, kind, clip) {
 // Planting: the tool, then a click on the field. It stays on while there are seeds; Esc or the
 // tool again puts it away.
 function plantAt(cx, cy) {
-  if (cy < field().top - 10) return toast(t('garden.on_field'));
+  if (cy < topAt(cx) - 10) return toast(t('garden.on_field'));
   if (!spareSeeds()) return;
   const point = yardToField(cx, cy);
   const kind = flowerFor(scene.season);

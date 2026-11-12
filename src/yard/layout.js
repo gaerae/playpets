@@ -6,9 +6,9 @@ import { gauss } from './brush.js';
 
 // The scenery's composition, from src/content/yard.json: its curves (the hills, in fractions of the
 // yard, x across and y down, as cubic curves: a start point, then two control points and an end
-// point for each piece), which curve the field friends stand on starts at (field.js fieldTop), the
+// point for each piece), the height where the field friends stand on starts (field.js fieldTop), the
 // lake, and the layers painted from the back to the front (each names its painter, backdrop.js).
-export const composition = { curves: {}, field: 'back', lake: { from: 0, to: 0, top: 0, under: 'back' }, layers: [] };
+export const composition = { curves: {}, lake: { from: 0, to: 0, top: 0, under: 'back' }, layers: [] };
 /** Takes the scenery's composition (the parsed src/content/yard.json). */
 export function useScenery(yard) {
   Object.assign(composition, yard);

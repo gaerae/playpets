@@ -22,7 +22,18 @@ import { artSize, artSvg } from './art.js';
 import { giftKind } from './catalog.js';
 import { decorShown, yardSeason } from './decor-shown.js';
 import { renderDecor, shownDecor } from './decor.js';
-import { decorFloor, depthAt, EDGE, field, fieldToYard, footTarget, geometry, petHeight, sizeOf } from './field.js';
+import {
+  decorFloor,
+  depthAt,
+  EDGE,
+  field,
+  fieldToYard,
+  footTarget,
+  geometry,
+  petHeight,
+  sizeOf,
+  yardToDecor,
+} from './field.js';
 import { localDay } from './growth.js';
 import { hint } from './hint.js';
 import { beginDrag, dragPoint, endDrag, giftSize, KEY_STEPS, setDown } from './props.js';
@@ -218,7 +229,17 @@ function listen(b) {
     if (e.button !== 0 || !rolling(b)) return;
     e.preventDefault();
     e.stopPropagation();
-    b.drag = beginDrag(button, e, { x: b.x, y: b.y }, { width: across(), height: deep() });
+    b.drag = beginDrag(
+      button,
+      e,
+      { x: b.x, y: b.y },
+      {
+        width: across(),
+        height: deep(),
+        foot: fieldToYard({ x: b.x, y: b.y }),
+        toField: yardToDecor,
+      },
+    );
   });
   button.addEventListener('pointermove', e => {
     if (!b.drag || !rolling(b)) return;

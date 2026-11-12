@@ -69,8 +69,8 @@ function spotFor(v, state) {
  * stop at the floor's edge, often behind the very furniture that shows (a short, wide window). */
 export const station = (v, point) => {
   const at = stationAt(point),
-    { w, h, top } = geometry(v.pet),
-    x = (at.x - EDGE - sizeOf(v.pet) / 2) / w,
+    x = (at.x - EDGE - sizeOf(v.pet) / 2) / geometry(v.pet).w,
+    { h, top } = geometry(v.pet, x),
     y = (at.y - top - petHeight(v.pet)) / h;
   return x < -0.05 || x > 1.05 || y < -0.05 || y > 1.05 ? null : footTarget(v, at.x, at.y, 0);
 };
@@ -93,16 +93,19 @@ export const frontSpot = v => inLine(v, 'waiting', { x: 0.5, y: 1 });
  * `at` itself, else a body to the right, the left, two to the right..., never behind the dock. Kept
  * as `v.spot` while the friend is there. */
 export function inLine(v, kind, at) {
-  const { w, h, top } = geometry(v.pet),
+  const { w } = geometry(v.pet),
     size = sizeOf(v.pet),
     step = Math.min(0.5, size / Math.max(1, w)),
-    feet = top + at.y * h + petHeight(v.pet),
+    feetAt = x => {
+      const { h, top } = geometry(v.pet, x);
+      return top + at.y * h + petHeight(v.pet);
+    },
     taken = [...views.values()].filter(o => o !== v && o.spot?.kind === kind).map(o => o.spot.x),
     dock = dockBox();
   for (let i = 0; i <= 2 / step; i++) {
     const x = at.x + (i % 2 ? (i + 1) / 2 : -i / 2) * step;
     if (x < 0 || x > 1 || taken.some(other => Math.abs(other - x) < step * 0.9)) continue;
-    if (underDock(EDGE + x * w + size / 2, feet, size / 2, dock)) continue;
+    if (underDock(EDGE + x * w + size / 2, feetAt(x), size / 2, dock)) continue;
     v.spot = { kind, x, y: at.y };
     return { x, y: at.y };
   }

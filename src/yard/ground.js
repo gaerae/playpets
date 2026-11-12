@@ -5,7 +5,7 @@ import { giftKind, treeKind, treeSize } from './catalog.js';
 import { decorShown, yardSeason } from './decor-shown.js';
 import { projectFootprint, treeStage } from './discovery-rules.js';
 import { environmentLake } from './environment.js';
-import { decorFloor, EDGE, field, yardZoom } from './field.js';
+import { decorFloor, EDGE, field, hasEdge, topAt, yardZoom } from './field.js';
 import { giftSize } from './props.js';
 import { scene } from './world.js';
 import { worldFor } from './worlds.js';
@@ -36,6 +36,10 @@ export function buildGroundProfile({
   now = Date.now(),
   // The season the yard shows (decor-shown.js yardSeason): a gift it does not draw takes no ground.
   season = null,
+  // Where the field begins at a yard x (field.js topAt), when a path raises it there; else its line.
+  topAt = null,
+  // The lowest a gift goes at a yard x (field.js decorFloor), where the field begins higher; else giftFloor.
+  giftFloorAt = null,
 }) {
   const profile = {
     soil: world?.capabilities?.soil ?? world?.capabilities?.sky !== false,
@@ -60,23 +64,35 @@ export function buildGroundProfile({
   const width = bounds.width - EDGE * 2,
     height = bounds.bottom - bounds.top;
   profile.unit = { x: scale / width, y: scale / height };
-  const foot = item => ({ x: EDGE + item.x * width, y: bounds.top + item.y * height });
+  // A place (0 to 1 each way) in yard pixels, from where the field begins at its x.
+  const top = px => topAt?.(px) ?? bounds.top,
+    floorAt = x => giftFloorAt?.(EDGE + x * width) ?? giftFloor,
+    foot = item => {
+      const x = EDGE + item.x * width,
+        y0 = top(x);
+      return { x, y: y0 + item.y * (bounds.bottom - y0) };
+    };
   // A drawing of w x h yard pixels with its foot at `at`, as setDown places it.
   const body = (at, w, h) => {
+    const y0 = top(at.x),
+      deep = Math.max(1, bounds.bottom - y0);
     const box = {
       left: (at.x - w / 2 - EDGE) / width,
       right: (at.x + w / 2 - EDGE) / width,
-      top: (at.y - h - bounds.top) / height,
-      bottom: (at.y - bounds.top) / height,
+      top: (at.y - h - y0) / deep,
+      bottom: (at.y - y0) / deep,
     };
     if (profile.bodies.length < MAX_EXCLUSIONS && box.left < 1 && box.right > 0 && box.top < 1 && box.bottom > 0)
       profile.bodies.push(box);
   };
   const add = (book, ellipse) => {
     if (profile.water.length + profile.obstacles.length >= MAX_EXCLUSIONS) return;
-    const projected = projectFootprint(ellipse, bounds);
+    const projected = projectFootprint(ellipse, bounds, top(ellipse.x));
     if (intersectsField(projected)) book.push(projected);
   };
+  // The field never begins over the water (field.js topAt), so the lake is one ellipse placed on the
+  // field from where it begins at its middle: it stays out of the field unless a place's own line
+  // runs through it.
   if (lake) {
     const x = (lake.x0 + lake.x1) / 2,
       shore = lake.shoreAt(x),
@@ -97,7 +113,7 @@ export function buildGroundProfile({
     if (!decorShown(item.kind, date, season)) continue;
     const gift = giftKind(item.kind),
       // Drawn as decor.js places it: one friends stand on stays on the field.
-      at = foot({ x: item.x, y: Math.min(item.y, gift?.stand === 'on' ? 1 : giftFloor) }),
+      at = foot({ x: item.x, y: Math.min(item.y, gift?.stand === 'on' ? 1 : floorAt(item.x)) }),
       { w, h } = giftDimensions(item.kind),
       flat = gift?.flat;
     // Furniture drawing clamps its foot inward by half its rendered width plus four pixels.
@@ -132,5 +148,7 @@ export function groundProfile({ skipTreeId = null, garden = data.garden, now = D
     skipTreeId,
     now,
     season: yardSeason(scene),
+    topAt: hasEdge() ? topAt : null,
+    giftFloorAt: hasEdge() ? decorFloor : null,
   });
 }

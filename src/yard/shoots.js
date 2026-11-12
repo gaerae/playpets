@@ -20,7 +20,7 @@ import { artHref, artSvg } from './art.js';
 import { showCard } from './card.js';
 import { shootKind } from './catalog.js';
 import { behind, groundAllows, treeStage } from './discovery-rules.js';
-import { fieldToYard } from './field.js';
+import { depthAt, fieldToYard } from './field.js';
 import { groundProfile } from './ground.js';
 import { localDay } from './growth.js';
 import { propButton, propScale, reconcile, setDown } from './props.js';
@@ -169,7 +169,7 @@ function update(v, shoot) {
   const [w, h] = shootKind(shoot.kind).size,
     scale = shootScale(propScale()),
     { x, y } = fieldToYard(shoot);
-  setDown(v.button, x, y, w * scale, h * scale, 1 + Math.round(shoot.y * 100));
+  setDown(v.button, x, y, w * scale, h * scale, depthAt(y));
   v.button.classList.toggle('picking', digs.has(shoot.id));
 }
 

@@ -7,7 +7,7 @@ import { call, data, guard } from '../core/state.js';
 import { artSvg } from './art.js';
 import { treeArt, treeKind, treeSize } from './catalog.js';
 import { groundAllows, treeStage } from './discovery-rules.js';
-import { fieldToYard, measureYard, yardZoom } from './field.js';
+import { depthAt, fieldToYard, measureYard, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
 import { shapeHits } from './hit-shape.js';
 import { movable, moveSaved, propButton, reconcile, removeWithUndo, setDown } from './props.js';
@@ -31,7 +31,7 @@ function position(view, tree, point = tree) {
   const [width, height] = treeSize(tree.kind, stage),
     foot = fieldToYard(point),
     zoom = yardZoom();
-  setDown(view.button, foot.x, foot.y, width * zoom, height * zoom, 1 + Math.round(point.y * 100));
+  setDown(view.button, foot.x, foot.y, width * zoom, height * zoom, depthAt(foot.y));
   view.button.title = t('tree.drag', { kind: t(`tree.${tree.kind}`) });
   view.button.setAttribute('aria-label', joinList([view.button.title, t(stageKeys[stage])]));
 }
@@ -88,7 +88,8 @@ function create(tree) {
     menu: at => openTreeMenu(view.id, at),
     remove: () => remove(view),
     settle: renderTrees,
-    allowed: at => groundAllows(at, groundProfile({ skipTreeId: view.id })),
+    // The ground does not change under one drag: measured at its first move, not at every one.
+    allowed: (at, drag) => groundAllows(at, (drag.ground ??= groundProfile({ skipTreeId: view.id }))),
   });
   return view;
 }

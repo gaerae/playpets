@@ -11,7 +11,7 @@ const { movable } = await import('../src/yard/props.js');
 const { measureYard } = await import('../src/yard/field.js');
 const { scene } = await import('../src/yard/world.js');
 
-function fixture(t) {
+function fixture(t, more = {}) {
   const { nodes } = installDom(t, { anyId: true, ids: ['yard', 'garden-layer'] });
   nodes.get('yard').getBoundingClientRect = () => ({ left: 0, top: 0, width: 800, height: 560 });
   measureYard();
@@ -32,6 +32,7 @@ function fixture(t) {
     remove: () => seen.removed++,
     settle: () => seen.settled++,
     press: () => seen.presses++,
+    ...more,
   });
   return { view, button: view.button, seen };
 }
@@ -75,4 +76,23 @@ test('the arrow keys move it, the menu key opens its menu below it, and Delete t
   ]);
   await button.dispatch('keydown', { key: 'Delete' });
   assert.equal(seen.removed, 1);
+});
+
+test('a drag asks about each spot with the same drag, so the ground it checks against is built once', async t => {
+  const asked = [];
+  const allowed = (at, drag) => {
+    asked.push(drag);
+    drag.ground ??= { built: asked.length };
+    return true;
+  };
+  const { button } = fixture(t, { allowed });
+  await button.dispatch('pointerdown', { button: 0, clientX: 300, clientY: 300, pointerId: 1 });
+  for (const x of [320, 340, 360]) await button.dispatch('pointermove', { clientX: x, clientY: 300, pointerId: 1 });
+  await button.dispatch('pointerup', { pointerId: 1 });
+  assert.equal(asked.length, 3);
+  assert.ok(
+    asked.every(drag => drag === asked[0]),
+    'every move of one drag is asked with that drag',
+  );
+  assert.deepEqual(asked[0].ground, { built: 1 });
 });

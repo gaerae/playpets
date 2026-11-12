@@ -128,7 +128,6 @@ export function backgroundWorld(pack, id) {
     about: seasonal ? 'background.seasonal' : 'background.static',
     fit: 'cover-floor',
     imageSources: pack.images,
-    eventLights: false,
     geometry: { fieldTop: pack.floor, lake: pack.water, fishingSpot: pack.fishingSpot },
     windowPanes: pack.sky ? undefined : pack.windows,
     capabilities: {

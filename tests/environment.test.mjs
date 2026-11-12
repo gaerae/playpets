@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import './support/content.mjs';
 import { environmentLake, environmentLook } from '../src/yard/environment.js';
 
 test('every seasonal layer ships at matching dimensions with real alpha', async () => {
@@ -36,19 +37,23 @@ test('the image has distinct readable lighting for night and overcast weather', 
   assert.notEqual(look('day', 'rain').filter, look('day').filter);
 });
 
-test('fishing targets stay inside the generated pond at wide and narrow sizes', () => {
+test('fishing targets stay inside the woodland pond at wide and narrow sizes', async () => {
+  const { environmentFrame } = await import('../src/yard/environment.js');
   for (const [w, h] of [
     [1200, 700],
     [420, 500],
   ]) {
-    const pond = environmentLake(w, h);
-    assert.ok(pond.onWater(w * 0.56, h * 0.595));
-    assert.ok(!pond.onWater(w * 0.56, h * 0.635), 'the near shoreline is not water');
-    assert.ok(!pond.onWater(w * 0.54, h * 0.54), 'grass above the pond is not water');
-    assert.ok(!pond.onWater(w * 0.54, h * 0.7), 'grass below the pond is not water');
-    assert.ok(!pond.onWater(w * 0.2, h * 0.62));
-    for (const fraction of [0.5, 0.55, 0.6]) {
-      const x = w * fraction;
+    // worlds.json woodland geometry.lake: from 0.405 to 0.775 across, 0.56 to 0.65 down at its middle.
+    const frame = environmentFrame(w, h, { world: 'woodland' });
+    const pond = environmentLake(w, h, { world: 'woodland' });
+    const point = (x, y) => [frame.x + frame.width * x, frame.y + frame.height * y];
+    assert.ok(pond.onWater(...point(0.59, 0.605)));
+    assert.ok(!pond.onWater(...point(0.59, 0.66)), 'the near shoreline is not water');
+    assert.ok(!pond.onWater(...point(0.59, 0.55)), 'the far bank above the pond is not water');
+    assert.ok(!pond.onWater(...point(0.59, 0.72)), 'grass below the pond is not water');
+    assert.ok(!pond.onWater(...point(0.2, 0.62)));
+    for (const fraction of [0.5, 0.59, 0.68]) {
+      const [x] = point(fraction, 0);
       assert.ok(pond.onWater(x, (pond.shoreAt(x) + pond.ridgeAt(x)) / 2));
     }
   }
@@ -86,9 +91,9 @@ test('pond hit testing follows the same crop as the source image', async () => {
     const frame = environmentFrame(w, h, { world: 'woodland' });
     const pond = environmentLake(w, h, { world: 'woodland' });
     const point = (x, y) => [frame.x + frame.width * x, frame.y + frame.height * y];
-    assert.ok(pond.onWater(...point(0.56, 0.595)), 'visible central pond remains catchable');
-    assert.ok(!pond.onWater(...point(0.56, 0.635)), 'transformed grass remains outside hit area');
-    assert.ok(!pond.onWater(...point(0.2, 0.595)), 'side land remains outside hit area');
+    assert.ok(pond.onWater(...point(0.59, 0.605)), 'visible central pond remains catchable');
+    assert.ok(!pond.onWater(...point(0.59, 0.665)), 'transformed grass remains outside hit area');
+    assert.ok(!pond.onWater(...point(0.2, 0.605)), 'side land remains outside hit area');
   }
 });
 
@@ -128,10 +133,10 @@ test('legacy cover-bottom metadata retains its bottom edge anchor', async () => 
   }
 });
 
-test('woodland walking floor stays below the visible pond shoreline in a wide strip', async () => {
+test('woodland walking floor starts below the near shore of the pond', async () => {
   const definitions = JSON.parse(await readFile(new URL('../src/content/worlds.json', import.meta.url)));
-  const woodland = definitions.find(world => world.id === 'woodland');
-  assert.ok(woodland.geometry.fieldTop >= 0.65, 'the source pond reaches about 65% of its image height');
+  const { fieldTop, lake } = definitions.find(world => world.id === 'woodland').geometry;
+  assert.ok(fieldTop >= lake.center + lake.radius, 'the pond reaches about 65% of the picture height');
 });
 
 test('festival lights follow each tree through wide and mini crops and never light indoor rooms', async () => {

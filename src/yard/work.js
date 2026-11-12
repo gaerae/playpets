@@ -15,7 +15,7 @@ import {
 } from '../core/companion-actions.js';
 import { $ } from '../core/state.js';
 import { artSvg } from './art.js';
-import { fieldToYard, footOf, footTarget, petHeight, sizeOf, yardZoom } from './field.js';
+import { depthAt, fieldToYard, footOf, footTarget, petHeight, sizeOf, yardZoom } from './field.js';
 import { release, rest, sendTo, setDoing } from './trips.js';
 import { pose } from './views.js';
 import { scene } from './world.js';
@@ -64,9 +64,8 @@ export function startDig(v, point, stroke, end) {
   effect.setAttribute('aria-hidden', 'true');
   effect.dataset.soil = scene.season === 'winter' ? 'winter' : 'base';
   effect.classList.toggle('planting', stroke === 'plant');
-  effect.style.zIndex = String(
-    Math.max(0, Math.min(1 + Math.round(point.y * 100), v.z ?? 1 + Math.round(v.y * 100)) - 1),
-  );
+  // Just behind the digger's paws, and behind what stands at that spot.
+  effect.style.zIndex = String(Math.max(0, Math.min(depthAt(pixel.y), v.z ?? depthAt(pixel.y)) - 1));
   effect.innerHTML = `<span class="dig-soil"></span><span class="dig-dirt"></span>${authored?.clip.heldTool ? '' : artSvg('discovery/shovel.svg')}`;
   effect.style.left = `${pixel.x}px`;
   effect.style.top = `${pixel.y}px`;
