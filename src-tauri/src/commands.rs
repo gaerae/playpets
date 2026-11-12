@@ -533,7 +533,6 @@ static COMMANDS: &[Command] = &[
     main("windowIsFullscreen", |c| window::command(c.app, c.name, c.args)),
     main("windowResize", |c| window::command(c.app, c.name, c.args)),
     main("windowMinimize", |c| window::command(c.app, c.name, c.args)),
-    main("windowMaximize", |c| window::command(c.app, c.name, c.args)),
     main("windowHide", |c| window::command(c.app, c.name, c.args)),
     main("windowFit", |c| window::command(c.app, c.name, c.args)),
     // The app itself.
@@ -805,7 +804,6 @@ mod tests {
             "windowIsFullscreen",
             "windowResize",
             "windowMinimize",
-            "windowMaximize",
             "windowHide",
         ] {
             assert!(command(name).is_some() && window_rs.contains(&format!("\"{name}\" =>")));

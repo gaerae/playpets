@@ -6,7 +6,6 @@ import { crc32 } from 'node:zlib';
 /** Picture bytes as a data URL, the form a drawing page loads them in. */
 export const dataUrl = (bytes, type = 'image/png') => `data:${type};base64,${bytes.toString('base64')}`;
 
-/** A picture file as a data URL. */
 export const readDataUrl = async (file, type = 'image/png') => dataUrl(await readFile(file), type);
 
 /** The bytes of a data URL a page made (canvas.toDataURL). */

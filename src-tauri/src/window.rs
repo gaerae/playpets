@@ -135,13 +135,6 @@ pub fn command(app: &AppHandle, name: &str, args: &[Value]) -> Result<Value, Str
             let _ = w.minimize();
             shown(app, false);
         }
-        "windowMaximize" => {
-            let _ = if w.is_maximized().unwrap_or(false) {
-                w.unmaximize()
-            } else {
-                w.maximize()
-            };
-        }
         "windowHide" => hide(app),
         "windowFit" => return fit(app),
         "windowFullscreen" => return set_fullscreen(app, arg(args, 0).as_bool().unwrap_or(false)),

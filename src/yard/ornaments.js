@@ -15,6 +15,7 @@
 // only when what hangs on it changed, not at every drawing of the gifts. A tree out on the desktop
 // wears them too (overlay.js), so this module keeps to the catalogue and the drawings: no yard.
 
+import { span } from '../core/dom.js';
 import { t } from '../core/i18n.js';
 import { percent } from '../core/math.js';
 import { artSvg } from './art.js';
@@ -119,11 +120,6 @@ export function bauble(o, { tag = 'span', art = false } = {}) {
   return node;
 }
 
-const span = className => {
-  const node = document.createElement('span');
-  node.className = className;
-  return node;
-};
 // The `.ornaments` layer that is a child of `parent`, made the first time.
 function layerIn(parent) {
   const found = Array.from(parent.children).find(c => c.classList?.contains('ornaments'));

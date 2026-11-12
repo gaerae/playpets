@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import './support/content.mjs';
 import { setLanguageForTests } from '../src/core/i18n.js';
-import { bite, flyingBug } from '../src/yard/catalog.js';
+import { bite, bugChances } from '../src/yard/catalog.js';
 import { boostOf, eventDates, eventOn, eventStart, giftEvent, inEvent } from '../src/yard/events.js';
 
 const on = (iso, south = false) => eventOn(new Date(`${iso}T12:00:00`), south)?.id ?? null;
@@ -55,9 +55,9 @@ test('an event brings more small life and kinds of its own, only while it is on'
   assert.equal(boostOf('fireflies', 'fireflies'), 1.5, 'richer, not crowded');
   assert.equal(boostOf('fireflies', 'petals'), 1);
   assert.equal(boostOf(null, 'petals'), 1);
-  const golden = () => 0.999;
-  assert.notEqual(flyingBug('firefly', 'summer', 'night', golden)?.id, 'golden_firefly', 'not without the event');
-  assert.equal(flyingBug('firefly', 'summer', 'night', golden, 'fireflies')?.id, 'golden_firefly');
+  const golden = event => bugChances('summer', 'night', 'clear', event).some(b => b.id === 'golden_firefly');
+  assert.equal(golden(null), false, 'not without the event');
+  assert.equal(golden('fireflies'), true);
   for (let i = 0; i < 200; i++)
     assert.notEqual(
       bite('autumn', 'night', 'clear', Math.random).fish.id,

@@ -15,7 +15,6 @@ const { DEPTH_FAR, depthScale, EDGE, field, footTarget, geometry, measureYard, s
 const { moveFriends } = await import('../src/yard/motion.js');
 const { scene } = await import('../src/yard/world.js');
 const { useWorlds, worldHasSoil, worlds } = await import('../src/yard/worlds.js');
-const { den } = await import('./support/den.mjs');
 const { blocked, frontsIn, stationAt } = await import('../src/yard/workspace.js');
 const { loungeTarget, sitOut } = await import('../src/yard/lounge.js');
 const { forPerson, release, rest } = await import('../src/yard/trips.js');
@@ -98,10 +97,11 @@ const agent = states =>
 const at = (v, x, y) => footTarget(v, 1536 * x, 1024 * y, 0);
 
 test('a floor without soil is told apart from a place without a sky', () => {
-  useWorlds([...shipped, room, den]);
+  const cellar = { id: 'cellar', capabilities: { sky: false } };
+  useWorlds([...shipped, room, cellar]);
   try {
     assert.equal(worldHasSoil('woodland'), true);
-    assert.equal(worldHasSoil(den.id), false, 'no sky and no soil said: none');
+    assert.equal(worldHasSoil(cellar.id), false, 'no sky and no soil said: none');
     assert.equal(worldHasSoil(room.id), false, 'a sky through the glass, a paved floor');
   } finally {
     useWorlds(shipped);

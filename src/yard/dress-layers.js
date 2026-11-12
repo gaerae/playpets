@@ -2,10 +2,10 @@
 // "dress"): in the yard (decor.js) and out on the desktop (overlay.js) alike, so this module keeps
 // to the catalogue and the drawings. Putting things on and taking them off is snowman-dress.js.
 
+import { percent } from '../core/math.js';
 import { artSize, artSvg } from './art.js';
 import { giftKind } from './catalog.js';
 
-const percent = n => +(n * 100).toFixed(2);
 /** A part's box over the snowman's drawing, as fractions of it: placed by its anchor's centre, its
  * height from its own drawing's shape. */
 export function partBox(gift, part) {
@@ -28,7 +28,7 @@ export function dressLayers(kind, dress) {
     .map(part => {
       const box = partBox(gift, part);
       const style =
-        `left:${percent(box.left)}%;top:${percent(box.top)}%;width:${percent(box.width)}%` +
+        `left:${percent(box.left, 2)};top:${percent(box.top, 2)};width:${percent(box.width, 2)}` +
         (part.turn ? `;rotate:${part.turn}deg` : '');
       return `<span class="dress-part" data-part="${part.id}" style="${style}">${artSvg(part.art)}</span>`;
     })

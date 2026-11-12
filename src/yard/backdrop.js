@@ -10,7 +10,8 @@
 // Where each piece goes is src/content/yard.json (layout.js reads it); the colours and light are
 // palette.js's; trees.js, lake.js and clouds.js paint the pieces; this file has a painter for each
 // kind of layer and paints the layers the composition lists.
-import { bumpy, color, css, dot, fillShape, flat, gauss, light, mix, seeded, shade, vertical } from './brush.js';
+import { seeded } from '../core/math.js';
+import { bumpy, color, css, dot, fillShape, flat, gauss, light, mix, shade, vertical } from './brush.js';
 import { lake } from './lake.js';
 import { composition, down, heightAt, range, trace } from './layout.js';
 import { lightFor, tones, weathered } from './palette.js';

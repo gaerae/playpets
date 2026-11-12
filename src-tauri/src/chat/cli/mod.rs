@@ -310,7 +310,7 @@ mod tests {
     fn error_guides_name_the_install_command_and_sign_in_from_the_app() {
         assert!(missing("claude").contains("npm install -g @anthropic-ai/claude-code"));
         assert!(missing("codex").contains("npm install -g @openai/codex"));
-        // Signing in happens in the app now, so the guide no longer sends anyone to a terminal.
+        // Signing in happens in the app, so the guide never sends anyone to a terminal.
         for kind in ["claude", "codex"] {
             let guide = login_guide(kind);
             assert!(!guide.contains("/login") && !guide.contains("codex login"), "{guide}");

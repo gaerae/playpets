@@ -6,8 +6,8 @@ import { idleChatter, momentRemark, remark } from '../src/yard/remarks.js';
 import { MOMENTS } from '../src/yard/sky-moments.js';
 import { scene } from '../src/yard/world.js';
 import { useWorlds } from '../src/yard/worlds.js';
+import { attic, withAttic } from './support/attic.mjs';
 import { worlds as definitions } from './support/content.mjs';
-import { withDen } from './support/den.mjs';
 
 function pending(t) {
   t.mock.timers.enable({ apis: ['setTimeout'] });
@@ -85,7 +85,7 @@ test('a friend whose agent finished long ago is quiet again, and chats like one'
 
 test('weather in a room without a sky never produces outdoor rain or snow remarks', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
-  withDen(t);
+  withAttic(t);
   const before = { ...scene };
   views.clear();
   setGame(null);
@@ -96,7 +96,7 @@ test('weather in a room without a sky never produces outdoor rain or snow remark
     views.clear();
   });
   for (const weather of ['rain', 'snow']) {
-    Object.assign(scene, { world: 'den', weather, period: 'day' });
+    Object.assign(scene, { world: attic.id, weather, period: 'day' });
     remark();
     t.mock.timers.tick(1600);
     assert.equal(friend.bubble.hidden, true, 'friends remain indoors instead of asking for outdoor gear');

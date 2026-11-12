@@ -1,6 +1,6 @@
 // Yard games. Positions are yard coordinates (0..1 across the field); the app moves the friends.
 import { t } from '../core/i18n.js';
-import { clamp } from '../core/math.js';
+import { clamp, distance } from '../core/math.js';
 
 export const GAMES = {
   hide: t('game.hide'),
@@ -11,7 +11,6 @@ export const GAMES = {
 export const TAG_MS = 40000;
 export const PARADE_MS = 26000;
 const PARADE_GAP = 0.07;
-const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 // One slot per friend along the ridge, so nobody hides on top of somebody else.
 export function hidingSpots(count, rng) {
   return Array.from({ length: count }, (_, i) => ({ x: clamp((i + 0.3 + rng() * 0.4) / count), y: rng() * 0.18 }));

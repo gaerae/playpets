@@ -76,8 +76,8 @@ const creditLine = credit => joinList([credit.site, credit.creator, credit.licen
 function card(a) {
   const card = document.createElement('button');
   card.className = 'asset-card';
-  // The asset id is the card's key: each catalog asset is one card, packages with optional legacy
-  // looks included.
+  // The asset id is the card's key: each catalog asset is one card, a package's optional seasonal
+  // sheets included.
   card.dataset.assetId = a.id;
   card.setAttribute('aria-label', t('invite.add_aria', { name: a.displayName }));
   card.title = a.folderPath;

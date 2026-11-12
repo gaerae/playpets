@@ -158,15 +158,5 @@ export function bite(season, period, weather, rng, event = null) {
   return { fish, size };
 }
 
-/** The bugs of a kind that fly in this season and time of day. */
-function bugsHere(kind, season, period, event = null) {
-  return eligibleKinds(BUGS, season, period, event).filter(b => b.kind === kind);
-}
-/** Which of a kind flies by now, or null when none does. */
-export function flyingBug(kind, season, period, rng, event = null) {
-  const here = bugsHere(kind, season, period, event);
-  return here.length ? weighted(here, b => b.weight, rng) : null;
-}
-
-/** A kind of fish or bug by its name. */
+/** A kind of fish or bug by its name, or null for one the catalogue dropped, as an old save may hold. */
 export const kindOf = (book, id) => (book === 'fish' ? FISH : BUGS).find(x => x.id === id) || null;

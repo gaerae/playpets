@@ -81,7 +81,6 @@ const TABLE: &[(&str, &str)] = &[
     ("error.friend_missing", "その友だちが見つかりません。"),
     ("error.autostart", "ログイン時に起動する設定を変更できませんでした。システム設定のログイン項目を確認してください。"),
     ("error.autostart_in_settings", "WindowsでPlayPetsのログイン時の起動がオフになっています。Windowsの設定 → アプリ → スタートアップでオンにしてください。"),
-    ("error.seeds_full", "ポケットが種でいっぱいです。先にいくつか植えてください。"),
     ("error.no_seeds", "植える種がありません。友だちに穴を掘ってもらいましょう。"),
     ("error.no_saplings", "この木の苗木がありません。友だちに穴を掘ってもらいましょう。"),
     ("error.garden_full", "花壇には{limit}本まで植えられます。1本抜くとまた植えられます。"),

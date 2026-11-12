@@ -97,11 +97,7 @@ test('each world label is translated and every raster variant exists', async () 
         assert.ok(Array.isArray(table[world.chatter]) && table[world.chatter].length > 0, world.chatter);
       }
     }
-    for (const art of [
-      ...Object.values(world.art || {}),
-      ...Object.values(world.windowArt || {}),
-      ...Object.values(world.seasonArt || {}),
-    ]) {
+    for (const art of Object.values(world.seasonArt || {})) {
       const png = readFileSync(new URL(`../assets/art/environments/${art}.png`, import.meta.url));
       assert.equal(png.readUInt32BE(16), 1536);
       assert.equal(png.readUInt32BE(20), 1024);

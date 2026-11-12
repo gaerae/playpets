@@ -1,6 +1,7 @@
 // The sky and its clouds: the light from the top down to the haze, heaped clouds white on top and
 // blue-lavender in their shade, and the overcast of a rainy or snowy day.
-import { bumpy, gauss, mix, seeded, shade, vertical } from './brush.js';
+import { seeded } from '../core/math.js';
+import { bumpy, gauss, mix, shade, vertical } from './brush.js';
 import { lightFor } from './palette.js';
 
 /**

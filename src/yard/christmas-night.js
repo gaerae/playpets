@@ -24,6 +24,7 @@
 // the event card's year is (festival.js): the app starts at login and reloads after an update, and
 // a page variable alone would play them again then. Losing them only means seeing them once more.
 
+import { span } from '../core/dom.js';
 import { between, percent } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { $, call, data, forget, recall, remember, views } from '../core/state.js';
@@ -116,11 +117,6 @@ export function nightOf(date) {
   return localDay(new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1, 12));
 }
 
-const span = className => {
-  const node = document.createElement('span');
-  node.className = className;
-  return node;
-};
 // The grand tree's layers in the tree's button (grand-tree.js), taking no presses but through the
 // tree-shaped handle ornaments.js adds; its glint node is kept for the glints.
 function layers(button) {

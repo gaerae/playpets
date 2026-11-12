@@ -3,6 +3,7 @@
 // and standing on the same foot. The `xmas-grand` class shows it and `xmas-rise` is the change
 // (worn.css); this only makes the layer.
 
+import { span } from '../core/dom.js';
 import { percent } from '../core/math.js';
 import { artSize, artSvg } from './art.js';
 import { giftKind } from './catalog.js';
@@ -16,11 +17,6 @@ export function treeSizes() {
   const gift = giftKind('xmas_tree');
   return { small: gift.size || artSize(gift.art), big: artSize(gift.night.art), night: gift.night };
 }
-const span = className => {
-  const node = document.createElement('span');
-  node.className = className;
-  return node;
-};
 /** The grand tree's layer inside the tree's `button`, made the first time it is asked for: the
  * light pooling on the snow, the drawing behind the window it is revealed through, the veil, the
  * star's glow and a glint for a bulb. It takes no presses. */
