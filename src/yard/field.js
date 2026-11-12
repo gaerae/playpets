@@ -35,6 +35,14 @@ export const depthScale = y => DEPTH_FAR + (1 - DEPTH_FAR) * clamp(y);
 export const petHeight = p => (sizeOf(p) * 208) / 192;
 /** Where a friend's feet are in the yard: the middle of its bottom edge. */
 export const footOf = v => ({ x: v.px + sizeOf(v.pet) / 2, y: v.py + petHeight(v.pet) });
+/** Where a friend's drawing is in the yard, shrunk by its depth about its feet (views.js place):
+ * what it holds (a rod and its line) starts from here, not from its unshrunk box. */
+export function drawnBox(v) {
+  const s = v.depth ?? 1,
+    width = sizeOf(v.pet),
+    height = petHeight(v.pet);
+  return { x: v.px + (width * (1 - s)) / 2, y: v.py + height * (1 - s), width: width * s, height: height * s };
+}
 /** How much things on the field shrink in the yard as it is now (friends, plants and gifts alike). */
 export const yardZoom = () => zoom;
 // The yard's size is measured when it changes, not every time a friend takes a step.

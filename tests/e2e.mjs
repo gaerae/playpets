@@ -1343,7 +1343,7 @@ const scenario = `(async()=>{
       const decoded=companionUi.companionImage(action);
       if(action?.clip!==companionUi.prepareCompanionAction(cloverView.asset,name)||!decoded)return false;
       sprites.drawSprite(cloverView.canvas,cloverView.asset,'idle',0,null,action);
-      const tip=authoredRod.authoredRodTip(action,{x:cloverView.px,y:cloverView.py,width:authoredField.sizeOf(cloverView.pet),height:authoredField.petHeight(cloverView.pet)},sprites.reduced.matches);
+      const tip=authoredRod.authoredRodTip(action,authoredField.drawnBox(cloverView),sprites.reduced.matches);
       return rod?.hasAttribute('hidden')&&getComputedStyle(rod).display==='none'&&tip&&line?.getAttribute('d').startsWith('M'+tip.x+' '+tip.y+'Q')&&cloverView.canvas._sheet===decoded&&cloverView.canvas._pk.includes(':action:');
     },10000);
     const heldCast=await heldPhase('cast'),heldWait=await heldPhase('wait');
