@@ -1,7 +1,7 @@
 import { poseClock } from '../core/animation.js';
 import { setupInteractions } from '../core/interactions.js';
-// The desktop overlay page, one per monitor: it draws the friends and gifts the backend places on
-// this monitor and reports presses and drags. Positions, drags and strolls are worked out in
+// The desktop overlay page, one per monitor: it draws the friends, gifts, flowers and planted trees
+// the backend places on this monitor and reports presses and drags. Positions, drags and strolls are worked out in
 // overlay.rs; a right click asks the backend for its menu (menu.rs desktop_choices).
 
 import { lookAt } from '../core/animation.js';
@@ -16,20 +16,23 @@ import { sceneValue } from '../core/state.js';
 import { applyStatus, fadedBetween, stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { every, everyMinute } from '../core/ticker.js';
-import { artSvg, loadArt } from '../yard/art.js';
+import { useCatalog } from '../yard/catalog.js';
+import { dressDecor, drawDecor } from './decor-view.js';
+import { visitKey } from './growing.js';
 
 setupInteractions();
 document.documentElement.lang = language();
 const api = window.playPets,
   displayId = window.__DISPLAY,
   views = new Map(),
-  // Gifts out on the desktop, drawn once: nothing on them moves.
+  // Gifts, flowers and planted trees out on the desktop: nothing on them moves; a flower or a tree
+  // is drawn again when it grows, and what a gift wears changes with the garden.
   decorations = new Map();
-// Each gift's drawing, from the catalogue the yard draws it by.
-const giftArt = fetch('content/catalog.json')
+// The catalogue the yard draws gifts, flowers and trees by, and what gifts wear.
+const catalogue = fetch('content/catalog.json')
   .then(r => r.json())
-  .then(c => new Map(c.gifts.map(g => [g.id, g.art])))
-  .catch(() => new Map());
+  .then(useCatalog)
+  .catch(() => {});
 // A look lasts this long after the last pointer move: the window gets no pointerleave once
 // the cursor is off the friend and the window is click-through again.
 const LOOK_MS = 400;
@@ -41,11 +44,16 @@ let data = { pets: [], assets: [], statuses: {} },
   layout = [];
 const nameOf = v => displayName(v.pet, v.asset, t('friend.default'));
 const south = systemSouth();
+// The season the yard shows, which a grown tree wears here too.
+let season = null;
 const seasonChanged = setupSeason({
   // As the yard reads it (yard/sky.js): a season the app could not save is still in the webview.
   read: () => sceneValue('season', data),
-  apply: season => {
-    if (setSpriteSeason(season)) render();
+  apply: next => {
+    const turned = next !== season;
+    season = next;
+    if (setSpriteSeason(next) || turned) render();
+    if (turned) redress();
   },
   minute: everyMinute,
   south,
@@ -136,23 +144,33 @@ function create(pet) {
   };
   return view;
 }
-// A gift out on the desktop: dragged to move, and its menu takes it off the desktop.
+// Gifts, flowers and trees out here, brought in line with the garden, the season, the yard's night
+// and the clock (decor-view.js): when one of those changed, never for a friend's step.
+const night = () => data.nightDecor || [];
+function redress() {
+  for (const v of decorations.values()) dressDecor(v, data.garden, season, new Date(), night());
+}
+// A gift, a flower or a planted tree out on the desktop: dragged to move, and its menu takes it off
+// the desktop.
 function createDecor(id, kind) {
   const wrap = document.createElement('div'),
     button = document.createElement('button');
   wrap.className = 'decor-wrap';
   button.className = 'decor';
-  button.title = t(`decor.kind_${kind}`);
-  button.setAttribute('aria-label', button.title);
   wrap.append(button);
   document.getElementById('friends').append(wrap);
-  const view = { wrap, button, kind, drag: null };
-  giftArt.then(async arts => {
-    const art = arts.get(kind);
-    if (!art) return;
-    await loadArt([art]);
-    button.innerHTML = artSvg(art);
-  });
+  const view = {
+    id,
+    wrap,
+    button,
+    kind,
+    drag: null,
+    growing: false,
+    look: null,
+    drawn: false,
+    worn: null,
+    dressLayer: null,
+  };
   button.onpointerdown = async e => {
     if (e.button !== 0) return;
     view.drag = true;
@@ -194,6 +212,16 @@ function renderDecor(local) {
       v = createDecor(position.id, position.decor);
       decorations.set(position.id, v);
     }
+    // Drawn once the catalogue says what it is; until then each render asks again (cheap).
+    if (!v.drawn)
+      catalogue.then(() =>
+        drawDecor(
+          v,
+          () => data.garden,
+          () => season,
+          night,
+        ),
+      );
     v.wrap.style.visibility = 'visible';
     v.wrap.style.width = `${position.width}px`;
     v.wrap.style.height = `${position.height}px`;
@@ -300,6 +328,7 @@ api.onChange(next => {
   layout = next.desktopLayout;
   seasonChanged();
   render();
+  redress();
 });
 api.onEvent(event => {
   if (event.type === 'layout') {
@@ -315,8 +344,9 @@ api.onEvent(event => {
   if (event.type === 'status') applyStatus(data, event);
   for (const [id, v] of views) {
     if (event.petId && event.petId !== id) continue;
-    // A friend that strolled over to a gift says something that fits it, as in the yard.
-    if (event.type === 'visit') say(v, pick(list(`decor.visit_${event.kind}`)) || '');
+    // A friend that strolled over to a gift, a flower or a tree says something that fits it, as in
+    // the yard.
+    if (event.type === 'visit') say(v, pick(list(visitKey(event.kind))) || '');
     if (event.type === 'status') {
       v.status = stateOf(data, id);
       say(v, event.message);
@@ -355,9 +385,10 @@ if (result.ok) {
   // Standing cells last 110-320 ms, so ten frames a second show every one of them.
   every(100, animate);
   // A finished agent's state fades after a while, as in the yard; nothing else here may draw the
-  // friends again for hours, so the page looks each minute.
+  // friends again for hours, so the page looks each minute. A flower out here grows by the clock.
   let looked = Date.now();
   everyMinute(() => {
+    redress();
     const now = Date.now();
     if (fadedBetween(data, looked, now)) render();
     looked = now;

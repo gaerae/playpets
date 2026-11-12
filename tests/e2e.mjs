@@ -1,5 +1,5 @@
 // PlayPets Tauri E2E: launches the release binary with an isolated data dir,
-// drives the real UI bridge via PLAYPETS_E2E_EVAL, reads results from the
+// drives the real UI bridge with the scenario in the file PLAYPETS_E2E_EVAL names, reads results from the
 // [e2e] stdout channel. A fake ollama server covers the HTTP chat path.
 // Run: pnpm run test:e2e   (repo root)
 
@@ -446,6 +446,11 @@ const scenario = `(async()=>{
     const gb=(await playPets.bootstrap()).data.garden;
     const planted=gb.seeds===0&&gb.plants.length===1&&document.querySelector('.plant')?.dataset.stage==='seed'&&!$('yard').classList.contains('aiming')&&$('plant-tool').getAttribute('aria-disabled')==='true',gardenNow={...yardNow(),spot:[spotX,spotY],garden:gb,plants:document.querySelectorAll('.plant').length,aiming:$('yard').classList.contains('aiming'),tool:$('plant-tool').getAttribute('aria-disabled')};
     await L('garden='+(planted?'found-planted':'err:'+JSON.stringify({...gardenNow,frames:await framesIn(500)})));
+    // A drag moves a plant to another spot, and it stays moved.
+    const plantEl=document.querySelector('.plant'),plantBox=plantEl.getBoundingClientRect(),plantPress={bubbles:true,pointerId:8,button:0,clientX:plantBox.left+plantBox.width/2,clientY:plantBox.bottom-4},plantX=gb.plants[0].x;
+    plantEl.dispatchEvent(new PointerEvent('pointerdown',plantPress));plantEl.dispatchEvent(new PointerEvent('pointermove',{...plantPress,clientX:plantPress.clientX-80}));plantEl.dispatchEvent(new PointerEvent('pointerup',{...plantPress,clientX:plantPress.clientX-80}));
+    const plantMoved=await until(async()=>(await playPets.bootstrap()).data.garden.plants[0]?.x<plantX-0.02);
+    await L('plantMoved='+(plantMoved?'dragged':'err:'+JSON.stringify({plantX,now:(await playPets.bootstrap()).data.garden.plants})));
     // A gift: a friend the person did something with that day brings it, every other day; the backend picks the first
     // kind; a drag moves it and it stays moved; it can be put away.
     await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});await until(()=>!document.querySelector('.decor'));
@@ -618,6 +623,11 @@ const scenario = `(async()=>{
     const discoveryTree=(await playPets.bootstrap()).data.garden.trees.at(-1),discoveryTreeBox=document.querySelector('.planted-tree').getBoundingClientRect();
     const discoverySaved=discoveryTree.world===discoveryWorld&&discoveryTree.stage===0&&discoveryTreeBox.width>0&&discoveryTreeBox.height>0&&(await playPets.bootstrap()).data.garden.saplings.maple===saplingsBefore-1;
     discoveryFlow.cancelDiscoveryWork();
+    // A drag moves a planted tree too, onto ground it may stand on, and it stays moved.
+    const treeEl=document.querySelector('.planted-tree'),treePress={bubbles:true,pointerId:9,button:0,clientX:discoveryTreeBox.left+discoveryTreeBox.width/2,clientY:discoveryTreeBox.bottom-4};
+    treeEl.dispatchEvent(new PointerEvent('pointerdown',treePress));treeEl.dispatchEvent(new PointerEvent('pointermove',{...treePress,clientX:treePress.clientX+30}));treeEl.dispatchEvent(new PointerEvent('pointerup',{...treePress,clientX:treePress.clientX+30}));
+    const treeMoved=await until(async()=>(await playPets.bootstrap()).data.garden.trees.at(-1)?.x>discoveryTree.x+0.005);
+    await L('treeMoved='+(treeMoved?'dragged':'err:'+JSON.stringify({from:discoveryTree,now:(await playPets.bootstrap()).data.garden.trees.at(-1)})));
     await must('removeDiscoveryTree',playPets.removeTree(discoveryTree.id));
     await until(()=>!document.querySelector('.planted-tree'));
     await L('discovery='+(discoveryNoEarly&&discoveryOnce&&discoverySaved?'arrival-replay-and-tree':'err'));
@@ -1180,6 +1190,13 @@ const scenario = `(async()=>{
     await must('friendIn',playPets.setOnDesktop(p1.data.id,false));
     const withoutFriend=await until(async()=>{const l=(await playPets.bootstrap()).data.desktopLayout;return !l.some(i=>i.id===p1.data.id)&&l.some(i=>i.id===outGift.id)&&l;},8000);
     await L('desktopItems='+(withGift&&withoutFriend?'one-at-a-time':'err:'+JSON.stringify({outKind,withGift,withoutFriend})));
+    // A flower goes out the same way, and comes back in.
+    const outPlant=(await playPets.bootstrap()).data.garden.plants[0];
+    await must('plantOut',playPets.setOnDesktop(outPlant?.id,true));
+    const withPlant=await until(async()=>(await playPets.bootstrap()).data.desktopLayout.some(i=>i.id===outPlant.id&&i.decor===outPlant.kind),8000);
+    await must('plantIn',playPets.setOnDesktop(outPlant?.id,false));
+    const plantBack=await until(async()=>!(await playPets.bootstrap()).data.desktopLayout.some(i=>i.id===outPlant.id),8000);
+    await L('desktopPlant='+(withPlant&&plantBack?'out-and-in':'err:'+JSON.stringify({outPlant,withPlant,plantBack})));
     // Back out again, so the switch below brings everything in rather than sending everyone out.
     await must('friendOut',playPets.setOnDesktop(p1.data.id,true));
     await playPets.putAway(outGift.id);
@@ -1343,7 +1360,7 @@ const scenario = `(async()=>{
       const decoded=companionUi.companionImage(action);
       if(action?.clip!==companionUi.prepareCompanionAction(cloverView.asset,name)||!decoded)return false;
       sprites.drawSprite(cloverView.canvas,cloverView.asset,'idle',0,null,action);
-      const tip=authoredRod.authoredRodTip(action,{x:cloverView.px,y:cloverView.py,width:authoredField.sizeOf(cloverView.pet),height:authoredField.petHeight(cloverView.pet)},sprites.reduced.matches);
+      const tip=authoredRod.authoredRodTip(action,authoredField.drawnBox(cloverView),sprites.reduced.matches);
       return rod?.hasAttribute('hidden')&&getComputedStyle(rod).display==='none'&&tip&&line?.getAttribute('d').startsWith('M'+tip.x+' '+tip.y+'Q')&&cloverView.canvas._sheet===decoded&&cloverView.canvas._pk.includes(':action:');
     },10000);
     const heldCast=await heldPhase('cast'),heldWait=await heldPhase('wait');
@@ -1373,6 +1390,9 @@ try {
   console.error(`The e2e scenario does not parse: ${error.message}`);
   process.exit(1);
 }
+// A file, not the variable itself: Linux caps one environment variable at 128 KiB.
+const scenarioFile = path.join(dataDir, 'scenario.js');
+await writeFile(scenarioFile, scenario);
 const child = spawn(binary, [], {
   env: {
     ...process.env,
@@ -1380,7 +1400,7 @@ const child = spawn(binary, [], {
     CODEX_HOME: codexHome,
     PLAYPETS_E2E_HOME: agentHome,
     PLAYPETS_LANG: 'ko',
-    PLAYPETS_E2E_EVAL: scenario,
+    PLAYPETS_E2E_EVAL: scenarioFile,
   },
 });
 const lines = [];
@@ -1633,6 +1653,7 @@ const expect = [
     'hide and seek (find by name, try again when wrong)',
   ],
   [new RegExp(`^games=1/${literal(stopGame('game.parade'))}/none$`), 'tag and parade start and stop'],
+  [/^treeMoved=dragged$/, 'a drag moves a planted tree onto ground it may stand on, and it stays moved'],
   [
     /^discovery=arrival-replay-and-tree$/,
     'friend-led digging commits at arrival, replays safely and saves a visible scene-owned tree',
@@ -1684,6 +1705,7 @@ const expect = [
   ],
   [/^season=set$/, 'the season and the clock paint the yard'],
   [/^garden=found-planted$/, 'an available seed is planted on the field with the tool and kept'],
+  [/^plantMoved=dragged$/, 'a drag moves a plant to another spot, and it stays moved'],
   [
     /^album=kept-and-shown$/,
     'a catch is kept in the album (count, biggest fish), nonsense is refused, and the album shows it',
@@ -1749,6 +1771,7 @@ const expect = [
   [/^desktopOn=ok/, 'turn on desktop mode'],
   [/^overlayLayout=[1-9]/, 'overlay layout created'],
   [/^wanderOn=ok/, 'roaming toggle'],
+  [/^desktopPlant=out-and-in$/, 'a flower goes out on the desktop from its menu and comes back in'],
   [
     /^desktopItems=one-at-a-time$/,
     'a gift taken out of the album goes out on the desktop, and a friend comes in, each on its own',

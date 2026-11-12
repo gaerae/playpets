@@ -50,6 +50,15 @@ body {
   width: 100%;
   height: 100%;
 }
+/* A flower or a planted tree stands on the bottom middle of its box, at the size the yard draws it
+   (growing.js sets the size): a young plant is smaller than the box its bloom will fill. */
+.decor svg.growing {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  translate: -50% 0;
+  overflow: visible;
+}
 .friend {
   position: absolute;
   left: 50%;

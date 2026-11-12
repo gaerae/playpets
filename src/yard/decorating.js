@@ -17,13 +17,12 @@
 import { closeOnBackdrop } from '../core/confirm.js';
 import { joinSentences, list, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
-import { clamp, pick } from '../core/math.js';
+import { clamp, percent, pick } from '../core/math.js';
 import { canvas, drawStill, reduced } from '../core/sprites.js';
 import { $, call, data, toast, views } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { artSize, artSvg } from './art.js';
 import { giftKind } from './catalog.js';
-import { percent } from './christmas-night.js';
 import { shownDecor } from './decor.js';
 import { petHeight, sizeOf } from './field.js';
 import { localDay } from './growth.js';

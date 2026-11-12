@@ -18,3 +18,5 @@ export function shuffle(list, rng = Math.random) {
   }
   return out;
 }
+/** A share of a layer (0 to 1) as the percentage a style takes, to a tenth: `0.29` is `29%`. */
+export const percent = share => `${+(share * 100).toFixed(1)}%`;

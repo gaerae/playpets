@@ -10,8 +10,14 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- A flower or a planted tree can go out on the desktop: right-click it in the yard and choose **Show on desktop**. It grows there as in the yard, a grown tree wears the yard's season, and friends strolling on the desktop walk over to it.
+- Flowers can be moved: drag one, or use the arrow keys on it. It keeps growing where you put it.
+
 ### Changed
 
+- Right-clicking a flower or a planted tree opens its menu, with **Show on desktop** and **Pull up** or **Remove**, instead of pulling it up at once. **Delete** still pulls it up at once, with Undo.
 - Friends farther back in the yard look a little smaller, bob along as they walk and settle as they stop, and no longer stroll onto a tree or a flower.
 - Friends walk all the way down to the foot of the yard, with their name tags still in view, and do not stop behind the tools in the corner.
 - Outdoors, trees and flowers sway in the breeze. Indoors, and with reduced motion, they stay still.
@@ -27,6 +33,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In a short window, the message box keeps its own line, so its hint and the AI's name show whole.
 - In a small window, a friend's status shows under its name when the window has room for the line.
 - On a touch screen, Settings' sections, the right-click menu and the friend picker keep 44px targets in small windows too.
+- A built snowman wears its scarf wrapped around its neck, redrawn as worn, and its hat on top of its head, a little askew, instead of a scarf laid on its chest and a hat pulled down to its eyes.
+- A snowman can go out on the desktop too, from its right-click menu. Out there, a snowman wears its scarf, hat and nose and the Christmas tree its ornaments, as in the yard; before, the tree went out bare.
+- The Christmas tree, the baby reindeer and Santa show whenever the yard shows winter, not only from December 1 to January 7, and ornaments can be hung on the tree on any day it is out.
+- Christmas night no longer waits for December: a snowy evening or night in a winter yard grows the tree on any day. It grows again each time the snow comes back, a sleigh crosses the moon each time, and a tree out on the desktop grows along with it.
 
 ### Fixed
 
@@ -40,6 +50,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In the narrowest windows, Import background and Background studio stay on one line over the gallery, and Invite's title stays on one line beside Import's icon.
 - Settings' switches no longer turn smaller in windows narrower than about 860px.
 - In dark mode, the Remove button in a friend's settings, the Quit button under the pointer, the Settings sheet's shadow and the picture placeholder in Place & atmosphere now darken instead of staying light.
+- The note under **Start PlayPets when you log in** says that what you put out comes out on the desktop, not only your friends.
 - A friend's chips (how you know each other, its status, closeness) and the yard count use the same pink and green as the rest of the app, a little deeper, so their words read more clearly.
 
 ### Website and docs
@@ -47,6 +58,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The guide's first-friend page no longer says a double-click opens the conversation.
 - Right after a release is published, the website's download buttons offer it, instead of the previous release until the next site update.
 - The website's moving friends load smaller pictures, drawn at the size the page shows them, and each friend's `playpets-<name>.zip` now carries the same lossless WebP sheets the app uses, about a third smaller.
+- The desktop guide explains flowers and trees on the desktop, and the yard guide says how to move a flower and where pulling up and removing went.
+- The yard guide says how to bring Christmas night on any day: pick winter, night and snow with the tree out.
+- The landing page's year has a **Christmas night** card of its own, with no dates, saying what brings it on any day and that the desktop tree grows too; the Winter lights card says its gifts also come out in any winter yard.
+- The yard guide no longer says a snowman never goes out on the desktop. The desktop guide says the snowman and the Christmas gifts show there only while the yard shows them, dressed and decorated, and that the switch and the next start cover flowers and trees too; the settings guide and the README say the same.
 
 ## [1.6.0] - 2026-11-10
 

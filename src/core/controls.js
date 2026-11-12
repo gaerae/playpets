@@ -10,6 +10,7 @@ let showControls = null;
 let showPlay = null;
 let showFriendMenu = null;
 let showDecorMenu = null;
+let showGrowingMenu = null;
 const yardFocus = button => (document.body.classList.contains('compact') ? $('yard') : button);
 
 // Each panel opens in its one place above the dock, however it was reached (the dock, the right-click
@@ -29,6 +30,14 @@ export function openFriendMenu(id, point) {
 export function openDecorMenu(id, point) {
   showDecorMenu?.(id, point);
 }
+/** Opens a flower's own menu (out to the desktop, pull up) at `point`. */
+export function openPlantMenu(id, point) {
+  showGrowingMenu?.('plant', id, point);
+}
+/** Opens a planted tree's own menu (out to the desktop, remove) at `point`. */
+export function openTreeMenu(id, point) {
+  showGrowingMenu?.('tree', id, point);
+}
 /** The first time anything goes out on the desktop, how to talk to it and move it there. */
 export function desktopTip() {
   if (recall('desktop-tip') === '1') return;
@@ -37,7 +46,7 @@ export function desktopTip() {
   closeControls(false);
   toast(t('toast.desktop_tip'));
 }
-// One friend or one gift, out to the desktop or back in (desktop/items.rs).
+// One friend, gift, flower or planted tree, out to the desktop or back in (desktop/items.rs).
 const sendOut = guard(async (id, on) => {
   await call('setOnDesktop', id, on);
   if (on) desktopTip();
@@ -85,9 +94,10 @@ export function setupControls({
   digAt = () => {},
   digWith = () => {},
   putAway = () => {},
+  pullPlant = () => {},
+  removeTree = () => {},
   dress = () => {},
   canDress = () => false,
-  canGoOut = () => true,
   letterReadable = () => false,
   openLetter = () => {},
 } = {}) {
@@ -166,6 +176,9 @@ export function setupControls({
       const letter = row('letter');
       if (letter) letter.hidden = !letterReadable();
     };
+    // What a gift's, a flower's or a planted tree's menu is about, in the garden's own list.
+    const ownList = forWhat =>
+      ({ decor: data.garden?.decor, plant: data.garden?.plants, tree: data.garden?.trees })[forWhat];
     const show = (forWhat, id = null) => {
       friend = id;
       for (const item of context.querySelectorAll('[data-context-for]'))
@@ -182,17 +195,15 @@ export function setupControls({
         const dig = context.querySelector('[data-context-action="dig-friend"] .context-label');
         if (dig) dig.textContent = t('discovery.dig_with', { name: name(pet) });
       }
-      const out = forWhat === 'friend' ? pet : forWhat === 'decor' && data.garden?.decor?.find(d => d.id === id);
+      const out = forWhat === 'friend' ? pet : ownList(forWhat)?.find(d => d.id === id);
       const check = [...context.querySelectorAll('[data-context-for]')].find(
         item => item.dataset.contextAction === `desktop-${forWhat}`,
       );
       check?.setAttribute('aria-checked', String(!!out?.onDesktop));
-      // A snowman is dressed where it stands and never goes out (snowman-dress.js).
+      // Only a snowman has things to wear (snowman-dress.js).
       if (forWhat === 'decor')
-        for (const item of context.querySelectorAll('[data-context-for]')) {
+        for (const item of context.querySelectorAll('[data-context-for]'))
           if (item.dataset.contextAction === 'dress-decor') item.hidden = !canDress(id);
-          if (item.dataset.contextAction === 'desktop-decor') item.hidden = !canGoOut(id);
-        }
     };
     const place = () => {
       if (context.hidden) return;
@@ -269,6 +280,11 @@ export function setupControls({
       show('decor', id);
       box.open();
     };
+    showGrowingMenu = (forWhat, id, at) => {
+      point = at;
+      show(forWhat, id);
+      box.open();
+    };
     context.addEventListener('click', event => {
       const action = event.target.closest('[data-context-action]')?.dataset.contextAction;
       if (!action) return;
@@ -285,7 +301,11 @@ export function setupControls({
       else if (action === 'play-friend') openPlay();
       else if (action === 'dig-friend') digWith(friend);
       else if (action === 'desktop-friend') sendOut(friend, !data.pets.find(p => p.id === friend)?.onDesktop);
-      else if (action === 'desktop-decor') sendOut(friend, !data.garden?.decor?.find(d => d.id === friend)?.onDesktop);
+      else if (['desktop-decor', 'desktop-plant', 'desktop-tree'].includes(action)) {
+        const thing = ownList(action.slice('desktop-'.length))?.find(d => d.id === friend);
+        sendOut(friend, !thing?.onDesktop);
+      } else if (action === 'pull-plant') pullPlant(friend);
+      else if (action === 'remove-tree') removeTree(friend);
       else if (action === 'dress-decor') dress(friend);
       else if (action === 'put-away') putAway(friend);
     });

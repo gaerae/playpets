@@ -104,6 +104,12 @@ test('the packaged probe reads logs while the child still owns its writer', () =
   assert.doesNotMatch(script, /ReadAllText\(STDOUT\)/);
 });
 
+test('the packaged probe names its scenario file, as the app reads it (commands.rs E2E_ENV)', () => {
+  const script = readFileSync('packaging/windows/msix/ci.ps1', 'utf8');
+  assert.match(script, /\$env:PLAYPETS_E2E_EVAL = JS\r?\n/);
+  assert.doesNotMatch(script, /ReadAllText\(JS\)/);
+});
+
 test('the shared log reader works with a live Windows writer', { skip: process.platform !== 'win32' }, () => {
   const script = readFileSync('packaging/windows/msix/ci.ps1', 'utf8');
   const helper = script.match(/^function Read-SharedLog[\s\S]*?^}/m)?.[0];

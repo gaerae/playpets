@@ -84,7 +84,7 @@ pub fn act(app: &AppHandle, id: &str) {
 }
 
 /// What a right click on the desktop offers, as (menu id, label): talking to a friend, and taking
-/// a friend or a decoration off the desktop (it stays in the yard). None for what is not out there.
+/// a friend, a decoration, a flower or a planted tree off the desktop (it stays in the yard). None for what is not out there.
 pub fn desktop_choices(d: &crate::app::AppData, id: &str) -> Option<Vec<(String, String)>> {
     let name = |p: &crate::pets::model::Pet| crate::app::pet_name(d, p, &crate::i18n::t("chat.a_friend"));
     choices_for(&d.pets, &d.garden, id, name)
@@ -104,11 +104,10 @@ fn choices_for(
             take_in,
         ]);
     }
-    garden
-        .decor
-        .iter()
-        .any(|g| g.id == id && g.on_desktop)
-        .then(|| vec![take_in])
+    let out = garden.decor.iter().any(|g| g.id == id && g.on_desktop)
+        || garden.plants.iter().any(|p| p.id == id && p.on_desktop)
+        || garden.trees.iter().any(|t| t.id == id && t.on_desktop);
+    out.then(|| vec![take_in])
 }
 
 /// Shows `choices` where the pointer is, over the overlay window `label`.
@@ -260,5 +259,29 @@ mod tests {
         assert_eq!(ids("bench").unwrap(), ["desktop-in:bench"]);
         assert_eq!(ids("tent"), None, "only what is out there");
         assert_eq!(ids("nobody"), None);
+        // A flower or a planted tree out there is taken in as a gift is.
+        let taken_in = |garden: &Garden, id: &str| {
+            choices_for(&pets, garden, id, |_| "Miso".into())
+                .map(|c| c.into_iter().map(|(id, _)| id).collect::<Vec<_>>())
+        };
+        garden.seeds = 1;
+        garden.plant("tulip", 0.5, 0.5, 1).unwrap();
+        garden.plants[0].id = "tulip".into();
+        assert_eq!(taken_in(&garden, "tulip"), None, "only once it is out");
+        garden.plants[0].on_desktop = true;
+        garden.trees.push(crate::pets::discovery::Tree {
+            id: "cherry".into(),
+            world: "meadow".into(),
+            kind: "cherry".into(),
+            x: 0.5,
+            y: 0.5,
+            planted: 1,
+            stage: 2,
+            matured: true,
+            on_desktop: true,
+            desktop_position: None,
+        });
+        assert_eq!(taken_in(&garden, "tulip").unwrap(), ["desktop-in:tulip"]);
+        assert_eq!(taken_in(&garden, "cherry").unwrap(), ["desktop-in:cherry"]);
     }
 }

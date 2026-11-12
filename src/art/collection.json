@@ -1003,8 +1003,8 @@
     "kind": "gifts",
     "atlas": "collection-extension/snowman-dress.webp",
     "atlasSize": [1536, 1024],
-    "crop": [589, 390, 446, 354],
-    "size": [59, 47],
+    "crop": [589, 383, 446, 368],
+    "size": [59, 49],
     "art": "decor/snow_scarf.svg"
   },
   {
