@@ -66,6 +66,7 @@
   cursor: pointer;
 }
 .fishing-rod,
+.fishing-grip,
 .fishing-line {
   position: absolute;
   inset: 0;
@@ -74,6 +75,8 @@
   overflow: visible;
   pointer-events: none;
 }
+/* The float rides in the water: a ripple rings it where it meets the surface, on the still target,
+   and its lower third fades under the surface (the mask moves with it as it bobs). */
 .bobber {
   position: absolute;
   left: 0;
@@ -84,7 +87,12 @@
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: transparent;
+  background: radial-gradient(
+    ellipse 10.5px 3px at 50% calc(50% + 3px),
+    #12303a40 0 50%,
+    #fff4d9cc 58% 70%,
+    #fff4d900 84%
+  );
   cursor: pointer;
   pointer-events: auto;
   z-index: 120;
@@ -100,16 +108,14 @@
   border: 1px solid #614838;
   border-radius: 45% 45% 35% 35%;
   background: linear-gradient(#dc6248 0 48%, #fff4d9 49%);
-  box-shadow: 0 1px 3px #142b3555;
+  mask-image: linear-gradient(#000 64%, #0006 72%, #0000 88%);
   animation: bob 1.8s ease-in-out infinite;
 }
 .bobber:active:not(:disabled) {
   transform: none;
 }
 .bobber:hover::before {
-  box-shadow:
-    0 0 0 3px #fff4d944,
-    0 1px 3px #142b3555;
+  box-shadow: 0 0 0 3px #fff4d944;
 }
 .bobber:focus-visible {
   outline: 2px solid #fff4d9;
@@ -152,6 +158,11 @@
   position: absolute;
   pointer-events: none;
   z-index: 0;
+}
+/* The end of the handle over the friend's body, in its paws (catch.js sweepNet); the rest of the
+   net is behind its face. */
+.bug-net-grip {
+  z-index: 2;
 }
 .bug-net[data-side="left"] {
   transform: scaleX(-1);

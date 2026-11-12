@@ -22,6 +22,19 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In the Garden workshop, friends grow with the room in a large window, so the furniture never looks up to twice as big next to them at full screen.
 - A friend linked to a coding agent shows what the agent is doing: it stays put while the agent works or hits an error, comes to the front of the yard when the agent waits for your approval, and goes back to its own place and strolls again once that is over.
 
+### Fixed
+
+- Baubles hung on the Christmas tree sit on its painted baubles or in the gaps between branches, at the painted baubles' size with a thin rim, instead of floating over the needles. The grand tree's baubles take the places of its painted ones.
+- Gifts that stand on the grass or the snow, such as the bench, the scarecrow, the lantern, the tent, Santa and the baby reindeer, cast a soft shadow on the ground instead of floating over it.
+- At night, gifts, flowers, trees and the bush at the trail's end take on the night's blue instead of turning grey, and white things such as the snowman stay a pale moonlit white.
+- The birds peeking out of the bush at the trail's end are drawn at a bird's size next to it.
+- A lantern or a campfire at night lights a warm pool on the ground under it, and the snow around it no longer turns grey.
+- The fishing float sits in the water with a ripple at its waterline.
+- With reduced motion, the sleigh over the moon on Christmas night is a dark blue shape against the moon instead of a black sticker.
+- Fireflies in the yard are mostly their light, a soft halo with a warm-white heart, over a small body that shows as the light fades, instead of a long beetle with a faint glow. Each kind keeps its own colour, size and blink.
+- Fewer, quieter fireflies: a handful on a full yard and one or two in a small window instead of nine whatever the size, up to eight on firefly nights instead of twenty-two. Each glows as a soft halo around one bright point, and about half are lit at any moment, so they no longer wash over friends and gifts. The Firefly nights announcement and the guide now say more fireflies, not many more.
+- A friend holds the bug net in its paws and leans it out under its face, instead of the handle starting behind its hip. A friend from an imported pet file holds the fishing rod in front of its body too.
+
 ### Website and docs
 
 - The guide lists the Garden workshop in place of the Cozy living room, says where a friend goes for each state of its agent, and shows the state dot beside the name. Its living room picture is gone.

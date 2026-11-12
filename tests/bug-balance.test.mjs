@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
 import * as catalog from '../src/yard/catalog.js';
+import { boostOf } from '../src/yard/events.js';
+import { fireflyCount } from '../src/yard/scene.js';
 
 test('individual wildlife chances share the actual group split and preserve every species', () => {
   assert.equal(typeof catalog.bugChances, 'function');
@@ -94,4 +96,29 @@ test('daytime families renormalize when a season has no members of a family', ()
     catalog.bugChances('summer', 'day', 'clear', null, kinds.slice(2, 3)).map(b => b.chance),
     [1],
   );
+});
+
+// A few fireflies for the yard's size: the light of each one counts, so a full yard has a handful,
+// a small window one or two, and no screen is ever crowded.
+test('fireflies come in a handful for the yard area, a few more in their event, never a crowd', () => {
+  assert.equal(fireflyCount('night', 1180, 850), 5);
+  assert.equal(fireflyCount('evening', 1180, 850), 3);
+  assert.equal(fireflyCount('night', 300, 210), 2, 'a small window still has a couple');
+  assert.equal(fireflyCount('evening', 300, 210), 1);
+  assert.ok(fireflyCount('night', 600, 420) <= fireflyCount('night', 1180, 850));
+  assert.ok(fireflyCount('night', 1180, 850) <= fireflyCount('night', 1600, 1000));
+  for (const period of ['evening', 'night']) {
+    assert.ok(fireflyCount(period, 5120, 2880) <= 6, `${period}: a firm cap`);
+    assert.ok(fireflyCount(period, 5120, 2880, boostOf('fireflies', 'fireflies')) <= 8, 'and in the event');
+  }
+  const festival = fireflyCount('night', 1180, 850, boostOf('fireflies', 'fireflies'));
+  assert.ok(festival > fireflyCount('night', 1180, 850), 'the event is richer');
+  assert.equal(festival, 8);
+  assert.equal(fireflyCount('night', 300, 210, boostOf('fireflies', 'fireflies')), 3);
+  // The golden one still turns up now and then: a spell of the event on a full yard has one about
+  // one time in fifteen, a few spells an hour.
+  const golden = catalog
+    .bugChances('summer', 'night', 'clear', 'fireflies')
+    .find(b => b.id === 'golden_firefly').chance;
+  assert.ok(1 - (1 - golden) ** festival > 0.06);
 });

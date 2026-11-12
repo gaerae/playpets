@@ -958,7 +958,7 @@ export const strings = {
   'event.blossom.lines': ['花びらが雪みたい！', '桜の下でピクニックしない？', '春のにおいがあまいね。'],
   'event.fireflies.name': 'ホタルの夜',
   'event.fireflies.about':
-    '夜になるとホタルがたくさん光り、金色のホタルが現れるかもしれません。友だちがスイカを持ってくるかもしれません。',
+    '夜になるとホタルがいつもより多く光り、金色のホタルが現れるかもしれません。友だちがスイカを持ってくるかもしれません。',
   'event.fireflies.lines': ['ホタルがこんなにたくさん！', '夏の夜風がいちばん。', 'いま金色に光ったよ！'],
   'event.harvest.name': '中秋の名月',
   'event.harvest.about':

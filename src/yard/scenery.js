@@ -19,7 +19,7 @@ import { environmentFrame, weatherPanes } from './environment.js';
 import { boostOf } from './events.js';
 import { drawMeteors, drawSparks, drawStars, lightYard } from './light-art.js';
 import { shower as showerOf, wish } from './meteors.js';
-import { dropCount, fallerCount, spawnDrop, spawnFaller, stepDrops, stepFallers } from './scene.js';
+import { dropCount, fallerCount, fireflyCount, spawnDrop, spawnFaller, stepDrops, stepFallers } from './scene.js';
 import { createWeatherArt } from './weather-art.js';
 import { worldAllows, worldFor } from './worlds.js';
 
@@ -213,8 +213,9 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       group = wildlifeGroup(season, period, weather),
       glow = group === 'firefly',
       flutter = group === 'day';
-    const count = glow ? (period === 'night' ? 9 : 4) : flutter ? (warm ? 3 : 1) : group === 'cricket' ? 2 : 0;
-    return { glow, count: Math.round(count * boostOf(event, glow ? 'fireflies' : 'butterflies')) };
+    if (glow) return { glow, count: fireflyCount(period, w, h, boostOf(event, 'fireflies')) };
+    const count = flutter ? (warm ? 3 : 1) : group === 'cricket' ? 2 : 0;
+    return { glow, count: Math.round(count * boostOf(event, 'butterflies')) };
   }
   // The small life of a spell. Arriving, butterflies come in from the sides, fireflies fade in and
   // petals or leaves start above the yard; at the start they are already about.
@@ -554,21 +555,19 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     paintPlainBug(ctx, c, scale);
   }
   function paintFirefly(c) {
-    const lit = fireflyLit(c.look, c.phase) * c.light;
-    ctx.globalAlpha = (0.15 + lit * 0.3) * c.light;
+    const lit = fireflyLit(c.look, c.phase);
     // Each kind glows in its own light (catalog.json look.glow), so a rare one can be found.
-    if (ambient.glow(ctx, c, scale)) {
-      ctx.globalAlpha = (0.55 + lit * 0.45) * c.light;
-      if (ambient.bug(ctx, c, scale)) return;
-    }
+    if (ambient.firefly(ctx, c, scale, lit)) return;
+    // Without a canvas for its light, the same halo and core as plain dots.
     const size = (c.look.size ?? 1) * scale;
     ctx.fillStyle = c.look.glow || `rgb(${INK.firefly})`;
+    ctx.globalAlpha = (0.08 + lit * 0.47) * c.light * 0.4;
     ctx.beginPath();
-    ctx.arc(c.x, c.y, 6 * size, 0, TAU);
+    ctx.arc(c.x, c.y, 5.5 * size, 0, TAU);
     ctx.fill();
-    ctx.globalAlpha = (0.4 + lit * 0.6) * c.light;
+    ctx.globalAlpha = (0.15 + lit * 0.85) * c.light;
     ctx.beginPath();
-    ctx.arc(c.x, c.y, 1.7 * size, 0, TAU);
+    ctx.arc(c.x, c.y, 3.25 * size, 0, TAU);
     ctx.fill();
   }
   function paint(now) {

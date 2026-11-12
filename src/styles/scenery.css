@@ -250,10 +250,12 @@
 .weather-snow .sky-body {
   opacity: 0.16;
 }
-/* Christmas night's sleigh (yard/christmas-night.js): a dark silhouette with a gold rim crossing the
-   moon right to left, in front of it and behind the clouds and the land. Its drawing faces right,
-   so it is mirrored. The moon brightens through the snow while it crosses, so the shape reads, and
-   shows a little through it, so the black is not pasted on. */
+/* Christmas night's sleigh (yard/christmas-night.js): a silhouette crossing the moon right to left,
+   in front of it and behind the clouds and the land. Its drawing faces right, so it is mirrored. It
+   is the night sky's darkest blue (#sleigh-silhouette in index.html), not black, with only a thin
+   warm rim where the moon lights it from behind, so off the disc it melts into the sky and on it
+   reads as a shape against the light rather than a sticker. The moon brightens through the snow
+   while it crosses, so the shape reads, and shows a little through it. */
 .yard.xmas-moon .sky-body {
   opacity: 0.7;
 }
@@ -272,7 +274,7 @@
   width: 100%;
   height: 100%;
   scale: -1 1;
-  filter: brightness(0) drop-shadow(0 0 1px #ffd98a) drop-shadow(0 0 1px #ffd98a) drop-shadow(0 0 4px #ffcf7088);
+  filter: url(#sleigh-silhouette) drop-shadow(0 0 0.6px #ffe0a0b3);
 }
 .xmas-sleigh.flying {
   animation: xmas-sleigh-fly 4.2s linear both;

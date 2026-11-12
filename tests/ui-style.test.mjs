@@ -528,6 +528,10 @@ const SET_FROM_CODE = {
   '--trail-opacity': 'src/yard/trails.js',
   '--petal-x': 'src/yard/petals.js',
   '--petal-turn': 'src/yard/petals.js',
+  '--shade-w': 'src/yard/decor.js',
+  '--shade-h': 'src/yard/decor.js',
+  '--shade-y': 'src/yard/decor.js',
+  '--shade-x': 'src/yard/decor.js',
 };
 // A misspelt or removed token silently falls back to the property's initial value (no colour, no
 // size), so every one a stylesheet reads has to come from somewhere.
@@ -604,16 +608,57 @@ test('indoor flowers use a planter without blocking their controls', async () =>
 
 test('indoor planters follow evening and night flower lighting', async () => {
   const css = await readFile('src/styles/garden.css', 'utf8');
-  for (const [period, brightness] of [
-    ['evening', '0.88'],
-    ['night', '0.62'],
+  for (const [period, filter] of [
+    ['evening', 'brightness(0.88)'],
+    ['night', 'url(#night-tint)'],
   ]) {
     const selector = `.yard[data-soil="false"].period-${period} .plant::after`;
     const start = css.indexOf(selector);
     assert.ok(start >= 0, `${period} planter light`);
     const rule = css.slice(start, css.indexOf('}', start));
-    assert.ok(rule.includes(`brightness(${brightness})`), period);
+    assert.ok(rule.includes(filter), period);
   }
+});
+
+// A grey dimming left the gifts, the bush and the plants a neutral grey against the night's blue
+// snow and grass; one tint (index.html #night-tint) darkens them toward that blue instead.
+test('at night the drawings in the yard darken toward the blue of the night, all with one tint', async () => {
+  const css = await styles();
+  assert.doesNotMatch(css, /brightness\(0\.6[0-9]*\)saturate/, 'no grey night dimming is left');
+  for (const selector of [
+    '.period-night .decor svg',
+    '.period-night .decor>.ornaments',
+    '.period-night .trail-end svg',
+    '.period-night .plant svg',
+    '.period-night .planted-tree svg',
+  ])
+    assert.match(
+      css,
+      new RegExp(`${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\{filter:url\\(#night-tint\\);\\}`),
+      selector,
+    );
+  const page = await readFile('src/index.html', 'utf8');
+  const matrix = page.match(/<filter id="night-tint"[^>]*>\s*<feColorMatrix type="matrix" values="([^"]+)"/);
+  assert.ok(matrix, 'the tint is in the page');
+  const m = matrix[1].trim().split(/\s+/).map(Number);
+  const gain = row => m.slice(row * 5, row * 5 + 3).reduce((a, b) => a + b, 0);
+  assert.ok(gain(2) > gain(1) && gain(1) > gain(0), 'blue kept most, red least');
+  assert.ok(gain(0) < 0.62 && gain(2) < 0.9, 'darker than day');
+  // A white, a warm cream or the snowman's painted white (a touch pink) reads as moonlit white: a
+  // pale grey-blue with the night snow's own hue (green about a third of the way from red to blue,
+  // as on the yard's snow at night), not lilac.
+  const tint = rgb => [0, 1, 2].map(row => m.slice(row * 5, row * 5 + 3).reduce((a, k, i) => a + k * rgb[i], 0));
+  for (const white of [
+    [1, 1, 1],
+    [1, 0.95, 0.88],
+    [0.85, 0.81, 0.84],
+  ]) {
+    const [r, g, b] = tint(white);
+    assert.ok((g - r) / (b - r) >= 0.3, `${white}: the night snow's blue, not lilac`);
+    assert.ok((b - r) / b < 0.3, `${white}: pale, not a strong blue`);
+    assert.ok(r > 0.42, `${white}: still light beside the night's snow`);
+  }
+  assert.deepEqual(m.slice(15), [0, 0, 0, 1, 0], 'alpha untouched');
 });
 
 test('indoor growth stages enter the planter mouth without moving mature stems', async () => {
@@ -779,4 +824,29 @@ test('every size of words is a step of the type scale, none under 11px', async (
       assert.fail(`${selector.trim()} sets font-size:${size} outside the scale`);
     }
   }
+});
+
+// A sparrow or a magpie is far smaller than the bush it dives into: its tail and rump stay within
+// about a third of the bush's width (41) and half its height (30), and are centred over it.
+test('a bird diving into the trail bush is drawn to the bush scale', async () => {
+  const css = await styles();
+  for (const bird of ['sparrow', 'magpie']) {
+    const rule = css.match(new RegExp(`\\.tail-peek\\[data-track="${bird}"\\]\\{([^}]*)\\}`))?.[1] || '';
+    const value = name => Number(rule.match(new RegExp(`--${name}:([\\d.]+)`))?.[1]);
+    assert.ok(value('w') <= 14, `${bird}: width ${value('w')}`);
+    assert.ok(value('h') <= 17, `${bird}: height ${value('h')}`);
+    assert.ok(Math.abs(value('x') + value('w') / 2 - 24) <= 1.5, `${bird}: over the crown's middle`);
+  }
+});
+
+// The sleigh over the moon is a silhouette in the night's own dark blue with a thin backlit rim,
+// not a black cut-out haloed in gold, which read as a sticker on the sky (most of all when still).
+test('the sleigh is a night-blue silhouette with a thin rim', async () => {
+  const css = await styles();
+  const filter = css.match(/\.xmas-sleigh svg\{[^}]*filter:([^;]+);/)?.[1] || '';
+  assert.match(filter, /^url\(#sleigh-silhouette\)/);
+  assert.doesNotMatch(filter, /brightness\(0\)/);
+  for (const [, blur] of filter.matchAll(/drop-shadow\(0 0 ([\d.]+)px/g)) assert.ok(Number(blur) <= 1, `rim ${blur}px`);
+  const page = await readFile('src/index.html', 'utf8');
+  assert.match(page, /<filter id="sleigh-silhouette"[^>]*>\s*<feFlood flood-color="#[0-9a-f]{6}"/);
 });

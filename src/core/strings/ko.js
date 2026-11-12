@@ -932,7 +932,7 @@ export const strings = {
   'event.blossom.lines': ['꽃잎이 눈처럼 내려!', '벚꽃 아래서 소풍 갈까?', '봄 냄새가 달콤해.'],
   'event.fireflies.name': '반딧불이 밤',
   'event.fireflies.about':
-    '밤이면 반딧불이가 훨씬 많이 반짝이고, 금빛 반딧불이가 나타날지도 몰라요. 친구가 수박을 가져올지도 몰라요.',
+    '밤이면 반딧불이가 더 많이 반짝이고, 금빛 반딧불이가 나타날지도 몰라요. 친구가 수박을 가져올지도 몰라요.',
   'event.fireflies.lines': ['반딧불이가 이렇게 많다니!', '여름밤 바람이 최고야.', '방금 금빛으로 반짝였어!'],
   'event.harvest.name': '한가위 보름달',
   'event.harvest.about':

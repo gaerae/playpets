@@ -966,7 +966,7 @@ export const strings = {
   ],
   'event.fireflies.name': 'Firefly nights',
   'event.fireflies.about':
-    'Many more fireflies glow at night, and a golden one may appear. A friend may bring a watermelon.',
+    'More fireflies glow at night, and a golden one may appear. A friend may bring a watermelon.',
   'event.fireflies.lines': [
     'Look how many fireflies!',
     'A summer night breeze is the best.',
