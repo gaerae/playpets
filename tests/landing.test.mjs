@@ -92,7 +92,7 @@ test('each landing says the app’s name in its own script and the kind of app i
   const config = read('website/.vitepress/config.mts');
   const descriptions = [...config.matchAll(/^ {6}description:\s*'([^']+)'/gm)].map(([, d]) => d);
   const { STEAM_TAGS } = await import('../scripts/site-content.mjs');
-  assert.ok(STEAM_TAGS.includes('Desktop Companion') && STEAM_TAGS.includes('Cozy'));
+  assert.deepEqual(STEAM_TAGS.slice(0, 2), ['Desktop Companion', 'Idler']);
   assert.ok(!STEAM_TAGS.includes('Desktop Pet'), 'not a Steam tag');
   for (const [i, lang] of ['en', 'ko', 'ja', 'zh-hans'].entries()) {
     const { copy, sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
@@ -109,8 +109,14 @@ test('each landing says the app’s name in its own script and the kind of app i
     } else assert.equal(copy.nativeName, '', `${lang}: no name of its own`);
     // Chinese has no settled name for it, so the words people search with carry it.
     if (lang === 'zh-hans') for (const text of [template, descriptions[i]]) assert.match(text, /桌面宠物/);
-    // Once in words a person reads: the moments' lead, where the yard changes on its own.
-    assert.ok(sections.moments.kind?.length, `${lang}: moments kind`);
+    // Steam's own names for the genre in this language: Desktop Companion, then Idler. The
+    // description and the keywords carry both; one line a person reads says the first.
+    assert.equal(copy.steamTags.length, 2, lang);
+    for (const tag of copy.steamTags) {
+      assert.ok(descriptions[i].includes(tag), `${lang}: description says ${tag}`);
+      assert.ok(copy.keywords.includes(tag), `${lang}: keywords say ${tag}`);
+    }
+    assert.ok(sections.moments.kind.includes(copy.steamTags[0]), `${lang}: moments kind`);
   }
   const landing = read('website/.vitepress/theme/Landing.vue');
   assert.match(landing, /t\.moments\.kind/);

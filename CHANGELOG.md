@@ -40,7 +40,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The guide lists the Garden workshop in place of the Cozy living room, says where a friend goes for each state of its agent, and shows the state dot beside the name. Its living room picture is gone.
 - The website's place picker shows four places, with the Garden workshop's day sky through its glass, and the site and README count four places.
 - The landing's seasons and the yard's own moments read as recipes: what has to come together (season, time of day, weather, a gift out in the yard, a Play menu item) as small chips, then what happens in one short line. Christmas night shows its two steps: the tree that grows, then the sleigh.
-- The Korean and Japanese landings also name the app in their own script, the Chinese landing calls it a desktop pet in the words people search with, and each landing calls it a cozy, relaxing idle game.
+- The Korean and Japanese landings also name the app in their own script, the Chinese landing calls it a desktop pet in the words people search with, and each landing says it is a Desktop Companion you leave running, in Steam's own words for that language.
 - The creator studio shows what the work rows (`working`, `waiting`, `done`, `error`) make a friend do in each place, and the background studio compares the built-in places with your own background in a table. Requirements and steps are short tables and lists.
 
 ## [1.6.1] - 2026-11-12

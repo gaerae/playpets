@@ -140,8 +140,9 @@ export const SKY_SCENES = Object.freeze([
 ]);
 
 // Steam's own tag names for this kind of app (store.steampowered.com/tag/browse, checked
-// 2026-11-12), for the landing's structured data. "Desktop Pet" is not one; "Desktop Companion" is.
-export const STEAM_TAGS = Object.freeze(['Desktop Companion', 'Cozy', 'Relaxing', 'Idler', 'Casual', 'Cute']);
+// 2026-11-12), for the landing's structured data: the genre first, then its wider tag, then the
+// ones that fit. "Desktop Pet" is not a Steam tag; it stays the plain words people search with.
+export const STEAM_TAGS = Object.freeze(['Desktop Companion', 'Idler', 'Cozy', 'Relaxing']);
 
 export const LANDING_PETS = Object.freeze([
   { id: 'daisy', displayName: 'Daisy', source: 'assets/pets/daisy/spritesheet.png', kit: 'daisy' },

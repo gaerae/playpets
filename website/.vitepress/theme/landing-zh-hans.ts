@@ -6,6 +6,9 @@ export const copy = {
   more: '详细了解',
   // No name of its own in this language: PlayPets is read as written.
   nativeName: '',
+  // Steam's own names, in this language, for Desktop Companion and Idler (store.steampowered.com/tag/browse).
+  steamTags: ['桌面伴侣', '挂机游戏'],
+  keywords: ['PlayPets', '桌面宠物', '桌宠', '桌面伴侣', '挂机游戏', 'Codex 宠物', '编码代理'],
   eyebrow: '适用于 macOS、Windows、Linux 的免费桌面宠物（桌宠）应用',
   download: '下载 PlayPets',
   meet: '看看能做什么',
@@ -109,7 +112,7 @@ export const sections = {
   },
   moments: {
     title: '乐园自己会变',
-    kind: '开着就好，这是一座治愈、轻松的放置类乐园。',
+    kind: '这是一款工作时开着就好的桌面伴侣。',
     lead: '把时间和天气设为自动，乐园就跟着时钟走，天气也自己换。等等看这些景色吧。',
     items: {
       rainbow: ['彩虹', '彩虹会挂上几分钟。去彩虹尽头挖一挖。'],

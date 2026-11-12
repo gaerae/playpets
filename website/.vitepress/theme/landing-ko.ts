@@ -5,6 +5,9 @@ export const copy = {
   guide: '사용 안내 읽기',
   more: '자세히',
   nativeName: '플레이펫츠',
+  // Steam's own names, in this language, for Desktop Companion and Idler (store.steampowered.com/tag/browse).
+  steamTags: ['데스크톱 컴패니언', '아이들러'],
+  keywords: ['PlayPets', '플레이펫츠', '데스크톱 펫', '데스크톱 컴패니언', '아이들러', 'Codex 펫', '코딩 에이전트'],
   eyebrow: 'macOS, Windows, Linux용 무료 데스크톱 펫 앱, 플레이펫츠',
   download: 'PlayPets 다운로드',
   meet: '할 수 있는 것 보기',
@@ -117,7 +120,7 @@ export const sections = {
   },
   moments: {
     title: '놀이터가 스스로 바뀌어요',
-    kind: '켜 두기만 해도 되는 아늑한 방치형 놀이터예요.',
+    kind: '일하는 동안 켜 두는 데스크톱 컴패니언이에요.',
     lead: '시간과 날씨를 자동으로 두면 시계를 따라 날씨까지 알아서 바뀌어요. 이런 장면을 기다려 보세요.',
     items: {
       rainbow: ['무지개', '몇 분 동안 무지개가 떠요. 무지개 끝을 파 보세요.'],

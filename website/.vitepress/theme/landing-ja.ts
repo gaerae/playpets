@@ -6,6 +6,17 @@ export const copy = {
   guide: 'ガイドを読む',
   more: '詳しく',
   nativeName: 'プレイペッツ',
+  // Steam's own names, in this language, for Desktop Companion and Idler (store.steampowered.com/tag/browse).
+  steamTags: ['デスクトップコンパニオン', '放置'],
+  keywords: [
+    'PlayPets',
+    'プレイペッツ',
+    'デスクトップマスコット',
+    'デスクトップコンパニオン',
+    '放置',
+    'Codexのペット',
+    'コーディングエージェント',
+  ],
   eyebrow: 'macOS、Windows、Linux対応の無料デスクトップマスコット「プレイペッツ」',
   download: 'PlayPetsをダウンロード',
   meet: 'できることを見る',
@@ -124,7 +135,7 @@ export const sections = {
   },
   moments: {
     title: '庭はひとりでに変わります',
-    kind: 'つけておくだけでいい、まったり癒やしの放置系です。',
+    kind: '作業のあいだ、つけたままにしておくデスクトップコンパニオンです。',
     lead: '時間と天気を自動にすると、時計に合わせて天気まで自分で変わります。こんな景色を待ってみてください。',
     items: {
       rainbow: ['虹', '数分のあいだ虹がかかります。ふもとを掘ってみて。'],

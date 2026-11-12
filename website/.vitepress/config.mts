@@ -5,10 +5,19 @@ import { sep } from 'node:path';
 import { defineConfig } from 'vitepress';
 import { websiteNotices } from '../../scripts/licenses-lib.mjs';
 import { sitemapSources, unusedShots } from '../../scripts/site-lib.mjs';
-import { alternateLinks, appStructuredData, faqStructuredData, leadDescription, releaseTitle } from './locale-head.mjs';
+import {
+  alternateLinks,
+  appStructuredData,
+  landingKeywords,
+  faqStructuredData,
+  leadDescription,
+  releaseTitle,
+} from './locale-head.mjs';
 import { devSidebar } from './sidebar-dev.mts';
+import { copy as enCopy } from './theme/landing-en.ts';
 import { copy as jaCopy } from './theme/landing-ja.ts';
 import { copy as koCopy } from './theme/landing-ko.ts';
+import { copy as zhCopy } from './theme/landing-zh-hans.ts';
 
 const repo = 'https://github.com/gaerae/playpets';
 // The site's address is package.json "homepage"; the base path follows from it, so moving the site
@@ -38,8 +47,9 @@ const editLink = (text: string) => ({
   text,
 });
 
-// The app's name as it is said on each landing, for its structured data (landing-*.ts nativeName).
-const NATIVE_NAMES: Record<string, string | undefined> = { ko: koCopy.nativeName, ja: jaCopy.nativeName };
+// Each landing's own words for search: the app's name as said there, Steam's genre names and the
+// keywords (landing-*.ts).
+const LANDING_COPY: Record<string, typeof enCopy> = { en: enCopy, ko: koCopy, ja: jaCopy, 'zh-hans': zhCopy };
 
 export default defineConfig({
   title: 'PlayPets',
@@ -93,7 +103,7 @@ export default defineConfig({
       label: 'English',
       lang: 'en-US',
       description:
-        'Free, open-source desktop pet app, cozy and relaxing to leave running: four friends come with it, any Codex pet can join, and up to 12 chat with each other and react to Claude Code, Codex and other coding agents.',
+        'Free, open-source desktop pet app, a cozy Desktop Companion and Idler to leave running: four friends come with it, any Codex pet can join, and up to 12 chat with each other and react to Claude Code, Codex and other coding agents.',
       themeConfig: {
         nav: [
           { text: 'Home', link: '/', activeMatch: '^/$' },
@@ -139,7 +149,7 @@ export default defineConfig({
       lang: 'ko-KR',
       link: '/ko/',
       description:
-        '플레이펫츠(PlayPets)는 펫 친구들이 바탕화면에 사는 무료 데스크톱 펫 앱이에요. 켜 두기만 해도 아늑한 방치형이고, 기본 친구 넷이 함께 와요. Codex 펫도 데려올 수 있고, 12명까지 서로 이야기하며 Claude Code, Codex 같은 코딩 에이전트에 반응해요.',
+        '플레이펫츠(PlayPets)는 펫 친구들이 바탕화면에 사는 무료 데스크톱 펫 앱이에요. 켜 두고 지내는 데스크톱 컴패니언이자 아이들러이고, 기본 친구 넷이 함께 와요. Codex 펫도 데려올 수 있고, 12명까지 서로 이야기하며 Claude Code, Codex 같은 코딩 에이전트에 반응해요.',
       themeConfig: {
         nav: [
           { text: '홈', link: '/ko/', activeMatch: '^/ko/$' },
@@ -194,7 +204,7 @@ export default defineConfig({
       lang: 'ja-JP',
       link: '/ja/',
       description:
-        'プレイペッツ（PlayPets）は、ペットの友だちがデスクトップで暮らす無料アプリ。つけておくだけのまったり放置系で、はじめから4人いて、Codexのペットも迎えられます。12人まで一緒に遊び、友だち同士で話し、Claude CodeやCodexなどのコーディングエージェントに反応します。',
+        'プレイペッツ（PlayPets）は、ペットの友だちがデスクトップで暮らす無料アプリ。つけたままにしておくデスクトップコンパニオンで、放置で楽しめます。はじめから4人いて、Codexのペットも迎えられます。12人まで一緒に遊び、友だち同士で話し、Claude CodeやCodexなどのコーディングエージェントに反応します。',
       themeConfig: {
         nav: [
           { text: 'ホーム', link: '/ja/', activeMatch: '^/ja/$' },
@@ -252,7 +262,7 @@ export default defineConfig({
       lang: 'zh-Hans',
       link: '/zh-hans/',
       description:
-        '宠物伙伴住在桌面上的免费桌面宠物（桌宠）应用，治愈轻松，开着就好：自带四位伙伴，Codex 宠物也能加入；最多 12 位一起玩、互相聊天，还会对 Claude Code、Codex 等编码代理做出反应。',
+        '宠物伙伴住在桌面上的免费桌面宠物（桌宠）应用，一款开着就好的桌面伴侣、挂机游戏：自带四位伙伴，Codex 宠物也能加入；最多 12 位一起玩、互相聊天，还会对 Claude Code、Codex 等编码代理做出反应。',
       themeConfig: {
         nav: [
           { text: '首页', link: '/zh-hans/', activeMatch: '^/zh-hans/$' },
@@ -369,6 +379,7 @@ export default defineConfig({
     const lang = pageData.relativePath.match(/^(ko|ja|zh-hans)\//)?.[1];
     const image = `${site}og${lang ? `-${lang}` : ''}.png`;
     const url = site + pageData.relativePath.replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, '');
+    const landing = LANDING_COPY[lang ?? 'en'];
     const locale = lang === 'ko' ? 'ko_KR' : lang === 'ja' ? 'ja_JP' : lang === 'zh-hans' ? 'zh_CN' : 'en_US';
     return [
       ['link', { rel: 'canonical', href: url }],
@@ -382,8 +393,10 @@ export default defineConfig({
       ...appStructuredData(pageData.relativePath, site, {
         description,
         version,
-        alternateName: (lang && NATIVE_NAMES[lang]) || undefined,
+        alternateName: landing.nativeName || undefined,
+        genre: landing.steamTags,
       }),
+      ...landingKeywords(pageData.relativePath, landing.keywords),
       ...faqStructuredData(pageData.relativePath, source(pageData.relativePath)),
     ];
   },

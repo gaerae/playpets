@@ -7,6 +7,9 @@ export const copy = {
   more: 'Details',
   // No name of its own in this language: PlayPets is read as written.
   nativeName: '',
+  // Steam's own names, in this language, for Desktop Companion and Idler (store.steampowered.com/tag/browse).
+  steamTags: ['Desktop Companion', 'Idler'],
+  keywords: ['PlayPets', 'desktop pet', 'Desktop Companion', 'Idler', 'cozy', 'Codex pets', 'coding agent'],
   eyebrow: 'Free desktop pet app for macOS, Windows and Linux',
   download: 'Download PlayPets',
   meet: 'See what you can do',
@@ -125,7 +128,7 @@ export const sections = {
   },
   moments: {
     title: 'The yard on its own',
-    kind: 'It’s a cozy, relaxing idle game: you can simply leave it running.',
+    kind: 'It’s a Desktop Companion you leave running while you work.',
     lead: 'With time and weather on Auto, the yard follows your clock and picks its own weather. Watch for these.',
     items: {
       rainbow: ['Rainbow', 'A rainbow stands for a few minutes. Dig where it ends.'],
