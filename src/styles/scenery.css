@@ -597,6 +597,8 @@
     radial-gradient(closest-side, #f5c86a38 99%, transparent) center / 50% 50% no-repeat,
     url("../art/sky/moon.webp") center / 50% 50% no-repeat,
     linear-gradient(var(--orb-glow) 0 0);
+  /* The whole disc, with its glow around it all, rather than tonight's phase (--moon-lit). */
+  mask: radial-gradient(closest-side, #000 49%, #0009 52%, transparent 78%);
 }
 
 /* An interior is a complete room painting; outdoor overlays never cross its window glass. */
