@@ -71,6 +71,8 @@ struct Fish {
 }
 #[derive(Deserialize)]
 struct Stage {
+    #[serde(default)]
+    name: String,
     /// When the stage begins, in minutes from planting.
     minutes: u64,
 }
@@ -263,6 +265,17 @@ impl Catalog {
         let own = kind.stages.get(stage).and_then(|s| s.size);
         let [w, h] = own.or_else(|| self.tree_sizes.get(stage).copied())?;
         Some((w, h))
+    }
+    /// How much taller a flower stands `age_ms` after it was planted: its stature once it buds
+    /// (src/yard/growth.js plantStature), as tall as the others before.
+    pub fn stature_at(&self, id: &str, age_ms: u64) -> f64 {
+        let bud = self
+            .garden
+            .stages
+            .iter()
+            .find(|s| s.name == "bud")
+            .map_or(0, |s| s.minutes * 60 * 1000);
+        if age_ms >= bud { self.stature(id) } else { 1.0 }
     }
     /// How much taller a grown flower stands (1 for most).
     pub fn stature(&self, id: &str) -> f64 {

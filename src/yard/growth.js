@@ -17,13 +17,13 @@ export function stageOf(planted, now) {
   const next = STAGES[i + 1];
   return { name: STAGES[i].name, index: i, untilNext: next ? next.at - age : 0 };
 }
-/** How long until it flowers (0 once it has). */
 /** What a plant is drawn with at a stage (a name from stageOf): the stage's drawing, or in bloom its
  * flower's. The yard and the desktop draw it the same. */
 export const plantArt = (plant, stage) => STAGES.find(s => s.name === stage)?.art || flowerKind(plant.kind)?.art || '';
 /** How much taller than its drawing a plant stands at a stage: a tall flower once it buds. */
 export const plantStature = (plant, stage) =>
   stage === 'bloom' || stage === 'bud' ? flowerKind(plant.kind)?.stature || 1 : 1;
+/** How long until it flowers (0 once it has). */
 export const untilBloom = (planted, now) => Math.max(0, STAGES.at(-1).at - Math.max(0, now - planted));
 /** What a seed planted in this season grows into: one of the season's flowers, each as likely as its
  * weight (catalog.json "weight", 1 if left out). */

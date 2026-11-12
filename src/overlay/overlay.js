@@ -16,10 +16,9 @@ import { sceneValue } from '../core/state.js';
 import { applyStatus, fadedBetween, stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { every, everyMinute } from '../core/ticker.js';
-import { artSvg, loadArt } from '../yard/art.js';
-import { giftKind, useCatalog } from '../yard/catalog.js';
-import { drawGrowing, growing, growingArt, visitKey } from './growing.js';
-import { wear, wearArt } from './wear.js';
+import { useCatalog } from '../yard/catalog.js';
+import { dressDecor, drawDecor } from './decor-view.js';
+import { visitKey } from './growing.js';
 
 setupInteractions();
 document.documentElement.lang = language();
@@ -54,6 +53,7 @@ const seasonChanged = setupSeason({
     const turned = next !== season;
     season = next;
     if (setSpriteSeason(next) || turned) render();
+    if (turned) redress();
   },
   minute: everyMinute,
   south,
@@ -144,10 +144,10 @@ function create(pet) {
   };
   return view;
 }
-// A flower or a tree out here, drawn again if it grew or the season turned (growing.js).
-function regrow(v) {
-  const thing = v.growing && growing(data.garden, v.id);
-  if (thing) drawGrowing(v, thing, season);
+// Gifts, flowers and trees out here, brought in line with the garden, the season and the clock
+// (decor-view.js): when one of those changed, never for a friend's step.
+function redress() {
+  for (const v of decorations.values()) dressDecor(v, data.garden, season);
 }
 // A gift, a flower or a planted tree out on the desktop: dragged to move, and its menu takes it off
 // the desktop.
@@ -156,11 +156,6 @@ function createDecor(id, kind) {
     button = document.createElement('button');
   wrap.className = 'decor-wrap';
   button.className = 'decor';
-  // A flower or a tree is named once it is drawn, by its stage (growing.js).
-  if (!growing(data.garden, id)) {
-    button.title = t(`decor.kind_${kind}`);
-    button.setAttribute('aria-label', button.title);
-  }
   wrap.append(button);
   document.getElementById('friends').append(wrap);
   const view = {
@@ -175,20 +170,6 @@ function createDecor(id, kind) {
     worn: null,
     dressLayer: null,
   };
-  catalogue.then(async () => {
-    if (growing(data.garden, id)) {
-      await loadArt(growingArt(kind));
-      view.growing = true;
-      return regrow(view);
-    }
-    const art = giftKind(kind)?.art;
-    if (!art) return;
-    await loadArt(wearArt(kind));
-    // Under what it wears, which is drawn once the drawings it needs are in.
-    button.insertAdjacentHTML('afterbegin', artSvg(art));
-    view.drawn = true;
-    wear(view, data.garden);
-  });
   button.onpointerdown = async e => {
     if (e.button !== 0) return;
     view.drag = true;
@@ -230,8 +211,15 @@ function renderDecor(local) {
       v = createDecor(position.id, position.decor);
       decorations.set(position.id, v);
     }
-    regrow(v);
-    if (v.drawn) wear(v, data.garden);
+    // Drawn once the catalogue says what it is; until then each render asks again (cheap).
+    if (!v.drawn)
+      catalogue.then(() =>
+        drawDecor(
+          v,
+          () => data.garden,
+          () => season,
+        ),
+      );
     v.wrap.style.visibility = 'visible';
     v.wrap.style.width = `${position.width}px`;
     v.wrap.style.height = `${position.height}px`;
@@ -338,6 +326,7 @@ api.onChange(next => {
   layout = next.desktopLayout;
   seasonChanged();
   render();
+  redress();
 });
 api.onEvent(event => {
   if (event.type === 'layout') {
@@ -397,7 +386,7 @@ if (result.ok) {
   // friends again for hours, so the page looks each minute. A flower out here grows by the clock.
   let looked = Date.now();
   everyMinute(() => {
-    for (const v of decorations.values()) regrow(v);
+    redress();
     const now = Date.now();
     if (fadedBetween(data, looked, now)) render();
     looked = now;

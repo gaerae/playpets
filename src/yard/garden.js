@@ -8,7 +8,7 @@ import { companionImage, playCompanionAction, prepareCompanionAction } from '../
 import { openPlantMenu } from '../core/controls.js';
 import { joinList, list, t } from '../core/i18n.js';
 import { onEscape } from '../core/keys.js';
-import { clamp, pick } from '../core/math.js';
+import { pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, selected, toast, views } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { everyMinute } from '../core/ticker.js';
@@ -18,20 +18,10 @@ import { showCard } from './card.js';
 import { setAimingMode } from './care.js';
 import { flowerKind } from './catalog.js';
 import { flowerSvg } from './creatures.js';
-import { EDGE, field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
+import { field, fieldToYard, footTarget, petHeight, sizeOf, yardToField } from './field.js';
 import { flowerFor, hoursMinutes, plantArt, plantStature, stageOf, untilBloom } from './growth.js';
 import { shapeHits } from './hit-shape.js';
-import {
-  beginDrag,
-  dragPoint,
-  endDrag,
-  moveSaved,
-  propButton,
-  propScale,
-  reconcile,
-  removeWithUndo,
-  setDown,
-} from './props.js';
+import { movable, moveSaved, propButton, propScale, reconcile, removeWithUndo, setDown } from './props.js';
 import { cue } from './sound.js';
 import { forPerson, release, rest, sendTo } from './trips.js';
 import { bubble, cheer } from './views.js';
@@ -91,87 +81,35 @@ const save = guard(async (v, point) => {
     settle: () => renderGarden(),
   });
 });
-// How far an arrow key moves a plant over the field, as it moves a tree.
-const STEPS = { ArrowLeft: [-0.03, 0], ArrowRight: [0.03, 0], ArrowUp: [0, -0.05], ArrowDown: [0, 0.05] };
 function create(plant) {
   const button = propButton('plant', plant.kind);
   // The flower's colours, for the bud and the bloom.
   button.style.cssText = colorStyle(flowerKind(plant.kind)?.colors);
   button.innerHTML = '<svg aria-hidden="true"><use/></svg>';
-  const v = { id: plant.id, button, svg: button.querySelector('svg'), use: button.querySelector('use'), art: '' };
-  v.drag = null;
-  v.busy = false;
-  // A press that goes far enough drags it to another spot; one that does not is a click.
-  button.addEventListener('pointerdown', e => {
-    // Placing a seed or a treat, the press goes through to the field.
-    if (e.button !== 0 || aiming || game || v.busy || !current(v.id)) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const f = field();
-    v.drag = beginDrag(button, e, current(v.id), {
-      width: Math.max(1, f.width - EDGE * 2),
-      height: Math.max(1, f.bottom - f.top),
-      world: scene.world,
-    });
-  });
-  button.addEventListener('pointermove', e => {
-    const drag = v.drag,
-      plant = current(v.id);
-    if (!drag || !plant) return;
-    const at = dragPoint(drag, e, drag.width, drag.height);
-    if (!at) return;
-    drag.at = at;
-    button.classList.add('dragging');
-    position(v, plant, Date.now(), at);
-  });
-  const drop = async event => {
-    const drag = endDrag(v, button, event);
-    button.classList.remove('dragging');
-    if (!drag?.moved) return;
-    // The click that follows a drag is not a press: it waters nothing.
-    v.dragged = true;
-    if (event.type === 'pointerup' && drag.at && drag.world === scene.world && !aiming && !game) await save(v, drag.at);
-    renderGarden();
+  const v = {
+    id: plant.id,
+    button,
+    svg: button.querySelector('svg'),
+    use: button.querySelector('use'),
+    art: '',
+    drag: null,
+    busy: false,
   };
-  button.addEventListener('pointerup', drop);
-  button.addEventListener('pointercancel', drop);
-  button.addEventListener('dragstart', event => event.preventDefault());
-  // A click waters it (the nearest friend walks over); placing a seed, the click plants there.
-  button.addEventListener('click', e => {
-    if (aiming) return;
-    e.stopPropagation();
-    if (v.dragged) {
-      v.dragged = false;
-      return;
-    }
-    water(plant.id);
-  });
-  // Its menu: out to the desktop, or pull it up. Aiming a treat or seed, or in a game, a plant is
-  // left alone, as a tree and a gift are.
-  button.addEventListener('contextmenu', e => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!aiming && !game) openPlantMenu(plant.id, { x: e.clientX, y: e.clientY });
-  });
-  // By keyboard: arrows move it; Delete pulls it up at once (with Undo); the menu key or Shift+F10
-  // opens its menu, as a gift's does.
-  button.addEventListener('keydown', e => {
-    if (aiming || game) return;
-    const step = STEPS[e.key],
-      now = current(v.id);
-    if (step && now) {
-      e.preventDefault();
-      return save(v, { x: clamp(now.x + step[0]), y: clamp(now.y + step[1]) });
-    }
-    if (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey)) {
-      e.preventDefault();
-      const r = button.getBoundingClientRect();
-      return openPlantMenu(plant.id, { x: r.left, y: r.bottom });
-    }
-    if (e.key === 'Delete' || e.key === 'Backspace') {
-      e.preventDefault();
-      pullPlant(plant.id);
-    }
+  // Moved as a planted tree is; its menu sends it out to the desktop or pulls it up, and Delete pulls
+  // it up at once (with Undo). A click waters it (the nearest friend walks over); placing a seed, the
+  // click plants there.
+  movable(v, {
+    current: () => current(v.id),
+    show: at => position(v, current(v.id), Date.now(), at),
+    save: at => save(v, at),
+    menu: at => openPlantMenu(v.id, at),
+    remove: () => pullPlant(v.id),
+    settle: () => renderGarden(),
+    press: e => {
+      if (aiming) return;
+      e.stopPropagation();
+      water(v.id);
+    },
   });
   return v;
 }

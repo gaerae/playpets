@@ -3,15 +3,14 @@
 // out to the desktop or removes it.
 import { openTreeMenu } from '../core/controls.js';
 import { joinList, t } from '../core/i18n.js';
-import { clamp } from '../core/math.js';
-import { aiming, call, data, game, guard } from '../core/state.js';
+import { call, data, guard } from '../core/state.js';
 import { artSvg } from './art.js';
 import { treeArt, treeKind, treeSize } from './catalog.js';
 import { groundAllows, treeStage } from './discovery-rules.js';
-import { EDGE, field, fieldToYard, measureYard, yardZoom } from './field.js';
+import { fieldToYard, measureYard, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
 import { shapeHits } from './hit-shape.js';
-import { beginDrag, dragPoint, endDrag, moveSaved, propButton, reconcile, removeWithUndo, setDown } from './props.js';
+import { movable, moveSaved, propButton, reconcile, removeWithUndo, setDown } from './props.js';
 import { scene } from './world.js';
 
 const shown = new Map();
@@ -80,63 +79,16 @@ function create(tree) {
   const button = propButton('planted-tree', tree.kind),
     view = { id: tree.id, button, drag: null, busy: false, art: null };
   button.dataset.id = tree.id;
-  button.addEventListener('pointerdown', event => {
-    if (event.button !== 0 || aiming || game || view.busy || !current(view.id)) return;
-    // As a gift's press: the webview starts no drag or selection of its own under the pointer.
-    event.preventDefault();
-    event.stopPropagation();
-    const f = field(),
-      tree = current(view.id);
-    view.drag = beginDrag(button, event, tree, {
-      width: Math.max(1, f.width - EDGE * 2),
-      height: Math.max(1, f.bottom - f.top),
-      world: scene.world,
-    });
-  });
-  button.addEventListener('pointermove', event => {
-    const drag = view.drag,
-      tree = current(view.id);
-    if (!drag || !tree || drag.world !== scene.world) return;
-    const at = dragPoint(drag, event, drag.width, drag.height);
-    if (!at) return;
-    drag.at = at;
-    button.classList.add('dragging');
-    button.classList.toggle('invalid', !groundAllows(drag.at, groundProfile({ skipTreeId: tree.id })));
-    position(view, tree, drag.at);
-  });
-  const finish = async event => {
-    const drag = endDrag(view, button, event);
-    button.classList.remove('dragging', 'invalid');
-    if (event.type === 'pointerup' && drag?.moved && drag.world === scene.world && !aiming && !game && drag.at)
-      await save(view, drag.at);
-    renderTrees();
-  };
-  button.addEventListener('pointerup', finish);
-  button.addEventListener('pointercancel', finish);
-  button.addEventListener('dragstart', event => event.preventDefault());
-  // Its menu: out to the desktop, or remove it.
-  button.addEventListener('contextmenu', event => {
-    event.preventDefault();
-    event.stopPropagation();
-    if (!aiming && !game) openTreeMenu(view.id, { x: event.clientX, y: event.clientY });
-  });
-  button.addEventListener('keydown', event => {
-    const tree = current(view.id);
-    if (!tree || aiming || game) return;
-    const step = { ArrowLeft: [-0.03, 0], ArrowRight: [0.03, 0], ArrowUp: [0, -0.05], ArrowDown: [0, 0.05] }[event.key];
-    if (step) {
-      event.preventDefault();
-      return save(view, { x: clamp(tree.x + step[0]), y: clamp(tree.y + step[1]) });
-    }
-    if (event.key === 'ContextMenu' || (event.key === 'F10' && event.shiftKey)) {
-      event.preventDefault();
-      const r = button.getBoundingClientRect();
-      return openTreeMenu(view.id, { x: r.left, y: r.bottom });
-    }
-    if (event.key === 'Delete' || event.key === 'Backspace') {
-      event.preventDefault();
-      return remove(view);
-    }
+  // Dragged, or moved with the arrow keys, only onto ground a tree may stand on; its menu sends it
+  // out to the desktop or removes it, and Delete removes it at once (with Undo).
+  movable(view, {
+    current: () => current(view.id),
+    show: at => position(view, current(view.id), at),
+    save: at => save(view, at),
+    menu: at => openTreeMenu(view.id, at),
+    remove: () => remove(view),
+    settle: renderTrees,
+    allowed: at => groundAllows(at, groundProfile({ skipTreeId: view.id })),
   });
   return view;
 }

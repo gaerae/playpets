@@ -12,9 +12,17 @@ use crate::pets::model::Pet;
 /// friend (src/yard/props.js giftSize): a friend's sprite is its size in pixels on the desktop.
 pub const DECOR_SCALE: f64 = 1.05;
 
-/// A flower's box on the desktop: its tallest drawing (40 × 60) at the yard's 1.25 pixels a unit
-/// (src/yard/garden.js UNIT), times its stature. Each stage is drawn in it standing on its foot.
+/// A flower's drawing on the desktop (40 × 60 at every stage) at the yard's 1.25 pixels a unit
+/// (src/yard/garden.js UNIT).
 const PLANT_BOX: (f64, f64) = (50.0, 75.0);
+
+/// A flower's box on the desktop at `now`: its drawing, taller once a tall kind buds, as the overlay
+/// draws it (src/overlay/growing.js). The overlay takes the pointer over the whole box, so it is no
+/// bigger than what is drawn; main.rs looks again each minute while a flower is out.
+fn plant_box(kind: &str, planted: u64, now: u64) -> (f64, f64) {
+    let tall = catalog().stature_at(kind, now.saturating_sub(planted));
+    ((PLANT_BOX.0 * tall).round(), (PLANT_BOX.1 * tall).round())
+}
 
 /// Whether the yard hides a decoration kind: one it last reported (`hidden`), or, before it reports
 /// (`None`), every kind that comes and goes.
@@ -59,17 +67,14 @@ pub fn items(pets: &[Pet], garden: &Garden, hidden: Option<&[String]>) -> Vec<It
             }
         });
     // A flower and a tree stay out whatever the yard shows: the desktop is not any one place.
+    let now = crate::app::now_ms();
     let plants = garden.plants.iter().filter(|p| p.on_desktop).map(|p| {
-        let tall = catalog().stature(&p.kind);
+        let (w, h) = plant_box(&p.kind, p.planted, now);
         Item {
             id: p.id.clone(),
             size: 0.0,
             saved: p.desktop_position.map(|q| (q.x as f64, q.y as f64)),
-            decor: Some((
-                p.kind.clone(),
-                (PLANT_BOX.0 * tall).round(),
-                (PLANT_BOX.1 * tall).round(),
-            )),
+            decor: Some((p.kind.clone(), w, h)),
         }
     });
     // A tree's box is its stage's, as the backend last grew it (discovery.rs grow_trees).
@@ -196,6 +201,19 @@ mod tests {
         assert_eq!(out[0].decor.as_ref().map(|d| d.0.as_str()), Some("snowman"));
         set(&mut pets, &mut garden, "snow", false).unwrap();
         assert!(!garden.decor[1].on_desktop);
+    }
+
+    // A flower's box is its drawing as it is now, so no empty room above a young tall flower takes
+    // the desktop's clicks; it grows when the flower buds (catalog.json garden.stages, at 120 minutes).
+    #[test]
+    fn a_tall_flower_takes_its_room_on_the_desktop_only_once_it_buds() {
+        let bud = 120 * 60 * 1000;
+        assert_eq!(plant_box("sunflower", 1000, 1000), (50.0, 75.0));
+        assert_eq!(plant_box("sunflower", 1000, 1000 + bud - 1), (50.0, 75.0));
+        assert_eq!(plant_box("sunflower", 1000, 1000 + bud), (70.0, 105.0));
+        assert_eq!(plant_box("tulip", 0, 10 * bud), (50.0, 75.0));
+        // A clock set back reads as just planted.
+        assert_eq!(plant_box("sunflower", 5000, 1000), (50.0, 75.0));
     }
 
     fn garden_with_growing() -> (Vec<Pet>, Garden) {

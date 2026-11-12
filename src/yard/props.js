@@ -4,11 +4,12 @@
 // away gently, with a moment to undo it.
 import { t } from '../core/i18n.js';
 import { clamp } from '../core/math.js';
-import { $, dropLine, toast } from '../core/state.js';
+import { $, aiming, dropLine, game, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { artSize } from './art.js';
 import { giftKind } from './catalog.js';
-import { yardZoom } from './field.js';
+import { EDGE, field, yardZoom } from './field.js';
+import { scene } from './world.js';
 
 /** Brings `shown` (id → view) in line with `items`: views of items that went are removed, new ones
  * made with `create(item)`, and every view brought up to date with `update(view, item)`. */
@@ -110,6 +111,89 @@ export function dragPoint(drag, event, width, height, bottom = 1) {
   if (!drag.moved && Math.hypot(dx, dy) < DRAG_SLOP) return null;
   drag.moved = true;
   return { x: clamp(drag.x + dx / width), y: clamp(drag.y + dy / height, 0, bottom) };
+}
+/** How far an arrow key moves a flower or a planted tree, as a share of the field: [x, y]. */
+const FIELD_STEPS = Object.freeze({
+  ArrowLeft: [-0.03, 0],
+  ArrowRight: [0.03, 0],
+  ArrowUp: [0, -0.05],
+  ArrowDown: [0, 0.05],
+});
+/** Lets a saved thing on the field (a flower, a planted tree; `view` is { id, button, drag, busy })
+ * be dragged or moved with the arrow keys, its menu be opened by a right click, the menu key or
+ * Shift+F10, and Delete take it away. `current()` is the saved thing now, or null once it is gone;
+ * `show(point)` draws it at a field point while it is dragged; `save(point)` keeps a new spot;
+ * `menu(point)` opens its menu at a window point; `remove()` takes it away; `settle()` draws the
+ * field again after a drag; `allowed(point)`, when given, marks a spot it may not stand on;
+ * `press(event)` is a click, which the click that ends a drop is not. While something is being
+ * placed, or in a game, it is left alone. */
+export function movable(view, { current, show, save, menu, remove, settle, allowed, press }) {
+  const { button } = view;
+  button.addEventListener('pointerdown', event => {
+    if (event.button !== 0 || aiming || game || view.busy || !current()) return;
+    // As a gift's press: the webview starts no drag or selection of its own under the pointer.
+    event.preventDefault();
+    event.stopPropagation();
+    const f = field();
+    view.drag = beginDrag(button, event, current(), {
+      width: Math.max(1, f.width - EDGE * 2),
+      height: Math.max(1, f.bottom - f.top),
+      world: scene.world,
+    });
+  });
+  button.addEventListener('pointermove', event => {
+    const drag = view.drag;
+    if (!drag || !current() || drag.world !== scene.world) return;
+    const at = dragPoint(drag, event, drag.width, drag.height);
+    if (!at) return;
+    drag.at = at;
+    button.classList.add('dragging');
+    if (allowed) button.classList.toggle('invalid', !allowed(at));
+    show(at);
+  });
+  const drop = async event => {
+    const drag = endDrag(view, button, event);
+    button.classList.remove('dragging', 'invalid');
+    // Only a press let go is followed by a click; after a cancel the next click is a press.
+    view.dragged = event.type === 'pointerup' && !!drag?.moved;
+    if (!drag?.moved) return;
+    if (view.dragged && drag.at && drag.world === scene.world && !aiming && !game) await save(drag.at);
+    settle();
+  };
+  button.addEventListener('pointerup', drop);
+  button.addEventListener('pointercancel', drop);
+  button.addEventListener('dragstart', event => event.preventDefault());
+  button.addEventListener('click', event => {
+    if (view.dragged) {
+      view.dragged = false;
+      event.stopPropagation();
+      return;
+    }
+    press?.(event);
+  });
+  button.addEventListener('contextmenu', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!aiming && !game) menu({ x: event.clientX, y: event.clientY });
+  });
+  button.addEventListener('keydown', event => {
+    const item = current();
+    if (!item || aiming || game) return;
+    const step = FIELD_STEPS[event.key];
+    if (step) {
+      event.preventDefault();
+      return save({ x: clamp(item.x + step[0]), y: clamp(item.y + step[1]) });
+    }
+    if (event.key === 'ContextMenu' || (event.key === 'F10' && event.shiftKey)) {
+      event.preventDefault();
+      const r = button.getBoundingClientRect();
+      return menu({ x: r.left, y: r.bottom });
+    }
+    if (event.key === 'Delete' || event.key === 'Backspace') {
+      event.preventDefault();
+      return remove();
+    }
+  });
 }
 /** Ends `view`'s drag and lets the pointer go; returns the drag that was on, or null. */
 export function endDrag(view, target, event) {
