@@ -41,7 +41,8 @@ function partBox(gift, part) {
 }
 
 /** The parts a snowman of `kind` wears, as spans over its drawing, in the catalogue's (drawing)
- * order; each is placed by its anchor's centre, so a hat may rise above the box. */
+ * order; each is placed by its anchor's centre, so a hat may rise above the box, and turned by its
+ * `turn` (degrees), as a hat sits a little askew. */
 export function dressLayers(kind, dress) {
   const gift = giftKind(kind),
     worn = new Set(dress || []);
@@ -50,7 +51,9 @@ export function dressLayers(kind, dress) {
     .filter(part => worn.has(part.id))
     .map(part => {
       const box = partBox(gift, part);
-      const style = `left:${percent(box.left)}%;top:${percent(box.top)}%;width:${percent(box.width)}%`;
+      const style =
+        `left:${percent(box.left)}%;top:${percent(box.top)}%;width:${percent(box.width)}%` +
+        (part.turn ? `;rotate:${part.turn}deg` : '');
       return `<span class="dress-part" data-part="${part.id}" style="${style}">${artSvg(part.art)}</span>`;
     })
     .join('');

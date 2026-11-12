@@ -801,8 +801,11 @@
     opacity: 0;
   }
 }
+/* A soft shade under each part, cast on the snow it rests on, so it sits on the snowman and does
+   not float over it. On the part, not its drawing, which keeps the night's and focus's filters. */
 .dress-part {
   position: absolute;
+  filter: drop-shadow(0 0.6px 0.8px rgb(70 62 96 / 0.35));
 }
 .decor .dress-part svg {
   display: block;

@@ -75,16 +75,22 @@ test('a snowman wears what it was dressed in, in drawing order', async ctx => {
     false,
     'a bench has nothing to wear',
   );
-  // A part sits by its anchor's centre: the hat's top rises above the snowman's box.
+  // A part sits by its anchor's centre: the hat's top rises above the snowman's box, and the hat
+  // sits a little askew.
   const hat = y
     .snowman()
     .children.find(c => c.classList?.contains('dress-layers'))
-    .innerHTML.match(/data-part="hat" style="left:([-\d.]+)%;top:([-\d.]+)%;width:([-\d.]+)%"/);
+    .innerHTML.match(/data-part="hat" style="left:([-\d.]+)%;top:([-\d.]+)%;width:([-\d.]+)%;rotate:([-\d.]+)deg"/);
   assert.ok(hat, 'the hat is placed');
-  const [left, top, width] = hat.slice(1).map(Number);
-  assert.equal(width, 42);
-  assert.ok(Math.abs(left - (49 - 21)) < 0.01, `left ${left}`);
+  const [left, top, width, turn] = hat.slice(1).map(Number);
+  assert.equal(width, 46);
+  assert.ok(Math.abs(left - (49 - 23)) < 0.01, `left ${left}`);
   assert.ok(top < 0, `the hat's top (${top}%) rises above the box`);
+  assert.equal(turn, -7);
+  // It rests on the crown: its brim ends above the eyes, 19% down the snowman (54 x 70), not over
+  // its brow. The hat's drawing is 59 x 45.
+  const bottom = top + (width * 54 * 45) / (59 * 70);
+  assert.ok(bottom < 17, `the brim ends ${bottom}% down, above the eyes`);
 });
 
 test('the dress tray puts things on and takes them off, saving each change', async ctx => {
