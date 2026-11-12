@@ -246,7 +246,7 @@ test('furniture blocks the end of a stroll, as a tree does', t => {
   assert.equal(blocked(1536 * 0.3, 1024 * 0.62), false);
 });
 
-test("a desk's front is drawn over a friend whose feet are behind its foot line", t => {
+test("a desk's front is drawn over a friend whose feet are behind its foot line", async t => {
   inOffice(t);
   const [front] = frontsIn(1536, 1024);
   assert.deepEqual(
@@ -264,12 +264,19 @@ test("a desk's front is drawn over a friend whose feet are behind its foot line"
       height: 1024 * 0.1,
     },
   );
-  // Friends are layered by where their feet are (views.js place); a friend at the desk is behind.
-  const a = friend('a');
-  const seated = at(a, 0.3, 0.55),
-    before = at(a, 0.3, 0.65);
-  assert.ok(1 + Math.round(seated.y * 100) < front.z, 'seated, behind the desk');
-  assert.ok(1 + Math.round(before.y * 100) > front.z, 'in front of it, in front');
+  // Friends are layered by where their feet are (views.js place, depthAt): a friend seated at the
+  // desk, its feet 10px behind the front's foot line, is under it; 10px in front, over it.
+  const { place } = await import('../src/yard/views.js');
+  const foot = 1024 * 0.6;
+  for (const [gap, over] of [
+    [-10, false],
+    [10, true],
+  ]) {
+    const a = friend('a');
+    Object.assign(a, at(a, 0.3, (foot + gap) / 1024));
+    place(a);
+    assert.equal(a.z > front.z, over, `${gap}px from the foot line`);
+  }
 });
 
 test("a friend seated at a desk wears its tag at its feet, on the desk's front, not over its face", async t => {

@@ -166,3 +166,8 @@ New `geometry.stations` in `worlds.json`, in source-image fractions like `geomet
 - Sitting costs one check a frame (`sitOut`). A friend gets up when its time is over or the place changes. The yard draws no more often: a seated friend stands still.
 - Outdoors, and in a room without stations, nothing changes.
 - The sprites have no sitting pose. A friend at the bench stands in front of it, as a waiting friend does.
+
+## Follow-up: depth after 1.6.1 (2026-11-12)
+
+- 1.6.1 orders friends by their feet on the field (`field.js depthAt`), as plants and gifts are. A front's layer is now `depthAt` of its foot line too (`workspace.js frontsIn`). With the old walking-range scale, a friend 10px behind a table was drawn over its front.
+- A friend left behind the dock is lifted to stand just above it (`views.js clearOfDock`), on a resize and after a drop. Stations stay clear of the dock (`duty.js inLine`), so a friend at a seat, the bench or the tea table is not moved.

@@ -80,7 +80,8 @@
   transition-duration: 0.08s;
 }
 /* A walking friend bobs at each step and leans into it, on the compositor (yard/motion.js); a
-   stroll's steps are slower. Before the dizzy spin, which wins over it. */
+   stroll's steps are slower. It moves translate and rotate, so a press (transform) still squashes
+   it. Before the dizzy spin, which wins over it. */
 .yard-pet.walking > canvas {
   animation: stroll 0.3s ease-in-out infinite alternate;
 }
@@ -89,13 +90,16 @@
 }
 @keyframes stroll {
   0% {
-    transform: rotate(-2deg);
+    translate: 0 0;
+    rotate: -2deg;
   }
   50% {
-    transform: translateY(-2.5%) rotate(0deg);
+    translate: 0 -2.5%;
+    rotate: 0deg;
   }
   100% {
-    transform: rotate(2deg);
+    translate: 0 0;
+    rotate: 2deg;
   }
 }
 /* A friend spun round three times (touches.js) turns once more on its own, wobbles to a stop and

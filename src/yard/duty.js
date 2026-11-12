@@ -8,7 +8,7 @@ import { t } from '../core/i18n.js';
 import { call, data, game, toast, views } from '../core/state.js';
 import { agentStateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
-import { EDGE, footTarget, geometry, petHeight, sizeOf, underDock } from './field.js';
+import { dockBox, EDGE, footTarget, geometry, petHeight, sizeOf, underDock } from './field.js';
 import { release, rest, sendTo } from './trips.js';
 import { stationAt, stations } from './workspace.js';
 
@@ -88,11 +88,12 @@ export function inLine(v, kind, at) {
     size = sizeOf(v.pet),
     step = Math.min(0.5, size / Math.max(1, w)),
     feet = top + at.y * h + petHeight(v.pet),
-    taken = [...views.values()].filter(o => o !== v && o.spot?.kind === kind).map(o => o.spot.x);
+    taken = [...views.values()].filter(o => o !== v && o.spot?.kind === kind).map(o => o.spot.x),
+    dock = dockBox();
   for (let i = 0; i <= 2 / step; i++) {
     const x = at.x + (i % 2 ? (i + 1) / 2 : -i / 2) * step;
     if (x < 0 || x > 1 || taken.some(other => Math.abs(other - x) < step * 0.9)) continue;
-    if (underDock(EDGE + x * w + size / 2, feet, size / 2)) continue;
+    if (underDock(EDGE + x * w + size / 2, feet, size / 2, dock)) continue;
     v.spot = { kind, x, y: at.y };
     return { x, y: at.y };
   }

@@ -159,6 +159,19 @@ test('waiting friends stand side by side nearest the middle, never behind the do
   const spot = frontSpot(d),
     px = EDGE + spot.x * w + sizeOf(d.pet) / 2;
   assert.ok(px + sizeOf(d.pet) / 2 <= 300 || px - sizeOf(d.pet) / 2 >= 500);
+  // The dock is measured once for all the places tried, not once a place.
+  let measured = 0;
+  globalThis.document.querySelector = selector =>
+    selector === '.yard-dock'
+      ? {
+          getBoundingClientRect: () => {
+            measured++;
+            return { left: 300, top: 500, width: 200, height: 42 };
+          },
+        }
+      : null;
+  frontSpot(d);
+  assert.equal(measured, 1);
 });
 
 test('a friend busy with its agent is passed over by what friends start, not by the person', t => {
