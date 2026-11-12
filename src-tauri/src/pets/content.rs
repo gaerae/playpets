@@ -33,6 +33,17 @@ struct Kind {
     /// A gift's footprint, [width, height] in catalogue units.
     #[serde(default)]
     size: Option<[f64; 2]>,
+    /// A planted tree's stages, each with the size it is drawn at when its own differs.
+    #[serde(default)]
+    stages: Vec<SizedStage>,
+    /// How much taller a flower stands than others once grown.
+    #[serde(default)]
+    stature: Option<f64>,
+}
+#[derive(Deserialize)]
+struct SizedStage {
+    #[serde(default)]
+    size: Option<[f64; 2]>,
 }
 #[derive(Deserialize)]
 struct DressPart {
@@ -167,6 +178,9 @@ pub struct Catalog {
     pub tracks: Vec<Track>,
     #[serde(default)]
     shoots: Vec<Kind>,
+    /// A planted tree's drawn size at each stage, when its stage names none.
+    #[serde(default, rename = "treeSizes")]
+    tree_sizes: Vec<[f64; 2]>,
 }
 
 fn events() -> &'static Events {
@@ -242,6 +256,21 @@ impl Catalog {
     }
     pub fn is_tree(&self, id: &str) -> bool {
         self.trees.iter().any(|kind| kind.id == id)
+    }
+    /// A planted tree's drawn size at `stage` (0 to 2), before the yard's zoom.
+    pub fn tree_size(&self, id: &str, stage: usize) -> Option<(f64, f64)> {
+        let kind = self.trees.iter().find(|k| k.id == id)?;
+        let own = kind.stages.get(stage).and_then(|s| s.size);
+        let [w, h] = own.or_else(|| self.tree_sizes.get(stage).copied())?;
+        Some((w, h))
+    }
+    /// How much taller a grown flower stands (1 for most).
+    pub fn stature(&self, id: &str) -> f64 {
+        self.flowers
+            .iter()
+            .find(|k| k.id == id)
+            .and_then(|k| k.stature)
+            .unwrap_or(1.0)
     }
     pub fn is_uncommon_treasure(&self, id: &str) -> bool {
         self.treasures
@@ -422,6 +451,22 @@ mod tests {
             assert!(c.gift_size(gift).is_some(), "{gift}");
         }
         assert_eq!(c.gift_size("no-such-gift"), None);
+    }
+
+    // The desktop draws a planted tree at its stage's size, from the table the yard reads.
+    #[test]
+    fn every_tree_has_a_size_at_each_stage_and_flowers_their_stature() {
+        let c = catalog();
+        assert_eq!(c.tree_size("cherry", 0), Some((35.0, 40.0)));
+        assert_eq!(c.tree_size("cherry", 2), Some((160.0, 170.0)));
+        for tree in c.trees.iter().map(|k| k.id.as_str()) {
+            let sizes: Vec<_> = (0..3).map(|stage| c.tree_size(tree, stage).unwrap()).collect();
+            assert!(sizes.windows(2).all(|w| w[0].1 < w[1].1), "{tree} grows taller");
+        }
+        assert_eq!(c.tree_size("cherry", 3), None);
+        assert_eq!(c.tree_size("bench", 0), None);
+        assert_eq!(c.stature("sunflower"), 1.4);
+        assert_eq!(c.stature("tulip"), 1.0);
     }
 
     #[test]

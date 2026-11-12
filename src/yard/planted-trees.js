@@ -1,10 +1,12 @@
 // Planted trees belong to their saved world. Their roots stay at the saved field coordinate;
-// growing or resizing changes only the drawing above that foot.
+// growing or resizing changes only the drawing above that foot. Dragged to move; its menu sends it
+// out to the desktop or removes it.
+import { openTreeMenu } from '../core/controls.js';
 import { joinList, t } from '../core/i18n.js';
 import { clamp } from '../core/math.js';
 import { aiming, call, data, game, guard } from '../core/state.js';
 import { artSvg } from './art.js';
-import { treeKind, treeSize } from './catalog.js';
+import { treeArt, treeKind, treeSize } from './catalog.js';
 import { groundAllows, treeStage } from './discovery-rules.js';
 import { EDGE, field, fieldToYard, measureYard, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
@@ -21,7 +23,7 @@ function position(view, tree, point = tree) {
     kind = treeKind(tree.kind),
     drawing = kind?.stages[stage];
   if (!drawing) return;
-  const art = (stage === 2 && kind.seasonArt?.[scene.season]) || drawing.art;
+  const art = treeArt(tree.kind, stage, scene.season);
   if (view.art !== art) {
     view.button.innerHTML = artSvg(art);
     view.art = art;
@@ -53,7 +55,12 @@ const save = guard(async (view, point) => {
   }
 });
 
-// Pulled up at once with a moment to undo it (props.js); the backend removes it only after that.
+/** Removes a planted tree at once, with a moment to undo it (props.js); the backend removes it only
+ * after that. Its menu (core/controls.js) and Delete come here. */
+export function removeTree(id) {
+  const view = shown.get(id);
+  if (view) remove(view);
+}
 const remove = view => {
   const tree = current(view.id);
   if (!tree || view.busy) return;
@@ -75,6 +82,8 @@ function create(tree) {
   button.dataset.id = tree.id;
   button.addEventListener('pointerdown', event => {
     if (event.button !== 0 || aiming || game || view.busy || !current(view.id)) return;
+    // As a gift's press: the webview starts no drag or selection of its own under the pointer.
+    event.preventDefault();
     event.stopPropagation();
     const f = field(),
       tree = current(view.id);
@@ -104,10 +113,12 @@ function create(tree) {
   };
   button.addEventListener('pointerup', finish);
   button.addEventListener('pointercancel', finish);
+  button.addEventListener('dragstart', event => event.preventDefault());
+  // Its menu: out to the desktop, or remove it.
   button.addEventListener('contextmenu', event => {
     event.preventDefault();
     event.stopPropagation();
-    if (!aiming && !game) return remove(view);
+    if (!aiming && !game) openTreeMenu(view.id, { x: event.clientX, y: event.clientY });
   });
   button.addEventListener('keydown', event => {
     const tree = current(view.id);
@@ -116,6 +127,11 @@ function create(tree) {
     if (step) {
       event.preventDefault();
       return save(view, { x: clamp(tree.x + step[0]), y: clamp(tree.y + step[1]) });
+    }
+    if (event.key === 'ContextMenu' || (event.key === 'F10' && event.shiftKey)) {
+      event.preventDefault();
+      const r = button.getBoundingClientRect();
+      return openTreeMenu(view.id, { x: r.left, y: r.bottom });
     }
     if (event.key === 'Delete' || event.key === 'Backspace') {
       event.preventDefault();

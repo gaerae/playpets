@@ -224,6 +224,22 @@ pub struct Plant {
     /// Whether its flower has been counted in the album.
     #[serde(default)]
     pub bloomed: bool,
+    /// Out on the desktop too, as a gift can be (src-tauri/src/desktop/).
+    #[serde(
+        rename = "onDesktop",
+        default,
+        deserialize_with = "super::or_default",
+        skip_serializing_if = "std::ops::Not::not"
+    )]
+    pub on_desktop: bool,
+    /// Where it was last left on the desktop, in logical screen pixels.
+    #[serde(
+        rename = "desktopPosition",
+        default,
+        deserialize_with = "super::or_default",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub desktop_position: Option<super::model::Pos>,
 }
 
 /// Things kept on the field (plants, decorations) as state.json has them: the ones of a kind there
@@ -518,6 +534,8 @@ impl Garden {
             y,
             planted: now,
             bloomed: false,
+            on_desktop: false,
+            desktop_position: None,
         };
         self.seeds -= 1;
         self.plants.push(plant.clone());
@@ -531,6 +549,20 @@ impl Garden {
         if self.plants.len() == before {
             return Err(i18n::t("error.plant_missing"));
         }
+        Ok(())
+    }
+
+    /// Moves a plant to another spot on the field; it keeps growing as it was.
+    pub fn move_plant(&mut self, id: &str, x: f64, y: f64) -> Result<(), String> {
+        let (Some(x), Some(y)) = (place(x), place(y)) else {
+            return Err(i18n::t("error.bad_request"));
+        };
+        let plant = self
+            .plants
+            .iter_mut()
+            .find(|p| p.id == id)
+            .ok_or_else(|| i18n::t("error.plant_missing"))?;
+        (plant.x, plant.y) = (x, y);
         Ok(())
     }
 
@@ -1140,6 +1172,45 @@ mod tests {
         assert_eq!(g.pull(&id), Ok(()));
         assert!(g.pull(&id).is_err(), "pulled already");
         assert_eq!(g.plants.len(), PLANT_MAX - 1);
+    }
+
+    #[test]
+    fn a_plant_moves_to_another_spot_on_the_field_and_keeps_its_growth() {
+        let mut g = Garden {
+            seeds: 1,
+            ..Default::default()
+        };
+        let id = g.plant("tulip", 0.5, 0.5, 7).unwrap().id;
+        assert_eq!(g.move_plant(&id, 0.2, 0.9), Ok(()));
+        let p = &g.plants[0];
+        assert_eq!((p.x, p.y, p.planted), (0.2, 0.9, 7));
+        // Kept on the field, as planting is.
+        assert_eq!(g.move_plant(&id, -1.0, 3.0), Ok(()));
+        assert_eq!((g.plants[0].x, g.plants[0].y), (0.0, 1.0));
+        assert!(g.move_plant(&id, f64::NAN, 0.5).is_err());
+        assert!(g.move_plant("gone", 0.5, 0.5).is_err());
+    }
+
+    #[test]
+    fn a_plant_out_on_the_desktop_stays_out_across_a_restart() {
+        let mut g = Garden {
+            seeds: 1,
+            ..Default::default()
+        };
+        g.plant("tulip", 0.5, 0.5, 1).unwrap();
+        g.plants[0].on_desktop = true;
+        g.plants[0].desktop_position = Some(super::super::model::Pos { x: 40, y: 700 });
+        let saved = serde_json::to_value(&g).unwrap();
+        assert_eq!(saved["plants"][0]["onDesktop"], true);
+        assert_eq!(saved["plants"][0]["desktopPosition"]["x"], 40);
+        let back = Garden::restore(Some(&saved), 0);
+        assert!(back.plants[0].on_desktop);
+        assert_eq!(back.plants[0].desktop_position, g.plants[0].desktop_position);
+        // One that never went out writes neither.
+        g.plants[0].on_desktop = false;
+        g.plants[0].desktop_position = None;
+        let plain = serde_json::to_value(&g).unwrap();
+        assert!(plain["plants"][0].get("onDesktop").is_none() && plain["plants"][0].get("desktopPosition").is_none());
     }
 
     #[test]

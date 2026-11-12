@@ -345,6 +345,13 @@ static COMMANDS: &[Command] = &[
             d.garden.plant(c.text(0), x, y, now).map(|p| json!(p))
         })
     }),
+    // (id, x, y): a plant moved to another spot on the field.
+    main("movePlant", |c| {
+        let (x, y) = (c.float(1), c.float(2));
+        commit(c.app, &c.state, |d| {
+            d.garden.move_plant(c.text(0), x, y).map(|_| Value::Null)
+        })
+    }),
     main("pullPlant", |c| {
         commit(c.app, &c.state, |d| d.garden.pull(c.text(0)).map(|_| Value::Null))
     }),
@@ -741,6 +748,7 @@ mod tests {
             "plantTree",
             "moveTree",
             "removeTree",
+            "movePlant",
             "growTrees",
             "setOnDesktop",
             "hideDecor",

@@ -133,9 +133,13 @@ What flowers depends on the season you planted it in, with four kinds per season
 
 Hover over a plant to see what it is and how long until it flowers. Click it and the nearest friend walks over to water it. Friends also go and look at the flowers on their own.
 
-To pull a plant up, right-click it or press **Delete** or **Backspace** on it. It goes at once, without a question. The notice at the bottom shows **Undo** for about six seconds, and Undo puts the plant back.
+Drag a plant to move it, or use the arrow keys on it. It keeps growing where you put it.
+
+To pull a plant up, right-click it and choose **Pull up**, or press **Delete** or **Backspace** on it. It goes at once, without a question. The notice at the bottom shows **Undo** for about six seconds, and Undo puts the plant back.
 
 Only after that is the plant gone for good. If the app closes first, it stays. The seed doesn't come back.
+
+The same right-click menu has **Show on desktop**, for a plant or a tree, so it grows on your desk too ([Desktop mode](./desktop.md#flowers-and-trees-on-the-desktop)).
 
 - Limits: 20 seeds and 24 plants.
 - Saved as `garden` in `state.json`.
@@ -314,7 +318,7 @@ Daisy, Pip and Miso wear the same everyday outfits in spring and autumn, and cha
 - A mature tree is recorded once in **Album → Trees**.
 - Each place holds six trees, up to twenty-four overall. Trees stay in the place where they were planted.
 - Drag a tree to move it.
-- To remove one at once, right-click it or press **Delete** on it. As with flowers, **Undo** in the notice brings it back for about six seconds. Its album entry stays, but no sapling comes back.
+- To remove one at once, right-click it and choose **Remove**, or press **Delete** on it. As with flowers, **Undo** in the notice brings it back for about six seconds. Its album entry stays, but no sapling comes back.
 - Indoor places don't offer digging or tree planting. Imported backgrounds can explicitly allow or turn off soil.
 
 ### Footprints in the snow

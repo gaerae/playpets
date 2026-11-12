@@ -1,5 +1,6 @@
-// What is out on the desktop: each friend and each decoration says so itself (Pet::on_desktop,
-// Decor::on_desktop), and stays in the yard as well. The overlay draws these; the one switch in the
+// What is out on the desktop: each friend, decoration, flower and planted tree says so itself
+// (Pet::on_desktop, Decor::on_desktop, Plant::on_desktop, Tree::on_desktop), and stays in the yard
+// as well. The overlay draws these; the one switch in the
 // menus sends every friend out, or brings everything in.
 use super::overlay::Item;
 use crate::i18n;
@@ -10,6 +11,10 @@ use crate::pets::model::Pet;
 /// How much bigger a decoration is drawn than its catalogue footprint, as the yard draws it beside a
 /// friend (src/yard/props.js giftSize): a friend's sprite is its size in pixels on the desktop.
 pub const DECOR_SCALE: f64 = 1.05;
+
+/// A flower's box on the desktop: its tallest drawing (40 × 60) at the yard's 1.25 pixels a unit
+/// (src/yard/garden.js UNIT), times its stature. Each stage is drawn in it standing on its foot.
+const PLANT_BOX: (f64, f64) = (50.0, 75.0);
 
 /// Whether the yard hides a decoration kind: one it last reported (`hidden`), or, before it reports
 /// (`None`), every kind that comes and goes.
@@ -23,7 +28,10 @@ fn left_out(kind: &str, hidden: Option<&[String]>) -> bool {
 /// Whether anything is out on the desktop (what the menus' switch shows). A decoration the yard
 /// hides does not count: nothing of it is drawn.
 pub fn anything_out(pets: &[Pet], garden: &Garden, hidden: Option<&[String]>) -> bool {
-    pets.iter().any(|p| p.on_desktop) || garden.decor.iter().any(|d| d.on_desktop && !left_out(&d.kind, hidden))
+    pets.iter().any(|p| p.on_desktop)
+        || garden.decor.iter().any(|d| d.on_desktop && !left_out(&d.kind, hidden))
+        || garden.plants.iter().any(|p| p.on_desktop)
+        || garden.trees.iter().any(|t| t.on_desktop)
 }
 
 /// What the overlay draws: the friends out, then the decorations out, each with its last place. A
@@ -50,7 +58,31 @@ pub fn items(pets: &[Pet], garden: &Garden, hidden: Option<&[String]>) -> Vec<It
                 decor: Some((d.kind.clone(), (w * DECOR_SCALE).round(), (h * DECOR_SCALE).round())),
             }
         });
-    friends.chain(decor).collect()
+    // A flower and a tree stay out whatever the yard shows: the desktop is not any one place.
+    let plants = garden.plants.iter().filter(|p| p.on_desktop).map(|p| {
+        let tall = catalog().stature(&p.kind);
+        Item {
+            id: p.id.clone(),
+            size: 0.0,
+            saved: p.desktop_position.map(|q| (q.x as f64, q.y as f64)),
+            decor: Some((
+                p.kind.clone(),
+                (PLANT_BOX.0 * tall).round(),
+                (PLANT_BOX.1 * tall).round(),
+            )),
+        }
+    });
+    // A tree's box is its stage's, as the backend last grew it (discovery.rs grow_trees).
+    let trees = garden.trees.iter().filter(|t| t.on_desktop).filter_map(|t| {
+        let (w, h) = catalog().tree_size(&t.kind, usize::from(t.stage.min(2)))?;
+        Some(Item {
+            id: t.id.clone(),
+            size: 0.0,
+            saved: t.desktop_position.map(|q| (q.x as f64, q.y as f64)),
+            decor: Some((t.kind.clone(), w, h)),
+        })
+    });
+    friends.chain(decor).chain(plants).chain(trees).collect()
 }
 
 /// The menus' switch: with anything out, everything comes in; otherwise every friend goes out.
@@ -65,29 +97,43 @@ pub fn flip(pets: &mut [Pet], garden: &mut Garden, hidden: Option<&[String]>) ->
         for d in garden.decor.iter_mut().filter(|d| !left_out(&d.kind, hidden)) {
             d.on_desktop = false;
         }
+        for p in garden.plants.iter_mut() {
+            p.on_desktop = false;
+        }
+        for t in garden.trees.iter_mut() {
+            t.on_desktop = false;
+        }
     }
     out
 }
 
-/// Sends one friend or decoration out to the desktop, or brings it in.
+/// Sends one friend, decoration, flower or planted tree out to the desktop, or brings it in.
 pub fn set(pets: &mut [Pet], garden: &mut Garden, id: &str, on: bool) -> Result<(), String> {
     if let Some(p) = pets.iter_mut().find(|p| p.id == id) {
         p.on_desktop = on;
     } else if let Some(d) = garden.decor.iter_mut().find(|d| d.id == id) {
         d.on_desktop = on;
+    } else if let Some(p) = garden.plants.iter_mut().find(|p| p.id == id) {
+        p.on_desktop = on;
+    } else if let Some(t) = garden.trees.iter_mut().find(|t| t.id == id) {
+        t.on_desktop = on;
     } else {
         return Err(i18n::t("error.bad_request"));
     }
     Ok(())
 }
 
-/// Keeps where a friend or a decoration was left on the desktop.
+/// Keeps where a friend, decoration, flower or planted tree was left on the desktop.
 pub fn place(pets: &mut [Pet], garden: &mut Garden, id: &str, x: i64, y: i64) {
     let at = Some(crate::pets::model::Pos { x, y });
     if let Some(p) = pets.iter_mut().find(|p| p.id == id) {
         p.desktop_position = at;
     } else if let Some(d) = garden.decor.iter_mut().find(|d| d.id == id) {
         d.desktop_position = at;
+    } else if let Some(p) = garden.plants.iter_mut().find(|p| p.id == id) {
+        p.desktop_position = at;
+    } else if let Some(t) = garden.trees.iter_mut().find(|t| t.id == id) {
+        t.desktop_position = at;
     }
 }
 
@@ -150,6 +196,61 @@ mod tests {
         assert_eq!(out[0].decor.as_ref().map(|d| d.0.as_str()), Some("snowman"));
         set(&mut pets, &mut garden, "snow", false).unwrap();
         assert!(!garden.decor[1].on_desktop);
+    }
+
+    fn garden_with_growing() -> (Vec<Pet>, Garden) {
+        let (pets, mut garden) = yard();
+        garden.seeds = 1;
+        garden.plant("sunflower", 0.5, 0.5, 1).unwrap();
+        garden.plants[0].id = "sun".into();
+        garden.trees.push(crate::pets::discovery::Tree {
+            id: "cherry".into(),
+            world: "meadow".into(),
+            kind: "cherry".into(),
+            x: 0.5,
+            y: 0.5,
+            planted: 1,
+            stage: 0,
+            matured: false,
+            on_desktop: false,
+            desktop_position: None,
+        });
+        (pets, garden)
+    }
+
+    // Everything the yard shows can go out: a flower and a planted tree too, drawn at the yard's size.
+    #[test]
+    fn a_flower_and_a_planted_tree_go_out_and_come_back_in() {
+        let (mut pets, mut garden) = garden_with_growing();
+        set(&mut pets, &mut garden, "sun", true).unwrap();
+        set(&mut pets, &mut garden, "cherry", true).unwrap();
+        assert!(garden.plants[0].on_desktop && garden.trees[0].on_desktop);
+        assert!(anything_out(&pets, &garden, Some(&[])));
+        let out = items(&pets, &garden, Some(&[]));
+        assert_eq!(out.iter().map(|i| i.id.as_str()).collect::<Vec<_>>(), ["sun", "cherry"]);
+        // A flower's box is its grown drawing's, taller for a tall kind; a tree's is its stage's.
+        assert_eq!(out[0].decor, Some(("sunflower".into(), 70.0, 105.0)));
+        assert_eq!(out[1].decor, Some(("cherry".into(), 35.0, 40.0)));
+        garden.trees[0].stage = 2;
+        assert_eq!(
+            items(&pets, &garden, Some(&[]))[1].decor,
+            Some(("cherry".into(), 160.0, 170.0))
+        );
+        // A tree of another place stays out: the desktop is not any one place.
+        assert_eq!(items(&pets, &garden, None).len(), 2);
+        place(&mut pets, &mut garden, "sun", 40, 700);
+        place(&mut pets, &mut garden, "cherry", 300, 500);
+        let out = items(&pets, &garden, Some(&[]));
+        assert_eq!(
+            (out[0].saved, out[1].saved),
+            (Some((40.0, 700.0)), Some((300.0, 500.0)))
+        );
+        set(&mut pets, &mut garden, "sun", false).unwrap();
+        assert_eq!(items(&pets, &garden, Some(&[])).len(), 1);
+        // The switch brings everything in, the tree too, and keeps where each was left.
+        assert!(!flip(&mut pets, &mut garden, Some(&[])));
+        assert!(!garden.trees[0].on_desktop && garden.trees[0].desktop_position.is_some());
+        assert!(!anything_out(&pets, &garden, Some(&[])));
     }
 
     #[test]

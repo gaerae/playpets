@@ -88,6 +88,17 @@ test('the menu has one Settings entry, and right-click offers the same places as
     [...context.matchAll(/data-context-for="decor" data-context-action="([^"]+)"/g)].map(match => match[1]),
     ['desktop-decor', 'dress-decor', 'put-away'],
   );
+  // A flower and a planted tree too: out to the desktop, or pulled up.
+  for (const [what, remove] of [
+    ['plant', 'pull-plant'],
+    ['tree', 'remove-tree'],
+  ])
+    assert.deepEqual(
+      [...context.matchAll(new RegExp(`data-context-for="${what}" data-context-action="([^"]+)"`, 'g'))].map(
+        match => match[1],
+      ),
+      [`desktop-${what}`, remove],
+    );
   assert.match(html, /id="compact-launcher"[^>]*aria-controls="yard-context-menu"/);
 });
 

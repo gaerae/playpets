@@ -30,7 +30,7 @@ Both switches show their current state, and the menu stays open while you adjust
 | Pat | Left-click a friend once |
 | Move | Drag a friend and drop them. Another monitor works too |
 | Chat | Point at a friend: its name shows below it with a speech mark. Click the name and the yard window opens on that friend's chat |
-| Menu | Right-click a friend for **Talk to** the friend or **Take off the desktop**. A gift's menu has **Take off the desktop** |
+| Menu | Right-click a friend for **Talk to** the friend or **Take off the desktop**. A gift's, a flower's and a tree's menu has **Take off the desktop** |
 | Eye contact | Move the mouse over a resting friend's face, and their eyes follow it. Only v2 pets with 16-direction gaze artwork can do this |
 
 A double-click does nothing, so no window opens by accident while you move a friend. The first time you send something out, a notice tells you how to chat and how to bring it back.
@@ -44,6 +44,16 @@ Decorate your desk with the gifts from your yard. Right-click a gift in the yard
 - Drag a gift to move it, onto another monitor too. It stays where you leave it.
 - Friends strolling on the desktop walk over to a gift now and then, stand beside it and say something about it.
 - Putting a gift away in the yard takes it off the desktop too. A gift that came before can be set out again from the album ([Gifts](./play.md#gifts)).
+
+## Flowers and trees on the desktop <Since v="1.6.1" /> {#flowers-and-trees-on-the-desktop}
+
+A flower or a tree you planted can go out on the desktop too. Right-click it in the yard and choose **Show on desktop**. It stays in the yard as well.
+
+- It grows on the desktop as it does in the yard. Send out a sprout and it flowers on your desk.
+- A grown tree wears the season the yard shows.
+- A tree from another place stays out whichever place the yard shows.
+- Drag it to move it, as a gift. Friends strolling on the desktop walk over to it now and then.
+- Pull it up or remove it in the yard and it leaves the desktop too.
 
 ## Friends on every monitor <Since v="0.1.0" />
 

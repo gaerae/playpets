@@ -1,7 +1,7 @@
 import { poseClock } from '../core/animation.js';
 import { setupInteractions } from '../core/interactions.js';
-// The desktop overlay page, one per monitor: it draws the friends and gifts the backend places on
-// this monitor and reports presses and drags. Positions, drags and strolls are worked out in
+// The desktop overlay page, one per monitor: it draws the friends, gifts, flowers and planted trees
+// the backend places on this monitor and reports presses and drags. Positions, drags and strolls are worked out in
 // overlay.rs; a right click asks the backend for its menu (menu.rs desktop_choices).
 
 import { lookAt } from '../core/animation.js';
@@ -18,6 +18,7 @@ import { plain } from '../core/text.js';
 import { every, everyMinute } from '../core/ticker.js';
 import { artSvg, loadArt } from '../yard/art.js';
 import { giftKind, useCatalog } from '../yard/catalog.js';
+import { drawGrowing, growing, growingArt, visitKey } from './growing.js';
 import { wear, wearArt } from './wear.js';
 
 setupInteractions();
@@ -25,9 +26,10 @@ document.documentElement.lang = language();
 const api = window.playPets,
   displayId = window.__DISPLAY,
   views = new Map(),
-  // Gifts out on the desktop: nothing on them moves; what they wear changes with the garden.
+  // Gifts, flowers and planted trees out on the desktop: nothing on them moves; a flower or a tree
+  // is drawn again when it grows, and what a gift wears changes with the garden.
   decorations = new Map();
-// The catalogue the yard draws gifts by, and what they wear.
+// The catalogue the yard draws gifts, flowers and trees by, and what gifts wear.
 const catalogue = fetch('content/catalog.json')
   .then(r => r.json())
   .then(useCatalog)
@@ -43,11 +45,15 @@ let data = { pets: [], assets: [], statuses: {} },
   layout = [];
 const nameOf = v => displayName(v.pet, v.asset, t('friend.default'));
 const south = systemSouth();
+// The season the yard shows, which a grown tree wears here too.
+let season = null;
 const seasonChanged = setupSeason({
   // As the yard reads it (yard/sky.js): a season the app could not save is still in the webview.
   read: () => sceneValue('season', data),
-  apply: season => {
-    if (setSpriteSeason(season)) render();
+  apply: next => {
+    const turned = next !== season;
+    season = next;
+    if (setSpriteSeason(next) || turned) render();
   },
   minute: everyMinute,
   south,
@@ -138,18 +144,43 @@ function create(pet) {
   };
   return view;
 }
-// A gift out on the desktop: dragged to move, and its menu takes it off the desktop.
+// A flower or a tree out here, drawn again if it grew or the season turned (growing.js).
+function regrow(v) {
+  const thing = v.growing && growing(data.garden, v.id);
+  if (thing) drawGrowing(v, thing, season);
+}
+// A gift, a flower or a planted tree out on the desktop: dragged to move, and its menu takes it off
+// the desktop.
 function createDecor(id, kind) {
   const wrap = document.createElement('div'),
     button = document.createElement('button');
   wrap.className = 'decor-wrap';
   button.className = 'decor';
-  button.title = t(`decor.kind_${kind}`);
-  button.setAttribute('aria-label', button.title);
+  // A flower or a tree is named once it is drawn, by its stage (growing.js).
+  if (!growing(data.garden, id)) {
+    button.title = t(`decor.kind_${kind}`);
+    button.setAttribute('aria-label', button.title);
+  }
   wrap.append(button);
   document.getElementById('friends').append(wrap);
-  const view = { id, wrap, button, kind, drag: null, drawn: false, worn: null, dressLayer: null };
+  const view = {
+    id,
+    wrap,
+    button,
+    kind,
+    drag: null,
+    growing: false,
+    look: null,
+    drawn: false,
+    worn: null,
+    dressLayer: null,
+  };
   catalogue.then(async () => {
+    if (growing(data.garden, id)) {
+      await loadArt(growingArt(kind));
+      view.growing = true;
+      return regrow(view);
+    }
     const art = giftKind(kind)?.art;
     if (!art) return;
     await loadArt(wearArt(kind));
@@ -199,6 +230,7 @@ function renderDecor(local) {
       v = createDecor(position.id, position.decor);
       decorations.set(position.id, v);
     }
+    regrow(v);
     if (v.drawn) wear(v, data.garden);
     v.wrap.style.visibility = 'visible';
     v.wrap.style.width = `${position.width}px`;
@@ -321,8 +353,9 @@ api.onEvent(event => {
   if (event.type === 'status') applyStatus(data, event);
   for (const [id, v] of views) {
     if (event.petId && event.petId !== id) continue;
-    // A friend that strolled over to a gift says something that fits it, as in the yard.
-    if (event.type === 'visit') say(v, pick(list(`decor.visit_${event.kind}`)) || '');
+    // A friend that strolled over to a gift, a flower or a tree says something that fits it, as in
+    // the yard.
+    if (event.type === 'visit') say(v, pick(list(visitKey(event.kind))) || '');
     if (event.type === 'status') {
       v.status = stateOf(data, id);
       say(v, event.message);
@@ -361,9 +394,10 @@ if (result.ok) {
   // Standing cells last 110-320 ms, so ten frames a second show every one of them.
   every(100, animate);
   // A finished agent's state fades after a while, as in the yard; nothing else here may draw the
-  // friends again for hours, so the page looks each minute.
+  // friends again for hours, so the page looks each minute. A flower out here grows by the clock.
   let looked = Date.now();
   everyMinute(() => {
+    for (const v of decorations.values()) regrow(v);
     const now = Date.now();
     if (fadedBetween(data, looked, now)) render();
     looked = now;

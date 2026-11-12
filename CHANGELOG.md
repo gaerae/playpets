@@ -10,8 +10,14 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- A flower or a planted tree can go out on the desktop: right-click it in the yard and choose **Show on desktop**. It grows there as in the yard, a grown tree wears the yard's season, and friends strolling on the desktop walk over to it.
+- Flowers can be moved: drag one, or use the arrow keys on it. It keeps growing where you put it.
+
 ### Changed
 
+- Right-clicking a flower or a planted tree opens its menu, with **Show on desktop** and **Pull up** or **Remove**, instead of pulling it up at once. **Delete** still pulls it up at once, with Undo.
 - Friends farther back in the yard look a little smaller, bob along as they walk and settle as they stop, and no longer stroll onto a tree or a flower.
 - Friends walk all the way down to the foot of the yard, with their name tags still in view, and do not stop behind the tools in the corner.
 - Outdoors, trees and flowers sway in the breeze. Indoors, and with reduced motion, they stay still.
@@ -49,6 +55,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The guide's first-friend page no longer says a double-click opens the conversation.
 - Right after a release is published, the website's download buttons offer it, instead of the previous release until the next site update.
 - The website's moving friends load smaller pictures, drawn at the size the page shows them, and each friend's `playpets-<name>.zip` now carries the same lossless WebP sheets the app uses, about a third smaller.
+- The desktop guide explains flowers and trees on the desktop, and the yard guide says how to move a flower and where pulling up and removing went.
 
 ## [1.6.0] - 2026-11-10
 

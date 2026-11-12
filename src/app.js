@@ -71,14 +71,14 @@ import {
   setupDiscovery,
   syncDiscovery,
 } from './yard/discovery.js';
-import { renderGarden, setupGarden } from './yard/garden.js';
+import { pullPlant, renderGarden, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { setupLetterCard } from './yard/letter-card.js';
 import { answered, letterPress, letterReadable, openReadable, setupLetters, syncLetter } from './yard/letter.js';
 import { moveFriends } from './yard/motion.js';
 import { drawTreeOrnaments } from './yard/ornaments.js';
 import { petalTick, setupPetals, wishAt } from './yard/petals.js';
-import { renderTrees, setupTrees } from './yard/planted-trees.js';
+import { removeTree, renderTrees, setupTrees } from './yard/planted-trees.js';
 import { after, endGame, gameTap, judge, playGame, setupPlay, startGame, syncGameUi } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
 import { cancelShootDigs, renderShoots, setupShoots, shootsMinute } from './yard/shoots.js';
@@ -133,6 +133,8 @@ setupTabs({ beforeOpen: cancelDiscovery });
 setupControls({
   openChat,
   putAway,
+  pullPlant,
+  removeTree,
   dress: openDress,
   canDress,
   canDigAt,

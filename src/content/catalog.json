@@ -1419,6 +1419,11 @@
       "art": "bugs/katydid.svg"
     }
   ],
+  "treeSizes": [
+    [35, 40],
+    [70, 95],
+    [160, 170]
+  ],
   "trees": [
     {
       "id": "cherry",
