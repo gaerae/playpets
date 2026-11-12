@@ -15,7 +15,7 @@ test('the maintained skill runs outside the checkout and produces an app-readabl
   const dest = await mkdtemp(join(tmpdir(), 'playpets-installed-skill-'));
   try {
     await cp(root, dest, { recursive: true });
-    await cp('assets/art/environments/studio-cozy-day.png', join(dest, 'scene.png'));
+    await cp('assets/sources/environments/studio-cozy-day.png', join(dest, 'scene.png'));
     await writeFile(join(dest, 'layout.json'), JSON.stringify({ name: 'Independent studio', floor: 0.67 }));
     const result = spawnSync(
       python,

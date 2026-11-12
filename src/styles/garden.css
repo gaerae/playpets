@@ -23,6 +23,14 @@
   inset: 0;
   pointer-events: none;
 }
+/* An agent workspace's furniture front (yard/fronts.js): the picture's own pixels over a seated
+   friend, which clicks pass through. */
+.furniture-front {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
 .plant {
   position: absolute;
   left: 0;
@@ -33,8 +41,8 @@
   cursor: pointer;
   pointer-events: auto;
 }
-/* A portable garden sits in ceramic pots when its place has an indoor floor. */
-.yard[data-sky="false"] .plant::after {
+/* A portable garden sits in ceramic pots on a floor without soil (a room, an agent workspace). */
+.yard[data-soil="false"] .plant::after {
   content: "";
   position: absolute;
   left: 0;
@@ -45,15 +53,15 @@
   pointer-events: none;
 }
 /* Early-stage soil sits inside the pot mouth; blossoms already end at their stem. */
-.yard[data-sky="false"] .plant:not([data-stage="bloom"]) svg {
+.yard[data-soil="false"] .plant:not([data-stage="bloom"]) svg {
   position: relative;
   top: -12%;
 }
 /* The pot shares the flower's light instead of retaining its daytime ceramic white. */
-.yard[data-sky="false"].period-evening .plant::after {
+.yard[data-soil="false"].period-evening .plant::after {
   filter: brightness(0.88) saturate(0.85);
 }
-.yard[data-sky="false"].period-night .plant::after {
+.yard[data-soil="false"].period-night .plant::after {
   filter: url(#night-tint);
 }
 .plant svg {
@@ -811,12 +819,12 @@
 }
 /* The breeze: outdoors, trees and flowers past the seed lean a little one way and back about their
    foot, on the compositor; a flower, lighter, more and sooner. Each takes its beat from its place
-   among the garden's things, so they do not sway together. Indoors the air is still, and gifts
+   among the garden's things, so they do not sway together. On a floor without soil (indoors) the air is still, and gifts
    (and what is hung on them) stay put. */
-.yard:not([data-sky="false"]) .planted-tree svg {
+.yard:not([data-soil="false"]) .planted-tree svg {
   animation: breeze 7s ease-in-out var(--sway, 0s) infinite alternate;
 }
-.yard:not([data-sky="false"]) .plant:not([data-stage="seed"]) svg {
+.yard:not([data-soil="false"]) .plant:not([data-stage="seed"]) svg {
   animation: breeze-flower 4.6s ease-in-out var(--sway, 0s) infinite alternate;
 }
 .garden-layer > :nth-child(3n + 1) {
@@ -842,8 +850,8 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .yard:not([data-sky="false"]) .planted-tree svg,
-  .yard:not([data-sky="false"]) .plant:not([data-stage="seed"]) svg {
+  .yard:not([data-soil="false"]) .planted-tree svg,
+  .yard:not([data-soil="false"]) .plant:not([data-stage="seed"]) svg {
     animation: none;
   }
 }
@@ -858,7 +866,7 @@
   pointer-events: all;
 }
 /* An indoor flower's pot is drawn outside its drawing, and is part of the flower. */
-.yard[data-sky="false"] .plant.shaped::after {
+.yard[data-soil="false"] .plant.shaped::after {
   pointer-events: auto;
 }
 .planted-tree.dragging {

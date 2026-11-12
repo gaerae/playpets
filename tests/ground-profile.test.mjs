@@ -94,7 +94,7 @@ test('flower and tree roots exclude only current-world trees and skip the tree b
     trees: [
       { id: 'here', world: 'meadow', kind: 'cherry', x: 0.5, y: 0.5 },
       { id: 'moving', world: 'meadow', kind: 'pine', x: 0.7, y: 0.5 },
-      { id: 'away', world: 'studio', kind: 'maple', x: 0.9, y: 0.5 },
+      { id: 'away', world: 'workshop', kind: 'maple', x: 0.9, y: 0.5 },
     ],
   };
   const profile = base({ garden, skipTreeId: 'moving' });
@@ -155,7 +155,7 @@ test('live snapshot reads the measured field, current world and saved garden', t
   const { nodes } = installDom(t, { ids: ['yard'] });
   nodes.get('yard').getBoundingClientRect = () => ({ width: 1000, height: 700 });
   measureYard();
-  scene.world = 'studio';
+  scene.world = 'workshop';
   assert.equal(groundProfile().soil, false);
   scene.world = 'woodland';
   setData({ ...before, garden: { plants: [{ x: 0.2, y: 0.8 }] } });

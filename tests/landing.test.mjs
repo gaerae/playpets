@@ -216,8 +216,10 @@ test('the landing offers four places, outdoor seasons and an explicitly labelled
   }
   const preview = read('website/.vitepress/theme/WorldPreview.vue');
   assert.match(preview, /:aria-pressed=/);
-  // Indoors has no season, so the season choices stay in place but cannot be pressed.
-  assert.match(preview, /:disabled="place === 3"/);
+  // The garden workshop has one picture and no season, so the season choices stay in place but
+  // cannot be pressed.
+  assert.match(preview, /place\.value === 3 \? 'workshop' : null/);
+  assert.match(preview, /:disabled="place >= 3"/);
   // The desktop has neither, so its row says why instead of showing dead chips.
   assert.match(preview, /v-if="loose" class="dock-row"><p class="dock-note">\{\{ words.desktopNote \}\}/);
   assert.doesNotMatch(preview, /v-if="place !== 3"/);

@@ -46,7 +46,7 @@ PLAYPETS_PET=Pip claude
 
 ## What you see in the yard <Since v="0.1.0" />
 
-A friend with an agent carries the agent's name on its name tag (Clover, Claude Code), and the chip under its name in the Friend panel shows it too. The small dot by the friend's head is the agent's state. Hover over it to see the name.
+A friend with an agent carries the agent's name on its name tag (Clover, Claude Code), and the chip under its name in the Friend panel shows it too. The small dot on its name tag, beside its name, is the agent's state. Hover over it to see the name.
 
 | Dot | State | How long it stays |
 |---|---|---|
@@ -56,6 +56,21 @@ A friend with an agent carries the agent's name on its name tag (Clover, Claude 
 | Red | Trouble | Fades after 30 minutes |
 
 The pill in the Friend panel shows the agent's state as well. Chat answers go to the log.
+
+### Where friends go {#where-friends-go}
+
+A friend also shows its agent's state in what it does.
+
+| State | Outdoor places | Garden workshop |
+|---|---|---|
+| Working | Stops where it is and works | Sits at a long table |
+| Waiting | Comes to the front of the yard | Waits by the bell at the front |
+| Done | Strolls again | Rests by the tea table until the agent's next step |
+| Trouble | Stops where it is | Stays in its seat |
+
+- Friends waiting together stand side by side.
+- With more working friends than seats, the others work beside a table.
+- In a short, wide window that leaves the tables out, a friend works where it stands.
 
 ## What happens <Since v="0.1.0" />
 

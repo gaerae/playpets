@@ -30,7 +30,7 @@ import { createMoments } from './sky-moments.js';
 import { soundScene } from './sound.js';
 import { seasonPickedByHand } from './winter.js';
 import { scene, scenery, setScenery } from './world.js';
-import { worldAllows, worldFor, worlds } from './worlds.js';
+import { replacedBy, worldAllows, worldFor, worlds } from './worlds.js';
 
 // The painted backdrop, made with the weather canvas.
 let easel = null;
@@ -252,6 +252,7 @@ export function setupSky(options = {}) {
     showSeason(choice);
   };
   scene.world = worldFor(saved.world).id;
+  if (replacedBy(saved.world)) keepScene('world', scene.world);
   $('world').replaceChildren(
     ...worlds.map(world => {
       const option = document.createElement('option');

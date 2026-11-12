@@ -80,18 +80,18 @@ test('setupSky hands world and season changes to the entry point, around its own
   assert.equal(scene.weather, 'clear');
   log.length = 0;
 
-  nodes.get('world').value = 'studio';
+  nodes.get('world').value = 'workshop';
   nodes.get('world').onchange();
   assert.equal(log[0], 'leaving:woodland');
-  assert.equal(log.at(-1), 'entered:studio');
+  assert.equal(log.at(-1), 'entered:workshop');
   assert.ok(
     log.slice(1, -1).every(entry => entry.startsWith('season:')),
     'the scene repaints between the two halves',
   );
   await settled();
-  assert.equal(kept.world, 'studio');
+  assert.equal(kept.world, 'workshop');
   assert.equal(storage.getItem('world'), null, 'not in the webview');
-  assert.ok(nodes.get('yard').classList.contains('world-studio'));
+  assert.ok(nodes.get('yard').classList.contains('world-workshop'));
 
   log.length = 0;
   nodes.get('scene-season').value = 'winter';

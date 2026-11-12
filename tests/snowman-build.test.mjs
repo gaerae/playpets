@@ -154,9 +154,9 @@ test('the play menu offers a snowman only while the yard shows winter', async ct
   play.syncGameUi();
   assert.equal(y.row().hidden, true);
   scene.season = 'winter';
-  scene.world = 'studio';
+  scene.world = 'workshop';
   play.syncGameUi();
-  assert.equal(y.row().hidden, true, 'the cozy living room has no snow');
+  assert.equal(y.row().hidden, true, 'the garden workshop has no snow');
 });
 
 test('a snowman built today or a full yard gets a friend’s line, and nothing starts', async ctx => {
@@ -655,10 +655,10 @@ test('with the yard full and no snowman, a friend says so instead, once a day', 
   assert.deepEqual(across(y, 30 * MIN), []);
 });
 
-test('nothing is suggested in autumn, in the cozy living room, during a game, while aiming, or while a friend is busy', async ctx => {
+test('nothing is suggested in autumn, in the garden workshop, during a game, while aiming, or while a friend is busy', async ctx => {
   const cases = {
     autumn: () => (scene.season = 'autumn'),
-    'the cozy living room': () => (scene.world = 'studio'),
+    'the garden workshop': () => (scene.world = 'workshop'),
     'a game': () => start(),
     aiming: () => state.setAiming('treat'),
     'a busy friend': () => (state.views.get('b').target = { x: 0, y: 0 }),

@@ -18,7 +18,7 @@ export const copy = {
   releaseLabel: 'バージョンとリリースノート',
 };
 export const worldCopy = {
-  places: ['丘の庭', '石造りの中庭', '湖畔の家', 'くつろぎのリビング'],
+  places: ['丘の庭', '石造りの中庭', '湖畔の家', 'ガーデン工房'],
   seasons: ['春', '夏', '秋', '冬'],
   greetings: {
     daisy: 'あの角の向こうに、すてきなものがあるかも。',

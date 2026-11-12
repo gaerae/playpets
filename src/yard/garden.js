@@ -182,7 +182,7 @@ function visited(v) {
 export function visitTarget(v) {
   const blooms = (data.garden?.plants || []).filter(p => stageOf(p.planted, Date.now()).name === 'bloom');
   if (!blooms.length || Math.random() > 0.3) return null;
-  walkTo(v, pick(blooms), { arrive: visited, slow: true });
+  walkTo(v, pick(blooms), { arrive: visited, slow: true, own: true });
   return v.target;
 }
 /** Pulls a plant up at once, with a moment to undo it (props.js); the backend removes it only after

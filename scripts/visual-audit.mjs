@@ -225,11 +225,11 @@ try {
     for (const period of ['morning', 'day', 'evening', 'night']) {
       for (const choice of ['clear', 'rain', 'snow']) {
         await page.evaluate(
-          args => window.auditScene('winter', args[0], args[1], 'lights', [], 'studio'),
+          args => window.auditScene('winter', args[0], args[1], 'lights', [], 'workshop'),
           [period, choice],
         );
         await page.waitForTimeout(400);
-        await shot(`studio-${period}-${choice}-${scheme}`);
+        await shot(`workshop-${period}-${choice}-${scheme}`);
       }
     }
   }
@@ -243,7 +243,7 @@ try {
     await page.evaluate(on => document.body.classList.toggle('mini', on), mini);
     await page.waitForTimeout(300);
     await page.evaluate(() => window.auditTick());
-    await shot(`studio-${mini ? 'mini' : 'size'}-${width}-${height}`);
+    await shot(`workshop-${mini ? 'mini' : 'size'}-${width}-${height}`);
   }
   await page.setViewportSize({ width: 1180, height: 780 });
   await page.emulateMedia({ colorScheme: 'light' });

@@ -105,3 +105,27 @@
 - Portable background files: [Add a place](../../../docs/how-to/add-a-world.md#portable-backgrounds).
 - The retired `studio-modern-city-*` images are kept in `assets/sources/environments/`
   and are no longer bundled as runtime art.
+
+## Agent workspaces (2026-11-12)
+
+- `office.png` (Sunny office) and `workshop.png` (Garden workshop) were made with the built-in image generation tool, with the existing places and companions as style references.
+- Briefs, not verbatim prompts:
+  - **Office:** a warm loft office from a gentle high three-quarter angle; two long low tables with two chairs each on the far side, only books, paper and a pen cup on them; shelves, a coffee corner, a tea corner (round rug, cushions, teapot, cookies, a checkers board) and a cushioned waiting bench at the front with a call bell and a small lamp; tall windows across the back wall.
+  - **Workshop:** a glass-roofed workshop, half greenhouse, half pergola; two long potting tables with two stools each, only notebooks, seed packets, a trowel and seedlings on them; hanging tools, a tea corner under the vines and a garden bench at the front with a call bell and a lantern.
+  - Both: furniture at the friends' size, an open middle floor, no laptops or screens, no characters, text, letters or logos.
+  - Each was made from the room's first picture as a reference, with the living room and the friends for style and scale. The first pictures (four desks with laptops, a reception desk, a post) were replaced before release.
+- The window glass is transparent, so the app's live sky and weather show through it.
+- No scripted repainting was used. Seats, fronts, blocks and window panes were measured on the pictures and live in `src/content/worlds.json`.
+- SHA-256:
+  - `office.png`: `b3f793dd6dd9812b2921d870c909a40d46fd0449d14c5c356d1be0825d88520a`
+  - `workshop.png`: `c228ffa2a713ebc32cb5b1031119fe7e6c62371f13ef446b267e4d796bc925a2`
+
+
+## Follow-up: one workshop (2026-11-12)
+
+- The office was dropped and the workshop replaced the living room. `office.png` and the `studio-cozy-*` and `studio-view-*` pictures moved to `assets/sources/environments/` and are no longer bundled.
+- `workshop.png` was recomposed from itself with the built-in image generation tool (an edit with the picture as input), so it keeps its camera, glass roof, vines, wall and light.
+- Brief, not the verbatim prompt: move the two potting tables and the tea corner down a little, and the bench with its bell post and lantern down to the front; leave open floor to the right of the post and in the bottom-right quarter; keep the furniture's size; no characters, text or logos.
+- The edit returned the glass without transparency. The rows above 28.5% of the height were copied from the previous picture with its exact alpha, blended into the edit over the next 4%; no pixels were painted.
+- Seats, fronts and blocks were measured again on the new picture (`src/content/worlds.json`).
+- SHA-256 of `workshop.png`: `07c772909e1b901069a2c4831a4de4444722c6b6cba5386cd68402fa65ffd403`

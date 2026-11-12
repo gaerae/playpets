@@ -189,15 +189,20 @@ export const strings = {
   'world.label': 'Place',
   'world.woodland': 'Hill garden',
   'world.woodland.about': 'Fish by the pond, catch bugs and grow flowers with your friends.',
-  'world.studio': 'Cozy living room',
-  'world.studio.about':
-    'Chat, play and plant indoors while rain or snow passes outside. Visit the gardens for fishing and bugs.',
-  'world.studio.lines': [
-    'This little room feels so cozy.',
-    'Let’s sit by the window for a while.',
-    'That lamp makes everything feel softer.',
-    'I like having you here with me.',
+  'world.workshop': 'Garden workshop',
+  'world.workshop.about':
+    'A workshop full of potted plants under a glass roof, where friends sort seeds at the long tables, have tea under the vines and play checkers. A friend linked to a coding agent works at the tables and comes to the garden bench at the front when the agent needs you. The sky and the weather show through the glass.',
+  'world.workshop.lines': [
+    'Working among the plants is so calming.',
+    'The sun comes right through the roof.',
+    'Tea break, maybe?',
+    'I think this pot needs water.',
   ],
+  'lounge.desk': ['This book is really good.', 'Nice and quiet in here.', 'Just one more page.'],
+  'lounge.done': ['Lovely tea.', 'One more cookie, maybe?', 'It’s cozy here.'],
+  'lounge.invite': ['Fancy some tea?', 'Want a cookie?', 'Game of checkers?'],
+  'lounge.reply': ['Sure!', 'I’ll have one too.', 'I’m winning this time.'],
+  'lounge.waiting': ['Just resting my feet.', 'Comfy bench.', 'I can see everyone from here.'],
   'app.title': 'PlayPets, Pet yard',
   'app.home': 'PlayPets home',
   'app.tagline': 'Friends who talk to each other',

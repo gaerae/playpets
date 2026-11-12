@@ -35,7 +35,7 @@ test('December asks once a year, in a place with seasons, when the yard is not w
   assert.equal(winterAsk(d(2027, 12, 5), false, 'spring', { year: 2026, previous: null }, true), true);
   assert.equal(winterAsk(d(2026, 11, 30), false, 'spring', null, true), false);
   assert.equal(winterAsk(d(2027, 1, 3), false, 'spring', null, true), false);
-  assert.equal(winterAsk(d(2026, 12, 5), false, 'spring', null, false), false, 'not in the studio');
+  assert.equal(winterAsk(d(2026, 12, 5), false, 'spring', null, false), false, 'not in the garden workshop');
 });
 
 test('the season before comes back from January 8 of the next year', () => {
@@ -112,7 +112,7 @@ test('after January 7 the backend brings the season back and the yard shows it',
   assert.equal(asks.length, 0);
 });
 
-test('nothing is asked while the window is hidden or in the studio', async t => {
+test('nothing is asked while the window is hidden or in the garden workshop', async t => {
   const hidden = yard(t, { now: d(2026, 12, 5) });
   hidden.document.hidden = true;
   hidden.check();
@@ -120,11 +120,11 @@ test('nothing is asked while the window is hidden or in the studio', async t => 
   await flush();
   assert.equal(hidden.asks.length, 0, 'not while the window is hidden');
   t.mock.timers.reset();
-  const studio = yard(t, { now: d(2026, 12, 5), world: 'studio' });
-  studio.check();
-  studio.check();
+  const room = yard(t, { now: d(2026, 12, 5), world: 'workshop' });
+  room.check();
+  room.check();
   await flush();
-  assert.equal(studio.asks.length, 0, 'not in the studio');
+  assert.equal(room.asks.length, 0, 'not in the garden workshop');
   assert.deepEqual(answers, []);
   t.mock.timers.reset();
   const unseen = yard(t, { now: d(2026, 12, 5), visible: () => false });

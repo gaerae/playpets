@@ -17,7 +17,7 @@ export const copy = {
   releaseLabel: '版本与更新说明',
 };
 export const worldCopy = {
-  places: ['山丘花园', '石板庭院', '湖畔小屋', '温馨客厅'],
+  places: ['山丘花园', '石板庭院', '湖畔小屋', '花园工坊'],
   seasons: ['春天', '夏天', '秋天', '冬天'],
   greetings: {
     daisy: '转个弯，说不定就有惊喜呢！',

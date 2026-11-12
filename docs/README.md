@@ -131,6 +131,7 @@ New here? Read in this order.
 
 Records are dated and never rewritten. When two disagree, the later one holds. The five records of 2026-10-11 and 2026-10-12 consolidate that period's design work ([decision](decisions/2026-10-13-design-records.md)).
 
+- [Agent workspaces](design/2026-11-11-agent-workspaces.md) (2026-11-11): what a friend does for each coding-agent state in every place, and the garden workshop built around desks, an approval spot by the bell and a rest corner.
 - [The website](design/2026-10-12-website.md) (2026-10-12): four languages and their parity, the world-first landing, the companion gallery, the creator studio, release pages and captures.
 - [In-app creation studio proposal](design/2026-10-17-in-app-studio.md) (2026-10-17): unimplemented, with a follow-up on the current web KIT and SKILL handoff. The maintained workflow is in [Edit and check the website](how-to/website.md#creation-kit-and-skill).
 - [Places: Woodland and Window studio](design/2026-10-11-places.md) (2026-10-11): the place registry, capabilities, floor geometry and fit, authored lighting, weather behind window panes and switching places.

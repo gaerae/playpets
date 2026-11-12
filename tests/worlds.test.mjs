@@ -11,26 +11,20 @@ test('unknown and removed saved worlds fall back to woodland', () => {
   assert.equal(worldFor(null).id, 'woodland');
 });
 
-test('studio disables outdoor effects and pond geometry in every light and weather', () => {
-  const room = worldFor('studio');
-  assert.equal(room.geometry.fieldTop, 0.76);
+test('the garden workshop keeps outdoor life out under its glass, and shows the sky and weather through it', () => {
+  const room = worldFor('workshop');
+  assert.equal(room.capabilities.sky, true);
   assert.equal(room.capabilities.weather, true);
-  assert.equal(room.windowPanes.length, 10);
-  for (const capability of ['sky', 'wildlife', 'fishing', 'seasonalEffects', 'ambient'])
+  assert.ok(room.windowPanes.length > 0, 'rain and snow fall in its glass only');
+  for (const capability of ['soil', 'wildlife', 'fishing', 'seasonalEffects', 'ambient'])
     assert.equal(room.capabilities[capability], false, capability);
-  for (const period of ['morning', 'day', 'evening', 'night'])
+  for (const season of ['spring', 'summer', 'autumn', 'winter'])
     for (const weather of ['clear', 'rain', 'snow']) {
-      const scene = { world: 'studio', period, weather, season: 'winter' };
-      assert.equal(environmentLook(scene).art, `studio-cozy-${period}`);
+      const scene = { world: 'workshop', period: 'day', weather, season };
+      assert.equal(environmentLook(scene).art, 'workshop');
       assert.equal(environmentLake(1000, 700, scene), null);
       assert.deepEqual(mixFor(scene), { breeze: 0, leaves: 0, water: 0, rain: 0, birds: 0, crickets: 0 });
     }
-});
-
-test('studio night stays warm and readable rather than applying outdoor moonlight', () => {
-  const look = environmentLook({ world: 'studio', period: 'night', weather: 'clear', season: 'summer' });
-  assert.equal(look.filter, 'none');
-  assert.equal(look.tint, null);
 });
 
 test('woodland retains seasonal art, outdoor sounds and the visible pond', () => {
@@ -41,7 +35,7 @@ test('woodland retains seasonal art, outdoor sounds and the visible pond', () =>
   assert.equal(worldFor('woodland').capabilities.fishing, true);
 });
 
-test('switching to the clear studio removes existing creatures and stops weather frame work', async () => {
+test('switching to the clear workshop removes existing creatures and stops weather frame work', async () => {
   const { createScenery } = await import('../src/yard/scenery.js');
   let draws = 0;
   const ctx = new Proxy(
@@ -63,7 +57,7 @@ test('switching to the clear studio removes existing creatures and stops weather
   globalThis.window = { devicePixelRatio: 1 };
   try {
     const weather = createScenery(canvas, { matches: false });
-    weather.set('night', 'clear', 'winter', 'lights', 'studio');
+    weather.set('night', 'clear', 'winter', 'lights', 'workshop');
     weather.resize();
     weather.frame(900000, 120);
     assert.equal(draws, 0, 'no weather, stars, leaves or wildlife are painted in the room');
@@ -79,7 +73,7 @@ test('the indoor floor cannot expose an outdoor pond click region', async () => 
   const { onLake } = await import('../src/yard/catch.js');
   const { scene } = await import('../src/yard/world.js');
   const previous = scene.world;
-  scene.world = 'studio';
+  scene.world = 'workshop';
   try {
     for (const [x, y] of [
       [550, 416],

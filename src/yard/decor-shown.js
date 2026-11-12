@@ -24,7 +24,7 @@ const shows = (gift, md, season) => {
 };
 
 /** The season the yard shows in `scene` (world.js), or null in a place with no seasons to show
- * (worlds.json `seasonalEffects`), such as the studio: no snow there, so no snowman either. The
+ * (worlds.json `seasonalEffects`), such as the garden workshop: no snow there, so no snowman either. The
  * one answer to "does the yard show winter", for the gifts, the album and December's question. */
 export function yardSeason(scene) {
   return worldAllows(scene.world, 'seasonalEffects') ? scene.season : null;

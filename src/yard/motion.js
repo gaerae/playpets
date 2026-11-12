@@ -10,12 +10,15 @@ import { aiming, call, data, game, toast, views } from '../core/state.js';
 import { stateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
 import { decorTarget } from './decor.js';
+import { keepDuty } from './duty.js';
 import { dockBox, EDGE, geometry, petHeight, sizeOf, underDock, yardToField } from './field.js';
 import { visitTarget } from './garden.js';
 import { groundProfile } from './ground.js';
+import { loungeTarget, sitOut } from './lounge.js';
 import { sendTo } from './trips.js';
 import { place, pose } from './views.js';
 import { idleAction, strollClear, WANDER_DELAY, wanderTarget } from './wander.js';
+import { blocked } from './workspace.js';
 
 // How far a friend walks in a millisecond, in field units: strolling, and going somewhere.
 export const STROLL = 0.00022;
@@ -29,13 +32,19 @@ const feetInYard = (v, at) => {
   const { w, h, top } = geometry(v.pet);
   return [EDGE + at.x * w + sizeOf(v.pet) / 2, top + at.y * h + petHeight(v.pet)];
 };
-// A stroll the ground allows: around the lake, not onto a tree, a flower or a gift, and not to a
-// stop behind the dock. The dock is measured once for all the tries.
+// A stroll the ground allows: around the lake, not onto a tree, a flower, a gift or a workspace's
+// furniture, and not to a stop behind the dock. The dock is measured once for all the tries.
 function dryStroll(v) {
   const ground = groundProfile(),
     dock = dockBox();
-  return (from, to) =>
-    !underDock(...feetInYard(v, to), sizeOf(v.pet) / 2, dock) && strollClear(feetAt(v, from), feetAt(v, to), ground);
+  return (from, to) => {
+    const feet = feetInYard(v, to);
+    return (
+      !underDock(...feet, sizeOf(v.pet) / 2, dock) &&
+      !blocked(...feet) &&
+      strollClear(feetAt(v, from), feetAt(v, to), ground)
+    );
+  };
 }
 // A walking friend bobs at each step (friends.css .walking), more slowly on a stroll. Written only
 // when it changes; with reduced motion a friend does not walk, it is set down where it goes.
@@ -52,6 +61,8 @@ const SETTLE = [{ scale: '1.05 0.95' }, { scale: '1' }];
 export function moveFriends(now, dt) {
   for (const [id, v] of views) {
     if (game) clearCompanionAction(v);
+    sitOut(v, now);
+    keepDuty(v);
     const walking = !!v.target && !v.drag && !v.frozen && !reduced.matches;
     stepping(v, walking, !!v.trip?.slow && !v.speed);
     if (v.target && !v.drag && !v.frozen) {
@@ -79,13 +90,22 @@ export function moveFriends(now, dt) {
         pose(v, dx >= 0 ? 'right' : 'left', 150);
         place(v);
       }
-    } else if (!v.drag && !v.doing && !aiming && !game && !v.away && !reduced.matches && now >= v.nextWander) {
+    } else if (
+      !v.drag &&
+      !v.doing &&
+      !v.duty &&
+      !aiming &&
+      !game &&
+      !v.away &&
+      !reduced.matches &&
+      now >= v.nextWander
+    ) {
       const quiet = document.body.classList.contains('compact');
       const action = idleAction(Math.random, quiet);
       if (action.type === 'pose') pose(v, action.pose, 1200);
-      else if (!visitTarget(v) && !decorTarget(v)) {
+      else if (!loungeTarget(v, now) && !visitTarget(v) && !decorTarget(v)) {
         const target = wanderTarget({ x: v.x, y: v.y }, Math.random, dryStroll(v));
-        if (target) sendTo(v, target, { slow: true });
+        if (target) sendTo(v, target, { slow: true, own: true });
       }
       v.nextWander = now + between(Math.random, WANDER_DELAY) * (quiet ? 1.8 : 1);
     }

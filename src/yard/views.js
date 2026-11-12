@@ -208,7 +208,7 @@ export function place(v) {
   }
   // Farther back is smaller, about the feet, and so is where it is pressed. The tag stays its size
   // under the feet: the label starts where the shrunk body does, its body room shrinks with it, and
-  // what sits on the head (the line, the agent's dot, a petal) goes by the head shrunk the same
+  // what sits on the head (the line, a petal) goes by the head shrunk the same
   // way (--depth, friends.css). Rounded, so a step does not write it again.
   const depth = Math.round(depthScale(v.y) * 100) / 100;
   if (v.depth !== depth) {
@@ -269,7 +269,7 @@ function createView(p) {
   tagBond.className = 'tag-bond';
   tagBond.setAttribute('aria-hidden', 'true');
   agents.hidden = true;
-  tag.append(talkMark, tagName, tagBond, agents);
+  tag.append(talkMark, tagName, dot, tagBond, agents);
   dot.className = 'pet-state-dot';
   bubble.className = 'yard-bubble';
   bubble.hidden = true;
@@ -282,7 +282,7 @@ function createView(p) {
   // The body button already says the name and state; the label is what the eye reads.
   label.setAttribute('aria-hidden', 'true');
   body.className = 'label-body';
-  label.append(bubble, thinking, body, tag, dot);
+  label.append(bubble, thinking, body, tag);
   button.append(c);
   $('pet-layer').append(button);
   $('label-layer').append(label);
@@ -466,7 +466,8 @@ export function syncViews() {
     }
     v.pet = p;
     v.asset = asset(p);
-    if (!v.drag && !v.target && !v.away) {
+    // A friend at a spot for its agent (the front, a desk) stands away from its own place (duty.js).
+    if (!v.drag && !v.target && !v.away && !v.spot) {
       v.x = p.x;
       v.y = p.y;
     }

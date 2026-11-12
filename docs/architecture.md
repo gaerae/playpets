@@ -199,13 +199,14 @@ Format:
 | Hill garden | `woodland` |
 | Stone courtyard | `courtyard` |
 | Lakeside cottage | `lakeside` |
-| Cozy living room | `studio` |
+| Garden workshop | `workshop` |
 
 - Each describes its activity capabilities, floor and pond geometry, lighting images and window panes.
 - `yard/environment.js` paints the accepted raster backdrop. `easel.js` keeps the procedural loading/error fallback.
 - `weatherPanes` clips indoor rain, snow and overcast shading to the authored windows.
 - Outdoor places support fishing and bugs.
-- The living room keeps friends, garden, gifts and games, without those outdoor activities.
+- The garden workshop keeps friends, garden (in pots), gifts and games, without those outdoor activities. Its glass shows the live sky and weather.
+- A saved `studio` (the retired living room) opens the garden workshop (`REPLACED` in `yard/worlds.js`); the retired office opens the hill garden like any unknown id.
 - Changing places ends active trips and games rather than transferring their old geometry.
 - Imported background packages use the same capability and geometry contract.
 

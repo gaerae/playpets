@@ -60,7 +60,7 @@ This switch is in Friends & AI too. It's off by default and needs no AI connecti
 A friend doesn't dig on its own:
 - during a game
 - while you hold a tool
-- in places without soil, such as Cozy living room
+- in places without soil, such as Garden workshop
 
 ## About PlayPets <Since v="0.1.0" />
 

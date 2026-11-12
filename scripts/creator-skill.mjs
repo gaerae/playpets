@@ -64,12 +64,13 @@ export async function copyCreatorSkill(destination = 'website/public/creator-kit
       backgroundSheet({ indoor: id === 'interior', ...backgroundLayout(id) }),
     );
   }
+  // The interior example is the retired living room's daylight picture, kept with the sources.
   for (const [id, file] of [
-    ['garden', 'green'],
-    ['lakeside', 'lakeside-spring'],
-    ['interior', 'studio-cozy-day'],
+    ['garden', 'art/environments/green'],
+    ['lakeside', 'art/environments/lakeside-spring'],
+    ['interior', 'sources/environments/studio-cozy-day'],
   ])
-    await cp(`assets/art/environments/${file}.png`, `${destination}/${id}.png`);
+    await cp(`assets/${file}.png`, `${destination}/${id}.png`);
   return revision;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await copyCreatorSkill();

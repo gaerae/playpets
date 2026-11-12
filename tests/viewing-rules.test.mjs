@@ -24,7 +24,7 @@ test('blossom time is a fair spring day of the festival in a place with seasons'
     { season: 'summer' },
     { event: 'harvest' },
     { event: null },
-    { world: 'studio' },
+    { world: 'workshop' },
   ])
     assert.equal(viewingTime({ ...fair, ...change }), false, JSON.stringify(change));
 });

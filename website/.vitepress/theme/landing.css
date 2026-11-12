@@ -1586,6 +1586,9 @@ html[lang^="ja"] .landing {
   min-height: 0;
   flex: 1;
   object-fit: cover;
+  /* The rooms' glass is clear: the app draws its live sky behind it, so the site shows the day sky
+     (scenery.css). Pictures with a painted sky cover it. */
+  background: linear-gradient(#74b6e6, #b0daf2 34%, #eef6ef 60%);
   user-select: none;
   -webkit-user-select: none;
 }

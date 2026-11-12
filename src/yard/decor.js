@@ -310,8 +310,9 @@ function tellDesktop(hidden) {
   });
 }
 
-// Sends a friend to a decoration: onto the bench or the blanket, beside the others.
-function walkTo(v, d) {
+// Sends a friend to a decoration: onto the bench or the blanket, beside the others; `own` when the
+// friend chose to go.
+function walkTo(v, d, own = false) {
   const at = placement(d.kind, d),
     dw = at.w,
     width = sizeOf(v.pet),
@@ -319,7 +320,7 @@ function walkTo(v, d) {
     on = standOn(d.kind),
     x = on ? at.x + (Math.random() - 0.5) * dw * 0.4 : at.x + side * (dw / 2 + width * 0.3),
     y = at.y + (on ? 3 : 0);
-  sendTo(v, footTarget(v, x, y), { slow: true, arrive: () => visited(v, d.kind) });
+  sendTo(v, footTarget(v, x, y), { slow: true, own, arrive: () => visited(v, d.kind) });
 }
 function visit(id) {
   const d = data.garden?.decor.find(x => x.id === id);
@@ -333,7 +334,7 @@ export function decorTarget(v) {
   // Only what the yard draws: a hidden gift has no spot to visit.
   const decor = (data.garden?.decor || []).filter(d => shown.has(d.id));
   if (!decor.length || Math.random() > 0.25) return null;
-  walkTo(v, pick(decor));
+  walkTo(v, pick(decor), true);
   return v.target;
 }
 // A friend reached the decoration it went to.

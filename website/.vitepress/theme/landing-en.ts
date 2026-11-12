@@ -18,7 +18,7 @@ export const copy = {
   releaseLabel: 'Version and release notes',
 };
 export const worldCopy = {
-  places: ['Hill garden', 'Stone courtyard', 'Lakeside cottage', 'Cozy living room'],
+  places: ['Hill garden', 'Stone courtyard', 'Lakeside cottage', 'Garden workshop'],
   seasons: ['Spring', 'Summer', 'Autumn', 'Winter'],
   greetings: {
     daisy: 'There might be something lovely just around the corner.',

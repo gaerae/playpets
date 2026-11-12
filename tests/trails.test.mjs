@@ -165,9 +165,9 @@ test('trails go when the yard stops showing winter and come back the same that d
   assert.equal(again.dataset.animal, animal);
   assert.equal(again.querySelector('.print').getAttribute('transform'), transform);
   assert.equal(y.saved().seen, seen);
-  scene.world = 'studio';
+  scene.world = 'workshop';
   trailsCheck();
-  assert.equal(y.trails().length, 0, 'none in the cozy living room');
+  assert.equal(y.trails().length, 0, 'none in the garden workshop');
   scene.world = 'woodland';
   profile = { ...OPEN, soil: false };
   trailsCheck();

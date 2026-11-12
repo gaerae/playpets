@@ -581,9 +581,26 @@ test('a token defined only for dark mode is read only by dark rules', async () =
   assert.deepEqual(misread, []);
 });
 
+// A moment's glow (sunshower, mist, moonlit snow) lies over the land, under the friends; a room's
+// furniture fronts are cut from the land above it and would show its edges as boxes.
+test("a sky moment's glow stays out of rooms, where furniture fronts would show its edges", async () => {
+  const css = await styles();
+  assert.match(css, /\.yard\[data-soil="false"\] \.moment-layer\{display:none;?\}/);
+});
+
+// The agent's state rides in the name tag, beside the name: by the head it floated off a friend
+// drawn smaller at the back, and a seated friend's head is where a desk's laptop is.
+test("the agent's state dot sits in the name tag, beside the name", async () => {
+  const css = await styles();
+  const rule = css.match(/\.pet-state-dot\{([^}]*)\}/)?.[1] || '';
+  assert.doesNotMatch(rule, /position:absolute/);
+  const views = await readFile('src/yard/views.js', 'utf8');
+  assert.match(views, /tag\.append\(talkMark, tagName, dot,/);
+});
+
 test('indoor flowers use a planter without blocking their controls', async () => {
   const css = await styles();
-  const rule = css.match(/\.yard\[data-sky="false"\] \.plant::after\{([^}]*)\}/)?.[1] || '';
+  const rule = css.match(/\.yard\[data-soil="false"\] \.plant::after\{([^}]*)\}/)?.[1] || '';
   assert.match(rule, /indoor-planter\.webp/);
   assert.match(rule, /pointer-events:none/);
   await readFile('src/art/decor/indoor-planter.webp');
@@ -595,7 +612,7 @@ test('indoor planters follow evening and night flower lighting', async () => {
     ['evening', 'brightness(0.88)'],
     ['night', 'url(#night-tint)'],
   ]) {
-    const selector = `.yard[data-sky="false"].period-${period} .plant::after`;
+    const selector = `.yard[data-soil="false"].period-${period} .plant::after`;
     const start = css.indexOf(selector);
     assert.ok(start >= 0, `${period} planter light`);
     const rule = css.slice(start, css.indexOf('}', start));
@@ -646,7 +663,10 @@ test('at night the drawings in the yard darken toward the blue of the night, all
 
 test('indoor growth stages enter the planter mouth without moving mature stems', async () => {
   const css = await styles();
-  assert.match(css, /\.yard\[data-sky="false"\] \.plant:not\(\[data-stage="bloom"\]\)svg\{position:relative;top:-12%;/);
+  assert.match(
+    css,
+    /\.yard\[data-soil="false"\] \.plant:not\(\[data-stage="bloom"\]\)svg\{position:relative;top:-12%;/,
+  );
 });
 
 test('floating scene menus stay above the full panel placement', async () => {

@@ -81,3 +81,7 @@
 | `studio-view-spring.png` | `6d24844f4a244483fadba9069c8efcb802e68c2d27b04244d892a28590eb21b0` |
 | `studio-view-autumn.png` | `5fa2446b97a1098583772b552fdd3b26b4dc8131b0e486570f576c03973aa0e1` |
 | `studio-view-winter.png` | `7ba27c05122aea982bfe0c08730244360ddefea576ccc1c26cc5958469cc1a18` |
+
+## Follow-up: living room retired (2026-11-12)
+
+- The Garden workshop replaced the living room. The `studio-cozy-*` and `studio-view-*` files above moved to `assets/sources/environments/` with the same pixels; `scripts/creator-skill.mjs` still copies `studio-cozy-day.png` from there as the interior example.

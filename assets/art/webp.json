@@ -375,45 +375,21 @@
     "png": "23e7bcea78d65fb2dff62f3cab34c52bf19ba28f77f043dba71c5b774c8f95bf",
     "webp": "46471dd93afc2aac713f06645608e1a1c7ae3fa39a9af0409856d604b5505edf"
   },
-  "environments/previews/studio-cozy-day.webp": {
-    "png": "9f356f9c71c03f3adc0d43a2aab8f6c8a794a0d649ae174def702878e78e01d3",
-    "webp": "b87e3f2b1b9386b9eb45ee4c779f221d225dcf80db3c66119206ec921fca45b3"
+  "environments/previews/workshop.webp": {
+    "png": "07c772909e1b901069a2c4831a4de4444722c6b6cba5386cd68402fa65ffd403",
+    "webp": "663b358df5ee4a99805d9be2ef0cac5b9fca9f166b7b10b712fad04686f02d90"
   },
   "environments/spring.png": {
     "png": "02b4e0f20e976eb08943bfc3eb0a12e56bedf36b52cead843e23a023aea88d00",
     "webp": "7229d2c231bcaf618c4f68e82d06f87e74ac2a4c2a04d66708a326b318f78432"
   },
-  "environments/studio-cozy-day.png": {
-    "png": "9f356f9c71c03f3adc0d43a2aab8f6c8a794a0d649ae174def702878e78e01d3",
-    "webp": "79fd36a53c79a1fb2ca878f3a731065f00fe36a867dc820e23badd9337a5d648"
-  },
-  "environments/studio-cozy-evening.png": {
-    "png": "8621ed8769fe4d82a3c37e5890f646774596bacd023824221a88a807ec6379df",
-    "webp": "2d1267af038b98b2985842dd1dcf19c3b9acbf951041bb3751f1360a3563a721"
-  },
-  "environments/studio-cozy-morning.png": {
-    "png": "54fc52617d67a905514849258d9d2cec0ade457f66072e680796f55121326bb2",
-    "webp": "35d6428655ff92f39c111836701c5bbc4c3e697538f42e6cd0e366b78c468053"
-  },
-  "environments/studio-cozy-night.png": {
-    "png": "c232be34c3897f0ebd32826d4679a0f7356555419062bbf301f1bf1c5927e38b",
-    "webp": "c53c69b54519bbbc7d4a246450c9cd22f86fc93cc40231e0149ca26b98b8d080"
-  },
-  "environments/studio-view-autumn.png": {
-    "png": "5fa2446b97a1098583772b552fdd3b26b4dc8131b0e486570f576c03973aa0e1",
-    "webp": "8a1043a3c47c2996ace3609fdf900f2de42220449011209d564bfe63c705e075"
-  },
-  "environments/studio-view-spring.png": {
-    "png": "6d24844f4a244483fadba9069c8efcb802e68c2d27b04244d892a28590eb21b0",
-    "webp": "520c7c5d5b805c5bdbcb84bf87a6a04ce6e3da066dedd99796df6ae6ae76219c"
-  },
-  "environments/studio-view-winter.png": {
-    "png": "7ba27c05122aea982bfe0c08730244360ddefea576ccc1c26cc5958469cc1a18",
-    "webp": "9add48eb26d8f5e9dd457cf86e4577807ee8045d1d54b250d83859a3967b36e2"
-  },
   "environments/winter.png": {
     "png": "0eadb70af979392d06712b0f3ca80925772a991570dd34197089bfa695b39791",
     "webp": "828a547d6b4667b662502f6c2dc9ffbb45b0e14dda90333ffaa4b2ba7442b1d7"
+  },
+  "environments/workshop.png": {
+    "png": "07c772909e1b901069a2c4831a4de4444722c6b6cba5386cd68402fa65ffd403",
+    "webp": "0ca248af181c817c2b029198444d232595561edfca3e17aedf52e82e7cb5561f"
   },
   "events/newyear.png": {
     "png": "c8cd54bd163dc614ed90ccac4ef9026874b813d1876ec3eb4a5b41e69dd03b1d",

@@ -30,7 +30,7 @@
    - Look at the actual image at every time of day.
    - A warm room at night needs readable walls and floor, and a clearly nighttime view through its window.
 8. Give the place's atmosphere its own `chatter` string-table key, with casual idle lines in all four languages.
-   - Indoor places need their own lines, so friends in one room do not talk about outdoor stars or another room's studio lamps.
+   - Indoor places need their own lines, so friends in one room do not talk about outdoor stars or another room's lamps.
    - Enabling `ambient` currently selects the woodland mix.
    - A café or city sound palette needs its own implementation and tests.
 9. Add capability, geometry, asset and translation checks to `tests/worlds.test.mjs`. Change a test before you change its rule.
@@ -43,6 +43,31 @@
   - An unknown saved id falls back to the hillside garden.
 - Before adding a place, run the repository's normal checks: Node and Rust tests, lint, the site build for documentation changes and the real-app E2E for the selector flow.
 - Isolated fixtures make the result reviewable, but they do not replace native interaction checks.
+
+## Workspaces for coding agents
+
+- A place can give a coding agent's friend somewhere to go for each state ([agent workspaces](../design/2026-11-11-agent-workspaces.md)). The garden workshop is the built-in one.
+- All of these live under `geometry` in source-image fractions and share the picture's transform (`environmentFrame`).
+
+| Field | What it is |
+|---|---|
+| `stations.desks` | One `{x, y}` per seat: where a working friend's feet stand |
+| `stations.approval` | Where a waiting friend stands; others line up beside it |
+| `stations.rest` | The corner a friend rests in once its agent is done |
+| `blocks` | `{x, y, rx, ry}` ellipses a stroll does not end on (furniture) |
+| `fronts` | `{x, y, width, height, foot, shape}`: a piece cut from the picture and drawn over friends whose feet are above `foot` |
+| `depthFar` | How small a friend at the back is drawn (default 0.84; about 0.6 for a deep room) |
+
+- Measure each front on the picture. Start its `shape` at the tabletop, not at a lamp or a pot on it: anything above the top covers a seated friend's face.
+- Ask for only flat things on a table in front of a seat (books, paper, seed packets): a laptop or a tall pot there sits in front of a face.
+- A seated friend's name tag goes down to its feet, on the desk's front, so its face stays in view.
+- Set the `soil` capability to `false` for a paved floor: flowers stand in pots and nothing is dug.
+- Use `"fit": "cover-bottom"` so a short window keeps the front of the room.
+- Draw the furniture at the friends' size for a window 850px tall: in a room, friends grow with the picture in larger windows (up to twice), so that size holds at full screen. With `cover-bottom`, the field follows the picture's floor line in a window wider than the picture.
+- A room whose glass shows the live sky takes the outdoor light: name its picture under `seasonArt` (the same id for every season is fine), not under `art`. Its panes are not washed over again in rain.
+- A station the window crops away is not used: a waiting friend comes to the front of the yard, and a working or resting friend stays where it stands.
+- Put a station where the friend standing there reads clearly: beside a narrow post, not behind it.
+- Check the room with every friend working, at day and night, in rain, and in a short wide window.
 
 ## Portable backgrounds
 
@@ -81,7 +106,7 @@ Images and limits:
 Ids:
 - The built-in hillside keeps the `woodland` id for saved selections.
 - `seasonArt` maps the shared season names (`spring`, `green`, `autumn`, `winter`) to each place's artwork.
-- The studio keeps `studio` and uses its authored time-of-day variants.
+- A retired id opens the place that replaced it (`REPLACED` in `src/yard/worlds.js`): a saved `studio`, the former living room, opens the garden workshop.
 
 ### What changes with the scene
 
@@ -89,9 +114,9 @@ Built-in places:
 - The courtyard, hillside garden and lakeside each have four seasonal images.
 - The renderer adds time-of-day lighting, a dynamic sky and weather.
 - Snow selects the winter artwork even when another season is selected.
-- The cozy living room (`studio`) has four authored time-of-day images.
-  - Its `windowArt` adds spring, autumn and winter scenery inside the window masks. Summer keeps the authored room view.
-  - These seasonal views get time-of-day lighting before window weather is drawn.
+- The garden workshop (`workshop`) has one picture. Its glass shows the live sky and weather, and the renderer lights it for the time of day.
+- A room without sky can still give an image per time of day (`art` with `authoredLighting`) and seasonal scenery inside its window masks (`windowArt`); `tests/indoor-environment.test.mjs` checks both with a fixture room.
+  - The seasonal views get time-of-day lighting before window weather is drawn.
   - Snow and winter are independent: snow keeps the selected season's window view.
 - Indoor places hide outdoor creatures, fishing and seasonal particles, and keep friends and collections.
 

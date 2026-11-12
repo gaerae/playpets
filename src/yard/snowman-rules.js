@@ -80,7 +80,7 @@ export function stackSpot(taken) {
   return { ...best };
 }
 
-/** Why building is not offered now, or null when it is. `season` is the yard's own (null in the living room). */
+/** Why building is not offered now, or null when it is. `season` is the yard's own (null in a room). */
 export function snowmanOffer({ date, season, garden, decorMax }) {
   if (season !== 'winter') return 'not_winter';
   // A day at or before the last snowman's is spent, as the backend refuses it (a clock set back).

@@ -50,7 +50,7 @@ pnpm run site:dev
 ```
 
 3. To add a screen, use `<Shot name="name" caption="One sentence" />`.
-   - The name is one of `yard-spring`, `yard-summer`, `yard-winter`, `invite`, `friend-chat`, `yard-talk`, `yard-evening`, `play-hide-and-seek`, `settings-agents`, `mini`, `desktop`, `studio-day`, `studio-night`, `mini-chat`, `companions`, `play-garden`, `play-tag`, `play-dig`, `play-fishing`, `album`.
+   - The name is one of `yard-spring`, `yard-summer`, `yard-winter`, `invite`, `friend-chat`, `yard-talk`, `yard-evening`, `play-hide-and-seek`, `settings-agents`, `mini`, `desktop`, `workshop-day`, `workshop-night`, `mini-chat`, `companions`, `play-garden`, `play-tag`, `play-dig`, `play-fishing`, `album`.
    - Without a version, it shows the capture for the current `package.json` version.
    - To add a new state, put it in the scenario in `scripts/shots.mjs` and capture again.
    - Normal captures and the film target only the isolated app process's window, matched by its PID and outer bounds.

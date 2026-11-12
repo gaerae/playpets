@@ -300,6 +300,10 @@
   white-space: nowrap;
   pointer-events: none;
 }
+/* with the agent's state shown beside the name, its agents need no second dot */
+.pet-state-dot:not([hidden]) ~ small::before {
+  display: none;
+}
 .period-night .pet-tag {
   background: var(--scene-label);
 }
@@ -321,8 +325,7 @@
   background: var(--scene-accent);
   color: var(--scene-on-accent);
 }
-.pet-label.hiding .pet-tag,
-.pet-label.hiding .pet-state-dot {
+.pet-label.hiding .pet-tag {
   visibility: hidden;
 }
 /* hearts on a friend's tag for how close it is; the dearest wears a flower */
@@ -402,18 +405,15 @@
     transform: translateX(calc(-50% + var(--bubble-shift, 0px))) translateY(0) scale(1);
   }
 }
-/* the agent's state, by the head rather than the top of the cell: --head is the cell's empty top
-   (core/sprites.js crown); working pulses, the rest are coloured */
+/* the agent's state, in the tag beside the name, where it reads at any depth and over any desk;
+   working pulses, the rest are coloured */
 .pet-state-dot {
-  position: absolute;
-  top: calc(var(--head, 8px) * var(--depth, 1) + 2px);
-  right: 20%;
-  width: 9px;
-  height: 9px;
+  flex: none;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #e5ab56;
-  border: 2px solid white;
-  box-shadow: 0 1px 3px var(--ink-20);
+  box-shadow: 0 0 0 1.5px white;
 }
 .pet-state-dot[data-state="working"] {
   animation: dot-pulse 1.4s ease-in-out infinite;

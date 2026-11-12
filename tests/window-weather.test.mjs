@@ -14,7 +14,7 @@ const panes = [
 function yard(t, width, height, reduce = false) {
   useWorlds(
     definitions.map(world =>
-      world.id === 'studio'
+      world.id === 'workshop'
         ? {
             ...world,
             windowPanes: panes,
@@ -62,12 +62,12 @@ function yard(t, width, height, reduce = false) {
     { get: (target, key) => target[key] || (() => {}) },
   );
   const scenery = createScenery({ getContext: () => ctx, getBoundingClientRect: () => ({ width, height }) }, reduced);
-  scenery.set('day', 'clear', 'winter', null, 'studio');
+  scenery.set('day', 'clear', 'winter', null, 'workshop');
   scenery.resize();
   return { scenery, reduced, log };
 }
 
-test('studio rain and snow are clipped to the transformed window panes in every light and aspect', t => {
+test('rain and snow in a room are clipped to the transformed window panes in every light and aspect', t => {
   for (const reduce of [false, true])
     for (const [width, height] of [
       [1180, 780],
@@ -76,7 +76,7 @@ test('studio rain and snow are clipped to the transformed window panes in every 
       [320, 350],
     ]) {
       const { scenery, log } = yard(t, width, height, reduce);
-      const frame = environmentFrame(width, height, { world: 'studio' });
+      const frame = environmentFrame(width, height, { world: 'workshop' });
       const expected = panes
         .map(pane => {
           const x = Math.max(0, frame.x + pane.x * frame.width),
@@ -90,7 +90,7 @@ test('studio rain and snow are clipped to the transformed window panes in every 
       for (const period of ['morning', 'day', 'evening', 'night'])
         for (const weather of ['rain', 'snow']) {
           log.clips.length = log.draws.length = 0;
-          scenery.set(period, weather, 'winter', 'lights', 'studio');
+          scenery.set(period, weather, 'winter', 'lights', 'workshop');
           scenery.frame(30000, 30000);
           assert.deepEqual(log.clips[0], expected);
           assert.ok(log.draws.length, `${period} ${weather} paints precipitation`);
@@ -110,13 +110,13 @@ test('window rain shares outdoor colors and opacity at full and mini sizes', t =
     [500, 350],
   ]) {
     const { scenery, log } = yard(t, width, height, true);
-    scenery.set('day', 'rain', 'winter', null, 'studio');
+    scenery.set('day', 'rain', 'winter', null, 'workshop');
     assert.ok(log.strokes.length);
     assert.ok(
       log.strokes.every(stroke => stroke.ink === 'rgb(168,192,214)' && stroke.alpha >= 0.22 && stroke.alpha <= 0.62),
     );
     log.strokes.length = 0;
-    scenery.set('night', 'rain', 'winter', null, 'studio');
+    scenery.set('night', 'rain', 'winter', null, 'workshop');
     assert.ok(
       log.strokes.every(stroke => stroke.ink === 'rgb(190,208,230)' && stroke.alpha >= 0.22 && stroke.alpha <= 0.62),
     );
@@ -138,24 +138,24 @@ test('Woodland precipitation keeps its full canvas and outdoor ground splashes',
   assert.equal(scenery.busy(), true);
 });
 
-test('reduced studio weather paints once while clear and offscreen panes remain idle', t => {
+test('reduced weather in a room paints once while clear and offscreen panes remain idle', t => {
   const { scenery, reduced, log } = yard(t, 840, 660, true);
   for (const weather of ['rain', 'snow']) {
-    scenery.set('night', weather, 'winter', null, 'studio');
+    scenery.set('night', weather, 'winter', null, 'workshop');
     const before = log.paints;
     scenery.frame(100, 40);
     scenery.frame(200, 40);
     assert.equal(log.paints, before);
     assert.equal(scenery.busy(), false);
   }
-  scenery.set('day', 'clear', 'winter', null, 'studio');
+  scenery.set('day', 'clear', 'winter', null, 'workshop');
   const before = log.paints;
   scenery.frame(30000, 30000);
   assert.equal(log.paints, before);
   assert.equal(scenery.busy(), false);
   useWorlds(
     definitions.map(world =>
-      world.id === 'studio'
+      world.id === 'workshop'
         ? {
             ...world,
             windowPanes: [{ x: 2, y: 2, width: 0.1, height: 0.1 }],
@@ -166,7 +166,7 @@ test('reduced studio weather paints once while clear and offscreen panes remain 
   );
   reduced.matches = false;
   log.draws.length = 0;
-  scenery.set('night', 'rain', 'winter', null, 'studio');
+  scenery.set('night', 'rain', 'winter', null, 'workshop');
   assert.equal(log.draws.length, 0, 'offscreen panes do not paint precipitation even on a scene change');
   const hidden = log.paints;
   scenery.frame(40000, 30000);

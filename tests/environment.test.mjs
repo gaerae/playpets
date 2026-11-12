@@ -57,8 +57,9 @@ test('fishing targets stay inside the generated pond at wide and narrow sizes', 
 test('wide and portrait environments preserve image proportions and keep the floor anchored', async () => {
   const { environmentFrame } = await import('../src/yard/environment.js');
   const { useWorlds, worldFor } = await import('../src/yard/worlds.js');
-  useWorlds(JSON.parse(await readFile(new URL('../src/content/worlds.json', import.meta.url))));
-  for (const world of ['woodland', 'studio']) {
+  const { den } = await import('./support/den.mjs');
+  useWorlds([...JSON.parse(await readFile(new URL('../src/content/worlds.json', import.meta.url))), den]);
+  for (const world of ['woodland', 'den']) {
     const floor = worldFor(world).geometry.fieldTop;
     for (const [w, h] of [
       [1200, 260],
@@ -195,7 +196,7 @@ test('festival lights follow each tree through wide and mini crops and never lig
       assert.equal(bulbs, strands.flat().filter(p => p.x >= 0 && p.x <= w && p.y >= 0 && p.y <= h).length);
     }
   }
-  assert.deepEqual(environmentLightStrands(500, 350, { world: 'studio' }), []);
+  assert.deepEqual(environmentLightStrands(500, 350, { world: 'workshop' }), []);
 });
 
 test('snow preserves imported and indoor seasonal imagery', async () => {

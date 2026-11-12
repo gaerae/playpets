@@ -236,7 +236,9 @@ test('ordinary captures start in sunny spring and include the fourth friend', ()
   assert.match(source, /coat\('Miso'\)/);
   assert.match(source, /full\('playpets-miso'\)/);
   assert.match(source, /\[p1.id,p2.id,p3.id,p4.id\]/);
-  assert.doesNotMatch(source, /\['studio','winter','night'/);
+  assert.doesNotMatch(source, /\['workshop','winter','night'/);
+  // The garden workshop replaced the living room; no capture asks for a place that is gone.
+  assert.doesNotMatch(source, /'studio'|'office'/);
 });
 
 test('yard captures finish the first AI connection before photographing the mini window', () => {

@@ -192,9 +192,10 @@ export function startViewing(by) {
   const today = localDay(new Date());
   if (data.garden) data.garden.viewed = today;
   call('markViewed', today).catch(() => {});
-  // Each waits where it is, held by the gathering, until they set off together.
+  // Each waits where it is, held by the gathering, until they set off together. A gathering the
+  // friends began is their own: an agent's state may call one away (duty.js).
   for (const v of members) {
-    setDoing(v, HERE);
+    setDoing(v, HERE, by === 'friends');
     v.away = true;
     // What the person starts may still take it (trips.js forPerson).
     v.gathered = true;
@@ -209,7 +210,12 @@ export function startViewing(by) {
       const seat = seats[i];
       v.doing = null;
       v.seat = seat;
-      sendTo(v, footTarget(v, seat.x, seat.y, 0), { save: false, arrive: settle, cancel: leave });
+      sendTo(v, footTarget(v, seat.x, seat.y, 0), {
+        save: false,
+        arrive: settle,
+        cancel: leave,
+        own: by === 'friends',
+      });
     });
   });
   return true;

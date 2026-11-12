@@ -44,7 +44,7 @@ test('fishing action works in mini without a water click, guards tasks and follo
     button.dispatch('click');
     assert.equal(v.trip, trip, 'repeated activation does not restart a trip');
     endFishing();
-    scene.world = 'studio';
+    scene.world = 'workshop';
     nodes.get('world').dispatch('change');
     assert.equal(button.hidden, false, 'the canonical board keeps all four destinations visible');
     assert.equal(button.disabled, true);

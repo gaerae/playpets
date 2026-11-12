@@ -17,7 +17,7 @@ export const copy = {
   releaseLabel: '버전과 변경 사항',
 };
 export const worldCopy = {
-  places: ['언덕 정원', '돌집 안뜰', '호숫가 집', '포근한 거실'],
+  places: ['언덕 정원', '돌집 안뜰', '호숫가 집', '정원 공방'],
   seasons: ['봄', '여름', '가을', '겨울'],
   greetings: {
     daisy: '저 모퉁이를 돌면 예쁜 게 있을 것 같아.',

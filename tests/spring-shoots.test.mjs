@@ -177,7 +177,7 @@ test('shoots show only while the yard shows spring outdoors', async ctx => {
     y.live().every(b => !b.classList.contains('sprouted')),
     'back in spring they are simply there',
   );
-  scene.world = 'studio';
+  scene.world = 'workshop';
   shootsMinute();
   assert.equal(y.live().length, 0);
   assert.equal(y.saved().out.length, 2);
@@ -529,7 +529,7 @@ test('a dig that ends in another place records nothing', async ctx => {
   const y = await digYard(ctx);
   await y.click();
   await y.arrive();
-  scene.world = 'studio';
+  scene.world = 'workshop';
   ctx.mock.timers.tick(1950);
   await flush();
   assert.deepEqual(gathered, []);

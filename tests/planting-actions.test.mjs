@@ -156,7 +156,7 @@ test('changing places before planting finishes never commits a flower elsewhere'
   v.trip = null;
   v.target = null;
   trip.arrive(v);
-  scene.world = 'studio';
+  scene.world = 'workshop';
   t.mock.timers.tick(2000);
   await settled();
   assert.equal(planted.length, 0);
