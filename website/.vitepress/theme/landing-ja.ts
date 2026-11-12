@@ -17,7 +17,7 @@ export const copy = {
     'Codexのペット',
     'コーディングエージェント',
   ],
-  eyebrow: 'macOS、Windows、Linux対応の無料デスクトップマスコット「プレイペッツ」',
+  eyebrow: 'プレイペッツ — macOS、Windows、Linux対応の無料デスクトップマスコット',
   download: 'PlayPetsをダウンロード',
   meet: 'できることを見る',
   finalTitle: 'PlayPetsをダウンロード',

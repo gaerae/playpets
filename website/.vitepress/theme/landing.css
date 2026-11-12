@@ -62,6 +62,13 @@ html[lang^="ja"] .landing {
   font-size: 13px;
   letter-spacing: 0.12em;
   margin: 0 0 24px;
+  text-wrap: balance;
+}
+/* Wide tracking suits Latin capitals; Korean, Japanese and Chinese read better close set. */
+html:lang(ko) .landing .eyebrow,
+html:lang(ja) .landing .eyebrow,
+html:lang(zh-Hans) .landing .eyebrow {
+  letter-spacing: 0.04em;
 }
 .hero {
   padding: 32px max(24px, calc((100vw - 1440px) / 2)) 0;

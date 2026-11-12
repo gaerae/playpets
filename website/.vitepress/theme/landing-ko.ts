@@ -8,7 +8,7 @@ export const copy = {
   // Steam's own names, in this language, for Desktop Companion and Idler (store.steampowered.com/tag/browse).
   steamTags: ['데스크톱 컴패니언', '아이들러'],
   keywords: ['PlayPets', '플레이펫츠', '데스크톱 펫', '데스크톱 컴패니언', '아이들러', 'Codex 펫', '코딩 에이전트'],
-  eyebrow: 'macOS, Windows, Linux용 무료 데스크톱 펫 앱, 플레이펫츠',
+  eyebrow: '플레이펫츠 — macOS, Windows, Linux용 무료 데스크톱 펫 앱',
   download: 'PlayPets 다운로드',
   meet: '할 수 있는 것 보기',
   finalTitle: 'PlayPets 다운로드',
