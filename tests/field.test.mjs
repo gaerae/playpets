@@ -13,10 +13,11 @@ import {
   yardToDecor,
 } from '../src/yard/field.js';
 import { composition } from '../src/yard/layout.js';
+import { clearOfDock, place } from '../src/yard/views.js';
 import { scene } from '../src/yard/world.js';
 import { worldFor } from '../src/yard/worlds.js';
 import { yard as painted } from './support/content.mjs';
-import { installDom } from './support/dom.mjs';
+import { element, installDom } from './support/dom.mjs';
 
 function yardIn(t, environment, world = 'woodland') {
   const { nodes } = installDom(t, { ids: ['yard'] });

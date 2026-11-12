@@ -164,7 +164,18 @@ function fit(v) {
   // The body's room in the label follows the friend's depth (place).
   v.depth = null;
   place(v);
+  clearOfDock(v);
   keepInside(v);
+}
+/** Lifts a friend standing behind the dock to stand just above it, in view: one saved at the front
+ * edge before friends walked past the field's foot, one dropped there, or one the dock grew over. */
+export function clearOfDock(v) {
+  const box = dockBox();
+  if (!box) return;
+  const foot = footOf(v);
+  if (!underDock(foot.x, foot.y, sizeOf(v.pet) / 2, box)) return;
+  v.y = footTarget(v, foot.x, box.top, 0).y;
+  place(v);
 }
 export function place(v) {
   const { w, h, top } = geometry(v.pet);
@@ -369,6 +380,7 @@ function createView(p) {
       return;
     }
     if (moved) {
+      clearOfDock(v);
       await call('updatePet', p.id, { x: v.x, y: v.y });
     } else if (talk && e.type === 'pointerup') {
       // The tag says "Talk to …", so it opens the conversation; play is the friend's right-click.
