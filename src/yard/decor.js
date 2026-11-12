@@ -111,6 +111,18 @@ function create(d) {
     effects = gift?.effects || [];
   if (effects.length) button.dataset.effects = effects.join(' ');
   button.innerHTML = `${effectLayers(effects)}${gift ? artSvg(gift.art) : ''}`;
+  // A drawing with no ground of its own stands on a contact shade, under it (garden.css).
+  if (gift?.shade) {
+    const shade = document.createElement('span'),
+      [w, h, y, x] = gift.shade;
+    shade.className = 'decor-shade';
+    shade.style.setProperty('--shade-w', String(w));
+    shade.style.setProperty('--shade-h', String(h));
+    shade.style.setProperty('--shade-y', String(y));
+    // A foot off the middle of the drawing (a kite's stand) keeps its shade under it.
+    if (x !== undefined) shade.style.setProperty('--shade-x', String(x));
+    button.insertBefore(shade, button.firstChild);
+  }
   const v = { id: d.id, kind: d.kind, button, drag: null, busy: false, dressLayer: null, worn: null };
   // What a snowman wears, over its drawing (snowman-dress.js); the update fills it.
   if (gift?.dress) {

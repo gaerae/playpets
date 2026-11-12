@@ -54,7 +54,7 @@
   filter: brightness(0.88) saturate(0.85);
 }
 .yard[data-sky="false"].period-night .plant::after {
-  filter: brightness(0.62) saturate(0.75);
+  filter: url(#night-tint);
 }
 .plant svg {
   width: 100%;
@@ -78,12 +78,14 @@
   cursor: inherit;
 }
 /* each flower's colours (--petal, --petal-hi, --petal-lo, --heart) come from catalog.json, set on it */
-/* at night the flowers and the spring shoots keep their shapes and lose their daylight */
+/* At night the yard's drawings keep their shapes and lose their daylight toward the night's blue
+   (#night-tint in index.html), so they sit in the blue snow and grass instead of turning grey: the
+   flowers and shoots here, the gifts, the trees, the dug soil and the trail's bush below. */
 .period-night .plant svg {
-  filter: brightness(0.62) saturate(0.75);
+  filter: url(#night-tint);
 }
 .period-night .shoot svg {
-  filter: var(--shoot-lift) brightness(0.62) saturate(0.75);
+  filter: var(--shoot-lift) url(#night-tint);
 }
 /* Spring shoots poking up from the grass (yard/shoots.js), set down at their depth like a plant. The
    button's own transform is its place (props.js setDown), so only the drawing inside rises.
@@ -257,6 +259,22 @@
 .yard.aiming .decor {
   cursor: inherit;
 }
+/* A gift drawn without ground of its own (bench, swing, the Christmas guests) stands on a soft
+   contact shade at its foot (catalog.json "shade": its width, its height and the height its centre
+   is at, as shares of the gift's, since a drawing's feet are not always on its box's edge), under
+   the drawing, so it rests on the grass or the snow instead of hovering. A cool blue-grey
+   reads as shade on both, and stays a shade at night beside the dimmed drawing. */
+.decor-shade {
+  position: absolute;
+  left: calc(var(--shade-x, 0.5) * 100%);
+  top: calc(var(--shade-y) * 100%);
+  width: calc(var(--shade-w) * 100%);
+  height: calc(var(--shade-h) * 100%);
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(34 42 64 / 0.5), rgb(34 42 64 / 0.26) 60%, rgb(34 42 64 / 0));
+  pointer-events: none;
+}
 /* a gift that just came pops into place */
 .decor.arrive > svg,
 .decor.arrive > .ornaments {
@@ -273,24 +291,39 @@
   }
 }
 /* Effects a gift names (catalog.json "effects", src/yard/effects.js).
-   glow: lit from evening on, pooling warm light around it, and not dimmed at night. */
-.decor .fx-glow {
+   glow: lit from evening on, and not dimmed at night. Its light is a halo round the lamp and a warm
+   pool on the ground at its foot. Laid over the blue of the night, a wide pale halo only greyed the
+   snow (a gift is its own stacking context, so the light cannot be added to the yard behind it), so
+   the halo stays small and close, and the pool, brightest at the foot and flat as the ground, is
+   what reads as light falling on the snow or the grass. */
+.decor .fx-glow,
+.decor .fx-pool {
   position: absolute;
   left: 50%;
-  top: 32%;
-  width: 360%;
-  aspect-ratio: 1;
   border-radius: 50%;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle, #ffd27a70, #ffd27a00 62%);
+  translate: -50% -50%;
   opacity: 0;
   transition: opacity 2s;
   pointer-events: none;
 }
-.period-evening .decor .fx-glow {
+.decor .fx-glow {
+  top: 32%;
+  width: 230%;
+  aspect-ratio: 1;
+  background: radial-gradient(circle, #ffe3a87a, #ffcf7a38 24%, #ffcf7a00 56%);
+}
+.decor .fx-pool {
+  top: 97%;
+  width: 300%;
+  height: 46%;
+  background: radial-gradient(closest-side, #ffdc9ccc, #ffc66e66 38%, #ffc66e1f 70%, #ffc66e00);
+}
+.period-evening .decor .fx-glow,
+.period-evening .decor .fx-pool {
   opacity: 0.55;
 }
-.period-night .decor .fx-glow {
+.period-night .decor .fx-glow,
+.period-night .decor .fx-pool {
   opacity: 1;
 }
 /* The scene's colours any drawing can paint with: --lamp lights up from evening on, --bird is 0 at
@@ -305,7 +338,7 @@
   --bird: 0;
 }
 .period-night .decor svg {
-  filter: brightness(0.62) saturate(0.75);
+  filter: url(#night-tint);
 }
 .period-night .decor[data-effects~="glow"] svg {
   filter: none;
@@ -406,7 +439,7 @@
   transform: scale(1.06);
 }
 .period-night .decor > .ornaments {
-  filter: brightness(0.62) saturate(0.75);
+  filter: url(#night-tint);
 }
 .period-night .decor .xmas-art .ornaments {
   filter: brightness(0.86);
@@ -424,17 +457,17 @@
   pointer-events: auto;
 }
 .yard.period-night .plant[data-stage="bloom"] svg {
-  filter: brightness(0.65) saturate(0.7);
+  filter: url(#night-tint);
 }
 .yard.period-evening .plant[data-stage="bloom"] svg {
   filter: brightness(0.88) saturate(0.85);
 }
 /* The evening and night light keeps the focus ring a flower would otherwise lose. */
 .period-night .plant:focus-visible svg {
-  filter: brightness(0.62) saturate(0.75) drop-shadow(0 0 2px var(--focus));
+  filter: url(#night-tint) drop-shadow(0 0 2px var(--focus));
 }
 .yard.period-night .plant[data-stage="bloom"]:focus-visible svg {
-  filter: brightness(0.65) saturate(0.7) drop-shadow(0 0 2px var(--focus));
+  filter: url(#night-tint) drop-shadow(0 0 2px var(--focus));
 }
 .yard.period-evening .plant[data-stage="bloom"]:focus-visible svg {
   filter: brightness(0.88) saturate(0.85) drop-shadow(0 0 2px var(--focus));
@@ -842,7 +875,7 @@
   filter: brightness(0.88) saturate(0.85);
 }
 .period-night .planted-tree svg {
-  filter: brightness(0.62) saturate(0.75);
+  filter: url(#night-tint);
 }
 .dig-soil {
   position: absolute;
@@ -870,7 +903,7 @@
   filter: brightness(0.88) saturate(0.85);
 }
 .period-night .dig-soil {
-  filter: brightness(0.62) saturate(0.75);
+  filter: url(#night-tint);
 }
 .dig-dirt {
   position: absolute;
@@ -985,7 +1018,8 @@
 }
 /* A bird has dived head first into the bush's top: its tail, feet and rump stand up out of the
    snow over the middle, its cut along the bottom and the fade before it (--fade of the drawing's
-   height, --h) inside the crown. --x is the drawing's left edge. */
+   height, --h) inside the crown. --x is the drawing's left edge. A bird is small beside the bush,
+   so its drawing is about a third of the bush's width. */
 .tail-peek.bird > svg.tail {
   left: calc(var(--x) * var(--u));
   height: calc(var(--h) * var(--u));
@@ -993,17 +1027,17 @@
   mask-image: linear-gradient(to top, transparent, #000 var(--fade, 30%));
 }
 .tail-peek[data-track="sparrow"] {
-  --x: 13.5;
-  --w: 21;
-  --h: 22;
-  --lift: 21;
+  --x: 17.5;
+  --w: 13;
+  --h: 13.6;
+  --lift: 24.5;
   --turn: -4deg;
 }
 .tail-peek[data-track="magpie"] {
-  --x: 15;
-  --w: 17;
-  --h: 26;
-  --lift: 21;
+  --x: 18;
+  --w: 11;
+  --h: 16.8;
+  --lift: 24;
   --turn: 3deg;
   --fade: 20%;
 }
@@ -1037,9 +1071,9 @@
   --print-strength: 1.05;
   --print-blur: 0.4px;
 }
-/* The bush keeps its shape at night and loses its daylight, as the gifts do. */
+/* The bush keeps its shape at night and loses its daylight toward the night's blue, as the gifts do. */
 .period-night .trail-end svg {
-  filter: brightness(0.62) saturate(0.75);
+  filter: url(#night-tint);
 }
 .trail {
   position: absolute;

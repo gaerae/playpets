@@ -305,6 +305,15 @@ export function fallerCount(season, period, weather, w) {
   if (weather !== 'clear' || period === 'night' || (season !== 'spring' && season !== 'autumn')) return 0;
   return Math.max(4, Math.min(12, Math.round(w / 110)));
 }
+// Fireflies by the yard's area: a handful on a full yard (5 at night, 3 in the evening at 1180 by
+// 850), a couple in a small window, and a cap, so each light still counts. An event's boost adds a
+// few, up to its own cap.
+export function fireflyCount(period, w, h, boost = 1) {
+  const night = period === 'night',
+    area = (Math.max(0, w) * Math.max(0, h)) / (1180 * 850),
+    base = Math.max(night ? 2 : 1, Math.min(6, Math.round((night ? 5 : 3) * area)));
+  return boost === 1 ? base : Math.min(8, Math.round(base * boost));
+}
 // With a `band` ({ x, width }, a gathering's spot) it starts inside it and keeps it, so it starts
 // again there while the band lasts.
 export function spawnFaller(w, h, rng, band = null) {

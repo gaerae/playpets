@@ -301,18 +301,21 @@
       "id": "bench",
       "art": "decor/bench.svg",
       "size": [144, 115.2],
+      "shade": [0.86, 0.14, 0.9],
       "stand": "on"
     },
     {
       "id": "lantern",
       "art": "decor/sculpted/lantern.svg",
       "size": [30, 72],
+      "shade": [0.62, 0.06, 0.95],
       "effects": ["glow"]
     },
     {
       "id": "birdhouse",
       "art": "decor/sculpted/birdhouse.svg",
-      "size": [36, 74]
+      "size": [36, 74],
+      "shade": [0.6, 0.06, 0.88]
     },
     {
       "id": "pond",
@@ -323,7 +326,8 @@
     {
       "id": "mailbox",
       "art": "decor/mailbox.svg",
-      "size": [45, 70]
+      "size": [45, 70],
+      "shade": [0.42, 0.06, 0.85, 0.53]
     },
     {
       "id": "picnic",
@@ -335,7 +339,8 @@
     {
       "id": "pinwheel",
       "art": "decor/sculpted/pinwheel.svg",
-      "size": [30, 64]
+      "size": [30, 64],
+      "shade": [0.5, 0.05, 0.83]
     },
     {
       "id": "campfire",
@@ -347,33 +352,39 @@
       "id": "swing",
       "art": "decor/sculpted/swing.svg",
       "size": [144, 126],
+      "shade": [0.96, 0.12, 0.92],
       "stand": "on"
     },
     {
       "id": "flowerpot",
       "art": "decor/sculpted/flowerpot.svg",
-      "size": [32, 44]
+      "size": [32, 44],
+      "shade": [0.6, 0.1, 0.88]
     },
     {
       "id": "stump",
       "art": "decor/sculpted/stump.svg",
       "size": [61.6, 44.8],
+      "shade": [0.82, 0.25, 0.9],
       "stand": "on"
     },
     {
       "id": "tent",
       "art": "decor/tent.svg",
-      "size": [140, 140]
+      "size": [140, 140],
+      "shade": [0.9, 0.2, 0.89]
     },
     {
       "id": "signpost",
       "art": "decor/sculpted/signpost.svg",
-      "size": [40, 68]
+      "size": [40, 68],
+      "shade": [0.62, 0.08, 0.79]
     },
     {
       "id": "windchime",
       "art": "decor/sculpted/windchime.svg",
       "size": [36, 72],
+      "shade": [0.42, 0.05, 0.88],
       "effects": ["chime"]
     },
     {
@@ -393,6 +404,7 @@
       "id": "pumpkin",
       "art": "decor/sculpted/pumpkin.svg",
       "size": [46, 40],
+      "shade": [0.78, 0.2, 0.92],
       "event": "harvest"
     },
     {
@@ -412,28 +424,33 @@
     {
       "id": "bunny_watering_can",
       "art": "decor/bunny_watering_can.svg",
-      "size": [70, 70]
+      "size": [70, 70],
+      "shade": [0.62, 0.14, 0.93, 0.56]
     },
     {
       "id": "hedgehog_planter",
       "art": "decor/hedgehog_planter.svg",
-      "size": [70, 70]
+      "size": [70, 70],
+      "shade": [0.72, 0.16, 0.9, 0.55]
     },
     {
       "id": "water_wheel",
       "art": "decor/water_wheel.svg",
-      "size": [90, 80]
+      "size": [90, 80],
+      "shade": [0.8, 0.2, 0.91, 0.47]
     },
     {
       "id": "hammock",
       "art": "decor/hammock.svg",
       "size": [140, 100],
+      "shade": [0.96, 0.1, 0.89],
       "stand": "on"
     },
     {
       "id": "scarecrow",
       "art": "decor/scarecrow.svg",
-      "size": [70, 100]
+      "size": [70, 100],
+      "shade": [0.6, 0.09, 0.88]
     },
     {
       "id": "stepping_stones",
@@ -451,6 +468,7 @@
       "id": "kite",
       "art": "decor/kite.svg",
       "size": [70, 90],
+      "shade": [0.46, 0.08, 0.87, 0.23],
       "event": "newyear"
     },
     {
@@ -461,18 +479,25 @@
       "shown": "december",
       "seasons": ["winter"],
       "hooks": [
-        [0.5, 0.32],
-        [0.285, 0.42],
-        [0.7, 0.43],
-        [0.47, 0.53],
-        [0.83, 0.55],
-        [0.16, 0.555],
-        [0.645, 0.605],
-        [0.33, 0.62],
-        [0.86, 0.74],
-        [0.15, 0.75],
-        [0.63, 0.78],
-        [0.37, 0.785]
+        [0.485, 0.35, 0.1],
+        [0.332, 0.408, 0.095],
+        [0.647, 0.389, 0.11],
+        [0.45, 0.589, 0.115],
+        [0.79, 0.565, 0.1],
+        [0.17, 0.57, 0.1],
+        [0.62, 0.555, 0.1],
+        [0.256, 0.739, 0.11],
+        [0.89, 0.72, 0.1],
+        [0.739, 0.742, 0.102],
+        [0.105, 0.735, 0.1],
+        [0.565, 0.78, 0.1]
+      ],
+      "baubles": [
+        [0.332, 0.408, 0.085],
+        [0.647, 0.389, 0.1],
+        [0.45, 0.589, 0.105],
+        [0.256, 0.739, 0.1],
+        [0.739, 0.742, 0.092]
       ],
       "night": {
         "art": "decor/xmas_tree_grand.svg",
@@ -488,18 +513,33 @@
           [0.244, 0.791]
         ],
         "hooks": [
-          [0.5, 0.325],
-          [0.285, 0.415],
-          [0.665, 0.44],
-          [0.435, 0.505],
-          [0.81, 0.53],
-          [0.21, 0.545],
-          [0.64, 0.6],
-          [0.34, 0.625],
-          [0.88, 0.75],
-          [0.115, 0.755],
-          [0.655, 0.78],
-          [0.36, 0.795]
+          [0.59, 0.275, 0.084],
+          [0.378, 0.342, 0.072],
+          [0.666, 0.371, 0.081],
+          [0.363, 0.448, 0.084],
+          [0.709, 0.462, 0.08],
+          [0.259, 0.562, 0.08],
+          [0.64, 0.57, 0.078],
+          [0.219, 0.656, 0.07],
+          [0.781, 0.676, 0.07],
+          [0.754, 0.763, 0.07],
+          [0.161, 0.782, 0.074],
+          [0.568, 0.786, 0.095]
+        ],
+        "baubles": [
+          [0.59, 0.275, 0.074],
+          [0.378, 0.342, 0.062],
+          [0.666, 0.371, 0.071],
+          [0.363, 0.448, 0.074],
+          [0.709, 0.462, 0.07],
+          [0.259, 0.562, 0.07],
+          [0.64, 0.57, 0.068],
+          [0.219, 0.656, 0.06],
+          [0.366, 0.686, 0.07],
+          [0.781, 0.676, 0.06],
+          [0.161, 0.782, 0.064],
+          [0.568, 0.786, 0.085],
+          [0.754, 0.763, 0.06]
         ],
         "sleigh": "decor/sleigh.svg",
         "guests": ["baby_reindeer", "santa"]
@@ -509,6 +549,7 @@
       "id": "baby_reindeer",
       "art": "decor/baby_reindeer.svg",
       "size": [44, 65],
+      "shade": [0.74, 0.1, 0.95],
       "event": "lights",
       "shown": "december",
       "seasons": ["winter"]
@@ -517,6 +558,7 @@
       "id": "santa",
       "art": "decor/santa.svg",
       "size": [58, 70],
+      "shade": [0.6, 0.1, 0.96],
       "event": "lights",
       "shown": "december",
       "seasons": ["winter"]

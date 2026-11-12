@@ -78,15 +78,16 @@ function page(t, { imported = false, decoded = true, tip = true } = {}) {
   v.trip = null;
   v.target = null;
   trip.arrive(v);
-  const [rod, line, float] = nodes.get('garden-layer').children;
-  return { v, rod, line, float };
+  const [rod, line, grip, float] = nodes.get('garden-layer').children;
+  return { v, rod, line, grip, float };
 }
 
 test('painted tackle replaces the loose rod and updates its line only when a tip changes', t => {
-  const { v, rod, line } = page(t);
+  const { v, rod, line, grip } = page(t);
   const action = companionAction(v, performance.now());
   fishing.syncFishingArtwork(action.since);
   assert.equal(rod.hasAttribute('hidden'), true);
+  assert.equal(grip.hasAttribute('hidden'), true, 'the loose grip goes with the loose rod');
   assert.ok(line.innerHTML.includes(`M${v.px + (145 * 112) / 192} ${v.py + (30 * 112) / 192}`));
   let writes = 0;
   let markup = line.innerHTML;
@@ -131,7 +132,7 @@ for (const mode of ['imported', 'decoding', 'missing-tip'])
 
 test('authored reeling retains its line until the saved catch is revealed, then clears all tackle', async t => {
   t.mock.method(Math, 'random', () => 0);
-  const { v, rod, line, float } = page(t);
+  const { v, rod, line, grip, float } = page(t);
   t.mock.timers.tick(3200);
   await float.dispatch('click');
   assert.equal(requests.length, 1);
@@ -143,6 +144,7 @@ test('authored reeling retains its line until the saved catch is revealed, then 
   await settled();
   assert.equal(line.removed, true);
   assert.equal(rod.removed, true);
+  assert.equal(grip.removed, true);
   assert.equal(float.removed, true);
   assert.equal(v.doing, null);
 });

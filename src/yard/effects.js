@@ -3,12 +3,13 @@
 // something that happens when a friend visits it, and its rules in the stylesheet (garden.css,
 // "effects"). A new gift uses an effect by naming it; an effect changes here and in its rules, and
 // every gift that names it follows.
-//   glow: lit from evening on, a warm pool of light around it, and not dimmed at night.
+//   glow: lit from evening on, a halo round its light and a warm pool on the ground at its foot,
+//   and not dimmed at night.
 //   chime: rings when a friend visits it.
 // Without any effect, a drawing still follows the scene through the colours it paints with
 // (--lamp lights up in the evening, --bird is 0 at night and in rain or snow, --sky-* mirror the sky).
 const EFFECTS = {
-  glow: { layer: '<span class="fx-glow" aria-hidden="true"></span>' },
+  glow: { layer: '<span class="fx-glow" aria-hidden="true"></span><span class="fx-pool" aria-hidden="true"></span>' },
   chime: { visited: yard => yard.cue('chime') },
 };
 

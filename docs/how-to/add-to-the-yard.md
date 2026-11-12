@@ -116,6 +116,7 @@
 Collection art:
 - Current collection art uses generated transparent atlases and SVG crop wrappers.
 - `src/art/collection.json` records each specimen's atlas, reviewed crop and display size.
+- A firefly also has `yard`: a crop of the bug alone inside its album crop. The yard draws it small under the firefly's light (`ambient-art.js`); the album keeps the full crop.
 - `scripts/pack-collection.mjs` reproduces each wrapper.
 - Keep the PNG atlas in `assets/art/` with its prompts and provenance, then run `pnpm run assets:webp`; the wrapper's `<image>` names the `.webp` copy in `src/art/` ([shipped WebP](../../assets/README.md)).
 - Measure each crop rather than assuming equally spaced generated cells.
@@ -189,7 +190,7 @@ To make a new effect:
 
    | Field | What it brings |
    |---|---|
-   | `boost` | More small life while it is on: `petals`, `butterflies`, `fireflies` (each a multiplier) |
+   | `boost` | More small life while it is on: `petals`, `butterflies`, `fireflies` (each a multiplier; fireflies stay at 8 or fewer, `fireflyCount` in `scene.js`) |
    | `looks` | Names of looks; each is a class on the yard (`look-<name>`) whose rules go in `src/styles/scenery.css`. The harvest moon's `fullmoon` makes the moon big and golden on the nights around the event's first real full moon, when `sky.js` also sets `moon-full` |
    | `art` | A drawing for its card, if it has no gift (the new year's sunrise) |
 

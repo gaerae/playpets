@@ -36,14 +36,30 @@ export function createAmbientArt(
     for (const creature of creatures) {
       if (creature.kind !== 'firefly') continue;
       const ink = creature.look.glow || '#ecf096';
-      material(ink, ctx => {
+      // A firefly's light (firefly below): a soft halo in its glow, and a core warm white at its heart.
+      const light = stops => ctx => {
         const fade = ctx.createRadialGradient(32, 32, 0, 32, 32, 30);
-        fade.addColorStop(0, ink);
-        fade.addColorStop(0.15, ink);
-        fade.addColorStop(1, `${ink}00`);
+        for (const [at, colour] of stops) fade.addColorStop(at, colour);
         ctx.fillStyle = fade;
         ctx.fillRect(0, 0, 64, 64);
-      });
+      };
+      material(
+        `halo ${ink}`,
+        light([
+          [0, `${ink}aa`],
+          [0.25, `${ink}55`],
+          [1, `${ink}00`],
+        ]),
+      );
+      material(
+        `core ${ink}`,
+        light([
+          [0, '#fffbe8'],
+          [0.25, ink],
+          [0.6, `${ink}66`],
+          [1, `${ink}00`],
+        ]),
+      );
     }
     if (wildlife && !bugPending)
       bugPending = Promise.resolve(bugs())
@@ -52,7 +68,7 @@ export function createAmbientArt(
           for (const entry of result.entries)
             if (entry.kind === 'bugs' && entry.crop?.length === 4) {
               const image = result.images?.get(entry.atlas) || result.image;
-              if (image) crops.set(entry.id, { image, crop: entry.crop });
+              if (image) crops.set(entry.id, { image, crop: entry.crop, yard: entry.yard });
             }
           if (wildlife) changed();
         })
@@ -93,10 +109,7 @@ export function createAmbientArt(
     if (!specimen) return false;
     const { image, crop } = specimen;
     // A kind can be smaller or larger than the rest of its kind (catalog.json look.size).
-    const size =
-      ({ firefly: 12, dragonfly: 23, beetle: 13, cricket: 17 }[creature.kind] || 21) *
-      (creature.look?.size ?? 1) *
-      scale;
+    const size = ({ dragonfly: 23, beetle: 13, cricket: 17 }[creature.kind] || 21) * (creature.look?.size ?? 1) * scale;
     ctx.save();
     ctx.translate(creature.x, creature.y);
     if (['dragonfly', 'beetle', 'cricket'].includes(creature.kind)) ctx.rotate(creature.heading + Math.PI / 2);
@@ -137,12 +150,33 @@ export function createAmbientArt(
     ctx.restore();
     return true;
   }
-  function glow(ctx, creature, scale) {
-    const sprite = materials.get(creature.look.glow || '#ecf096');
-    if (!sprite) return false;
-    const size = 24 * (creature.look.size ?? 1) * scale;
-    ctx.drawImage(sprite, creature.x - size / 2, creature.y - size / 2, size, size);
+  // A firefly in the yard is mostly its light, `lit` (0 to 1) along its blink. Its small body, the
+  // bug alone (its yard crop in collection.json), stands upright with its lantern at the light and
+  // shows most while the light is low; a soft halo and a warm-white core in its own glow go over
+  // it. The halo stays soft and the core is the only bright point; both follow `lit` evenly, so
+  // with random phases about half of them show at once.
+  // Before the specimens are in, the light alone.
+  function firefly(ctx, creature, scale, lit) {
+    const ink = creature.look.glow || '#ecf096',
+      halo = materials.get(`halo ${ink}`),
+      core = materials.get(`core ${ink}`);
+    if (!halo || !core) return false;
+    const size = (creature.look.size ?? 1) * scale,
+      light = creature.light ?? 1,
+      { x, y } = creature,
+      specimen = crops.get(creature.species);
+    if (specimen?.yard) {
+      const [, , cropWidth, cropHeight] = specimen.yard,
+        height = 9 * size,
+        width = (height * cropWidth) / cropHeight;
+      ctx.globalAlpha = (0.35 + (1 - lit) * 0.45) * light;
+      ctx.drawImage(specimen.image, ...specimen.yard, x - width / 2, y - height * 0.82, width, height);
+    }
+    ctx.globalAlpha = (0.08 + lit * 0.47) * light;
+    ctx.drawImage(halo, x - 12 * size, y - 12 * size, 24 * size, 24 * size);
+    ctx.globalAlpha = (0.15 + lit * 0.85) * light;
+    ctx.drawImage(core, x - 6.5 * size, y - 6.5 * size, 13 * size, 13 * size);
     return true;
   }
-  return { use, bug, bird, star, streak, glow };
+  return { use, bug, bird, star, streak, firefly };
 }

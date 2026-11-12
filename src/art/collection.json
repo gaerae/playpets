@@ -248,6 +248,7 @@
     "atlas": "collection-extension/fireflies.webp",
     "atlasSize": [1536, 1024],
     "crop": [218, 23, 453, 916],
+    "yard": [232, 37, 425, 888],
     "size": [60, 50],
     "art": "bugs/firefly.svg"
   },
@@ -302,6 +303,7 @@
     "atlas": "collection-extension/fireflies.webp",
     "atlasSize": [1536, 1024],
     "crop": [901, 33, 437, 916],
+    "yard": [915, 250, 409, 483],
     "size": [60, 50],
     "art": "bugs/heike_firefly.svg"
   },
@@ -311,6 +313,7 @@
     "atlas": "bugs/specimens.webp",
     "atlasSize": [1254, 1254],
     "crop": [1009, 928, 175, 273],
+    "yard": [1015, 934, 163, 258],
     "size": [60, 50],
     "art": "bugs/golden_firefly.svg"
   },
@@ -806,6 +809,7 @@
     "atlas": "collection-extension/night-bugs.webp",
     "atlasSize": [1774, 887],
     "crop": [1085, 103, 493, 666],
+    "yard": [1099, 117, 465, 638],
     "size": [60, 50],
     "art": "bugs/late_firefly.svg"
   },

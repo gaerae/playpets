@@ -3,11 +3,14 @@
 // and stay all winter; the first hang of the next December takes them down, so each December
 // starts a fresh tree. The backend keeps them and the rule (src-tauri/src/pets/garden.rs
 // hang_ornament); this module says what hangs this December and what still could, and draws it.
-// Hook i is the same place on the small and the grand drawing (catalog.json xmas_tree hooks and
-// night.hooks), so the same ornaments show on both.
+// Hook i is about the same place on the small and the grand drawing (catalog.json xmas_tree hooks
+// and night.hooks), so the same ornaments show on both. A hook is a ball's centre and width. Every
+// hook on the grand tree and five on the small one sit on a bauble painted on the drawing (its
+// `baubles`), and the hung ball covers it at about its size, so an ornament reads as that bauble in
+// a new tint rather than a sticker beside it; the small tree's other hooks are gaps between them.
 //
 // In the yard a bauble is tint, rim and shine only (garden.css "Ornaments"): in a full-width yard
-// it is about 8 px on the small tree and 11 on the grand one, where the item's drawing would be
+// it is about 6 px on the small tree and 8 on the grand one, where the item's drawing would be
 // noise. The view that hangs them is large enough to draw it inside. Each tree's layer is rebuilt
 // only when what hangs on it changed, not at every drawing of the gifts. A tree out on the desktop
 // wears them too (overlay.js), so this module keeps to the catalogue and the drawings: no yard.
@@ -140,9 +143,10 @@ function hang(layer, hanging, hooks, season) {
   layer.replaceChildren(
     ...shown.map(o => {
       const node = bauble(o),
-        [x, y] = hooks[o.hook];
+        [x, y, width] = hooks[o.hook];
       node.style.left = percent(x);
       node.style.top = percent(y);
+      node.style.width = percent(width);
       return node;
     }),
   );
