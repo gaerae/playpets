@@ -17,7 +17,7 @@ import { applyStatus, fadedBetween, stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { every, everyMinute, halt, moveTo } from '../core/ticker.js';
 import { useCatalog } from '../yard/catalog.js';
-import { dressDecor, drawDecor, settleDecor } from './decor-view.js';
+import { dressDecor, drawDecor, holdDecor, settleDecor } from './decor-view.js';
 import { visitKey } from './growing.js';
 
 setupInteractions();
@@ -175,13 +175,15 @@ function createDecor(id, kind) {
     drawn: false,
     worn: null,
     dressLayer: null,
-    // Where it is drawn, and when a drag of it last ended (settleDecor).
+    // Where it is drawn, when a drag of it last ended, and its fall to the floor (settleDecor).
     at: null,
     dropped: 0,
+    fall: null,
   };
   button.onpointerdown = async e => {
     if (e.button !== 0) return;
     view.drag = true;
+    holdDecor(view);
     button.setPointerCapture(e.pointerId);
     await api.dragStart(id);
   };

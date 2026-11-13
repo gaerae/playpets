@@ -49,7 +49,7 @@ export function dressDecor(view, garden, season, now = new Date(), night = []) {
 // and only when the backend's word comes this soon after the drop.
 const FALL_MS = 360;
 const DROP_WAIT_MS = 1500;
-/** Puts the desktop thing `view` ({ wrap, at, dropped }) at (x, y) in its monitor's window. Let go
+/** Puts the desktop thing `view` ({ wrap, at, dropped, drag, fall }) at (x, y) in its monitor's window. Let go
  * above the floor (`view.dropped`, the time its drag ended), it falls to where the backend set it
  * down rather than jumping there, unless motion is reduced (`still`). The place the drag left it,
  * sent again, keeps it waiting for that word. */
@@ -58,12 +58,24 @@ export function settleDecor(view, x, y, still, now = performance.now()) {
     dropped = view.dropped;
   view.at = { x, y };
   view.wrap.style.transform = `translate(${x}px,${y}px)`;
-  if (!dropped || !from || y === from.y) return;
+  // Held (`view.drag`), it follows the pointer: a drop time left over is not this drag's.
+  if (view.drag) view.dropped = 0;
+  if (view.drag || !dropped || !from || y === from.y) return;
   view.dropped = 0;
   if (still || y < from.y || now - dropped > DROP_WAIT_MS || !view.wrap.animate) return;
   // Gathering speed as it comes down, and quicker for a short drop.
-  view.wrap.animate([{ transform: `translate(${from.x}px,${from.y}px)` }, { transform: view.wrap.style.transform }], {
-    duration: Math.min(FALL_MS, 120 + (y - from.y) / 3),
-    easing: 'cubic-bezier(0.55, 0, 1, 0.45)',
-  });
+  view.fall = view.wrap.animate(
+    [{ transform: `translate(${from.x}px,${from.y}px)` }, { transform: view.wrap.style.transform }],
+    {
+      duration: Math.min(FALL_MS, 120 + (y - from.y) / 3),
+      easing: 'cubic-bezier(0.55, 0, 1, 0.45)',
+    },
+  );
+}
+/** The desktop thing `view` is picked up: a fall under way stops at once (the pointer takes it from
+ * the place it is set at), and the last drop, if the backend's word on it has not come, is let be. */
+export function holdDecor(view) {
+  view.fall?.cancel();
+  view.fall = null;
+  view.dropped = 0;
 }

@@ -150,3 +150,41 @@ test('a thing let go on the desktop falls to where the backend sets it down, and
   assert.equal(falls.length, 1);
   assert.equal(v.wrap.style.transform, at(380, 600));
 });
+
+// A thing picked up again while it falls, or before the backend's word on the last drop came, is
+// carried from where it shows: the fall stops at once, and nothing plays over the new drag.
+test('a desktop thing picked up again stops falling, and nothing falls while it is held', async () => {
+  const { holdDecor, settleDecor } = await import('../src/overlay/decor-view.js');
+  const falls = [];
+  const v = {
+    wrap: {
+      style: {},
+      animate: () => {
+        const fall = { cancelled: false, cancel: () => (fall.cancelled = true) };
+        falls.push(fall);
+        return fall;
+      },
+    },
+    dropped: 0,
+  };
+  settleDecor(v, 400, 200, false, 1000);
+  v.dropped = 2000;
+  settleDecor(v, 400, 630, false, 2050);
+  assert.equal(falls.length, 1);
+  // Pressed again mid-fall.
+  v.drag = true;
+  holdDecor(v);
+  assert.equal(falls[0].cancelled, true, 'the fall stops where it shows');
+  // Let go again, and pressed before the backend's word on that drop came: carried, not dropped.
+  v.drag = null;
+  v.dropped = 3000;
+  v.drag = true;
+  holdDecor(v);
+  settleDecor(v, 420, 300, false, 3050);
+  assert.equal(falls.length, 1);
+  // Even with a drop time left over, nothing falls while it is held.
+  v.dropped = 3100;
+  settleDecor(v, 420, 630, false, 3150);
+  assert.equal(falls.length, 1);
+  assert.equal(v.wrap.style.transform, 'translate(420px,630px)');
+});
