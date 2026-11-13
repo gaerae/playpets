@@ -15,7 +15,7 @@ import { canvas, crown, drawSprite, reduced, setSpriteSeason } from '../core/spr
 import { sceneValue } from '../core/state.js';
 import { applyStatus, fadedBetween, stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
-import { every, everyMinute } from '../core/ticker.js';
+import { every, everyMinute, halt, moveTo } from '../core/ticker.js';
 import { useCatalog } from '../yard/catalog.js';
 import { dressDecor, drawDecor } from './decor-view.js';
 import { visitKey } from './growing.js';
@@ -40,6 +40,9 @@ const LOOK_MS = 400;
 const NAME_LINGER_MS = 600;
 // Under the sprite, room for the name button (FOOT in overlay.rs, plus the sprite's own 4px).
 const FOOT = 28;
+// A stroll's steps come every 40 ms (TICK in overlay.rs); a friend glides from one to the next over
+// a little longer than that (core/ticker.js moveTo), so a step that comes late never shows a stop.
+const GLIDE_MS = 52;
 let data = { pets: [], assets: [], statuses: {} },
   layout = [];
 const nameOf = v => displayName(v.pet, v.asset, t('friend.default'));
@@ -98,6 +101,8 @@ function create(pet) {
   button.onpointerdown = async e => {
     if (e.button !== 0) return;
     view.drag = { x: e.screenX, y: e.screenY, moved: false };
+    // Held, it follows the pointer with no glide behind it.
+    halt(wrap);
     wrap.classList.remove('named');
     button.setPointerCapture(e.pointerId);
     await api.dragStart(pet.id);
@@ -258,7 +263,14 @@ function render() {
     );
     v.status = stateOf(data, pet.id);
     v.wrap.style.visibility = 'visible';
-    v.wrap.style.transform = `translate(${position.x - position.origin.x}px,${position.y - position.origin.y}px)`;
+    // A stroll glides from step to step; a held friend follows the pointer, and with reduced motion
+    // a friend is set down where it goes.
+    moveTo(
+      v.wrap,
+      'transform',
+      [position.x - position.origin.x, position.y - position.origin.y],
+      v.drag || reduced.matches ? 0 : GLIDE_MS,
+    );
     // Roaming pets face the way they walk (positions stream in via layout events).
     if (v.lastX !== undefined && Math.abs(position.x - v.lastX) > 0.5 && !v.drag) {
       v.pose = position.x >= v.lastX ? 'right' : 'left';

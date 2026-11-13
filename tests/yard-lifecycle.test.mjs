@@ -19,7 +19,7 @@ globalThis.playPets = {
 };
 const { setData, setGame, views } = await import('../src/core/state.js');
 const { giftTick } = await import('../src/yard/decor.js');
-const { setupViews, syncViews } = await import('../src/yard/views.js');
+const { glide, place, setupViews, syncViews } = await import('../src/yard/views.js');
 
 // Every node has the yard's size and fires pointer events at one spot unless `extra` moves them.
 const pointer = {
@@ -150,6 +150,55 @@ test('an arrow key moves the friend at once and saves where it stands', async t 
   assert.equal(Math.round(v.x * 100), 34);
   assert.notEqual(v.button.style.translate, before, 'the friend is drawn where it went');
   assert.deepEqual(calls, ['move']);
+});
+
+// Every node the yard makes from here on records its glides (core/ticker.js moveTo).
+function recordGlides() {
+  const glides = [],
+    make = document.createElement;
+  document.timeline = { currentTime: 0 };
+  document.createElement = tag =>
+    Object.assign(make(tag), {
+      animate(frames, options) {
+        const glide = { frames, options, cancelled: false, cancel: () => (glide.cancelled = true) };
+        glides.push(glide);
+        return glide;
+      },
+    });
+  return glides;
+}
+
+// A new friend glides only once it walks: drawn where it stands from the start, never slid in from
+// the yard's corner.
+test('a friend that comes into the yard is set down where it stands, not glided in', t => {
+  const { pet } = yard(t);
+  const glides = recordGlides();
+  setupViews({ select() {}, patted() {}, openChat() {} });
+  syncViews();
+  const v = views.get(pet.id);
+  assert.match(v.button.style.translate, /px/, 'it is placed as it is made');
+  assert.deepEqual(glides, []);
+});
+
+test('a press on a gliding friend ends the glide at once, so a drag follows the pointer', async t => {
+  const { pet } = yard(t);
+  const glides = recordGlides();
+  setupViews({ select() {}, patted() {}, openChat() {} });
+  syncViews();
+  const v = views.get(pet.id);
+  glide(v);
+  v.x += 0.05;
+  place(v);
+  assert.equal(glides.length, 2, 'its body and label glide');
+  await v.button.fire('pointerdown');
+  assert.ok(
+    glides.every(g => g.cancelled),
+    'pressed, it stands where it was going',
+  );
+  glide(v);
+  await v.button.fire('pointermove', { clientX: 200 });
+  assert.equal(glides.length, 2, 'a held friend does not glide');
+  await v.button.fire('pointercancel');
 });
 
 test('holding a key down pats a friend once, not on every repeat', async t => {

@@ -16,7 +16,7 @@ import { visitTarget } from './garden.js';
 import { groundProfile } from './ground.js';
 import { loungeTarget, sitOut } from './lounge.js';
 import { sendTo } from './trips.js';
-import { place, pose } from './views.js';
+import { glide, place, pose } from './views.js';
 import { idleAction, strollClear, WANDER_DELAY, wanderTarget } from './wander.js';
 import { blocked } from './workspace.js';
 
@@ -65,6 +65,8 @@ export function moveFriends(now, dt) {
     keepDuty(v);
     const walking = !!v.target && !v.drag && !v.frozen && !reduced.matches;
     stepping(v, walking, !!v.trip?.slow && !v.speed);
+    // A walk glides from step to step (views.js place), the step that ends it too.
+    glide(v, walking);
     if (v.target && !v.drag && !v.frozen) {
       const dx = v.target.x - v.x,
         dy = v.target.y - v.y;

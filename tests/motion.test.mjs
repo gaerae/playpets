@@ -5,6 +5,7 @@ import { reduced } from '../src/core/sprites.js';
 import { setData, views } from '../src/core/state.js';
 import { geometry } from '../src/yard/field.js';
 import { moveFriends } from '../src/yard/motion.js';
+import { GLIDE_MS, place } from '../src/yard/views.js';
 import { element, installDom } from './support/dom.mjs';
 import { flatField } from './support/flat-field.mjs';
 
@@ -133,5 +134,71 @@ test('a friend choosing a stroll measures the dock once', t => {
     views.clear();
     reduced.matches = previousReduced;
     Math.random = random;
+  }
+});
+
+// A step of the frame loop is a jump of a few pixels; while a friend walks the compositor carries it
+// from one to the next (core/ticker.js moveTo), the step that ends the walk too. A held friend
+// follows the pointer, so nothing glides behind a drag.
+test('a walking friend glides from step to step, the last one too, and never while held', t => {
+  const { document } = installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
+  document.timeline = { currentTime: 0 };
+  setData({ statuses: {} });
+  const previousReduced = reduced.matches;
+  reduced.matches = false;
+  const glides = [];
+  const node = () =>
+    element('div', {
+      animate(frames, options) {
+        const glide = { frames, options, cancelled: false, cancel: () => (glide.cancelled = true) };
+        glides.push(glide);
+        return glide;
+      },
+    });
+  try {
+    const friend = {
+      pet: { id: 'friend', size: 112 },
+      x: 0.2,
+      y: 0.5,
+      button: node(),
+      label: node(),
+      canvas: { animate() {} },
+    };
+    views.clear();
+    views.set('friend', friend);
+    place(friend);
+    assert.equal(glides.length, 0, 'it is set down where it stands');
+    friend.target = { x: 0.8, y: 0.5 };
+    friend.trip = { save: false };
+    moveFriends(100, 50);
+    assert.equal(glides.length, 2, 'walking, its body and its label glide');
+    for (const { options } of glides) assert.deepEqual(options, { duration: GLIDE_MS, easing: 'linear' });
+    friend.x = 0.795;
+    moveFriends(150, 50);
+    assert.equal(friend.target, null, 'it arrived');
+    assert.equal(glides.length, 4, 'the step that brought it there glides too');
+    moveFriends(200, 50);
+    assert.equal(glides.length, 4, 'standing, nothing moves');
+    friend.target = { x: 0.2, y: 0.5 };
+    friend.trip = { save: false };
+    moveFriends(1000, 50);
+    assert.equal(glides.length, 6);
+    friend.drag = {};
+    moveFriends(1010, 10);
+    friend.x = 0.5;
+    place(friend);
+    assert.equal(glides.length, 6, 'held, it follows the pointer with no glide');
+    assert.ok(
+      glides.slice(4).every(glide => glide.cancelled),
+      'a glide under way ends where it was going',
+    );
+    friend.drag = null;
+    reduced.matches = true;
+    friend.target = { x: 0.2, y: 0.5 };
+    moveFriends(1100, 50);
+    assert.equal(glides.length, 6, 'with reduced motion a friend is set down where it goes');
+  } finally {
+    views.clear();
+    reduced.matches = previousReduced;
   }
 });

@@ -56,7 +56,7 @@ import {
   START,
 } from './snowman-rules.js';
 import { isFree, sendTo } from './trips.js';
-import { bubble, cheer, gaze, place, pose } from './views.js';
+import { bubble, cheer, gaze, glide, place, pose } from './views.js';
 import { scene } from './world.js';
 
 // What play.js lends this game (setupSnowman): starting and ending a game, and the round's timers.
@@ -355,6 +355,7 @@ function pushers(b, dt) {
       k = gap <= step ? 1 : step / gap;
     v.x += (spot.x - v.x) * k;
     v.y += (spot.y - v.y) * k;
+    glide(v);
     place(v);
     const there = gap - step <= TOUCH;
     if (there) touching = true;

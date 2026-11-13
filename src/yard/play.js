@@ -29,7 +29,7 @@ import { hint } from './hint.js';
 import { snowmanGame } from './snowman.js';
 import { release, rest, sendTo } from './trips.js';
 import { syncViewingAction } from './viewing.js';
-import { bubble, effect, labelTag, place, pose } from './views.js';
+import { bubble, effect, glide, labelTag, place, pose } from './views.js';
 
 const party = () => game.ids.map(id => views.get(id)).filter(Boolean);
 const HIDE_WAIT_MS = 15000;
@@ -186,6 +186,7 @@ const parade = {
       if (!reduced.matches) pose(v, at[i].x >= v.x ? 'right' : 'left', 150);
       v.x = at[i].x;
       v.y = at[i].y;
+      glide(v);
       place(v);
     });
     if (paradeDone(game.progress)) endGame(t('parade.done'));
