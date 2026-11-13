@@ -54,6 +54,13 @@ function drawable(asset) {
   if (ready(image)) entry.shown = null;
   return ready(image) ? image : (entry.shown ?? image);
 }
+/** Resolves once the sheet `asset` is drawn from is decoded (at once when it is), so a loop resting
+ * until then can draw the first cell as soon as there is one. */
+export function sheetReady(asset) {
+  const image = imageFor(asset);
+  if (ready(image) || !image.decode) return Promise.resolve();
+  return image.decode().catch(() => {});
+}
 // A decoded sheet takes about 14 MB, and the Invite tab shows every pet file on this computer:
 // once it closes, the sheets no friend in the yard uses are let go (drawn again, they reload).
 export function release(keep) {

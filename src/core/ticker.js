@@ -64,17 +64,24 @@ export function cadence(wait) {
   };
 }
 // Calls `frame(now)` about every `ms` milliseconds. A frame may return how long to wait before
-// the next one instead (a busier scene asks sooner). One that throws does not stop the loop.
+// the next one instead (a busier scene asks sooner), or Infinity to rest until the returned `wake()`
+// is called, which runs the next frame at once. One that throws does not stop the loop.
 export function every(ms, frame) {
+  let timer = null;
   const run = () => {
+    timer = null;
     let next = ms;
     try {
       next = frame(performance.now()) || ms;
     } finally {
-      setTimeout(run, next);
+      if (next !== Infinity) timer = setTimeout(run, next);
     }
   };
-  setTimeout(run, ms);
+  timer = setTimeout(run, ms);
+  return () => {
+    clearTimeout(timer);
+    timer = setTimeout(run, 0);
+  };
 }
 
 // What changes by the clock (the clock itself, the scene, a plant's stage, a finished agent's state

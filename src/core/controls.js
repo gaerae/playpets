@@ -200,6 +200,9 @@ export function setupControls({
         item => item.dataset.contextAction === `desktop-${forWhat}`,
       );
       check?.setAttribute('aria-checked', String(!!out?.onDesktop));
+      // Not out yet: the desktop window it would land on gets ready while the menu is open, so
+      // Show on desktop shows it at once (overlay.rs warm). Without it, it only shows a moment later.
+      if (out && !out.onDesktop) call('warmDesktop', id).catch(() => {});
       // Only a snowman has things to wear (snowman-dress.js).
       if (forWhat === 'decor')
         for (const item of context.querySelectorAll('[data-context-for]'))
