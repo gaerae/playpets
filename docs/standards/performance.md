@@ -25,7 +25,10 @@
 | Overlay | 100ms |
 
 - New movement adds a condition to `pace()` in `app.js`.
-- The yard also wakes when a friend's sprite cell ends (`cellEnds`, set in `motion.js`), never sooner than 8ms, so each cell shows for its own length.
+- While a friend walks, the yard also wakes when a step of its walk ends (`cellEnds`, set in `motion.js`), never sooner than 8ms, so each 120ms step shows for its own length.
+  - All walks share one clock, as standing animations do: one wake serves every walker.
+  - At most one such wake comes between two frames at the table's interval: no more than 29 wakes a second while friends walk (20 at the interval, one per 120ms step).
+  - Standing and gestures wake nothing extra: friends that only stand keep to 10 a second.
   - The weather canvas still moves only at the interval in the table, counted from its last repaint.
 - Between steps the compositor carries a moving friend: `moveTo` in `src/core/ticker.js`.
   - It starts a short linear Web Animation from where the friend shows to its new place: 64ms in the yard, 52ms on the desktop, a little longer than a step.
@@ -117,4 +120,4 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-10-10 The yard's sounds: they play only while on and seen; a measured state with them playing
 - 2026-11-09 The yard's loop looks once a second, not ten times, while the window cannot be seen
 - 2026-11-11 Loops on the compositor (the breeze, a walking friend's step) may run while the yard is shown; `pnpm run measure` plants a small garden
-- 2026-11-13 The compositor carries a moving friend between steps; the yard wakes when a sprite cell ends; creatures and falling petals keep the 50ms interval; wing beats span six frames
+- 2026-11-13 The compositor carries a moving friend between steps; the yard wakes when a walking step ends, on one clock for all walks; creatures and falling petals keep the 50ms interval; wing beats span six frames

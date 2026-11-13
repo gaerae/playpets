@@ -55,6 +55,8 @@ function stepping(v, walking, strolling) {
   v.button.classList.toggle('walking', walking);
   v.button.classList.toggle('strolling', walking && strolling);
 }
+// The sheet's rows a walk shows (core/animation.js), one way or the other.
+const WALK_CYCLES = new Set(['right', 'left']);
 // The body settles as a friend stops: a short squash on the compositor, by scale alone, so what
 // the canvas's transform shows (a press, a tilt, a spin) goes on through it.
 const SETTLE = [{ scale: '1.05 0.95' }, { scale: '1' }];
@@ -116,17 +118,19 @@ export function moveFriends(now, dt) {
     // Read as the dot and the overlay read it: an agent's done or error fades after a while.
     const status = stateOf(data, id);
     const state = now < v.until ? v.pose : status;
-    // A pose runs from when it began; standing animations share one clock, so friends that only
-    // stand change cells together and the yard is redrawn less often.
+    // A gesture runs from when it began. Standing animations share one clock, and so do the steps of
+    // a walk: friends that stand, or walk, change cells together, and the yard is redrawn and woken
+    // less often.
     const elapsed = now - v.since,
-      posing = now < v.until;
-    const clock = posing ? (Number.isFinite(v.until) ? poseClock(state, elapsed) : elapsed) : now;
+      posing = now < v.until,
+      walk = posing && WALK_CYCLES.has(state);
+    const clock = posing && !walk ? (Number.isFinite(v.until) ? poseClock(state, elapsed) : elapsed) : now;
     const look = state === 'idle' ? v.look : null,
       action = companionAction(v, now);
-    // When the cell drawn ends, for the loop to wake then (app.js). A gesture held on its last cell,
-    // a look, a companion's own action and reduced motion's one cell have no next.
-    const held = (posing && clock < elapsed) || !!action || (!!look && v.asset?.version === 2) || reduced.matches;
-    v.cellEnds = held ? Infinity : now + cellLeft(state, clock);
+    // When a step of the walk drawn ends, for the loop to wake then (app.js): a 120 ms step would
+    // otherwise show for 100 or 150 ms, a limp. Only a walk: standing and gestures keep to the loop's
+    // pace, as the performance standard counts it. A companion's own action has no step.
+    v.cellEnds = walk && !action && !reduced.matches ? now + cellLeft(state, clock) : Infinity;
     drawSprite(v.canvas, v.asset, state, clock, look, action);
     crown(v.label, v.asset, petHeight(v.pet));
   }

@@ -437,11 +437,18 @@ function pace(now) {
   if (scenery.busy()) return scene.weather === 'snow' ? SNOW_MS : RAIN_MS;
   return CALM_MS;
 }
-// The yard's pace, or sooner when a friend's sprite cell ends first (motion.js cellEnds): a 120 ms
-// step of a walk would otherwise show for 100 or 150 ms, a limp.
-function interval(now) {
-  let next = sceneryDue - now;
-  for (const v of views.values()) if (v.cellEnds - now < next) next = v.cellEnds - now;
+// The yard's pace, or sooner when a walking friend's step ends first (motion.js cellEnds): a 120 ms
+// step would otherwise show for 100 or 150 ms, a limp. Walks share one clock, so one early wake
+// serves every walker; and there is at most one between two paced frames (`early`, this wake was
+// one), however the steps fall. A step ending within SOONEST_MS of the paced frame waits for it.
+function interval(now, early) {
+  const due = sceneryDue - now;
+  let next = due;
+  if (!early)
+    for (const v of views.values()) {
+      const left = v.cellEnds - now;
+      if (left < Math.min(next, due - SOONEST_MS)) next = left;
+    }
   return Math.max(SOONEST_MS, next);
 }
 function animate(now) {
@@ -455,7 +462,8 @@ function animate(now) {
   if (game) playGame(now, dt);
   else for (const tick of YARD_LIFE) tick(now);
   // A timer may fire a moment before the time it was set for.
-  if (now >= sceneryDue - 1) {
+  const early = now < sceneryDue - 1;
+  if (!early) {
     scenery.frame(now, Math.min(120, now - sceneryLast));
     sceneryLast = now;
     sceneryDue = now + pace(now);
@@ -466,7 +474,7 @@ function animate(now) {
     if (!$('panel-pet').hidden) drawPortrait(now);
     if (!$('panel-invite').hidden) drawPreviews(now);
   }
-  return interval(now);
+  return interval(now, early);
 }
 try {
   // Record growth during closed time before the first tree and album are drawn.

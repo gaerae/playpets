@@ -285,41 +285,54 @@ test('the first step of a walk counts from when the friend set off', t => {
   }
 });
 
-// The loop wakes when the cell a friend shows ends (app.js), so each cell shows for its own time.
-test('a friend tells the loop when the sprite cell it shows ends', t => {
+// The loop wakes when a walking friend's cell ends (app.js), so each 120 ms step of a walk shows for
+// its own time and not 100 or 150 ms, a limp. Walks share one clock, as standing does, so several
+// friends walking change cells together: one wake for all. A friend that stands or makes a gesture
+// keeps to the loop's pace.
+test('a walking friend tells the loop when its step ends, on the clock all walks share', t => {
   installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
   setData({ statuses: {} });
   const previousReduced = reduced.matches;
   reduced.matches = false;
+  let clock = 1000;
+  t.mock.method(performance, 'now', () => clock);
+  const friend = id => ({
+    pet: { id, size: 112 },
+    x: 0.5,
+    y: 0.5,
+    nextWander: Infinity,
+    pose: 'idle',
+    since: 0,
+    until: 0,
+    button: element(),
+    label: element(),
+    canvas: { animate() {} },
+  });
   try {
-    const friend = {
-      pet: { id: 'friend', size: 112 },
-      x: 0.5,
-      y: 0.5,
-      nextWander: Infinity,
-      pose: 'idle',
-      since: 0,
-      until: 0,
-      button: element(),
-      label: element(),
-      canvas: { animate() {} },
-    };
+    const [a, b, still] = ['a', 'b', 'still'].map(friend);
     views.clear();
-    views.set('friend', friend);
-    // Standing, on the clock all standing friends share: 1000 ms into its 1100 ms loop it shows the
-    // last cell, which ends at 1100.
+    for (const v of [a, b, still]) views.set(v.pet.id, v);
+    // Standing, the loop's pace is enough.
     moveFriends(1000, 50);
-    assert.equal(friend.cellEnds, 1100);
-    // A jump runs from when it began, and holds its last cell once it is over.
-    Object.assign(friend, { pose: 'jump', since: 2000, until: 4000 });
+    for (const v of [a, b, still]) assert.equal(v.cellEnds, Infinity);
+    // Two set off 37 ms apart and step on the shared clock: 2000 ms is 100 ms into the walk's last,
+    // 220 ms cell, which ends at 2120.
+    sendTo(a, { x: 0.9, y: 0.5 }, { save: false });
+    clock = 1037;
+    sendTo(b, { x: 0.1, y: 0.5 }, { save: false });
+    clock = 2000;
+    moveFriends(2000, 50);
+    assert.equal(a.cellEnds, 2120);
+    assert.equal(b.cellEnds, 2120, 'their steps end together');
+    assert.equal(still.cellEnds, Infinity, 'the one standing keeps to the pace');
+    // A gesture keeps to the loop's pace too.
+    Object.assign(still, { pose: 'jump', since: 2000, until: 4000 });
+    clock = 2100;
     moveFriends(2100, 50);
-    assert.equal(friend.cellEnds, 2140);
-    moveFriends(3000, 50);
-    assert.equal(friend.cellEnds, Infinity, 'a finished gesture has no next cell');
+    assert.equal(still.cellEnds, Infinity);
     reduced.matches = true;
-    Object.assign(friend, { pose: 'idle', until: 0 });
-    moveFriends(5000, 50);
-    assert.equal(friend.cellEnds, Infinity, 'with reduced motion a friend shows one cell');
+    moveFriends(2150, 50);
+    for (const v of [a, b, still]) assert.equal(v.cellEnds, Infinity, 'with reduced motion a friend shows one cell');
   } finally {
     views.clear();
     reduced.matches = previousReduced;

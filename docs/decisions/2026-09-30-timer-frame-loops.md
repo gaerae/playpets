@@ -19,7 +19,7 @@ The loops stay on timers; the jitter named under Consequences is now carried by 
 - A friend the loop moves glides from step to step: `moveTo` (`src/core/ticker.js`) starts a short linear Web Animation from where it shows to its new place, 64 ms in the yard (50 ms steps) and 52 ms on the desktop (40 ms steps).
 - It is a Web Animation started at the timeline's time, not a CSS transition: WebKit starts a transition that replaces another a frame late, so a friend stopped once every step.
 - Measured on the mocked page, a walking friend: 19 distinct positions a second before, 60 after, in Chrome and WebKit.
-- The yard also wakes when a friend's sprite cell ends, so each cell shows for its own length; the weather canvas still moves only at the yard's interval.
+- While a friend walks, the yard also wakes when a step of its walk ends, so each step shows for its own length; walks share one clock, and at most one such wake comes between two frames at the interval. Standing and gestures wake nothing extra. The weather canvas still moves only at the yard's interval.
 - Creatures and falling petals and leaves count as movement: the yard draws every 50 ms while they are out.
 
 ## Alternatives considered
