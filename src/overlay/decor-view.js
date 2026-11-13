@@ -44,3 +44,26 @@ export function dressDecor(view, garden, season, now = new Date(), night = []) {
   const thing = growing(garden, view.id);
   if (thing) drawGrowing(view, thing, season, now.getTime());
 }
+
+// A thing let go on the desktop comes down to the floor (overlay.rs set_down) in at most this long,
+// and only when the backend's word comes this soon after the drop.
+const FALL_MS = 360;
+const DROP_WAIT_MS = 1500;
+/** Puts the desktop thing `view` ({ wrap, at, dropped }) at (x, y) in its monitor's window. Let go
+ * above the floor (`view.dropped`, the time its drag ended), it falls to where the backend set it
+ * down rather than jumping there, unless motion is reduced (`still`). The place the drag left it,
+ * sent again, keeps it waiting for that word. */
+export function settleDecor(view, x, y, still, now = performance.now()) {
+  const from = view.at,
+    dropped = view.dropped;
+  view.at = { x, y };
+  view.wrap.style.transform = `translate(${x}px,${y}px)`;
+  if (!dropped || !from || y === from.y) return;
+  view.dropped = 0;
+  if (still || y < from.y || now - dropped > DROP_WAIT_MS || !view.wrap.animate) return;
+  // Gathering speed as it comes down, and quicker for a short drop.
+  view.wrap.animate([{ transform: `translate(${from.x}px,${from.y}px)` }, { transform: view.wrap.style.transform }], {
+    duration: Math.min(FALL_MS, 120 + (y - from.y) / 3),
+    easing: 'cubic-bezier(0.55, 0, 1, 0.45)',
+  });
+}

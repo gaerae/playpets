@@ -78,6 +78,9 @@ struct Inner {
     /// Things whose box changed size since it was last kept (a tree grew): kept again on the next
     /// step, where the new place is saved.
     resized: Vec<String>,
+    /// A drag ended since the last step (finish_drag): the windows hear on the next step where the
+    /// thing was set down, though nothing else moves.
+    dropped: bool,
 }
 
 pub struct Overlay {
@@ -286,7 +289,7 @@ fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt
         }
         let dragged = follow_drag(&mut d, &mons, cursor, &mut arrivals);
         let strolled = stroll(&mut d, &mons, cursor, dt_ms, &mut arrivals, &mut visits);
-        let moved = placed || dragged || strolled;
+        let moved = placed || dragged || strolled || std::mem::take(&mut d.dropped);
         let walking = d.roams.values().any(|r| r.target.is_some());
         (moved, moved || walking || d.drag.is_some() || pointer_near(&d, cursor))
     };
@@ -621,6 +624,7 @@ fn finish_drag(d: &mut Inner, mons: &[Mon], arrivals: &mut Vec<(String, i64, i64
     });
     let (cx, cy) = set_down(pet, &area, (x, y));
     d.positions.insert(drag.id.clone(), (cx, cy));
+    d.dropped = true;
     arrivals.push((drag.id, cx.round() as i64, cy.round() as i64));
 }
 
@@ -723,6 +727,7 @@ mod tests {
                 [(id.to_string(), 600, (FLOOR - h) as i64)]
             );
             assert_eq!(d.positions[id], (600.0, FLOOR - h));
+            assert!(std::mem::take(&mut d.dropped), "the windows hear where it came down");
             // Let go below the floor, or past the screen's side: on the floor, inside the screen.
             dropped(&mut d, id, (1500.0, 790.0));
             let (w, _) = dims(d.pets.iter().find(|p| p.id == id).unwrap());

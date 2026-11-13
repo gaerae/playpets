@@ -17,7 +17,7 @@ import { applyStatus, fadedBetween, stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { every, everyMinute } from '../core/ticker.js';
 import { useCatalog } from '../yard/catalog.js';
-import { dressDecor, drawDecor } from './decor-view.js';
+import { dressDecor, drawDecor, settleDecor } from './decor-view.js';
 import { visitKey } from './growing.js';
 
 setupInteractions();
@@ -170,6 +170,9 @@ function createDecor(id, kind) {
     drawn: false,
     worn: null,
     dressLayer: null,
+    // Where it is drawn, and when a drag of it last ended (settleDecor).
+    at: null,
+    dropped: 0,
   };
   button.onpointerdown = async e => {
     if (e.button !== 0) return;
@@ -180,11 +183,13 @@ function createDecor(id, kind) {
   button.onpointerup = async e => {
     if (!view.drag) return;
     view.drag = null;
+    view.dropped = performance.now();
     await api.dragStop();
     if (button.hasPointerCapture(e.pointerId)) button.releasePointerCapture(e.pointerId);
   };
   button.onpointercancel = () => {
     view.drag = null;
+    view.dropped = performance.now();
     api.dragStop();
   };
   button.oncontextmenu = e => {
@@ -225,7 +230,7 @@ function renderDecor(local) {
     v.wrap.style.visibility = 'visible';
     v.wrap.style.width = `${position.width}px`;
     v.wrap.style.height = `${position.height}px`;
-    v.wrap.style.transform = `translate(${position.x - position.origin.x}px,${position.y - position.origin.y}px)`;
+    settleDecor(v, position.x - position.origin.x, position.y - position.origin.y, reduced.matches);
   }
 }
 function render() {
