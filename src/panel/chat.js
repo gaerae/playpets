@@ -216,8 +216,17 @@ export function renderChat(p) {
 }
 // The log shows one friend's conversation. A new message is added at the end rather than the whole
 // log redrawn, so a screen reader announces only what is new and someone reading further up is not
-// pulled down; switching friends, clearing, or a reset starts the log over.
-let shown = { pet: null, keys: [] };
+// pulled down; switching friends, clearing, or a reset starts the log over. `keys` are the whole
+// conversation's, `entries` its lines, and `from` the first line drawn.
+let shown = { pet: null, keys: [], entries: [], from: 0 };
+/** How many of a conversation's last lines are drawn when it opens; scrolled to the top, the log
+ * draws as many again before them (showEarlier). A long one would otherwise build every line. */
+export const CHAT_PAGE = 50;
+// Within this many pixels of the top counts as at the top.
+const TOP_SLACK = 40;
+// The log's lines, without the waiting bubble or what an empty log shows.
+const lineNodes = log =>
+  [...log.children].filter(n => n.classList?.contains('message') && !n.classList.contains('waiting'));
 let endUnseen = false;
 const keyOf = m => `${m.role}|${m.name || ''}|${m.content}`;
 // Which friend said it: the friend talked with, or a friend in the group by its id (lines kept
@@ -323,7 +332,7 @@ export async function refreshChat() {
   const log = $('chat-log');
   if (shown.pet !== p.id) {
     log.replaceChildren();
-    shown = { pet: p.id, keys: [] };
+    shown = { pet: p.id, keys: [], entries: [], from: 0 };
   }
   syncWaiting();
   try {
@@ -343,19 +352,23 @@ export async function refreshChat() {
     while (dropped < shown.keys.length && !follows(dropped)) dropped++;
     const grows = shown.keys.length > dropped;
     if (grows && dropped) {
-      for (const node of [...log.children].filter(n => !n.classList.contains('waiting')).slice(0, dropped))
-        node.remove();
+      // Only the dropped lines that were drawn have nodes to take away.
+      for (const node of lineNodes(log).slice(0, Math.max(0, dropped - shown.from))) node.remove();
+      shown.from = Math.max(0, shown.from - dropped);
       shown.keys = shown.keys.slice(dropped);
     }
     if (!grows) {
       log.replaceChildren();
       shown.keys = [];
+      shown.from = Math.max(0, entries.length - CHAT_PAGE);
       if (!entries.length) placeholder(p);
     }
     const waiting = log.querySelector('.waiting');
-    for (let n = shown.keys.length; n < entries.length; n++)
-      log.insertBefore(messageNode(entries[n], entries[n - 1]), waiting);
+    // The first line drawn opens its speaker's turn, with its picture, whoever spoke before it.
+    for (let n = Math.max(shown.keys.length, shown.from); n < entries.length; n++)
+      log.insertBefore(messageNode(entries[n], n > shown.from ? entries[n - 1] : null), waiting);
     shown.keys = keys;
+    shown.entries = entries;
     refreshAvatars(log);
     syncWaiting();
     if (!grows || atBottom) {
@@ -365,6 +378,24 @@ export async function refreshChat() {
   } catch (e) {
     toast(spoken(e, t('error.history')), { error: true });
   }
+}
+/** Draws the lines before the first one drawn, when the log is scrolled to its top: what was on
+ * screen stays where it was. Called on the log's scroll. */
+export function showEarlier() {
+  const log = $('chat-log');
+  if (!shown.from || log.scrollTop > TOP_SLACK) return;
+  const { entries } = shown,
+    to = shown.from,
+    from = Math.max(0, to - CHAT_PAGE),
+    first = lineNodes(log)[0],
+    height = log.scrollHeight;
+  for (let n = from; n < to; n++) log.insertBefore(messageNode(entries[n], n > from ? entries[n - 1] : null), first);
+  // The line that opened the drawn part opened a turn of its own; with what came before it now
+  // drawn, it may be the same speaker going on.
+  if (first && speaker(entries[to]) === speaker(entries[to - 1]) && first.classList.contains('turn'))
+    first.replaceWith(messageNode(entries[to], entries[to - 1]));
+  shown.from = from;
+  log.scrollTop += log.scrollHeight - height;
 }
 /** The panel just opened: a log filled while hidden could not scroll, so it goes to its end now. */
 export function chatShown() {
@@ -427,6 +458,8 @@ export function setupChat() {
   });
   // Who joins in opens above the composer.
   dropdown($('companion-toggle'), $('companion-chips'));
+  // A long conversation draws its earlier lines as it is read up to the top.
+  $('chat-log').addEventListener('scroll', showEarlier, { passive: true });
   $('configure').onclick = () =>
     openConnectionDialog(data.providers.find(c => c.id === pet()?.providerId) || null, refreshChat);
   $('provider-select').onchange = guard(async () => {
