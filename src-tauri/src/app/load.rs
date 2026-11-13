@@ -164,6 +164,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
     let now = now_ms();
     let mut garden = garden::Garden::restore(raw.get("garden"), now);
     crate::pets::forget_days_after(&mut bonds, &mut garden, &crate::pets::latest_day(now));
+    let folders = Folders::look(&store.dir, &builtin_root, &root);
     Ok(AppData {
         store,
         codex_pets: root,
@@ -198,6 +199,7 @@ pub fn load_state(app: &tauri::App) -> tauri::Result<AppData> {
         activity: HashMap::new(),
         hidden_decor: None,
         night_decor: Vec::new(),
+        folders,
     })
 }
 

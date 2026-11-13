@@ -194,7 +194,7 @@ static COMMANDS: &[Command] = &[
     // (key, value): the place, season, time of day or weather picked for the yard.
     main("setScene", |c| {
         let choice = crate::app::scene_choice(c.text(0), c.text(1)).ok_or_else(|| i18n::t("error.bad_request"))?;
-        commit(c.app, &c.state, |d| {
+        crate::app::commit_soon(c.app, &c.state, |d| {
             d.prefs.scene.insert(c.text(0).to_string(), choice);
             Ok(Value::Null)
         })
@@ -255,7 +255,9 @@ static COMMANDS: &[Command] = &[
     // (id, package)
     main("saveBackground", |c| {
         let dir = lock(&c.state).store.dir.clone();
-        crate::app::backgrounds::save(&dir, c.text(0), c.arg(1)).map(|()| Value::Null)
+        crate::app::backgrounds::save(&dir, c.text(0), c.arg(1))?;
+        lock(&c.state).folders.kept_background();
+        Ok(Value::Null)
     }),
     main("removeBackground", |c| {
         let dir = lock(&c.state).store.dir.clone();
@@ -316,7 +318,7 @@ static COMMANDS: &[Command] = &[
     }),
     main("moveTree", |c| {
         let ground: discovery::GroundProfile = c.parse(3)?;
-        commit(c.app, &c.state, |d| {
+        crate::app::commit_soon(c.app, &c.state, |d| {
             discovery::move_tree(&mut d.garden, c.text(0), c.float(1), c.float(2), &ground)?;
             Ok(Value::Null)
         })
@@ -348,7 +350,7 @@ static COMMANDS: &[Command] = &[
     // (id, x, y): a plant moved to another spot on the field.
     main("movePlant", |c| {
         let (x, y) = (c.float(1), c.float(2));
-        commit(c.app, &c.state, |d| {
+        crate::app::commit_soon(c.app, &c.state, |d| {
             d.garden.move_plant(c.text(0), x, y).map(|_| Value::Null)
         })
     }),
@@ -383,7 +385,7 @@ static COMMANDS: &[Command] = &[
     }),
     main("moveDecor", |c| {
         let (x, y) = (c.float(1), c.float(2));
-        commit(c.app, &c.state, |d| {
+        crate::app::commit_soon(c.app, &c.state, |d| {
             d.garden.move_decor(c.text(0), x, y).map(|_| Value::Null)
         })
     }),
@@ -428,6 +430,8 @@ static COMMANDS: &[Command] = &[
     }),
     main("bloomed", bloomed),
     main("befriend", befriend),
+    // (friends, reason, local day): `befriend` for several friends, saved once (time together).
+    main("befriendMany", befriend_many),
     // Coding agents.
     main("copyConnection", |c| {
         copy_connection(c.app, &c.state, c.arg(0).as_str().unwrap_or("mcp"))
@@ -438,10 +442,10 @@ static COMMANDS: &[Command] = &[
     main("disconnectAgent", |c| link_agent(c.app, &c.state, c.text(0), false)),
     // The desktop and the windows.
     main("toggleDesktop", |c| {
-        crate::app::toggle_desktop(c.app, &mut lock(&c.state)).map(Value::Bool)
+        crate::app::toggle_desktop(c.app, lock(&c.state)).map(Value::Bool)
     }),
     main("toggleDesktopWander", |c| {
-        crate::app::toggle_wander(c.app, &mut lock(&c.state)).map(Value::Bool)
+        crate::app::toggle_wander(c.app, lock(&c.state)).map(Value::Bool)
     }),
     main("setOnDesktop", |c| {
         let on = c.arg(1).as_bool().ok_or_else(|| i18n::t("error.bad_request"))?;
@@ -732,18 +736,45 @@ mod tests {
     fn every_pet_folder_the_page_lists_can_be_opened() {
         // The Invite tab shows an Open folder button for each place in `petFolders`.
         let app = include_str!("app.rs");
-        let start = app.find("\"petFolders\": {").unwrap();
+        let start = app.find("json!({\"builtin\"").unwrap();
         let folders = &app[start..start + app[start..].find('}').unwrap()];
         let source = include_str!("commands/prefs.rs");
         let open = &source[source.find("fn open_folder(").unwrap()..];
         let open = &open[..open.find("\n}\n").unwrap()];
-        let parts: Vec<&str> = folders.split('"').skip(3).collect();
-        let keys = parts.windows(2).filter(|w| w[1].starts_with(':')).map(|w| w[0]);
+        let parts: Vec<&str> = folders.split('"').skip(1).collect();
+        let keys: Vec<&str> = parts
+            .windows(2)
+            .filter(|w| w[1].starts_with(':'))
+            .map(|w| w[0])
+            .collect();
+        assert_eq!(keys, ["builtin", "codex", "downloaded"]);
         for key in keys {
             assert!(
                 open.contains(&format!("\"{key}\" =>")),
                 "open_folder has no arm for {key}"
             );
+        }
+    }
+
+    #[test]
+    fn small_frequent_changes_are_shown_at_once_and_written_together_soon() {
+        // A pat, time together, a scene picked or something moved: every page hears at once, and
+        // the disk gets one write for a burst of them (app::SOON), and one at exit.
+        let rows = include_str!("commands.rs");
+        for name in ["setScene", "moveTree", "movePlant", "moveDecor"] {
+            let row = &rows[rows.find(&format!("main(\"{name}\"")).unwrap()..];
+            let row = &row[..row.find("\n    }),\n").unwrap()];
+            assert!(row.contains("commit_soon("), "{name} saves with the next few");
+        }
+        let friends = include_str!("commands/friends.rs");
+        for handler in ["fn befriend(", "fn befriend_many("] {
+            let body = &friends[friends.find(handler).unwrap()..];
+            let body = &body[..body.find("\n}\n").unwrap()];
+            assert!(
+                body.contains("show_and_save_soon("),
+                "{handler} saves with the next few"
+            );
+            assert!(!body.contains("show_and_save("), "{handler} does not write at once");
         }
     }
 

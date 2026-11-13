@@ -100,11 +100,47 @@ pub(super) fn befriend(c: &Ctx) -> Result<Value, String> {
     require_pet(&d, pet)?;
     let before = d.bonds.get(pet).cloned();
     let (points, level, up) = d.bonds.befriend(pet, reason, day, now)?;
-    // A pat past the day's cap changes nothing: no save, no redraw of every page.
+    // A pat past the day's cap changes nothing: no save, no redraw of every page. A pat that counts
+    // is shown at once and written with the next few: a burst of pats is one write.
     if d.bonds.get(pet) != before.as_ref() {
-        crate::app::show_and_save(c.app, d)?;
+        crate::app::show_and_save_soon(c.app, d);
     }
     Ok(json!({"points": points, "level": level, "up": up}))
+}
+
+/// (friends, reason, local day): something done with several friends at once, time together
+/// above all: each bond grows as `befriend` grows it, and the change is saved and shown once.
+/// Returns each friend's {points, level, up}; one gone meanwhile is left out.
+pub(super) fn befriend_many(c: &Ctx) -> Result<Value, String> {
+    let now = now_ms();
+    let ids = c.parse::<Vec<String>>(0)?;
+    let (reason, day) = (c.text(1), c.text(2));
+    if !crate::pets::has_come(day, now) {
+        return Err(i18n::t("error.bad_request"));
+    }
+    let mut d = lock(&c.state);
+    let (answer, changed) = befriend_all(&mut d, &ids, reason, day, now)?;
+    if changed {
+        crate::app::show_and_save_soon(c.app, d);
+    }
+    Ok(answer)
+}
+
+/// The bonds of every friend among `ids` grow (each once), and whether any changed, so the
+/// caller saves and shows them once.
+fn befriend_all(d: &mut AppData, ids: &[String], reason: &str, day: &str, now: u64) -> Result<(Value, bool), String> {
+    let mut answer = serde_json::Map::new();
+    let mut changed = false;
+    for id in ids {
+        if answer.contains_key(id) || require_pet(d, id).is_err() {
+            continue;
+        }
+        let before = d.bonds.get(id).cloned();
+        let (points, level, up) = d.bonds.befriend(id, reason, day, now)?;
+        changed |= d.bonds.get(id) != before.as_ref();
+        answer.insert(id.clone(), json!({"points": points, "level": level, "up": up}));
+    }
+    Ok((Value::Object(answer), changed))
 }
 
 /// A plant the page sees in flower: counted in the album the first time.
@@ -280,6 +316,40 @@ mod tests {
             "its agent goes back to the first friend"
         );
         assert!(forget(&mut d, &chat::cli::CliManager::default(), "gone").is_err());
+    }
+
+    #[test]
+    fn time_together_for_everyone_is_one_change_with_each_friends_own_points() {
+        use crate::pets::bond::TIME_EVERY_MS;
+        let pet = |id: &str| json!({"id": id, "assetId": "a", "name": id, "size": 96, "x": 0.5, "y": 0.5});
+        let pets = json!([pet("a"), pet("b"), pet("c")]);
+        let (mut one_by_one, mut together) = (yard(pets.clone()), yard(pets));
+        for d in [&mut one_by_one, &mut together] {
+            // One friend is closer already, and was with the person a moment ago.
+            d.bonds.befriend("b", "gift", "2026-10-10", 0).unwrap();
+            d.bonds.befriend("b", "time", "2026-10-10", TIME_EVERY_MS).unwrap();
+        }
+        let now = TIME_EVERY_MS + 1000;
+        let singles: Vec<_> = ["a", "b", "c"]
+            .iter()
+            .map(|id| one_by_one.bonds.befriend(id, "time", "2026-10-10", now).unwrap())
+            .collect();
+        let ids = ["a", "b", "c", "gone", "a"].map(String::from);
+        let (answer, changed) = befriend_all(&mut together, &ids, "time", "2026-10-10", now).unwrap();
+        assert!(changed, "one save and one push for the whole tick");
+        for (id, (points, level, up)) in ["a", "b", "c"].iter().zip(singles) {
+            assert_eq!(
+                answer[id],
+                json!({"points": points, "level": level, "up": up}),
+                "{id} gains what it would alone"
+            );
+            assert_eq!(together.bonds.get(id), one_by_one.bonds.get(id));
+        }
+        assert!(answer.get("gone").is_none(), "a friend gone meanwhile is left out");
+        let (_, again) = befriend_all(&mut together, &ids, "time", "2026-10-10", now + 1).unwrap();
+        assert!(!again, "a tick that counts nothing saves nothing");
+        assert!(befriend_all(&mut together, &ids, "nonsense", "2026-10-10", now).is_err());
+        assert!(befriend_all(&mut together, &ids, "time", "someday", now).is_err());
     }
 
     #[test]

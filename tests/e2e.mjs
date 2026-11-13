@@ -571,7 +571,10 @@ const scenario = `(async()=>{
       await playPets.putAway(memento.id);
       mementoFlow=boxedMemento?.memento===true&&backOut.ok&&outAgain;
     }
+    // Something done with several friends at once is one call (time together); one not in the yard is left out.
+    const many=await playPets.befriendMany([fid,mid,'nobody'],'chat','2026-02-20'),manyFlow=many.ok&&Object.keys(many.data).sort().join()===[fid,mid].sort().join()&&many.data[fid].points>0;
     if(mid)await playPets.removePet(mid);
+    await L('befriendMany='+(manyFlow?'each-friend-once':'err:'+JSON.stringify(many)));
     await L('memento='+(mid&&patsCapped&&mementoFlow?'pats-capped-memento-boxed-and-set-out':'err:'+JSON.stringify({patsCapped,third,fourth,closeDay,bond:await bondOf()})));
     // Yard sounds: on by default; the chip turns them off and on, the volume is kept and held to 0–100.
     // The settings change while the yard stays quiet: the volume goes to 0 before the chip turns it on.
@@ -1775,6 +1778,10 @@ const expect = [
   [
     /^memento=pats-capped-memento-boxed-and-set-out$/,
     "pats bring at most a quarter of a day's worth, and at Very close a friend brings its memento, which goes back into the gift box when put away",
+  ],
+  [
+    /^befriendMany=each-friend-once$/,
+    'something done with several friends at once counts each friend in the yard once',
   ],
   [
     /^reach=compact-chat\/layered\/labels-over$/,

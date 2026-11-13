@@ -11,6 +11,7 @@ use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard};
+use std::time::Duration;
 use tauri::{AppHandle, Manager};
 
 // Loading the state at start (load.rs), the person's switches (prefs.rs) and serving sprite
@@ -109,6 +110,37 @@ pub struct AppData {
     /// The gift kinds the yard shows in their night look right now (decorNight: the Christmas tree
     /// standing grand); the desktop shows them so too. Not saved.
     pub night_decor: Vec<String>,
+    /// What the pages hear about folders on disk, looked at once rather than on every change.
+    pub folders: Folders,
+}
+
+/// What `public_state` says about folders on disk: looked at when the app starts and again only by
+/// what changes them, since every change sends the whole state (a stat each, more inside an MSIX
+/// package, where the file manager's path is looked up too).
+pub struct Folders {
+    /// Whether the data folder has kept a background before; another data folder copies the
+    /// installed app's old ones only until it has (background-store.js). Set once one is saved.
+    pub backgrounds: bool,
+    /// The pet folders as the file manager finds them; looked at again when a pet file comes in.
+    pub pets: Value,
+}
+
+impl Folders {
+    pub fn look(data: &std::path::Path, builtin: &std::path::Path, codex: &std::path::Path) -> Folders {
+        Folders {
+            backgrounds: data.join(backgrounds::FOLDER).is_dir(),
+            pets: pet_folders(data, builtin, codex),
+        }
+    }
+    /// A background was saved, so its folder is there.
+    pub fn kept_background(&mut self) {
+        self.backgrounds = true;
+    }
+}
+
+/// The paths shown are the ones Explorer finds, as Open folder opens them (system.rs).
+fn pet_folders(data: &std::path::Path, builtin: &std::path::Path, codex: &std::path::Path) -> Value {
+    json!({"builtin": crate::system::outside_view(builtin), "codex": codex, "downloaded": crate::system::outside_view(&data.join("pets"))})
 }
 
 pub type Shared = Mutex<AppData>;
@@ -181,33 +213,77 @@ pub fn commit(
     show_and_save(app, d).map(|()| answer)
 }
 
-/// Saves a change made in place and shows it on every page, in that order. As in `commit`, a change
-/// that could not be saved still stands and is shown; the error is returned after. A caller done
-/// with the state uses `show_and_save`, which writes after letting it go.
-pub fn save_and_show(app: &AppHandle, d: &AppData) -> Result<(), String> {
-    let saved = persist(d).map_err(|_| i18n::t("store.held"));
-    changed(app, d);
-    saved
+/// `commit` for a small change that comes often (a scene picked, a decoration moved): shown at
+/// once, written with the next few (`show_and_save_soon`).
+pub fn commit_soon(
+    app: &AppHandle,
+    state: &Mutex<AppData>,
+    change: impl FnOnce(&mut AppData) -> Result<Value, String>,
+) -> Result<Value, String> {
+    let mut d = lock(state);
+    let answer = change(&mut d)?;
+    show_and_save_soon(app, d);
+    Ok(answer)
 }
 
-/// Like `save_and_show` for a caller done with the state: the state to save is taken and shown
-/// under the lock, which is let go before the disk write, so moving the window or a friend never
-/// waits for the disk. A save taken earlier but written later is dropped (`Saving::write`).
+/// For small changes that come often (a pat, time together, a scene picked, something moved): every
+/// page is shown the change at once, and the disk gets one write within `SOON` for a burst of them,
+/// and one at exit (`flush`). A write that fails is tried again at exit; nobody waits for it.
+pub fn show_and_save_soon(app: &AppHandle, d: MutexGuard<'_, AppData>) {
+    changed(app, &d);
+    drop(d);
+    save_within(app, SOON);
+}
+
+/// Shows a change made in place on every page and saves it: the save is taken and shown under the
+/// lock, which is let go before the disk write, so moving the window or a friend never waits for
+/// the disk. As in `commit`, a change that could not be saved still stands and is shown; the error
+/// is returned after. A save taken earlier but written later is dropped (`Saving::write`).
 pub fn show_and_save(app: &AppHandle, d: MutexGuard<'_, AppData>) -> Result<(), String> {
+    show_and_save_with(app, d, |_| {})
+}
+
+/// `show_and_save`, with one more step (`also`) taken under the lock right after the change is shown.
+fn show_and_save_with(app: &AppHandle, d: MutexGuard<'_, AppData>, also: impl FnOnce(&AppData)) -> Result<(), String> {
     unlocked(
         d,
+        Unsaved::of,
         |d| {
-            (
-                Saving::of(d),
-                store::Store {
-                    dir: d.store.dir.clone(),
-                },
-            )
+            changed(app, d);
+            also(d);
         },
-        |d| changed(app, d),
-        |(saving, store)| saving.write(&store, &WRITTEN),
+        Unsaved::write,
     )
-    .map_err(|_| i18n::t("store.held"))
+}
+
+/// For a caller with more to do under the lock (a chat turn): the change is shown now and its save
+/// taken, to be written (`Unsaved::write`) once the lock is let go.
+pub fn show_for_save(app: &AppHandle, d: &AppData) -> Unsaved {
+    let unsaved = Unsaved::of(d);
+    changed(app, d);
+    unsaved
+}
+
+/// A save taken under the state's lock and not yet written: written after the lock is let go.
+#[must_use = "a save taken is written once the lock is let go"]
+pub struct Unsaved {
+    saving: Saving,
+    store: store::Store,
+}
+impl Unsaved {
+    fn of(d: &AppData) -> Unsaved {
+        Unsaved {
+            saving: Saving::of(d),
+            store: store::Store {
+                dir: d.store.dir.clone(),
+            },
+        }
+    }
+    pub fn write(self) -> Result<(), String> {
+        self.saving
+            .write(&self.store, &WRITTEN)
+            .map_err(|_| i18n::t("store.held"))
+    }
 }
 
 /// Takes what to write and shows the change while holding the lock, then writes without it.
@@ -262,9 +338,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "version": app.package_info().version.to_string(),
         "updateChannel": if crate::update::store_managed() { "store" } else { "github" },
         "ownsWebviewStorage": load::owns_webview_storage(std::env::var("PLAYPETS_DATA").ok().as_deref(), crate::commands::e2e_mode()),
-        // Whether the data folder has kept a background before; another data folder copies the
-        // installed app's old ones only until it has (background-store.js).
-        "hasBackgroundsFolder": d.store.dir.join(backgrounds::FOLDER).is_dir(),
+        "hasBackgroundsFolder": d.folders.backgrounds,
         "project": {"site": env!("CARGO_PKG_HOMEPAGE"), "repository": env!("CARGO_PKG_REPOSITORY")},
         "assets": d.assets.iter().map(sprite::asset_json).collect::<Vec<_>>(),
         "providers": d.providers.iter().map(|p| { let mut p = p.clone(); p["hasKey"] = json!(d.secret_ids.contains(providers::id_of(&p))); p }).collect::<Vec<_>>(),
@@ -276,8 +350,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "desktop": desktop_on(d),
         "nightDecor": d.night_decor,
         "communities": importer::communities_json(),
-        // The paths shown are the ones Explorer finds, as Open folder opens them (system.rs).
-        "petFolders": {"builtin": crate::system::outside_view(&d.builtin_pets), "codex": d.codex_pets, "downloaded": crate::system::outside_view(&d.store.dir.join("pets"))},
+        "petFolders": d.folders.pets,
     });
     // The window's place is the backend's alone (window.rs); the pages have no use for it.
     let mut prefs = d.prefs.json();
@@ -340,42 +413,46 @@ impl SaveLater {
 }
 static SAVE_LATER: SaveLater = SaveLater(AtomicBool::new(false));
 
+/// How soon a small change the pages show is written (`show_and_save_soon`): a burst of pats is one write.
+const SOON: Duration = Duration::from_millis(250);
+/// How soon a change no page shows is written (`persist_soon`): a drag of the window is one write.
+const LATER: Duration = Duration::from_secs(2);
+
 /// For changes that come often and matter little until the app quits (where a friend stopped
-/// walking, where the window was left): written within 2 s, together, and at exit. Everything else saves at once.
+/// walking, where the window was left): written within 2 s, together, and at exit. A save asked
+/// for meanwhile (`show_and_save_soon`) joins the same write.
 pub fn persist_soon(app: &AppHandle) {
-    if !SAVE_LATER.ask() {
-        return;
+    save_within(app, LATER);
+}
+
+fn save_within(app: &AppHandle, wait: Duration) {
+    if SAVE_LATER.ask() {
+        flush_after(app, wait);
     }
+}
+
+fn flush_after(app: &AppHandle, wait: Duration) {
     let app = app.clone();
     std::thread::spawn(move || {
-        std::thread::sleep(std::time::Duration::from_secs(2));
+        std::thread::sleep(wait);
         flush(&app);
     });
 }
 
-/// Writes a save `persist_soon` put off, if there is one. The state is taken under its lock and
-/// written after: the disk flush can take a while, and nothing else should wait for it.
+/// Writes a save put off (`persist_soon`, `show_and_save_soon`), if there is one. The state is
+/// taken under its lock and written after: the disk flush can take a while, and nothing else
+/// should wait for it. A write that failed (a file held a moment, say) is tried again later and
+/// at exit.
 pub fn flush(app: &AppHandle) {
     if SAVE_LATER.take()
         && let Some(state) = app.try_state::<Shared>()
     {
-        let (saving, store) = {
-            let d = lock(&state);
-            (
-                Saving::of(&d),
-                store::Store {
-                    dir: d.store.dir.clone(),
-                },
-            )
-        };
-        if saving.write(&store, &WRITTEN).is_err() {
+        let unsaved = Unsaved::of(&lock(&state));
+        if unsaved.write().is_err() {
             SAVE_LATER.retry();
+            flush_after(app, LATER);
         }
     }
-}
-
-pub fn persist(d: &AppData) -> Result<(), String> {
-    Saving::of(d).write(&d.store, &WRITTEN)
 }
 
 /// How many saves have been taken; each takes the next number, under the state's lock.
@@ -449,28 +526,29 @@ fn extras(raw: &Value) -> Map<String, Value> {
 }
 
 /// The menus' desktop switch: every friend goes out, or everything comes in (desktop::items::flip).
-pub fn toggle_desktop(app: &AppHandle, d: &mut AppData) -> Result<bool, String> {
+pub fn toggle_desktop(app: &AppHandle, mut d: MutexGuard<'_, AppData>) -> Result<bool, String> {
     let AppData {
         pets,
         garden,
         hidden_decor,
         ..
-    } = d;
+    } = &mut *d;
     let now = crate::desktop::items::flip(pets, garden, hidden_decor.as_deref());
-    let shown = save_and_show(app, d);
     // Everything brought in with the switch is put away for good: no window lingers for it. After
     // the overlay has nothing out, so no step keeps a window for it again.
-    if !now && let Some(o) = app.try_state::<OverlayHandle>() {
-        o.0.rest();
-    }
-    shown.map(|()| now)
+    show_and_save_with(app, d, |_| {
+        if !now && let Some(o) = app.try_state::<OverlayHandle>() {
+            o.0.rest();
+        }
+    })
+    .map(|()| now)
 }
 
 /// Friends out on the desktop roam it, or stay where they are put.
-pub fn toggle_wander(app: &AppHandle, d: &mut AppData) -> Result<bool, String> {
+pub fn toggle_wander(app: &AppHandle, mut d: MutexGuard<'_, AppData>) -> Result<bool, String> {
     d.prefs.wander = !d.prefs.wander;
     let now = d.prefs.wander;
-    save_and_show(app, d).map(|()| now)
+    show_and_save(app, d).map(|()| now)
 }
 
 /// Sends one friend or decoration out to the desktop, or brings it in: shown first, written after
@@ -532,7 +610,7 @@ pub fn set_status(app: &AppHandle, d: &mut AppData, id: &str, state: &str, messa
 }
 
 /// Puts a pet file on the shelf (once) and remembers its folder for the next start.
-pub fn register_asset(app: &AppHandle, d: &mut AppData, asset: catalog::Asset) -> Result<Value, String> {
+pub fn register_asset(app: &AppHandle, mut d: MutexGuard<'_, AppData>, asset: catalog::Asset) -> Result<Value, String> {
     let asset = catalog::Asset {
         place: catalog::place_of(&d.store.dir.join("pets"), &asset.folder, &d.picked),
         ..asset
@@ -541,7 +619,9 @@ pub fn register_asset(app: &AppHandle, d: &mut AppData, asset: catalog::Asset) -
     if !d.assets.iter().any(|a| a.id == id) {
         d.imports.push(asset.folder.to_string_lossy().into_owned());
         d.assets.push(asset);
-        save_and_show(app, d)?;
+        // The first pet file brought in may have made the downloaded pets' folder.
+        d.folders.pets = pet_folders(&d.store.dir, &d.builtin_pets, &d.codex_pets);
+        show_and_save(app, d)?;
     }
     Ok(json!(id))
 }
@@ -596,25 +676,73 @@ pub(crate) mod tests {
             activity: HashMap::new(),
             hidden_decor: None,
             night_decor: Vec::new(),
+            folders: Folders::look(&dir, &dir.join("builtin"), &dir.join("codex")),
         }
     }
 
     #[test]
     fn a_change_is_shown_under_the_lock_and_written_after_it_is_let_go() {
         let state = Mutex::new(7);
+        let steps = std::cell::RefCell::new(Vec::new());
         let mut shown = 0;
         let saved = unlocked(
             hold(&state),
-            |n| *n,
-            |n| shown = *n,
+            |n| {
+                steps.borrow_mut().push("take");
+                *n
+            },
+            |n| {
+                steps.borrow_mut().push("show");
+                shown = *n;
+            },
             |taken| {
-                assert!(state.try_lock().is_ok(), "nothing waits for the disk");
-                assert_eq!(taken, 7);
+                steps.borrow_mut().push("write");
+                let mut now = state.try_lock().expect("nothing waits for the disk");
+                // Another change lands while this one is written: it has its own save.
+                *now = 8;
+                assert_eq!(taken, 7, "what is written is what was shown");
                 Err("disk full".to_string())
             },
         );
+        assert_eq!(*steps.borrow(), ["take", "show", "write"]);
         assert_eq!(shown, 7, "shown before the write");
         assert_eq!(saved.unwrap_err(), "disk full");
+        // Every save made with a change goes this way: none writes while it holds the state, so
+        // a menu switch, a chat's persona or a new pet file never keeps a page waiting on the disk.
+        let old = concat!("save_and", "_show(");
+        for (file, source) in [
+            ("app.rs", include_str!("app.rs")),
+            ("menu.rs", include_str!("menu.rs")),
+            ("chat/mod.rs", include_str!("chat/mod.rs")),
+            ("commands.rs", include_str!("commands.rs")),
+            ("commands/imports.rs", include_str!("commands/imports.rs")),
+        ] {
+            assert!(!source.contains(old), "{file} writes under the lock");
+        }
+    }
+
+    #[test]
+    fn the_folders_the_pages_hear_of_are_looked_at_once_and_again_only_when_they_change() {
+        let dir = std::env::temp_dir().join(format!("playpets-folders-{}", uuid::Uuid::new_v4()));
+        let mut folders = Folders::look(&dir, &dir.join("builtin"), &dir.join("codex"));
+        assert!(!folders.backgrounds);
+        assert_eq!(folders.pets["downloaded"], json!(dir.join("pets")));
+        assert_eq!(folders.pets["codex"], json!(dir.join("codex")));
+        folders.kept_background();
+        assert!(folders.backgrounds, "a background kept makes the folder");
+        std::fs::create_dir_all(dir.join(backgrounds::FOLDER)).unwrap();
+        assert!(
+            Folders::look(&dir, &dir.join("builtin"), &dir.join("codex")).backgrounds,
+            "the next start finds it"
+        );
+        let _ = std::fs::remove_dir_all(&dir);
+        // Every change sends the whole state to every page: it never asks the disk.
+        let source = include_str!("app.rs");
+        let public = &source[source.find("pub fn public_state(").unwrap()..];
+        let public = &public[..public.find("\n}\n").unwrap()];
+        for stat in ["is_dir", "outside_view", "exists("] {
+            assert!(!public.contains(stat), "public_state looks at the disk ({stat})");
+        }
     }
 
     #[test]
@@ -702,6 +830,70 @@ pub(crate) mod tests {
             json!({"state": "working", "message": "m", "source": "chat", "at": 5}),
             "no empty `by`"
         );
+    }
+
+    /// What a command waits for before it answers, and how many writes a bond tick makes, with 12
+    /// friends: `cargo test --release bond_tick_cost -- --ignored --nocapture`. Pushing the change
+    /// to the pages (`changed`) needs a running app and is left out; it went from 12 to 1 a tick.
+    #[test]
+    #[ignore = "a measurement, not a check"]
+    fn bond_tick_cost() {
+        use std::time::Instant;
+        let pets: Vec<Value> = (0..12)
+            .map(|i| json!({"id": format!("p{i}"), "assetId": "a", "name": "n", "size": 96, "x": 0.5, "y": 0.5}))
+            .collect();
+        let ids: Vec<String> = (0..12).map(|i| format!("p{i}")).collect();
+        let mut d = yard(json!(pets));
+        let later = SaveLater(AtomicBool::new(false));
+        let median = |mut v: Vec<f64>| {
+            v.sort_by(f64::total_cmp);
+            v[v.len() / 2]
+        };
+        let (mut pat_before, mut pat_after, mut tick_before, mut tick_after, mut write) =
+            (Vec::new(), Vec::new(), Vec::new(), Vec::new(), Vec::new());
+        for run in 0..30u64 {
+            let day = format!("2026-10-{:02}", run % 28 + 1);
+            // Before: each friend's bond changed and was written before its command answered.
+            let t = Instant::now();
+            for id in &ids {
+                d.bonds.befriend(id, "pat", &day, run).unwrap();
+                Unsaved::of(&d).write().unwrap();
+            }
+            tick_before.push(t.elapsed().as_secs_f64() * 1000.0);
+            let t = Instant::now();
+            d.bonds.befriend(&ids[0], "treat", &day, run).unwrap();
+            Unsaved::of(&d).write().unwrap();
+            pat_before.push(t.elapsed().as_secs_f64() * 1000.0);
+            // After: the whole tick changes the bonds and asks for one write, put off.
+            let t = Instant::now();
+            for id in &ids {
+                d.bonds.befriend(id, "gift", &day, run).unwrap();
+            }
+            later.ask();
+            tick_after.push(t.elapsed().as_secs_f64() * 1000.0);
+            let t = Instant::now();
+            d.bonds.befriend(&ids[0], "chat", &day, run).unwrap();
+            later.ask();
+            pat_after.push(t.elapsed().as_secs_f64() * 1000.0);
+            // The write itself, on its own thread a moment later.
+            let t = Instant::now();
+            if later.take() {
+                Unsaved::of(&d).write().unwrap();
+            }
+            write.push(t.elapsed().as_secs_f64() * 1000.0);
+        }
+        println!(
+            "pat until the answer: {:.3} ms -> {:.3} ms",
+            median(pat_before),
+            median(pat_after)
+        );
+        println!(
+            "bond tick (12 friends) until the answers: {:.3} ms, 12 writes -> {:.3} ms, 0 writes (1 put off, {:.3} ms off the reply)",
+            median(tick_before),
+            median(tick_after),
+            median(write)
+        );
+        let _ = std::fs::remove_dir_all(&d.store.dir);
     }
 
     #[test]
