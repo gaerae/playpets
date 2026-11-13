@@ -32,6 +32,7 @@
 - No write of `state.json`. A save is taken under the lock and written after it is let go:
   - `commit` and `app::show_and_save` (which takes the guard) show the change, let the lock go, then write.
   - A caller with more to do under the lock (a chat turn) calls `app::show_for_save` and writes the `Unsaved` it gets after dropping the guard.
+  - A small change that comes often (a pat, time together, a scene picked, something moved) uses `app::show_and_save_soon` or `app::commit_soon`: shown at once, written by `app::flush` on its own thread within 250 ms, together with any others, and at exit.
 - After you release the lock and take it again, check what may have changed in between: whether the friend is still there, whether a reply is already pending, whether the AI connection is the same. Example: `chat::still_ready` in chat.
 
 ### Lock order
@@ -93,4 +94,4 @@ Follow these when you can. When you cannot, say why in the PR.
 ## Change history
 - 2026-10-01 First version
 - 2026-10-10 `app::lock` for the state and `app::hold` for every other mutex, both recovering from a poisoned lock; where the CLI sessions, the tray, the mini window and the update lock sit relative to `Shared`; the Claude Code stderr tail and the CLIs' private folder
-- 2026-11-14 No state write under `Shared`: `save_and_show` gave way to `show_and_save` and `show_for_save`; `WRITTEN` is never taken under `Shared`; the menu switches that save run on a worker thread
+- 2026-11-14 No state write under `Shared`: `save_and_show` gave way to `show_and_save` and `show_for_save`; `WRITTEN` is never taken under `Shared`; the menu switches that save run on a worker thread; small frequent changes are written together within 250 ms

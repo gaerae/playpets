@@ -194,7 +194,7 @@ static COMMANDS: &[Command] = &[
     // (key, value): the place, season, time of day or weather picked for the yard.
     main("setScene", |c| {
         let choice = crate::app::scene_choice(c.text(0), c.text(1)).ok_or_else(|| i18n::t("error.bad_request"))?;
-        commit(c.app, &c.state, |d| {
+        crate::app::commit_soon(c.app, &c.state, |d| {
             d.prefs.scene.insert(c.text(0).to_string(), choice);
             Ok(Value::Null)
         })
@@ -316,7 +316,7 @@ static COMMANDS: &[Command] = &[
     }),
     main("moveTree", |c| {
         let ground: discovery::GroundProfile = c.parse(3)?;
-        commit(c.app, &c.state, |d| {
+        crate::app::commit_soon(c.app, &c.state, |d| {
             discovery::move_tree(&mut d.garden, c.text(0), c.float(1), c.float(2), &ground)?;
             Ok(Value::Null)
         })
@@ -348,7 +348,7 @@ static COMMANDS: &[Command] = &[
     // (id, x, y): a plant moved to another spot on the field.
     main("movePlant", |c| {
         let (x, y) = (c.float(1), c.float(2));
-        commit(c.app, &c.state, |d| {
+        crate::app::commit_soon(c.app, &c.state, |d| {
             d.garden.move_plant(c.text(0), x, y).map(|_| Value::Null)
         })
     }),
@@ -383,7 +383,7 @@ static COMMANDS: &[Command] = &[
     }),
     main("moveDecor", |c| {
         let (x, y) = (c.float(1), c.float(2));
-        commit(c.app, &c.state, |d| {
+        crate::app::commit_soon(c.app, &c.state, |d| {
             d.garden.move_decor(c.text(0), x, y).map(|_| Value::Null)
         })
     }),
@@ -746,6 +746,28 @@ mod tests {
                 open.contains(&format!("\"{key}\" =>")),
                 "open_folder has no arm for {key}"
             );
+        }
+    }
+
+    #[test]
+    fn small_frequent_changes_are_shown_at_once_and_written_together_soon() {
+        // A pat, time together, a scene picked or something moved: every page hears at once, and
+        // the disk gets one write for a burst of them (app::SOON), and one at exit.
+        let rows = include_str!("commands.rs");
+        for name in ["setScene", "moveTree", "movePlant", "moveDecor"] {
+            let row = &rows[rows.find(&format!("main(\"{name}\"")).unwrap()..];
+            let row = &row[..row.find("\n    }),\n").unwrap()];
+            assert!(row.contains("commit_soon("), "{name} saves with the next few");
+        }
+        let friends = include_str!("commands/friends.rs");
+        for handler in ["fn befriend(", "fn befriend_many("] {
+            let body = &friends[friends.find(handler).unwrap()..];
+            let body = &body[..body.find("\n}\n").unwrap()];
+            assert!(
+                body.contains("show_and_save_soon("),
+                "{handler} saves with the next few"
+            );
+            assert!(!body.contains("show_and_save("), "{handler} does not write at once");
         }
     }
 

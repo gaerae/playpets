@@ -100,9 +100,10 @@ pub(super) fn befriend(c: &Ctx) -> Result<Value, String> {
     require_pet(&d, pet)?;
     let before = d.bonds.get(pet).cloned();
     let (points, level, up) = d.bonds.befriend(pet, reason, day, now)?;
-    // A pat past the day's cap changes nothing: no save, no redraw of every page.
+    // A pat past the day's cap changes nothing: no save, no redraw of every page. A pat that counts
+    // is shown at once and written with the next few: a burst of pats is one write.
     if d.bonds.get(pet) != before.as_ref() {
-        crate::app::show_and_save(c.app, d)?;
+        crate::app::show_and_save_soon(c.app, d);
     }
     Ok(json!({"points": points, "level": level, "up": up}))
 }
@@ -120,7 +121,7 @@ pub(super) fn befriend_many(c: &Ctx) -> Result<Value, String> {
     let mut d = lock(&c.state);
     let (answer, changed) = befriend_all(&mut d, &ids, reason, day, now)?;
     if changed {
-        crate::app::show_and_save(c.app, d)?;
+        crate::app::show_and_save_soon(c.app, d);
     }
     Ok(answer)
 }

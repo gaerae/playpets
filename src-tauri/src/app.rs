@@ -11,6 +11,7 @@ use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard};
+use std::time::Duration;
 use tauri::{AppHandle, Manager};
 
 // Loading the state at start (load.rs), the person's switches (prefs.rs) and serving sprite
@@ -179,6 +180,28 @@ pub fn commit(
     let mut d = lock(state);
     let answer = change(&mut d)?;
     show_and_save(app, d).map(|()| answer)
+}
+
+/// `commit` for a small change that comes often (a scene picked, a decoration moved): shown at
+/// once, written with the next few (`show_and_save_soon`).
+pub fn commit_soon(
+    app: &AppHandle,
+    state: &Mutex<AppData>,
+    change: impl FnOnce(&mut AppData) -> Result<Value, String>,
+) -> Result<Value, String> {
+    let mut d = lock(state);
+    let answer = change(&mut d)?;
+    show_and_save_soon(app, d);
+    Ok(answer)
+}
+
+/// For small changes that come often (a pat, time together, a scene picked, something moved): every
+/// page is shown the change at once, and the disk gets one write within `SOON` for a burst of them,
+/// and one at exit (`flush`). A write that fails is tried again at exit; nobody waits for it.
+pub fn show_and_save_soon(app: &AppHandle, d: MutexGuard<'_, AppData>) {
+    changed(app, &d);
+    drop(d);
+    save_within(app, SOON);
 }
 
 /// Shows a change made in place on every page and saves it: the save is taken and shown under the
@@ -362,21 +385,36 @@ impl SaveLater {
 }
 static SAVE_LATER: SaveLater = SaveLater(AtomicBool::new(false));
 
+/// How soon a small change the pages show is written (`show_and_save_soon`): a burst of pats is one write.
+const SOON: Duration = Duration::from_millis(250);
+/// How soon a change no page shows is written (`persist_soon`): a drag of the window is one write.
+const LATER: Duration = Duration::from_secs(2);
+
 /// For changes that come often and matter little until the app quits (where a friend stopped
-/// walking, where the window was left): written within 2 s, together, and at exit. Everything else saves at once.
+/// walking, where the window was left): written within 2 s, together, and at exit. A save asked
+/// for meanwhile (`show_and_save_soon`) joins the same write.
 pub fn persist_soon(app: &AppHandle) {
-    if !SAVE_LATER.ask() {
-        return;
+    save_within(app, LATER);
+}
+
+fn save_within(app: &AppHandle, wait: Duration) {
+    if SAVE_LATER.ask() {
+        flush_after(app, wait);
     }
+}
+
+fn flush_after(app: &AppHandle, wait: Duration) {
     let app = app.clone();
     std::thread::spawn(move || {
-        std::thread::sleep(std::time::Duration::from_secs(2));
+        std::thread::sleep(wait);
         flush(&app);
     });
 }
 
-/// Writes a save `persist_soon` put off, if there is one. The state is taken under its lock and
-/// written after: the disk flush can take a while, and nothing else should wait for it.
+/// Writes a save put off (`persist_soon`, `show_and_save_soon`), if there is one. The state is
+/// taken under its lock and written after: the disk flush can take a while, and nothing else
+/// should wait for it. A write that failed (a file held a moment, say) is tried again later and
+/// at exit.
 pub fn flush(app: &AppHandle) {
     if SAVE_LATER.take()
         && let Some(state) = app.try_state::<Shared>()
@@ -384,6 +422,7 @@ pub fn flush(app: &AppHandle) {
         let unsaved = Unsaved::of(&lock(&state));
         if unsaved.write().is_err() {
             SAVE_LATER.retry();
+            flush_after(app, LATER);
         }
     }
 }
@@ -736,6 +775,70 @@ pub(crate) mod tests {
             json!({"state": "working", "message": "m", "source": "chat", "at": 5}),
             "no empty `by`"
         );
+    }
+
+    /// What a command waits for before it answers, and how many writes a bond tick makes, with 12
+    /// friends: `cargo test --release bond_tick_cost -- --ignored --nocapture`. Pushing the change
+    /// to the pages (`changed`) needs a running app and is left out; it went from 12 to 1 a tick.
+    #[test]
+    #[ignore = "a measurement, not a check"]
+    fn bond_tick_cost() {
+        use std::time::Instant;
+        let pets: Vec<Value> = (0..12)
+            .map(|i| json!({"id": format!("p{i}"), "assetId": "a", "name": "n", "size": 96, "x": 0.5, "y": 0.5}))
+            .collect();
+        let ids: Vec<String> = (0..12).map(|i| format!("p{i}")).collect();
+        let mut d = yard(json!(pets));
+        let later = SaveLater(AtomicBool::new(false));
+        let median = |mut v: Vec<f64>| {
+            v.sort_by(f64::total_cmp);
+            v[v.len() / 2]
+        };
+        let (mut pat_before, mut pat_after, mut tick_before, mut tick_after, mut write) =
+            (Vec::new(), Vec::new(), Vec::new(), Vec::new(), Vec::new());
+        for run in 0..30u64 {
+            let day = format!("2026-10-{:02}", run % 28 + 1);
+            // Before: each friend's bond changed and was written before its command answered.
+            let t = Instant::now();
+            for id in &ids {
+                d.bonds.befriend(id, "pat", &day, run).unwrap();
+                Unsaved::of(&d).write().unwrap();
+            }
+            tick_before.push(t.elapsed().as_secs_f64() * 1000.0);
+            let t = Instant::now();
+            d.bonds.befriend(&ids[0], "treat", &day, run).unwrap();
+            Unsaved::of(&d).write().unwrap();
+            pat_before.push(t.elapsed().as_secs_f64() * 1000.0);
+            // After: the whole tick changes the bonds and asks for one write, put off.
+            let t = Instant::now();
+            for id in &ids {
+                d.bonds.befriend(id, "gift", &day, run).unwrap();
+            }
+            later.ask();
+            tick_after.push(t.elapsed().as_secs_f64() * 1000.0);
+            let t = Instant::now();
+            d.bonds.befriend(&ids[0], "chat", &day, run).unwrap();
+            later.ask();
+            pat_after.push(t.elapsed().as_secs_f64() * 1000.0);
+            // The write itself, on its own thread a moment later.
+            let t = Instant::now();
+            if later.take() {
+                Unsaved::of(&d).write().unwrap();
+            }
+            write.push(t.elapsed().as_secs_f64() * 1000.0);
+        }
+        println!(
+            "pat until the answer: {:.3} ms -> {:.3} ms",
+            median(pat_before),
+            median(pat_after)
+        );
+        println!(
+            "bond tick (12 friends) until the answers: {:.3} ms, 12 writes -> {:.3} ms, 0 writes (1 put off, {:.3} ms off the reply)",
+            median(tick_before),
+            median(tick_after),
+            median(write)
+        );
+        let _ = std::fs::remove_dir_all(&d.store.dir);
     }
 
     #[test]
