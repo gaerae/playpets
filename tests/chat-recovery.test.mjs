@@ -148,3 +148,17 @@ test('a round answered counts as time together with every friend in it, in one c
   await pending;
   assert.deepEqual(befriended, [['befriendMany', ['a', 'b'], 'chat']]);
 });
+
+test("a companion chip pressed after the friend's AI changed keeps the new AI", t => {
+  const get = page(t);
+  const before = { id: 'a', assetId: 'cat', name: 'Daisy', providerId: 'local' },
+    other = { id: 'b', assetId: 'cat', name: 'Rex', providerId: 'local' };
+  setData({ pets: [before, other], providers: [], assets: [], busy: [] });
+  renderChat(before);
+  // A push brings the friend with another AI; the chips show the same and are not built again.
+  const after = { ...before, providerId: 'cloud' };
+  setData({ pets: [after, other], providers: [], assets: [], busy: [] });
+  renderChat(after);
+  get('companion-chips').children[0].onclick();
+  assert.equal(get('provider-select').value, 'cloud');
+});

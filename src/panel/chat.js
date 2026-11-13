@@ -180,7 +180,8 @@ export function renderChat(p) {
         else if (companions.size < 3) companions.add(q.id);
         else return toast(t('chat.max_companions'));
         const focused = document.activeElement === chip;
-        renderChat(p);
+        // The friend as it is now: the chips outlive pushes that change what they do not show (its AI).
+        renderChat(data.pets.find(friend => friend.id === p.id) ?? p);
         if (focused) $('companion-chips').children[others.indexOf(q)]?.focus();
       };
       $('companion-chips').append(chip);
