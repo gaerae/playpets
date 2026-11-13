@@ -9,9 +9,9 @@ use crate::{i18n, store};
 use serde_json::{Map, Value, json};
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use tauri::{AppHandle, Manager};
 
 // Loading the state at start (load.rs), the person's switches (prefs.rs) and serving sprite
@@ -394,29 +394,72 @@ pub fn changed(app: &AppHandle, d: &AppData) {
     }
 }
 
-/// A save that was put off: asked for many times, written once.
-struct SaveLater(AtomicBool);
+/// A save that was put off: asked for many times, written once, and tried again while its writes
+/// fail. Taken alone and briefly (`SAVE_LATER`): no other lock is taken while it is held.
+struct SaveLater {
+    /// A save is wanted.
+    wanted: bool,
+    /// When the timer that writes it fires, while one is on its way.
+    due: Option<Instant>,
+    /// How long the next try waits after a failed write; zero while writes go through.
+    backoff: Duration,
+    /// The person was told the writes fail (`store.held`), since the last one that went through.
+    told: bool,
+}
 impl SaveLater {
-    /// Marks a save as wanted; true only for the first ask since the last write, whose caller
-    /// arranges the write.
-    fn ask(&self) -> bool {
-        !self.0.swap(true, Ordering::SeqCst)
+    const fn new() -> SaveLater {
+        SaveLater {
+            wanted: false,
+            due: None,
+            backoff: Duration::ZERO,
+            told: false,
+        }
     }
-    /// Whether a save is wanted, clearing it: true once per round of asks.
-    fn take(&self) -> bool {
-        self.0.swap(false, Ordering::SeqCst)
+    /// Wants a save within `wait`: true when no timer comes that soon, so the caller starts one. A
+    /// change the pages show (250 ms) does not wait for a timer set for one they do not (2 s).
+    fn ask(&mut self, now: Instant, wait: Duration) -> bool {
+        self.wanted = true;
+        let due = now + wait;
+        if self.due.is_some_and(|set| set <= due) {
+            return false;
+        }
+        self.due = Some(due);
+        true
     }
-    /// Wants the save again after its write failed, so the write at exit tries it once more.
-    fn retry(&self) {
-        self.0.store(true, Ordering::SeqCst);
+    /// Whether a save is wanted, clearing it: true once per round of asks. A timer that fires after
+    /// another wrote finds nothing to do.
+    fn take(&mut self) -> bool {
+        self.due = None;
+        std::mem::take(&mut self.wanted)
+    }
+    /// A write failed: the save is wanted again, after a wait that doubles with each failure up to
+    /// a minute, so a disk that stays full is not written to every two seconds all day. Gives the
+    /// wait, and whether the person is to be told (the first failure only).
+    fn failed(&mut self, now: Instant) -> (Duration, bool) {
+        self.backoff = if self.backoff.is_zero() {
+            LATER
+        } else {
+            (self.backoff * 2).min(RETRY_MAX)
+        };
+        self.wanted = true;
+        self.due = Some(now + self.backoff);
+        (self.backoff, !std::mem::replace(&mut self.told, true))
+    }
+    /// A write went through: the next failure waits as the first did, and is told again. Gives
+    /// whether the person had been told, so the notice goes.
+    fn written(&mut self) -> bool {
+        self.backoff = Duration::ZERO;
+        std::mem::take(&mut self.told)
     }
 }
-static SAVE_LATER: SaveLater = SaveLater(AtomicBool::new(false));
+static SAVE_LATER: Mutex<SaveLater> = Mutex::new(SaveLater::new());
 
 /// How soon a small change the pages show is written (`show_and_save_soon`): a burst of pats is one write.
 const SOON: Duration = Duration::from_millis(250);
 /// How soon a change no page shows is written (`persist_soon`): a drag of the window is one write.
 const LATER: Duration = Duration::from_secs(2);
+/// The longest wait between tries while the writes fail.
+const RETRY_MAX: Duration = Duration::from_secs(60);
 
 /// For changes that come often and matter little until the app quits (where a friend stopped
 /// walking, where the window was left): written within 2 s, together, and at exit. A save asked
@@ -426,7 +469,8 @@ pub fn persist_soon(app: &AppHandle) {
 }
 
 fn save_within(app: &AppHandle, wait: Duration) {
-    if SAVE_LATER.ask() {
+    let start = hold(&SAVE_LATER).ask(Instant::now(), wait);
+    if start {
         flush_after(app, wait);
     }
 }
@@ -439,20 +483,53 @@ fn flush_after(app: &AppHandle, wait: Duration) {
     });
 }
 
-/// Writes a save put off (`persist_soon`, `show_and_save_soon`), if there is one. The state is
-/// taken under its lock and written after: the disk flush can take a while, and nothing else
-/// should wait for it. A write that failed (a file held a moment, say) is tried again later and
-/// at exit.
+/// Writes a save put off (`persist_soon`, `show_and_save_soon`), if there is one, and returns once
+/// no write is under way: at exit, the process must not end in the middle of one that a timer's
+/// thread began. The state is taken under its lock and written after: the disk flush can take a
+/// while, and nothing else should wait for it. A write that failed (a file held a moment, a full
+/// disk) is tried again later and at exit, and the pages say so once, as no command answers it.
 pub fn flush(app: &AppHandle) {
-    if SAVE_LATER.take()
-        && let Some(state) = app.try_state::<Shared>()
-    {
+    let wanted = hold(&SAVE_LATER).take();
+    if wanted && let Some(state) = app.try_state::<Shared>() {
         let unsaved = Unsaved::of(&lock(&state));
-        if unsaved.write().is_err() {
-            SAVE_LATER.retry();
-            flush_after(app, LATER);
+        let failed = unsaved.write().is_err();
+        let (retry, notice) = {
+            let mut later = hold(&SAVE_LATER);
+            if failed {
+                let (wait, tell) = later.failed(Instant::now());
+                (Some(wait), tell)
+            } else {
+                (None, later.written())
+            }
+        };
+        if let Some(wait) = retry {
+            flush_after(app, wait);
+        }
+        if notice {
+            let mut d = lock(&state);
+            if held_warning(&mut d.warnings, failed, &i18n::t("store.held")) {
+                changed(app, &d);
+            }
         }
     }
+    wait_for_write(&WRITTEN);
+}
+
+/// Puts the notice that saves fail among the warnings the pages show (`on`), or takes it back;
+/// true when the warnings changed. Never twice: a failing write is tried again and again.
+fn held_warning(warnings: &mut Vec<String>, on: bool, held: &str) -> bool {
+    let shown = warnings.iter().any(|w| w == held);
+    match (on, shown) {
+        (true, false) => warnings.push(held.to_string()),
+        (false, true) => warnings.retain(|w| w != held),
+        _ => return false,
+    }
+    true
+}
+
+/// Returns once no write of the state file is under way (its lock is held for the whole write).
+fn wait_for_write(written: &Mutex<u64>) {
+    drop(hold(written));
 }
 
 /// How many saves have been taken; each takes the next number, under the state's lock.
@@ -773,12 +850,19 @@ pub(crate) mod tests {
 
     #[test]
     fn many_asks_make_one_write_and_exit_writes_what_is_left() {
-        let later = SaveLater(AtomicBool::new(false));
-        assert!(later.ask(), "the first ask arranges the write");
-        assert!(!later.ask() && !later.ask(), "asks before the write join it");
+        let now = std::time::Instant::now();
+        let mut later = SaveLater::new();
+        assert!(later.ask(now, SOON), "the first ask arranges the write");
+        assert!(
+            !later.ask(now, SOON) && !later.ask(now, SOON),
+            "asks before the write join it"
+        );
         assert!(later.take(), "the write happens once");
-        assert!(!later.take(), "exit finds nothing left to write");
-        assert!(later.ask(), "a later ask arranges a new write");
+        assert!(
+            !later.take(),
+            "exit, or a timer after the write, finds nothing left to write"
+        );
+        assert!(later.ask(now, SOON), "a later ask arranges a new write");
         assert!(later.take(), "and exit writes it if the timer has not");
     }
 
@@ -844,7 +928,7 @@ pub(crate) mod tests {
             .collect();
         let ids: Vec<String> = (0..12).map(|i| format!("p{i}")).collect();
         let mut d = yard(json!(pets));
-        let later = SaveLater(AtomicBool::new(false));
+        let mut later = SaveLater::new();
         let median = |mut v: Vec<f64>| {
             v.sort_by(f64::total_cmp);
             v[v.len() / 2]
@@ -869,11 +953,11 @@ pub(crate) mod tests {
             for id in &ids {
                 d.bonds.befriend(id, "gift", &day, run).unwrap();
             }
-            later.ask();
+            later.ask(Instant::now(), SOON);
             tick_after.push(t.elapsed().as_secs_f64() * 1000.0);
             let t = Instant::now();
             d.bonds.befriend(&ids[0], "chat", &day, run).unwrap();
-            later.ask();
+            later.ask(Instant::now(), SOON);
             pat_after.push(t.elapsed().as_secs_f64() * 1000.0);
             // The write itself, on its own thread a moment later.
             let t = Instant::now();
@@ -897,11 +981,64 @@ pub(crate) mod tests {
     }
 
     #[test]
-    fn a_failed_put_off_write_is_tried_again() {
-        let later = SaveLater(AtomicBool::new(false));
-        later.ask();
+    fn a_change_the_pages_show_does_not_wait_for_a_save_put_off_longer() {
+        let now = std::time::Instant::now();
+        let mut later = SaveLater::new();
+        assert!(later.ask(now, LATER));
+        assert!(later.ask(now, SOON), "250 ms does not wait for the 2 s timer");
+        assert!(!later.ask(now, LATER), "the 250 ms timer writes the 2 s change too");
+    }
+
+    #[test]
+    fn a_failed_put_off_write_is_tried_again_less_often_and_told_once() {
+        let now = std::time::Instant::now();
+        let mut later = SaveLater::new();
+        later.ask(now, SOON);
         assert!(later.take());
-        later.retry();
+        assert_eq!(later.failed(now), (LATER, true), "tried again, and the person is told");
         assert!(later.take(), "exit or the next write tries it again");
+        let waits: Vec<_> = (0..6).map(|_| later.failed(now)).collect();
+        assert!(waits.iter().all(|(_, tell)| !tell), "told once, not on every try");
+        let secs: Vec<_> = waits.iter().map(|(wait, _)| wait.as_secs()).collect();
+        assert_eq!(secs, [4, 8, 16, 32, 60, 60], "the wait doubles, up to a minute");
+        assert!(later.written(), "a write that goes through takes the notice back");
+        assert!(!later.written());
+        assert_eq!(
+            later.failed(now),
+            (LATER, true),
+            "a later failure starts over and is told again"
+        );
+    }
+
+    #[test]
+    fn the_save_notice_is_shown_once_and_taken_back() {
+        let mut warnings = vec!["other".to_string()];
+        assert!(held_warning(&mut warnings, true, "held"));
+        assert!(!held_warning(&mut warnings, true, "held"), "not twice");
+        assert_eq!(warnings, ["other", "held"]);
+        assert!(held_warning(&mut warnings, false, "held"));
+        assert!(!held_warning(&mut warnings, false, "held"));
+        assert_eq!(warnings, ["other"]);
+    }
+
+    #[test]
+    fn a_flush_waits_for_a_write_already_under_way() {
+        use std::sync::{atomic::AtomicBool, mpsc};
+        let written = Arc::new(Mutex::new(0u64));
+        let done = Arc::new(AtomicBool::new(false));
+        let (started, writing) = mpsc::channel();
+        let writer = {
+            let (written, done) = (written.clone(), done.clone());
+            std::thread::spawn(move || {
+                let _held = hold(&written);
+                started.send(()).unwrap();
+                std::thread::sleep(Duration::from_millis(50));
+                done.store(true, Ordering::SeqCst);
+            })
+        };
+        writing.recv().unwrap();
+        wait_for_write(&written);
+        assert!(done.load(Ordering::SeqCst), "the write in flight finished first");
+        writer.join().unwrap();
     }
 }

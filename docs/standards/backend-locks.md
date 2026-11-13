@@ -33,6 +33,9 @@
   - `commit` and `app::show_and_save` (which takes the guard) show the change, let the lock go, then write.
   - A caller with more to do under the lock (a chat turn) calls `app::show_for_save` and writes the `Unsaved` it gets after dropping the guard.
   - A small change that comes often (a pat, time together, a scene picked, something moved) uses `app::show_and_save_soon` or `app::commit_soon`: shown at once, written by `app::flush` on its own thread within 250 ms, together with any others, and at exit.
+    - A change no page shows (`app::persist_soon`) waits up to 2 s; a 250 ms ask meanwhile starts its own timer and writes both.
+    - A failed write is tried again after 2 s, then twice as long each time up to a minute. The pages show `store.held` once, and it goes once a write goes through.
+    - `app::flush` returns only once no write is under way (it takes `WRITTEN` last), so the exit and an update's restart never cut a write short.
 - After you release the lock and take it again, check what may have changed in between: whether the friend is still there, whether a reply is already pending, whether the AI connection is the same. Example: `chat::still_ready` in chat.
 
 ### Lock order
@@ -55,6 +58,7 @@
   - `WRITTEN` (the number of the last state file written):
     - Held while `state.json` is written, so two writes never share the temporary file and an older save never replaces a newer one.
     - Never taken under `Shared`. Every save (`commit`, `show_and_save`, `show_for_save`, a delayed save in `app::flush`) reads the state under `Shared`, releases it, then takes `WRITTEN` to write.
+  - `SAVE_LATER` (`app.rs`, the save put off): taken briefly to ask for a save or take it, under `Shared` or alone; no other lock is taken while it is held.
   - `SIZE_LIMIT` and `NORMAL_RECT` (`window.rs`): read or written briefly on the main thread; never held across a window call.
   - `GROUPS` (`chat/cli/launch.rs`): taken alone and briefly, to add, remove or stop the process groups of the CLIs the app started.
   - The update's `Found`:
@@ -95,3 +99,4 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-10-01 First version
 - 2026-10-10 `app::lock` for the state and `app::hold` for every other mutex, both recovering from a poisoned lock; where the CLI sessions, the tray, the mini window and the update lock sit relative to `Shared`; the Claude Code stderr tail and the CLIs' private folder
 - 2026-11-14 No state write under `Shared`: `save_and_show` gave way to `show_and_save` and `show_for_save`; `WRITTEN` is never taken under `Shared`; the menu switches that save run on a worker thread; small frequent changes are written together within 250 ms
+- 2026-11-14 A failed put-off write is tried again less often and shown once; `app::flush` waits for a write under way; `SAVE_LATER`
