@@ -110,6 +110,37 @@ pub struct AppData {
     /// The gift kinds the yard shows in their night look right now (decorNight: the Christmas tree
     /// standing grand); the desktop shows them so too. Not saved.
     pub night_decor: Vec<String>,
+    /// What the pages hear about folders on disk, looked at once rather than on every change.
+    pub folders: Folders,
+}
+
+/// What `public_state` says about folders on disk: looked at when the app starts and again only by
+/// what changes them, since every change sends the whole state (a stat each, more inside an MSIX
+/// package, where the file manager's path is looked up too).
+pub struct Folders {
+    /// Whether the data folder has kept a background before; another data folder copies the
+    /// installed app's old ones only until it has (background-store.js). Set once one is saved.
+    pub backgrounds: bool,
+    /// The pet folders as the file manager finds them; looked at again when a pet file comes in.
+    pub pets: Value,
+}
+
+impl Folders {
+    pub fn look(data: &std::path::Path, builtin: &std::path::Path, codex: &std::path::Path) -> Folders {
+        Folders {
+            backgrounds: data.join(backgrounds::FOLDER).is_dir(),
+            pets: pet_folders(data, builtin, codex),
+        }
+    }
+    /// A background was saved, so its folder is there.
+    pub fn kept_background(&mut self) {
+        self.backgrounds = true;
+    }
+}
+
+/// The paths shown are the ones Explorer finds, as Open folder opens them (system.rs).
+fn pet_folders(data: &std::path::Path, builtin: &std::path::Path, codex: &std::path::Path) -> Value {
+    json!({"builtin": crate::system::outside_view(builtin), "codex": codex, "downloaded": crate::system::outside_view(&data.join("pets"))})
 }
 
 pub type Shared = Mutex<AppData>;
@@ -307,9 +338,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "version": app.package_info().version.to_string(),
         "updateChannel": if crate::update::store_managed() { "store" } else { "github" },
         "ownsWebviewStorage": load::owns_webview_storage(std::env::var("PLAYPETS_DATA").ok().as_deref(), crate::commands::e2e_mode()),
-        // Whether the data folder has kept a background before; another data folder copies the
-        // installed app's old ones only until it has (background-store.js).
-        "hasBackgroundsFolder": d.store.dir.join(backgrounds::FOLDER).is_dir(),
+        "hasBackgroundsFolder": d.folders.backgrounds,
         "project": {"site": env!("CARGO_PKG_HOMEPAGE"), "repository": env!("CARGO_PKG_REPOSITORY")},
         "assets": d.assets.iter().map(sprite::asset_json).collect::<Vec<_>>(),
         "providers": d.providers.iter().map(|p| { let mut p = p.clone(); p["hasKey"] = json!(d.secret_ids.contains(providers::id_of(&p))); p }).collect::<Vec<_>>(),
@@ -321,8 +350,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "desktop": desktop_on(d),
         "nightDecor": d.night_decor,
         "communities": importer::communities_json(),
-        // The paths shown are the ones Explorer finds, as Open folder opens them (system.rs).
-        "petFolders": {"builtin": crate::system::outside_view(&d.builtin_pets), "codex": d.codex_pets, "downloaded": crate::system::outside_view(&d.store.dir.join("pets"))},
+        "petFolders": d.folders.pets,
     });
     // The window's place is the backend's alone (window.rs); the pages have no use for it.
     let mut prefs = d.prefs.json();
@@ -591,6 +619,8 @@ pub fn register_asset(app: &AppHandle, mut d: MutexGuard<'_, AppData>, asset: ca
     if !d.assets.iter().any(|a| a.id == id) {
         d.imports.push(asset.folder.to_string_lossy().into_owned());
         d.assets.push(asset);
+        // The first pet file brought in may have made the downloaded pets' folder.
+        d.folders.pets = pet_folders(&d.store.dir, &d.builtin_pets, &d.codex_pets);
         show_and_save(app, d)?;
     }
     Ok(json!(id))
@@ -646,6 +676,7 @@ pub(crate) mod tests {
             activity: HashMap::new(),
             hidden_decor: None,
             night_decor: Vec::new(),
+            folders: Folders::look(&dir, &dir.join("builtin"), &dir.join("codex")),
         }
     }
 
@@ -687,6 +718,30 @@ pub(crate) mod tests {
             ("commands/imports.rs", include_str!("commands/imports.rs")),
         ] {
             assert!(!source.contains(old), "{file} writes under the lock");
+        }
+    }
+
+    #[test]
+    fn the_folders_the_pages_hear_of_are_looked_at_once_and_again_only_when_they_change() {
+        let dir = std::env::temp_dir().join(format!("playpets-folders-{}", uuid::Uuid::new_v4()));
+        let mut folders = Folders::look(&dir, &dir.join("builtin"), &dir.join("codex"));
+        assert!(!folders.backgrounds);
+        assert_eq!(folders.pets["downloaded"], json!(dir.join("pets")));
+        assert_eq!(folders.pets["codex"], json!(dir.join("codex")));
+        folders.kept_background();
+        assert!(folders.backgrounds, "a background kept makes the folder");
+        std::fs::create_dir_all(dir.join(backgrounds::FOLDER)).unwrap();
+        assert!(
+            Folders::look(&dir, &dir.join("builtin"), &dir.join("codex")).backgrounds,
+            "the next start finds it"
+        );
+        let _ = std::fs::remove_dir_all(&dir);
+        // Every change sends the whole state to every page: it never asks the disk.
+        let source = include_str!("app.rs");
+        let public = &source[source.find("pub fn public_state(").unwrap()..];
+        let public = &public[..public.find("\n}\n").unwrap()];
+        for stat in ["is_dir", "outside_view", "exists("] {
+            assert!(!public.contains(stat), "public_state looks at the disk ({stat})");
         }
     }
 

@@ -255,7 +255,9 @@ static COMMANDS: &[Command] = &[
     // (id, package)
     main("saveBackground", |c| {
         let dir = lock(&c.state).store.dir.clone();
-        crate::app::backgrounds::save(&dir, c.text(0), c.arg(1)).map(|()| Value::Null)
+        crate::app::backgrounds::save(&dir, c.text(0), c.arg(1))?;
+        lock(&c.state).folders.kept_background();
+        Ok(Value::Null)
     }),
     main("removeBackground", |c| {
         let dir = lock(&c.state).store.dir.clone();
@@ -734,13 +736,18 @@ mod tests {
     fn every_pet_folder_the_page_lists_can_be_opened() {
         // The Invite tab shows an Open folder button for each place in `petFolders`.
         let app = include_str!("app.rs");
-        let start = app.find("\"petFolders\": {").unwrap();
+        let start = app.find("json!({\"builtin\"").unwrap();
         let folders = &app[start..start + app[start..].find('}').unwrap()];
         let source = include_str!("commands/prefs.rs");
         let open = &source[source.find("fn open_folder(").unwrap()..];
         let open = &open[..open.find("\n}\n").unwrap()];
-        let parts: Vec<&str> = folders.split('"').skip(3).collect();
-        let keys = parts.windows(2).filter(|w| w[1].starts_with(':')).map(|w| w[0]);
+        let parts: Vec<&str> = folders.split('"').skip(1).collect();
+        let keys: Vec<&str> = parts
+            .windows(2)
+            .filter(|w| w[1].starts_with(':'))
+            .map(|w| w[0])
+            .collect();
+        assert_eq!(keys, ["builtin", "codex", "downloaded"]);
         for key in keys {
             assert!(
                 open.contains(&format!("\"{key}\" =>")),
