@@ -38,7 +38,7 @@ pub struct Item {
     /// A friend's size (its sprite's width in pixels); unused for a decoration.
     pub size: f64,
     pub saved: Option<(f64, f64)>,
-    /// A decoration: its kind and the box it is drawn in. It stays where it is put.
+    /// A decoration: its kind and the box it is drawn in. It stays where it is put, on the floor.
     pub decor: Option<(String, f64, f64)>,
 }
 
@@ -98,6 +98,9 @@ fn dims(item: &Item) -> (f64, f64) {
 const SPRITE_FOOT: f64 = FOOT + 4.0;
 /// How often a friend setting off on a stroll goes over to a decoration on its screen instead.
 const VISIT_CHANCE: f64 = 0.4;
+/// The floor line on a screen: a foot this far above its work area's bottom. Friends start in a row
+/// on it, and a gift, a flower or a planted tree always rests on it.
+const FLOOR_GAP: f64 = 25.0;
 /// The top of a friend's box is for its speech bubble, which lets clicks through.
 const BUBBLE_ROOM: f64 = 60.0;
 /// Under the sprite: the name button (src/overlay/overlay.css, `.friend` bottom).
@@ -312,7 +315,7 @@ fn pointer_near(d: &Inner, cursor: Option<(f64, f64)>) -> bool {
 }
 
 /// Friends new to the desktop stand where they were last left, or in a row along the bottom
-/// of the primary work area.
+/// of the primary work area; a gift, a flower or a tree on the floor, at its last x (set_down).
 fn place_newcomers(d: &mut Inner, mons: &[Mon]) -> bool {
     let (true, Some(primary)) = (d.visible, mons.first()) else {
         return false;
@@ -335,20 +338,34 @@ fn place_newcomers(d: &mut Inner, mons: &[Mon]) -> bool {
         let fallback = if p.decor.is_some() {
             (
                 primary.area.x + primary.area.w - w - 60.0 - (index % 5) as f64 * 180.0,
-                primary.area.y + primary.area.h - h - 25.0,
+                primary.area.y + primary.area.h - h - FLOOR_GAP,
             )
         } else {
             (
                 primary.area.x + 35.0 + (index % 6) as f64 * 145.0,
-                primary.area.y + primary.area.h - h - 25.0 - (index / 6) as f64 * 145.0,
+                primary.area.y + primary.area.h - h - FLOOR_GAP - (index / 6) as f64 * 145.0,
             )
         };
         let start = p.saved.unwrap_or(fallback);
         let area = &monitor_of_box(mons, start.0, start.1, (w, h)).unwrap_or(primary).area;
-        d.positions.insert(p.id.clone(), clamp_to(area, start.0, start.1, w, h));
+        d.positions.insert(p.id.clone(), set_down(p, area, start));
         placed = true;
     }
     placed
+}
+
+/// Where something set down at `at` on a screen's work area rests: inside the area; and a gift, a
+/// flower or a planted tree with its foot on the floor line at the same x, as it stands on the
+/// ground in the yard, so none is left hanging mid-screen. A friend keeps the spot: it strolls up
+/// and down the screen as well as across (roam.rs).
+fn set_down(item: &Item, area: &Bounds, at: (f64, f64)) -> (f64, f64) {
+    let (w, h) = dims(item);
+    let y = if item.decor.is_some() {
+        area.y + area.h - h - FLOOR_GAP
+    } else {
+        at.1
+    };
+    clamp_to(area, at.0, y, w, h)
 }
 
 /// A dragged friend follows the cursor.
@@ -585,7 +602,8 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
     crate::app::hold(inner).open = open;
 }
 
-/// Ends a drag: the friend is set down inside the nearest work area, and that place is saved.
+/// Ends a drag: the thing carried is set down on the nearest work area (set_down), and that place
+/// is saved.
 fn finish_drag(d: &mut Inner, mons: &[Mon], arrivals: &mut Vec<(String, i64, i64)>) {
     let Some(drag) = d.drag.take() else { return };
     let Some(pet) = d.pets.iter().find(|p| p.id == drag.id) else {
@@ -601,7 +619,7 @@ fn finish_drag(d: &mut Inner, mons: &[Mon], arrivals: &mut Vec<(String, i64, i64
         w: 10_000.0,
         h: 10_000.0,
     });
-    let (cx, cy) = clamp_to(&area, x, y, w, h);
+    let (cx, cy) = set_down(pet, &area, (x, y));
     d.positions.insert(drag.id.clone(), (cx, cy));
     arrivals.push((drag.id, cx.round() as i64, cy.round() as i64));
 }
@@ -652,5 +670,92 @@ mod tests {
         assert_eq!(positions["cherry"], (482.0, 545.0));
         // Something new has no size before: it is placed as a newcomer is.
         assert!(keep_feet(&[], &[tree(160.0, 170.0)], &mut positions).is_empty());
+    }
+
+    fn screen() -> Vec<Mon> {
+        let b = |x, y, w, h| Bounds { x, y, w, h };
+        // A 1440×900 screen whose work area ends above a 75px dock.
+        vec![Mon {
+            id: "0".into(),
+            area: b(0.0, 25.0, 1440.0, 800.0),
+            physical: b(0.0, 0.0, 1440.0, 900.0),
+            scale: 1.0,
+        }]
+    }
+    fn out(id: &str, saved: Option<(f64, f64)>, decor: Option<(f64, f64)>) -> Item {
+        Item {
+            id: id.into(),
+            size: 96.0,
+            saved,
+            decor: decor.map(|(w, h)| (id.to_string(), w, h)),
+        }
+    }
+    fn dropped(d: &mut Inner, id: &str, at: (f64, f64)) -> Vec<(String, i64, i64)> {
+        d.positions.insert(id.into(), at);
+        d.drag = Some(Drag {
+            id: id.into(),
+            start: (0.0, 0.0),
+            origin: at,
+            at: Instant::now(),
+        });
+        let mut arrivals = Vec::new();
+        finish_drag(d, &screen(), &mut arrivals);
+        arrivals
+    }
+
+    // The work area's floor line: a foot 25px above its bottom (825).
+    const FLOOR: f64 = 800.0;
+
+    #[test]
+    fn a_tree_a_flower_or_a_gift_let_go_mid_screen_comes_down_to_the_floor() {
+        let mut d = Inner {
+            pets: vec![
+                out("cherry", None, Some((160.0, 170.0))),
+                out("tulip", None, Some((50.0, 75.0))),
+                out("bench", None, Some((151.0, 121.0))),
+            ],
+            ..Inner::default()
+        };
+        for (id, h) in [("cherry", 170.0), ("tulip", 75.0), ("bench", 121.0)] {
+            // Let go high up the screen: it keeps its x, and its foot rests on the floor line.
+            assert_eq!(
+                dropped(&mut d, id, (600.0, 200.0)),
+                [(id.to_string(), 600, (FLOOR - h) as i64)]
+            );
+            assert_eq!(d.positions[id], (600.0, FLOOR - h));
+            // Let go below the floor, or past the screen's side: on the floor, inside the screen.
+            dropped(&mut d, id, (1500.0, 790.0));
+            let (w, _) = dims(d.pets.iter().find(|p| p.id == id).unwrap());
+            assert_eq!(d.positions[id], (1440.0 - w, FLOOR - h));
+        }
+    }
+
+    #[test]
+    fn a_friend_let_go_stays_where_it_is_put() {
+        let mut d = Inner {
+            pets: vec![out("pip", None, None)],
+            ..Inner::default()
+        };
+        assert_eq!(dropped(&mut d, "pip", (600.0, 200.0)), [("pip".to_string(), 600, 200)]);
+    }
+
+    #[test]
+    fn a_thing_back_on_the_desktop_stands_on_the_floor_at_its_saved_x() {
+        let mut d = Inner {
+            visible: true,
+            pets: vec![
+                out("cherry", Some((300.0, 120.0)), Some((160.0, 170.0))),
+                out("tulip", None, Some((50.0, 75.0))),
+                out("pip", Some((300.0, 120.0)), None),
+            ],
+            ..Inner::default()
+        };
+        assert!(place_newcomers(&mut d, &screen()));
+        // Saved high up the screen: back on the floor, where it was across.
+        assert_eq!(d.positions["cherry"], (300.0, FLOOR - 170.0));
+        // A first time out: on the floor from the right.
+        assert_eq!(d.positions["tulip"], (1440.0 - 50.0 - 60.0 - 180.0, FLOOR - 75.0));
+        // A friend keeps its saved spot.
+        assert_eq!(d.positions["pip"], (300.0, 120.0));
     }
 }
