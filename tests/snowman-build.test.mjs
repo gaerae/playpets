@@ -141,9 +141,9 @@ async function yard(ctx, { garden = {} } = {}) {
 const start = () => play.startGame('snowman');
 // The base ball's width and the stack's foot: the base ball's bottom in the snowman's drawing.
 function stackFoot() {
-  const size = giftSize('snowman'),
-    [baseShare, footShare] = giftKind('snowman').stack,
-    at = fieldToYard(stackSpot([]));
+  const at = fieldToYard(stackSpot([])),
+    size = giftSize('snowman', at),
+    [baseShare, footShare] = giftKind('snowman').stack;
   return { x: at.x, y: at.y - footShare * size.h, baseW: size.w * baseShare };
 }
 
@@ -432,8 +432,8 @@ test('a finished snowman is placed where it was stacked, counted for the day, an
   assert.equal(y.live('snowman-preview').length, 1);
   // Set down as the yard will draw it.
   const preview = y.box(y.live('snowman-preview')[0]),
-    size = giftSize('snowman'),
-    foot = fieldToYard({ x: 0.72, y: 0.72 });
+    foot = fieldToYard({ x: 0.72, y: 0.72 }),
+    size = giftSize('snowman', foot);
   assert.ok(Math.abs(preview.x - foot.x) < 0.5 && Math.abs(preview.bottom - foot.y) < 0.5);
   assert.ok(Math.abs(preview.w - size.w) < 0.5);
   y.tick(50);

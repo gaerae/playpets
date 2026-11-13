@@ -32,6 +32,7 @@
       "id": "tulip",
       "season": "spring",
       "art": "flowers/tulip.svg",
+      "foot": 0.932,
       "colors": {
         "petal": "#ef6f8a",
         "petal-hi": "#f9a3b5",
@@ -43,6 +44,7 @@
       "id": "daffodil",
       "season": "spring",
       "art": "flowers/daffodil.svg",
+      "foot": 0.932,
       "colors": {
         "petal": "#f7f0cf",
         "petal-hi": "#fffbe9",
@@ -54,6 +56,7 @@
       "id": "sunflower",
       "season": "summer",
       "art": "flowers/sunflower.svg",
+      "foot": 0.903,
       "stature": 1.4,
       "colors": {
         "petal": "#f4bd2c",
@@ -66,6 +69,7 @@
       "id": "hydrangea",
       "season": "summer",
       "art": "flowers/hydrangea.svg",
+      "foot": 0.882,
       "colors": {
         "petal": "#8fb4e8",
         "petal-hi": "#c6dbf7",
@@ -77,6 +81,7 @@
       "id": "cosmos",
       "season": "autumn",
       "art": "flowers/cosmos.svg",
+      "foot": 0.874,
       "colors": {
         "petal": "#f19ac0",
         "petal-hi": "#fbc6dc",
@@ -88,6 +93,7 @@
       "id": "chrysanthemum",
       "season": "autumn",
       "art": "flowers/chrysanthemum.svg",
+      "foot": 0.832,
       "colors": {
         "petal": "#f2c14e",
         "petal-hi": "#f9dd8c",
@@ -99,6 +105,7 @@
       "id": "camellia",
       "season": "winter",
       "art": "flowers/camellia.svg",
+      "foot": 0.82,
       "stature": 1.15,
       "colors": {
         "petal": "#d8435a",
@@ -111,6 +118,7 @@
       "id": "snowdrop",
       "season": "winter",
       "art": "flowers/snowdrop.svg",
+      "foot": 0.89,
       "colors": {
         "petal": "#ffffff",
         "petal-hi": "#ffffff",
@@ -155,6 +163,7 @@
       "id": "bellflower",
       "season": "summer",
       "art": "flowers/bellflower.svg",
+      "foot": 0.948,
       "colors": {
         "petal": "#838ecb",
         "petal-hi": "#bcc8ed",
@@ -166,6 +175,7 @@
       "id": "dahlia",
       "season": "autumn",
       "art": "flowers/dahlia.svg",
+      "foot": 0.943,
       "colors": {
         "petal": "#e79786",
         "petal-hi": "#f6c3b2",
@@ -188,6 +198,7 @@
       "id": "hellebore",
       "season": "winter",
       "art": "flowers/hellebore.svg",
+      "foot": 0.939,
       "colors": {
         "petal": "#dce5c8",
         "petal-hi": "#f0f3e6",
@@ -210,6 +221,7 @@
       "id": "dandelion",
       "season": "spring",
       "art": "flowers/dandelion.svg",
+      "foot": 0.965,
       "colors": {
         "petal": "#f2c53a",
         "petal-hi": "#f8e07c",
@@ -221,6 +233,7 @@
       "id": "azalea",
       "season": "spring",
       "art": "flowers/azalea.svg",
+      "foot": 0.912,
       "colors": {
         "petal": "#e0619a",
         "petal-hi": "#f2a2c4",
@@ -232,6 +245,7 @@
       "id": "morning_glory",
       "season": "summer",
       "art": "flowers/morning_glory.svg",
+      "foot": 0.968,
       "stature": 1.2,
       "colors": {
         "petal": "#5a6fd0",
@@ -244,6 +258,7 @@
       "id": "balsam",
       "season": "summer",
       "art": "flowers/balsam.svg",
+      "foot": 0.951,
       "colors": {
         "petal": "#e0566a",
         "petal-hi": "#f29aa6",
@@ -255,6 +270,7 @@
       "id": "spider_lily",
       "season": "autumn",
       "art": "flowers/spider_lily.svg",
+      "foot": 0.902,
       "colors": {
         "petal": "#d9382e",
         "petal-hi": "#f07a6a",
@@ -266,6 +282,7 @@
       "id": "celosia",
       "season": "autumn",
       "art": "flowers/celosia.svg",
+      "foot": 0.922,
       "colors": {
         "petal": "#b8204a",
         "petal-hi": "#e05a80",
@@ -277,6 +294,7 @@
       "id": "adonis",
       "season": "winter",
       "art": "flowers/adonis.svg",
+      "foot": 0.897,
       "colors": {
         "petal": "#f0bf2a",
         "petal-hi": "#f8dc6e",
@@ -288,6 +306,7 @@
       "id": "pansy",
       "season": "winter",
       "art": "flowers/pansy.svg",
+      "foot": 0.909,
       "colors": {
         "petal": "#6a4ab0",
         "petal-hi": "#a68ae0",
@@ -301,21 +320,30 @@
       "id": "bench",
       "art": "decor/bench.svg",
       "size": [144, 115.2],
-      "shade": [0.86, 0.14, 0.9],
+      "foot": 0.94,
+      "shade": [0.86, 0.3, 0.83, 0.52],
+      "feet": [
+        [0.27, 0.94, 0.06],
+        [0.15, 0.81, 0.05],
+        [0.89, 0.82, 0.05],
+        [0.725, 0.72, 0.04]
+      ],
       "stand": "on"
     },
     {
       "id": "lantern",
       "art": "decor/sculpted/lantern.svg",
       "size": [30, 72],
-      "shade": [0.62, 0.06, 0.95],
+      "foot": 0.968,
+      "shade": [0.82, 0.07, 0.95],
       "effects": ["glow"]
     },
     {
       "id": "birdhouse",
       "art": "decor/sculpted/birdhouse.svg",
       "size": [36, 74],
-      "shade": [0.6, 0.06, 0.88]
+      "foot": 0.897,
+      "shade": [0.66, 0.07, 0.88, 0.51]
     },
     {
       "id": "pond",
@@ -327,12 +355,15 @@
       "id": "mailbox",
       "art": "decor/mailbox.svg",
       "size": [45, 70],
-      "shade": [0.42, 0.06, 0.85, 0.53]
+      "foot": 0.871,
+      "shade": [0.5, 0.07, 0.855, 0.525]
     },
     {
       "id": "picnic",
       "art": "decor/picnic.svg",
       "size": [140, 105],
+      "foot": 0.864,
+      "shade": [0.62, 0.16, 0.83, 0.56],
       "flat": true,
       "stand": "on"
     },
@@ -340,63 +371,82 @@
       "id": "pinwheel",
       "art": "decor/sculpted/pinwheel.svg",
       "size": [30, 64],
-      "shade": [0.5, 0.05, 0.83]
+      "foot": 0.846,
+      "shade": [0.5, 0.06, 0.835, 0.51]
     },
     {
       "id": "campfire",
       "art": "decor/campfire.svg",
       "size": [64, 64],
+      "foot": 0.898,
+      "shade": [0.96, 0.24, 0.85],
       "effects": ["glow"]
     },
     {
       "id": "swing",
       "art": "decor/sculpted/swing.svg",
       "size": [144, 126],
-      "shade": [0.96, 0.12, 0.92],
+      "foot": 0.977,
+      "shade": [0.96, 0.36, 0.82],
+      "feet": [
+        [0.09, 0.88, 0.07],
+        [0.235, 0.665, 0.06],
+        [0.735, 0.975, 0.07],
+        [0.905, 0.84, 0.07]
+      ],
       "stand": "on"
     },
     {
       "id": "flowerpot",
       "art": "decor/sculpted/flowerpot.svg",
       "size": [32, 44],
-      "shade": [0.6, 0.1, 0.88]
+      "foot": 0.914,
+      "shade": [0.62, 0.08, 0.895]
     },
     {
       "id": "stump",
       "art": "decor/sculpted/stump.svg",
       "size": [61.6, 44.8],
-      "shade": [0.82, 0.25, 0.9],
+      "foot": 0.975,
+      "shade": [0.9, 0.22, 0.93],
       "stand": "on"
     },
     {
       "id": "tent",
       "art": "decor/tent.svg",
       "size": [140, 140],
-      "shade": [0.9, 0.2, 0.89]
+      "foot": 0.952,
+      "shade": [0.95, 0.24, 0.91]
     },
     {
       "id": "signpost",
       "art": "decor/sculpted/signpost.svg",
       "size": [40, 68],
-      "shade": [0.62, 0.08, 0.79]
+      "foot": 0.82,
+      "shade": [0.68, 0.08, 0.8]
     },
     {
       "id": "windchime",
       "art": "decor/sculpted/windchime.svg",
       "size": [36, 72],
-      "shade": [0.42, 0.05, 0.88],
+      "foot": 0.888,
+      "shade": [0.5, 0.06, 0.875, 0.73],
       "effects": ["chime"]
     },
     {
       "id": "cherry_sapling",
       "art": "decor/sculpted/cherry_sapling.svg",
       "size": [36, 58],
+      "foot": 0.867,
+      "shade": [0.48, 0.06, 0.855, 0.48],
       "event": "blossom"
     },
     {
       "id": "watermelon",
       "art": "decor/sculpted/watermelon.svg",
       "size": [60, 34],
+      "foot": 0.976,
+      "shade": [0.6, 0.18, 0.93],
       "flat": true,
       "event": "fireflies"
     },
@@ -404,13 +454,15 @@
       "id": "pumpkin",
       "art": "decor/sculpted/pumpkin.svg",
       "size": [46, 40],
-      "shade": [0.78, 0.2, 0.92],
+      "foot": 0.975,
+      "shade": [0.82, 0.18, 0.94],
       "event": "harvest"
     },
     {
       "id": "snowman",
       "art": "decor/sculpted/snowman.svg",
       "size": [54, 70],
+      "shade": [0.95, 0.12, 0.955],
       "built": true,
       "seasons": ["winter"],
       "ball": "decor/snowball.svg",
@@ -425,32 +477,37 @@
       "id": "bunny_watering_can",
       "art": "decor/bunny_watering_can.svg",
       "size": [70, 70],
-      "shade": [0.62, 0.14, 0.93, 0.56]
+      "foot": 0.973,
+      "shade": [0.6, 0.1, 0.955, 0.6]
     },
     {
       "id": "hedgehog_planter",
       "art": "decor/hedgehog_planter.svg",
       "size": [70, 70],
-      "shade": [0.72, 0.16, 0.9, 0.55]
+      "foot": 0.943,
+      "shade": [0.74, 0.12, 0.925, 0.54]
     },
     {
       "id": "water_wheel",
       "art": "decor/water_wheel.svg",
       "size": [90, 80],
-      "shade": [0.8, 0.2, 0.91, 0.47]
+      "foot": 0.967,
+      "shade": [0.86, 0.2, 0.92]
     },
     {
       "id": "hammock",
       "art": "decor/hammock.svg",
       "size": [140, 100],
-      "shade": [0.96, 0.1, 0.89],
+      "foot": 0.925,
+      "shade": [0.92, 0.16, 0.88],
       "stand": "on"
     },
     {
       "id": "scarecrow",
       "art": "decor/scarecrow.svg",
       "size": [70, 100],
-      "shade": [0.6, 0.09, 0.88]
+      "foot": 0.904,
+      "shade": [0.58, 0.08, 0.885]
     },
     {
       "id": "stepping_stones",
@@ -462,19 +519,24 @@
     {
       "id": "onggi",
       "art": "decor/onggi.svg",
-      "size": [90, 75]
+      "size": [90, 75],
+      "foot": 0.944,
+      "shade": [0.96, 0.2, 0.9]
     },
     {
       "id": "kite",
       "art": "decor/kite.svg",
       "size": [70, 90],
-      "shade": [0.46, 0.08, 0.87, 0.23],
+      "foot": 0.897,
+      "shade": [0.44, 0.07, 0.88, 0.23],
       "event": "newyear"
     },
     {
       "id": "xmas_tree",
       "art": "decor/xmas_tree.svg",
       "size": [56, 72],
+      "foot": 0.958,
+      "shade": [0.6, 0.1, 0.94],
       "event": "lights",
       "shown": "december",
       "seasons": ["winter"],
@@ -549,7 +611,14 @@
       "id": "baby_reindeer",
       "art": "decor/baby_reindeer.svg",
       "size": [44, 65],
-      "shade": [0.74, 0.1, 0.95],
+      "foot": 0.974,
+      "shade": [0.76, 0.1, 0.95, 0.4],
+      "feet": [
+        [0.11, 0.96, 0.1],
+        [0.33, 0.94, 0.08],
+        [0.51, 0.97, 0.09],
+        [0.69, 0.96, 0.08]
+      ],
       "event": "lights",
       "shown": "december",
       "seasons": ["winter"]
@@ -558,7 +627,8 @@
       "id": "santa",
       "art": "decor/santa.svg",
       "size": [58, 70],
-      "shade": [0.6, 0.1, 0.96],
+      "foot": 0.974,
+      "shade": [0.66, 0.1, 0.955, 0.55],
       "event": "lights",
       "shown": "december",
       "seasons": ["winter"]

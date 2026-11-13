@@ -528,6 +528,10 @@ const SET_FROM_CODE = {
   '--shade-h': 'src/yard/decor.js',
   '--shade-y': 'src/yard/decor.js',
   '--shade-x': 'src/yard/decor.js',
+  '--foot-x': 'src/yard/decor.js',
+  '--foot-y': 'src/yard/decor.js',
+  '--foot-w': 'src/yard/decor.js',
+  '--foot': 'src/yard/garden.js',
   '--sway': 'src/yard/props.js',
 };
 // A misspelt or removed token silently falls back to the property's initial value (no colour, no
@@ -602,18 +606,9 @@ test('indoor flowers use a planter without blocking their controls', async () =>
   await readFile('src/art/decor/indoor-planter.webp');
 });
 
-test('indoor planters follow evening and night flower lighting', async () => {
-  const css = await readFile('src/styles/garden.css', 'utf8');
-  for (const [period, filter] of [
-    ['evening', 'brightness(0.88)'],
-    ['night', 'url(#night-tint)'],
-  ]) {
-    const selector = `.yard[data-soil="false"].period-${period} .plant::after`;
-    const start = css.indexOf(selector);
-    assert.ok(start >= 0, `${period} planter light`);
-    const rule = css.slice(start, css.indexOf('}', start));
-    assert.ok(rule.includes(filter), period);
-  }
+test('indoor planters take the light their flowers take', async () => {
+  const css = await styles();
+  assert.match(css, /\.yard\[data-soil="false"\] \.plant::after\{[^}]*filter:var\(--prop-light,none\);/);
 });
 
 // A grey dimming left the gifts, the bush and the plants a neutral grey against the night's blue
@@ -621,18 +616,12 @@ test('indoor planters follow evening and night flower lighting', async () => {
 test('at night the drawings in the yard darken toward the blue of the night, all with one tint', async () => {
   const css = await styles();
   assert.doesNotMatch(css, /brightness\(0\.6[0-9]*\)saturate/, 'no grey night dimming is left');
-  for (const selector of [
-    '.period-night .decor svg',
-    '.period-night .decor>.ornaments',
-    '.period-night .trail-end svg',
-    '.period-night .plant svg',
-    '.period-night .planted-tree svg',
-  ])
-    assert.match(
-      css,
-      new RegExp(`${selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\{filter:url\\(#night-tint\\);\\}`),
-      selector,
-    );
+  // The yard's light at night is the tint (garden.css --prop-light), and every drawing takes it.
+  assert.match(css, /\.yard\.period-night\{--prop-light:url\(#night-tint\);\}/);
+  const escape = selector => selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  for (const selector of ['.decor svg', '.decor>.ornaments', '.plant svg', '.planted-tree svg'])
+    assert.match(css, new RegExp(`(^|\\})${escape(selector)}\\{[^}]*filter:var\\(--prop-light,none\\);`), selector);
+  assert.match(css, /\.period-night \.trail-end svg\{filter:url\(#night-tint\);\}/);
   const page = await readFile('src/index.html', 'utf8');
   const matrix = page.match(/<filter id="night-tint"[^>]*>\s*<feColorMatrix type="matrix" values="([^"]+)"/);
   assert.ok(matrix, 'the tint is in the page');

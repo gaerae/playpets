@@ -27,6 +27,7 @@ import { forPerson, release, rest, sendTo } from './trips.js';
 import { bubble, cheer } from './views.js';
 import { holdAtWork, sendToWork, stopWork } from './work.js';
 import { scene } from './world.js';
+import { worldHasSoil } from './worlds.js';
 
 // Yard pixels per unit of a plant's drawing at full size; it shrinks with the yard as friends do.
 const UNIT = 1.25;
@@ -60,15 +61,20 @@ function position(v, plant, now = Date.now(), point = plant) {
     v.button.dataset.stage = stage;
     shapeHits(v.button, art);
   }
-  // Some flowers stand taller than others once grown (catalog.json "stature").
+  // Some flowers stand taller than others once grown (catalog.json "stature"), and all smaller
+  // farther back, as a friend there is.
   const [aw, ah] = artSize(art),
-    { x, y } = fieldToYard(point),
-    scale = propScale(),
+    at = fieldToYard(point),
+    scale = propScale(at),
     tall = plantStature(plant, stage),
     w = aw * UNIT * scale * tall,
-    h = ah * UNIT * scale * tall;
+    h = ah * UNIT * scale * tall,
+    // A cut stem may end above the drawing's edge (catalog.json "foot"): outdoors it stands where
+    // it ends; indoors it stands in its pot, which ends at the box (garden.css).
+    foot = stage === 'bloom' && worldHasSoil(scene.world) ? (flowerKind(plant.kind)?.foot ?? 1) : 1;
+  v.button.style.setProperty('--foot', String(foot));
   // Nearer the front, drawn over the ones behind it.
-  setDown(v.button, x, y, w, h, depthAt(y));
+  setDown(v.button, at.x, at.y, w, h, depthAt(at.y), foot);
 }
 // Moved at once and saved after, as a tree is (props.js moveSaved); refused, it goes back.
 const save = guard(async (v, point) => {
