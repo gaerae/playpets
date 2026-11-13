@@ -5,7 +5,7 @@
   - the drawing loops of the yard and the overlay (`src/app.js`, `src/overlay/overlay.js`, `src/yard/`)
   - CSS animations (`src/styles/`, `src/overlay/overlay.css`)
   - the overlay thread (`src-tauri/src/desktop/overlay.rs`)
-  - state saving (`app::persist`, `app::persist_soon`)
+  - state saving (`app::show_and_save`, `app::show_and_save_soon`, `app::commit_soon`, `app::persist_soon`)
 - Not covered: code that runs once per click (importing, saving settings, one chat message). The [locks standard](backend-locks.md) keeps that code from freezing the app.
 
 ## Rules
@@ -43,7 +43,7 @@
   - `data-unseen` stops CSS animations.
 
 ### Pushes from the backend
-- The backend pushes its whole state on every change. A push re-renders only what changed:
+- The backend pushes its whole state on most changes. A push re-renders only what changed:
   - Pushes that come together are drawn once, from the latest state, after a zero-delay timer (`app.js`).
   - A section of the page is rebuilt only when its own part of the state differs from what it was drawn from (a key per section, as in `render.js`).
   - Text, titles and attributes are written only when they differ (`put`, `putAttribute` in `src/core/dom.js`): writing the same value still costs a style check and a mutation.
@@ -85,8 +85,9 @@
   - Building a window and loading its page takes most of a second, and something sent out again soon then shows at once.
   - While it is kept with nothing on it, its page draws nothing and the thread looks in every 400ms only to close it in time.
   - The switch that brings everything in closes the windows at once.
-- Frequent changes that are fine to lose (where a friend stopped walking) are batched and saved with `persist_soon`.
-- Other changes are saved right away with `persist`.
+- Frequent changes no page shows (where a friend stopped walking, where the window was left) are batched and saved with `persist_soon`, within 2 s.
+- Small changes that come often and show (a pat, a scene picked, something moved) are shown at once and written within 250 ms with any others (`show_and_save_soon`, `commit_soon`).
+- Other changes are shown and written right away with `commit` or `show_and_save`; the write comes after the lock is let go.
 - The yard's sounds (`src/yard/sound.js`) play only while they are on and the yard is visible.
 - Otherwise the audio context is suspended and the sound timers are cleared.
 - Sound beds loop and drift inside the audio graph.

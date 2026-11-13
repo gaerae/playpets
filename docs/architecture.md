@@ -124,7 +124,9 @@ The frame loop and shared tables:
 
 Saving and announcing:
 - A command that changes the state goes through `commit`, which saves and announces once.
-- A change made in place uses `save_and_show`; a caller done with the state passes its lock to `show_and_save`, which writes after letting it go.
+- A change made in place passes the lock to `show_and_save`, which shows it, lets the lock go, then writes.
+- A caller with more to do under the lock (a chat turn) uses `show_for_save` and writes the save it gets after letting the lock go.
+- A small change that comes often (a pat, a scene picked, something moved) uses `show_and_save_soon` or `commit_soon`: shown at once, written within 250 ms with any others.
 - A change that could not be saved still takes effect and is shown.
 
 Locks:

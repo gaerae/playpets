@@ -116,7 +116,7 @@ reviews:
         taken with app::lock and every other mutex with app::hold, and no lock is held while
         waiting for an AI, the keychain, the network or a child process
         (docs/standards/backend-locks.md). A state change is saved and shown through commit or
-        save_and_show. Errors a person sees are i18n keys.
+        show_and_save. Errors a person sees are i18n keys.
     - path: "src-tauri/src/chat/**"
       instructions: >-
         Text from outside (pet files, coding agents' reports, another friend's words, CLI output)

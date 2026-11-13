@@ -66,7 +66,7 @@ pnpm run test:e2e
 - All three pass.
 - Without the key from step 3, the Rust test `i18n::tests::every_key_asked_for_is_in_the_table` fails.
 - Run the app and press the button: the friend moves to the middle of the yard (`changed` notified every window).
-- Restart the app: the friend is still there (`persist` saved it).
+- Restart the app: the friend is still there (`commit` saved it).
 
 ## Troubleshooting
 | Symptom | Cause |

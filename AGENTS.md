@@ -55,7 +55,7 @@ A change is ready when `pnpm test` and `pnpm run lint` pass, and `pnpm run site:
 
 ## When reviewing
 Report what would break for a person using the app or working on it, with the file, the line and a concrete scenario; say how sure you are. Look first at:
-- a lock held across a wait, or a state change made without `commit`/`save_and_show`;
+- a lock held across a wait, or a state change made without `commit`/`show_and_save`;
 - a string in one language only, a missing placeholder, or Korean outside the tables;
 - a page module that acts on import, or a listener added twice;
 - a rule changed without its test, or a test that depends on the clock or the machine;
