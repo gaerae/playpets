@@ -130,9 +130,8 @@ fn desktop_act(app: &AppHandle, id: &str) {
         push_event(app, &json!({"type": "select", "petId": pet}));
     } else if let Some(item) = id.strip_prefix("desktop-in:") {
         let state = app.state::<Shared>();
-        let mut d = lock(&state);
-        if let Err(e) = crate::app::put_on_desktop(app, &mut d, item, false) {
-            warn(app, &mut d, e);
+        if let Err(e) = crate::app::put_on_desktop(app, lock(&state), item, false) {
+            warn(app, &mut lock(&state), e);
         }
     }
 }

@@ -445,7 +445,19 @@ static COMMANDS: &[Command] = &[
     }),
     main("setOnDesktop", |c| {
         let on = c.arg(1).as_bool().ok_or_else(|| i18n::t("error.bad_request"))?;
-        crate::app::put_on_desktop(c.app, &mut lock(&c.state), c.text(0), on).map(|()| Value::Null)
+        crate::app::put_on_desktop(c.app, lock(&c.state), c.text(0), on).map(|()| Value::Null)
+    }),
+    // (id): the yard opened the menu of something not out yet; the screen it would land on gets its
+    // window now, so Show on desktop shows it at once (overlay.rs warm).
+    main("warmDesktop", |c| {
+        let item = {
+            let d = lock(&c.state);
+            crate::desktop::items::one(&d.pets, &d.garden, c.text(0))
+        };
+        if let Some(item) = item {
+            c.app.state::<OverlayHandle>().0.warm(item);
+        }
+        Ok(Value::Null)
     }),
     // (kinds): the gift kinds the yard hides now, so the desktop leaves them out too (not saved).
     main("hideDecor", |c| {

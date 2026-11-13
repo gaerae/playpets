@@ -17,8 +17,16 @@ const TICK: Duration = Duration::from_millis(40);
 /// A tick that ran late (a busy machine, a slow wake) moves friends by at most this much time,
 /// so nobody teleports.
 const MAX_STEP: Duration = Duration::from_millis(120);
-/// With nothing on the desktop there is nothing to advance: the loop only looks in now and then.
+/// Nothing out but a window still open, waiting to close (LINGER): the loop only looks in now and
+/// then.
 const IDLE_TICK: Duration = Duration::from_millis(400);
+/// Nothing out and no window open: the loop waits for `wake`, which every change that sends
+/// something out rings, so this is only a safety net.
+const REST: Duration = Duration::from_secs(2);
+/// A screen's window stays this long, empty and click-through, after the last thing on it left or
+/// after the yard asked for it (`warm`): building one and loading its page takes most of a second,
+/// and something sent out again soon, or the thing whose menu is open, then shows at once.
+const LINGER: Duration = Duration::from_secs(60);
 /// Friends on the desktop but still, and the pointer away from them: nothing to follow closely.
 const CALM_TICK: Duration = Duration::from_millis(120);
 /// How close (logical px) the pointer may come to a friend's box before the loop speeds up, so
@@ -84,10 +92,22 @@ struct Inner {
     /// A drag ended since the last step (finish_drag): the windows hear on the next step where the
     /// thing was set down, though nothing else moves.
     dropped: bool,
+    /// What is out changed since the last `wake` (sync): the loop is woken once the pages were told.
+    news: bool,
+    /// Every window hears the layout again on the next step: the state the pages were just sent
+    /// carries a layout from before the loop placed what came out.
+    resend: bool,
+    /// Each screen whose window is kept, and until when (LINGER): one with something on it, one
+    /// whose last thing left a moment ago, one the yard asked for (`warm`).
+    warm: HashMap<String, Instant>,
+    /// The thing whose menu the yard just opened: the screen it would land on gets its window.
+    warming: Option<Item>,
 }
 
 pub struct Overlay {
     inner: Arc<Mutex<Inner>>,
+    /// The loop's thread, unparked by `wake` and `warm`.
+    looper: std::thread::Thread,
 }
 
 /// The box a friend takes up: the sprite, room for its speech bubble above (the top BUBBLE_ROOM)
@@ -161,34 +181,72 @@ fn cursor_in(app: &AppHandle, mons: &[Mon], primary_scale: f64) -> Option<(f64, 
 
 impl Overlay {
     pub fn new(app: AppHandle, on_position: PositionFn) -> Arc<Overlay> {
-        let overlay = Arc::new(Overlay {
-            inner: Arc::new(Mutex::new(Inner::default())),
-        });
-        let inner = overlay.inner.clone();
-        std::thread::spawn(move || {
+        let inner = Arc::new(Mutex::new(Inner::default()));
+        let looping = inner.clone();
+        let looper = std::thread::spawn(move || {
             // Friends walk by the time that really passed: sleep overshoots by a different amount
             // on each system, and a fixed step per tick made the same stroll faster on one than another.
             let mut last = Instant::now();
-            let mut pace = IDLE_TICK;
+            let mut wait = IDLE_TICK;
             loop {
-                let idle = {
-                    let d = crate::app::hold(&inner);
-                    !(d.visible && !d.pets.is_empty()) && !d.open
-                };
-                std::thread::sleep(if idle { IDLE_TICK } else { pace });
+                // A wake ends the wait at once: what was sent out is placed and drawn now, not at
+                // the next look in.
+                std::thread::park_timeout(wait);
                 let dt = last.elapsed().min(MAX_STEP);
                 last = Instant::now();
-                if !idle {
-                    let busy = tick(&app, &inner, &on_position, dt.as_secs_f64() * 1000.0);
-                    pace = if busy { TICK } else { CALM_TICK };
-                }
+                let (out, open) = activity(&crate::app::hold(&looping));
+                let busy = (out || open) && tick(&app, &looping, &on_position, dt.as_secs_f64() * 1000.0);
+                let (out, open) = activity(&crate::app::hold(&looping));
+                wait = match (out, open) {
+                    (true, _) if busy => TICK,
+                    (true, _) => CALM_TICK,
+                    (false, true) => IDLE_TICK,
+                    (false, false) => REST,
+                };
             }
         });
-        overlay
+        Arc::new(Overlay {
+            inner,
+            looper: looper.thread().clone(),
+        })
+    }
+
+    /// Wakes the loop when what is out changed since the last call, so it is placed and drawn now.
+    /// Called once every page was sent the change (app::changed): the layout the loop then sends
+    /// comes after it, so a page never takes the change's older layout for the last word.
+    pub fn wake(&self) {
+        let mut d = crate::app::hold(&self.inner);
+        if !std::mem::take(&mut d.news) {
+            return;
+        }
+        d.resend = true;
+        d.sent.clear();
+        drop(d);
+        self.looper.unpark();
+    }
+
+    /// The yard opened the menu of `item`, which is not out: the screen it would land on gets its
+    /// window now, empty and click-through, so choosing Show on desktop shows it at once. Kept for
+    /// LINGER if nothing comes out.
+    pub fn warm(&self, item: Item) {
+        crate::app::hold(&self.inner).warming = Some(item);
+        self.looper.unpark();
+    }
+
+    /// Everything was brought in with the switch: the windows close now rather than linger.
+    pub fn rest(&self) {
+        let mut d = crate::app::hold(&self.inner);
+        d.warm.clear();
+        d.warming = None;
+        drop(d);
+        self.looper.unpark();
     }
 
     pub fn sync(&self, pets: Vec<Item>, visible: bool, wander: bool) {
         let mut d = crate::app::hold(&self.inner);
+        let same =
+            d.visible == visible && d.pets.len() == pets.len() && d.pets.iter().zip(&pets).all(|(a, b)| a.id == b.id);
+        d.news |= !same;
         d.visible = visible;
         d.wander = wander;
         if !wander {
@@ -233,6 +291,15 @@ impl Overlay {
         let d = crate::app::hold(&self.inner);
         layout_of(&d, &d.mons)
     }
+}
+
+/// Whether anything is out to step, and whether a window is open or asked for: with neither, the
+/// loop has nothing to do.
+fn activity(d: &Inner) -> (bool, bool) {
+    (
+        d.visible && !d.pets.is_empty(),
+        d.open || d.warming.is_some() || !d.warm.is_empty(),
+    )
 }
 
 /// Where every friend stands and which monitor's window draws it: the one its centre is on.
@@ -289,6 +356,11 @@ fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt
     let mut visits: Vec<(String, String)> = Vec::new();
     let (moved, busy) = {
         let mut d = crate::app::hold(inner);
+        if let Some(item) = d.warming.take()
+            && let Some(mon) = landing(&item, &mons)
+        {
+            d.warm.insert(mon.id.clone(), Instant::now() + LINGER);
+        }
         let placed = place_newcomers(&mut d, &mons);
         // Saved as a drop is, on the screen it is on now.
         for id in std::mem::take(&mut d.resized) {
@@ -298,7 +370,7 @@ fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt
         }
         let dragged = follow_drag(&mut d, &mons, cursor, &mut arrivals);
         let strolled = stroll(&mut d, &mons, cursor, dt_ms, &mut arrivals, &mut visits);
-        let moved = placed || dragged || strolled || std::mem::take(&mut d.dropped);
+        let moved = placed || dragged || strolled || std::mem::take(&mut d.dropped) || std::mem::take(&mut d.resend);
         let walking = d.roams.values().any(|r| r.target.is_some());
         (moved, moved || walking || d.drag.is_some() || pointer_near(&d, cursor))
     };
@@ -345,25 +417,42 @@ fn place_newcomers(d: &mut Inner, mons: &[Mon]) -> bool {
         if d.positions.contains_key(&p.id) {
             continue;
         }
-        let (w, h) = dims(p);
-        // Friends in a row from the left; decorations from the right, so the two do not stack up.
-        let fallback = if p.decor.is_some() {
-            (
-                primary.area.x + primary.area.w - w - 60.0 - (index % 5) as f64 * 180.0,
-                primary.area.y + primary.area.h - h - FLOOR_GAP,
-            )
-        } else {
-            (
-                primary.area.x + 35.0 + (index % 6) as f64 * 145.0,
-                primary.area.y + primary.area.h - h - FLOOR_GAP - (index / 6) as f64 * 145.0,
-            )
-        };
-        let start = p.saved.unwrap_or(fallback);
-        let area = &monitor_of_box(mons, start.0, start.1, (w, h)).unwrap_or(primary).area;
+        let start = start_of(p, index, primary);
+        let area = &screen_of(p, start, mons, primary).area;
         d.positions.insert(p.id.clone(), set_down(p, area, start));
         placed = true;
     }
     placed
+}
+
+/// Where a newcomer starts (before set_down): where it was last left, else the `index`th place of
+/// its row on the primary screen. Friends in a row from the left; decorations from the right, so the
+/// two do not stack up.
+fn start_of(p: &Item, index: usize, primary: &Mon) -> (f64, f64) {
+    let (w, h) = dims(p);
+    let fallback = if p.decor.is_some() {
+        (
+            primary.area.x + primary.area.w - w - 60.0 - (index % 5) as f64 * 180.0,
+            primary.area.y + primary.area.h - h - FLOOR_GAP,
+        )
+    } else {
+        (
+            primary.area.x + 35.0 + (index % 6) as f64 * 145.0,
+            primary.area.y + primary.area.h - h - FLOOR_GAP - (index / 6) as f64 * 145.0,
+        )
+    };
+    p.saved.unwrap_or(fallback)
+}
+
+/// The screen a newcomer starting at `start` stands on: the one under it, else the primary.
+fn screen_of<'a>(p: &Item, start: (f64, f64), mons: &'a [Mon], primary: &'a Mon) -> &'a Mon {
+    monitor_of_box(mons, start.0, start.1, dims(p)).unwrap_or(primary)
+}
+
+/// The screen `item` lands on when it is sent out, as place_newcomers places it.
+fn landing<'a>(item: &Item, mons: &'a [Mon]) -> Option<&'a Mon> {
+    let primary = mons.first()?;
+    Some(screen_of(item, start_of(item, 0, primary), mons, primary))
 }
 
 /// Where something set down at `at` on a screen's work area rests: inside the area; and a gift, a
@@ -520,30 +609,50 @@ fn hovered(d: &Inner, layout: &[Value], cursor: Option<(f64, f64)>) -> (HashMap<
     (hover, pet_id)
 }
 
-/// Whether a monitor's window is wanted: only where something stands, so an empty screen keeps no
-/// page and no loop of its own. While a friend is being carried every screen has one, ready for it
-/// to arrive.
-fn needs_window(visible: bool, dragging: bool, layout: &[Value], mon_id: &str) -> bool {
-    visible && (dragging || layout.iter().any(|item| item["displayId"] == mon_id))
+/// Whether a monitor's window is wanted: where something stands, and for LINGER after (`warm`, as
+/// keep_warm keeps it), so an empty screen keeps no page for long. While a friend is being carried
+/// every screen has one, ready for it to arrive.
+fn needs_window(visible: bool, dragging: bool, layout: &[Value], mon_id: &str, warm: bool) -> bool {
+    warm || visible && (dragging || layout.iter().any(|item| item["displayId"] == mon_id))
+}
+
+/// Each screen with something on it is kept LINGER past `now`; one whose time is up, or that is
+/// gone, is let go.
+fn keep_warm(warm: &mut HashMap<String, Instant>, visible: bool, layout: &[Value], mons: &[Mon], now: Instant) {
+    warm.retain(|id, until| *until > now && mons.iter().any(|m| &m.id == id));
+    if !visible {
+        return;
+    }
+    for item in layout {
+        if let Some(id) = item["displayId"].as_str() {
+            warm.insert(id.to_string(), now + LINGER);
+        }
+    }
 }
 
 /// Opens, updates or closes each monitor's window. Windows are built and closed on the main thread.
 fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor: Option<(f64, f64)>, moved: bool) {
-    let (visible, layout, hover, dragging, hover_changed) = {
+    let (visible, layout, hover, dragging, hover_changed, warm) = {
         let mut d = crate::app::hold(inner);
         let layout = layout_of(&d, mons);
+        let visible = d.visible && !d.pets.is_empty();
+        keep_warm(&mut d.warm, visible, &layout, mons, Instant::now());
+        let warm: Vec<String> = d.warm.keys().cloned().collect();
         let (hover, pet_id) = hovered(&d, &layout, cursor);
         let changed = d.hover_pet != pet_id;
         d.hover_pet = pet_id;
         let event = changed.then(|| json!({"type": "hover", "petId": d.hover_pet}));
-        (d.visible && !d.pets.is_empty(), layout, hover, d.drag.is_some(), event)
+        (visible, layout, hover, d.drag.is_some(), event, warm)
     };
     let mut open = visible;
     for mon in mons {
         let label = format!("overlay{}", mon.id);
         let existing = app.get_webview_window(&label);
         open |= existing.is_some();
-        match (needs_window(visible, dragging, &layout, &mon.id), existing) {
+        match (
+            needs_window(visible, dragging, &layout, &mon.id, warm.contains(&mon.id)),
+            existing,
+        ) {
             (true, None) => {
                 // A new window starts from the whole state; the next move is sent to it in full.
                 crate::app::hold(inner).sent.remove(&mon.id);
@@ -652,18 +761,118 @@ mod tests {
     use super::*;
 
     #[test]
-    fn only_a_screen_with_something_on_it_keeps_a_window() {
+    fn only_a_screen_with_something_on_it_or_kept_warm_keeps_a_window() {
         let layout = vec![json!({"id": "pip", "displayId": "1"})];
-        assert!(needs_window(true, false, &layout, "1"));
+        assert!(needs_window(true, false, &layout, "1", false));
         assert!(
-            !needs_window(true, false, &layout, "2"),
+            !needs_window(true, false, &layout, "2", false),
             "an empty screen has no window"
         );
         assert!(
-            needs_window(true, true, &layout, "2"),
+            needs_window(true, true, &layout, "2", false),
             "a friend carried over is drawn as it arrives"
         );
-        assert!(!needs_window(false, true, &layout, "1"), "a hidden desktop has none");
+        assert!(
+            !needs_window(false, true, &layout, "1", false),
+            "a hidden desktop has none"
+        );
+        assert!(
+            needs_window(false, false, &[], "2", true),
+            "a screen kept warm keeps its window, empty"
+        );
+    }
+
+    #[test]
+    fn a_screen_keeps_its_window_a_while_after_the_last_thing_on_it_left() {
+        let mons = vec![
+            screen()[0].clone(),
+            Mon {
+                id: "1".into(),
+                ..screen()[0].clone()
+            },
+        ];
+        let (t0, mut warm) = (Instant::now(), HashMap::new());
+        keep_warm(&mut warm, true, &[json!({"id": "pip", "displayId": "0"})], &mons, t0);
+        assert_eq!(warm.keys().collect::<Vec<_>>(), ["0"]);
+        // Brought in: still there a moment later, gone once LINGER has passed.
+        keep_warm(&mut warm, false, &[], &mons, t0 + LINGER / 2);
+        assert!(warm.contains_key("0"));
+        keep_warm(&mut warm, false, &[], &mons, t0 + LINGER);
+        assert!(warm.is_empty());
+        // A screen unplugged lets its window go.
+        warm.insert("9".into(), t0 + LINGER);
+        keep_warm(&mut warm, false, &[], &mons, t0);
+        assert!(warm.is_empty());
+    }
+
+    #[test]
+    fn the_screen_warmed_for_a_thing_is_the_one_it_lands_on() {
+        let second = Mon {
+            id: "1".into(),
+            area: Bounds {
+                x: 1440.0,
+                y: 0.0,
+                w: 1920.0,
+                h: 1080.0,
+            },
+            ..screen()[0].clone()
+        };
+        let mons = vec![screen()[0].clone(), second];
+        assert_eq!(
+            landing(&out("pip", None, None), &mons).unwrap().id,
+            "0",
+            "a first time out: the primary"
+        );
+        assert_eq!(
+            landing(&out("pip", Some((2000.0, 500.0)), None), &mons).unwrap().id,
+            "1"
+        );
+        assert_eq!(
+            landing(&out("bench", Some((2000.0, 500.0)), Some((151.0, 121.0))), &mons)
+                .unwrap()
+                .id,
+            "1",
+            "a gift where it was left"
+        );
+        assert!(landing(&out("pip", None, None), &[]).is_none());
+    }
+
+    // The loop is woken once the pages were sent the change, and only for a change to what is out;
+    // every window then hears the layout again.
+    #[test]
+    fn something_sent_out_wakes_the_loop_once_the_pages_were_told() {
+        let (tell, woken) = std::sync::mpsc::channel();
+        let looper = std::thread::spawn(move || {
+            let start = Instant::now();
+            std::thread::park_timeout(Duration::from_secs(30));
+            let _ = tell.send(start.elapsed());
+        });
+        let overlay = Overlay {
+            inner: Arc::default(),
+            looper: looper.thread().clone(),
+        };
+        overlay.sync(vec![out("pip", None, None)], true, false);
+        // A step between the sync and the change's eval sent the newcomer; the change then came
+        // with a layout from before it.
+        crate::app::hold(&overlay.inner)
+            .sent
+            .insert("0".into(), json!([{"id": "pip"}]));
+        overlay.wake();
+        let waited = woken.recv_timeout(Duration::from_secs(20)).expect("woken");
+        assert!(waited < Duration::from_secs(20));
+        let mut d = crate::app::hold(&overlay.inner);
+        assert!(
+            std::mem::take(&mut d.resend) && d.sent.is_empty(),
+            "every window hears the layout again"
+        );
+        drop(d);
+        // The same things again (a status, a chat): nothing new, no wake.
+        overlay.sync(vec![out("pip", None, None)], true, false);
+        overlay.wake();
+        assert!(!crate::app::hold(&overlay.inner).resend);
+        overlay.sync(vec![], false, false);
+        overlay.wake();
+        assert!(crate::app::hold(&overlay.inner).resend, "brought in is news too");
     }
 
     #[test]

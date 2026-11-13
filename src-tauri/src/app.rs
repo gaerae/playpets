@@ -315,6 +315,10 @@ pub fn changed(app: &AppHandle, d: &AppData) {
     }
     crate::tray::refresh(app, crate::tray::snapshot(d));
     eval_all(app, &format!("window.__pp&&__pp('change',{})", public_state(app, d)));
+    // After the pages were told: the layout the overlay sends next comes after this change.
+    if let Some(o) = app.try_state::<OverlayHandle>() {
+        o.0.wake();
+    }
 }
 
 /// A save that was put off: asked for many times, written once.
@@ -453,7 +457,13 @@ pub fn toggle_desktop(app: &AppHandle, d: &mut AppData) -> Result<bool, String> 
         ..
     } = d;
     let now = crate::desktop::items::flip(pets, garden, hidden_decor.as_deref());
-    save_and_show(app, d).map(|()| now)
+    let shown = save_and_show(app, d);
+    // Everything brought in with the switch is put away for good: no window lingers for it. After
+    // the overlay has nothing out, so no step keeps a window for it again.
+    if !now && let Some(o) = app.try_state::<OverlayHandle>() {
+        o.0.rest();
+    }
+    shown.map(|()| now)
 }
 
 /// Friends out on the desktop roam it, or stay where they are put.
@@ -463,11 +473,12 @@ pub fn toggle_wander(app: &AppHandle, d: &mut AppData) -> Result<bool, String> {
     save_and_show(app, d).map(|()| now)
 }
 
-/// Sends one friend or decoration out to the desktop, or brings it in.
-pub fn put_on_desktop(app: &AppHandle, d: &mut AppData, id: &str, on: bool) -> Result<(), String> {
-    let AppData { pets, garden, .. } = d;
+/// Sends one friend or decoration out to the desktop, or brings it in: shown first, written after
+/// the state is let go, so it shows without waiting for the disk.
+pub fn put_on_desktop(app: &AppHandle, mut d: MutexGuard<'_, AppData>, id: &str, on: bool) -> Result<(), String> {
+    let AppData { pets, garden, .. } = &mut *d;
     crate::desktop::items::set(pets, garden, id, on)?;
-    save_and_show(app, d)
+    show_and_save(app, d)
 }
 
 /// A friend's state as every page shows it (src/core/status.js reads the same fields).

@@ -58,51 +58,80 @@ pub fn anything_out(pets: &[Pet], garden: &Garden, hidden: Option<&[String]>) ->
 /// draws or catches clicks; it keeps its place for when it shows. Before the yard reports (`None`),
 /// every kind that comes and goes is left out, so nothing flashes at start.
 pub fn items(pets: &[Pet], garden: &Garden, hidden: Option<&[String]>) -> Vec<Item> {
-    let friends = pets.iter().filter(|p| p.on_desktop).map(|p| Item {
-        id: p.id.clone(),
-        size: p.size,
-        saved: p.desktop_position.map(|q| (q.x as f64, q.y as f64)),
-        decor: None,
-        foot: 1.0,
-    });
+    let friends = pets.iter().filter(|p| p.on_desktop).map(friend);
     let decor = garden
         .decor
         .iter()
         .filter(|d| d.on_desktop && !left_out(&d.kind, hidden))
-        .map(|d| {
-            let (w, h) = catalog().gift_size(&d.kind).unwrap_or((64.0, 64.0));
-            Item {
-                id: d.id.clone(),
-                size: 0.0,
-                saved: d.desktop_position.map(|q| (q.x as f64, q.y as f64)),
-                decor: Some((d.kind.clone(), (w * DECOR_SCALE).round(), (h * DECOR_SCALE).round())),
-                foot: catalog().gift_foot(&d.kind),
-            }
-        });
+        .map(decoration);
     // A flower and a tree stay out whatever the yard shows: the desktop is not any one place.
     let now = crate::app::now_ms();
-    let plants = garden.plants.iter().filter(|p| p.on_desktop).map(|p| {
-        let (w, h) = plant_box(&p.kind, p.planted, now);
-        Item {
-            id: p.id.clone(),
-            size: 0.0,
-            saved: p.desktop_position.map(|q| (q.x as f64, q.y as f64)),
-            decor: Some((p.kind.clone(), w, h)),
-            foot: plant_foot(&p.kind, p.planted, now),
-        }
-    });
-    // A tree's box is its stage's, as the backend last grew it (discovery.rs grow_trees).
-    let trees = garden.trees.iter().filter(|t| t.on_desktop).filter_map(|t| {
-        let (w, h) = catalog().tree_size(&t.kind, usize::from(t.stage.min(2)))?;
-        Some(Item {
-            id: t.id.clone(),
-            size: 0.0,
-            saved: t.desktop_position.map(|q| (q.x as f64, q.y as f64)),
-            decor: Some((t.kind.clone(), w, h)),
-            foot: 1.0,
-        })
-    });
+    let plants = garden.plants.iter().filter(|p| p.on_desktop).map(|p| plant(p, now));
+    let trees = garden.trees.iter().filter(|t| t.on_desktop).filter_map(tree);
     friends.chain(decor).chain(plants).chain(trees).collect()
+}
+
+/// The friend, decoration, flower or planted tree `id` as the overlay would draw it out on the
+/// desktop, out or not: the yard asks before sending it out (overlay.rs `warm`).
+pub fn one(pets: &[Pet], garden: &Garden, id: &str) -> Option<Item> {
+    if let Some(p) = pets.iter().find(|p| p.id == id) {
+        return Some(friend(p));
+    }
+    if let Some(d) = garden.decor.iter().find(|d| d.id == id) {
+        return Some(decoration(d));
+    }
+    if let Some(p) = garden.plants.iter().find(|p| p.id == id) {
+        return Some(plant(p, crate::app::now_ms()));
+    }
+    garden.trees.iter().find(|t| t.id == id).and_then(tree)
+}
+
+fn spot(at: Option<crate::pets::model::Pos>) -> Option<(f64, f64)> {
+    at.map(|q| (q.x as f64, q.y as f64))
+}
+
+fn friend(p: &Pet) -> Item {
+    Item {
+        id: p.id.clone(),
+        size: p.size,
+        saved: spot(p.desktop_position),
+        decor: None,
+        foot: 1.0,
+    }
+}
+
+fn decoration(d: &crate::pets::garden::Decor) -> Item {
+    let (w, h) = catalog().gift_size(&d.kind).unwrap_or((64.0, 64.0));
+    Item {
+        id: d.id.clone(),
+        size: 0.0,
+        saved: spot(d.desktop_position),
+        decor: Some((d.kind.clone(), (w * DECOR_SCALE).round(), (h * DECOR_SCALE).round())),
+        foot: catalog().gift_foot(&d.kind),
+    }
+}
+
+fn plant(p: &crate::pets::garden::Plant, now: u64) -> Item {
+    let (w, h) = plant_box(&p.kind, p.planted, now);
+    Item {
+        id: p.id.clone(),
+        size: 0.0,
+        saved: spot(p.desktop_position),
+        decor: Some((p.kind.clone(), w, h)),
+        foot: plant_foot(&p.kind, p.planted, now),
+    }
+}
+
+/// A tree's box is its stage's, as the backend last grew it (discovery.rs grow_trees).
+fn tree(t: &crate::pets::discovery::Tree) -> Option<Item> {
+    let (w, h) = catalog().tree_size(&t.kind, usize::from(t.stage.min(2)))?;
+    Some(Item {
+        id: t.id.clone(),
+        size: 0.0,
+        saved: spot(t.desktop_position),
+        decor: Some((t.kind.clone(), w, h)),
+        foot: 1.0,
+    })
 }
 
 /// The menus' switch: with anything out, everything comes in; otherwise every friend goes out.
@@ -364,6 +393,27 @@ mod tests {
         // Shown again, it counts as out, and the switch brings it in.
         assert!(anything_out(&pets, &garden, Some(&[])));
         assert!(!flip(&mut pets, &mut garden, Some(&[])) && !tree_out(&garden));
+    }
+
+    // The yard opens a thing's menu before it goes out: the overlay readies the screen it will land on,
+    // so the thing is told as the overlay will draw it, where it was last left.
+    #[test]
+    fn a_thing_not_out_yet_is_told_as_it_will_go_out() {
+        let (mut pets, mut garden) = garden_with_growing();
+        place(&mut pets, &mut garden, "cherry", 300, 500);
+        for id in ["pip", "bench", "sun", "cherry"] {
+            set(&mut pets, &mut garden, id, true).unwrap();
+            let out = items(&pets, &garden, Some(&[]));
+            set(&mut pets, &mut garden, id, false).unwrap();
+            let one = one(&pets, &garden, id).unwrap();
+            let same = out.iter().find(|i| i.id == id).unwrap();
+            assert_eq!(
+                (&one.decor, one.saved, one.size, one.foot),
+                (&same.decor, same.saved, same.size, same.foot)
+            );
+        }
+        assert_eq!(one(&pets, &garden, "cherry").unwrap().saved, Some((300.0, 500.0)));
+        assert!(one(&pets, &garden, "nobody").is_none());
     }
 
     #[test]
