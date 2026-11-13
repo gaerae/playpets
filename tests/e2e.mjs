@@ -228,10 +228,14 @@ const scenario = `(async()=>{
     const shownLog=document.getElementById('chat-log');
     await L('markdown='+(shownLog.querySelector('.message.assistant strong')?.textContent==='타우리'&&!shownLog.textContent.includes('**')?'styled':'err:'+shownLog.textContent.slice(0,60)));
     // While an answer is on its way the conversation says so, and stops saying so when it arrives.
+    // The turn says so in busy events alone: no whole state is pushed for it.
+    const pushes=[],stopChanges=playPets.onChange(()=>pushes.push('change')),stopBusy=playPets.onEvent(e=>{if(e.type==='busy')pushes.push('busy:'+e.busy.join('+'));});
     const slow=playPets.chat(p1.data.id,'천천히 대답해 줘');await new Promise(r=>setTimeout(r,700));
     const waitingShown=!!shownLog.querySelector('.waiting')&&document.querySelector('.yard-pet.thinking')!==null;
     await slow;await new Promise(r=>setTimeout(r,500));
+    stopChanges();stopBusy();
     await L('waiting='+(waitingShown&&!shownLog.querySelector('.waiting')&&!document.querySelector('.yard-pet.thinking')?'shown-then-gone':'err:'+waitingShown));
+    await L('chatPushes='+(pushes.join()===['busy:'+p1.data.id,'busy:'].join()?'busy-only':'err:'+pushes.join()));
     // The yard itself: scenery-first layout, games.
     const playing=()=>document.querySelector('[data-game].playing'),gameLabel=()=>playing()?.textContent||'none';
     const $=id=>document.getElementById(id),wait=ms=>new Promise(r=>setTimeout(r,ms)),press=el=>el.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));
@@ -1645,6 +1649,7 @@ const expect = [
   [/^pageErrors=none$/, 'no page errors (frame loops included)'],
   [/^markdown=styled$/, 'markdown emphasis in replies is styled'],
   [/^waiting=shown-then-gone$/, 'waiting indicator while a reply is on its way'],
+  [/^chatPushes=busy-only$/, 'a chat turn sends who is waiting, not the whole state'],
   [/^letterAi=ai-wrote$/, "the friend's AI writes the year-end letter"],
   [/^letterOnce=same-letter$/, 'the year-end letter is written once a year'],
   [/^letterLines=page-lines$/, "a friend without an AI writes from the page's lines and nothing is sent"],

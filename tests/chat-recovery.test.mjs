@@ -21,8 +21,9 @@ globalThis.playPets = {
   updatePet: async () =>
     updateSucceeds ? { ok: true, data: null } : { ok: false, error: 'Connection could not be saved.' },
 };
-const { companions, setData, setSelected, temporaryMessages } = await import('../src/core/state.js');
-const { chatEvent, setupChat, renderChat } = await import('../src/panel/chat.js');
+const shared = await import('../src/core/state.js');
+const { companions, setData, setSelected, temporaryMessages } = shared;
+const { chatEvent, setupChat, renderChat, syncBusy } = await import('../src/panel/chat.js');
 
 function page(t) {
   installDom(t, { anyId: true, props: { value: '', scrollHeight: 40, scrollTop: 0, clientHeight: 100 } });
@@ -105,4 +106,25 @@ test('an accepted AI choice stays selected while the state update is still on it
   get('provider-select').value = 'accepted';
   await get('provider-select').onchange();
   assert.equal(get('provider-select').value, 'accepted');
+});
+
+test('a wait that begins or ends changes the buttons, the AI choice and the waiting line, with no whole push', async t => {
+  t.mock.timers.enable({ apis: ['setInterval'] });
+  const get = page(t);
+  assert.equal(get('send').hidden, false);
+  shared.data.busy = ['a'];
+  syncBusy();
+  assert.equal(get('send').hidden, true);
+  assert.equal(get('cancel').hidden, false);
+  assert.equal(get('provider-select').disabled, true);
+  assert.equal(get('message').readOnly, true);
+  assert.ok(get('chat-log').querySelector('.waiting'), 'the conversation says an answer is on its way');
+  shared.data.busy = [];
+  syncBusy();
+  assert.equal(get('send').hidden, false);
+  assert.equal(get('cancel').hidden, true);
+  assert.equal(get('provider-select').disabled, false);
+  assert.equal(get('message').readOnly, false);
+  const waiting = get('chat-log').querySelector('.waiting');
+  assert.ok(!waiting || waiting.removed, 'and stops saying so');
 });

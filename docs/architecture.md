@@ -250,6 +250,7 @@ What each arrow in the diagram carries, path by path.
 2. **State notifications:**
    - On a state change, `app::changed` builds the full state for the page and sends it to every window as `__pp('change', state)`. The page redraws.
    - Things that happen once (speech bubbles, reactions, chat arrivals, window hidden, new version) are sent separately as `__pp('event', …)`.
+   - So are changes too frequent for the full state: a friend's status (`status`) and who is waiting for a chat answer (`busy`).
 3. **Sprites:**
    - The page's image address is `pet-asset://sprite/<pet id>` (on Windows, `http://pet-asset.localhost/sprite/<pet id>`).
    - The backend reads the file on a worker thread and returns it.

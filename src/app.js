@@ -28,11 +28,11 @@ import {
   toast,
   views,
 } from './core/state.js';
-import { applyStatus, fadedBetween } from './core/status.js';
+import { applyBusy, applyStatus, fadedBetween } from './core/status.js';
 import { clip, plain, spoken } from './core/text.js';
 import { every, everyMinute } from './core/ticker.js';
 import { openAlbum, renderAlbum, setupAlbum } from './panel/album.js';
-import { chatEvent, refreshChat, setupChat } from './panel/chat.js';
+import { chatEvent, refreshChat, setupChat, syncBusy } from './panel/chat.js';
 import { setupConnection } from './panel/connection.js';
 import { setupFriendSettings } from './panel/friend-settings.js';
 import { drawPortrait, renderPanel, select, setupFriend } from './panel/friend.js';
@@ -312,8 +312,7 @@ setupWelcome({ invite, more: openInvite });
 setupSettings();
 setupUpdates();
 
-// Pushes that come together are drawn once. A chat turn sends a status and a change on its way out
-// and the same again with the reply, each its own message, and the start sends a few more. The
+// Pushes that come together are drawn once: the start sends a few, each its own message. The
 // state is taken at once, so the drawing always shows the latest; it comes on a zero timer, after
 // the messages already waiting, as the page's other timing does (core/ticker.js). Who was talked
 // with, and through what, is kept from before the first of them.
@@ -390,6 +389,12 @@ const ON_EVENT = {
     if (e.petId === selected) renderPanel();
     hint();
     if (e.source === 'agent') speak(e);
+  },
+  // A chat started or ended: the friends whose wait began or ended think or stop, and the panel's
+  // buttons follow. The auto chatter reads `busy` on its own timer.
+  busy: e => {
+    for (const id of applyBusy(data, e)) syncView(id);
+    syncBusy();
   },
   'chat-message': e => {
     const v = views.get(e.petId);

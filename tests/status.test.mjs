@@ -1,7 +1,7 @@
 // The yard's dot and the friend tab's pill mean agent work; a chat's state only shapes the pose.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { agentStateOf, applyStatus, FADE_MS, fadedBetween, stateOf, statusOf } from '../src/core/status.js';
+import { agentStateOf, applyBusy, applyStatus, FADE_MS, fadedBetween, stateOf, statusOf } from '../src/core/status.js';
 
 const at = 1_000_000;
 const data = {
@@ -44,4 +44,13 @@ test('a status event updates only that friend, as the whole state would have', (
   const empty = {};
   applyStatus(empty, { type: 'status', petId: 'b', state: 'working', message: '', source: 'chat', at });
   assert.equal(stateOf(empty, 'b', at), 'working', 'a page without statuses yet gets them');
+});
+
+test('a busy event keeps who is waiting and names only the friends whose wait began or ended', () => {
+  const page = { busy: ['a', 'b'] };
+  assert.deepEqual(applyBusy(page, { type: 'busy', busy: ['b', 'c'] }).sort(), ['a', 'c']);
+  assert.deepEqual(page.busy, ['b', 'c']);
+  assert.deepEqual(applyBusy(page, { type: 'busy', busy: ['c', 'b'] }), [], 'the same friends in another order');
+  const fresh = {};
+  assert.deepEqual(applyBusy(fresh, { type: 'busy', busy: ['a'] }), ['a'], 'a page without busy yet gets it');
 });

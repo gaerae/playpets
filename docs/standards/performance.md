@@ -49,6 +49,7 @@
   - Text, titles and attributes are written only when they differ (`put`, `putAttribute` in `src/core/dom.js`): writing the same value still costs a style check and a mutation.
   - A friend's size is written only when it changes; the dock is measured once for all friends.
 - An agent's status draws only its friend, the agent summary and the panel when that friend is shown.
+- A chat's start and end push no state: the `busy` event says who is waiting, and redraws only the friends whose wait began or ended and the chat's buttons (`syncBusy` in `src/panel/chat.js`).
 - A pointer moving over the yard reads no layout: a friend under it reads its box once a frame at most.
 - A conversation draws its last 50 lines; earlier ones are drawn as it is scrolled to its top.
 
