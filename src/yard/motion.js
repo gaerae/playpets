@@ -1,7 +1,7 @@
 // One frame of yard life: friends walk to where they are headed, idle ones entertain themselves.
 // What happens when a friend arrives belongs to whoever sent it (views.js sendTo).
 
-import { poseClock } from '../core/animation.js';
+import { cellLeft, poseClock } from '../core/animation.js';
 import { clearCompanionAction, companionAction } from '../core/companion-actions.js';
 import { t } from '../core/i18n.js';
 import { between } from '../core/math.js';
@@ -16,13 +16,13 @@ import { visitTarget } from './garden.js';
 import { groundProfile } from './ground.js';
 import { loungeTarget, sitOut } from './lounge.js';
 import { sendTo } from './trips.js';
-import { place, pose } from './views.js';
+import { glide, place, pose } from './views.js';
 import { idleAction, strollClear, WANDER_DELAY, wanderTarget } from './wander.js';
 import { blocked } from './workspace.js';
 
 // How far a friend walks in a millisecond, in field units: strolling, and going somewhere.
 export const STROLL = 0.00022;
-const WALK = 0.0005;
+export const WALK = 0.0005;
 // Where a friend's feet are when it stands at a place (0 to 1 each way), as the ground measures
 // the water and what stands on the field.
 function feetAt(v, at) {
@@ -65,6 +65,8 @@ export function moveFriends(now, dt) {
     keepDuty(v);
     const walking = !!v.target && !v.drag && !v.frozen && !reduced.matches;
     stepping(v, walking, !!v.trip?.slow && !v.speed);
+    // A walk glides from step to step (views.js place), the step that ends it too.
+    glide(v, walking);
     if (v.target && !v.drag && !v.frozen) {
       const dx = v.target.x - v.x,
         dy = v.target.y - v.y;
@@ -84,7 +86,10 @@ export function moveFriends(now, dt) {
         if (!reduced.matches) v.canvas?.animate?.(SETTLE, { duration: 260, easing: 'ease-out' });
         trip?.arrive?.(v, now);
       } else {
-        const step = Math.min(1, (dt * (v.speed || (v.trip?.slow ? STROLL : WALK))) / distance);
+        // The first step counts from when the friend set off (trips.js sendTo), not from the frame
+        // before, which may be long ago in a calm yard.
+        const span = Math.min(dt, Math.max(0, now - (v.leftAt ?? -Infinity)));
+        const step = Math.min(1, (span * (v.speed || (v.trip?.slow ? STROLL : WALK))) / distance);
         v.x += dx * step;
         v.y += dy * step;
         pose(v, dx >= 0 ? 'right' : 'left', 150);
@@ -114,9 +119,16 @@ export function moveFriends(now, dt) {
     const state = now < v.until ? v.pose : status;
     // A pose runs from when it began; standing animations share one clock, so friends that only
     // stand change cells together and the yard is redrawn less often.
-    const elapsed = now - v.since;
-    const clock = now < v.until ? (Number.isFinite(v.until) ? poseClock(state, elapsed) : elapsed) : now;
-    drawSprite(v.canvas, v.asset, state, clock, state === 'idle' ? v.look : null, companionAction(v, now));
+    const elapsed = now - v.since,
+      posing = now < v.until;
+    const clock = posing ? (Number.isFinite(v.until) ? poseClock(state, elapsed) : elapsed) : now;
+    const look = state === 'idle' ? v.look : null,
+      action = companionAction(v, now);
+    // When the cell drawn ends, for the loop to wake then (app.js). A gesture held on its last cell,
+    // a look, a companion's own action and reduced motion's one cell have no next.
+    const held = (posing && clock < elapsed) || !!action || (!!look && v.asset?.version === 2) || reduced.matches;
+    v.cellEnds = held ? Infinity : now + cellLeft(state, clock);
+    drawSprite(v.canvas, v.asset, state, clock, look, action);
     crown(v.label, v.asset, petHeight(v.pet));
   }
 }

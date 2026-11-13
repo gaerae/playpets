@@ -30,6 +30,17 @@ export function frameAt(state, elapsed) {
   }
   return { row, column: 0 };
 }
+/** How long the cell frameAt shows at `elapsed` goes on showing. The frame loops wake when it ends,
+ * so each cell shows for its own time and not until the next whole frame. */
+export function cellLeft(state, elapsed) {
+  const [, durations] = rows[state] || rows.idle;
+  let tick = Math.max(0, elapsed) % durations.reduce((a, b) => a + b, 0);
+  for (const duration of durations) {
+    if (tick < duration) return duration - tick;
+    tick -= duration;
+  }
+  return durations[0];
+}
 export function lookFrame(dx, dy) {
   if (Math.hypot(dx, dy) < 0.001) return { row: 0, column: 0 };
   const direction = Math.round(((Math.atan2(dx, -dy) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 8)) % 16;

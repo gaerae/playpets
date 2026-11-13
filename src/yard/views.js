@@ -24,6 +24,7 @@ import {
 } from '../core/state.js';
 import { agentStateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
+import { halt, moveTo } from '../core/ticker.js';
 import {
   depthAt,
   depthScale,
@@ -195,8 +196,9 @@ export function place(v) {
   v.px = EDGE + v.x * w;
   v.py = top + v.y * h;
   // The body goes by translate, so its depth (scale, below) shrinks it about its feet and not its
-  // place; the canvas inside keeps transform for a press, a tilt or a step.
-  v.button.style.translate = `${v.px}px ${v.py}px`;
+  // place; the canvas inside keeps transform for a press, a tilt or a step. A walk glides there.
+  const glide = v.gliding ? GLIDE_MS : 0;
+  moveTo(v.button, 'translate', [v.px, v.py], glide);
   // Nearer the bottom is nearer the viewer: drawn on top, in front of what stands behind it. By
   // its feet, as the garden's plants and gifts in the same layer are (depthAt). Written only when
   // it changes: this runs every frame a friend moves.
@@ -217,8 +219,22 @@ export function place(v) {
     v.label.style.setProperty('--depth', String(depth));
     if (v.body) v.body.style.height = `${height * depth}px`;
   }
-  v.label.style.transform = `translate(${v.px}px,${v.py + height * (1 - depth)}px)`;
+  moveTo(v.label, 'transform', [v.px, v.py + height * (1 - depth)], glide);
   stackLabel(v);
+}
+// A friend the frame loop moves (a walk, a game) glides from one step to the next (core/ticker.js
+// moveTo), over a little longer than the loop's 50 ms step, so a step that comes late never shows a
+// stop. A held friend never glides: a drag follows the pointer.
+export const GLIDE_MS = 64;
+/** Whether the friend's next steps glide; a walk sets it each frame (motion.js), a game as it moves one. */
+export function glide(v, on = true) {
+  v.gliding = on && !reduced.matches && !v.drag;
+}
+/** Stops a friend's glide at once where it was going, as a press takes it. */
+export function unglide(v) {
+  v.gliding = false;
+  halt(v.button);
+  halt(v.label);
 }
 // Labels are a layer above everything on the field, in the same order, the selected friend's first.
 function stackLabel(v) {
@@ -354,6 +370,7 @@ function createView(p) {
     on.select(p.id);
     release(v);
     rest(v);
+    unglide(v);
     v.drag = beginDrag(e.currentTarget, e, v, {
       talk: onTag(e),
       foot: footOf(v),

@@ -1,8 +1,37 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
+import { WING_BEAT, wingSpread } from '../src/yard/ambient-art.js';
 import { groundFor } from '../src/yard/scene.js';
 import { createScenery, stepGroundBug } from '../src/yard/scenery.js';
+
+// What flies or falls moves every frame, so the yard runs at its busy pace while it is out
+// (app.js); at the calm pace a butterfly crossed in visible hops.
+test('creatures and falling petals out keep the yard at its busy pace, and not without motion', t => {
+  const { scene, reduced } = yard(t, false);
+  scene.frame(10, 10);
+  assert.equal(scene.lively(), true, 'a butterfly is out');
+  reduced.matches = true;
+  assert.equal(scene.lively(), false, 'with reduced motion it rests where it is');
+  reduced.matches = false;
+  scene.set('day', 'clear', 'summer', null, 'workshop');
+  scene.frame(20, 10);
+  assert.equal(scene.lively(), false, 'nothing flies in the workshop');
+});
+
+// The yard draws twenty frames a second while wings beat: a beat over fewer than six frames is
+// drawn at a few scattered points of it and flickers instead of beating.
+test('a butterfly or a dragonfly beats its wings over six frames or more, open and closed', () => {
+  const frame = 50;
+  for (const kind of ['butterfly', 'dragonfly']) {
+    assert.ok(WING_BEAT[kind] >= 6 * frame, `${kind}: a beat of ${WING_BEAT[kind]} ms`);
+    const spreads = Array.from({ length: Math.ceil(WING_BEAT[kind] / frame) }, (_, i) =>
+      wingSpread((i * frame) / WING_BEAT[kind]),
+    );
+    assert.ok(Math.min(...spreads) < 0.3, `${kind} folds its wings in a beat`);
+    assert.ok(Math.max(...spreads) > 0.9, `${kind} spreads them in a beat`);
+  }
+});
 
 function yard(t, reduce = true, random = 0.5) {
   t.mock.method(Math, 'random', () => random);

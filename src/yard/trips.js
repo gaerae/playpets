@@ -18,6 +18,8 @@ export const rest = v => {
  * game gives its own `speed`. `own` marks a trip the friend set off on by itself, which its agent's
  * state may cut short (duty.js); what it then does where it arrives is its own too. */
 export function sendTo(v, target, { arrive, cancel, save = true, slow = false, speed = 0, own = false } = {}) {
+  // When it sets off (motion.js measures its first step from it); one already walking goes on.
+  if (!v.target) v.leftAt = performance.now();
   release(v);
   v.target = target;
   v.trip = { arrive, cancel, save, slow };
