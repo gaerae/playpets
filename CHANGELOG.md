@@ -13,6 +13,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Changed
 
 - Show on desktop answers at once: a friend, gift, flower or tree sent out shows on the desktop right away, also when nothing was out before or everything just came back in.
+- The yard opens sooner and stays lighter while friends talk, coding agents report and the pointer moves, and a long conversation with a friend opens at once on its latest lines, with earlier ones coming in as you scroll up.
+- Friends keep walking smoothly when the computer slows its timers (Windows on battery), and the yard's backdrop and weather stay sharp when the window moves to a screen of another resolution.
 
 ## [1.7.1] - 2026-11-13
 

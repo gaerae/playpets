@@ -42,16 +42,28 @@
   - Loops return right away when `document.hidden` is set or when the backend reports the window hidden (the `window` event, `<html data-unseen>`).
   - `data-unseen` stops CSS animations.
 
+### Pushes from the backend
+- The backend pushes its whole state on every change. A push re-renders only what changed:
+  - Pushes that come together are drawn once, from the latest state, after a zero-delay timer (`app.js`).
+  - A section of the page is rebuilt only when its own part of the state differs from what it was drawn from (a key per section, as in `render.js`).
+  - Text, titles and attributes are written only when they differ (`put`, `putAttribute` in `src/core/dom.js`): writing the same value still costs a style check and a mutation.
+  - A friend's size is written only when it changes; the dock is measured once for all friends.
+- An agent's status draws only its friend, the agent summary and the panel when that friend is shown.
+- A pointer moving over the yard reads no layout: a friend under it reads its box once a frame at most.
+- A conversation draws its last 50 lines; earlier ones are drawn as it is scrolled to its top.
+
 ### Canvases and scenery
 - The weather canvas (`src/yard/scenery.js`) repaints only in a frame where something on it moved.
 - Things drawn once stay drawn (stars; their twinkle is a CSS layer).
 - Small life that would keep the canvas busy all day (butterflies, fireflies, falling petals and leaves) comes in spells with rests in between.
 - Scenery that changes with the clock or the season (colours, the sun and moon, the moon's phase) is set as CSS custom properties once a minute, never animated.
-- The painted backdrop (`src/yard/easel.js`) is painted only when the time of day, the weather or the season changes, or when the yard is resized. It stays still in between.
+- The painted backdrop (`src/yard/easel.js`) is painted only when the time of day, the weather or the season changes, or when the yard is resized or moves to a screen of another density. It stays still in between.
+  - It is painted once its picture has decoded (`image.decode()`), so the first paint does not decode it on the main thread.
   - Do not repaint it on a timer or for something that moves.
   - Moving things go on the weather canvas or in a CSS layer.
 - Standing animations (state animations that are not poses) pick their cell from the shared clock (`now`), not from a per-friend time.
 - A canvas redraws only when the visible cell changes.
+- A canvas sized for the screen's density is sized again when the density changes (`onDensityChange` in `src/core/dom.js`): a window moved to another screen keeps its size, so no resize says so.
 - Do not add a path that skips the cell key comparison in `drawSprite`.
 
 ### CSS animations
@@ -62,6 +74,7 @@
   - a walking friend's step (`friends.css`).
 - Such a loop pauses under `data-unseen` and stops with reduced motion. A loop that needs the page (a canvas, a style written each frame) is a drawing loop and follows the rules above.
 - Do not use CSS variables (`var()`) inside keyframes. Keyframes that contain variables do not run in the compositing stage.
+- Do not put a filter on the element a looping animation moves: put it on what is inside (the light on a swaying tree is on its `use`, `garden.css`).
 
 ### Backend, sound and memory
 - The overlay thread does not ask the runtime for monitors on every tick (it uses the cache).
@@ -130,4 +143,4 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-11-11 Loops on the compositor (the breeze, a walking friend's step) may run while the yard is shown; `pnpm run measure` plants a small garden
 - 2026-11-13 The compositor carries a moving friend between steps; the yard wakes when a walking step ends, on one clock for all walks; creatures and falling petals keep the 50ms interval; wing beats span six frames
 - 2026-11-14 The overlay thread is woken by a change to what is out; a monitor's window stays a minute after its last thing leaves and opens early from the yard's menu, and its page draws nothing while it has nobody
-- 2026-11-14 A glide after a late step lasts until the next step is likely to come
+- 2026-11-14 A glide after a late step lasts until the next step is likely to come; a push re-renders only what changed; canvases follow a change of screen density
