@@ -191,14 +191,17 @@ export function clearOfDock(v) {
   v.y = footTarget(v, foot.x, box.top, 0).y;
   place(v);
 }
-export function place(v) {
+/** Sets the friend's body and label where it stands (v.x, v.y). With `glide`, the frame loop's own
+ * step of a walk or a parade, it glides there (GLIDE_MS); anything else puts it there at once. */
+export function place(v, { glide = false } = {}) {
   const { w, h, top } = geometry(v.pet, v.x);
   v.px = EDGE + v.x * w;
   v.py = top + v.y * h;
   // The body goes by translate, so its depth (scale, below) shrinks it about its feet and not its
-  // place; the canvas inside keeps transform for a press, a tilt or a step. A walk glides there.
-  const glide = v.gliding ? GLIDE_MS : 0;
-  moveTo(v.button, 'translate', [v.px, v.py], glide);
+  // place; the canvas inside keeps transform for a press, a tilt or a step. A held friend follows
+  // the pointer, and with reduced motion nothing glides.
+  const ms = glide && !v.drag && !reduced.matches ? GLIDE_MS : 0;
+  moveTo(v.button, 'translate', [v.px, v.py], ms);
   // Nearer the bottom is nearer the viewer: drawn on top, in front of what stands behind it. By
   // its feet, as the garden's plants and gifts in the same layer are (depthAt). Written only when
   // it changes: this runs every frame a friend moves.
@@ -219,20 +222,16 @@ export function place(v) {
     v.label.style.setProperty('--depth', String(depth));
     if (v.body) v.body.style.height = `${height * depth}px`;
   }
-  moveTo(v.label, 'transform', [v.px, v.py + height * (1 - depth)], glide);
+  moveTo(v.label, 'transform', [v.px, v.py + height * (1 - depth)], ms);
   stackLabel(v);
 }
-// A friend the frame loop moves (a walk, a game) glides from one step to the next (core/ticker.js
+// A friend the frame loop moves (a walk, a parade) glides from one step to the next (core/ticker.js
 // moveTo), over a little longer than the loop's 50 ms step, so a step that comes late never shows a
-// stop. A held friend never glides: a drag follows the pointer.
+// stop. Each step asks for it (place's `glide`): a choice left on the friend would carry over to a
+// place from anything between two steps, which would then slide instead of jump.
 export const GLIDE_MS = 64;
-/** Whether the friend's next steps glide; a walk sets it each frame (motion.js), a game as it moves one. */
-export function glide(v, on = true) {
-  v.gliding = on && !reduced.matches && !v.drag;
-}
 /** Stops a friend's glide at once where it was going, as a press takes it. */
 export function unglide(v) {
-  v.gliding = false;
   halt(v.button);
   halt(v.label);
 }

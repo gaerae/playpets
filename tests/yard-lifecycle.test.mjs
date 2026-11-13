@@ -19,7 +19,7 @@ globalThis.playPets = {
 };
 const { setData, setGame, views } = await import('../src/core/state.js');
 const { giftTick } = await import('../src/yard/decor.js');
-const { glide, place, setupViews, syncViews } = await import('../src/yard/views.js');
+const { place, setupViews, syncViews } = await import('../src/yard/views.js');
 
 // Every node has the yard's size and fires pointer events at one spot unless `extra` moves them.
 const pointer = {
@@ -186,18 +186,18 @@ test('a press on a gliding friend ends the glide at once, so a drag follows the 
   setupViews({ select() {}, patted() {}, openChat() {} });
   syncViews();
   const v = views.get(pet.id);
-  glide(v);
   v.x += 0.05;
-  place(v);
+  place(v, { glide: true });
   assert.equal(glides.length, 2, 'its body and label glide');
   await v.button.fire('pointerdown');
   assert.ok(
     glides.every(g => g.cancelled),
     'pressed, it stands where it was going',
   );
-  glide(v);
   await v.button.fire('pointermove', { clientX: 200 });
-  assert.equal(glides.length, 2, 'a held friend does not glide');
+  v.x += 0.05;
+  place(v, { glide: true });
+  assert.equal(glides.length, 2, 'a held friend does not glide, even on a step that asks');
   await v.button.fire('pointercancel');
 });
 

@@ -192,6 +192,20 @@ test('friends roll the ball, which grows as it rolls and slows as it grows', asy
   assert.ok((middle - y.box(y.ball()).x) * state.game.ball.dir < 0);
 });
 
+// The ball is set where it rolls at each step; a pusher gliding behind it would lag a step back.
+test('the pushers move with their ball, step for step', async ctx => {
+  const y = await yard(ctx);
+  globalThis.document.timeline = { currentTime: 0 };
+  const glides = [];
+  for (const id of ['a', 'b']) {
+    const v = state.views.get(id);
+    for (const node of [v.button, v.label]) node.animate = () => glides.push(id) && { cancel() {} };
+  }
+  start();
+  y.run(1000);
+  assert.deepEqual(glides, []);
+});
+
 test('a press helps push: the ball grows a step and squashes', async ctx => {
   const y = await yard(ctx);
   start();

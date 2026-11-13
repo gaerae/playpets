@@ -16,7 +16,7 @@ import { visitTarget } from './garden.js';
 import { groundProfile } from './ground.js';
 import { loungeTarget, sitOut } from './lounge.js';
 import { sendTo } from './trips.js';
-import { glide, place, pose } from './views.js';
+import { place, pose } from './views.js';
 import { idleAction, strollClear, WANDER_DELAY, wanderTarget } from './wander.js';
 import { blocked } from './workspace.js';
 
@@ -65,8 +65,6 @@ export function moveFriends(now, dt) {
     keepDuty(v);
     const walking = !!v.target && !v.drag && !v.frozen && !reduced.matches;
     stepping(v, walking, !!v.trip?.slow && !v.speed);
-    // A walk glides from step to step (views.js place), the step that ends it too.
-    glide(v, walking);
     if (v.target && !v.drag && !v.frozen) {
       const dx = v.target.x - v.x,
         dy = v.target.y - v.y;
@@ -80,8 +78,9 @@ export function moveFriends(now, dt) {
         // Only places a friend chose or was given are saved; game positions and the walk home are not.
         if (trip?.save !== false)
           call('updatePet', id, { x: v.x, y: v.y }).catch(e => toast(spoken(e, t('error.generic')), { error: true }));
-        // Arrivals such as fishing anchor their drawings to the friend's pixel position.
-        place(v);
+        // Arrivals such as fishing anchor their drawings to the friend's pixel position. A walk
+        // glides from step to step (views.js place), the step that ends it too.
+        place(v, { glide: walking });
         stepping(v, false, false);
         if (!reduced.matches) v.canvas?.animate?.(SETTLE, { duration: 260, easing: 'ease-out' });
         trip?.arrive?.(v, now);
@@ -93,7 +92,7 @@ export function moveFriends(now, dt) {
         v.x += dx * step;
         v.y += dy * step;
         pose(v, dx >= 0 ? 'right' : 'left', 150);
-        place(v);
+        place(v, { glide: walking });
       }
     } else if (
       !v.drag &&

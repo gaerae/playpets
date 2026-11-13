@@ -204,6 +204,53 @@ test('a walking friend glides from step to step, the last one too, and never whi
   }
 });
 
+// Only the loop's own steps glide. A place from anything else between two of them (the window
+// resized, a key nudging the friend, a game setting it at its start) puts the friend there at once.
+test('a friend placed between walk steps by anything else is set there at once', t => {
+  const { document } = installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
+  document.timeline = { currentTime: 0 };
+  setData({ statuses: {} });
+  const previousReduced = reduced.matches;
+  reduced.matches = false;
+  const glides = [];
+  const node = () =>
+    element('div', {
+      animate(frames, options) {
+        const glide = { frames, options, cancelled: false, cancel: () => (glide.cancelled = true) };
+        glides.push(glide);
+        return glide;
+      },
+    });
+  try {
+    const friend = {
+      pet: { id: 'friend', size: 112 },
+      x: 0.2,
+      y: 0.5,
+      button: node(),
+      label: node(),
+      canvas: { animate() {} },
+      target: { x: 0.8, y: 0.5 },
+      trip: { save: false },
+    };
+    views.clear();
+    views.set('friend', friend);
+    place(friend);
+    moveFriends(100, 50);
+    assert.equal(glides.length, 2, 'the walk step glides');
+    friend.x = 0.6;
+    place(friend);
+    assert.equal(glides.length, 2, 'a place of its own does not');
+    assert.ok(
+      glides.every(glide => glide.cancelled),
+      'and the step under way ends where it was going',
+    );
+    assert.equal(friend.button.style.translate, `${friend.px}px ${friend.py}px`);
+  } finally {
+    views.clear();
+    reduced.matches = previousReduced;
+  }
+});
+
 // The loop measures a step from the frame before, which can be long ago in a calm yard: the first
 // step of a walk counts only from when the friend set off, so it does not leap ahead.
 test('the first step of a walk counts from when the friend set off', t => {
