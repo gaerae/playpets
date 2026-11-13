@@ -2,7 +2,7 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { animationSpec, frameAt, headroom, lookAt, lookFrame, renewsClock } from '../src/core/animation.js';
+import { animationSpec, cellLeft, frameAt, headroom, lookAt, lookFrame, renewsClock } from '../src/core/animation.js';
 
 test('site preview descriptors follow the runtime rows, frame counts and loop lengths', () => {
   const states = ['idle', 'right', 'left', 'wave', 'jump', 'error', 'waiting', 'working', 'done'];
@@ -67,4 +67,21 @@ test('a brief reaction finishes once instead of restarting a partial second gest
   }
   for (const state of ['idle', 'right', 'left', 'working', 'waiting', 'error'])
     assert.equal(poseClock(state, 5000), 5000, 'continuous poses retain their normal loop');
+});
+
+test("the time left in a cell runs to that cell's own end, and round the loop", () => {
+  assert.equal(cellLeft('right', 0), 120);
+  assert.equal(cellLeft('right', 100), 20);
+  assert.equal(cellLeft('right', 120), 120, 'a cell that just began has all of its time');
+  assert.equal(cellLeft('right', 7 * 120 + 10), 210, 'the last step is held longer');
+  assert.equal(cellLeft('right', 1060 + 5), 115, 'the walk goes round');
+  assert.equal(cellLeft('idle', 280), 110);
+  assert.equal(cellLeft('unknown', 0), cellLeft('idle', 0));
+  // Wherever it is, the cell changes when the time left has passed, and not before.
+  for (const state of ['idle', 'right', 'jump', 'done'])
+    for (let at = 0; at < 3000; at += 37) {
+      const left = cellLeft(state, at);
+      assert.deepEqual(frameAt(state, at + left - 0.5), frameAt(state, at), `${state} at ${at}`);
+      assert.notDeepEqual(frameAt(state, at + left), frameAt(state, at), `${state} at ${at}`);
+    }
 });

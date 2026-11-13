@@ -1,7 +1,7 @@
 // One frame of yard life: friends walk to where they are headed, idle ones entertain themselves.
 // What happens when a friend arrives belongs to whoever sent it (views.js sendTo).
 
-import { poseClock } from '../core/animation.js';
+import { cellLeft, poseClock } from '../core/animation.js';
 import { clearCompanionAction, companionAction } from '../core/companion-actions.js';
 import { t } from '../core/i18n.js';
 import { between } from '../core/math.js';
@@ -119,9 +119,16 @@ export function moveFriends(now, dt) {
     const state = now < v.until ? v.pose : status;
     // A pose runs from when it began; standing animations share one clock, so friends that only
     // stand change cells together and the yard is redrawn less often.
-    const elapsed = now - v.since;
-    const clock = now < v.until ? (Number.isFinite(v.until) ? poseClock(state, elapsed) : elapsed) : now;
-    drawSprite(v.canvas, v.asset, state, clock, state === 'idle' ? v.look : null, companionAction(v, now));
+    const elapsed = now - v.since,
+      posing = now < v.until;
+    const clock = posing ? (Number.isFinite(v.until) ? poseClock(state, elapsed) : elapsed) : now;
+    const look = state === 'idle' ? v.look : null,
+      action = companionAction(v, now);
+    // When the cell drawn ends, for the loop to wake then (app.js). A gesture held on its last cell,
+    // a look, a companion's own action and reduced motion's one cell have no next.
+    const held = (posing && clock < elapsed) || !!action || (!!look && v.asset?.version === 2) || reduced.matches;
+    v.cellEnds = held ? Infinity : now + cellLeft(state, clock);
+    drawSprite(v.canvas, v.asset, state, clock, look, action);
     crown(v.label, v.asset, petHeight(v.pet));
   }
 }

@@ -237,3 +237,44 @@ test('the first step of a walk counts from when the friend set off', t => {
     reduced.matches = previousReduced;
   }
 });
+
+// The loop wakes when the cell a friend shows ends (app.js), so each cell shows for its own time.
+test('a friend tells the loop when the sprite cell it shows ends', t => {
+  installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
+  setData({ statuses: {} });
+  const previousReduced = reduced.matches;
+  reduced.matches = false;
+  try {
+    const friend = {
+      pet: { id: 'friend', size: 112 },
+      x: 0.5,
+      y: 0.5,
+      nextWander: Infinity,
+      pose: 'idle',
+      since: 0,
+      until: 0,
+      button: element(),
+      label: element(),
+      canvas: { animate() {} },
+    };
+    views.clear();
+    views.set('friend', friend);
+    // Standing, on the clock all standing friends share: 1000 ms into its 1100 ms loop it shows the
+    // last cell, which ends at 1100.
+    moveFriends(1000, 50);
+    assert.equal(friend.cellEnds, 1100);
+    // A jump runs from when it began, and holds its last cell once it is over.
+    Object.assign(friend, { pose: 'jump', since: 2000, until: 4000 });
+    moveFriends(2100, 50);
+    assert.equal(friend.cellEnds, 2140);
+    moveFriends(3000, 50);
+    assert.equal(friend.cellEnds, Infinity, 'a finished gesture has no next cell');
+    reduced.matches = true;
+    Object.assign(friend, { pose: 'idle', until: 0 });
+    moveFriends(5000, 50);
+    assert.equal(friend.cellEnds, Infinity, 'with reduced motion a friend shows one cell');
+  } finally {
+    views.clear();
+    reduced.matches = previousReduced;
+  }
+});
