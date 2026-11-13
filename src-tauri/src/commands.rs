@@ -440,10 +440,10 @@ static COMMANDS: &[Command] = &[
     main("disconnectAgent", |c| link_agent(c.app, &c.state, c.text(0), false)),
     // The desktop and the windows.
     main("toggleDesktop", |c| {
-        crate::app::toggle_desktop(c.app, &mut lock(&c.state)).map(Value::Bool)
+        crate::app::toggle_desktop(c.app, lock(&c.state)).map(Value::Bool)
     }),
     main("toggleDesktopWander", |c| {
-        crate::app::toggle_wander(c.app, &mut lock(&c.state)).map(Value::Bool)
+        crate::app::toggle_wander(c.app, lock(&c.state)).map(Value::Bool)
     }),
     main("setOnDesktop", |c| {
         let on = c.arg(1).as_bool().ok_or_else(|| i18n::t("error.bad_request"))?;

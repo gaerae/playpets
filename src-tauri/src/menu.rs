@@ -30,32 +30,26 @@ pub fn act(app: &AppHandle, id: &str) {
         "about" => open(json!({"type": "open-panel", "panel": "settings", "section": "about"})),
         // The page shows the update when one was found, and checks on its Settings tab otherwise.
         "update" => open(json!({"type": "check-update"})),
-        "desktop" | "wander" => {
-            {
+        // The switches save to disk, which the main loop (where menu callbacks run) never waits for.
+        "desktop" | "wander" | "sound" => {
+            let (app, id) = (app.clone(), id.to_string());
+            tauri::async_runtime::spawn_blocking(move || {
                 let state = app.state::<Shared>();
-                let mut d = lock(&state);
-                let flipped = if id == "wander" {
-                    crate::app::toggle_wander(app, &mut d)
-                } else {
-                    crate::app::toggle_desktop(app, &mut d)
+                let flipped = match id.as_str() {
+                    "desktop" => crate::app::toggle_desktop(&app, lock(&state)).map(drop),
+                    "wander" => crate::app::toggle_wander(&app, lock(&state)).map(drop),
+                    _ => crate::app::commit(&app, &state, |d| {
+                        d.prefs.sound.on = !d.prefs.sound.on;
+                        Ok(Value::Null)
+                    })
+                    .map(drop),
                 };
                 if let Err(e) = flipped {
-                    warn(app, &mut d, e);
+                    warn(&app, &mut lock(&state), e);
                 }
-            }
-            // A check item ticks itself when clicked: the menu is built again from what is true.
-            crate::tray::rebuild(app);
-        }
-        "sound" => {
-            let state = app.state::<Shared>();
-            let flipped = crate::app::commit(app, &state, |d| {
-                d.prefs.sound.on = !d.prefs.sound.on;
-                Ok(Value::Null)
+                // A check item ticks itself when clicked: the menu is built again from what is true.
+                crate::tray::rebuild(&app);
             });
-            if let Err(e) = flipped {
-                warn(app, &mut lock(&state), e);
-            }
-            crate::tray::rebuild(app);
         }
         "alwaysOnTop" => {
             // Native confirmation needs the main loop to run; menu callbacks run on that loop.
@@ -129,10 +123,14 @@ fn desktop_act(app: &AppHandle, id: &str) {
         window::show(app);
         push_event(app, &json!({"type": "select", "petId": pet}));
     } else if let Some(item) = id.strip_prefix("desktop-in:") {
-        let state = app.state::<Shared>();
-        if let Err(e) = crate::app::put_on_desktop(app, lock(&state), item, false) {
-            warn(app, &mut lock(&state), e);
-        }
+        // Saved off the main loop, as the switches are (`act`).
+        let (app, item) = (app.clone(), item.to_string());
+        tauri::async_runtime::spawn_blocking(move || {
+            let state = app.state::<Shared>();
+            if let Err(e) = crate::app::put_on_desktop(&app, lock(&state), &item, false) {
+                warn(&app, &mut lock(&state), e);
+            }
+        });
     }
 }
 

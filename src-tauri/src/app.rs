@@ -181,33 +181,55 @@ pub fn commit(
     show_and_save(app, d).map(|()| answer)
 }
 
-/// Saves a change made in place and shows it on every page, in that order. As in `commit`, a change
-/// that could not be saved still stands and is shown; the error is returned after. A caller done
-/// with the state uses `show_and_save`, which writes after letting it go.
-pub fn save_and_show(app: &AppHandle, d: &AppData) -> Result<(), String> {
-    let saved = persist(d).map_err(|_| i18n::t("store.held"));
-    changed(app, d);
-    saved
+/// Shows a change made in place on every page and saves it: the save is taken and shown under the
+/// lock, which is let go before the disk write, so moving the window or a friend never waits for
+/// the disk. As in `commit`, a change that could not be saved still stands and is shown; the error
+/// is returned after. A save taken earlier but written later is dropped (`Saving::write`).
+pub fn show_and_save(app: &AppHandle, d: MutexGuard<'_, AppData>) -> Result<(), String> {
+    show_and_save_with(app, d, |_| {})
 }
 
-/// Like `save_and_show` for a caller done with the state: the state to save is taken and shown
-/// under the lock, which is let go before the disk write, so moving the window or a friend never
-/// waits for the disk. A save taken earlier but written later is dropped (`Saving::write`).
-pub fn show_and_save(app: &AppHandle, d: MutexGuard<'_, AppData>) -> Result<(), String> {
+/// `show_and_save`, with one more step (`also`) taken under the lock right after the change is shown.
+fn show_and_save_with(app: &AppHandle, d: MutexGuard<'_, AppData>, also: impl FnOnce(&AppData)) -> Result<(), String> {
     unlocked(
         d,
+        Unsaved::of,
         |d| {
-            (
-                Saving::of(d),
-                store::Store {
-                    dir: d.store.dir.clone(),
-                },
-            )
+            changed(app, d);
+            also(d);
         },
-        |d| changed(app, d),
-        |(saving, store)| saving.write(&store, &WRITTEN),
+        Unsaved::write,
     )
-    .map_err(|_| i18n::t("store.held"))
+}
+
+/// For a caller with more to do under the lock (a chat turn): the change is shown now and its save
+/// taken, to be written (`Unsaved::write`) once the lock is let go.
+pub fn show_for_save(app: &AppHandle, d: &AppData) -> Unsaved {
+    let unsaved = Unsaved::of(d);
+    changed(app, d);
+    unsaved
+}
+
+/// A save taken under the state's lock and not yet written: written after the lock is let go.
+#[must_use = "a save taken is written once the lock is let go"]
+pub struct Unsaved {
+    saving: Saving,
+    store: store::Store,
+}
+impl Unsaved {
+    fn of(d: &AppData) -> Unsaved {
+        Unsaved {
+            saving: Saving::of(d),
+            store: store::Store {
+                dir: d.store.dir.clone(),
+            },
+        }
+    }
+    pub fn write(self) -> Result<(), String> {
+        self.saving
+            .write(&self.store, &WRITTEN)
+            .map_err(|_| i18n::t("store.held"))
+    }
 }
 
 /// Takes what to write and shows the change while holding the lock, then writes without it.
@@ -359,23 +381,11 @@ pub fn flush(app: &AppHandle) {
     if SAVE_LATER.take()
         && let Some(state) = app.try_state::<Shared>()
     {
-        let (saving, store) = {
-            let d = lock(&state);
-            (
-                Saving::of(&d),
-                store::Store {
-                    dir: d.store.dir.clone(),
-                },
-            )
-        };
-        if saving.write(&store, &WRITTEN).is_err() {
+        let unsaved = Unsaved::of(&lock(&state));
+        if unsaved.write().is_err() {
             SAVE_LATER.retry();
         }
     }
-}
-
-pub fn persist(d: &AppData) -> Result<(), String> {
-    Saving::of(d).write(&d.store, &WRITTEN)
 }
 
 /// How many saves have been taken; each takes the next number, under the state's lock.
@@ -449,28 +459,29 @@ fn extras(raw: &Value) -> Map<String, Value> {
 }
 
 /// The menus' desktop switch: every friend goes out, or everything comes in (desktop::items::flip).
-pub fn toggle_desktop(app: &AppHandle, d: &mut AppData) -> Result<bool, String> {
+pub fn toggle_desktop(app: &AppHandle, mut d: MutexGuard<'_, AppData>) -> Result<bool, String> {
     let AppData {
         pets,
         garden,
         hidden_decor,
         ..
-    } = d;
+    } = &mut *d;
     let now = crate::desktop::items::flip(pets, garden, hidden_decor.as_deref());
-    let shown = save_and_show(app, d);
     // Everything brought in with the switch is put away for good: no window lingers for it. After
     // the overlay has nothing out, so no step keeps a window for it again.
-    if !now && let Some(o) = app.try_state::<OverlayHandle>() {
-        o.0.rest();
-    }
-    shown.map(|()| now)
+    show_and_save_with(app, d, |_| {
+        if !now && let Some(o) = app.try_state::<OverlayHandle>() {
+            o.0.rest();
+        }
+    })
+    .map(|()| now)
 }
 
 /// Friends out on the desktop roam it, or stay where they are put.
-pub fn toggle_wander(app: &AppHandle, d: &mut AppData) -> Result<bool, String> {
+pub fn toggle_wander(app: &AppHandle, mut d: MutexGuard<'_, AppData>) -> Result<bool, String> {
     d.prefs.wander = !d.prefs.wander;
     let now = d.prefs.wander;
-    save_and_show(app, d).map(|()| now)
+    show_and_save(app, d).map(|()| now)
 }
 
 /// Sends one friend or decoration out to the desktop, or brings it in: shown first, written after
@@ -532,7 +543,7 @@ pub fn set_status(app: &AppHandle, d: &mut AppData, id: &str, state: &str, messa
 }
 
 /// Puts a pet file on the shelf (once) and remembers its folder for the next start.
-pub fn register_asset(app: &AppHandle, d: &mut AppData, asset: catalog::Asset) -> Result<Value, String> {
+pub fn register_asset(app: &AppHandle, mut d: MutexGuard<'_, AppData>, asset: catalog::Asset) -> Result<Value, String> {
     let asset = catalog::Asset {
         place: catalog::place_of(&d.store.dir.join("pets"), &asset.folder, &d.picked),
         ..asset
@@ -541,7 +552,7 @@ pub fn register_asset(app: &AppHandle, d: &mut AppData, asset: catalog::Asset) -
     if !d.assets.iter().any(|a| a.id == id) {
         d.imports.push(asset.folder.to_string_lossy().into_owned());
         d.assets.push(asset);
-        save_and_show(app, d)?;
+        show_and_save(app, d)?;
     }
     Ok(json!(id))
 }
@@ -602,19 +613,42 @@ pub(crate) mod tests {
     #[test]
     fn a_change_is_shown_under_the_lock_and_written_after_it_is_let_go() {
         let state = Mutex::new(7);
+        let steps = std::cell::RefCell::new(Vec::new());
         let mut shown = 0;
         let saved = unlocked(
             hold(&state),
-            |n| *n,
-            |n| shown = *n,
+            |n| {
+                steps.borrow_mut().push("take");
+                *n
+            },
+            |n| {
+                steps.borrow_mut().push("show");
+                shown = *n;
+            },
             |taken| {
-                assert!(state.try_lock().is_ok(), "nothing waits for the disk");
-                assert_eq!(taken, 7);
+                steps.borrow_mut().push("write");
+                let mut now = state.try_lock().expect("nothing waits for the disk");
+                // Another change lands while this one is written: it has its own save.
+                *now = 8;
+                assert_eq!(taken, 7, "what is written is what was shown");
                 Err("disk full".to_string())
             },
         );
+        assert_eq!(*steps.borrow(), ["take", "show", "write"]);
         assert_eq!(shown, 7, "shown before the write");
         assert_eq!(saved.unwrap_err(), "disk full");
+        // Every save made with a change goes this way: none writes while it holds the state, so
+        // a menu switch, a chat's persona or a new pet file never keeps a page waiting on the disk.
+        let old = concat!("save_and", "_show(");
+        for (file, source) in [
+            ("app.rs", include_str!("app.rs")),
+            ("menu.rs", include_str!("menu.rs")),
+            ("chat/mod.rs", include_str!("chat/mod.rs")),
+            ("commands.rs", include_str!("commands.rs")),
+            ("commands/imports.rs", include_str!("commands/imports.rs")),
+        ] {
+            assert!(!source.contains(old), "{file} writes under the lock");
+        }
     }
 
     #[test]

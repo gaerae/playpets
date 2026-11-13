@@ -321,15 +321,19 @@ fn preview(text: &str) -> String {
     text.chars().take(100).collect()
 }
 
-/// A friend was asked, in conversation, to be someone a little different from now on.
-fn save_persona(app: &AppHandle, d: &mut AppData, id: &str, persona: String) {
-    let Some(pet) = d.pets.iter_mut().find(|p| p.id == id) else {
-        return;
-    };
+/// A friend was asked, in conversation, to be someone a little different from now on. Shown
+/// either way (the friend settings read it); the save is handed back, to be written once the
+/// state is let go (`saved_persona`).
+fn save_persona(app: &AppHandle, d: &mut AppData, id: &str, persona: String) -> Option<crate::app::Unsaved> {
+    let pet = d.pets.iter_mut().find(|p| p.id == id)?;
     pet.persona = persona;
     pet.persona_from = "chat".into();
-    // Shown either way (the friend settings read it); the notice only once it is saved.
-    if crate::app::save_and_show(app, d).is_ok() {
+    Some(crate::app::show_for_save(app, d))
+}
+
+/// Writes a persona's save with the state let go; the notice only once it is saved.
+fn saved_persona(app: &AppHandle, unsaved: Option<crate::app::Unsaved>, id: &str) {
+    if unsaved.is_some_and(|u| u.write().is_ok()) {
         push_event(app, &json!({"type": "persona-saved", "petId": id}));
     }
 }
@@ -371,9 +375,7 @@ pub fn chat(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, args:
     match answer {
         Ok(answer) if !cancelled => {
             let (answer, persona) = prompt::take_persona(&answer);
-            if let Some(persona) = persona {
-                save_persona(app, &mut d, &id, persona);
-            }
+            let persona = persona.and_then(|persona| save_persona(app, &mut d, &id, persona));
             // The friend may have been sent away while it was thinking.
             if d.pets.iter().any(|p| p.id == id) {
                 d.talks.remember(&id, json!({"role": "user", "content": text.trim()}));
@@ -384,6 +386,8 @@ pub fn chat(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, args:
             } else {
                 changed(app, &d);
             }
+            drop(d);
+            saved_persona(app, persona, &id);
             Ok(json!(answer))
         }
         other => {

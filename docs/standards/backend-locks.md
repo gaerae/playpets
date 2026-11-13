@@ -29,6 +29,9 @@
   - menu and tray text changes (`set_text`, `set_tooltip`, `set_title`)
   - window state queries (`is_visible`, `inner_size`)
 - No slow work: keychain reads and writes, network calls, file dialogs, waiting for an AI reply, waiting for a process to exit (`Child::wait`).
+- No write of `state.json`. A save is taken under the lock and written after it is let go:
+  - `commit` and `app::show_and_save` (which takes the guard) show the change, let the lock go, then write.
+  - A caller with more to do under the lock (a chat turn) calls `app::show_for_save` and writes the `Unsaved` it gets after dropping the guard.
 - After you release the lock and take it again, check what may have changed in between: whether the friend is still there, whether a reply is already pending, whether the AI connection is the same. Example: `chat::still_ready` in chat.
 
 ### Lock order
@@ -50,7 +53,7 @@
     - The snapshot is read from `Shared` before, never under it.
   - `WRITTEN` (the number of the last state file written):
     - Held while `state.json` is written, so two writes never share the temporary file and an older save never replaces a newer one.
-    - Taken under `Shared` by a save made with a change; taken alone by a delayed save (`app::flush`), which reads the state under `Shared` first and writes after releasing it.
+    - Never taken under `Shared`. Every save (`commit`, `show_and_save`, `show_for_save`, a delayed save in `app::flush`) reads the state under `Shared`, releases it, then takes `WRITTEN` to write.
   - `SIZE_LIMIT` and `NORMAL_RECT` (`window.rs`): read or written briefly on the main thread; never held across a window call.
   - `GROUPS` (`chat/cli/launch.rs`): taken alone and briefly, to add, remove or stop the process groups of the CLIs the app started.
   - The update's `Found`:
@@ -63,6 +66,7 @@
 - Functions that can be called inside the lock, such as `layout()`, do not call the runtime.
 - `commands::call` runs the commands the page calls on a worker thread (`spawn_blocking`).
 - Inside a command, do not add a wait that blocks the main thread.
+- A menu item that saves (the desktop, wander and sound switches, taking a friend in from the desktop) or waits on the main loop (`alwaysOnTop`, `fit`) runs on a worker thread (`spawn_blocking`), not in the menu callback on the main thread.
 
 ## Recommendations
 Follow these when you can. When you cannot, say why in the PR.
@@ -89,3 +93,4 @@ Follow these when you can. When you cannot, say why in the PR.
 ## Change history
 - 2026-10-01 First version
 - 2026-10-10 `app::lock` for the state and `app::hold` for every other mutex, both recovering from a poisoned lock; where the CLI sessions, the tray, the mini window and the update lock sit relative to `Shared`; the Claude Code stderr tail and the CLIs' private folder
+- 2026-11-14 No state write under `Shared`: `save_and_show` gave way to `show_and_save` and `show_for_save`; `WRITTEN` is never taken under `Shared`; the menu switches that save run on a worker thread
