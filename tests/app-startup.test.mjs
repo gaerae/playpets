@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
+import { cellLeft } from '../src/core/animation.js';
 
 // Runs the end of app.js (its last top-level try) with `booted` saying whether the state came at
 // the start, and returns the commands and toasts in order.
@@ -66,7 +67,13 @@ test("the companions' actions load alongside the yard's content, not after it", 
 });
 
 // The frame loop's part of app.js (its constants, interval and animate), with the page around it.
-async function frameLoop({ hidden = false, shown = true } = {}) {
+async function frameLoop({
+  hidden = false,
+  shown = true,
+  views = new Map(),
+  scenery = { busy: () => false, lively: () => false, frame: () => {} },
+  moveFriends = () => {},
+} = {}) {
   const source = await readFile('src/app.js', 'utf8');
   const loop = source.slice(source.indexOf('\nconst BUSY_MS'), source.lastIndexOf('\ntry {'));
   const noop = () => {};
@@ -88,14 +95,84 @@ async function frameLoop({ hidden = false, shown = true } = {}) {
     shown,
     game: null,
     aiming: false,
-    views: new Map(),
-    scenery: { busy: () => false, frame: noop },
+    views,
+    scenery,
     scene: {},
     ...Object.fromEntries([...yardLife, 'playGame'].map(name => [name, noop])),
+    moveFriends,
     $: () => ({ hidden: true }),
   };
-  return vm.runInNewContext(`${loop}\n({ animate, CALM_MS })`, context);
+  return vm.runInNewContext(`${loop}\n({ animate, BUSY_MS, CALM_MS })`, context);
 }
+
+// A sprite cell lasts 110-320 ms; at the loop's 50 or 100 ms a 120 ms cell would show for 100 or
+// 150 ms, a limp in a walk. The loop wakes when a friend's cell ends (motion.js cellEnds).
+test("the frame loop wakes when a friend's sprite cell ends, so each cell shows its own time", async () => {
+  const friend = { cellEnds: 1030 },
+    loop = await frameLoop({ views: new Map([['a', friend]]) });
+  assert.equal(loop.animate(1000), 30);
+  friend.cellEnds = 1500;
+  assert.equal(loop.animate(1000), loop.CALM_MS, 'a cell that outlasts the frame waits for it');
+  friend.cellEnds = Infinity;
+  assert.equal(loop.animate(1000), loop.CALM_MS, 'a gesture held on its last cell has no next');
+  friend.cellEnds = 1000.5;
+  assert.ok(loop.animate(1000) >= 8, 'never a busy wait');
+  friend.target = { x: 0, y: 0 };
+  friend.cellEnds = 1080;
+  assert.equal(loop.animate(1000), loop.BUSY_MS, 'a walk keeps its own pace when that comes first');
+});
+
+// How often the loop wakes in a second, run as core/ticker.js every runs it: each frame says when
+// the next comes.
+function wakesIn(loop, from = 1000, ms = 1000) {
+  let count = 0;
+  for (let now = from; now < from + ms; now += loop.animate(now)) count++;
+  return count;
+}
+// Friends as motion.js leaves them each frame: a walker's step ends on the walk's clock (`phase`
+// shifts a friend's own clock off the shared one), and one standing has no wake of its own.
+const stepping = views => now => {
+  for (const v of views.values()) v.cellEnds = v.target ? now + cellLeft('right', now + (v.phase || 0)) : Infinity;
+};
+
+// The performance standard's paces are the most the loop wakes: 20 a second while friends walk,
+// with one more for each walking step (120 ms) on top, and 10 while they only stand.
+test('the loop wakes once for all walkers at the end of a step, and never early for friends standing', async () => {
+  const walkers = new Map(['a', 'b', 'c'].map(id => [id, { target: { x: 0, y: 0 } }]));
+  const walking = await frameLoop({ views: walkers, moveFriends: stepping(walkers) });
+  const busy = wakesIn(walking);
+  assert.ok(busy >= 20 && busy <= 20 + Math.ceil(1000 / 120), `three walking: ${busy} wakes`);
+  const standing = new Map(['a', 'b', 'c'].map(id => [id, {}]));
+  const calm = await frameLoop({ views: standing, moveFriends: stepping(standing) });
+  assert.equal(wakesIn(calm), 10, 'friends standing: the calm pace alone');
+  // Steps out of step (should they ever be) still wake early at most once between two paced frames.
+  const apart = new Map(['a', 'b', 'c'].map((id, i) => [id, { target: { x: 0, y: 0 }, phase: i * 37 }]));
+  const loose = wakesIn(await frameLoop({ views: apart, moveFriends: stepping(apart) }));
+  assert.ok(loose <= 40, `three walking out of step: ${loose} wakes`);
+});
+
+test('creatures and falling petals out keep the yard at its busy pace', async () => {
+  const loop = await frameLoop({ scenery: { busy: () => false, lively: () => true, frame() {} } });
+  assert.equal(loop.animate(1000), loop.BUSY_MS);
+});
+
+// Every repaint of the weather canvas costs a screen update: a wake only for a friend's cell leaves
+// it for the yard's own pace, which counts on from its last repaint.
+test('a wake for a sprite cell leaves the weather canvas to the yard pace', async () => {
+  const moved = [],
+    friend = { cellEnds: 1030 };
+  const loop = await frameLoop({
+    views: new Map([['a', friend]]),
+    scenery: { busy: () => false, lively: () => false, frame: (now, dt) => moved.push([now, dt]) },
+  });
+  assert.equal(loop.animate(1000), 30);
+  assert.equal(moved.length, 1);
+  friend.cellEnds = 1300;
+  assert.equal(loop.animate(1030), loop.CALM_MS - 30, 'the yard pace still comes when it was due');
+  assert.equal(moved.length, 1, 'the weather canvas waits for it');
+  loop.animate(1100);
+  assert.deepEqual(moved[1], [1100, 100], 'and then moves for the whole time since it last did');
+});
 
 test('the frame loop wakes about once a second while the yard cannot be seen', async () => {
   const seen = await frameLoop();

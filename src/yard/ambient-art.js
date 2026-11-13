@@ -2,6 +2,12 @@
 import { canvasFor, decodeImage, materialCache } from './raster.js';
 
 const WINGBEAT = [0, 1, 2, 1];
+// How long one beat of a flier's wings takes (ms). The yard draws twenty frames a second while one
+// flies: a beat over six frames or more reads as a beat; a quicker one is drawn at a few scattered
+// points of it and flickers.
+export const WING_BEAT = { butterfly: 360, dragonfly: 300 };
+/** How far a flier's wings are spread (0 folded, 1 open) `beat` of the way (0 to 1) through a beat. */
+export const wingSpread = beat => Math.abs(Math.sin(Math.PI * beat));
 let bugsReady;
 function loadBugs() {
   if (typeof Image === 'undefined') return Promise.resolve(null);
@@ -114,7 +120,7 @@ export function createAmbientArt(
     ctx.translate(creature.x, creature.y);
     if (['dragonfly', 'beetle', 'cricket'].includes(creature.kind)) ctx.rotate(creature.heading + Math.PI / 2);
     // The butterfly's wings fold; its center remains at the catch target.
-    if (creature.kind === 'butterfly') ctx.scale(0.4 + 0.6 * Math.abs(Math.sin(creature.phase)), 1);
+    if (creature.kind === 'butterfly') ctx.scale(0.4 + 0.6 * wingSpread(creature.beat ?? 0), 1);
     const aspect = crop[3] / crop[2];
     ctx.drawImage(image, ...crop, -size / 2, (-size * aspect) / 2, size, size * aspect);
     ctx.restore();

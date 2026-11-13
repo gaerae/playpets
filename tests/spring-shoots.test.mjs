@@ -224,7 +224,7 @@ test('a shoot whose ground is taken is gone at once, and from storage at the nex
 // The window sets how big the ground's things are on the field: a shoot their feet take in the mini
 // window is hidden there, not lost; only a change in the garden takes its ground for good.
 test('a smaller window hides a shoot beside a gift but keeps it', async ctx => {
-  const beside = { x: 0.42, y: 0.74 },
+  const beside = { x: 0.44, y: 0.74 },
     open = { x: 0.2, y: 0.5 };
   const y = await springYard(ctx, {
     scene: { period: 'day' },
@@ -649,18 +649,18 @@ test('the shoot stays when the album cannot keep it', async ctx => {
   assert.ok(y.v.target, 'and it can be clicked again');
 });
 
-test('a shoot being dug looks taken, stands out from the grass, and dims at night as the flowers do', async () => {
+test('a shoot being dug looks taken, stands out from the grass, and takes the light as the flowers do', async () => {
   const css = (await readFile('src/styles/garden.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ');
   assert.match(css, /\.shoot\.picking \{ cursor: default; \}/);
   assert.match(css, /\.shoot\.picking svg \{ opacity: 0\.7; transition: opacity 0\.3s; \}/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{[^@]*\.shoot\.picking svg \{ transition: none; \}/);
-  assert.match(css, /\.period-night \.plant svg \{ filter: url\(#night-tint\); \}/);
+  assert.match(css, /\.plant svg \{[^}]*filter: var\(--prop-light, none\);/);
   // Green shoots on green grass: a soft shade of soil under the foot and a shadow to the lower right
-  // (the light comes from the upper left), both still, and the night's dimming on top.
+  // (the light comes from the upper left), both still, and the scene's light on top (morning,
+  // evening, rain, night: garden.css --prop-light).
   const soil = css.match(/\.shoot::before \{([^}]*)\}/)?.[1] || '';
   assert.match(soil, /radial-gradient/);
   assert.doesNotMatch(soil, /animation|transition/);
   assert.match(css, /\.shoot \{[^}]*--shoot-lift: drop-shadow\(/);
-  assert.match(css, /\.shoot svg \{[^}]*filter: var\(--shoot-lift\);/);
-  assert.match(css, /\.period-night \.shoot svg \{ filter: var\(--shoot-lift\) url\(#night-tint\); \}/);
+  assert.match(css, /\.shoot svg \{[^}]*filter: var\(--shoot-lift\) var\(--prop-light,\);/);
 });

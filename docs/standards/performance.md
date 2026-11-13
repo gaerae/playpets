@@ -17,13 +17,24 @@
 | State | Interval |
 |---|---|
 | Yard, while a friend moves (walking, poses, play, aiming a treat) | 50ms |
+| Yard, while creatures fly or petals and leaves fall | 50ms |
 | Yard, in rain and while birds or a shooting star cross | 66ms |
 | Yard, in snow | 80ms |
 | Yard, otherwise | 100ms |
 | Yard, while it cannot be seen (nothing is drawn) | 1000ms |
 | Overlay | 100ms |
 
-- New movement adds a condition to `interval()` in `app.js`.
+- New movement adds a condition to `pace()` in `app.js`.
+- While a friend walks, the yard also wakes when a step of its walk ends (`cellEnds`, set in `motion.js`), never sooner than 8ms, so each 120ms step shows for its own length.
+  - All walks share one clock, as standing animations do: one wake serves every walker.
+  - At most one such wake comes between two frames at the table's interval: no more than 29 wakes a second while friends walk (20 at the interval, one per 120ms step).
+  - Standing and gestures wake nothing extra: friends that only stand keep to 10 a second.
+  - The weather canvas still moves only at the interval in the table, counted from its last repaint.
+- Between steps the compositor carries a moving friend: `moveTo` in `src/core/ticker.js`.
+  - It starts a short linear Web Animation from where the friend shows to its new place: 64ms in the yard, 52ms on the desktop, a little longer than a step.
+  - Not on a friend's first placing, not while it is held, not with reduced motion.
+  - Use it, not a CSS transition: WebKit starts a transition that replaces another a frame late, so the friend stops once every step.
+- Something that cycles on a canvas (a wing beat) spans at least six frames at the interval it is drawn at. A faster cycle is drawn at scattered points and flickers.
 - Do not draw when the window is not visible.
   - Loops return right away when `document.hidden` is set or when the backend reports the window hidden (the `window` event, `<html data-unseen>`).
   - `data-unseen` stops CSS animations.
@@ -87,7 +98,7 @@ Follow these when you can. When you cannot, say why in the PR.
 ## Exceptions
 | When | How |
 |---|---|
-| A new game really needs a tighter interval | Add it as a condition in `interval()` so it runs at 50ms only during that game. Below 50ms: attach measurements to the PR, and a maintainer approves it |
+| A new game really needs a tighter interval | Add it as a condition in `pace()` so it runs at 50ms only during that game. Below 50ms: attach measurements to the PR, and a maintainer approves it |
 | A CSS effect cannot move to the compositing stage | Allowed for short effects that run once (the response to a press). No exceptions for effects that loop forever |
 
 ## Rationale
@@ -109,3 +120,4 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-10-10 The yard's sounds: they play only while on and seen; a measured state with them playing
 - 2026-11-09 The yard's loop looks once a second, not ten times, while the window cannot be seen
 - 2026-11-11 Loops on the compositor (the breeze, a walking friend's step) may run while the yard is shown; `pnpm run measure` plants a small garden
+- 2026-11-13 The compositor carries a moving friend between steps; the yard wakes when a walking step ends, on one clock for all walks; creatures and falling petals keep the 50ms interval; wing beats span six frames

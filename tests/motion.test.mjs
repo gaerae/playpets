@@ -4,7 +4,9 @@ import './support/content.mjs';
 import { reduced } from '../src/core/sprites.js';
 import { setData, views } from '../src/core/state.js';
 import { geometry } from '../src/yard/field.js';
-import { moveFriends } from '../src/yard/motion.js';
+import { moveFriends, WALK } from '../src/yard/motion.js';
+import { sendTo } from '../src/yard/trips.js';
+import { GLIDE_MS, place } from '../src/yard/views.js';
 import { element, installDom } from './support/dom.mjs';
 import { flatField } from './support/flat-field.mjs';
 
@@ -133,5 +135,206 @@ test('a friend choosing a stroll measures the dock once', t => {
     views.clear();
     reduced.matches = previousReduced;
     Math.random = random;
+  }
+});
+
+// A step of the frame loop is a jump of a few pixels; while a friend walks the compositor carries it
+// from one to the next (core/ticker.js moveTo), the step that ends the walk too. A held friend
+// follows the pointer, so nothing glides behind a drag.
+test('a walking friend glides from step to step, the last one too, and never while held', t => {
+  const { document } = installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
+  document.timeline = { currentTime: 0 };
+  setData({ statuses: {} });
+  const previousReduced = reduced.matches;
+  reduced.matches = false;
+  const glides = [];
+  const node = () =>
+    element('div', {
+      animate(frames, options) {
+        const glide = { frames, options, cancelled: false, cancel: () => (glide.cancelled = true) };
+        glides.push(glide);
+        return glide;
+      },
+    });
+  try {
+    const friend = {
+      pet: { id: 'friend', size: 112 },
+      x: 0.2,
+      y: 0.5,
+      button: node(),
+      label: node(),
+      canvas: { animate() {} },
+    };
+    views.clear();
+    views.set('friend', friend);
+    place(friend);
+    assert.equal(glides.length, 0, 'it is set down where it stands');
+    friend.target = { x: 0.8, y: 0.5 };
+    friend.trip = { save: false };
+    moveFriends(100, 50);
+    assert.equal(glides.length, 2, 'walking, its body and its label glide');
+    for (const { options } of glides) assert.deepEqual(options, { duration: GLIDE_MS, easing: 'linear' });
+    friend.x = 0.795;
+    moveFriends(150, 50);
+    assert.equal(friend.target, null, 'it arrived');
+    assert.equal(glides.length, 4, 'the step that brought it there glides too');
+    moveFriends(200, 50);
+    assert.equal(glides.length, 4, 'standing, nothing moves');
+    friend.target = { x: 0.2, y: 0.5 };
+    friend.trip = { save: false };
+    moveFriends(1000, 50);
+    assert.equal(glides.length, 6);
+    friend.drag = {};
+    moveFriends(1010, 10);
+    friend.x = 0.5;
+    place(friend);
+    assert.equal(glides.length, 6, 'held, it follows the pointer with no glide');
+    assert.ok(
+      glides.slice(4).every(glide => glide.cancelled),
+      'a glide under way ends where it was going',
+    );
+    friend.drag = null;
+    reduced.matches = true;
+    friend.target = { x: 0.2, y: 0.5 };
+    moveFriends(1100, 50);
+    assert.equal(glides.length, 6, 'with reduced motion a friend is set down where it goes');
+  } finally {
+    views.clear();
+    reduced.matches = previousReduced;
+  }
+});
+
+// Only the loop's own steps glide. A place from anything else between two of them (the window
+// resized, a key nudging the friend, a game setting it at its start) puts the friend there at once.
+test('a friend placed between walk steps by anything else is set there at once', t => {
+  const { document } = installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
+  document.timeline = { currentTime: 0 };
+  setData({ statuses: {} });
+  const previousReduced = reduced.matches;
+  reduced.matches = false;
+  const glides = [];
+  const node = () =>
+    element('div', {
+      animate(frames, options) {
+        const glide = { frames, options, cancelled: false, cancel: () => (glide.cancelled = true) };
+        glides.push(glide);
+        return glide;
+      },
+    });
+  try {
+    const friend = {
+      pet: { id: 'friend', size: 112 },
+      x: 0.2,
+      y: 0.5,
+      button: node(),
+      label: node(),
+      canvas: { animate() {} },
+      target: { x: 0.8, y: 0.5 },
+      trip: { save: false },
+    };
+    views.clear();
+    views.set('friend', friend);
+    place(friend);
+    moveFriends(100, 50);
+    assert.equal(glides.length, 2, 'the walk step glides');
+    friend.x = 0.6;
+    place(friend);
+    assert.equal(glides.length, 2, 'a place of its own does not');
+    assert.ok(
+      glides.every(glide => glide.cancelled),
+      'and the step under way ends where it was going',
+    );
+    assert.equal(friend.button.style.translate, `${friend.px}px ${friend.py}px`);
+  } finally {
+    views.clear();
+    reduced.matches = previousReduced;
+  }
+});
+
+// The loop measures a step from the frame before, which can be long ago in a calm yard: the first
+// step of a walk counts only from when the friend set off, so it does not leap ahead.
+test('the first step of a walk counts from when the friend set off', t => {
+  installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
+  setData({ statuses: {} });
+  const previousReduced = reduced.matches;
+  reduced.matches = false;
+  let clock = 1000;
+  t.mock.method(performance, 'now', () => clock);
+  try {
+    const friend = {
+      pet: { id: 'friend', size: 112 },
+      x: 0.2,
+      y: 0.5,
+      button: element(),
+      label: element(),
+      canvas: { animate() {} },
+    };
+    views.clear();
+    views.set('friend', friend);
+    sendTo(friend, { x: 0.8, y: 0.5 }, { save: false });
+    clock = 1010;
+    moveFriends(1010, 120);
+    const first = friend.x - 0.2;
+    assert.ok(Math.abs(first - 10 * WALK) < 1e-9, `it walked for 10 ms, not 120 (${first})`);
+    clock = 1060;
+    moveFriends(1060, 50);
+    assert.ok(Math.abs(friend.x - 0.2 - first - 50 * WALK) < 1e-9, 'then a whole frame each');
+  } finally {
+    views.clear();
+    reduced.matches = previousReduced;
+  }
+});
+
+// The loop wakes when a walking friend's cell ends (app.js), so each 120 ms step of a walk shows for
+// its own time and not 100 or 150 ms, a limp. Walks share one clock, as standing does, so several
+// friends walking change cells together: one wake for all. A friend that stands or makes a gesture
+// keeps to the loop's pace.
+test('a walking friend tells the loop when its step ends, on the clock all walks share', t => {
+  installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
+  setData({ statuses: {} });
+  const previousReduced = reduced.matches;
+  reduced.matches = false;
+  let clock = 1000;
+  t.mock.method(performance, 'now', () => clock);
+  const friend = id => ({
+    pet: { id, size: 112 },
+    x: 0.5,
+    y: 0.5,
+    nextWander: Infinity,
+    pose: 'idle',
+    since: 0,
+    until: 0,
+    button: element(),
+    label: element(),
+    canvas: { animate() {} },
+  });
+  try {
+    const [a, b, still] = ['a', 'b', 'still'].map(friend);
+    views.clear();
+    for (const v of [a, b, still]) views.set(v.pet.id, v);
+    // Standing, the loop's pace is enough.
+    moveFriends(1000, 50);
+    for (const v of [a, b, still]) assert.equal(v.cellEnds, Infinity);
+    // Two set off 37 ms apart and step on the shared clock: 2000 ms is 100 ms into the walk's last,
+    // 220 ms cell, which ends at 2120.
+    sendTo(a, { x: 0.9, y: 0.5 }, { save: false });
+    clock = 1037;
+    sendTo(b, { x: 0.1, y: 0.5 }, { save: false });
+    clock = 2000;
+    moveFriends(2000, 50);
+    assert.equal(a.cellEnds, 2120);
+    assert.equal(b.cellEnds, 2120, 'their steps end together');
+    assert.equal(still.cellEnds, Infinity, 'the one standing keeps to the pace');
+    // A gesture keeps to the loop's pace too.
+    Object.assign(still, { pose: 'jump', since: 2000, until: 4000 });
+    clock = 2100;
+    moveFriends(2100, 50);
+    assert.equal(still.cellEnds, Infinity);
+    reduced.matches = true;
+    moveFriends(2150, 50);
+    for (const v of [a, b, still]) assert.equal(v.cellEnds, Infinity, 'with reduced motion a friend shows one cell');
+  } finally {
+    views.clear();
+    reduced.matches = previousReduced;
   }
 });

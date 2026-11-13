@@ -1,7 +1,7 @@
 // One frame of yard life: friends walk to where they are headed, idle ones entertain themselves.
 // What happens when a friend arrives belongs to whoever sent it (views.js sendTo).
 
-import { poseClock } from '../core/animation.js';
+import { cellLeft, poseClock } from '../core/animation.js';
 import { clearCompanionAction, companionAction } from '../core/companion-actions.js';
 import { t } from '../core/i18n.js';
 import { between } from '../core/math.js';
@@ -22,7 +22,7 @@ import { blocked } from './workspace.js';
 
 // How far a friend walks in a millisecond, in field units: strolling, and going somewhere.
 export const STROLL = 0.00022;
-const WALK = 0.0005;
+export const WALK = 0.0005;
 // Where a friend's feet are when it stands at a place (0 to 1 each way), as the ground measures
 // the water and what stands on the field.
 function feetAt(v, at) {
@@ -55,6 +55,8 @@ function stepping(v, walking, strolling) {
   v.button.classList.toggle('walking', walking);
   v.button.classList.toggle('strolling', walking && strolling);
 }
+// The sheet's rows a walk shows (core/animation.js), one way or the other.
+const WALK_CYCLES = new Set(['right', 'left']);
 // The body settles as a friend stops: a short squash on the compositor, by scale alone, so what
 // the canvas's transform shows (a press, a tilt, a spin) goes on through it.
 const SETTLE = [{ scale: '1.05 0.95' }, { scale: '1' }];
@@ -78,17 +80,21 @@ export function moveFriends(now, dt) {
         // Only places a friend chose or was given are saved; game positions and the walk home are not.
         if (trip?.save !== false)
           call('updatePet', id, { x: v.x, y: v.y }).catch(e => toast(spoken(e, t('error.generic')), { error: true }));
-        // Arrivals such as fishing anchor their drawings to the friend's pixel position.
-        place(v);
+        // Arrivals such as fishing anchor their drawings to the friend's pixel position. A walk
+        // glides from step to step (views.js place), the step that ends it too.
+        place(v, { glide: walking });
         stepping(v, false, false);
         if (!reduced.matches) v.canvas?.animate?.(SETTLE, { duration: 260, easing: 'ease-out' });
         trip?.arrive?.(v, now);
       } else {
-        const step = Math.min(1, (dt * (v.speed || (v.trip?.slow ? STROLL : WALK))) / distance);
+        // The first step counts from when the friend set off (trips.js sendTo), not from the frame
+        // before, which may be long ago in a calm yard.
+        const span = Math.min(dt, Math.max(0, now - (v.leftAt ?? -Infinity)));
+        const step = Math.min(1, (span * (v.speed || (v.trip?.slow ? STROLL : WALK))) / distance);
         v.x += dx * step;
         v.y += dy * step;
         pose(v, dx >= 0 ? 'right' : 'left', 150);
-        place(v);
+        place(v, { glide: walking });
       }
     } else if (
       !v.drag &&
@@ -112,11 +118,20 @@ export function moveFriends(now, dt) {
     // Read as the dot and the overlay read it: an agent's done or error fades after a while.
     const status = stateOf(data, id);
     const state = now < v.until ? v.pose : status;
-    // A pose runs from when it began; standing animations share one clock, so friends that only
-    // stand change cells together and the yard is redrawn less often.
-    const elapsed = now - v.since;
-    const clock = now < v.until ? (Number.isFinite(v.until) ? poseClock(state, elapsed) : elapsed) : now;
-    drawSprite(v.canvas, v.asset, state, clock, state === 'idle' ? v.look : null, companionAction(v, now));
+    // A gesture runs from when it began. Standing animations share one clock, and so do the steps of
+    // a walk: friends that stand, or walk, change cells together, and the yard is redrawn and woken
+    // less often.
+    const elapsed = now - v.since,
+      posing = now < v.until,
+      walk = posing && WALK_CYCLES.has(state);
+    const clock = posing && !walk ? (Number.isFinite(v.until) ? poseClock(state, elapsed) : elapsed) : now;
+    const look = state === 'idle' ? v.look : null,
+      action = companionAction(v, now);
+    // When a step of the walk drawn ends, for the loop to wake then (app.js): a 120 ms step would
+    // otherwise show for 100 or 150 ms, a limp. Only a walk: standing and gestures keep to the loop's
+    // pace, as the performance standard counts it. A companion's own action has no step.
+    v.cellEnds = walk && !action && !reduced.matches ? now + cellLeft(state, clock) : Infinity;
+    drawSprite(v.canvas, v.asset, state, clock, look, action);
     crown(v.label, v.asset, petHeight(v.pet));
   }
 }

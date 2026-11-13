@@ -400,16 +400,19 @@ api.onEvent(event => {
   if (Object.hasOwn(ON_EVENT, event.type)) ON_EVENT[event.type](event);
 });
 
-// Twenty frames a second while a friend moves (a walk, a pose, a game, a treat being placed),
-// fifteen in rain and while birds or a shooting star cross, twelve in snow, ten while the friends
-// only stand and blink: every frame that changes a canvas costs a whole screen update. None at all
+// Twenty frames a second while a friend moves (a walk, a pose, a game, a treat being placed) and
+// while creatures fly or petals and leaves fall, fifteen in rain and while birds or a shooting star
+// cross, twelve in snow, ten while the friends only stand and blink: every frame that changes a
+// canvas costs a whole screen update. None at all
 // while the window cannot be seen (macOS says so through document.hidden, and the backend says so
 // for a window it hid or that was minimized); the loop only looks once a second whether it is back.
 const BUSY_MS = 50,
   RAIN_MS = 66,
   SNOW_MS = 80,
   CALM_MS = 100,
-  UNSEEN_MS = 1000;
+  UNSEEN_MS = 1000,
+  // The soonest the loop wakes again: for a sprite cell about to end, never a busy wait.
+  SOONEST_MS = 8;
 // What goes on in the yard between games, looked at every frame: each knows when it is due. The
 // remarks on the weather and the hour rest while friends view the blossom.
 const YARD_LIFE = [
@@ -421,13 +424,32 @@ const YARD_LIFE = [
   viewingTick,
   petalTick,
 ];
-let last = 0;
-function interval(now) {
+let last = 0,
+  // The weather canvas moves at the yard's pace, not on a wake only for a sprite cell: when it last
+  // moved, and when it moves next.
+  sceneryLast = 0,
+  sceneryDue = 0;
+function pace(now) {
   if (game || aiming) return BUSY_MS;
   for (const v of views.values()) if (v.target || v.drag || now < v.until) return BUSY_MS;
+  if (scenery.lively()) return BUSY_MS;
   // Weather sets the pace only where it falls (not in a room without windows, nor with reduced motion).
   if (scenery.busy()) return scene.weather === 'snow' ? SNOW_MS : RAIN_MS;
   return CALM_MS;
+}
+// The yard's pace, or sooner when a walking friend's step ends first (motion.js cellEnds): a 120 ms
+// step would otherwise show for 100 or 150 ms, a limp. Walks share one clock, so one early wake
+// serves every walker; and there is at most one between two paced frames (`early`, this wake was
+// one), however the steps fall. A step ending within SOONEST_MS of the paced frame waits for it.
+function interval(now, early) {
+  const due = sceneryDue - now;
+  let next = due;
+  if (!early)
+    for (const v of views.values()) {
+      const left = v.cellEnds - now;
+      if (left < Math.min(next, due - SOONEST_MS)) next = left;
+    }
+  return Math.max(SOONEST_MS, next);
 }
 function animate(now) {
   if (document.hidden || !shown) return UNSEEN_MS;
@@ -439,14 +461,20 @@ function animate(now) {
   bondTick(now);
   if (game) playGame(now, dt);
   else for (const tick of YARD_LIFE) tick(now);
-  scenery.frame(now, dt);
+  // A timer may fire a moment before the time it was set for.
+  const early = now < sceneryDue - 1;
+  if (!early) {
+    scenery.frame(now, Math.min(120, now - sceneryLast));
+    sceneryLast = now;
+    sceneryDue = now + pace(now);
+  } else sceneryDue = Math.min(sceneryDue, sceneryLast + pace(now));
   // Panel pictures move only while their panel is visible.
   if (!$('empty-yard').hidden && !$('welcome').hidden) drawWelcome(now);
   if (!$('side-panel').hidden) {
     if (!$('panel-pet').hidden) drawPortrait(now);
     if (!$('panel-invite').hidden) drawPreviews(now);
   }
-  return interval(now);
+  return interval(now, early);
 }
 try {
   // Record growth during closed time before the first tree and album are drawn.
@@ -461,7 +489,7 @@ try {
   setupBond();
   refreshChat();
   announceInstalledUpdate();
-  last = performance.now();
+  last = sceneryLast = performance.now();
   every(BUSY_MS, animate);
 } catch (e) {
   toast(spoken(e, t('error.start')), { error: true });

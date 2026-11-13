@@ -110,3 +110,81 @@ test('the desktop tree stands grand while the yard says so, and grows when it tu
   assert.ok(has('xmas-grand'));
   assert.ok(!has('xmas-rise'), 'with reduced motion it is a crossfade');
 });
+
+test('a thing let go on the desktop falls to where the backend sets it down, and only then', async () => {
+  const { settleDecor } = await import('../src/overlay/decor-view.js');
+  const falls = [];
+  const v = {
+    wrap: { style: {}, animate: (frames, options) => falls.push({ frames, options }) },
+    dropped: 0,
+  };
+  const at = (x, y) => `translate(${x}px,${y}px)`;
+  // Placed and carried: it goes where it is told, at once.
+  settleDecor(v, 100, 600, false, 1000);
+  settleDecor(v, 400, 200, false, 1100);
+  assert.equal(v.wrap.style.transform, at(400, 200));
+  assert.equal(falls.length, 0);
+  // Let go: the place the drag left it, sent again, keeps it waiting; the backend's floor brings it down.
+  v.dropped = 2000;
+  settleDecor(v, 400, 200, false, 2010);
+  assert.equal(falls.length, 0);
+  settleDecor(v, 400, 630, false, 2050);
+  assert.equal(v.wrap.style.transform, at(400, 630));
+  assert.equal(falls.length, 1);
+  assert.deepEqual(
+    falls[0].frames.map(f => f.transform),
+    [at(400, 200), at(400, 630)],
+  );
+  assert.ok(falls[0].options.duration > 0 && falls[0].options.duration <= 400);
+  assert.equal(v.dropped, 0, 'one fall per drop');
+  // Moved later (a tree that grew keeps its foot), it does not fall.
+  settleDecor(v, 380, 600, false, 2100);
+  assert.equal(falls.length, 1);
+  // With reduced motion, or long after the drop, it is simply there.
+  settleDecor(v, 380, 200, false, 3000);
+  v.dropped = 3010;
+  settleDecor(v, 380, 600, true, 3020);
+  settleDecor(v, 380, 200, false, 4000);
+  v.dropped = 4010;
+  settleDecor(v, 380, 600, false, 9000);
+  assert.equal(falls.length, 1);
+  assert.equal(v.wrap.style.transform, at(380, 600));
+});
+
+// A thing picked up again while it falls, or before the backend's word on the last drop came, is
+// carried from where it shows: the fall stops at once, and nothing plays over the new drag.
+test('a desktop thing picked up again stops falling, and nothing falls while it is held', async () => {
+  const { holdDecor, settleDecor } = await import('../src/overlay/decor-view.js');
+  const falls = [];
+  const v = {
+    wrap: {
+      style: {},
+      animate: () => {
+        const fall = { cancelled: false, cancel: () => (fall.cancelled = true) };
+        falls.push(fall);
+        return fall;
+      },
+    },
+    dropped: 0,
+  };
+  settleDecor(v, 400, 200, false, 1000);
+  v.dropped = 2000;
+  settleDecor(v, 400, 630, false, 2050);
+  assert.equal(falls.length, 1);
+  // Pressed again mid-fall.
+  v.drag = true;
+  holdDecor(v);
+  assert.equal(falls[0].cancelled, true, 'the fall stops where it shows');
+  // Let go again, and pressed before the backend's word on that drop came: carried, not dropped.
+  v.drag = null;
+  v.dropped = 3000;
+  v.drag = true;
+  holdDecor(v);
+  settleDecor(v, 420, 300, false, 3050);
+  assert.equal(falls.length, 1);
+  // Even with a drop time left over, nothing falls while it is held.
+  v.dropped = 3100;
+  settleDecor(v, 420, 630, false, 3150);
+  assert.equal(falls.length, 1);
+  assert.equal(v.wrap.style.transform, 'translate(420px,630px)');
+});

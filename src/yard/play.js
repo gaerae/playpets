@@ -186,7 +186,7 @@ const parade = {
       if (!reduced.matches) pose(v, at[i].x >= v.x ? 'right' : 'left', 150);
       v.x = at[i].x;
       v.y = at[i].y;
-      place(v);
+      place(v, { glide: true });
     });
     if (paradeDone(game.progress)) endGame(t('parade.done'));
   },

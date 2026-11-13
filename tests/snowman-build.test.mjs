@@ -141,9 +141,9 @@ async function yard(ctx, { garden = {} } = {}) {
 const start = () => play.startGame('snowman');
 // The base ball's width and the stack's foot: the base ball's bottom in the snowman's drawing.
 function stackFoot() {
-  const size = giftSize('snowman'),
-    [baseShare, footShare] = giftKind('snowman').stack,
-    at = fieldToYard(stackSpot([]));
+  const at = fieldToYard(stackSpot([])),
+    size = giftSize('snowman', at),
+    [baseShare, footShare] = giftKind('snowman').stack;
   return { x: at.x, y: at.y - footShare * size.h, baseW: size.w * baseShare };
 }
 
@@ -190,6 +190,20 @@ test('friends roll the ball, which grows as it rolls and slows as it grows', asy
   const lead = state.views.get('a'),
     middle = lead.px + sizeOf(lead.pet) / 2;
   assert.ok((middle - y.box(y.ball()).x) * state.game.ball.dir < 0);
+});
+
+// The ball is set where it rolls at each step; a pusher gliding behind it would lag a step back.
+test('the pushers move with their ball, step for step', async ctx => {
+  const y = await yard(ctx);
+  globalThis.document.timeline = { currentTime: 0 };
+  const glides = [];
+  for (const id of ['a', 'b']) {
+    const v = state.views.get(id);
+    for (const node of [v.button, v.label]) node.animate = () => glides.push(id) && { cancel() {} };
+  }
+  start();
+  y.run(1000);
+  assert.deepEqual(glides, []);
 });
 
 test('a press helps push: the ball grows a step and squashes', async ctx => {
@@ -432,8 +446,8 @@ test('a finished snowman is placed where it was stacked, counted for the day, an
   assert.equal(y.live('snowman-preview').length, 1);
   // Set down as the yard will draw it.
   const preview = y.box(y.live('snowman-preview')[0]),
-    size = giftSize('snowman'),
-    foot = fieldToYard({ x: 0.72, y: 0.72 });
+    foot = fieldToYard({ x: 0.72, y: 0.72 }),
+    size = giftSize('snowman', foot);
   assert.ok(Math.abs(preview.x - foot.x) < 0.5 && Math.abs(preview.bottom - foot.y) < 0.5);
   assert.ok(Math.abs(preview.w - size.w) < 0.5);
   y.tick(50);

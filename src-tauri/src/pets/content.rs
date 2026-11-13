@@ -41,6 +41,9 @@ struct Kind {
     /// How much taller a flower stands than others once grown.
     #[serde(default)]
     stature: Option<f64>,
+    /// Where a gift's drawing, or a flower's in bloom, ends, as a share of its height from the top.
+    #[serde(default)]
+    foot: Option<f64>,
 }
 #[derive(Deserialize)]
 struct SizedStage {
@@ -365,6 +368,22 @@ impl Catalog {
     pub fn gift_size(&self, id: &str) -> Option<(f64, f64)> {
         let [w, h] = self.gifts.iter().find(|k| k.id == id)?.size?;
         Some((w, h))
+    }
+    /// Where a gift's drawing ends, as a share of its box's height from the top (1 at its edge).
+    pub fn gift_foot(&self, id: &str) -> f64 {
+        self.gifts
+            .iter()
+            .find(|k| k.id == id)
+            .and_then(|k| k.foot)
+            .unwrap_or(1.0)
+    }
+    /// Where a flower's stem ends in its bloom's drawing, as a share of its height from the top.
+    pub fn bloom_foot(&self, id: &str) -> f64 {
+        self.flowers
+            .iter()
+            .find(|k| k.id == id)
+            .and_then(|k| k.foot)
+            .unwrap_or(1.0)
     }
     /// Whether this gift is built in the yard, not brought by a friend (the snowman).
     pub fn is_built(&self, id: &str) -> bool {

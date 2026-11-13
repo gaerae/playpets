@@ -5,7 +5,7 @@ import { giftKind, treeKind, treeSize } from './catalog.js';
 import { decorShown, yardSeason } from './decor-shown.js';
 import { projectFootprint, treeStage } from './discovery-rules.js';
 import { environmentLake } from './environment.js';
-import { decorFloor, EDGE, field, hasEdge, topAt, yardZoom } from './field.js';
+import { decorFloor, depthScaleAt, EDGE, field, hasEdge, propZoom, topAt } from './field.js';
 import { giftSize } from './props.js';
 import { scene } from './world.js';
 import { worldFor } from './worlds.js';
@@ -31,7 +31,11 @@ export function buildGroundProfile({
   garden = {},
   lake = null,
   scale = 1,
-  giftDimensions = giftSize,
+  // A gift's box and foot share before its depth (props.js giftSize).
+  giftDimensions = kind => giftSize(kind),
+  // How big a thing whose foot is at a yard point is drawn for its depth (field.js depthScaleAt), so
+  // what friends walk around is the size drawn; 1 everywhere leaves depth out.
+  depthScaleAt = () => 1,
   skipTreeId = null,
   now = Date.now(),
   // The season the yard shows (decor-shown.js yardSeason): a gift it does not draw takes no ground.
@@ -72,15 +76,16 @@ export function buildGroundProfile({
         y0 = top(x);
       return { x, y: y0 + item.y * (bounds.bottom - y0) };
     };
-  // A drawing of w x h yard pixels with its foot at `at`, as setDown places it.
-  const body = (at, w, h) => {
+  // A drawing of w x h yard pixels with its foot at `at`, as setDown places it: `foot` is the share
+  // of its height at which the drawing ends.
+  const body = (at, w, h, foot = 1) => {
     const y0 = top(at.x),
       deep = Math.max(1, bounds.bottom - y0);
     const box = {
       left: (at.x - w / 2 - EDGE) / width,
       right: (at.x + w / 2 - EDGE) / width,
-      top: (at.y - h - y0) / deep,
-      bottom: (at.y - y0) / deep,
+      top: (at.y - h * foot - y0) / deep,
+      bottom: (at.y + h * (1 - foot) - y0) / deep,
     };
     if (profile.bodies.length < MAX_EXCLUSIONS && box.left < 1 && box.right > 0 && box.top < 1 && box.bottom > 0)
       profile.bodies.push(box);
@@ -103,10 +108,12 @@ export function buildGroundProfile({
     if (tree.world !== worldId || tree.id === skipTreeId) continue;
     const [rx, ry] = treeKind(tree.kind)?.footprint || [22, 9],
       stage = treeStage({ ...tree, planted: tree.planted ?? now }, now),
-      zoom = scale * (treeScale[stage] ?? treeScale[0]),
+      at = foot(tree),
+      depth = depthScaleAt(at.x, at.y),
+      zoom = scale * depth * (treeScale[stage] ?? treeScale[0]),
       [w, h] = treeSize(tree.kind, Math.min(2, stage));
-    add(profile.obstacles, { ...foot(tree), rx: rx * zoom, ry: ry * zoom });
-    body(foot(tree), w * scale, h * scale);
+    add(profile.obstacles, { ...at, rx: rx * zoom, ry: ry * zoom });
+    body(at, w * scale * depth, h * scale * depth);
   }
   const date = new Date(now);
   for (const item of garden.decor || []) {
@@ -114,7 +121,10 @@ export function buildGroundProfile({
     const gift = giftKind(item.kind),
       // Drawn as decor.js places it: one friends stand on stays on the field.
       at = foot({ x: item.x, y: Math.min(item.y, gift?.stand === 'on' ? 1 : floorAt(item.x)) }),
-      { w, h } = giftDimensions(item.kind),
+      size = giftDimensions(item.kind),
+      depth = depthScaleAt(at.x, at.y),
+      w = size.w * depth,
+      h = size.h * depth,
       flat = gift?.flat;
     // Furniture drawing clamps its foot inward by half its rendered width plus four pixels.
     at.x = clamp(at.x, w / 2 + 4, bounds.width - w / 2 - 4);
@@ -125,10 +135,12 @@ export function buildGroundProfile({
       ry: flat ? h / 2 : Math.min(h * 0.18, w * 0.2),
     });
     // A flat gift lies under everything (decor.js draws it at the back).
-    if (!flat) body(at, w, h);
+    if (!flat) body(at, w, h, size.foot);
   }
   for (const plant of garden.plants || []) {
-    add(profile.obstacles, { ...foot(plant), rx: 10 * scale, ry: 5 * scale });
+    const at = foot(plant),
+      zoom = scale * depthScaleAt(at.x, at.y);
+    add(profile.obstacles, { ...at, rx: 10 * zoom, ry: 5 * zoom });
   }
   return profile;
 }
@@ -144,7 +156,8 @@ export function groundProfile({ skipTreeId = null, garden = data.garden, now = D
     giftFloor: decorFloor(),
     garden,
     lake: environmentLake(bounds.width, bounds.height, scene),
-    scale: yardZoom(),
+    scale: propZoom(),
+    depthScaleAt,
     skipTreeId,
     now,
     season: yardSeason(scene),

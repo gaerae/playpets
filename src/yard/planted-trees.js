@@ -7,10 +7,10 @@ import { call, data, guard } from '../core/state.js';
 import { artSvg } from './art.js';
 import { treeArt, treeKind, treeSize } from './catalog.js';
 import { groundAllows, treeStage } from './discovery-rules.js';
-import { depthAt, fieldToYard, measureYard, yardZoom } from './field.js';
+import { depthAt, fieldToYard, measureYard } from './field.js';
 import { groundProfile } from './ground.js';
 import { shapeHits } from './hit-shape.js';
-import { movable, moveSaved, propButton, reconcile, removeWithUndo, setDown } from './props.js';
+import { movable, moveSaved, propButton, propScale, reconcile, removeWithUndo, setDown } from './props.js';
 import { scene } from './world.js';
 
 const shown = new Map();
@@ -30,7 +30,8 @@ function position(view, tree, point = tree) {
   }
   const [width, height] = treeSize(tree.kind, stage),
     foot = fieldToYard(point),
-    zoom = yardZoom();
+    // Smaller farther back, as a friend at its foot is.
+    zoom = propScale(foot);
   setDown(view.button, foot.x, foot.y, width * zoom, height * zoom, depthAt(foot.y));
   view.button.title = t('tree.drag', { kind: t(`tree.${tree.kind}`) });
   view.button.setAttribute('aria-label', joinList([view.button.title, t(stageKeys[stage])]));

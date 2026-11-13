@@ -15,9 +15,10 @@ import { canvas, crown, drawSprite, reduced, setSpriteSeason } from '../core/spr
 import { sceneValue } from '../core/state.js';
 import { applyStatus, fadedBetween, stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
-import { every, everyMinute } from '../core/ticker.js';
+import { every, everyMinute, halt, moveTo } from '../core/ticker.js';
 import { useCatalog } from '../yard/catalog.js';
-import { dressDecor, drawDecor } from './decor-view.js';
+import { dressDecor, drawDecor, holdDecor, settleDecor } from './decor-view.js';
+import { glideMs } from './glide.js';
 import { visitKey } from './growing.js';
 
 setupInteractions();
@@ -98,6 +99,8 @@ function create(pet) {
   button.onpointerdown = async e => {
     if (e.button !== 0) return;
     view.drag = { x: e.screenX, y: e.screenY, moved: false };
+    // Held, it follows the pointer with no glide behind it.
+    halt(wrap);
     wrap.classList.remove('named');
     button.setPointerCapture(e.pointerId);
     await api.dragStart(pet.id);
@@ -170,21 +173,28 @@ function createDecor(id, kind) {
     drawn: false,
     worn: null,
     dressLayer: null,
+    // Where it is drawn, when a drag of it last ended, and its fall to the floor (settleDecor).
+    at: null,
+    dropped: 0,
+    fall: null,
   };
   button.onpointerdown = async e => {
     if (e.button !== 0) return;
     view.drag = true;
+    holdDecor(view);
     button.setPointerCapture(e.pointerId);
     await api.dragStart(id);
   };
   button.onpointerup = async e => {
     if (!view.drag) return;
     view.drag = null;
+    view.dropped = performance.now();
     await api.dragStop();
     if (button.hasPointerCapture(e.pointerId)) button.releasePointerCapture(e.pointerId);
   };
   button.onpointercancel = () => {
     view.drag = null;
+    view.dropped = performance.now();
     api.dragStop();
   };
   button.oncontextmenu = e => {
@@ -225,7 +235,7 @@ function renderDecor(local) {
     v.wrap.style.visibility = 'visible';
     v.wrap.style.width = `${position.width}px`;
     v.wrap.style.height = `${position.height}px`;
-    v.wrap.style.transform = `translate(${position.x - position.origin.x}px,${position.y - position.origin.y}px)`;
+    settleDecor(v, position.x - position.origin.x, position.y - position.origin.y, reduced.matches);
   }
 }
 function render() {
@@ -258,7 +268,14 @@ function render() {
     );
     v.status = stateOf(data, pet.id);
     v.wrap.style.visibility = 'visible';
-    v.wrap.style.transform = `translate(${position.x - position.origin.x}px,${position.y - position.origin.y}px)`;
+    // A stroll glides from step to step (glide.js); a held friend follows the pointer on whichever
+    // screen it is, and with reduced motion a friend is set down where it goes.
+    moveTo(
+      v.wrap,
+      'transform',
+      [position.x - position.origin.x, position.y - position.origin.y],
+      glideMs(v, position, reduced.matches),
+    );
     // Roaming pets face the way they walk (positions stream in via layout events).
     if (v.lastX !== undefined && Math.abs(position.x - v.lastX) > 0.5 && !v.drag) {
       v.pose = position.x >= v.lastX ? 'right' : 'left';

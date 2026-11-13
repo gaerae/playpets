@@ -28,7 +28,9 @@ test('illustrated skies keep lighting but do not duplicate the procedural clouds
   assert.equal(draws, 3);
 });
 
-test('the backdrop waits for its picture, keeps it through a change, and tells fishing only when the pond moves', async t => {
+// An easel on a fake yard: the pictures it asks for (each settled by the test with onload or
+// onerror), the yard, and the place modes it reported as changing the land.
+async function easelOnFakeYard(t) {
   await import('./support/content.mjs');
   const { createEasel } = await import('../src/yard/easel.js');
   const images = [];
@@ -71,6 +73,11 @@ test('the backdrop waits for its picture, keeps it through a change, and tells f
   };
   const changed = [];
   const easel = createEasel(yard, { matches: true }, () => changed.push(yard.dataset.environment));
+  return { easel, images, yard, changed };
+}
+
+test('the backdrop waits for its picture, keeps it through a change, and tells fishing only when the pond moves', async t => {
+  const { easel, images, yard, changed } = await easelOnFakeYard(t);
   const scene = { world: 'woodland', period: 'day', weather: 'clear', season: 'summer' };
   easel.set(scene);
   assert.equal(yard.dataset.environment, undefined, 'nothing painted before the picture is in');
@@ -87,4 +94,14 @@ test('the backdrop waits for its picture, keeps it through a change, and tells f
   assert.equal(yard.dataset.environment, 'painted');
   assert.deepEqual(changed, ['painted'], 'a picture that fails to load falls back to painted geometry');
   assert.equal(images.filter(image => image.src.includes('/sky/')).length, 4);
+});
+
+test('a first picture that fails lays the field out again on the painted land', async t => {
+  // Before anything is painted the field follows the picture's geometry (field.js), so the painted
+  // land standing in for it from the start moves where the field begins.
+  const { easel, images, yard, changed } = await easelOnFakeYard(t);
+  easel.set({ world: 'woodland', period: 'day', weather: 'clear', season: 'summer' });
+  images.find(image => image.src.endsWith('/green.webp')).onerror();
+  assert.equal(yard.dataset.environment, 'painted');
+  assert.deepEqual(changed, ['painted']);
 });

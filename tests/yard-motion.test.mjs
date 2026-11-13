@@ -1,10 +1,14 @@
 // How the yard moves between the drawings: friends smaller the farther back they stand, a step
-// that bobs, and trees and flowers that sway in the breeze, all on the compositor.
+// that bobs, a walk that glides between frames, and trees and flowers that sway in the breeze, all
+// on the compositor.
 
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { halt, moveTo } from '../src/core/ticker.js';
 import { DEPTH_FAR, depthScale } from '../src/yard/field.js';
+import { GLIDE_MS } from '../src/yard/views.js';
+import { element, installDom } from './support/dom.mjs';
 
 const uncommented = css => css.replace(/\/\*[\s\S]*?\*\//g, '');
 // The body of each block that opens at `{` after a matching head, braces balanced.
@@ -66,6 +70,80 @@ test('a walking friend bobs on the compositor, and not with reduced motion', asy
   for (const { body } of keyframes(css, 'stroll'))
     assert.doesNotMatch(body, /(^|[\s;{])transform\s*:/, 'the stroll leaves transform to a press');
   assert.match(reducedRules(css), /\.yard-pet\.walking\s*>\s*canvas\s*\{[^}]*animation:\s*none/);
+});
+
+// The frame loops move a friend in steps (the yard's every BUSY_MS, the desktop's every TICK). While
+// one moves, a linear glide a little longer than a step carries it to each new place, so a step
+// that comes late never shows a stop and the friend never falls far behind where it is.
+const frameOf = async (file, pattern) => Number((await readFile(file, 'utf8')).match(pattern)[1]);
+test('a moving friend glides for a little longer than a step of its loop', async () => {
+  const yard = await frameOf('src/app.js', /const BUSY_MS = (\d+)/),
+    desktop = await frameOf(
+      'src-tauri/src/desktop/overlay.rs',
+      /const TICK: Duration = Duration::from_millis\((\d+)\)/,
+    ),
+    { GLIDE_MS: desktopGlide } = await import('../src/overlay/glide.js');
+  for (const [glide, step] of [
+    [GLIDE_MS, yard],
+    [desktopGlide, desktop],
+  ])
+    assert.ok(glide > step && glide <= step * 1.5, `a ${glide}ms glide for a ${step}ms step`);
+});
+
+// A friend dragged from one screen to another is drawn there by that screen's window, which never
+// had the press: pointer capture stays with the first. The layout row says it is held (overlay.rs),
+// so it follows the pointer there too, with no glide behind it.
+test('a desktop friend held follows the pointer at once on every screen', async () => {
+  const { GLIDE_MS: desktopGlide, glideMs } = await import('../src/overlay/glide.js');
+  assert.equal(glideMs({ drag: null }, {}, false), desktopGlide, 'a stroll glides');
+  assert.equal(glideMs({ drag: { x: 0, y: 0 } }, {}, false), 0, 'held in the window it was pressed in');
+  assert.equal(glideMs({ drag: null }, { dragging: true }, false), 0, 'held, drawn by another screen');
+  assert.equal(glideMs({ drag: null }, {}, true), 0, 'with reduced motion');
+});
+
+// A fake node that records the glides started on it.
+function gliding() {
+  const node = element('div', {
+    animate(frames, options) {
+      const glide = { frames, options, cancelled: false, cancel: () => (glide.cancelled = true) };
+      node.glides.push(glide);
+      return glide;
+    },
+  });
+  node.glides = [];
+  return node;
+}
+test('a glide goes on from where the friend shows, from the time of the frame it shows in', t => {
+  const { document } = installDom(t);
+  document.timeline = { currentTime: 1000 };
+  const node = gliding();
+  moveTo(node, 'translate', [10, 20], 64);
+  assert.equal(node.style.translate, '10px 20px');
+  assert.deepEqual(node.glides, [], 'its first place is taken at once, not slid into from the corner');
+  moveTo(node, 'translate', [74, 20], 64);
+  const [first] = node.glides;
+  assert.deepEqual(first.frames, [{ translate: '10px 20px' }, { translate: '74px 20px' }]);
+  assert.deepEqual(first.options, { duration: 64, easing: 'linear' });
+  assert.equal(first.startTime, 1000, 'it starts at the timeline time, not a frame later');
+  assert.equal(node.style.translate, '74px 20px', 'where it ends is written, so it stays there');
+  // Half way there, the next step goes on from half way.
+  document.timeline.currentTime = 1032;
+  moveTo(node, 'translate', [106, 20], 64);
+  assert.equal(first.cancelled, true);
+  assert.deepEqual(node.glides[1].frames, [{ translate: '42px 20px' }, { translate: '106px 20px' }]);
+  moveTo(node, 'translate', [106, 20], 64);
+  assert.equal(node.glides.length, 2, 'the same place starts nothing');
+  // At once: what was under way ends where it was going.
+  moveTo(node, 'translate', [0, 0]);
+  assert.equal(node.glides[1].cancelled, true);
+  assert.equal(node.style.translate, '0px 0px');
+  const label = gliding();
+  moveTo(label, 'transform', [1, 2], 64);
+  moveTo(label, 'transform', [3, 4], 64);
+  assert.deepEqual(label.glides[0].frames, [{ transform: 'translate(1px,2px)' }, { transform: 'translate(3px,4px)' }]);
+  halt(label);
+  assert.equal(label.glides[0].cancelled, true);
+  assert.equal(label.style.transform, 'translate(3px,4px)');
 });
 
 test('trees and flowers sway outdoors on the compositor, and not with reduced motion', async () => {

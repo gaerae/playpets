@@ -79,25 +79,28 @@ export function topAt(px) {
     shape = edgeShape();
   return shape ? edgeTop(shape, px, line) : line;
 }
-let zoom = 1,
+let zoom = { friends: 1, props: 1 },
   zoomWorld = null;
 // A room's furniture is drawn at the friends' size where its picture fills a window 850px tall
 // (the picture at 850/1024); past that the picture grows with the window, and friends with it.
 const ROOM_SCALE = 850 / 1024;
 // Up to twice the friend size: a sprite's own pixels at the default size and more.
 const ROOM_ZOOM_MAX = 2;
-// How big friends are drawn in a yard of this size. By the height, so a small window still reads as
-// a whole scene; a strip (much wider than tall, like a bar along the screen's edge) gives the sky
-// away and keeps the friends larger, and a narrow column keeps them from crowding each other.
+// How big friends, and the things set on the field, are drawn in a yard of this size. By the
+// height, so a small window still reads as a whole scene; a strip (much wider than tall, like a bar
+// along the screen's edge) gives the sky away and keeps the friends larger, and a narrow column
+// keeps them from crowding each other.
 // In a room (a floor without soil) a larger window shows its furniture larger, so friends grow
 // as much as its picture (environment.js environmentFrame, 1536 by 1024 for every place) and
-// stay the same size next to a desk; outdoors the land is open and friends keep their size.
+// stay the same size next to a desk; outdoors the land is open and friends keep their size. A
+// smaller window shrinks the picture past what a friend can be read at, so friends stop there; a
+// gift is furniture, and keeps to the picture's scale, or a bench would stand larger than the desk.
 function zoomFor(width, height, world) {
   const strip = width > height * 3,
     fit = clamp(Math.min(height / (strip ? 380 : 560), width / 640), 0.35, 1);
-  if (worldHasSoil(world)) return fit;
-  const picture = Math.max(width / 1536, height / 1024) / ROOM_SCALE;
-  return Math.min(ROOM_ZOOM_MAX, Math.max(fit, picture));
+  if (worldHasSoil(world)) return { friends: fit, props: fit };
+  const picture = Math.min(ROOM_ZOOM_MAX, Math.max(width / 1536, height / 1024) / ROOM_SCALE);
+  return { friends: Math.max(fit, picture), props: picture };
 }
 // The zoom follows the place as well as the size: another place measures it again.
 const currentZoom = () => {
@@ -107,7 +110,7 @@ const currentZoom = () => {
   }
   return zoom;
 };
-export const sizeOf = p => p.size * currentZoom();
+export const sizeOf = p => p.size * currentZoom().friends;
 // How big a friend at the ridge looks next to one at the front edge. Only the drawing shrinks,
 // about its feet (views.js place): the box, the place and the tag stay as they are, so where a
 // friend stands, what it walks to and where it is clicked do not change with it.
@@ -117,6 +120,15 @@ export const DEPTH_FAR = 0.84;
 export function depthScale(y) {
   const far = worldFor(scene.world).geometry?.depthFar ?? DEPTH_FAR;
   return far + (1 - far) * clamp(y);
+}
+/** How big something whose foot is at (px, py) in the yard is drawn for its depth: as a friend whose
+ * feet are there (views.js place). A friend's place runs from where the field begins at its feet
+ * down to its name tag's room (geometry), so a gift, a plant or a tree on the same spot reads at the
+ * same scale; one set below a friend's reach is as near as the nearest friend. */
+export function depthScaleAt(px, py) {
+  if (!yardSize.width) measureYard();
+  const top = topAt(px);
+  return depthScale((py - top) / Math.max(1, yardSize.height - TAG_ROOM - top));
 }
 export const petHeight = p => (sizeOf(p) * 208) / 192;
 /** Where a friend's feet are in the yard: the middle of its bottom edge. */
@@ -129,8 +141,11 @@ export function drawnBox(v) {
     height = petHeight(v.pet);
   return { x: v.px + (width * (1 - s)) / 2, y: v.py + height * (1 - s), width: width * s, height: height * s };
 }
-/** How much things on the field shrink in the yard as it is now (friends, plants and gifts alike). */
-export const yardZoom = () => currentZoom();
+/** How much friends shrink in the yard as it is now. */
+export const yardZoom = () => currentZoom().friends;
+/** How much the things set on the field (gifts, plants, trees) shrink in the yard as it is now: as
+ * much as friends outdoors, and as the picture in a room. */
+export const propZoom = () => currentZoom().props;
 // The yard's size is measured when it changes, not every time a friend takes a step.
 const yardSize = { width: 0, height: 0 };
 /** Measures the yard again (views.js, when it changes size). */

@@ -4,7 +4,7 @@ import './support/content.mjs';
 import { data, setData } from '../src/core/state.js';
 import { giftKind } from '../src/yard/catalog.js';
 import { renderDecor } from '../src/yard/decor.js';
-import { measureYard, sizeOf } from '../src/yard/field.js';
+import { depthScale, fieldToYard, footTarget, measureYard, sizeOf } from '../src/yard/field.js';
 import { installDom, keepGlobals } from './support/dom.mjs';
 
 test('furniture fits friends and keeps the same proportions at every display density', t => {
@@ -32,7 +32,9 @@ test('furniture fits friends and keeps the same proportions at every display den
       measureYard();
       renderDecor();
       const props = nodes.get('garden-layer').children;
-      const friend = sizeOf({ size: 112 });
+      // A friend standing where they stand, drawn as much smaller as they are for the depth.
+      const at = fieldToYard({ x: 0.5, y: 0.5 }),
+        friend = sizeOf({ size: 112 }) * depthScale(footTarget({ pet: { size: 112 } }, at.x, at.y, 0).y);
       assert.ok(parseFloat(props[0].style.width) >= friend * 1.3, 'a bench has room for a friend');
       assert.ok(parseFloat(props[1].style.height) >= friend, 'a swing frame is taller than a friend');
       assert.ok(parseFloat(props[2].style.height) >= friend, 'a tent is shelter-sized');
@@ -51,7 +53,8 @@ test('furniture fits friends and keeps the same proportions at every display den
 });
 
 // A gift drawn without ground of its own stands on a contact shade (catalog "shade"), drawn under
-// the drawing (first in its button), so it does not hover over the grass or the snow.
+// the drawing (first in its button), so it does not hover over the grass or the snow. Furniture on
+// spread feet has a small dark shade under each foot inside a wide soft one.
 test('a gift whose drawing has no ground stands on a shade, under its drawing', t => {
   const before = data;
   t.after(() => setData(before));
@@ -60,23 +63,35 @@ test('a gift whose drawing has no ground stands on a shade, under its drawing', 
   setData({
     ...before,
     garden: {
-      decor: ['bench', 'pond', 'kite'].map((kind, i) => ({ id: `shade-${i}`, kind, x: 0.2 + i * 0.3, y: 0.5 })),
+      decor: ['lantern', 'pond', 'kite', 'bench'].map((kind, i) => ({
+        id: `shade-${i}`,
+        kind,
+        x: 0.2 + i * 0.2,
+        y: 0.5,
+      })),
     },
   });
   measureYard();
   renderDecor();
-  const [bench, pond, kite] = nodes.get('garden-layer').children;
-  const [shade] = bench.children;
-  assert.equal(shade?.className, 'decor-shade', 'a bench stands on a shade');
-  const [w, h, y] = giftKind('bench').shade;
+  const [lantern, pond, kite, bench] = nodes.get('garden-layer').children;
+  const [shade] = lantern.children;
+  assert.equal(shade?.className, 'decor-shade', 'a lantern stands on a shade');
+  const [w, h, y] = giftKind('lantern').shade;
   assert.deepEqual(
     [shade.style['--shade-w'], shade.style['--shade-h'], shade.style['--shade-y']],
     [w, h, y].map(String),
   );
-  assert.equal(shade.style['--shade-x'], undefined, 'a bench stands in the middle of its box');
-  assert.ok(!pond.children.some(c => c.className === 'decor-shade'), 'a flat gift lies on the ground already');
+  assert.equal(shade.style['--shade-x'], undefined, 'a lantern stands in the middle of its box');
+  assert.ok(!pond.children.some(c => c.className.startsWith('decor-shade')), 'a pond is ground already');
   // The kite's stand is at the left of its drawing, and its shade with it.
   assert.equal(kite.children[0].style['--shade-x'], String(giftKind('kite').shade[3]));
+  // A bench: the wide shade, then one small one under each of its feet, all under the drawing.
+  const [wide, ...feet] = bench.children;
+  assert.equal(wide.className, 'decor-shade wide');
+  assert.deepEqual(
+    feet.map(f => [f.className, f.style['--foot-x'], f.style['--foot-y'], f.style['--foot-w']]),
+    giftKind('bench').feet.map(([x, y, w]) => ['decor-foot', String(x), String(y), String(w)]),
+  );
 });
 
 // A lit gift's light falls on the ground too: a warm pool at its foot, under the drawing, beside

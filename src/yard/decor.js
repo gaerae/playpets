@@ -41,6 +41,7 @@ import { wornDress } from './snowman-dress.js';
 import { cue } from './sound.js';
 import { forPerson, isFree, rest, sendTo } from './trips.js';
 import { bubble, cheer, effect } from './views.js';
+import { blocked } from './workspace.js';
 import { scene } from './world.js';
 
 const flat = kind => !!giftKind(kind)?.flat;
@@ -88,11 +89,14 @@ function placement(kind, point) {
   // others go down to just above the dock.
   const across = fieldToYard({ x: point.x, y: 0 }).x,
     at = fieldToYard({ x: point.x, y: Math.min(point.y, standOn(kind) ? 1 : decorFloor(across)) }),
-    { w, h } = size(kind);
+    { w, h, foot } = size(kind, at);
   // Saved coordinates locate the foot; wide furniture still needs room at either edge.
   at.x = clamp(at.x, w / 2 + 4, field().width - w / 2 - 4);
-  return { ...at, w, h };
+  return { ...at, w, h, foot };
 }
+// In a room a gift is not set down inside the furniture, as a stroll does not end there
+// (workspace.js blocks): neither its foot nor the ends of its base may be on it.
+const standsFree = at => [-0.4, 0, 0.4].every(side => !blocked(at.x + side * at.w, at.y));
 /** Where a gift is drawn, in yard pixels: its foot (x, y) and its size (w, h). */
 export const decorPlacement = d => placement(d.kind, d);
 // Where a gift is drawn, as a place: a place past the edge a wide gift cannot reach is kept as
@@ -103,7 +107,8 @@ const drawnPlace = (kind, point) => {
 };
 function position(v, x, y) {
   const at = placement(v.kind, { x, y });
-  setDown(v.button, at.x, at.y, at.w, at.h, flat(v.kind) ? 0 : depthAt(at.y));
+  setDown(v.button, at.x, at.y, at.w, at.h, flat(v.kind) ? 0 : depthAt(at.y), at.foot);
+  return at;
 }
 
 function create(d) {
@@ -112,17 +117,27 @@ function create(d) {
     effects = gift?.effects || [];
   if (effects.length) button.dataset.effects = effects.join(' ');
   button.innerHTML = `${effectLayers(effects)}${gift ? artSvg(gift.art) : ''}`;
-  // A drawing with no ground of its own stands on a contact shade, under it (garden.css).
+  // A drawing with no ground of its own stands on a contact shade, under it (garden.css); one on
+  // spread feet has a small dark one under each foot, over a wide soft one under it all.
   if (gift?.shade) {
     const shade = document.createElement('span'),
       [w, h, y, x] = gift.shade;
-    shade.className = 'decor-shade';
+    shade.className = gift.feet ? 'decor-shade wide' : 'decor-shade';
     shade.style.setProperty('--shade-w', String(w));
     shade.style.setProperty('--shade-h', String(h));
     shade.style.setProperty('--shade-y', String(y));
     // A foot off the middle of the drawing (a kite's stand) keeps its shade under it.
     if (x !== undefined) shade.style.setProperty('--shade-x', String(x));
-    button.insertBefore(shade, button.firstChild);
+    const feet = (gift.feet || []).map(([fx, fy, fw]) => {
+      const foot = document.createElement('span');
+      foot.className = 'decor-foot';
+      foot.style.setProperty('--foot-x', String(fx));
+      foot.style.setProperty('--foot-y', String(fy));
+      foot.style.setProperty('--foot-w', String(fw));
+      return foot;
+    });
+    const first = button.firstChild;
+    for (const node of [shade, ...feet]) button.insertBefore(node, first);
   }
   const v = { id: d.id, kind: d.kind, button, drag: null, busy: false, dressLayer: null, worn: null };
   // What a snowman wears, over its drawing (snowman-dress.js); the update fills it.
@@ -156,19 +171,22 @@ function create(d) {
     if (!at) return;
     button.classList.add('dragging');
     drag.at = at;
-    position(v, at.x, at.y);
+    drag.free = standsFree(position(v, at.x, at.y));
+    button.classList.toggle('invalid', !drag.free);
   });
   const drop = event => {
     const drag = endDrag(v, button, event);
-    button.classList.remove('dragging');
+    button.classList.remove('dragging', 'invalid');
     if (!drag) return;
     if (!drag.moved) return pressed(v);
+    // Let go on the furniture, it goes back where it stood.
+    if (drag.at && !drag.free) return renderDecor();
     if (drag.at) return save(v.id, drawnPlace(v.kind, drag.at));
   };
   button.addEventListener('pointerup', drop);
   button.addEventListener('pointercancel', () => {
     v.drag = null;
-    button.classList.remove('dragging');
+    button.classList.remove('dragging', 'invalid');
     renderDecor();
   });
   button.addEventListener('dragstart', event => event.preventDefault());
@@ -194,8 +212,9 @@ function create(d) {
       e.preventDefault();
       const d = data.garden?.decor.find(x => x.id === v.id);
       if (!d) return;
-      const at = placement(v.kind, d);
-      save(v.id, drawnPlace(v.kind, yardToDecor(at.x + step[0], at.y + step[1])));
+      const at = placement(v.kind, d),
+        to = drawnPlace(v.kind, yardToDecor(at.x + step[0], at.y + step[1]));
+      if (standsFree(placement(v.kind, to))) save(v.id, to);
     } else if (e.key === 'Delete' || e.key === 'Backspace') putAway(v.id);
   });
   return v;

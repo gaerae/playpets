@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import './support/content.mjs';
-import { environmentLake } from '../src/yard/environment.js';
+import { environmentFrame, environmentLake } from '../src/yard/environment.js';
 import {
   depthAt,
   EDGE,
@@ -146,4 +146,68 @@ test("draw order runs from the highest ground to the yard's foot, whatever the e
   assert.equal(depthAt(0.58 * 1024), 1, 'the top of the path is furthest back');
   assert.equal(depthAt(f.bottom), 101, 'the foot of the field is in front of it all');
   assert.ok(depthAt(LINE) > 1 && depthAt(LINE) < 101);
+});
+
+// The highest the lawn reaches in each outdoor picture, as fractions of the picture, read off all
+// four seasons' pictures: [from x, to x, top y]. Above it are hedges, bushes and the big tree, so
+// nothing set at the top of the field may stand higher there.
+const LAWN = {
+  woodland: [
+    [0, 1, 0.525],
+    // The flower bush at the left border.
+    [0, 0.06, 0.655],
+    // The hedge and white-flowered bushes behind the big tree.
+    [0.85, 0.88, 0.54],
+    [0.88, 0.9, 0.545],
+    [0.9, 0.92, 0.55],
+    [0.92, 0.94, 0.555],
+  ],
+  lakeside: [[0, 1, 0.555]],
+  courtyard: [[0, 1, 0.63]],
+};
+const lawnTop = (place, x) => Math.max(...LAWN[place].filter(([from, to]) => x >= from && x <= to).map(([, , y]) => y));
+const across = (from, to, step = 0.002) =>
+  Array.from({ length: Math.round((to - from) / step) + 1 }, (_, i) => from + i * step);
+
+test("each outdoor place's edge runs along its lawn, never up into the bushes behind it", async () => {
+  const worlds = JSON.parse(await readFile('src/content/worlds.json', 'utf8'));
+  for (const id of Object.keys(LAWN)) {
+    const { edge } = (worlds.worlds ?? worlds).find(place => place.id === id).geometry;
+    for (const x of across(0, 1)) {
+      const i = edge.findIndex(([at], n) => n > 0 && x <= at);
+      if (i < 1 || x < edge[0][0]) continue;
+      const [[x0, y0], [x1, y1]] = [edge[i - 1], edge[i]],
+        y = y0 + ((x - x0) / Math.max(1e-6, x1 - x0)) * (y1 - y0);
+      assert.ok(y >= lawnTop(id, x) - 1e-9, `${id} edge at ${x.toFixed(3)} is on the lawn (${y.toFixed(3)})`);
+    }
+  }
+});
+
+test('a tree set at the top of the field stands on the lawn anywhere across every outdoor place', t => {
+  const { nodes } = installDom(t, { ids: ['yard'] });
+  const before = scene.world;
+  t.after(() => {
+    scene.world = before;
+  });
+  for (const id of Object.keys(LAWN))
+    for (const [width, height] of [
+      [1180, 850],
+      [1600, 1000],
+      [420, 300],
+      [1536, 1024],
+    ]) {
+      nodes.get('yard').getBoundingClientRect = () => ({ width, height });
+      scene.world = id;
+      measureYard();
+      const frame = environmentFrame(width, height, scene);
+      for (const x of across(0, 1, 0.01)) {
+        const foot = fieldToYard({ x, y: 0 }),
+          picX = (foot.x - frame.x) / frame.width,
+          picY = (foot.y - frame.y) / frame.height;
+        assert.ok(
+          picY >= lawnTop(id, picX) - 1e-3,
+          `${id} ${width}x${height}: a tree at (${x.toFixed(2)}, 0) stands at ${picY.toFixed(3)} of the picture`,
+        );
+      }
+    }
 });
