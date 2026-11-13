@@ -52,3 +52,25 @@ test('the drawings are asked for while the backgrounds are still being read', as
   backgroundsAnswered();
   await loading;
 });
+
+test('every drawing is asked for at once, not one after another', async t => {
+  const { loadArt } = await import('../src/yard/art.js');
+  const waiting = [];
+  globalThis.fetch = () => new Promise(resolve => waiting.push(resolve));
+  globalThis.document = { querySelector: () => ({ append() {} }) };
+  globalThis.DOMParser = class {
+    parseFromString() {
+      return { documentElement: null };
+    }
+  };
+  t.after(() => {
+    delete globalThis.fetch;
+    delete globalThis.document;
+    delete globalThis.DOMParser;
+  });
+  const loading = loadArt(['a.svg', 'b.svg', 'c.svg']);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(waiting.length, 3, 'all three on their way before any answers');
+  for (const answer of waiting) answer({ ok: false });
+  await loading;
+});
