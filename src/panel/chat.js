@@ -23,7 +23,7 @@ import {
   toast,
 } from '../core/state.js';
 import { blocks, spoken, waitingLine } from '../core/text.js';
-import { befriend } from '../yard/bond.js';
+import { befriendAll } from '../yard/bond.js';
 import {
   CLI_LABELS,
   cliChoice,
@@ -531,8 +531,8 @@ export function setupChat() {
     try {
       if (group.length) await call('chatWith', round.friends, text);
       else await call('chat', id, text);
-      // Talking is time together too, with each friend in the conversation.
-      for (const friend of [id, ...group]) befriend(friend, 'chat');
+      // Talking is time together too, with each friend in the conversation: one call, one save.
+      befriendAll([id, ...group], 'chat');
       temporaryMessages.delete(id);
     } catch (error) {
       temporaryMessages.set(id, { role: 'error', content: error.message });

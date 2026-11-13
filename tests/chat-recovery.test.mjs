@@ -6,6 +6,7 @@ let resolveChat;
 let resolveRound;
 let updateSucceeds = false;
 const calls = [];
+const befriended = [];
 globalThis.playPets = {
   getChat: async () => ({ ok: true, data: [] }),
   chat: (...args) => {
@@ -20,6 +21,14 @@ globalThis.playPets = {
     }),
   updatePet: async () =>
     updateSucceeds ? { ok: true, data: null } : { ok: false, error: 'Connection could not be saved.' },
+  befriend: async (...args) => {
+    befriended.push(['befriend', ...args.slice(0, 2)]);
+    return { ok: true, data: {} };
+  },
+  befriendMany: async (...args) => {
+    befriended.push(['befriendMany', ...args.slice(0, 2)]);
+    return { ok: true, data: {} };
+  },
 };
 const shared = await import('../src/core/state.js');
 const { companions, setData, setSelected, temporaryMessages } = shared;
@@ -127,4 +136,15 @@ test('a wait that begins or ends changes the buttons, the AI choice and the wait
   assert.equal(get('message').readOnly, false);
   const waiting = get('chat-log').querySelector('.waiting');
   assert.ok(!waiting || waiting.removed, 'and stops saying so');
+});
+
+test('a round answered counts as time together with every friend in it, in one call', async t => {
+  const get = page(t);
+  befriended.length = 0;
+  companions.add('b');
+  get('message').value = 'Where to?';
+  const pending = submit(get);
+  resolveRound({ ok: true, data: [] });
+  await pending;
+  assert.deepEqual(befriended, [['befriendMany', ['a', 'b'], 'chat']]);
 });
