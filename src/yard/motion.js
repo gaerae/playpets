@@ -22,7 +22,7 @@ import { blocked } from './workspace.js';
 
 // How far a friend walks in a millisecond, in field units: strolling, and going somewhere.
 export const STROLL = 0.00022;
-const WALK = 0.0005;
+export const WALK = 0.0005;
 // Where a friend's feet are when it stands at a place (0 to 1 each way), as the ground measures
 // the water and what stands on the field.
 function feetAt(v, at) {
@@ -86,7 +86,10 @@ export function moveFriends(now, dt) {
         if (!reduced.matches) v.canvas?.animate?.(SETTLE, { duration: 260, easing: 'ease-out' });
         trip?.arrive?.(v, now);
       } else {
-        const step = Math.min(1, (dt * (v.speed || (v.trip?.slow ? STROLL : WALK))) / distance);
+        // The first step counts from when the friend set off (trips.js sendTo), not from the frame
+        // before, which may be long ago in a calm yard.
+        const span = Math.min(dt, Math.max(0, now - (v.leftAt ?? -Infinity)));
+        const step = Math.min(1, (span * (v.speed || (v.trip?.slow ? STROLL : WALK))) / distance);
         v.x += dx * step;
         v.y += dy * step;
         pose(v, dx >= 0 ? 'right' : 'left', 150);

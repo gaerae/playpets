@@ -4,7 +4,8 @@ import './support/content.mjs';
 import { reduced } from '../src/core/sprites.js';
 import { setData, views } from '../src/core/state.js';
 import { geometry } from '../src/yard/field.js';
-import { moveFriends } from '../src/yard/motion.js';
+import { moveFriends, WALK } from '../src/yard/motion.js';
+import { sendTo } from '../src/yard/trips.js';
 import { GLIDE_MS, place } from '../src/yard/views.js';
 import { element, installDom } from './support/dom.mjs';
 import { flatField } from './support/flat-field.mjs';
@@ -197,6 +198,40 @@ test('a walking friend glides from step to step, the last one too, and never whi
     friend.target = { x: 0.2, y: 0.5 };
     moveFriends(1100, 50);
     assert.equal(glides.length, 6, 'with reduced motion a friend is set down where it goes');
+  } finally {
+    views.clear();
+    reduced.matches = previousReduced;
+  }
+});
+
+// The loop measures a step from the frame before, which can be long ago in a calm yard: the first
+// step of a walk counts only from when the friend set off, so it does not leap ahead.
+test('the first step of a walk counts from when the friend set off', t => {
+  installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
+  setData({ statuses: {} });
+  const previousReduced = reduced.matches;
+  reduced.matches = false;
+  let clock = 1000;
+  t.mock.method(performance, 'now', () => clock);
+  try {
+    const friend = {
+      pet: { id: 'friend', size: 112 },
+      x: 0.2,
+      y: 0.5,
+      button: element(),
+      label: element(),
+      canvas: { animate() {} },
+    };
+    views.clear();
+    views.set('friend', friend);
+    sendTo(friend, { x: 0.8, y: 0.5 }, { save: false });
+    clock = 1010;
+    moveFriends(1010, 120);
+    const first = friend.x - 0.2;
+    assert.ok(Math.abs(first - 10 * WALK) < 1e-9, `it walked for 10 ms, not 120 (${first})`);
+    clock = 1060;
+    moveFriends(1060, 50);
+    assert.ok(Math.abs(friend.x - 0.2 - first - 50 * WALK) < 1e-9, 'then a whole frame each');
   } finally {
     views.clear();
     reduced.matches = previousReduced;
