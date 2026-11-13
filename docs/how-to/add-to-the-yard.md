@@ -61,6 +61,7 @@
    | `colors` | `petal`, `petal-hi`, `petal-lo`, `heart`. The drawing paints with `var(--petal)` and so on, so the same drawing can come in other colours |
    | `weight` (optional) | How often seeds of its season grow it, among that season's flowers; 1 if left out |
    | `stature` (optional) | How much taller than others it stands once grown |
+   | `foot` (optional) | Where the stem ends, as a share of the drawing's height from its top, when that is above the drawing's edge; outdoors the flower stands there. 1 if left out |
 
 2. Draw it in `src/art/flowers/<id>.svg`. The garden's stages before the bloom are shared (`src/art/plants/`).
 3. Add `garden.kind_<id>` to every string table.
@@ -86,7 +87,9 @@
    | `ball` | The drawing a built kind is rolled from |
    | `stack` | `[base ball width ÷ box width, base ball bottom ÷ box height]` |
    | `dress` | `[{id, art, at: [x, y, w]}]`, in drawing order; `at` is the centre and width as fractions of the box, and the backend reads only the ids |
-   | `shade` | `[width, height, y, x?]` of a soft contact shadow under a drawing with no ground of its own, as fractions of its box; `x` only when the foot is off the middle (`src/yard/decor.js`) |
+   | `foot` | Where the drawing ends, as a share of its box's height from the top, when its lowest pixels are above the box's edge; the gift stands there. 1 if left out |
+   | `shade` | `[width, height, y, x?]` of the contact shadow it stands on, as fractions of its box: centred where the drawing ends (`foot`), at least as wide as its base; `x` only when the base is off the middle (`src/yard/decor.js`). Every gift has one but those drawn as ground (the pond, the stepping stones) |
+   | `feet` | Furniture on spread legs seen at an angle (the bench, the swing): `[[x, y, width]]` of each leg's tip and the leg's width, as fractions of its box. Each gets a small dark shadow, and `shade` becomes the wide soft one under them all, so it holds every foot; the front foot is at `foot` |
    | `hooks` | Where ornaments hang on this drawing, as fractions of its box; only `xmas_tree` has them, and `ORNAMENT_HOOKS` in `garden.rs` is their count |
    | `baubles` | Where the drawing's painted baubles are, `[x, y, width]` like a hook; only `xmas_tree` and its `night` have them. `tests/content.test.mjs` keeps each hook on a painted bauble or clear of them all |
    | `night` | The gift's Christmas night look; only `xmas_tree` has one. Read by `src/yard/christmas-night.js` (see below); its `hooks` name the same places on the grand tree |
