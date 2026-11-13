@@ -19,3 +19,20 @@ export function put(node, key, value) {
 export function putAttribute(node, name, value) {
   if (node.getAttribute(name) !== value) node.setAttribute(name, value);
 }
+
+/** Calls `fn` each time the screen's density (devicePixelRatio) changes: the window moved to another
+ * screen, or the page was zoomed. The window keeps its size, so no resize says so, and a canvas
+ * sized for the old density shows blurred. Each query names one density, so it is asked again at
+ * the new one. */
+export function onDensityChange(fn) {
+  const listen = () =>
+    globalThis.matchMedia?.(`(resolution: ${globalThis.window?.devicePixelRatio || 1}dppx)`)?.addEventListener?.(
+      'change',
+      () => {
+        listen();
+        fn();
+      },
+      { once: true },
+    );
+  listen();
+}
