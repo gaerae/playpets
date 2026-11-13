@@ -312,14 +312,26 @@ setupWelcome({ invite, more: openInvite });
 setupSettings();
 setupUpdates();
 
+// Pushes that come together are drawn once. A chat turn sends a status and a change on its way out
+// and the same again with the reply, each its own message, and the start sends a few more. The
+// state is taken at once, so the drawing always shows the latest; it comes on a zero timer, after
+// the messages already waiting, as the page's other timing does (core/ticker.js). Who was talked
+// with, and through what, is kept from before the first of them.
+let pushed = null;
 api.onChange(next => {
-  const old = selected,
-    ai = pet()?.providerId;
+  if (!pushed) {
+    pushed = { old: selected, ai: pet()?.providerId };
+    setTimeout(drawPushed, 0);
+  }
   setData(next);
+});
+function drawPushed() {
+  const { old, ai } = pushed;
+  pushed = null;
   render();
   // What the log says before a first word depends on whether the friend has an AI.
   if (old !== selected || ai !== pet()?.providerId) refreshChat();
-});
+}
 // The friends chat among themselves every so often when the setting is on: not while the window
 // is hidden, not while someone is answering, and only with two friends who have an AI.
 const AUTO_CHATTER_MS = 20 * 60 * 1000;

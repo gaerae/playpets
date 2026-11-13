@@ -216,3 +216,41 @@ test('a status event draws its friend, the summary, and the panel only when it i
     "the panel shows that friend's state",
   );
 });
+
+// The push handler of app.js (api.onChange), with the page around it: what it drew, and from what.
+async function pushHandler() {
+  const source = await readFile('src/app.js', 'utf8');
+  const start = source.indexOf('\napi.onChange(');
+  const block = source.slice(source.lastIndexOf('\n\n', start), source.indexOf('\n// The friends chat among', start));
+  const drawn = [],
+    timers = [];
+  const context = {
+    selected: 'a',
+    data: { n: 0, pets: [{ id: 'a', providerId: '' }] },
+    api: { onChange: fn => (context.handler = fn) },
+    setData: value => (context.data = value),
+    pet: () => context.data?.pets?.find(p => p.id === context.selected),
+    render: () => drawn.push(['render', context.data.n]),
+    refreshChat: () => drawn.push(['refreshChat']),
+    setTimeout: fn => timers.push(fn),
+  };
+  vm.runInNewContext(block, context);
+  const settle = () => {
+    while (timers.length) timers.shift()();
+  };
+  return { push: next => context.handler(next), settle, drawn, context };
+}
+
+// A chat turn sends a status and a change on its way out and the same with the reply, each its
+// own message: the pushes that come together are drawn once, from the last.
+test('pushes that come together are drawn once, from the latest state', async () => {
+  const { push, settle, drawn, context } = await pushHandler();
+  for (const n of [1, 2, 3]) push({ n, pets: [{ id: 'a', providerId: '' }] });
+  assert.deepEqual(drawn, [], 'not drawn under the push');
+  assert.equal(context.data.n, 3, 'the state is taken at once');
+  settle();
+  assert.deepEqual(drawn, [['render', 3]]);
+  push({ n: 4, pets: [{ id: 'a', providerId: 'local' }] });
+  settle();
+  assert.deepEqual(drawn.slice(1), [['render', 4], ['refreshChat']], 'a friend given an AI has its log redrawn');
+});
