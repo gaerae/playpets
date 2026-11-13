@@ -90,12 +90,14 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
         paint();
       }
     };
-    image.onload = settle(true);
-    image.onerror = settle(false);
     const sources = worldFor(scene.world).imageSources;
     image.src = sources
       ? sources[name.slice(name.lastIndexOf(':') + 1)]
       : new URL(`../art/environments/${name}.webp`, import.meta.url).href;
+    // Painted once decoded, as raster.js does: a picture only loaded is decoded inside the first
+    // drawImage, on the main thread (a 1536 x 1024 picture, a frame of up to 90 ms). decode() works
+    // it out off the main thread, and fails as the load would.
+    image.decode().then(settle(true), settle(false));
   }
   function paint() {
     const w = yard.clientWidth,
