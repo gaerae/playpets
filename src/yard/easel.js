@@ -125,7 +125,9 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
     const mode = illustrated ? 'illustrated' : 'painted',
       previousMode = yard.dataset.environment;
     yard.dataset.environment = mode;
-    if (previousMode && previousMode !== mode) geometryChanged();
+    // Before the first painting the field already follows the picture's geometry (field.js), so a
+    // painted land from the start moves the field too.
+    if ((previousMode ?? 'illustrated') !== mode) geometryChanged();
     if (illustrated) paintEnvironment(landContext, image, w, h, scene);
     else if (worldAllows(scene.world, 'sky')) paintLand(landContext, w, h, pal, scene);
     else {
