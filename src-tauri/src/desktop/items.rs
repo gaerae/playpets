@@ -24,6 +24,17 @@ fn plant_box(kind: &str, planted: u64, now: u64) -> (f64, f64) {
     ((PLANT_BOX.0 * tall).round(), (PLANT_BOX.1 * tall).round())
 }
 
+/// Where a flower's drawing ends on the desktop at `now`, as a share of its box from the top: a cut
+/// stem may end above it once it blooms (catalog.json "foot"); before, it stands in its soil at the
+/// box's edge, as the overlay draws it (src/overlay/growing.js).
+fn plant_foot(kind: &str, planted: u64, now: u64) -> f64 {
+    if now.saturating_sub(planted) >= catalog().bloom_after_ms() {
+        catalog().bloom_foot(kind)
+    } else {
+        1.0
+    }
+}
+
 /// Whether the yard hides a decoration kind: one it last reported (`hidden`), or, before it reports
 /// (`None`), every kind that comes and goes.
 fn left_out(kind: &str, hidden: Option<&[String]>) -> bool {
@@ -52,6 +63,7 @@ pub fn items(pets: &[Pet], garden: &Garden, hidden: Option<&[String]>) -> Vec<It
         size: p.size,
         saved: p.desktop_position.map(|q| (q.x as f64, q.y as f64)),
         decor: None,
+        foot: 1.0,
     });
     let decor = garden
         .decor
@@ -64,6 +76,7 @@ pub fn items(pets: &[Pet], garden: &Garden, hidden: Option<&[String]>) -> Vec<It
                 size: 0.0,
                 saved: d.desktop_position.map(|q| (q.x as f64, q.y as f64)),
                 decor: Some((d.kind.clone(), (w * DECOR_SCALE).round(), (h * DECOR_SCALE).round())),
+                foot: catalog().gift_foot(&d.kind),
             }
         });
     // A flower and a tree stay out whatever the yard shows: the desktop is not any one place.
@@ -75,6 +88,7 @@ pub fn items(pets: &[Pet], garden: &Garden, hidden: Option<&[String]>) -> Vec<It
             size: 0.0,
             saved: p.desktop_position.map(|q| (q.x as f64, q.y as f64)),
             decor: Some((p.kind.clone(), w, h)),
+            foot: plant_foot(&p.kind, p.planted, now),
         }
     });
     // A tree's box is its stage's, as the backend last grew it (discovery.rs grow_trees).
@@ -85,6 +99,7 @@ pub fn items(pets: &[Pet], garden: &Garden, hidden: Option<&[String]>) -> Vec<It
             size: 0.0,
             saved: t.desktop_position.map(|q| (q.x as f64, q.y as f64)),
             decor: Some((t.kind.clone(), w, h)),
+            foot: 1.0,
         })
     });
     friends.chain(decor).chain(plants).chain(trees).collect()
@@ -214,6 +229,29 @@ mod tests {
         assert_eq!(plant_box("tulip", 0, 10 * bud), (50.0, 75.0));
         // A clock set back reads as just planted.
         assert_eq!(plant_box("sunflower", 5000, 1000), (50.0, 75.0));
+    }
+
+    // A drawing may end above its box's edge (catalog.json "foot"); the overlay stands it there.
+    #[test]
+    fn what_goes_out_says_where_its_drawing_ends() {
+        let (mut pets, mut garden) = yard();
+        garden.decor.push(Decor {
+            id: "sign".into(),
+            kind: "signpost".into(),
+            ..Decor::default()
+        });
+        set(&mut pets, &mut garden, "bench", true).unwrap();
+        set(&mut pets, &mut garden, "sign", true).unwrap();
+        set(&mut pets, &mut garden, "pip", true).unwrap();
+        let out = items(&pets, &garden, Some(&[]));
+        let foot = |id: &str| out.iter().find(|i| i.id == id).unwrap().foot;
+        assert_eq!((foot("bench"), foot("sign")), (0.94, 0.82));
+        assert_eq!(foot("pip"), 1.0, "a friend's box is its own");
+        // A flower's stem ends above its drawing once it blooms; before, it stands in its soil.
+        let bloom = catalog().bloom_after_ms();
+        assert_eq!(plant_foot("tulip", 1000, 1000 + bloom - 1), 1.0);
+        assert_eq!(plant_foot("tulip", 1000, 1000 + bloom), 0.932);
+        assert_eq!(plant_foot("no-such-flower", 0, bloom), 1.0);
     }
 
     fn garden_with_growing() -> (Vec<Pet>, Garden) {

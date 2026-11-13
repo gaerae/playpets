@@ -40,6 +40,9 @@ pub struct Item {
     pub saved: Option<(f64, f64)>,
     /// A decoration: its kind and the box it is drawn in. It stays where it is put, on the floor.
     pub decor: Option<(String, f64, f64)>,
+    /// Where a decoration's drawing ends, as a share of its box's height from the top (catalog.json
+    /// "foot"): it stands on the floor there. 1 for a friend.
+    pub foot: f64,
 }
 
 struct Drag {
@@ -101,8 +104,8 @@ fn dims(item: &Item) -> (f64, f64) {
 const SPRITE_FOOT: f64 = FOOT + 4.0;
 /// How often a friend setting off on a stroll goes over to a decoration on its screen instead.
 const VISIT_CHANCE: f64 = 0.4;
-/// The floor line on a screen: a foot this far above its work area's bottom. Friends start in a row
-/// on it, and a gift, a flower or a planted tree always rests on it.
+/// The floor line on a screen: this far above its work area's bottom. Friends start in a row with
+/// their sprites' feet on it, and the drawing of a gift, a flower or a planted tree always ends on it.
 const FLOOR_GAP: f64 = 25.0;
 /// The top of a friend's box is for its speech bubble, which lets clicks through.
 const BUBBLE_ROOM: f64 = 60.0;
@@ -259,8 +262,9 @@ fn bridge_js(display: &str) -> String {
     format!("{}\nwindow.__DISPLAY='{}';", crate::commands::bridge_js(), display)
 }
 
-/// A thing out whose box changed size (a tree that grew) keeps standing where it stood: the bottom
-/// middle of its box stays put. Returns the ones moved.
+/// A thing out whose box changed size (a tree that grew), or whose drawing now ends elsewhere in it (a
+/// flower that bloomed), keeps standing where it stood: the middle of where its drawing ends stays
+/// put. Returns the ones moved.
 fn keep_feet(old: &[Item], new: &[Item], positions: &mut HashMap<String, (f64, f64)>) -> Vec<String> {
     let mut moved = Vec::new();
     for item in new {
@@ -268,8 +272,8 @@ fn keep_feet(old: &[Item], new: &[Item], positions: &mut HashMap<String, (f64, f
             continue;
         };
         let ((w0, h0), (w1, h1)) = (dims(before), dims(item));
-        if (w0, h0) != (w1, h1) {
-            *at = (at.0 + (w0 - w1) / 2.0, at.1 + h0 - h1);
+        if (w0, h0, before.foot) != (w1, h1, item.foot) {
+            *at = (at.0 + (w0 - w1) / 2.0, at.1 + h0 * before.foot - h1 * item.foot);
             moved.push(item.id.clone());
         }
     }
@@ -368,8 +372,9 @@ fn place_newcomers(d: &mut Inner, mons: &[Mon]) -> bool {
 /// and down the screen as well as across (roam.rs).
 fn set_down(item: &Item, area: &Bounds, at: (f64, f64)) -> (f64, f64) {
     let (w, h) = dims(item);
+    // On the line friends' feet start on: a friend's box ends SPRITE_FOOT below its sprite's feet.
     let y = if item.decor.is_some() {
-        area.y + area.h - h - FLOOR_GAP
+        area.y + area.h - FLOOR_GAP - SPRITE_FOOT - h * item.foot
     } else {
         at.1
     };
@@ -668,6 +673,7 @@ mod tests {
             size: 0.0,
             saved: None,
             decor: Some(("cherry".into(), w, h)),
+            foot: 1.0,
         };
         let mut positions = HashMap::from([("cherry".to_string(), (500.0, 600.0))]);
         assert!(keep_feet(&[tree(35.0, 40.0)], &[tree(35.0, 40.0)], &mut positions).is_empty());
@@ -679,6 +685,14 @@ mod tests {
         assert_eq!(positions["cherry"], (482.0, 545.0));
         // Something new has no size before: it is placed as a newcomer is.
         assert!(keep_feet(&[], &[tree(160.0, 170.0)], &mut positions).is_empty());
+        // A flower that blooms keeps its box, but its stem now ends 90% down it: it comes down so
+        // the stem ends where the soil did (the box's bottom, 640).
+        let bloom = Item {
+            foot: 0.9,
+            ..tree(71.0, 95.0)
+        };
+        assert_eq!(keep_feet(&[tree(71.0, 95.0)], &[bloom], &mut positions), ["cherry"]);
+        assert!((positions["cherry"].1 + 95.0 * 0.9 - 640.0).abs() < 1e-9);
     }
 
     fn screen() -> Vec<Mon> {
@@ -697,6 +711,7 @@ mod tests {
             size: 96.0,
             saved,
             decor: decor.map(|(w, h)| (id.to_string(), w, h)),
+            foot: 1.0,
         }
     }
     fn dropped(d: &mut Inner, id: &str, at: (f64, f64)) -> Vec<(String, i64, i64)> {
@@ -712,8 +727,9 @@ mod tests {
         arrivals
     }
 
-    // The work area's floor line: a foot 25px above its bottom (825).
-    const FLOOR: f64 = 800.0;
+    // Where friends' feet stand in their first row, and what stands on the floor stands: the floor
+    // line 25px above the work area's bottom (825), less the room under a friend's sprite.
+    const FEET: f64 = 772.0;
 
     #[test]
     fn a_tree_a_flower_or_a_gift_let_go_mid_screen_comes_down_to_the_floor() {
@@ -729,14 +745,14 @@ mod tests {
             // Let go high up the screen: it keeps its x, and its foot rests on the floor line.
             assert_eq!(
                 dropped(&mut d, id, (600.0, 200.0)),
-                [(id.to_string(), 600, (FLOOR - h) as i64)]
+                [(id.to_string(), 600, (FEET - h) as i64)]
             );
-            assert_eq!(d.positions[id], (600.0, FLOOR - h));
+            assert_eq!(d.positions[id], (600.0, FEET - h));
             assert!(std::mem::take(&mut d.dropped), "the windows hear where it came down");
             // Let go below the floor, or past the screen's side: on the floor, inside the screen.
             dropped(&mut d, id, (1500.0, 790.0));
             let (w, _) = dims(d.pets.iter().find(|p| p.id == id).unwrap());
-            assert_eq!(d.positions[id], (1440.0 - w, FLOOR - h));
+            assert_eq!(d.positions[id], (1440.0 - w, FEET - h));
         }
     }
 
@@ -762,6 +778,36 @@ mod tests {
         assert!(row("miso").get("dragging").is_none(), "one strolling is not held");
     }
 
+    // A signpost's drawing ends 82% down its box; friends' feet stand SPRITE_FOOT above their box's
+    // bottom. On the floor, the two meet on one line.
+    #[test]
+    fn a_thing_on_the_floor_stands_where_the_friends_feet_do() {
+        let sign = Item {
+            foot: 0.82,
+            ..out("sign", None, Some((42.0, 71.0)))
+        };
+        let mut d = Inner {
+            visible: true,
+            pets: vec![out("pip", None, None), sign],
+            ..Inner::default()
+        };
+        assert!(place_newcomers(&mut d, &screen()));
+        let (_, h) = dims(&d.pets[0]);
+        let feet = d.positions["pip"].1 + h - SPRITE_FOOT;
+        assert!(
+            (feet - FEET).abs() < 1e-9,
+            "friends start in a row on the line ({feet})"
+        );
+        let drawn = |d: &Inner| d.positions["sign"].1 + 71.0 * 0.82;
+        assert!(
+            (drawn(&d) - FEET).abs() < 1e-9,
+            "its drawing ends on it ({})",
+            drawn(&d)
+        );
+        dropped(&mut d, "sign", (600.0, 200.0));
+        assert!((drawn(&d) - FEET).abs() < 1e-9, "let go mid-screen too ({})", drawn(&d));
+    }
+
     #[test]
     fn a_friend_let_go_stays_where_it_is_put() {
         let mut d = Inner {
@@ -784,9 +830,9 @@ mod tests {
         };
         assert!(place_newcomers(&mut d, &screen()));
         // Saved high up the screen: back on the floor, where it was across.
-        assert_eq!(d.positions["cherry"], (300.0, FLOOR - 170.0));
+        assert_eq!(d.positions["cherry"], (300.0, FEET - 170.0));
         // A first time out: on the floor from the right.
-        assert_eq!(d.positions["tulip"], (1440.0 - 50.0 - 60.0 - 180.0, FLOOR - 75.0));
+        assert_eq!(d.positions["tulip"], (1440.0 - 50.0 - 60.0 - 180.0, FEET - 75.0));
         // A friend keeps its saved spot.
         assert_eq!(d.positions["pip"], (300.0, 120.0));
     }
