@@ -1,4 +1,5 @@
 // Startup issues remain available without taking space from the scenery.
+import { put } from './dom.js';
 import { t } from './i18n.js';
 import { $ } from './state.js';
 
@@ -14,9 +15,9 @@ export function renderNotices(messages = [], open = false) {
     dismissed = '';
   }
   current = signature;
-  $('warnings').hidden = !warnings.length || signature === dismissed;
-  $('warning-summary').textContent = t('notices.title', { count: warnings.length });
-  $('warning-messages').textContent = warnings.join('\n\n');
+  put($('warnings'), 'hidden', !warnings.length || signature === dismissed);
+  put($('warning-summary'), 'textContent', t('notices.title', { count: warnings.length }));
+  put($('warning-messages'), 'textContent', warnings.join('\n\n'));
 }
 
 function dismiss() {

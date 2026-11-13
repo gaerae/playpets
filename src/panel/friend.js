@@ -2,6 +2,7 @@
 // done to them.
 
 import { agentsOf } from '../core/agents.js';
+import { put } from '../core/dom.js';
 import { joinList, t } from '../core/i18n.js';
 import { popup } from '../core/menu.js';
 import { drawSprite, photoOver } from '../core/sprites.js';
@@ -33,50 +34,66 @@ export function select(id) {
   for (const [key, v] of views) v.button.classList.toggle('selected', key === id);
   refreshChat();
 }
+// What the agent chip and the list of friends were last built from: a push that changes neither
+// leaves them as they are (and the list keeps an open dropdown).
+let chipsKey = null,
+  friendsKey = null;
+// The tab is drawn again on every push, mostly with nothing changed: what is written is written only
+// when it differs (core/dom.js put).
 export function renderPanel() {
   const p = pet();
-  $('empty-panel').hidden = !!p;
-  $('pet-panel').hidden = !p;
+  put($('empty-panel'), 'hidden', !!p);
+  put($('pet-panel'), 'hidden', !p);
   if (!p) return;
-  $('selected-name').textContent = name(p);
+  put($('selected-name'), 'textContent', name(p));
   // The pill is about the coding agent; a chat answer shows in the log, not here.
   const agentState = agentStateOf(data, p.id);
-  $('status').textContent = labels[agentState];
+  put($('status'), 'textContent', labels[agentState]);
   // Only something to say when an agent is at work, waiting or done: resting is every friend's state.
-  $('status').hidden = agentState === 'idle';
-  $('status').title = agentState === 'idle' ? '' : plain(statusOf(data, p.id)?.message || '');
+  put($('status'), 'hidden', agentState === 'idle');
+  put($('status'), 'title', agentState === 'idle' ? '' : plain(statusOf(data, p.id)?.message || ''));
   // Who it is to you, beside how close you are: always said (a friend too), and a click changes it.
   const relation = p.relation || 'friend';
-  $('relation-chip').textContent = t(`relation.${relation}`);
-  $('relation-chip').dataset.relation = relation;
+  put($('relation-chip'), 'textContent', t(`relation.${relation}`));
+  put($('relation-chip').dataset, 'relation', relation);
   // Under the header: which coding agents report to this friend (the composer's picker says the AI itself).
   const agents = agentsOf(data, p.id);
   const chip = (text, cls) =>
     Object.assign(document.createElement('span'), { className: `fact-chip ${cls}`, textContent: text });
-  $('friend-chips').replaceChildren(
-    ...(agents.length ? [chip(t('friend.agent_chip', { agents: joinList(agents) }), 'agent')] : []),
-  );
+  const chips = agents.length ? t('friend.agent_chip', { agents: joinList(agents) }) : '';
+  if (chips !== chipsKey) {
+    chipsKey = chips;
+    $('friend-chips').replaceChildren(...(chips ? [chip(chips, 'agent')] : []));
+  }
   renderCloseness(p);
   renderChat(p);
   // With several friends around, the name becomes a list to switch who you are talking to.
   const many = data.pets.length > 1;
-  $('selected-name').hidden = many;
-  $('friend-select').hidden = !many;
+  put($('selected-name'), 'hidden', many);
+  put($('friend-select'), 'hidden', !many);
   if (many) {
-    $('friend-select').replaceChildren(...data.pets.map(q => new Option(name(q), q.id)));
-    $('friend-select').value = p.id;
+    const friends = JSON.stringify(data.pets.map(q => [q.id, name(q)]));
+    if (friends !== friendsKey) {
+      friendsKey = friends;
+      $('friend-select').replaceChildren(...data.pets.map(q => new Option(name(q), q.id)));
+    }
+    put($('friend-select'), 'value', p.id);
   }
-  $('instance-id').textContent = t('friend.id', { id: p.id });
+  put($('instance-id'), 'textContent', t('friend.id', { id: p.id }));
 }
 // How close the friend is, under its name, and what the next level brings.
 function renderCloseness(p) {
   const { level, share, left } = progressOf(p.id);
-  $('bond-row').hidden = false;
-  $('bond-name').textContent = t(`bond.level_${level}`);
-  $('bond-fill').style.width = `${Math.round(share * 100)}%`;
-  $('bond-next').textContent = left
-    ? t('bond.next', { level: t(`bond.level_${level + 1}`), left, unlock: t(`bond.unlock_${level + 1}`) })
-    : t('bond.max');
+  put($('bond-row'), 'hidden', false);
+  put($('bond-name'), 'textContent', t(`bond.level_${level}`));
+  put($('bond-fill').style, 'width', `${Math.round(share * 100)}%`);
+  put(
+    $('bond-next'),
+    'textContent',
+    left
+      ? t('bond.next', { level: t(`bond.level_${level + 1}`), left, unlock: t(`bond.unlock_${level + 1}`) })
+      : t('bond.max'),
+  );
 }
 export function drawPortrait(now) {
   const p = pet();

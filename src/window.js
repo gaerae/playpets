@@ -1,5 +1,6 @@
 // One frameless window: its size and its always-on-top switch are independent.
 import { closeControls, closeScene } from './core/controls.js';
+import { putAttribute } from './core/dom.js';
 import { t } from './core/i18n.js';
 import { onEscape, onShortcut } from './core/keys.js';
 import { $, call, data, guard } from './core/state.js';
@@ -33,8 +34,10 @@ export async function setFullscreen(on) {
 }
 
 export function renderWindow(on = !!data.alwaysOnTop) {
-  $('always-on-top')?.setAttribute('aria-pressed', String(on));
-  document.querySelector('[data-context-action="pin"]')?.setAttribute('aria-checked', String(on));
+  const button = $('always-on-top'),
+    item = document.querySelector('[data-context-action="pin"]');
+  if (button) putAttribute(button, 'aria-pressed', String(on));
+  if (item) putAttribute(item, 'aria-checked', String(on));
 }
 
 export async function setAlwaysOnTop(on) {

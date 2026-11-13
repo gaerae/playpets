@@ -2,6 +2,7 @@
 
 import { agentsOf } from '../core/agents.js';
 import { lookAt, renewsClock } from '../core/animation.js';
+import { put, putAttribute } from '../core/dom.js';
 import { joinList, list, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { clamp, pick } from '../core/math.js';
@@ -169,22 +170,31 @@ export function cheer(v, lines, { as = 'jump', ms = 1100, mark = '✦', say = 30
   if (mark) effect(v, mark);
   bubble(v, pick(list(lines)), say);
 }
-function fit(v) {
-  const size = sizeOf(v.pet);
-  v.button.style.width = `${size}px`;
-  v.canvas.style.width = `${size}px`;
-  v.canvas.style.height = `${petHeight(v.pet)}px`;
-  v.label.style.width = `${size}px`;
-  // The body's room in the label follows the friend's depth (place).
-  v.depth = null;
+// Sizes a friend's body, canvas and label for its size, and stands it where it is. The sizes are
+// written only when the size changed or the yard was resized (`resized`): a push that leaves them
+// as they were writes nothing, and keeps the depth place() last wrote. `box` is the dock (dockBox),
+// measured once for every friend.
+function fit(v, box, resized = false) {
+  const size = sizeOf(v.pet),
+    height = petHeight(v.pet);
+  const sized = resized || v.fitted !== `${size}|${height}`;
+  if (sized) {
+    v.fitted = `${size}|${height}`;
+    v.button.style.width = `${size}px`;
+    v.canvas.style.width = `${size}px`;
+    v.canvas.style.height = `${height}px`;
+    v.label.style.width = `${size}px`;
+    // The body's room in the label follows the friend's depth (place).
+    v.depth = null;
+  }
   place(v);
-  clearOfDock(v);
-  keepInside(v);
+  clearOfDock(v, box);
+  if (sized) keepInside(v);
 }
 /** Lifts a friend standing behind the dock to stand just above it, in view: one saved at the front
- * edge before friends walked past the field's foot, one dropped there, or one the dock grew over. */
-export function clearOfDock(v) {
-  const box = dockBox();
+ * edge before friends walked past the field's foot, one dropped there, or one the dock grew over.
+ * `box` is the dock (dockBox), when the caller has measured it for many friends. */
+export function clearOfDock(v, box = dockBox()) {
   if (!box) return;
   const foot = footOf(v);
   if (!underDock(foot.x, foot.y, sizeOf(v.pet) / 2, box)) return;
@@ -247,7 +257,7 @@ function stackLabel(v) {
 const tagName = (v, p) => (v.button.classList.contains('tagger') ? t('game.tagger_name', { name: name(p) }) : name(p));
 /** Rewords the tag after the tagger changed; the rest of the tag (agents) stays. */
 export function labelTag(v) {
-  v.tagName.textContent = tagName(v, v.pet);
+  put(v.tagName, 'textContent', tagName(v, v.pet));
 }
 // The tag is also the way to talk: under the pointer it shows a speech mark, and a click on it
 // (not a drag) opens the conversation, as the name button does on the desktop.
@@ -469,7 +479,11 @@ function createView(p) {
   return v;
 }
 // Brings the yard in line with the backend: friends that left go, new ones appear, the rest update.
+// It runs on every push, mostly with nothing changed: what is written is written only when it differs.
 export function syncViews() {
+  // The dock, measured once for every friend and before anything here is written: a read after a
+  // write lays the page out again.
+  const box = dockBox();
   for (const [id, v] of views)
     if (!data.pets.some(p => p.id === id)) {
       release(v);
@@ -494,13 +508,14 @@ export function syncViews() {
     // One agent is named on the tag; more are counted, and the full list is the tooltip.
     const agents = agentsOf(data, p.id);
     labelTag(v);
-    v.agents.textContent = agents.length > 1 ? `${agents[0]} +${agents.length - 1}` : agents[0] || '';
-    v.agents.hidden = !agents.length;
-    v.agents.title = agents.length > 1 ? joinList(agents) : '';
-    v.tag.title = t('friend.talk', { name: name(p) });
+    put(v.agents, 'textContent', agents.length > 1 ? `${agents[0]} +${agents.length - 1}` : agents[0] || '');
+    put(v.agents, 'hidden', !agents.length);
+    put(v.agents, 'title', agents.length > 1 ? joinList(agents) : '');
+    put(v.tag, 'title', t('friend.talk', { name: name(p) }));
     const state = agentState(p);
     // The dot's colour is said in words too, for anyone who cannot see it.
-    v.button.setAttribute(
+    putAttribute(
+      v.button,
       'aria-label',
       state === 'idle'
         ? t('yard.pat_name', { name: name(p) })
@@ -509,10 +524,10 @@ export function syncViews() {
     v.button.classList.toggle('selected', p.id === selected);
     v.button.classList.toggle('thinking', data.busy.includes(p.id));
     if (state === 'done' && v.dot.dataset.state && v.dot.dataset.state !== 'done') effect(v, '✦');
-    v.dot.hidden = state === 'idle';
-    v.dot.dataset.state = state;
-    v.dot.title = state === 'idle' ? '' : labels[state] || '';
-    fit(v);
+    put(v.dot, 'hidden', state === 'idle');
+    put(v.dot.dataset, 'state', state);
+    put(v.dot, 'title', state === 'idle' ? '' : labels[state] || '');
+    fit(v, box);
   }
 }
 // `handlers`: gameTap(view), select(id), openChat(id), patted(id) after a pat, and resized() once
@@ -523,6 +538,7 @@ export function setupViews(handlers) {
   new ResizeObserver(() => {
     measureYard();
     on.resized();
-    for (const v of views.values()) fit(v);
+    const box = dockBox();
+    for (const v of views.values()) fit(v, box, true);
   }).observe($('yard'));
 }

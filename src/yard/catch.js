@@ -12,6 +12,7 @@ import {
   playCompanionAction,
   prepareCompanionAction,
 } from '../core/companion-actions.js';
+import { put } from '../core/dom.js';
 import { list, t } from '../core/i18n.js';
 import { between, pick } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
@@ -406,8 +407,8 @@ function at(e) {
 export function syncFishingAction() {
   const tool = $('fish-tool');
   if (!tool) return;
-  tool.hidden = false;
-  tool.disabled = !data.pets.length || !!game || !worldAllows(scene.world, 'fishing');
+  put(tool, 'hidden', false);
+  put(tool, 'disabled', !data.pets.length || !!game || !worldAllows(scene.world, 'fishing'));
 }
 /** Wires catching to the yard's clicks and its pointer. Called once, by app.js, which hands over
  * `wish` (petals.js): it takes the point of a caught petal. */

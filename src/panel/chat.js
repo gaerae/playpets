@@ -2,6 +2,7 @@
 
 import { logEntries } from '../core/chatlog.js';
 import { confirmAction } from '../core/confirm.js';
+import { put, putAttribute } from '../core/dom.js';
 import { joinList, t } from '../core/i18n.js';
 import { composing } from '../core/keys.js';
 import { dropdown } from '../core/menu.js';
@@ -42,6 +43,8 @@ import {
 } from './connection.js';
 
 let providerKey = '',
+  // What the companion chips were last built from (renderChat).
+  chipsKey = '',
   chatEpoch = 0;
 // The bridge may reject before its first busy-state update reaches the page.
 const pendingChats = new Set();
@@ -138,11 +141,11 @@ function signInFor(p) {
 function syncSignIn(p) {
   const kind = signInFor(p);
   renderSignIn($('chat-sign-in'), kind);
-  for (const node of $('chat-log').querySelectorAll('.connect-cta, .chat-starters')) node.hidden = !!kind;
-  $('message').disabled = !!kind;
+  for (const node of $('chat-log').querySelectorAll('.connect-cta, .chat-starters')) put(node, 'hidden', !!kind);
+  put($('message'), 'disabled', !!kind);
   // The box itself says why it waits: a small window hides the note under it.
-  $('message').placeholder = t(kind ? 'signin.note' : 'chat.placeholder');
-  if (kind) $('chat-note').textContent = t('signin.note');
+  put($('message'), 'placeholder', t(kind ? 'signin.note' : 'chat.placeholder'));
+  if (kind) put($('chat-note'), 'textContent', t('signin.note'));
   syncSend();
 }
 export function renderChat(p) {
@@ -156,45 +159,58 @@ export function renderChat(p) {
   $('provider-select').value = p.providerId || '';
   $('provider-select').disabled = data.busy.includes(p.id);
   const busy = data.busy.includes(p.id);
-  $('send').hidden = busy;
-  $('cancel').hidden = !busy;
+  put($('send'), 'hidden', busy);
+  put($('cancel'), 'hidden', !busy);
   // A friend with no AI can still be written to: sending connects one first.
   // Read-only, not disabled: a disabled box drops the focus, and every turn would need a click.
-  $('message').readOnly = busy;
+  put($('message'), 'readOnly', busy);
   syncSend();
   // Nothing said yet, nothing to clear.
-  $('clear-chat').disabled = busy || !hasHistory;
-  $('chat-log').setAttribute('aria-busy', String(busy));
-  $('chat-note').textContent = busy ? t('chat.note_busy') : p.providerId ? t('chat.note_keys') : t('chat.note_connect');
+  put($('clear-chat'), 'disabled', busy || !hasHistory);
+  putAttribute($('chat-log'), 'aria-busy', String(busy));
+  put(
+    $('chat-note'),
+    'textContent',
+    busy ? t('chat.note_busy') : p.providerId ? t('chat.note_keys') : t('chat.note_connect'),
+  );
   // Who joins in is another friend with an AI: the one talked with now (picked again after a friend
   // left) and friends no longer here or without an AI drop out.
   for (const id of companions)
     if (id === p.id || !data.pets.some(q => q.id === id && q.providerId)) companions.delete(id);
   const others = data.pets.filter(q => q.id !== p.id && q.providerId);
-  $('companions').hidden = !p.providerId || !others.length;
-  $('companion-chips').replaceChildren();
-  for (const q of others) {
-    const chip = document.createElement('button');
-    chip.type = 'button';
-    chip.className = `detect-chip${companions.has(q.id) ? ' on' : ''}`;
-    chip.setAttribute('aria-pressed', String(companions.has(q.id)));
-    chip.textContent = name(q);
-    chip.disabled = busy;
-    chip.onclick = () => {
-      if (companions.has(q.id)) companions.delete(q.id);
-      else if (companions.size < 3) companions.add(q.id);
-      else return toast(t('chat.max_companions'));
-      const focused = document.activeElement === chip;
-      renderChat(p);
-      if (focused) $('companion-chips').children[others.indexOf(q)]?.focus();
-    };
-    $('companion-chips').append(chip);
+  put($('companions'), 'hidden', !p.providerId || !others.length);
+  // The chips are built again only when what they show changed: a push mostly changes none of it.
+  const chips = JSON.stringify([p.id, others.map(q => [q.id, name(q)]), [...companions], busy]);
+  if (chips !== chipsKey) {
+    chipsKey = chips;
+    $('companion-chips').replaceChildren();
+    for (const q of others) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = `detect-chip${companions.has(q.id) ? ' on' : ''}`;
+      chip.setAttribute('aria-pressed', String(companions.has(q.id)));
+      chip.textContent = name(q);
+      chip.disabled = busy;
+      chip.onclick = () => {
+        if (companions.has(q.id)) companions.delete(q.id);
+        else if (companions.size < 3) companions.add(q.id);
+        else return toast(t('chat.max_companions'));
+        const focused = document.activeElement === chip;
+        renderChat(p);
+        if (focused) $('companion-chips').children[others.indexOf(q)]?.focus();
+      };
+      $('companion-chips').append(chip);
+    }
   }
-  $('companion-summary').textContent = companions.size
-    ? t('chat.with', {
-        names: joinList(data.pets.filter(q => companions.has(q.id)).map(name)),
-      })
-    : t('chat.pick_companions');
+  put(
+    $('companion-summary'),
+    'textContent',
+    companions.size
+      ? t('chat.with', {
+          names: joinList(data.pets.filter(q => companions.has(q.id)).map(name)),
+        })
+      : t('chat.pick_companions'),
+  );
   syncWaiting();
   syncSignIn(p);
 }
@@ -352,6 +368,7 @@ export async function refreshChat() {
 }
 /** The panel just opened: a log filled while hidden could not scroll, so it goes to its end now. */
 export function chatShown() {
+  if (unmeasured) syncSend();
   if (!endUnseen) return;
   endUnseen = false;
   const log = $('chat-log');
@@ -373,10 +390,20 @@ export function chatEvent(event) {
   if (event.type === 'chat-message' && (event.petId === selected || companions.has(event.petId))) refreshChat();
 }
 // The composer grows with the text; the send button wakes up once there is something to send.
+// Its height is measured again only for other text or another window width: measuring lays the
+// page out, and every push comes here with neither changed. A box out of sight cannot be measured;
+// it is measured when its tab shows (chatShown).
+let measuredFor = '',
+  unmeasured = false;
 function syncSend() {
   const box = $('message');
   // With no AI yet, sending opens the connection first (see the form's submit).
-  $('send').disabled = box.disabled || !box.value.trim() || pendingChats.has(selected);
+  put($('send'), 'disabled', box.disabled || !box.value.trim() || pendingChats.has(selected));
+  const key = `${globalThis.innerWidth}|${box.value}`;
+  if (key === measuredFor) return;
+  unmeasured = !!box.closest?.('[hidden]');
+  measuredFor = unmeasured ? '' : key;
+  if (unmeasured) return;
   box.style.height = 'auto';
   box.style.height = `${Math.min(140, box.scrollHeight + 2)}px`;
 }

@@ -4,6 +4,7 @@
 // when it ends. Adding a game is one such object, a button with data-game in index.html and its
 // strings; this file moves the friends and keeps the toolbar in step.
 
+import { put } from '../core/dom.js';
 import { joinList, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { shuffle } from '../core/math.js';
@@ -51,15 +52,17 @@ export function syncGameUi() {
   syncViewingAction();
   for (const b of gameButtons) {
     const mine = game?.kind === b.dataset.game;
-    b.querySelector('.game-name').textContent = mine
-      ? t('game.stop', { name: GAMES[b.dataset.game] })
-      : GAMES[b.dataset.game];
+    put(
+      b.querySelector('.game-name'),
+      'textContent',
+      mine ? t('game.stop', { name: GAMES[b.dataset.game] }) : GAMES[b.dataset.game],
+    );
     b.classList.toggle('playing', mine);
     // A game only some yards have (the snowman, while the yard shows winter) leaves the menu elsewhere.
-    b.hidden = RULES[b.dataset.game].shown?.() === false;
-    b.disabled = !data.pets.length || (!!game && !mine);
+    put(b, 'hidden', RULES[b.dataset.game].shown?.() === false);
+    put(b, 'disabled', !data.pets.length || (!!game && !mine));
   }
-  $('feed').disabled = !data.pets.length || !!game;
+  put($('feed'), 'disabled', !data.pets.length || !!game);
   hint();
 }
 function say(text) {

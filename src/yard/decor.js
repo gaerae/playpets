@@ -8,6 +8,7 @@
 // are christmas-night.js's.
 
 import { openDecorMenu } from '../core/controls.js';
+import { put, putAttribute } from '../core/dom.js';
 import { list, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { between, clamp, pick } from '../core/math.js';
@@ -278,8 +279,8 @@ export function renderDecor() {
       : t(opensView(d.kind) ? 'decor.title_decorate' : 'decor.title', { kind });
     v.button.classList.toggle('memento', !!d.memento);
     showMark(v.button, d.kind);
-    v.button.title = label;
-    v.button.setAttribute('aria-label', label);
+    put(v.button, 'title', label);
+    putAttribute(v.button, 'aria-label', label);
     const worn = v.dressLayer && wornDress(d);
     if (worn && worn.join() !== v.worn) {
       v.worn = worn.join();
