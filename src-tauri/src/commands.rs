@@ -428,6 +428,8 @@ static COMMANDS: &[Command] = &[
     }),
     main("bloomed", bloomed),
     main("befriend", befriend),
+    // (friends, reason, local day): `befriend` for several friends, saved once (time together).
+    main("befriendMany", befriend_many),
     // Coding agents.
     main("copyConnection", |c| {
         copy_connection(c.app, &c.state, c.arg(0).as_str().unwrap_or("mcp"))

@@ -67,11 +67,22 @@ export function befriend(id, reason) {
     .catch(() => {});
 }
 
+/** Something done with several friends at once: one call, so the backend saves and tells every
+ * page once rather than once a friend. */
+export function befriendAll(ids, reason) {
+  if (!ids.length) return;
+  call('befriendMany', ids, reason, localDay(new Date()))
+    .then(results => {
+      for (const [id, r] of Object.entries(results ?? {})) if (r?.up) celebrate(id, r.level);
+    })
+    .catch(() => {});
+}
+
 // Time together: every ten minutes the yard is seen, each friend in it.
 const together = cadence(() => TIME_EVERY);
 /** Called by the frame loop while the yard is seen. */
 export function bondTick(now) {
-  if (together.due(now)) for (const id of views.keys()) befriend(id, 'time');
+  if (together.due(now)) befriendAll([...views.keys()], 'time');
 }
 
 // A welcome back (level 2 and up): after the app starts, and when the yard is seen again after a
