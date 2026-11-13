@@ -22,10 +22,12 @@ export async function loadContent() {
   useScenery(yard);
   useEvents(events);
   useWorlds(worlds);
-  try {
-    await restoreBackgrounds();
-  } catch {
-    /* Built-in places remain available when local storage cannot open. */
-  }
-  await loadArt(artOf(catalog, events));
+  // The drawings and the imported backgrounds need nothing from each other, so neither waits: on
+  // Windows each of the hundred requests goes through the window's own thread (WebView2).
+  await Promise.all([
+    restoreBackgrounds().catch(() => {
+      /* Built-in places remain available when local storage cannot open. */
+    }),
+    loadArt(artOf(catalog, events)),
+  ]);
 }

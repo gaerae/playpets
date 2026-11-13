@@ -493,9 +493,6 @@ function animate(now) {
   return interval(now, early);
 }
 try {
-  // Record growth during closed time before the first tree and album are drawn.
-  // Trees that grew are saved and come back as a change, like any other.
-  await call('growTrees').catch(error => toast(spoken(error, t('error.start')), { error: true }));
   if (!booted) setData(await call('bootstrap'));
   follow(data.language);
   const saved = recallRun('panel');
@@ -507,6 +504,9 @@ try {
   announceInstalledUpdate();
   last = sceneryLast = performance.now();
   every(BUSY_MS, animate);
+  // Growth during closed time is recorded once the yard is drawn, so the first friend does not wait
+  // for a save: trees that grew are saved and come back as a change, like any other.
+  await call('growTrees').catch(error => toast(spoken(error, t('error.start')), { error: true }));
 } catch (e) {
   toast(spoken(e, t('error.start')), { error: true });
 }

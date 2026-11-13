@@ -46,18 +46,20 @@ async function start({ booted }) {
   return calls;
 }
 
+// Growth during closed time is recorded after the yard is first drawn: trees that grew come back as
+// a change, like every other save, and the first friend is not kept waiting for a save.
 test('a growth save error remains visible without stopping yard startup', async () => {
-  assert.deepEqual(await start({ booted: true }), ['growTrees', 'The garden could not be saved.', 'animate']);
+  assert.deepEqual(await start({ booted: true }), ['animate', 'growTrees', 'The garden could not be saved.']);
 });
 
 test('the state is asked for once: again at the full start only when the first ask failed', async () => {
   // Trees that grew come to the page as a change, like every other save.
   assert.ok(!(await start({ booted: true })).includes('bootstrap'));
   assert.deepEqual(await start({ booted: false }), [
-    'growTrees',
-    'The garden could not be saved.',
     'bootstrap',
     'animate',
+    'growTrees',
+    'The garden could not be saved.',
   ]);
 });
 
