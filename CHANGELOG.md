@@ -13,6 +13,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Changed
 
 - Show on desktop answers at once: a friend, gift, flower or tree sent out shows on the desktop right away, also when nothing was out before or everything just came back in.
+- Patting a friend, picking a scene, moving things in the yard and the tray's switches no longer wait for the save to disk, and time together with many friends is saved once instead of once a friend, so the yard no longer stutters every ten minutes.
 
 ## [1.7.1] - 2026-11-13
 
