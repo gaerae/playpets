@@ -147,14 +147,23 @@ export const yardZoom = () => currentZoom().friends;
  * much as friends outdoors, and as the picture in a room. */
 export const propZoom = () => currentZoom().props;
 // The yard's size is measured when it changes, not every time a friend takes a step.
-const yardSize = { width: 0, height: 0 };
+const yardSize = { width: 0, height: 0, left: 0, top: 0 };
 /** Measures the yard again (views.js, when it changes size). */
 export function measureYard() {
   const r = $('yard').getBoundingClientRect();
   yardSize.width = r.width;
   yardSize.height = r.height;
+  yardSize.left = r.left || 0;
+  yardSize.top = r.top || 0;
   zoomWorld = scene.world;
   zoom = zoomFor(r.width, r.height, zoomWorld);
+}
+/** Where a pointer event `e` is in the yard, in pixels, from the yard's box as last measured: read
+ * on every pointer move, the box would lay the page out each time. The yard fills its window, so it
+ * moves only as it changes size, when it is measured again. */
+export function inYard(e) {
+  if (!yardSize.width) measureYard();
+  return [e.clientX - yardSize.left, e.clientY - yardSize.top];
 }
 // Room kept at each side of the yard, so a friend at the edge is still whole.
 export const EDGE = 14;

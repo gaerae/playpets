@@ -240,6 +240,14 @@ export function place(v, { glide = false } = {}) {
 // stop. Each step asks for it (place's `glide`): a choice left on the friend would carry over to a
 // place from anything between two steps, which would then slide instead of jump.
 export const GLIDE_MS = 64;
+/** Turns a friend toward the pointer that last moved over it (`v.pointer`), called by the frame
+ * loop before it draws the friend. Its box is read here, once a frame at most: a pointer moves far
+ * more often than the yard draws, and each read lays the page out. */
+export function followPointer(v) {
+  if (!v.pointer) return;
+  v.look = lookAt(v.button.getBoundingClientRect(), v.pointer.x, v.pointer.y);
+  v.pointer = null;
+}
 /** Stops a friend's glide at once where it was going, as a press takes it. */
 export function unglide(v) {
   halt(v.button);
@@ -397,11 +405,12 @@ function createView(p) {
         pose(v, e.clientX >= v.drag.startX ? 'right' : 'left', 200);
         place(v);
       }
-    } else {
-      v.look = lookAt(button.getBoundingClientRect(), e.clientX, e.clientY);
-    }
+    } else v.pointer = { x: e.clientX, y: e.clientY };
   });
-  both('pointerleave', () => (v.look = null));
+  both('pointerleave', () => {
+    v.pointer = null;
+    v.look = null;
+  });
   // A pat, by pointer or keyboard. Once someone has patted a friend, the line above the yard stops
   // saying how.
   const pat = async () => {
