@@ -478,6 +478,32 @@ function createView(p) {
   );
   return v;
 }
+// What a friend's body and label say: its name, its agents, its agent's state, whether it is the one
+// talked with or answering. Written only where it differs.
+function labelView(v, p) {
+  // One agent is named on the tag; more are counted, and the full list is the tooltip.
+  const agents = agentsOf(data, p.id);
+  labelTag(v);
+  put(v.agents, 'textContent', agents.length > 1 ? `${agents[0]} +${agents.length - 1}` : agents[0] || '');
+  put(v.agents, 'hidden', !agents.length);
+  put(v.agents, 'title', agents.length > 1 ? joinList(agents) : '');
+  put(v.tag, 'title', t('friend.talk', { name: name(p) }));
+  const state = agentState(p);
+  // The dot's colour is said in words too, for anyone who cannot see it.
+  putAttribute(
+    v.button,
+    'aria-label',
+    state === 'idle'
+      ? t('yard.pat_name', { name: name(p) })
+      : t('yard.pat_name_state', { name: name(p), state: labels[state] }),
+  );
+  v.button.classList.toggle('selected', p.id === selected);
+  v.button.classList.toggle('thinking', data.busy.includes(p.id));
+  if (state === 'done' && v.dot.dataset.state && v.dot.dataset.state !== 'done') effect(v, '✦');
+  put(v.dot, 'hidden', state === 'idle');
+  put(v.dot.dataset, 'state', state);
+  put(v.dot, 'title', state === 'idle' ? '' : labels[state] || '');
+}
 // Brings the yard in line with the backend: friends that left go, new ones appear, the rest update.
 // It runs on every push, mostly with nothing changed: what is written is written only when it differs.
 export function syncViews() {
@@ -505,30 +531,16 @@ export function syncViews() {
       v.x = p.x;
       v.y = p.y;
     }
-    // One agent is named on the tag; more are counted, and the full list is the tooltip.
-    const agents = agentsOf(data, p.id);
-    labelTag(v);
-    put(v.agents, 'textContent', agents.length > 1 ? `${agents[0]} +${agents.length - 1}` : agents[0] || '');
-    put(v.agents, 'hidden', !agents.length);
-    put(v.agents, 'title', agents.length > 1 ? joinList(agents) : '');
-    put(v.tag, 'title', t('friend.talk', { name: name(p) }));
-    const state = agentState(p);
-    // The dot's colour is said in words too, for anyone who cannot see it.
-    putAttribute(
-      v.button,
-      'aria-label',
-      state === 'idle'
-        ? t('yard.pat_name', { name: name(p) })
-        : t('yard.pat_name_state', { name: name(p), state: labels[state] }),
-    );
-    v.button.classList.toggle('selected', p.id === selected);
-    v.button.classList.toggle('thinking', data.busy.includes(p.id));
-    if (state === 'done' && v.dot.dataset.state && v.dot.dataset.state !== 'done') effect(v, '✦');
-    put(v.dot, 'hidden', state === 'idle');
-    put(v.dot.dataset, 'state', state);
-    put(v.dot, 'title', state === 'idle' ? '' : labels[state] || '');
+    labelView(v, p);
     fit(v, box);
   }
+}
+/** Draws one friend's label again, as its agent's status changed: a hook sends one on every tool the
+ * agent uses, and the rest of the yard is as it was. */
+export function syncView(id) {
+  const v = views.get(id),
+    p = data.pets.find(q => q.id === id);
+  if (v && p) labelView(v, p);
 }
 // `handlers`: gameTap(view), select(id), openChat(id), patted(id) after a pat, and resized() once
 // the yard changes size.

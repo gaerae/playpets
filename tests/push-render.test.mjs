@@ -3,14 +3,16 @@
 // unchanged push writes nothing: no friend's size or tag, no list rebuilt, one look at the dock.
 
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import vm from 'node:vm';
 import { installDom, installStorage } from './support/dom.mjs';
 
 globalThis.playPets = { getChat: async () => ({ ok: true, data: [] }) };
 const shared = await import('../src/core/state.js');
 const { companions, setData, setSelected, views } = shared;
 const { measureYard } = await import('../src/yard/field.js');
-const { setupViews, syncViews } = await import('../src/yard/views.js');
+const { setupViews, syncView, syncViews } = await import('../src/yard/views.js');
 const { renderPanel } = await import('../src/panel/friend.js');
 
 const friends = n =>
@@ -158,4 +160,59 @@ test("an unchanged push leaves the friend tab's lists as they are", t => {
   renderPanel();
   assert.deepEqual(rebuilt, ['friend-select'], 'a friend renamed is renamed in the list');
   assert.equal(nodes.get('friend-select').children[5].text, 'Renamed');
+});
+
+// A coding agent's hook sends a status on every tool it uses: only that friend is drawn again.
+test("an agent's status redraws its own friend and leaves the others be", t => {
+  yard(t, 12);
+  syncViews();
+  const writes = new Map();
+  for (const [id, v] of views) {
+    writes.set(id, []);
+    watchWrites(v.button, writes.get(id));
+    watchWrites(v.label, writes.get(id));
+  }
+  shared.data.statuses = { ...shared.data.statuses, p3: { state: 'waiting', message: 'May I?', source: 'agent' } };
+  syncView('p3');
+  assert.ok(writes.get('p3').length > 0, 'its dot and its name for a screen reader');
+  assert.equal(views.get('p3').dot.dataset.state, 'waiting');
+  for (const [id, list] of writes) if (id !== 'p3') assert.deepEqual(list, [], `${id} is left be`);
+});
+
+// The status handler of app.js, with the page around it: what it drew.
+async function statusEvent(event, selected) {
+  const source = await readFile('src/app.js', 'utf8');
+  const start = source.indexOf('\n  status: e => {');
+  const block = source.slice(start, source.indexOf('\n  },', start) + 4);
+  const drawn = [];
+  const context = {
+    data: { statuses: {} },
+    selected,
+    applyStatus(data, e) {
+      data.statuses[e.petId] = e;
+    },
+    ...Object.fromEntries(
+      ['render', 'renderPanel', 'hint', 'speak', 'syncView'].map(name => [
+        name,
+        (...args) => drawn.push([name, ...args]),
+      ]),
+    ),
+  };
+  vm.runInNewContext(`({${block}}).status(event)`, { ...context, event });
+  return drawn;
+}
+
+test('a status event draws its friend, the summary, and the panel only when it is that friend', async () => {
+  const event = { type: 'status', petId: 'p3', state: 'working', source: 'agent' };
+  const other = await statusEvent(event, 'p0');
+  assert.ok(!other.some(([name]) => name === 'render'), 'not the whole page');
+  assert.deepEqual(
+    other.filter(([name]) => name !== 'speak'),
+    [['syncView', 'p3'], ['hint']],
+  );
+  const mine = await statusEvent(event, 'p3');
+  assert.ok(
+    mine.some(([name]) => name === 'renderPanel'),
+    "the panel shows that friend's state",
+  );
 });

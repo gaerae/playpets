@@ -35,7 +35,7 @@ import { openAlbum, renderAlbum, setupAlbum } from './panel/album.js';
 import { chatEvent, refreshChat, setupChat } from './panel/chat.js';
 import { setupConnection } from './panel/connection.js';
 import { setupFriendSettings } from './panel/friend-settings.js';
-import { drawPortrait, select, setupFriend } from './panel/friend.js';
+import { drawPortrait, renderPanel, select, setupFriend } from './panel/friend.js';
 import { drawPreviews, importLink, invite, setupInvite } from './panel/invite.js';
 import { setupSettings, showSection } from './panel/settings.js';
 import { openInvite, openPanel, PANELS, setupTabs } from './panel/tabs.js';
@@ -92,7 +92,7 @@ import { setupTouches } from './yard/touches.js';
 import { resizeTrails, setupTrails, trailsCheck, trailsSeen } from './yard/trails.js';
 import { release } from './yard/trips.js';
 import { setupViewing, viewing, viewingTick } from './yard/viewing.js';
-import { bubble, place, setupViews, syncViews } from './yard/views.js';
+import { bubble, place, setupViews, syncView, syncViews } from './yard/views.js';
 import { drawWelcome, setupWelcome } from './yard/welcome.js';
 import { setupWinter } from './yard/winter.js';
 import { scene, scenery } from './yard/world.js';
@@ -370,9 +370,13 @@ const ON_EVENT = {
     if (p) Object.assign(p, { x: e.x, y: e.y });
   },
   say: speak,
+  // A coding agent's hook sends one on every tool it uses: its friend, the panel when it shows that
+  // friend, and the agents' summary are drawn again, not the whole page.
   status: e => {
     applyStatus(data, e);
-    render();
+    syncView(e.petId);
+    if (e.petId === selected) renderPanel();
+    hint();
     if (e.source === 'agent') speak(e);
   },
   'chat-message': e => {
