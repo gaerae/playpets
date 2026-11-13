@@ -23,6 +23,7 @@
 | Yard, otherwise | 100ms |
 | Yard, while it cannot be seen (nothing is drawn) | 1000ms |
 | Overlay | 100ms |
+| Overlay, with no friend on its monitor | none: the loop rests until one comes |
 
 - New movement adds a condition to `pace()` in `app.js`.
 - While a friend walks, the yard also wakes when a step of its walk ends (`cellEnds`, set in `motion.js`), never sooner than 8ms, so each 120ms step shows for its own length.
@@ -63,6 +64,11 @@
 ### Backend, sound and memory
 - The overlay thread does not ask the runtime for monitors on every tick (it uses the cache).
 - With nobody walking, nothing dragged and the cursor not within 300px of a friend, it rests at 120ms intervals.
+- With nothing out and no window open, it waits to be woken: a change to what is out wakes it at once. It looks in every 2 seconds only as a safety net.
+- A monitor's window stays 60 seconds after the last thing on it leaves, or after the yard opens the menu of something not out yet; then it closes.
+  - Building a window and loading its page takes most of a second, and something sent out again soon then shows at once.
+  - While it is kept with nothing on it, its page draws nothing and the thread looks in every 400ms only to close it in time.
+  - The switch that brings everything in closes the windows at once.
 - Frequent changes that are fine to lose (where a friend stopped walking) are batched and saved with `persist_soon`.
 - Other changes are saved right away with `persist`.
 - The yard's sounds (`src/yard/sound.js`) play only while they are on and the yard is visible.
@@ -121,3 +127,4 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-11-09 The yard's loop looks once a second, not ten times, while the window cannot be seen
 - 2026-11-11 Loops on the compositor (the breeze, a walking friend's step) may run while the yard is shown; `pnpm run measure` plants a small garden
 - 2026-11-13 The compositor carries a moving friend between steps; the yard wakes when a walking step ends, on one clock for all walks; creatures and falling petals keep the 50ms interval; wing beats span six frames
+- 2026-11-14 The overlay thread is woken by a change to what is out; a monitor's window stays a minute after its last thing leaves and opens early from the yard's menu, and its page draws nothing while it has nobody

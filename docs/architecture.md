@@ -49,7 +49,7 @@ flowchart LR
 | Yard window | `src/index.html`, `src/app.js`, `src/yard/`, `src/panel/`, `src/core/`, `src/styles/` | Draws the scenery and friends. Opens the side panel (Friend and Invite, beside the yard); Settings opens as a sheet over the yard. ES modules the browser reads with no build tool |
 | Yard content | `src/content/catalog.json`, `src/content/yard.json`, `src/content/events.json`, `src/content/worlds.json`, `src/art/` | What the yard is made of, apart from the code ([details](#yard-content)) |
 | Yard life | `src/yard/` | The backdrop, friends, trips, features and the frame loop ([details](#yard-life)) |
-| Desktop window | `src/overlay.html`, `src/overlay/` | One transparent window per monitor with something on it (every monitor while a friend is carried). Draws friends where the backend places them and reports presses and drags |
+| Desktop window | `src/overlay.html`, `src/overlay/` | One transparent window per monitor with something on it (every monitor while a friend is carried), kept a minute after the last thing leaves and opened early while the yard's menu offers Show on desktop. Draws friends where the backend places them and reports presses and drags |
 | Commands | `src-tauri/src/commands.rs`, handlers by area in `commands/` | The single command the page calls (`call`) and the `COMMANDS` table: one row per name, saying which windows may ask for it and what it does. The page's bridge, the access check and the dispatch all come from that table ([how to add one](how-to/add-a-command.md)) |
 | App state | `src-tauri/src/app.rs`; loading in `app/load.rs`, the person's switches in `app/prefs.rs`, sprites in `app/sprite.rs` | `AppData`, loading and saving, announcing changes to every window, serving sprites ([details](#app-state)) |
 | Chat | `src-tauri/src/chat/` | Chat with one friend or several together: CLI sessions, HTTP AI, prompts ([details](#chat)) |
@@ -271,6 +271,9 @@ What each arrow in the diagram carries, path by path.
    - Chat history is not saved to a file.
 6. **Desktop:**
    - The overlay thread reads the cursor every 40 ms while moving and every 120 ms while quiet.
+   - A change to what is out wakes the thread at once (`Overlay::wake`, after the pages were sent the change), so something sent out is placed and drawn without waiting for the next read.
+   - A monitor's window stays 60 seconds, empty and click-through, after the last thing on it leaves; the switch that brings everything in closes the windows at once.
+   - Opening the yard's menu for something not out (`warmDesktop`) opens the window of the monitor it would land on, so Show on desktop needs no window built.
    - Each read advances strolls and drags by one step.
    - Only the monitor window with the cursor over a friend takes clicks.
    - When a friend moves, the thread sends the layout to that monitor's window.

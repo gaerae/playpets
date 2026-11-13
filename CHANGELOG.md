@@ -10,6 +10,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Changed
+
+- Show on desktop answers at once: a friend, gift, flower or tree sent out shows on the desktop right away, also when nothing was out before or everything just came back in.
+
 ## [1.7.1] - 2026-11-13
 
 ### Changed
