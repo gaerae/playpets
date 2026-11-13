@@ -185,6 +185,18 @@ test('a tree or a flower held in a drag stops swaying where it leans, and goes o
   }
 });
 
+// A filter on the element the breeze moves is drawn again with each step of the sway; the light
+// drawn inside it is drawn once and moves with it.
+test('a swaying tree or flower carries its light inside, not on the drawing the breeze moves', async () => {
+  const css = uncommented(await readFile('src/styles/garden.css', 'utf8'));
+  for (const name of ['plant', 'planted-tree']) {
+    for (const { head, body } of blocks(css, new RegExp(`[^{}]*\\.${name}[^{},]*\\ssvg\\s*(?=\\{)`, 'g')))
+      assert.doesNotMatch(body, /var\(--prop-light/, `${head} takes no light`);
+    const inside = blocks(css, new RegExp(`(^|\\})\\s*\\.${name} svg > use\\s*(?=\\{)`, 'g'));
+    assert.match(inside[0]?.body || '', /filter:\s*var\(--prop-light, none\)/, `.${name}'s drawing takes the light`);
+  }
+});
+
 test('each tree and flower keeps its own beat when others come and go', async () => {
   const css = uncommented(await readFile('src/styles/garden.css', 'utf8'));
   // A beat by place in the layer changes for everything after a thing that comes or goes, and a new

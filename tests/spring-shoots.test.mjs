@@ -654,7 +654,7 @@ test('a shoot being dug looks taken, stands out from the grass, and takes the li
   assert.match(css, /\.shoot\.picking \{ cursor: default; \}/);
   assert.match(css, /\.shoot\.picking svg \{ opacity: 0\.7; transition: opacity 0\.3s; \}/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{[^@]*\.shoot\.picking svg \{ transition: none; \}/);
-  assert.match(css, /\.plant svg \{[^}]*filter: var\(--prop-light, none\);/);
+  assert.match(css, /\.plant svg > use \{[^}]*filter: var\(--prop-light, none\);/);
   // Green shoots on green grass: a soft shade of soil under the foot and a shadow to the lower right
   // (the light comes from the upper left), both still, and the scene's light on top (morning,
   // evening, rain, night: garden.css --prop-light).

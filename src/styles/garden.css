@@ -110,9 +110,13 @@
   height: 100%;
   overflow: visible;
   transform-origin: 50% 100%;
-  filter: var(--prop-light, none);
   /* By scale, not transform, which the breeze moves (below). */
   transition: scale 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* The light is on the drawing inside, not on the svg the breeze moves: a filter on a moving layer can
+   be drawn again at each step of the sway, one inside it is drawn once and moves with it. */
+.plant svg > use {
+  filter: var(--prop-light, none);
 }
 .plant:hover svg,
 .plant:focus-visible svg {
@@ -122,7 +126,7 @@
   outline: none;
 }
 .plant:focus-visible svg {
-  filter: var(--prop-light,) drop-shadow(0 0 2px var(--focus));
+  filter: drop-shadow(0 0 2px var(--focus));
 }
 .yard.aiming .plant {
   cursor: inherit;
@@ -850,6 +854,9 @@
   height: 100%;
   overflow: visible;
   transform-origin: 50% 100%;
+}
+/* Its light inside the drawing the breeze moves, as a flower's. */
+.planted-tree svg > use {
   filter: var(--prop-light, none);
 }
 /* The breeze: outdoors, trees and flowers past the seed lean a little one way and back about their
