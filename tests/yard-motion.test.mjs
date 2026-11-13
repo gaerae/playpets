@@ -82,12 +82,23 @@ test('a moving friend glides for a little longer than a step of its loop', async
       'src-tauri/src/desktop/overlay.rs',
       /const TICK: Duration = Duration::from_millis\((\d+)\)/,
     ),
-    desktopGlide = await frameOf('src/overlay/overlay.js', /const GLIDE_MS = (\d+)/);
+    { GLIDE_MS: desktopGlide } = await import('../src/overlay/glide.js');
   for (const [glide, step] of [
     [GLIDE_MS, yard],
     [desktopGlide, desktop],
   ])
     assert.ok(glide > step && glide <= step * 1.5, `a ${glide}ms glide for a ${step}ms step`);
+});
+
+// A friend dragged from one screen to another is drawn there by that screen's window, which never
+// had the press: pointer capture stays with the first. The layout row says it is held (overlay.rs),
+// so it follows the pointer there too, with no glide behind it.
+test('a desktop friend held follows the pointer at once on every screen', async () => {
+  const { GLIDE_MS: desktopGlide, glideMs } = await import('../src/overlay/glide.js');
+  assert.equal(glideMs({ drag: null }, {}, false), desktopGlide, 'a stroll glides');
+  assert.equal(glideMs({ drag: { x: 0, y: 0 } }, {}, false), 0, 'held in the window it was pressed in');
+  assert.equal(glideMs({ drag: null }, { dragging: true }, false), 0, 'held, drawn by another screen');
+  assert.equal(glideMs({ drag: null }, {}, true), 0, 'with reduced motion');
 });
 
 // A fake node that records the glides started on it.

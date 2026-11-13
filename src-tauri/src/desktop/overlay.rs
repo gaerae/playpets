@@ -245,6 +245,11 @@ fn layout_of(d: &Inner, mons: &[Mon]) -> Vec<Value> {
             if let Some((kind, _, _)) = &p.decor {
                 item["decor"] = json!(kind);
             }
+            // Held: it follows the pointer with no glide, also in a window on another screen, which
+            // never had the press (pointer capture stays where the drag began).
+            if d.drag.as_ref().is_some_and(|g| g.id == p.id) {
+                item["dragging"] = json!(true);
+            }
             Some(item)
         })
         .collect()
@@ -733,6 +738,28 @@ mod tests {
             let (w, _) = dims(d.pets.iter().find(|p| p.id == id).unwrap());
             assert_eq!(d.positions[id], (1440.0 - w, FLOOR - h));
         }
+    }
+
+    // Pointer capture stays in the window the drag began in; a window on another screen draws the
+    // friend from the layout alone, so the row says it is held.
+    #[test]
+    fn a_held_thing_is_marked_held_in_the_layout_every_window_hears() {
+        let mut d = Inner {
+            pets: vec![out("pip", None, None), out("miso", None, None)],
+            ..Inner::default()
+        };
+        d.positions.insert("pip".into(), (600.0, 200.0));
+        d.positions.insert("miso".into(), (900.0, 200.0));
+        d.drag = Some(Drag {
+            id: "pip".into(),
+            start: (0.0, 0.0),
+            origin: (600.0, 200.0),
+            at: Instant::now(),
+        });
+        let layout = layout_of(&d, &screen());
+        let row = |id: &str| layout.iter().find(|r| r["id"] == id).unwrap().clone();
+        assert_eq!(row("pip")["dragging"], true);
+        assert!(row("miso").get("dragging").is_none(), "one strolling is not held");
     }
 
     #[test]
