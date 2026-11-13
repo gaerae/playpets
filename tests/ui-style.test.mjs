@@ -606,6 +606,26 @@ test('indoor flowers use a planter without blocking their controls', async () =>
   await readFile('src/art/decor/indoor-planter.webp');
 });
 
+// A lit gift keeps its own colours from evening on, but a gift with the keyboard focus shows its
+// ring (`.decor:focus-visible svg`, a drop shadow after the light) at every time of day. A filter
+// set outright on the lit gift's drawing would be more specific than the ring and hide it; leaving
+// the light unset lets the ring's rule draw the ring alone.
+test('a lit gift keeps its colours in the evening and at night, and still shows the focus ring', async () => {
+  const css = await styles();
+  assert.match(css, /\.decor:focus-visible svg\{filter:var\(--prop-light,\)drop-shadow\(0 0 2px var\(--focus\)\);\}/);
+  assert.doesNotMatch(
+    css,
+    /\[data-effects~="glow"\][^{]*svg[^{]*\{[^}]*filter:/,
+    'no filter on a lit drawing outranks the ring',
+  );
+  for (const period of ['evening', 'night'])
+    assert.match(
+      css,
+      new RegExp(`\\.period-${period} \\.decor\\[data-effects~="glow"\\][,{][^}]*--prop-light:initial;`),
+      period,
+    );
+});
+
 test('indoor planters take the light their flowers take', async () => {
   const css = await styles();
   assert.match(css, /\.yard\[data-soil="false"\] \.plant::after\{[^}]*filter:var\(--prop-light,none\);/);

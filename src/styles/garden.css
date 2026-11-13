@@ -395,10 +395,11 @@
 .weather-snow .decor {
   --bird: 0;
 }
-/* A lit gift is lit from evening on, so it keeps its own colours. */
-.period-evening .decor[data-effects~="glow"] svg,
-.period-night .decor[data-effects~="glow"] svg {
-  filter: none;
+/* A lit gift is lit from evening on, so it keeps its own colours: the scene's light is unset on it,
+   so its drawing falls back to none, and to the focus ring alone while it has the keyboard focus. */
+.period-evening .decor[data-effects~="glow"],
+.period-night .decor[data-effects~="glow"] {
+  --prop-light: initial;
 }
 /* Christmas night (yard/christmas-night.js): the grand tree and its change are drawn in worn.css,
    alike in the yard and on the desktop. Here is what only the yard has: its light on the tree,
