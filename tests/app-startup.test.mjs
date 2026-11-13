@@ -119,6 +119,11 @@ test("the frame loop wakes when a friend's sprite cell ends, so each cell shows 
   assert.equal(loop.animate(1000), loop.BUSY_MS, 'a walk keeps its own pace when that comes first');
 });
 
+test('creatures and falling petals out keep the yard at its busy pace', async () => {
+  const loop = await frameLoop({ scenery: { busy: () => false, lively: () => true, frame() {} } });
+  assert.equal(loop.animate(1000), loop.BUSY_MS);
+});
+
 // Every repaint of the weather canvas costs a screen update: a wake only for a friend's cell leaves
 // it for the yard's own pace, which counts on from its last repaint.
 test('a wake for a sprite cell leaves the weather canvas to the yard pace', async () => {

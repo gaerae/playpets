@@ -13,7 +13,7 @@
 // A falling petal can be caught during the blossom festival (catchPetal): it leaves the fall, twirls
 // up and turns into a small glint; the twirls last about a second each, so that is bounded work too.
 import { between } from '../core/math.js';
-import { createAmbientArt } from './ambient-art.js';
+import { createAmbientArt, WING_BEAT, wingSpread } from './ambient-art.js';
 import { bugChances, weighted, wildlifeGroup } from './catalog.js';
 import { environmentFrame, weatherPanes } from './environment.js';
 import { boostOf } from './events.js';
@@ -111,7 +111,7 @@ function paintDragonfly(ctx, c, scale) {
   ctx.rotate(c.heading + Math.PI / 2);
   ctx.globalAlpha = 0.55;
   ctx.fillStyle = c.look.wing;
-  const shimmer = 0.85 + 0.15 * Math.sin(c.phase);
+  const shimmer = 0.7 + 0.3 * wingSpread(c.beat ?? 0);
   for (const [dx, dy] of [
     [-1, -1.5],
     [1, -1.5],
@@ -132,7 +132,7 @@ function paintDragonfly(ctx, c, scale) {
 }
 // A touch larger than life, so one is easy to click.
 function paintButterfly(ctx, c, scale) {
-  const flap = 0.25 + 0.75 * Math.abs(Math.sin(c.phase)),
+  const flap = 0.25 + 0.75 * wingSpread(c.beat ?? 0),
     k = scale * 1.4;
   ctx.globalAlpha = 0.95;
   ctx.strokeStyle = c.look.edge;
@@ -245,6 +245,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
         ...(ground ? { groundY: y } : {}),
         heading: arriving && !glow ? (side ? 0 : Math.PI) + (Math.random() - 0.5) : Math.random() * TAU,
         phase: Math.random() * TAU,
+        beat: Math.random(),
         light: arriving && glow ? 0 : 1,
       };
     });
@@ -366,6 +367,8 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
   function roam(c, dt) {
     if (grounded(c.kind)) return stepGroundBug(c, dt, groundBounds(), !spell);
     c.phase += dt * (c.kind === 'firefly' ? fireflyPace(c.look) : c.kind === 'dragonfly' ? 0.05 : 0.02);
+    // Its wings beat on their own time, slower than the phase that sways its flight (WING_BEAT).
+    if (WING_BEAT[c.kind]) c.beat = ((c.beat ?? 0) + dt / WING_BEAT[c.kind]) % 1;
     c.heading += (Math.random() - 0.5) * dt * 0.004;
     if (c.kind === 'firefly') {
       c.light = Math.max(0, Math.min(1, c.light + (spell ? 1 : -1) * (dt / FADE_MS)));
@@ -694,6 +697,9 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       !!wishFrom ||
       !!flaring ||
       sparks.length > 0);
+  // Whether creatures or falling petals and leaves are out, moving every frame: app.js runs the
+  // yard at its busy pace then, as at its calm pace they crossed in visible hops.
+  const lively = () => enabled() && !reduced.matches && (critters.length > 0 || fallers.length > 0);
   // The sky layer's extras; each says whether it could be shown here and now.
   const showers = on => {
     soon = on && !shower;
@@ -762,6 +768,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     set,
     frame,
     busy,
+    lively,
     near: (x, y, reach) => !!near(x, y, reach),
     catchAt,
     nearPetal: (x, y) => !!petalNear(x, y),

@@ -400,9 +400,10 @@ api.onEvent(event => {
   if (Object.hasOwn(ON_EVENT, event.type)) ON_EVENT[event.type](event);
 });
 
-// Twenty frames a second while a friend moves (a walk, a pose, a game, a treat being placed),
-// fifteen in rain and while birds or a shooting star cross, twelve in snow, ten while the friends
-// only stand and blink: every frame that changes a canvas costs a whole screen update. None at all
+// Twenty frames a second while a friend moves (a walk, a pose, a game, a treat being placed) and
+// while creatures fly or petals and leaves fall, fifteen in rain and while birds or a shooting star
+// cross, twelve in snow, ten while the friends only stand and blink: every frame that changes a
+// canvas costs a whole screen update. None at all
 // while the window cannot be seen (macOS says so through document.hidden, and the backend says so
 // for a window it hid or that was minimized); the loop only looks once a second whether it is back.
 const BUSY_MS = 50,
@@ -431,6 +432,7 @@ let last = 0,
 function pace(now) {
   if (game || aiming) return BUSY_MS;
   for (const v of views.values()) if (v.target || v.drag || now < v.until) return BUSY_MS;
+  if (scenery.lively()) return BUSY_MS;
   // Weather sets the pace only where it falls (not in a room without windows, nor with reduced motion).
   if (scenery.busy()) return scene.weather === 'snow' ? SNOW_MS : RAIN_MS;
   return CALM_MS;
