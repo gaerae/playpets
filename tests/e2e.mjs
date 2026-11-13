@@ -228,10 +228,14 @@ const scenario = `(async()=>{
     const shownLog=document.getElementById('chat-log');
     await L('markdown='+(shownLog.querySelector('.message.assistant strong')?.textContent==='타우리'&&!shownLog.textContent.includes('**')?'styled':'err:'+shownLog.textContent.slice(0,60)));
     // While an answer is on its way the conversation says so, and stops saying so when it arrives.
+    // The turn says so in busy events alone: no whole state is pushed for it.
+    const pushes=[],stopChanges=playPets.onChange(()=>pushes.push('change')),stopBusy=playPets.onEvent(e=>{if(e.type==='busy')pushes.push('busy:'+e.busy.join('+'));});
     const slow=playPets.chat(p1.data.id,'천천히 대답해 줘');await new Promise(r=>setTimeout(r,700));
     const waitingShown=!!shownLog.querySelector('.waiting')&&document.querySelector('.yard-pet.thinking')!==null;
     await slow;await new Promise(r=>setTimeout(r,500));
+    stopChanges();stopBusy();
     await L('waiting='+(waitingShown&&!shownLog.querySelector('.waiting')&&!document.querySelector('.yard-pet.thinking')?'shown-then-gone':'err:'+waitingShown));
+    await L('chatPushes='+(pushes.join()===['busy:'+p1.data.id,'busy:'].join()?'busy-only':'err:'+pushes.join()));
     // The yard itself: scenery-first layout, games.
     const playing=()=>document.querySelector('[data-game].playing'),gameLabel=()=>playing()?.textContent||'none';
     const $=id=>document.getElementById(id),wait=ms=>new Promise(r=>setTimeout(r,ms)),press=el=>el.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));
@@ -571,7 +575,10 @@ const scenario = `(async()=>{
       await playPets.putAway(memento.id);
       mementoFlow=boxedMemento?.memento===true&&backOut.ok&&outAgain;
     }
+    // Something done with several friends at once is one call (time together); one not in the yard is left out.
+    const many=await playPets.befriendMany([fid,mid,'nobody'],'chat','2026-02-20'),manyFlow=many.ok&&Object.keys(many.data).sort().join()===[fid,mid].sort().join()&&many.data[fid].points>0;
     if(mid)await playPets.removePet(mid);
+    await L('befriendMany='+(manyFlow?'each-friend-once':'err:'+JSON.stringify(many)));
     await L('memento='+(mid&&patsCapped&&mementoFlow?'pats-capped-memento-boxed-and-set-out':'err:'+JSON.stringify({patsCapped,third,fourth,closeDay,bond:await bondOf()})));
     // Yard sounds: on by default; the chip turns them off and on, the volume is kept and held to 0–100.
     // The settings change while the yard stays quiet: the volume goes to 0 before the chip turns it on.
@@ -1176,6 +1183,7 @@ const scenario = `(async()=>{
     mayHide=true;await $('hide-window').onclick();const unseen=!!await until(()=>document.documentElement.hasAttribute('data-unseen'));
     await playPets.openChat(p1.data.id);await until(()=>!document.documentElement.hasAttribute('data-unseen'));mayHide=false;
     await L('unseen='+unseen+'/'+document.documentElement.hasAttribute('data-unseen'));
+    const overlayOpen=async()=>(await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['overlay']})).ok;
     await must('desktopOn',playPets.toggleDesktop());
     await until(async()=>(await playPets.bootstrap()).data.desktopLayout.length>0,8000);
     const b2=await playPets.bootstrap();
@@ -1212,7 +1220,29 @@ const scenario = `(async()=>{
     await must('desktopOff',playPets.toggleDesktop());
     // Closing the overlay once aborted the whole app a moment later; stay around long enough to notice.
     await new Promise(r=>setTimeout(r,2500));
-    await L('overlayClosed=alive');
+    // Everything brought in with the switch closes the windows now; none lingers.
+    await L('overlayClosed='+(await overlayOpen()?'still-open':'alive'));
+    // How long Show on desktop takes, in the log of every system CI runs on: from the choice until the
+    // overlay has placed the thing and its screen has a window. Cold: nothing out and no window; warm:
+    // something already out; again: right after everything came back in, while the window lingers.
+    // Polled finer than until(), which looks every 50 ms.
+    const soon=async f=>{const end=performance.now()+8000;while(performance.now()<end){if(await f())return true;await new Promise(r=>setTimeout(r,5));}return false;};
+    const placed=id=>async()=>(await playPets.bootstrap()).data.desktopLayout.some(i=>i.id===id)&&await overlayOpen();
+    const sendOut=async id=>{const t0=performance.now();await playPets.setOnDesktop(id,true);return await soon(placed(id))?Math.round(performance.now()-t0):null;};
+    const sendCold=await sendOut(p1.data.id);
+    const sendWarm=await sendOut(outPlant.id);
+    await playPets.setOnDesktop(outPlant.id,false);await playPets.setOnDesktop(p1.data.id,false);
+    await soon(async()=>!(await playPets.bootstrap()).data.desktopLayout.length);
+    const sendAgain=await sendOut(p1.data.id);
+    for(const [name,ms] of [['cold',sendCold],['warm',sendWarm],['again',sendAgain]])await L('send-out '+name+' '+(ms===null?'over 8000':ms)+' ms');
+    await L('sendOut='+([sendCold,sendWarm,sendAgain].every(ms=>ms!==null)?'measured':'err:'+JSON.stringify({sendCold,sendWarm,sendAgain})));
+    // Brought in with the switch, the windows close; opening the menu of something not out then readies
+    // the window it would show in, empty (overlay.rs warm), so Show on desktop shows it at once.
+    await must('desktopOffAgain',playPets.toggleDesktop());
+    const shut=await until(async()=>!await overlayOpen(),8000);
+    await must('warmDesktop',playPets.warmDesktop(p1.data.id));
+    const warmDesk=!!await until(overlayOpen,8000);
+    await L('desktopWarm='+(shut&&warmDesk?'ready-before-out':'err:'+JSON.stringify({shut,warmDesk})));
     // Official entries have ordinary settings and keep their independent identity.
     const aria=adults.find(x=>x.sourceId==='playpets-daisy'),miniAria=boot.data.assets.find(x=>x.sourceId==='playpets-clover');
     const adultA=(await playPets.addPet(aria.id)).data,adultB=(await playPets.addPet(miniAria.id)).data;
@@ -1619,6 +1649,7 @@ const expect = [
   [/^pageErrors=none$/, 'no page errors (frame loops included)'],
   [/^markdown=styled$/, 'markdown emphasis in replies is styled'],
   [/^waiting=shown-then-gone$/, 'waiting indicator while a reply is on its way'],
+  [/^chatPushes=busy-only$/, 'a chat turn sends who is waiting, not the whole state'],
   [/^letterAi=ai-wrote$/, "the friend's AI writes the year-end letter"],
   [/^letterOnce=same-letter$/, 'the year-end letter is written once a year'],
   [/^letterLines=page-lines$/, "a friend without an AI writes from the page's lines and nothing is sent"],
@@ -1754,6 +1785,10 @@ const expect = [
     "pats bring at most a quarter of a day's worth, and at Very close a friend brings its memento, which goes back into the gift box when put away",
   ],
   [
+    /^befriendMany=each-friend-once$/,
+    'something done with several friends at once counts each friend in the yard once',
+  ],
+  [
     /^reach=compact-chat\/layered\/labels-over$/,
     'chat stays in the small window; nearer friends are drawn on top, among the garden things, with labels over all',
   ],
@@ -1784,7 +1819,9 @@ const expect = [
   [/^machine=unseen$/, 'the run never sees the AIs installed on this computer'],
   [/^removeProvider=ok/, 'delete a provider'],
   [/^detached=true/, 'deleting a provider detaches it from pets'],
-  [/^overlayClosed=alive$/, 'the app stays alive when desktop mode turns off'],
+  [/^overlayClosed=alive$/, 'the desktop windows close and the app stays alive when desktop mode turns off'],
+  [/^sendOut=measured$/, 'Show on desktop shows a thing cold, warm and again (send-out lines give the times)'],
+  [/^desktopWarm=ready-before-out$/, "a thing's menu readies its desktop window before it goes out"],
   [/^DONE$/, 'scenario finished'],
 ];
 let failed = 0;

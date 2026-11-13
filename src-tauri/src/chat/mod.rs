@@ -10,7 +10,7 @@ pub mod letter;
 pub mod prompt;
 pub mod providers;
 
-use crate::app::{AppData, Shared, Source, Status, changed, lock, pet_name, push_event, require_pet, set_status};
+use crate::app::{AppData, Shared, Source, Status, lock, pet_name, push_event, require_pet, set_status};
 use crate::commands::{arg, text};
 use crate::i18n;
 use serde_json::{Value, json};
@@ -321,15 +321,19 @@ fn preview(text: &str) -> String {
     text.chars().take(100).collect()
 }
 
-/// A friend was asked, in conversation, to be someone a little different from now on.
-fn save_persona(app: &AppHandle, d: &mut AppData, id: &str, persona: String) {
-    let Some(pet) = d.pets.iter_mut().find(|p| p.id == id) else {
-        return;
-    };
+/// A friend was asked, in conversation, to be someone a little different from now on. Shown
+/// either way (the friend settings read it); the save is handed back, to be written once the
+/// state is let go (`saved_persona`).
+fn save_persona(app: &AppHandle, d: &mut AppData, id: &str, persona: String) -> Option<crate::app::Unsaved> {
+    let pet = d.pets.iter_mut().find(|p| p.id == id)?;
     pet.persona = persona;
     pet.persona_from = "chat".into();
-    // Shown either way (the friend settings read it); the notice only once it is saved.
-    if crate::app::save_and_show(app, d).is_ok() {
+    Some(crate::app::show_for_save(app, d))
+}
+
+/// Writes a persona's save with the state let go; the notice only once it is saved.
+fn saved_persona(app: &AppHandle, unsaved: Option<crate::app::Unsaved>, id: &str) {
+    if unsaved.is_some_and(|u| u.write().is_ok()) {
         push_event(app, &json!({"type": "persona-saved", "petId": id}));
     }
 }
@@ -371,9 +375,7 @@ pub fn chat(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, args:
     match answer {
         Ok(answer) if !cancelled => {
             let (answer, persona) = prompt::take_persona(&answer);
-            if let Some(persona) = persona {
-                save_persona(app, &mut d, &id, persona);
-            }
+            let persona = persona.and_then(|persona| save_persona(app, &mut d, &id, persona));
             // The friend may have been sent away while it was thinking.
             if d.pets.iter().any(|p| p.id == id) {
                 d.talks.remember(&id, json!({"role": "user", "content": text.trim()}));
@@ -382,8 +384,11 @@ pub fn chat(app: &AppHandle, state: &State<Shared>, cli: &cli::CliManager, args:
                 // A person who closed the panel to watch the yard hears it from the friend.
                 push_event(app, &json!({"type": "chat-message", "petId": id, "message": answer}));
             } else {
-                changed(app, &d);
+                // Sent away meanwhile: its leaving was shown already, only its wait is left.
+                push_event(app, &busy_event(&d.talks));
             }
+            drop(d);
+            saved_persona(app, persona, &id);
             Ok(json!(answer))
         }
         other => {
@@ -665,9 +670,14 @@ fn chat_status(app: &AppHandle, d: &mut AppData, id: &str, state: &str, message:
     if !agent_busy(d.statuses.get(id)) {
         set_status(app, d, id, state, message, Source::Chat, "");
     }
-    // The page hears that the chat started or ended either way: who is waiting, and the log, are
-    // part of the whole state, which a chat (unlike an agent's hook) changes rarely.
-    changed(app, d);
+    // The pages hear that the chat started or ended either way. Who is waiting is all of the state
+    // a turn changes (the log is asked for, the status went above), so the whole state is not sent:
+    // building and drawing it again cost more than the turn's own work on the page.
+    push_event(app, &busy_event(&d.talks));
+}
+/// Who is waiting for an answer, as a `busy` event (the whole state's `busy`).
+fn busy_event(talks: &Talks) -> Value {
+    json!({"type": "busy", "busy": talks.busy_ids().collect::<Vec<_>>()})
 }
 fn agent_busy(status: Option<&Status>) -> bool {
     status.is_some_and(|s| s.source == Source::Agent && matches!(s.state.as_str(), "working" | "waiting"))
@@ -675,7 +685,10 @@ fn agent_busy(status: Option<&Status>) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{MESSAGE_LIMIT, agent_busy, chatty, checked_message, guide, i18n, opener, too_long, topic, with_facts};
+    use super::{
+        MESSAGE_LIMIT, agent_busy, busy_event, chatty, checked_message, guide, i18n, opener, too_long, topic,
+        with_facts,
+    };
     use super::{Source, Status};
     use serde_json::json;
 
@@ -848,5 +861,26 @@ mod tests {
         assert!(blossom.contains("cherry tree") && blossom.starts_with("(Start a short conversation"));
         assert_eq!(opener("day", "clear", false, topic("Blossom!")), plain);
         assert!(opener("day", "clear", true, topic("blossom")).contains("partner"));
+    }
+
+    #[test]
+    fn a_chat_says_who_is_waiting_in_an_event_of_its_own_not_the_whole_state() {
+        use std::sync::{Arc, atomic::AtomicBool};
+        let mut talks = super::Talks::default();
+        let cancel = Arc::new(AtomicBool::new(false));
+        let ids = |event: &serde_json::Value| {
+            let mut ids: Vec<String> = serde_json::from_value(event["busy"].clone()).unwrap();
+            ids.sort();
+            ids
+        };
+        talks.wait("a", &cancel);
+        talks.wait("b", &cancel);
+        let started = busy_event(&talks);
+        assert_eq!(started["type"], "busy");
+        assert_eq!(ids(&started), ["a", "b"]);
+        assert_eq!(started.as_object().unwrap().len(), 2, "who is waiting and nothing more");
+        talks.done("a");
+        talks.done("b");
+        assert_eq!(busy_event(&talks), json!({"type": "busy", "busy": []}));
     }
 }

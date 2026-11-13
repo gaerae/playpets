@@ -3,6 +3,7 @@
 // and says how it ended. The card lives in the chat (above the message box) and in the connection
 // dialog, and the same sign-in is shown in both.
 
+import { put } from '../core/dom.js';
 import { language, t } from '../core/i18n.js';
 import { call, data, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
@@ -50,7 +51,7 @@ export function renderSignIn(host, kind) {
   if (!host) return;
   const phase = kind && run.kind === kind ? run.phase : 'idle';
   const key = kind ? `${kind}|${phase}|${language()}` : '';
-  host.hidden = !kind;
+  put(host, 'hidden', !kind);
   if (kind) showing.add(host.id);
   else showing.delete(host.id);
   if (host.dataset.key === key) return;

@@ -639,7 +639,7 @@ test('at night the drawings in the yard darken toward the blue of the night, all
   // The yard's light at night is the tint (garden.css --prop-light), and every drawing takes it.
   assert.match(css, /\.yard\.period-night\{--prop-light:url\(#night-tint\);\}/);
   const escape = selector => selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  for (const selector of ['.decor svg', '.decor>.ornaments', '.plant svg', '.planted-tree svg'])
+  for (const selector of ['.decor svg', '.decor>.ornaments', '.plant svg>use', '.planted-tree svg>use'])
     assert.match(css, new RegExp(`(^|\\})${escape(selector)}\\{[^}]*filter:var\\(--prop-light,none\\);`), selector);
   assert.match(css, /\.period-night \.trail-end svg\{filter:url\(#night-tint\);\}/);
   const page = await readFile('src/index.html', 'utf8');

@@ -5,6 +5,7 @@
 // after the person has touched the page, so the first click or key starts it.
 // Design: docs/design/2026-10-10-yard-sounds.md.
 
+import { put, putAttribute } from '../core/dom.js';
 import { t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { onShortcut } from '../core/keys.js';
@@ -132,8 +133,8 @@ export function boom(delay, pan, size) {
 export function renderSound() {
   const button = $('sound-button'),
     playing = on();
-  button.setAttribute('aria-pressed', String(playing));
-  button.title = t(playing ? 'sound.turn_off' : 'sound.turn_on');
+  putAttribute(button, 'aria-pressed', String(playing));
+  put(button, 'title', t(playing ? 'sound.turn_off' : 'sound.turn_on'));
   const icon = button.querySelector('[data-icon]'),
     name = playing ? 'sound' : 'sound-off';
   if (icon.dataset.icon !== name) {
@@ -141,7 +142,7 @@ export function renderSound() {
     icons(button);
   }
   if (document.activeElement !== $('sound-volume')) $('sound-volume').value = String(volume());
-  $('sound-volume').disabled = !playing;
+  put($('sound-volume'), 'disabled', !playing);
   update();
   if (awake) scape.setVolume(volume());
 }

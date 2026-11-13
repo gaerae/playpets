@@ -22,6 +22,13 @@ The loops stay on timers; the jitter named under Consequences is now carried by 
 - While a friend walks, the yard also wakes when a step of its walk ends, so each step shows for its own length; walks share one clock, and at most one such wake comes between two frames at the interval. Standing and gestures wake nothing extra. The weather canvas still moves only at the yard's interval.
 - Creatures and falling petals and leaves count as movement: the yard draws every 50 ms while they are out.
 
+## Follow-up (2026-11-14)
+A glide no longer has a fixed length: a step that comes late is glided into until the next is likely to come.
+- A timer can tick every 15.6 ms (WebView2 in Windows on battery): a 50 ms frame comes at 46.9 or 62.5 ms, and one two ticks late at 78 ms, longer than the 64 ms glide. The friend stood still until the next step.
+- `moveTo` (`src/core/ticker.js`, `glideFor`) makes the glide the gap since the node's last step plus one 16 ms tick, never shorter than the usual glide (64 ms in the yard, 52 ms on the desktop) and never longer than twice it.
+- The gap is read on the document timeline, the clock the glide itself starts on.
+- A gap longer than twice the usual glide is a rest, not a late step: a new walk glides for the usual time.
+
 ## Alternatives considered
 - **Keep `requestAnimationFrame` and only draw less:** Even when drawing is skipped, the cost of waking on every refresh and keeping the display link alive remains (confirmed by sampling).
 - **Move sprites as DOM elements instead of a canvas:** Compositing gets cheaper, but sprite sheet cell switching and gaze direction would all have to be rewritten, and no gain was measured.

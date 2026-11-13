@@ -2,6 +2,7 @@
 // taking those back off.
 
 import { confirmAction, keepEdits, showFormError } from '../core/confirm.js';
+import { put, putAttribute } from '../core/dom.js';
 import { joinList, language, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { limit } from '../core/limits.js';
@@ -224,8 +225,8 @@ export function renderShelf() {
   const filterLabel = $('invite-filter-label');
   if (filterLabel) {
     const labelKey = query.trim() || kind ? 'invite.filter_active' : 'invite.filter';
-    filterLabel.setAttribute('data-i18n', labelKey);
-    filterLabel.textContent = t(labelKey);
+    putAttribute(filterLabel, 'data-i18n', labelKey);
+    put(filterLabel, 'textContent', t(labelKey));
   }
   if (key !== shelfKey) {
     shelfKey = key;
@@ -237,22 +238,22 @@ export function renderShelf() {
   const most = limit(data, 'pets'),
     full = data.pets.length >= most;
   // A full yard says why the cards cannot be pressed, and what to do.
-  $('yard-full').hidden = !full;
-  if (full) $('yard-full').textContent = t('invite.full', { limit: most });
+  put($('yard-full'), 'hidden', !full);
+  if (full) put($('yard-full'), 'textContent', t('invite.full', { limit: most }));
   // A shape with no pets says so, with the way back to every pet.
-  $('no-kind').hidden = !data.assets.length || shown.length > 0;
+  put($('no-kind'), 'hidden', !data.assets.length || shown.length > 0);
   // A pet on its way into the yard is not taken off the shelf meanwhile.
   for (const b of $('shelf').querySelectorAll('.asset-remove')) b.disabled = inviting.has(b.dataset.assetId);
   for (const b of $('shelf').querySelectorAll('.asset-card')) {
-    b.disabled = full || inviting.has(b.dataset.assetId);
-    b.setAttribute('aria-busy', String(inviting.has(b.dataset.assetId)));
+    put(b, 'disabled', full || inviting.has(b.dataset.assetId));
+    putAttribute(b, 'aria-busy', String(inviting.has(b.dataset.assetId)));
     // The heading already says a click invites; a card adds a line only when that friend is in the
     // yard already, to say a click brings another.
     const hint = b.querySelector('.asset-hint');
-    hint.textContent = data.pets.some(p => p.assetId === b.dataset.assetId) ? t('invite.one_more') : '';
-    hint.hidden = !hint.textContent;
+    put(hint, 'textContent', data.pets.some(p => p.assetId === b.dataset.assetId) ? t('invite.one_more') : '');
+    put(hint, 'hidden', !hint.textContent);
   }
-  $('no-assets').hidden = data.assets.length > 0;
+  put($('no-assets'), 'hidden', data.assets.length > 0);
 }
 export function drawPreviews(now) {
   for (const { canvas, asset } of previews.values()) drawSprite(canvas, asset, 'idle', now);

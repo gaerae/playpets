@@ -1,5 +1,7 @@
 // Brief, friend-led tasks: choose ground, walk there, then commit one discovery.
+
 import { closeControls, closeScene } from '../core/controls.js';
+import { put } from '../core/dom.js';
 import { t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { onEscape, typing } from '../core/keys.js';
@@ -91,8 +93,8 @@ export function syncDiscovery() {
   for (const id of ['dig-tool', 'tree-tool']) {
     const button = $(id);
     if (!button) continue;
-    button.disabled = !soil || !views.size || !!game;
-    button.title = t(soil ? `discovery.${id === 'dig-tool' ? 'dig' : 'tree'}_hint` : 'discovery.indoors');
+    put(button, 'disabled', !soil || !views.size || !!game);
+    put(button, 'title', t(soil ? `discovery.${id === 'dig-tool' ? 'dig' : 'tree'}_hint` : 'discovery.indoors'));
   }
   if (intent?.action === 'tree') treeChoices();
 }

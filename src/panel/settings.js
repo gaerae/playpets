@@ -5,6 +5,7 @@ import { agentFile } from '../core/agent-files.js';
 import { agentLabel, agentOf, linkView } from '../core/agents.js';
 import { confirmAction } from '../core/confirm.js';
 import { desktopTip } from '../core/controls.js';
+import { put, putAttribute } from '../core/dom.js';
 import { language, t } from '../core/i18n.js';
 import { onShortcut } from '../core/keys.js';
 import { projectLinks } from '../core/project.js';
@@ -86,16 +87,16 @@ export async function linkAgent(button) {
 }
 export function renderDesktopSwitches() {
   // Desktop friends need someone in the yard; window pinning works independently.
-  $('desktop').disabled = !data.pets.length;
+  put($('desktop'), 'disabled', !data.pets.length);
   // A switch, as in the tray and the menu bar: the same words, and pressed while it is on. A narrow
   // window shows only the icon, so the words are the tooltip and the label too.
   const desktopLabel = t('desktop.show');
-  $('desktop-label').textContent = desktopLabel;
-  $('desktop').title = desktopLabel;
-  $('desktop').setAttribute('aria-label', desktopLabel);
-  $('desktop').setAttribute('aria-pressed', String(!!data.desktop));
-  $('wander-wrap').hidden = false;
-  $('desktop-wander').disabled = !data.desktop;
+  put($('desktop-label'), 'textContent', desktopLabel);
+  put($('desktop'), 'title', desktopLabel);
+  putAttribute($('desktop'), 'aria-label', desktopLabel);
+  putAttribute($('desktop'), 'aria-pressed', String(!!data.desktop));
+  put($('wander-wrap'), 'hidden', false);
+  put($('desktop-wander'), 'disabled', !data.desktop);
   $('desktop-wander').checked = !!data.desktopWander;
   $('auto-chatter').checked = !!data.autoChatter;
   $('auto-play').checked = !!data.autoPlay;

@@ -1,17 +1,16 @@
-import { poseClock } from '../core/animation.js';
-import { setupInteractions } from '../core/interactions.js';
 // The desktop overlay page, one per monitor: it draws the friends, gifts, flowers and planted trees
 // the backend places on this monitor and reports presses and drags. Positions, drags and strolls are worked out in
 // overlay.rs; a right click asks the backend for its menu (menu.rs desktop_choices).
 
-import { lookAt } from '../core/animation.js';
+import { lookAt, poseClock } from '../core/animation.js';
 import { styledAsset } from '../core/appearance.js';
 import { follow, language, list, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
+import { setupInteractions } from '../core/interactions.js';
 import { pick } from '../core/math.js';
 import { displayName } from '../core/names.js';
 import { setupSeason, systemSouth } from '../core/season.js';
-import { canvas, crown, drawSprite, reduced, setSpriteSeason } from '../core/sprites.js';
+import { canvas, crown, drawSprite, reduced, setSpriteSeason, sheetReady } from '../core/sprites.js';
 import { sceneValue } from '../core/state.js';
 import { applyStatus, fadedBetween, stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
@@ -43,6 +42,9 @@ const NAME_LINGER_MS = 600;
 const FOOT = 28;
 let data = { pets: [], assets: [], statuses: {} },
   layout = [];
+// Runs the next frame now (core/ticker.js every): a friend just come out is drawn at once, also
+// after the loop rested with nobody on this screen.
+let drawNow = () => {};
 const nameOf = v => displayName(v.pet, v.asset, t('friend.default'));
 const south = systemSouth();
 // The season the yard shows, which a grown tree wears here too.
@@ -257,6 +259,7 @@ function render() {
     const pet = data.pets.find(p => p.id === position.id);
     if (!pet) continue;
     let v = views.get(pet.id);
+    const arrived = !v;
     if (!v) {
       v = create(pet);
       views.set(pet.id, v);
@@ -266,6 +269,11 @@ function render() {
       data.assets.find(a => a.id === pet.assetId),
       pet.visualStyle,
     );
+    // Drawn now, and again the moment its sheet is in rather than at the next frame.
+    if (arrived && v.asset) {
+      drawNow();
+      sheetReady(v.asset).then(() => drawNow());
+    }
     v.status = stateOf(data, pet.id);
     v.wrap.style.visibility = 'visible';
     // A stroll glides from step to step (glide.js); a held friend follows the pointer on whichever
@@ -379,6 +387,8 @@ api.onEvent(event => {
   }
 });
 function animate(now) {
+  // Nobody on this screen (its window is kept a while, overlay.rs LINGER): no frames until one comes.
+  if (!views.size) return Infinity;
   for (const v of views.values()) {
     if (!v.asset) continue;
     const state = now < v.until ? v.pose : v.status;
@@ -397,10 +407,10 @@ if (result.ok) {
   // A language chosen in the yard reaches this window too (the page starts over in it).
   follow(data.language);
   layout = data.desktopLayout;
+  // Standing cells last 110-320 ms, so ten frames a second show every one of them.
+  drawNow = every(100, animate);
   seasonChanged();
   render();
-  // Standing cells last 110-320 ms, so ten frames a second show every one of them.
-  every(100, animate);
   // A finished agent's state fades after a while, as in the yard; nothing else here may draw the
   // friends again for hours, so the page looks each minute. A flower out here grows by the clock.
   let looked = Date.now();

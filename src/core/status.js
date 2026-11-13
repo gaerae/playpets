@@ -10,6 +10,13 @@ export const FADE_MS = 30 * 60 * 1000;
 export function applyStatus(data, { petId, state, message, source, at }) {
   data.statuses = { ...data.statuses, [petId]: { state, message, source, at } };
 }
+/** A `busy` event from the backend: who is waiting for an answer, sent on its own as a chat starts
+ * and ends. Gives the friends whose wait began or ended, the only ones drawn again. */
+export function applyBusy(data, { busy }) {
+  const before = data.busy ?? [];
+  data.busy = busy;
+  return [...new Set([...before, ...busy])].filter(id => before.includes(id) !== busy.includes(id));
+}
 /** The status to show for a friend, or null once an agent's done/error has faded. */
 export function statusOf(data, id, now = Date.now()) {
   const s = data.statuses?.[id];

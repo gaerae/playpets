@@ -17,7 +17,7 @@
 
 ## Key concepts
 - **One app, two windows:**
-  - The yard window (the main window) and a transparent desktop window on each monitor that has a friend on it.
+  - The yard window (the main window) and a transparent desktop window on each monitor that has a friend on it, kept a minute after the last one leaves.
   - Both windows draw only the state the backend holds.
 - **Commands and notifications:**
   - The page calls the backend through a single `window.playPets.<command>()`.

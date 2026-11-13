@@ -6,6 +6,7 @@
 
 import { companionImage, playCompanionAction, prepareCompanionAction } from '../core/companion-actions.js';
 import { openPlantMenu } from '../core/controls.js';
+import { put, putAttribute } from '../core/dom.js';
 import { joinList, list, t } from '../core/i18n.js';
 import { onEscape } from '../core/keys.js';
 import { pick } from '../core/math.js';
@@ -125,8 +126,8 @@ export function renderGarden(now = Date.now()) {
     if (stageOf(plant.planted, now).name === 'bloom' && !plant.bloomed) bloomed(plant, now);
     // A plant being dragged stays under the pointer.
     if (!v.drag?.moved) position(v, plant, now);
-    v.button.title = label(plant, now);
-    v.button.setAttribute('aria-label', v.button.title);
+    put(v.button, 'title', label(plant, now));
+    putAttribute(v.button, 'aria-label', v.button.title);
   });
   syncTool();
 }
@@ -156,8 +157,8 @@ function bloomed(plant, now) {
 // The tool says how many seeds there are; with none it stays pressable and says how to get one.
 function syncTool() {
   const seeds = data.garden?.seeds ?? 0;
-  $('seed-count').textContent = seeds ? String(seeds) : '';
-  $('plant-tool').setAttribute('aria-disabled', String(!seeds));
+  put($('seed-count'), 'textContent', seeds ? String(seeds) : '');
+  putAttribute($('plant-tool'), 'aria-disabled', String(!seeds));
   if (!spareSeeds() && aiming === 'seed') setAimingMode(false);
 }
 

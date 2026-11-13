@@ -12,6 +12,7 @@ import {
   playCompanionAction,
   prepareCompanionAction,
 } from '../core/companion-actions.js';
+import { put } from '../core/dom.js';
 import { list, t } from '../core/i18n.js';
 import { between, pick } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
@@ -23,7 +24,7 @@ import { setAimingMode } from './care.js';
 import { bite, kindOf } from './catalog.js';
 import { bugSvg, fishSvg } from './creatures.js';
 import { environmentFishingSpot, environmentLake } from './environment.js';
-import { drawnBox, field, footTarget, petHeight, sizeOf } from './field.js';
+import { drawnBox, field, footTarget, inYard, petHeight, sizeOf } from './field.js';
 import { authoredRodTip, castGeometry, castLandingX, linePath, ROD, rodPlacement, rodUrl } from './fishing-rod.js';
 import { hint } from './hint.js';
 import { composition, lakeShape, trace } from './layout.js';
@@ -387,7 +388,7 @@ const BODY = 14;
 // `press`: a pointerdown, which only the main button makes a catch; a pointermove has no button.
 function inFront(e, press = true) {
   if (aiming || game || !data.pets.length || (press && e.button !== 0) || !e.target.closest?.(UNDER)) return null;
-  const [x, y] = at(e);
+  const [x, y] = inYard(e);
   return scenery?.near(x, y, BODY) ? [x, y] : null;
 }
 // The play tools that stay in hand (digging, a tree, a seed). Pressing the lake or a creature with one
@@ -396,18 +397,14 @@ const TOOLS = ['dig', 'tree', 'seed'];
 function toolGivesWay(e) {
   if (!TOOLS.includes(aiming) || game || e.target.closest('.yard-pet, .pet-tag, .plant, .decor, .bobber, button'))
     return false;
-  const [x, y] = at(e);
+  const [x, y] = inYard(e);
   return !!scenery.near(x, y) || onLake(x, y);
-}
-function at(e) {
-  const r = $('yard').getBoundingClientRect();
-  return [e.clientX - r.left, e.clientY - r.top];
 }
 export function syncFishingAction() {
   const tool = $('fish-tool');
   if (!tool) return;
-  tool.hidden = false;
-  tool.disabled = !data.pets.length || !!game || !worldAllows(scene.world, 'fishing');
+  put(tool, 'hidden', false);
+  put(tool, 'disabled', !data.pets.length || !!game || !worldAllows(scene.world, 'fishing'));
 }
 /** Wires catching to the yard's clicks and its pointer. Called once, by app.js, which hands over
  * `wish` (petals.js): it takes the point of a caught petal. */
@@ -473,7 +470,7 @@ export function setupCatch({ wish = () => {} } = {}) {
   );
   yard.addEventListener('click', e => {
     if (!free(e)) return;
-    const [x, y] = at(e),
+    const [x, y] = inYard(e),
       caught = scenery.catchAt(x, y);
     if (caught) catchBug(caught);
     else {
@@ -484,7 +481,7 @@ export function setupCatch({ wish = () => {} } = {}) {
   });
   // Something to catch under the pointer shows as a hand.
   yard.addEventListener('pointermove', e => {
-    const [x, y] = at(e),
+    const [x, y] = inYard(e),
       // A petal is only for an empty hand: a tool in hand never gives way to one.
       can = free(e)
         ? scenery.near(x, y) || scenery.nearPetal(x, y) || onLake(x, y)

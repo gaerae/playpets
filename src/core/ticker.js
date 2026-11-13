@@ -12,9 +12,17 @@ const FORMATS = {
   translate: ([x, y]) => `${x}px ${y}px`,
   transform: ([x, y]) => `translate(${x}px,${y}px)`,
 };
+// A timer can come a tick late (15.6 ms in Windows on battery: a 50 ms frame at 62.5 or 78 ms), and
+// the next is likely to come as late. A glide lasts until then: the gap since the last step and one
+// more tick, up to twice its own time. A gap longer than that is a rest, not a late step.
+const TIMER_TICK = 16;
+function glideFor(ms, was, now) {
+  const gap = was.animation ? now - was.start : Infinity;
+  return gap < ms * 2 ? Math.min(ms * 2, Math.max(ms, gap + TIMER_TICK)) : ms;
+}
 /** Puts `node` at `to` ([x, y] px) by `property` (translate, or transform holding a translation
- * only): with `ms`, linearly over that long from where it shows now; at once without, and on its
- * first placing, so nothing slides in from the corner. */
+ * only): with `ms`, linearly over that long from where it shows now (longer after a late step,
+ * glideFor); at once without, and on its first placing, so nothing slides in from the corner. */
 export function moveTo(node, property, to, ms = 0) {
   const was = glides.get(node),
     value = FORMATS[property](to);
@@ -26,6 +34,7 @@ export function moveTo(node, property, to, ms = 0) {
     glides.set(node, { to, value });
     return;
   }
+  ms = glideFor(ms, was, now);
   let from = was.to;
   if (was.animation) {
     const k = Math.min(1, Math.max(0, (now - was.start) / was.ms));
@@ -64,17 +73,36 @@ export function cadence(wait) {
   };
 }
 // Calls `frame(now)` about every `ms` milliseconds. A frame may return how long to wait before
-// the next one instead (a busier scene asks sooner). One that throws does not stop the loop.
+// the next one instead (a busier scene asks sooner), or Infinity to rest until the returned `wake()`
+// is called, which runs the next frame at once. One that throws does not stop the loop.
 export function every(ms, frame) {
+  let timer = null,
+    // A wake from inside a frame cannot set a timer of its own: the frame's end sets one too, and
+    // the loop would run twice over. It asks the frame's end for the next frame at once instead.
+    running = false,
+    woken = false;
   const run = () => {
+    timer = null;
+    running = true;
+    woken = false;
     let next = ms;
     try {
       next = frame(performance.now()) || ms;
     } finally {
-      setTimeout(run, next);
+      running = false;
+      if (woken) next = 0;
+      if (next !== Infinity) timer = setTimeout(run, next);
     }
   };
-  setTimeout(run, ms);
+  timer = setTimeout(run, ms);
+  return () => {
+    if (running) {
+      woken = true;
+      return;
+    }
+    clearTimeout(timer);
+    timer = setTimeout(run, 0);
+  };
 }
 
 // What changes by the clock (the clock itself, the scene, a plant's stage, a finished agent's state

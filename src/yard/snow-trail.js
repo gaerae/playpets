@@ -6,6 +6,7 @@
 // - Every stamp is drawn from one soft gradient sprite, scaled and faded with globalAlpha, so a
 //   frame makes no gradients. The blur is CSS on the element (WebKit has no ctx.filter).
 // - With reduced motion nothing is left behind.
+import { onDensityChange } from '../core/dom.js';
 import { reduced } from '../core/sprites.js';
 import { $ } from '../core/state.js';
 
@@ -39,6 +40,8 @@ export function setupSnowTrail() {
   sprite = null;
   sized = painted = false;
   clear();
+  // On a screen of another density it goes, as on a resize, and the next stamp measures again.
+  onDensityChange(resizeTrail);
 }
 
 function buildSprite() {

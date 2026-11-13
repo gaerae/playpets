@@ -16,7 +16,7 @@ import { visitTarget } from './garden.js';
 import { groundProfile } from './ground.js';
 import { loungeTarget, sitOut } from './lounge.js';
 import { sendTo } from './trips.js';
-import { place, pose } from './views.js';
+import { followPointer, place, pose } from './views.js';
 import { idleAction, strollClear, WANDER_DELAY, wanderTarget } from './wander.js';
 import { blocked } from './workspace.js';
 
@@ -125,6 +125,7 @@ export function moveFriends(now, dt) {
       posing = now < v.until,
       walk = posing && WALK_CYCLES.has(state);
     const clock = posing && !walk ? (Number.isFinite(v.until) ? poseClock(state, elapsed) : elapsed) : now;
+    followPointer(v);
     const look = state === 'idle' ? v.look : null,
       action = companionAction(v, now);
     // When a step of the walk drawn ends, for the loop to wake then (app.js): a 120 ms step would

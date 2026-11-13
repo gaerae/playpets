@@ -1,5 +1,6 @@
 // Looking after friends: treats they walk over to, and the pats, waves and jumps they answer.
 
+import { put, putAttribute } from '../core/dom.js';
 import { t } from '../core/i18n.js';
 import { onEscape } from '../core/keys.js';
 import { between, clamp } from '../core/math.js';
@@ -60,8 +61,8 @@ export function syncChatter() {
   const able = data.pets.filter(p => p.providerId).length;
   // Not disabled: a disabled button cannot be focused or pressed, so the reason would only be a
   // tooltip. Pressed with fewer than two, it says what is missing.
-  $('chatter').setAttribute('aria-disabled', String(able < 2));
-  $('chatter').title = able < 2 ? t('care.chatter_need_two') : t('care.chatter_title');
+  putAttribute($('chatter'), 'aria-disabled', String(able < 2));
+  put($('chatter'), 'title', able < 2 ? t('care.chatter_need_two') : t('care.chatter_title'));
 }
 /** The friends with an AI have a short talk about the moment (the button, and the timer). */
 export const startChatter = () => call('chatter', scene.period, scene.weather);

@@ -113,6 +113,31 @@ function gliding() {
   node.glides = [];
   return node;
 }
+// A timer on battery in Windows ticks every 15.6 ms: a 50 ms frame comes at 46.9 or 62.5 ms, and
+// one two ticks late at 78. The glide to a step lasts until the next is likely to come: the gap
+// since the last step and one more tick, never shorter than the glide for a frame on time, and no
+// longer than twice that. A step after a long rest is a new walk, glided as one on time.
+test('a step that comes late is glided into until the next is likely to come, so the friend never stops', async t => {
+  const { document } = installDom(t);
+  const { GLIDE_MS: desktopGlide } = await import('../src/overlay/glide.js');
+  for (const glide of [GLIDE_MS, desktopGlide]) {
+    document.timeline = { currentTime: 1000 };
+    const node = gliding();
+    moveTo(node, 'translate', [0, 0], glide);
+    moveTo(node, 'translate', [1, 0], glide);
+    const lasts = (gap, x) => {
+      document.timeline.currentTime += gap;
+      moveTo(node, 'translate', [x, 0], glide);
+      return node.glides.at(-1).options.duration;
+    };
+    assert.equal(lasts(20, 2), glide, 'a step on time glides for the usual time');
+    assert.equal(lasts(62.5, 3), Math.max(glide, 78.5), 'a tick late: until a tick after the gap');
+    assert.equal(lasts(78, 4), 94, 'two ticks late');
+    assert.equal(lasts(glide * 2 - 1, 5), glide * 2, 'no longer than twice the usual');
+    assert.equal(lasts(5000, 6), glide, 'after a rest, a new walk');
+  }
+});
+
 test('a glide goes on from where the friend shows, from the time of the frame it shows in', t => {
   const { document } = installDom(t);
   document.timeline = { currentTime: 1000 };
@@ -182,6 +207,18 @@ test('a tree or a flower held in a drag stops swaying where it leans, and goes o
       held.some(b => /animation-play-state:\s*paused/.test(b.body)),
       `a dragged .${name} pauses its breeze instead of snapping upright`,
     );
+  }
+});
+
+// A filter on the element the breeze moves is drawn again with each step of the sway; the light
+// drawn inside it is drawn once and moves with it.
+test('a swaying tree or flower carries its light inside, not on the drawing the breeze moves', async () => {
+  const css = uncommented(await readFile('src/styles/garden.css', 'utf8'));
+  for (const name of ['plant', 'planted-tree']) {
+    for (const { head, body } of blocks(css, new RegExp(`[^{}]*\\.${name}[^{},]*\\ssvg\\s*(?=\\{)`, 'g')))
+      assert.doesNotMatch(body, /var\(--prop-light/, `${head} takes no light`);
+    const inside = blocks(css, new RegExp(`(^|\\})\\s*\\.${name} svg > use\\s*(?=\\{)`, 'g'));
+    assert.match(inside[0]?.body || '', /filter:\s*var\(--prop-light, none\)/, `.${name}'s drawing takes the light`);
   }
 });
 

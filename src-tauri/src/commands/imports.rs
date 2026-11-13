@@ -17,7 +17,7 @@ pub(super) fn import_from_url(app: &AppHandle, state: &State<Shared>, url: &str)
     });
     lock(state).importing.retain(|flag| !Arc::ptr_eq(flag, &cancel));
     let asset = catalog::read_pet(&folder?)?;
-    register_asset(app, &mut lock(state), asset)
+    register_asset(app, lock(state), asset)
 }
 
 pub(super) fn import_from_folder(app: &AppHandle, state: &State<Shared>) -> Result<Value, String> {
@@ -35,7 +35,7 @@ pub(super) fn import_from_folder(app: &AppHandle, state: &State<Shared>) -> Resu
     if catalog::picked_by_hand(&downloads, &asset.folder, &d.picked, &d.assets) {
         d.picked.push(asset.folder.to_string_lossy().into_owned());
     }
-    register_asset(app, &mut d, asset)
+    register_asset(app, d, asset)
 }
 
 /// A pet ZIP picked on this computer is copied into the data folder's pets, so the ZIP can go.
@@ -59,7 +59,7 @@ pub(super) fn add_zip(app: &AppHandle, state: &State<Shared>, file: &std::path::
     let root = lock(state).store.dir.join("pets");
     let folder = importer::import_from_zip(file, &root)?;
     let asset = catalog::read_pet(&folder)?;
-    register_asset(app, &mut lock(state), asset)
+    register_asset(app, lock(state), asset)
 }
 
 /// Takes an imported or picked pet off the shelf. An imported one's folder in the data folder goes

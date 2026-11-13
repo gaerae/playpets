@@ -14,6 +14,7 @@
 //   fall thicker around the spot are the scenery's (scenery.gather).
 
 import { closeControls } from '../core/controls.js';
+import { put, putAttribute } from '../core/dom.js';
 import { list, t } from '../core/i18n.js';
 import { between, pick, shuffle } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
@@ -85,13 +86,13 @@ export function setupViewing() {
 export function syncViewingAction() {
   const tool = $('viewing-tool');
   if (!tool) return;
-  tool.hidden = !viewingTime(scene);
+  put(tool, 'hidden', !viewingTime(scene));
   // Disabled while a gathering is on, so a call is never answered with everyone being busy.
-  tool.disabled = !data?.pets?.length || !!game || !!gathering;
+  put(tool, 'disabled', !data?.pets?.length || !!game || !!gathering);
   // Waiting stays focusable, like the chatter button, and says why.
   const wait = !mayCall(Date.now(), lastCalled);
-  tool.setAttribute('aria-disabled', String(wait));
-  tool.title = t(wait && !tool.disabled ? 'viewing.wait' : 'viewing.action_title');
+  putAttribute(tool, 'aria-disabled', String(wait));
+  put(tool, 'title', t(wait && !tool.disabled ? 'viewing.wait' : 'viewing.action_title'));
 }
 
 // The person's call: friends come unless it is within the hour of the last one, which counts as the

@@ -2,6 +2,7 @@
 
 import { agentsOf } from '../core/agents.js';
 import { lookAt, renewsClock } from '../core/animation.js';
+import { put, putAttribute } from '../core/dom.js';
 import { joinList, list, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { clamp, pick } from '../core/math.js';
@@ -169,22 +170,31 @@ export function cheer(v, lines, { as = 'jump', ms = 1100, mark = '✦', say = 30
   if (mark) effect(v, mark);
   bubble(v, pick(list(lines)), say);
 }
-function fit(v) {
-  const size = sizeOf(v.pet);
-  v.button.style.width = `${size}px`;
-  v.canvas.style.width = `${size}px`;
-  v.canvas.style.height = `${petHeight(v.pet)}px`;
-  v.label.style.width = `${size}px`;
-  // The body's room in the label follows the friend's depth (place).
-  v.depth = null;
+// Sizes a friend's body, canvas and label for its size, and stands it where it is. The sizes are
+// written only when the size changed or the yard was resized (`resized`): a push that leaves them
+// as they were writes nothing, and keeps the depth place() last wrote. `box` is the dock (dockBox),
+// measured once for every friend.
+function fit(v, box, resized = false) {
+  const size = sizeOf(v.pet),
+    height = petHeight(v.pet);
+  const sized = resized || v.fitted !== `${size}|${height}`;
+  if (sized) {
+    v.fitted = `${size}|${height}`;
+    v.button.style.width = `${size}px`;
+    v.canvas.style.width = `${size}px`;
+    v.canvas.style.height = `${height}px`;
+    v.label.style.width = `${size}px`;
+    // The body's room in the label follows the friend's depth (place).
+    v.depth = null;
+  }
   place(v);
-  clearOfDock(v);
-  keepInside(v);
+  clearOfDock(v, box);
+  if (sized) keepInside(v);
 }
 /** Lifts a friend standing behind the dock to stand just above it, in view: one saved at the front
- * edge before friends walked past the field's foot, one dropped there, or one the dock grew over. */
-export function clearOfDock(v) {
-  const box = dockBox();
+ * edge before friends walked past the field's foot, one dropped there, or one the dock grew over.
+ * `box` is the dock (dockBox), when the caller has measured it for many friends. */
+export function clearOfDock(v, box = dockBox()) {
   if (!box) return;
   const foot = footOf(v);
   if (!underDock(foot.x, foot.y, sizeOf(v.pet) / 2, box)) return;
@@ -226,10 +236,18 @@ export function place(v, { glide = false } = {}) {
   stackLabel(v);
 }
 // A friend the frame loop moves (a walk, a parade) glides from one step to the next (core/ticker.js
-// moveTo), over a little longer than the loop's 50 ms step, so a step that comes late never shows a
-// stop. Each step asks for it (place's `glide`): a choice left on the friend would carry over to a
+// moveTo), over a little longer than the loop's 50 ms step, and longer after a step that came late
+// (glideFor), so a late step never shows a stop. Each step asks for it (place's `glide`): a choice left on the friend would carry over to a
 // place from anything between two steps, which would then slide instead of jump.
 export const GLIDE_MS = 64;
+/** Turns a friend toward the pointer that last moved over it (`v.pointer`), called by the frame
+ * loop before it draws the friend. Its box is read here, once a frame at most: a pointer moves far
+ * more often than the yard draws, and each read lays the page out. */
+export function followPointer(v) {
+  if (!v.pointer) return;
+  v.look = lookAt(v.button.getBoundingClientRect(), v.pointer.x, v.pointer.y);
+  v.pointer = null;
+}
 /** Stops a friend's glide at once where it was going, as a press takes it. */
 export function unglide(v) {
   halt(v.button);
@@ -247,7 +265,7 @@ function stackLabel(v) {
 const tagName = (v, p) => (v.button.classList.contains('tagger') ? t('game.tagger_name', { name: name(p) }) : name(p));
 /** Rewords the tag after the tagger changed; the rest of the tag (agents) stays. */
 export function labelTag(v) {
-  v.tagName.textContent = tagName(v, v.pet);
+  put(v.tagName, 'textContent', tagName(v, v.pet));
 }
 // The tag is also the way to talk: under the pointer it shows a speech mark, and a click on it
 // (not a drag) opens the conversation, as the name button does on the desktop.
@@ -387,11 +405,12 @@ function createView(p) {
         pose(v, e.clientX >= v.drag.startX ? 'right' : 'left', 200);
         place(v);
       }
-    } else {
-      v.look = lookAt(button.getBoundingClientRect(), e.clientX, e.clientY);
-    }
+    } else v.pointer = { x: e.clientX, y: e.clientY };
   });
-  both('pointerleave', () => (v.look = null));
+  both('pointerleave', () => {
+    v.pointer = null;
+    v.look = null;
+  });
   // A pat, by pointer or keyboard. Once someone has patted a friend, the line above the yard stops
   // saying how.
   const pat = async () => {
@@ -468,8 +487,38 @@ function createView(p) {
   );
   return v;
 }
+// What a friend's body and label say: its name, its agents, its agent's state, whether it is the one
+// talked with or answering. Written only where it differs.
+function labelView(v, p) {
+  // One agent is named on the tag; more are counted, and the full list is the tooltip.
+  const agents = agentsOf(data, p.id);
+  labelTag(v);
+  put(v.agents, 'textContent', agents.length > 1 ? `${agents[0]} +${agents.length - 1}` : agents[0] || '');
+  put(v.agents, 'hidden', !agents.length);
+  put(v.agents, 'title', agents.length > 1 ? joinList(agents) : '');
+  put(v.tag, 'title', t('friend.talk', { name: name(p) }));
+  const state = agentState(p);
+  // The dot's colour is said in words too, for anyone who cannot see it.
+  putAttribute(
+    v.button,
+    'aria-label',
+    state === 'idle'
+      ? t('yard.pat_name', { name: name(p) })
+      : t('yard.pat_name_state', { name: name(p), state: labels[state] }),
+  );
+  v.button.classList.toggle('selected', p.id === selected);
+  v.button.classList.toggle('thinking', data.busy.includes(p.id));
+  if (state === 'done' && v.dot.dataset.state && v.dot.dataset.state !== 'done') effect(v, '✦');
+  put(v.dot, 'hidden', state === 'idle');
+  put(v.dot.dataset, 'state', state);
+  put(v.dot, 'title', state === 'idle' ? '' : labels[state] || '');
+}
 // Brings the yard in line with the backend: friends that left go, new ones appear, the rest update.
+// It runs on every push, mostly with nothing changed: what is written is written only when it differs.
 export function syncViews() {
+  // The dock, measured once for every friend and before anything here is written: a read after a
+  // write lays the page out again.
+  const box = dockBox();
   for (const [id, v] of views)
     if (!data.pets.some(p => p.id === id)) {
       release(v);
@@ -491,29 +540,16 @@ export function syncViews() {
       v.x = p.x;
       v.y = p.y;
     }
-    // One agent is named on the tag; more are counted, and the full list is the tooltip.
-    const agents = agentsOf(data, p.id);
-    labelTag(v);
-    v.agents.textContent = agents.length > 1 ? `${agents[0]} +${agents.length - 1}` : agents[0] || '';
-    v.agents.hidden = !agents.length;
-    v.agents.title = agents.length > 1 ? joinList(agents) : '';
-    v.tag.title = t('friend.talk', { name: name(p) });
-    const state = agentState(p);
-    // The dot's colour is said in words too, for anyone who cannot see it.
-    v.button.setAttribute(
-      'aria-label',
-      state === 'idle'
-        ? t('yard.pat_name', { name: name(p) })
-        : t('yard.pat_name_state', { name: name(p), state: labels[state] }),
-    );
-    v.button.classList.toggle('selected', p.id === selected);
-    v.button.classList.toggle('thinking', data.busy.includes(p.id));
-    if (state === 'done' && v.dot.dataset.state && v.dot.dataset.state !== 'done') effect(v, '✦');
-    v.dot.hidden = state === 'idle';
-    v.dot.dataset.state = state;
-    v.dot.title = state === 'idle' ? '' : labels[state] || '';
-    fit(v);
+    labelView(v, p);
+    fit(v, box);
   }
+}
+/** Draws one friend's label again, as its agent's status changed: a hook sends one on every tool the
+ * agent uses, and the rest of the yard is as it was. */
+export function syncView(id) {
+  const v = views.get(id),
+    p = data.pets.find(q => q.id === id);
+  if (v && p) labelView(v, p);
 }
 // `handlers`: gameTap(view), select(id), openChat(id), patted(id) after a pat, and resized() once
 // the yard changes size.
@@ -523,6 +559,7 @@ export function setupViews(handlers) {
   new ResizeObserver(() => {
     measureYard();
     on.resized();
-    for (const v of views.values()) fit(v);
+    const box = dockBox();
+    for (const v of views.values()) fit(v, box, true);
   }).observe($('yard'));
 }

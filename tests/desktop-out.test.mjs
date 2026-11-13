@@ -5,10 +5,15 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { element, installDom, installStorage, keepGlobals } from './support/dom.mjs';
 
-const calls = [];
+const calls = [],
+  warmed = [];
 globalThis.playPets = {
   setOnDesktop: async (...args) => {
     calls.push(['setOnDesktop', ...args]);
+    return { ok: true, data: null };
+  },
+  warmDesktop: async id => {
+    warmed.push(id);
     return { ok: true, data: null };
   },
 };
@@ -27,6 +32,7 @@ function menu(t, { pets = [], decor = [], plants = [], trees = [] } = {}) {
   state.setData({ pets, assets: [], garden: { decor, plants, trees, boxed: [], received: [] } });
   t.after(() => state.setData(previous));
   calls.length = 0;
+  warmed.length = 0;
   const context = document.getElementById('yard-context-menu');
   context.hidden = true;
   const item = (contextFor, contextAction, role = 'menuitem') => {
@@ -62,6 +68,8 @@ test("a friend's menu sends just that friend out to the desktop, or brings it in
   const { context, shown, find } = menu(t, { pets: [{ id: 'miso', name: 'Miso', onDesktop: false }] });
   setupControls();
   openFriendMenu('miso', { x: 40, y: 40 });
+  // Its window on the desktop gets ready while the menu is open, so the choice shows at once.
+  assert.deepEqual(warmed, ['miso']);
   assert.deepEqual(shown(), ['talk', 'play-friend', 'desktop-friend']);
   assert.equal(find('desktop-friend').getAttribute('aria-checked'), 'false');
   await context.dispatch('click', { target: find('desktop-friend') });
@@ -70,6 +78,7 @@ test("a friend's menu sends just that friend out to the desktop, or brings it in
   assert.equal(localStorage.getItem('desktop-tip'), '1', 'said once, the first time');
   state.data.pets[0].onDesktop = true;
   openFriendMenu('miso', { x: 40, y: 40 });
+  assert.deepEqual(warmed, ['miso'], 'already out: nothing to get ready');
   assert.equal(find('desktop-friend').getAttribute('aria-checked'), 'true');
   await context.dispatch('click', { target: find('desktop-friend') });
   await flush();
@@ -126,6 +135,7 @@ test("a flower's and a planted tree's menus send them out or pull them up", asyn
   setupControls({ pullPlant: id => pulled.push(id), removeTree: id => removed.push(id) });
   openPlantMenu('p1', { x: 40, y: 40 });
   assert.equal(context.hidden, false);
+  assert.deepEqual(warmed, ['p1'], 'a flower not out yet');
   assert.deepEqual(shown(), ['desktop-plant', 'pull-plant']);
   assert.equal(find('desktop-plant').getAttribute('aria-checked'), 'false');
   await context.dispatch('click', { target: find('desktop-plant') });
@@ -136,6 +146,7 @@ test("a flower's and a planted tree's menus send them out or pull them up", asyn
   assert.deepEqual(pulled, ['p1']);
   assert.equal(context.hidden, true);
   openTreeMenu('t1', { x: 40, y: 40 });
+  assert.deepEqual(warmed, ['p1', 'p1'], 'a tree out already');
   assert.deepEqual(shown(), ['desktop-tree', 'remove-tree']);
   assert.equal(find('desktop-tree').getAttribute('aria-checked'), 'true');
   await context.dispatch('click', { target: find('desktop-tree') });

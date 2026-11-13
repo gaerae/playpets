@@ -2,6 +2,7 @@
 
 import { logEntries } from '../core/chatlog.js';
 import { confirmAction } from '../core/confirm.js';
+import { put, putAttribute } from '../core/dom.js';
 import { joinList, t } from '../core/i18n.js';
 import { composing } from '../core/keys.js';
 import { dropdown } from '../core/menu.js';
@@ -22,7 +23,7 @@ import {
   toast,
 } from '../core/state.js';
 import { blocks, spoken, waitingLine } from '../core/text.js';
-import { befriend } from '../yard/bond.js';
+import { befriendAll } from '../yard/bond.js';
 import {
   CLI_LABELS,
   cliChoice,
@@ -42,6 +43,8 @@ import {
 } from './connection.js';
 
 let providerKey = '',
+  // What the companion chips were last built from (renderChat).
+  chipsKey = '',
   chatEpoch = 0;
 // The bridge may reject before its first busy-state update reaches the page.
 const pendingChats = new Set();
@@ -138,11 +141,11 @@ function signInFor(p) {
 function syncSignIn(p) {
   const kind = signInFor(p);
   renderSignIn($('chat-sign-in'), kind);
-  for (const node of $('chat-log').querySelectorAll('.connect-cta, .chat-starters')) node.hidden = !!kind;
-  $('message').disabled = !!kind;
+  for (const node of $('chat-log').querySelectorAll('.connect-cta, .chat-starters')) put(node, 'hidden', !!kind);
+  put($('message'), 'disabled', !!kind);
   // The box itself says why it waits: a small window hides the note under it.
-  $('message').placeholder = t(kind ? 'signin.note' : 'chat.placeholder');
-  if (kind) $('chat-note').textContent = t('signin.note');
+  put($('message'), 'placeholder', t(kind ? 'signin.note' : 'chat.placeholder'));
+  if (kind) put($('chat-note'), 'textContent', t('signin.note'));
   syncSend();
 }
 export function renderChat(p) {
@@ -154,54 +157,86 @@ export function renderChat(p) {
     $('provider-select').append(new Option(t('chat.new_ai'), '__new'));
   }
   $('provider-select').value = p.providerId || '';
-  $('provider-select').disabled = data.busy.includes(p.id);
-  const busy = data.busy.includes(p.id);
-  $('send').hidden = busy;
-  $('cancel').hidden = !busy;
-  // A friend with no AI can still be written to: sending connects one first.
-  // Read-only, not disabled: a disabled box drops the focus, and every turn would need a click.
-  $('message').readOnly = busy;
   syncSend();
-  // Nothing said yet, nothing to clear.
-  $('clear-chat').disabled = busy || !hasHistory;
-  $('chat-log').setAttribute('aria-busy', String(busy));
-  $('chat-note').textContent = busy ? t('chat.note_busy') : p.providerId ? t('chat.note_keys') : t('chat.note_connect');
   // Who joins in is another friend with an AI: the one talked with now (picked again after a friend
   // left) and friends no longer here or without an AI drop out.
   for (const id of companions)
     if (id === p.id || !data.pets.some(q => q.id === id && q.providerId)) companions.delete(id);
   const others = data.pets.filter(q => q.id !== p.id && q.providerId);
-  $('companions').hidden = !p.providerId || !others.length;
-  $('companion-chips').replaceChildren();
-  for (const q of others) {
-    const chip = document.createElement('button');
-    chip.type = 'button';
-    chip.className = `detect-chip${companions.has(q.id) ? ' on' : ''}`;
-    chip.setAttribute('aria-pressed', String(companions.has(q.id)));
-    chip.textContent = name(q);
-    chip.disabled = busy;
-    chip.onclick = () => {
-      if (companions.has(q.id)) companions.delete(q.id);
-      else if (companions.size < 3) companions.add(q.id);
-      else return toast(t('chat.max_companions'));
-      const focused = document.activeElement === chip;
-      renderChat(p);
-      if (focused) $('companion-chips').children[others.indexOf(q)]?.focus();
-    };
-    $('companion-chips').append(chip);
+  put($('companions'), 'hidden', !p.providerId || !others.length);
+  // The chips are built again only when what they show changed: a push mostly changes none of it.
+  const chips = JSON.stringify([p.id, others.map(q => [q.id, name(q)]), [...companions]]);
+  if (chips !== chipsKey) {
+    chipsKey = chips;
+    $('companion-chips').replaceChildren();
+    for (const q of others) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = `detect-chip${companions.has(q.id) ? ' on' : ''}`;
+      chip.setAttribute('aria-pressed', String(companions.has(q.id)));
+      chip.textContent = name(q);
+      chip.onclick = () => {
+        if (companions.has(q.id)) companions.delete(q.id);
+        else if (companions.size < 3) companions.add(q.id);
+        else return toast(t('chat.max_companions'));
+        const focused = document.activeElement === chip;
+        // The friend as it is now: the chips outlive pushes that change what they do not show (its AI).
+        renderChat(data.pets.find(friend => friend.id === p.id) ?? p);
+        if (focused) $('companion-chips').children[others.indexOf(q)]?.focus();
+      };
+      $('companion-chips').append(chip);
+    }
   }
-  $('companion-summary').textContent = companions.size
-    ? t('chat.with', {
-        names: joinList(data.pets.filter(q => companions.has(q.id)).map(name)),
-      })
-    : t('chat.pick_companions');
-  syncWaiting();
+  put(
+    $('companion-summary'),
+    'textContent',
+    companions.size
+      ? t('chat.with', {
+          names: joinList(data.pets.filter(q => companions.has(q.id)).map(name)),
+        })
+      : t('chat.pick_companions'),
+  );
+  syncBusy();
   syncSignIn(p);
+}
+/** What says whether the friend talked with is waiting for an answer. A chat's start and end come
+ * as a `busy` event, which changes only this, not the rest of the panel. */
+export function syncBusy() {
+  const p = pet();
+  if (!p) return;
+  const busy = data.busy.includes(p.id);
+  put($('provider-select'), 'disabled', busy);
+  put($('send'), 'hidden', busy);
+  put($('cancel'), 'hidden', !busy);
+  // A friend with no AI can still be written to: sending connects one first.
+  // Read-only, not disabled: a disabled box drops the focus, and every turn would need a click.
+  put($('message'), 'readOnly', busy);
+  // Nothing said yet, nothing to clear.
+  put($('clear-chat'), 'disabled', busy || !hasHistory);
+  putAttribute($('chat-log'), 'aria-busy', String(busy));
+  // The sign-in card's note stands while it shows (syncSignIn).
+  if (!signInFor(p))
+    put(
+      $('chat-note'),
+      'textContent',
+      busy ? t('chat.note_busy') : p.providerId ? t('chat.note_keys') : t('chat.note_connect'),
+    );
+  for (const chip of $('companion-chips').children) put(chip, 'disabled', busy);
+  syncWaiting();
 }
 // The log shows one friend's conversation. A new message is added at the end rather than the whole
 // log redrawn, so a screen reader announces only what is new and someone reading further up is not
-// pulled down; switching friends, clearing, or a reset starts the log over.
-let shown = { pet: null, keys: [] };
+// pulled down; switching friends, clearing, or a reset starts the log over. `keys` are the whole
+// conversation's, `entries` its lines, and `from` the first line drawn.
+let shown = { pet: null, keys: [], entries: [], from: 0 };
+/** How many of a conversation's last lines are drawn when it opens; scrolled to the top, the log
+ * draws as many again before them (showEarlier). A long one would otherwise build every line. */
+export const CHAT_PAGE = 50;
+// Within this many pixels of the top counts as at the top.
+const TOP_SLACK = 40;
+// The log's lines, without the waiting bubble or what an empty log shows.
+const lineNodes = log =>
+  [...log.children].filter(n => n.classList?.contains('message') && !n.classList.contains('waiting'));
 let endUnseen = false;
 const keyOf = m => `${m.role}|${m.name || ''}|${m.content}`;
 // Which friend said it: the friend talked with, or a friend in the group by its id (lines kept
@@ -307,7 +342,7 @@ export async function refreshChat() {
   const log = $('chat-log');
   if (shown.pet !== p.id) {
     log.replaceChildren();
-    shown = { pet: p.id, keys: [] };
+    shown = { pet: p.id, keys: [], entries: [], from: 0 };
   }
   syncWaiting();
   try {
@@ -327,19 +362,23 @@ export async function refreshChat() {
     while (dropped < shown.keys.length && !follows(dropped)) dropped++;
     const grows = shown.keys.length > dropped;
     if (grows && dropped) {
-      for (const node of [...log.children].filter(n => !n.classList.contains('waiting')).slice(0, dropped))
-        node.remove();
+      // Only the dropped lines that were drawn have nodes to take away.
+      for (const node of lineNodes(log).slice(0, Math.max(0, dropped - shown.from))) node.remove();
+      shown.from = Math.max(0, shown.from - dropped);
       shown.keys = shown.keys.slice(dropped);
     }
     if (!grows) {
       log.replaceChildren();
       shown.keys = [];
+      shown.from = Math.max(0, entries.length - CHAT_PAGE);
       if (!entries.length) placeholder(p);
     }
     const waiting = log.querySelector('.waiting');
-    for (let n = shown.keys.length; n < entries.length; n++)
-      log.insertBefore(messageNode(entries[n], entries[n - 1]), waiting);
+    // The first line drawn opens its speaker's turn, with its picture, whoever spoke before it.
+    for (let n = Math.max(shown.keys.length, shown.from); n < entries.length; n++)
+      log.insertBefore(messageNode(entries[n], n > shown.from ? entries[n - 1] : null), waiting);
     shown.keys = keys;
+    shown.entries = entries;
     refreshAvatars(log);
     syncWaiting();
     if (!grows || atBottom) {
@@ -350,8 +389,27 @@ export async function refreshChat() {
     toast(spoken(e, t('error.history')), { error: true });
   }
 }
+/** Draws the lines before the first one drawn, when the log is scrolled to its top: what was on
+ * screen stays where it was. Called on the log's scroll. */
+export function showEarlier() {
+  const log = $('chat-log');
+  if (!shown.from || log.scrollTop > TOP_SLACK) return;
+  const { entries } = shown,
+    to = shown.from,
+    from = Math.max(0, to - CHAT_PAGE),
+    first = lineNodes(log)[0],
+    height = log.scrollHeight;
+  for (let n = from; n < to; n++) log.insertBefore(messageNode(entries[n], n > from ? entries[n - 1] : null), first);
+  // The line that opened the drawn part opened a turn of its own; with what came before it now
+  // drawn, it may be the same speaker going on.
+  if (first && speaker(entries[to]) === speaker(entries[to - 1]) && first.classList.contains('turn'))
+    first.replaceWith(messageNode(entries[to], entries[to - 1]));
+  shown.from = from;
+  log.scrollTop += log.scrollHeight - height;
+}
 /** The panel just opened: a log filled while hidden could not scroll, so it goes to its end now. */
 export function chatShown() {
+  if (unmeasured) syncSend();
   if (!endUnseen) return;
   endUnseen = false;
   const log = $('chat-log');
@@ -373,10 +431,20 @@ export function chatEvent(event) {
   if (event.type === 'chat-message' && (event.petId === selected || companions.has(event.petId))) refreshChat();
 }
 // The composer grows with the text; the send button wakes up once there is something to send.
+// Its height is measured again only for other text or another window width: measuring lays the
+// page out, and every push comes here with neither changed. A box out of sight cannot be measured;
+// it is measured when its tab shows (chatShown).
+let measuredFor = '',
+  unmeasured = false;
 function syncSend() {
   const box = $('message');
   // With no AI yet, sending opens the connection first (see the form's submit).
-  $('send').disabled = box.disabled || !box.value.trim() || pendingChats.has(selected);
+  put($('send'), 'disabled', box.disabled || !box.value.trim() || pendingChats.has(selected));
+  const key = `${globalThis.innerWidth}|${box.value}`;
+  if (key === measuredFor) return;
+  unmeasured = !!box.closest?.('[hidden]');
+  measuredFor = unmeasured ? '' : key;
+  if (unmeasured) return;
   box.style.height = 'auto';
   box.style.height = `${Math.min(140, box.scrollHeight + 2)}px`;
 }
@@ -400,6 +468,8 @@ export function setupChat() {
   });
   // Who joins in opens above the composer.
   dropdown($('companion-toggle'), $('companion-chips'));
+  // A long conversation draws its earlier lines as it is read up to the top.
+  $('chat-log').addEventListener('scroll', showEarlier, { passive: true });
   $('configure').onclick = () =>
     openConnectionDialog(data.providers.find(c => c.id === pet()?.providerId) || null, refreshChat);
   $('provider-select').onchange = guard(async () => {
@@ -462,8 +532,8 @@ export function setupChat() {
     try {
       if (group.length) await call('chatWith', round.friends, text);
       else await call('chat', id, text);
-      // Talking is time together too, with each friend in the conversation.
-      for (const friend of [id, ...group]) befriend(friend, 'chat');
+      // Talking is time together too, with each friend in the conversation: one call, one save.
+      befriendAll([id, ...group], 'chat');
       temporaryMessages.delete(id);
     } catch (error) {
       temporaryMessages.set(id, { role: 'error', content: error.message });

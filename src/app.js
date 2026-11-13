@@ -1,14 +1,12 @@
-import { openControls, openFriendMenu, setupControls } from './core/controls.js';
-import { setupInteractions } from './core/interactions.js';
-import { setupBackgrounds } from './yard/background-ui.js';
-
 // Entry point: sets every part of the page up in order, listens to the backend, and runs the frame loop.
 // No other module does anything when it is imported; each has a setup function, called here.
 
 import { setupCompanionActions } from './core/companion-actions.js';
 import { setupConfirm } from './core/confirm.js';
+import { openControls, openFriendMenu, setupControls } from './core/controls.js';
 import { apply, follow, t } from './core/i18n.js';
 import { icons } from './core/icons.js';
+import { setupInteractions } from './core/interactions.js';
 import { onShortcut } from './core/keys.js';
 import { setupNotices } from './core/notices.js';
 import { setSpriteSeason } from './core/sprites.js';
@@ -28,20 +26,21 @@ import {
   toast,
   views,
 } from './core/state.js';
-import { applyStatus, fadedBetween } from './core/status.js';
+import { applyBusy, applyStatus, fadedBetween } from './core/status.js';
 import { clip, plain, spoken } from './core/text.js';
 import { every, everyMinute } from './core/ticker.js';
 import { openAlbum, renderAlbum, setupAlbum } from './panel/album.js';
-import { chatEvent, refreshChat, setupChat } from './panel/chat.js';
+import { chatEvent, refreshChat, setupChat, syncBusy } from './panel/chat.js';
 import { setupConnection } from './panel/connection.js';
 import { setupFriendSettings } from './panel/friend-settings.js';
-import { drawPortrait, select, setupFriend } from './panel/friend.js';
+import { drawPortrait, renderPanel, select, setupFriend } from './panel/friend.js';
 import { drawPreviews, importLink, invite, setupInvite } from './panel/invite.js';
 import { setupSettings, showSection } from './panel/settings.js';
 import { openInvite, openPanel, PANELS, setupTabs } from './panel/tabs.js';
 import { announceInstalledUpdate, checkForUpdates, setupUpdates, updateFound, updateStatus } from './panel/update.js';
 import { render } from './render.js';
 import { setupWindow } from './window.js';
+import { setupBackgrounds } from './yard/background-ui.js';
 import { befriend, bondTick, seen, setupBond } from './yard/bond.js';
 import { setupCard } from './yard/card.js';
 import { react, setupCare, startChatter } from './yard/care.js';
@@ -92,7 +91,7 @@ import { setupTouches } from './yard/touches.js';
 import { resizeTrails, setupTrails, trailsCheck, trailsSeen } from './yard/trails.js';
 import { release } from './yard/trips.js';
 import { setupViewing, viewing, viewingTick } from './yard/viewing.js';
-import { bubble, place, setupViews, syncViews } from './yard/views.js';
+import { bubble, place, setupViews, syncView, syncViews } from './yard/views.js';
 import { drawWelcome, setupWelcome } from './yard/welcome.js';
 import { setupWinter } from './yard/winter.js';
 import { scene, scenery } from './yard/world.js';
@@ -312,14 +311,25 @@ setupWelcome({ invite, more: openInvite });
 setupSettings();
 setupUpdates();
 
+// Pushes that come together are drawn once: the start sends a few, each its own message. The
+// state is taken at once, so the drawing always shows the latest; it comes on a zero timer, after
+// the messages already waiting, as the page's other timing does (core/ticker.js). Who was talked
+// with, and through what, is kept from before the first of them.
+let pushed = null;
 api.onChange(next => {
-  const old = selected,
-    ai = pet()?.providerId;
+  if (!pushed) {
+    pushed = { old: selected, ai: pet()?.providerId };
+    setTimeout(drawPushed, 0);
+  }
   setData(next);
+});
+function drawPushed() {
+  const { old, ai } = pushed;
+  pushed = null;
   render();
   // What the log says before a first word depends on whether the friend has an AI.
   if (old !== selected || ai !== pet()?.providerId) refreshChat();
-});
+}
 // The friends chat among themselves every so often when the setting is on: not while the window
 // is hidden, not while someone is answering, and only with two friends who have an AI.
 const AUTO_CHATTER_MS = 20 * 60 * 1000;
@@ -370,10 +380,20 @@ const ON_EVENT = {
     if (p) Object.assign(p, { x: e.x, y: e.y });
   },
   say: speak,
+  // A coding agent's hook sends one on every tool it uses: its friend, the panel when it shows that
+  // friend, and the agents' summary are drawn again, not the whole page.
   status: e => {
     applyStatus(data, e);
-    render();
+    syncView(e.petId);
+    if (e.petId === selected) renderPanel();
+    hint();
     if (e.source === 'agent') speak(e);
+  },
+  // A chat started or ended: the friends whose wait began or ended think or stop, and the panel's
+  // buttons follow. The auto chatter reads `busy` on its own timer.
+  busy: e => {
+    for (const id of applyBusy(data, e)) syncView(id);
+    syncBusy();
   },
   'chat-message': e => {
     const v = views.get(e.petId);
@@ -477,9 +497,6 @@ function animate(now) {
   return interval(now, early);
 }
 try {
-  // Record growth during closed time before the first tree and album are drawn.
-  // Trees that grew are saved and come back as a change, like any other.
-  await call('growTrees').catch(error => toast(spoken(error, t('error.start')), { error: true }));
   if (!booted) setData(await call('bootstrap'));
   follow(data.language);
   const saved = recallRun('panel');
@@ -491,6 +508,9 @@ try {
   announceInstalledUpdate();
   last = sceneryLast = performance.now();
   every(BUSY_MS, animate);
+  // Growth during closed time is recorded once the yard is drawn, so the first friend does not wait
+  // for a save: trees that grew are saved and come back as a change, like any other.
+  await call('growTrees').catch(error => toast(spoken(error, t('error.start')), { error: true }));
 } catch (e) {
   toast(spoken(e, t('error.start')), { error: true });
 }

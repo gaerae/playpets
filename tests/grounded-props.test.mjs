@@ -277,6 +277,6 @@ test('gifts, flowers and trees take the morning, the evening and the rain as the
     assert.match(css, new RegExp(`${selector.replaceAll('.', '\\.')} \\{\\s*--prop-light: url\\(#${id}\\);`));
   }
   assert.match(css, /\.yard\.period-night \{\s*--prop-light: url\(#night-tint\);/);
-  for (const thing of ['.decor svg', '.plant svg', '.planted-tree svg'])
+  for (const thing of ['.decor svg', '.plant svg > use', '.planted-tree svg > use'])
     assert.match(css, new RegExp(`${thing.replace('.', '\\.')} \\{[^}]*filter: var\\(--prop-light, none\\)`), thing);
 });

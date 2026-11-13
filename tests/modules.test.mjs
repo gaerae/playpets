@@ -115,3 +115,17 @@ test('every module but the entry points imports without a page', async () => {
     await assert.doesNotReject(import(pathToFileURL(path.resolve(file)).href), `${file} needs a page to import`);
   }
 });
+
+// Sorting imports carries a comment along with the import under it, so a file's header comment
+// written above its first import can end up among them, where it reads as a note on one import.
+test("a module's header comment stays above its imports", async () => {
+  const strays = [];
+  for (const file of await scripts()) {
+    const lines = (await readFile(file, 'utf8')).split('\n');
+    const last = lines.findLastIndex(line => line.startsWith('import '));
+    const first = lines.findIndex(line => line.startsWith('import '));
+    if (first < 0) continue;
+    if (lines.slice(first, last).some(line => line.startsWith('//'))) strays.push(file);
+  }
+  assert.deepEqual(strays, []);
+});

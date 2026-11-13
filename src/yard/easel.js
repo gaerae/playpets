@@ -90,20 +90,23 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
         paint();
       }
     };
-    image.onload = settle(true);
-    image.onerror = settle(false);
     const sources = worldFor(scene.world).imageSources;
     image.src = sources
       ? sources[name.slice(name.lastIndexOf(':') + 1)]
       : new URL(`../art/environments/${name}.webp`, import.meta.url).href;
+    // Painted once decoded, as raster.js does: a picture only loaded is decoded inside the first
+    // drawImage, on the main thread (a 1536 x 1024 picture, a frame of up to 90 ms). decode() works
+    // it out off the main thread, and fails as the load would.
+    image.decode().then(settle(true), settle(false));
   }
   function paint() {
     const w = yard.clientWidth,
       h = yard.clientHeight;
     if (!scene || !w || !h) return;
-    const style = getComputedStyle(yard),
+    const density = Math.min(2, window.devicePixelRatio || 1),
+      style = getComputedStyle(yard),
       pal = readPalette(name => style.getPropertyValue(`--${name}`).trim()),
-      key = JSON.stringify([w, h, scene, pal]);
+      key = JSON.stringify([w, h, scene, pal, density]);
     if (key === last) return;
     const art = wanted(scene);
     // The picture on the wall stays until the next has decoded: no flash of the painted
@@ -112,7 +115,6 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
     const fade = !!last && paintedWorld === scene.world && !reduced.matches && last.startsWith(`[${w},${h},`);
     paintedWorld = scene.world;
     last = key;
-    const density = Math.min(2, window.devicePixelRatio || 1);
     const skyCanvas = document.createElement('canvas');
     const skyContext = sized(skyCanvas, w, h, Math.min(1, density));
     if (worldAllows(scene.world, 'sky')) paintSky(skyContext, w, h, pal, scene, skyImages);
@@ -157,6 +159,8 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
     timer = setTimeout(paint, last ? 250 : 0);
   }).observe(yard);
   return {
+    /** The screen's density changed: paints again at the new one. */
+    repaint: paint,
     /** The light changed (or may have): paints again if what it shows is different. */
     set(next) {
       scene = {

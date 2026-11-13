@@ -1,6 +1,7 @@
 // Start with a sunny spring day; Auto follows the clock and the sky when selected.
 // A change of weather is remarked on by a friend or two (remarks.js).
 
+import { onDensityChange } from '../core/dom.js';
 import { t } from '../core/i18n.js';
 import { dropdown } from '../core/menu.js';
 import { isSeason, selectedSeason, systemSouth } from '../core/season.js';
@@ -248,6 +249,11 @@ export function setupSky(options = {}) {
   setScenery(createScenery($('weather-layer'), reduced, undefined, undefined, $('star-layer')));
   globalThis.window?.addEventListener?.('resize', placeMark);
   easel = createEasel($('yard'), reduced, landChanged);
+  // On a screen of another density the backdrop and the weather are painted again at its pixels.
+  onDensityChange(() => {
+    easel.repaint();
+    scenery.resize();
+  });
   const saved = savedScene();
   moveOldScene();
   const initial = initialSceneChoices(saved);

@@ -1,5 +1,6 @@
 // The line above the yard that says what is going on or what a press will do, and the agents' work
 // beside the friend count. Which line is a pure choice (hintKey, busyLine), so it can be tested.
+import { put } from '../core/dom.js';
 import { joinList, t } from '../core/i18n.js';
 import { $, aiming, data, game, labels, name, recall } from '../core/state.js';
 import { agentStateOf } from '../core/status.js';
@@ -33,7 +34,7 @@ export function hint() {
     name,
     state => labels[state],
   );
-  $('agent-summary').textContent = busy ? ` (${busy})` : '';
+  put($('agent-summary'), 'textContent', busy ? ` (${busy})` : '');
   const line = hintKey({
     game,
     aiming,
@@ -41,6 +42,6 @@ export function hint() {
     patted: !!recall('patted'),
     fished: !worldAllows(scene.world, 'fishing') || recall('fished') === '1',
   });
-  $('yard-hint').textContent = !line ? '' : (line.text ?? t(line.key));
-  $('yard-hint').hidden = !line;
+  put($('yard-hint'), 'textContent', !line ? '' : (line.text ?? t(line.key)));
+  put($('yard-hint'), 'hidden', !line);
 }

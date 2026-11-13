@@ -2,6 +2,7 @@
 // and the note after an update. The controls sit in Settings and as a pill beside the places.
 
 import { closeUpdateDetails } from '../core/controls.js';
+import { put, putAttribute } from '../core/dom.js';
 import { language, t } from '../core/i18n.js';
 import { projectLinks } from '../core/project.js';
 import { $, call, data, guard, recall, remember, toast } from '../core/state.js';
@@ -28,20 +29,20 @@ function stageLabel() {
   return t('update.downloading');
 }
 function showUpdate(note, button) {
-  $('update-note').textContent = note;
-  $('update-button').textContent = button;
-  $('update-notes').hidden = !found;
+  put($('update-note'), 'textContent', note);
+  put($('update-button'), 'textContent', button);
+  put($('update-notes'), 'hidden', !found);
 }
 export function renderUpdate() {
   // The Store keeps its own schedule; the note on quiet checks is about this app's own.
-  $('update-auto').hidden = data.updateChannel === 'store';
+  put($('update-auto'), 'hidden', data.updateChannel === 'store');
   if (installing) showUpdate(stageLabel(), t('settings.update_view'));
   else if (found)
     showUpdate(t('settings.update_available', { version: versionLabel(found.version) }), t('settings.update_view'));
   else if (data.updateChannel === 'store') showUpdate(t('settings.update_store'), t('settings.update_check'));
   else showUpdate(t('settings.update_current', { version: versionLabel(data.version) }), t('settings.update_check'));
   const visible = !!found && (!later || installing || !!updateError);
-  for (const id of ['update-pill', 'update-compact']) $(id).hidden = !visible;
+  for (const id of ['update-pill', 'update-compact']) put($(id), 'hidden', !visible);
   if (found) {
     const progress = Number.isFinite(updateStage.percent) ? ` (${updateStage.percent}%)` : '…';
     const label = updateError
@@ -50,11 +51,11 @@ export function renderUpdate() {
     const title =
       updateError || (installing ? stageLabel() : `${t('update.pill_title')} (${versionLabel(found.version)})`);
     for (const id of ['update-pill', 'update-compact']) {
-      $(id).title = title;
-      $(id).setAttribute('aria-label', title);
+      put($(id), 'title', title);
+      putAttribute($(id), 'aria-label', title);
     }
-    $('update-pill-label').textContent = label;
-    $('update-compact-label').textContent = label;
+    put($('update-pill-label'), 'textContent', label);
+    put($('update-compact-label'), 'textContent', label);
   }
   paintUpdateDetails();
   $('menu-settings')?.classList.toggle('has-update', !!found);
@@ -97,35 +98,35 @@ function newer(a, b) {
   return false;
 }
 function paintUpdateDetails() {
-  $('update-install').hidden = !found;
-  $('update-cancel').hidden = true;
+  put($('update-install'), 'hidden', !found);
+  put($('update-cancel'), 'hidden', true);
   if (!found) {
-    $('update-title').textContent = t('settings.update');
-    $('update-body').textContent = '';
-    $('update-progress-wrap').hidden = true;
-    $('update-error').hidden = !updateError;
-    $('update-error').textContent = updateError;
+    put($('update-title'), 'textContent', t('settings.update'));
+    put($('update-body'), 'textContent', '');
+    put($('update-progress-wrap'), 'hidden', true);
+    put($('update-error'), 'hidden', !updateError);
+    put($('update-error'), 'textContent', updateError);
     return;
   }
   const store = data.updateChannel === 'store';
-  $('update-title').textContent = t('update.title', { version: versionLabel(found.version) });
+  put($('update-title'), 'textContent', t('update.title', { version: versionLabel(found.version) }));
   $('update-body').textContent = t(store ? 'update.store_body' : 'update.body', {
     current: versionLabel(data.version),
   });
-  $('update-progress-wrap').hidden = !installing;
-  $('update-progress').hidden = installing && updateStage.phase !== 'downloading';
+  put($('update-progress-wrap'), 'hidden', !installing);
+  put($('update-progress'), 'hidden', installing && updateStage.phase !== 'downloading');
   if (installing && Number.isFinite(updateStage.percent)) $('update-progress').value = updateStage.percent;
   else $('update-progress').removeAttribute('value');
-  $('update-progress-label').textContent = installing ? stageLabel() : '';
-  $('update-error').hidden = !updateError;
-  $('update-error').textContent = updateError;
-  $('update-install').disabled = installing;
-  $('update-cancel').hidden = !installing || updateStage.phase !== 'downloading';
+  put($('update-progress-label'), 'textContent', installing ? stageLabel() : '');
+  put($('update-error'), 'hidden', !updateError);
+  put($('update-error'), 'textContent', updateError);
+  put($('update-install'), 'disabled', installing);
+  put($('update-cancel'), 'hidden', !installing || updateStage.phase !== 'downloading');
   $('update-install').textContent = updateError
     ? t('update.retry')
     : t(store ? 'settings.update_in_store' : 'settings.update_install');
-  $('update-later').disabled = false;
-  $('update-later').textContent = installing ? t('update.collapse') : t('update.later');
+  put($('update-later'), 'disabled', false);
+  put($('update-later'), 'textContent', installing ? t('update.collapse') : t('update.later'));
 }
 function revealUpdateDetails() {
   if (!found) return;
