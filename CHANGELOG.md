@@ -10,6 +10,21 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Changed
+
+- Friends walk smoothly in the yard and on the desktop instead of in small hops, a walk no longer starts with a jump, and their legs keep an even step.
+- Butterflies, dragonflies, fireflies and falling petals and leaves move smoothly, and wings beat without flickering.
+- Gifts, flowers and trees farther back look smaller, as friends do, so a swing at the back no longer looks bigger than the house.
+- Gifts, flowers and trees stand on their feet: no gap under them, and a soft shadow under each leg of a bench or a swing.
+- Gifts, flowers and trees take the morning, evening and rain light of the place, as they already took the night's.
+- In the Garden workshop, gifts keep to the size of the room's own furniture and cannot be set down inside it.
+- Gifts, flowers and trees out on the desktop come down to the bottom of the screen when you let go of them, instead of staying in mid-air.
+
+### Fixed
+
+- Trees, flowers and gifts placed at the back of the Hill garden stand on the lawn, not in the hedge behind the big tree or in the flower bush at its left edge.
+- When a place's picture cannot be loaded, friends, plants and gifts move onto the painted land at once instead of floating over it until the yard changes.
+
 ## [1.7.0] - 2026-11-12
 
 ### Added
