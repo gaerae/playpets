@@ -67,18 +67,30 @@ export function cadence(wait) {
 // the next one instead (a busier scene asks sooner), or Infinity to rest until the returned `wake()`
 // is called, which runs the next frame at once. One that throws does not stop the loop.
 export function every(ms, frame) {
-  let timer = null;
+  let timer = null,
+    // A wake from inside a frame cannot set a timer of its own: the frame's end sets one too, and
+    // the loop would run twice over. It asks the frame's end for the next frame at once instead.
+    running = false,
+    woken = false;
   const run = () => {
     timer = null;
+    running = true;
+    woken = false;
     let next = ms;
     try {
       next = frame(performance.now()) || ms;
     } finally {
+      running = false;
+      if (woken) next = 0;
       if (next !== Infinity) timer = setTimeout(run, next);
     }
   };
   timer = setTimeout(run, ms);
   return () => {
+    if (running) {
+      woken = true;
+      return;
+    }
     clearTimeout(timer);
     timer = setTimeout(run, 0);
   };

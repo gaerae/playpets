@@ -30,3 +30,19 @@ test('a loop whose frame says rest runs no more until woken, then runs at once',
   t.mock.timers.tick(100);
   assert.equal(frames.length, 5, 'one loop, not two');
 });
+
+// A wake can come from inside a frame (something the frame does shows a friend): the loop then
+// draws its next frame at once, and is still one loop.
+test('a wake during a frame asks for the next frame at once and keeps one loop', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const frames = [];
+  const wake = every(100, now => {
+    frames.push(now);
+    if (frames.length === 1) wake();
+    return 100;
+  });
+  t.mock.timers.tick(100);
+  assert.equal(frames.length, 2, 'woken inside the frame: the next one comes at once');
+  for (let i = 0; i < 10; i++) t.mock.timers.tick(100);
+  assert.equal(frames.length, 12, 'then one frame each interval, not two loops');
+});
