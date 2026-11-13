@@ -10,6 +10,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.7.1] - 2026-11-13
+
 ### Changed
 
 - Friends walk smoothly in the yard and on the desktop instead of in small hops, a walk no longer starts with a jump, and their legs keep an even step.

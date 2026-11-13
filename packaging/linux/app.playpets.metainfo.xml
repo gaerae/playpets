@@ -73,6 +73,23 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.7.1" date="2026-11-13">
+      <description>
+        <p>Friends walk smoothly instead of in small hops, and what you set out in the yard stands on the ground: smaller farther back, with a shadow at its feet and the light of the hour.</p>
+        <ul>
+          <li>Friends walk smoothly in the yard and on the desktop, without small hops or a jump as they set off.</li>
+          <li>Butterflies, dragonflies, fireflies and falling petals move smoothly, with no flicker.</li>
+          <li>Gifts, flowers and trees farther back look smaller, as friends do.</li>
+          <li>Gifts, flowers and trees stand on their feet; a bench or a swing has a shadow under each leg.</li>
+          <li>Gifts, flowers and trees take the light of the morning, the evening and the rain.</li>
+          <li>In the Garden workshop, gifts match the furniture's size and can't go inside it.</li>
+          <li>On the desktop, gifts, flowers and trees come down to the bottom of the screen when you let go.</li>
+          <li>At the back of the Hill garden, trees and flowers stand on the lawn, not in the hedge or the bushes.</li>
+          <li>When a place's picture can't be loaded, everything moves onto the painted land at once.</li>
+        </ul>
+      </description>
+      <url type="details">https://playpets.gaerae.com/releases/1.7.1</url>
+    </release>
     <release version="1.7.0" date="2026-11-12">
       <description>
         <p>Friends who help a coding agent get a glass-roofed garden workshop. The outdoor places have new pictures in one calm tone, and the old courtyard is now a wild garden.</p>
