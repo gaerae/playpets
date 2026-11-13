@@ -96,44 +96,43 @@ test('every effect a gift names exists', () => {
   for (const g of catalog.gifts)
     for (const name of g.effects || []) assert.ok(EFFECT_NAMES.includes(name), `${g.id}: ${name}`);
   for (const g of catalog.gifts) assert.ok(!g.stand || g.stand === 'on', `${g.id}: stand is "on" or left out`);
-  // A contact shade: its width, its height, where its centre is and, for a foot off the middle,
-  // how far across, as shares of the gift's, for a drawing with no ground.
-  for (const g of catalog.gifts.filter(g => g.shade)) {
-    assert.ok(!g.flat, `${g.id}: a flat gift lies on the ground already`);
-    assert.ok(
-      (g.shade.length === 3 || (g.shade.length === 4 && g.shade[3] > 0.1 && g.shade[3] < 0.9)) &&
-        g.shade[0] > 0.2 &&
-        g.shade[0] <= 1.2 &&
-        g.shade[1] > 0 &&
-        g.shade[1] <= 0.3 &&
-        g.shade[2] > 0.7 &&
-        g.shade[2] <= 1,
-      `${g.id}: shade`,
-    );
+});
+
+// A gift stands where its drawing ends: its `foot` is the share of its box's height at which the
+// lowest drawn pixels are (1 when they are on the box's edge), and its contact shade is centred
+// there, as wide as its base. Furniture seen from the side at an angle stands on spread feet
+// (`feet`), each a small dark shade of its own, inside the wide soft one under it all. Only what
+// is drawn as ground itself (a pond, stepping stones) has none. Shares of the box, measured from
+// the drawings (docs/how-to/add-to-the-yard.md).
+const GROUND_ITSELF = new Set(['pond', 'stepping_stones']);
+test('every gift that stands on the ground stands on its foot and a shade there', () => {
+  const share = (v, lo = 0, hi = 1) => typeof v === 'number' && v > lo && v <= hi;
+  for (const g of catalog.gifts) {
+    if (GROUND_ITSELF.has(g.id)) {
+      assert.ok(!g.shade && !g.feet, `${g.id}: drawn as ground, it needs no shade`);
+      continue;
+    }
+    const foot = g.foot ?? 1;
+    assert.ok(share(foot, 0.8), `${g.id}: foot ${g.foot}`);
+    assert.ok(Array.isArray(g.shade), `${g.id}: stands on a shade`);
+    const [w, h, y, x = 0.5] = g.shade;
+    assert.ok(g.shade.length === 3 || (g.shade.length === 4 && share(x, 0.1, 0.9)), `${g.id}: shade x`);
+    // The wide shade under spread feet reaches from the front foot to the back ones.
+    assert.ok(share(w, 0.2, 1.2) && share(h, 0, g.feet ? 0.4 : 0.3), `${g.id}: shade size`);
+    if (!g.feet) {
+      assert.ok(Math.abs(y - foot) <= 0.05, `${g.id}: shade at ${y}, foot at ${foot}`);
+      continue;
+    }
+    // The front foot is the lowest point drawn, and every foot stands in the wide shade.
+    assert.ok(Array.isArray(g.feet) && g.feet.length >= 2, `${g.id}: feet`);
+    assert.ok(Math.abs(Math.max(...g.feet.map(f => f[1])) - foot) <= 0.01, `${g.id}: its front foot is its foot`);
+    for (const [fx, fy, fw] of g.feet) {
+      assert.ok(share(fx) && share(fy, 0.5) && share(fw, 0, 0.15), `${g.id}: foot ${fx},${fy},${fw}`);
+      assert.ok(((fx - x) / (w / 2)) ** 2 + ((fy - y) / (h / 2)) ** 2 <= 1.05, `${g.id}: ${fx},${fy} in its shade`);
+    }
   }
-  for (const id of [
-    'bench',
-    'swing',
-    'hammock',
-    'santa',
-    'baby_reindeer',
-    'birdhouse',
-    'bunny_watering_can',
-    'flowerpot',
-    'hedgehog_planter',
-    'kite',
-    'lantern',
-    'mailbox',
-    'pinwheel',
-    'pumpkin',
-    'scarecrow',
-    'signpost',
-    'stump',
-    'tent',
-    'water_wheel',
-    'windchime',
-  ])
-    assert.ok(giftKind(id).shade, `${id}: drawn without ground, so it stands on a shade`);
+  // A flower's stem may end above its box's edge; it stands where its drawing ends.
+  for (const f of catalog.flowers) assert.ok(f.foot === undefined || share(f.foot, 0.75), `${f.id}: foot`);
 });
 
 test('every layer of the scenery names a painter, every thing a kind, and every colour the palette', () => {

@@ -17,7 +17,10 @@ globalThis.playPets = Object.fromEntries(
 const state = await import('../src/core/state.js');
 const { setData } = state;
 const { renderTrees, setupTrees } = await import('../src/yard/planted-trees.js');
-const { depthAt, fieldToYard, measureYard, yardZoom } = await import('../src/yard/field.js');
+const { depthAt, fieldToYard, measureYard } = await import('../src/yard/field.js');
+const { propScale } = await import('../src/yard/props.js');
+// A tree is drawn with the yard and smaller farther back, as a friend standing at its foot is.
+const zoomAt = tree => propScale(fieldToYard(tree));
 const { scene } = await import('../src/yard/world.js');
 const { treeKind } = await import('../src/yard/catalog.js');
 
@@ -61,15 +64,15 @@ function fixture(t) {
 test('trees retain scene ownership and their foot anchor while scaling with the yard', t => {
   const { tree, button, nodes, resize } = fixture(t);
   const foot = fieldToYard(tree);
-  assert.equal(button.style.width, `${160 * yardZoom()}px`);
-  assert.equal(button.style.height, `${170 * yardZoom()}px`);
-  assert.equal(button.style.transform, `translate(${foot.x - 80 * yardZoom()}px,${foot.y - 170 * yardZoom()}px)`);
+  assert.equal(button.style.width, `${160 * zoomAt(tree)}px`);
+  assert.equal(button.style.height, `${170 * zoomAt(tree)}px`);
+  assert.equal(button.style.transform, `translate(${foot.x - 80 * zoomAt(tree)}px,${foot.y - 170 * zoomAt(tree)}px)`);
   // Ordered by where its feet are, as friends and gifts are, so a friend far behind it on raised
   // ground is never drawn over it.
   assert.equal(button.style.zIndex, String(depthAt(foot.y)));
   assert.match(button.innerHTML, /cherry-mature/);
   resize(300, 210);
-  assert.equal(button.style.width, `${160 * yardZoom()}px`);
+  assert.equal(button.style.width, `${160 * zoomAt(tree)}px`);
   scene.world = 'room';
   renderTrees();
   assert.equal(button.removed, true);
@@ -181,12 +184,12 @@ test('growth keeps the root fixed and seasonal art applies only to mature trees'
   renderTrees();
   const foot = fieldToYard(tree);
   assert.match(button.innerHTML, /cherry-seedling/);
-  assert.equal(button.style.height, `${40 * yardZoom()}px`);
+  assert.equal(button.style.height, `${40 * zoomAt(tree)}px`);
   now += 2 * 60 * 60 * 1000;
   renderTrees();
   assert.match(button.innerHTML, /cherry-young/);
   now += 10 * 60 * 60 * 1000;
   renderTrees();
   assert.match(button.innerHTML, /cherry-mature-autumn/);
-  assert.equal(button.style.transform, `translate(${foot.x - 80 * yardZoom()}px,${foot.y - 170 * yardZoom()}px)`);
+  assert.equal(button.style.transform, `translate(${foot.x - 80 * zoomAt(tree)}px,${foot.y - 170 * zoomAt(tree)}px)`);
 });

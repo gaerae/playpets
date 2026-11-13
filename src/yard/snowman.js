@@ -154,7 +154,10 @@ const offered = () =>
 
 const across = () => Math.max(1, field().width - EDGE * 2);
 const deep = () => Math.max(1, field().bottom - field().top);
-const baseWidth = () => giftSize(SNOWMAN).w * giftKind(SNOWMAN).stack[0];
+// The snowman as the yard will draw it where it is built: smaller farther back (props.js giftSize),
+// and its balls with it, so the stack settles into the drawing at its size.
+const builtSize = () => giftSize(SNOWMAN, game?.kind === SNOWMAN && game.spot ? fieldToYard(game.spot) : undefined);
+const baseWidth = () => builtSize().w * giftKind(SNOWMAN).stack[0];
 function ballBox(size) {
   const [w, h] = artSize(giftKind(SNOWMAN).ball),
     width = size * baseWidth();
@@ -397,7 +400,7 @@ function dragged(b, dt, now) {
 // below. The base stands where the built snowman's base ball will.
 function stackPoint(i) {
   const foot = fieldToYard(game.spot),
-    size = giftSize(SNOWMAN);
+    size = giftSize(SNOWMAN, foot);
   return {
     x: foot.x,
     y: foot.y - giftKind(SNOWMAN).stack[1] * size.h - stackBottoms(BALLS)[i] * baseWidth(),
@@ -458,7 +461,7 @@ function land(now) {
 function finish() {
   const round = game,
     foot = fieldToYard(round.spot),
-    size = giftSize(SNOWMAN);
+    size = giftSize(SNOWMAN, foot);
   Object.assign(round, { stage: 'done', ball: null, hint: '', waiting: new Set(['stay', 'save']) });
   hint();
   settleInto(round.stack, size);
@@ -645,8 +648,8 @@ export function resizeSnowman() {
   if (b && game.stage === 'rolling') draw(b);
   game.stack.forEach((s, i) => setOnStack(s, i));
   if (game.preview) {
-    const size = giftSize(SNOWMAN),
-      foot = fieldToYard(game.spot);
+    const foot = fieldToYard(game.spot),
+      size = giftSize(SNOWMAN, foot);
     setDown(game.preview, foot.x, foot.y, size.w, size.h, depthAt(foot.y) + BALLS.length);
   }
 }

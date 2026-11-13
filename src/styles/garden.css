@@ -15,6 +15,29 @@
   --iron: #41474c;
   --lamp: #f2e6c4;
 }
+/* The scene's light on what stands in it: the flowers, the shoots, the gifts, the trees and the
+   dug soil take the morning, the evening and the rain as the picture is graded (yard/environment.js
+   environmentLook, one colour matrix each in index.html), and at night lose their daylight toward
+   the night's blue (#night-tint), so they sit in the blue snow and grass instead of turning grey.
+   Night comes last, so rain at night is night. */
+.yard.period-morning {
+  --prop-light: url(#morning-light);
+}
+.yard.period-evening {
+  --prop-light: url(#evening-light);
+}
+.yard.weather-rain {
+  --prop-light: url(#rain-light);
+}
+.yard.period-morning.weather-rain {
+  --prop-light: url(#morning-rain-light);
+}
+.yard.period-evening.weather-rain {
+  --prop-light: url(#evening-rain-light);
+}
+.yard.period-night {
+  --prop-light: url(#night-tint);
+}
 /* ---- the garden: plants and gifts drawn from symbols, at the friends' depth ---- */
 /* Inside the friends' layer and no layer of its own, so a plant or a gift stands in front of a
    friend behind it and behind a friend in front (each is set at its depth, props.js setDown). */
@@ -43,7 +66,23 @@
   /* Its transform places it (props.js setDown); eased, it would trail the pointer in a drag. */
   transition: none;
 }
-/* A portable garden sits in ceramic pots on a floor without soil (a room, an agent workspace). */
+/* Outdoors a flower stands on a small soft shade where its stem or its soil ends (--foot, the share
+   of its box at which its drawing ends, garden.js), under the drawing, as a gift does. */
+.plant::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: calc(var(--foot, 1) * 100%);
+  width: 56%;
+  height: 10%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(46 32 18 / 0.5), rgb(46 32 18 / 0.26) 55%, rgb(46 32 18 / 0));
+  pointer-events: none;
+}
+/* A portable garden sits in ceramic pots on a floor without soil (a room, an agent workspace). The
+   pot shares the flower's light instead of keeping its daytime ceramic white. */
 .yard[data-soil="false"] .plant::after {
   content: "";
   position: absolute;
@@ -52,25 +91,26 @@
   width: 100%;
   height: 45%;
   background: url("../art/decor/indoor-planter.webp") center / 100% 100% no-repeat;
+  filter: var(--prop-light, none);
   pointer-events: none;
+}
+/* Its shade is under the pot, whose drawn foot is 88% down the planter's picture: 105% down the box. */
+.yard[data-soil="false"] .plant::before {
+  top: 105%;
+  width: 46%;
+  height: 8%;
 }
 /* Early-stage soil sits inside the pot mouth; blossoms already end at their stem. */
 .yard[data-soil="false"] .plant:not([data-stage="bloom"]) svg {
   position: relative;
   top: -12%;
 }
-/* The pot shares the flower's light instead of retaining its daytime ceramic white. */
-.yard[data-soil="false"].period-evening .plant::after {
-  filter: brightness(0.88) saturate(0.85);
-}
-.yard[data-soil="false"].period-night .plant::after {
-  filter: url(#night-tint);
-}
 .plant svg {
   width: 100%;
   height: 100%;
   overflow: visible;
   transform-origin: 50% 100%;
+  filter: var(--prop-light, none);
   /* By scale, not transform, which the breeze moves (below). */
   transition: scale 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -82,21 +122,12 @@
   outline: none;
 }
 .plant:focus-visible svg {
-  filter: drop-shadow(0 0 2px var(--focus));
+  filter: var(--prop-light,) drop-shadow(0 0 2px var(--focus));
 }
 .yard.aiming .plant {
   cursor: inherit;
 }
 /* each flower's colours (--petal, --petal-hi, --petal-lo, --heart) come from catalog.json, set on it */
-/* At night the yard's drawings keep their shapes and lose their daylight toward the night's blue
-   (#night-tint in index.html), so they sit in the blue snow and grass instead of turning grey: the
-   flowers and shoots here, the gifts, the trees, the dug soil and the trail's bush below. */
-.period-night .plant svg {
-  filter: url(#night-tint);
-}
-.period-night .shoot svg {
-  filter: var(--shoot-lift) url(#night-tint);
-}
 /* Spring shoots poking up from the grass (yard/shoots.js), set down at their depth like a plant. The
    button's own transform is its place (props.js setDown), so only the drawing inside rises.
    Green on green grass, a shoot keeps a small soft shade under its patch of earth, no wider than
@@ -130,7 +161,7 @@
   width: 100%;
   height: 100%;
   transform-origin: 50% 100%;
-  filter: var(--shoot-lift);
+  filter: var(--shoot-lift) var(--prop-light,);
 }
 .shoot.sprouted svg {
   animation: shoot-up 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -189,6 +220,7 @@
   height: 100%;
   overflow: visible;
   transform-origin: 50% 100%;
+  filter: var(--prop-light, none);
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .decor:hover svg,
@@ -265,26 +297,41 @@
   }
 }
 .decor:focus-visible svg {
-  filter: drop-shadow(0 0 2px var(--focus));
+  filter: var(--prop-light,) drop-shadow(0 0 2px var(--focus));
 }
 .yard.aiming .decor {
   cursor: inherit;
 }
-/* A gift drawn without ground of its own (bench, swing, the Christmas guests) stands on a soft
-   contact shade at its foot (catalog.json "shade": its width, its height and the height its centre
-   is at, as shares of the gift's, since a drawing's feet are not always on its box's edge), under
-   the drawing, so it rests on the grass or the snow instead of hovering. A cool blue-grey
-   reads as shade on both, and stays a shade at night beside the dimmed drawing. */
-.decor-shade {
+/* A gift stands on a contact shade at its foot (catalog.json "shade": its width, its height and the
+   height its centre is at, as shares of the gift's box, and how far across when its foot is off the
+   middle), under the drawing, so it rests on the grass, the snow or the floor instead of hovering.
+   Warm and dark, tight at the foot as the shadows painted in the pictures are, it reads as shade on
+   green grass, white snow and warm tile alike, and stays one at night beside the dimmed drawing.
+   Furniture on spread feet (catalog "feet": each one's place and its leg's width) has a small dark
+   shade under each foot, over a wide soft one for the ground under it all. */
+.decor-shade,
+.decor-foot {
   position: absolute;
+  translate: -50% -50%;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.decor-shade {
   left: calc(var(--shade-x, 0.5) * 100%);
   top: calc(var(--shade-y) * 100%);
   width: calc(var(--shade-w) * 100%);
   height: calc(var(--shade-h) * 100%);
-  translate: -50% -50%;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(34 42 64 / 0.5), rgb(34 42 64 / 0.26) 60%, rgb(34 42 64 / 0));
-  pointer-events: none;
+  background: radial-gradient(closest-side, rgb(46 32 18 / 0.68), rgb(46 32 18 / 0.4) 55%, rgb(46 32 18 / 0));
+}
+.decor-shade.wide {
+  background: radial-gradient(closest-side, rgb(46 32 18 / 0.42), rgb(46 32 18 / 0.24) 60%, rgb(46 32 18 / 0));
+}
+.decor-foot {
+  left: calc(var(--foot-x) * 100%);
+  top: calc(var(--foot-y) * 100%);
+  width: calc(var(--foot-w) * 260%);
+  aspect-ratio: 2.4;
+  background: radial-gradient(closest-side, rgb(38 26 14 / 0.85), rgb(38 26 14 / 0.5) 55%, rgb(38 26 14 / 0));
 }
 /* a gift that just came pops into place */
 .decor.arrive > svg,
@@ -348,9 +395,8 @@
 .weather-snow .decor {
   --bird: 0;
 }
-.period-night .decor svg {
-  filter: url(#night-tint);
-}
+/* A lit gift is lit from evening on, so it keeps its own colours. */
+.period-evening .decor[data-effects~="glow"] svg,
 .period-night .decor[data-effects~="glow"] svg {
   filter: none;
 }
@@ -449,8 +495,8 @@
 .decor.dragging .xmas-art .ornaments {
   transform: scale(1.06);
 }
-.period-night .decor > .ornaments {
-  filter: url(#night-tint);
+.decor > .ornaments {
+  filter: var(--prop-light, none);
 }
 .period-night .decor .xmas-art .ornaments {
   filter: brightness(0.86);
@@ -466,22 +512,6 @@
 }
 .decor.xmas-grand:not(.xmas-rise) .xmas-hit {
   pointer-events: auto;
-}
-.yard.period-night .plant[data-stage="bloom"] svg {
-  filter: url(#night-tint);
-}
-.yard.period-evening .plant[data-stage="bloom"] svg {
-  filter: brightness(0.88) saturate(0.85);
-}
-/* The evening and night light keeps the focus ring a flower would otherwise lose. */
-.period-night .plant:focus-visible svg {
-  filter: url(#night-tint) drop-shadow(0 0 2px var(--focus));
-}
-.yard.period-night .plant[data-stage="bloom"]:focus-visible svg {
-  filter: url(#night-tint) drop-shadow(0 0 2px var(--focus));
-}
-.yard.period-evening .plant[data-stage="bloom"]:focus-visible svg {
-  filter: brightness(0.88) saturate(0.85) drop-shadow(0 0 2px var(--focus));
 }
 /* What a snowman wears (worn.css) scales with it as one when it is pointed at, chosen or dragged. */
 .decor:hover > .dress-layers,
@@ -819,6 +849,7 @@
   height: 100%;
   overflow: visible;
   transform-origin: 50% 100%;
+  filter: var(--prop-light, none);
 }
 /* The breeze: outdoors, trees and flowers past the seed lean a little one way and back about their
    foot, on the compositor; a flower, lighter, more and sooner. Each keeps its own beat (--sway,
@@ -875,18 +906,14 @@
 .planted-tree.dragging {
   cursor: grabbing;
 }
-.planted-tree.invalid svg {
+/* Dragged where it may not stand (a tree off free ground, a gift in a room's furniture). */
+.planted-tree.invalid svg,
+.decor.invalid svg {
   opacity: 0.5;
 }
 .planted-tree:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
-}
-.period-evening .planted-tree svg {
-  filter: brightness(0.88) saturate(0.85);
-}
-.period-night .planted-tree svg {
-  filter: url(#night-tint);
 }
 .dig-soil {
   position: absolute;
@@ -895,6 +922,7 @@
   left: -20px;
   bottom: -16px;
   background: url("../art/discovery/dug-soil.webp") center / contain no-repeat;
+  filter: var(--prop-light, none);
   opacity: 0;
 }
 .dig-effect[data-soil="winter"] .dig-soil {
@@ -909,12 +937,6 @@
   height: 30px;
   left: -14px;
   bottom: -13px;
-}
-.period-evening .dig-soil {
-  filter: brightness(0.88) saturate(0.85);
-}
-.period-night .dig-soil {
-  filter: url(#night-tint);
 }
 .dig-dirt {
   position: absolute;

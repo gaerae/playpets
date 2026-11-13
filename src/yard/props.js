@@ -1,14 +1,15 @@
 // What the garden (garden.js), the gifts (decor.js) and the planted trees share: things kept on the
 // field, drawn as buttons in the garden layer, kept in line with the backend's list, sized with the
 // yard as the friends are, set down by their foot, dragged about (friends too, views.js), and taken
-// away gently, with a moment to undo it.
+// away gently, with a moment to undo it. Each is drawn smaller farther back, about its foot, as a
+// friend standing there is.
 import { t } from '../core/i18n.js';
 import { clamp } from '../core/math.js';
 import { $, aiming, dropLine, game, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { artSize } from './art.js';
 import { giftKind } from './catalog.js';
-import { EDGE, field, fieldToYard, yardToField, yardZoom } from './field.js';
+import { depthScaleAt, EDGE, field, fieldToYard, propZoom, yardToField } from './field.js';
 import { scene } from './world.js';
 
 /** Brings `shown` (id → view) in line with `items`: views of items that went are removed, new ones
@@ -29,13 +30,15 @@ export function reconcile(shown, items, create, update) {
     if (leaving.has(item.id)) v.button.hidden = true;
   }
 }
-/** How much things on the field shrink in the yard as it is now: as much as the friends. */
-export const propScale = () => yardZoom();
-/** Sets a prop's box (w × h yard pixels) down with its foot at (x, y), in front of what is behind. */
-export function setDown(button, x, y, w, h, z) {
+/** How much a thing on the field shrinks in the yard as it is now (field.js propZoom), and, given
+ * where its foot is (`at`, yard pixels), for how far back it stands (field.js depthScaleAt). */
+export const propScale = at => propZoom() * (at ? depthScaleAt(at.x, at.y) : 1);
+/** Sets a prop's box (w × h yard pixels) down with its foot at (x, y), in front of what is behind.
+ * `foot` is the share of the box's height at which its drawing ends, when that is above its edge. */
+export function setDown(button, x, y, w, h, z, foot = 1) {
   button.style.width = `${w}px`;
   button.style.height = `${h}px`;
-  button.style.transform = `translate(${x - w / 2}px,${y - h}px)`;
+  button.style.transform = `translate(${x - w / 2}px,${y - h * foot}px)`;
   button.style.zIndex = String(z);
 }
 // A tree's sway takes 7 s one way (garden.css breeze), so a start this far into it covers the swing.
@@ -242,9 +245,12 @@ export async function moveSaved(view, item, at, { send, current, show, settle })
   }
 }
 
-/** Full rendered gift dimensions, shared by drawing, visiting and ground placement. */
-export function giftSize(kind) {
+/** Full rendered gift dimensions, shared by drawing, visiting and ground placement: its box, w × h
+ * yard pixels, for a foot at `at` (yard pixels; none, as at the front), and the share of the box's
+ * height at which its drawing ends (`foot`, catalog.json). */
+export function giftSize(kind, at) {
   const gift = giftKind(kind),
-    [w, h] = gift?.size || artSize(gift?.art);
-  return { w: w * 1.05 * propScale(), h: h * 1.05 * propScale() };
+    [w, h] = gift?.size || artSize(gift?.art),
+    scale = 1.05 * propScale(at);
+  return { w: w * scale, h: h * scale, foot: gift?.foot ?? 1 };
 }
