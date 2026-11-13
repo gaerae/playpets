@@ -1,14 +1,12 @@
-import { openControls, openFriendMenu, setupControls } from './core/controls.js';
-import { setupInteractions } from './core/interactions.js';
-import { setupBackgrounds } from './yard/background-ui.js';
-
 // Entry point: sets every part of the page up in order, listens to the backend, and runs the frame loop.
 // No other module does anything when it is imported; each has a setup function, called here.
 
 import { setupCompanionActions } from './core/companion-actions.js';
 import { setupConfirm } from './core/confirm.js';
+import { openControls, openFriendMenu, setupControls } from './core/controls.js';
 import { apply, follow, t } from './core/i18n.js';
 import { icons } from './core/icons.js';
+import { setupInteractions } from './core/interactions.js';
 import { onShortcut } from './core/keys.js';
 import { setupNotices } from './core/notices.js';
 import { setSpriteSeason } from './core/sprites.js';
@@ -42,6 +40,7 @@ import { openInvite, openPanel, PANELS, setupTabs } from './panel/tabs.js';
 import { announceInstalledUpdate, checkForUpdates, setupUpdates, updateFound, updateStatus } from './panel/update.js';
 import { render } from './render.js';
 import { setupWindow } from './window.js';
+import { setupBackgrounds } from './yard/background-ui.js';
 import { befriend, bondTick, seen, setupBond } from './yard/bond.js';
 import { setupCard } from './yard/card.js';
 import { react, setupCare, startChatter } from './yard/care.js';

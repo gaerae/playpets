@@ -1,5 +1,6 @@
-import { closeControls, closeScene } from '../core/controls.js';
 // Brief, friend-led tasks: choose ground, walk there, then commit one discovery.
+
+import { closeControls, closeScene } from '../core/controls.js';
 import { put } from '../core/dom.js';
 import { t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';

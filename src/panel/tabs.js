@@ -1,5 +1,6 @@
-import { closeControls, closeScene, closeUpdateDetails, openControls } from '../core/controls.js';
 // Management opens one task at a time; play never needs to pass through it.
+
+import { closeControls, closeScene, closeUpdateDetails, openControls } from '../core/controls.js';
 import { t } from '../core/i18n.js';
 import { composing } from '../core/keys.js';
 import { release } from '../core/sprites.js';

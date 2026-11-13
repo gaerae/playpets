@@ -1,7 +1,8 @@
-import { openTreeMenu } from '../core/controls.js';
 // Planted trees belong to their saved world. Their roots stay at the saved field coordinate;
 // growing or resizing changes only the drawing above that foot. Dragged to move; its menu sends it
 // out to the desktop or removes it.
+
+import { openTreeMenu } from '../core/controls.js';
 import { put, putAttribute } from '../core/dom.js';
 import { joinList, t } from '../core/i18n.js';
 import { call, data, guard } from '../core/state.js';

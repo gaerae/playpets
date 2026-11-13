@@ -1,13 +1,12 @@
-import { poseClock } from '../core/animation.js';
-import { setupInteractions } from '../core/interactions.js';
 // The desktop overlay page, one per monitor: it draws the friends, gifts, flowers and planted trees
 // the backend places on this monitor and reports presses and drags. Positions, drags and strolls are worked out in
 // overlay.rs; a right click asks the backend for its menu (menu.rs desktop_choices).
 
-import { lookAt } from '../core/animation.js';
+import { lookAt, poseClock } from '../core/animation.js';
 import { styledAsset } from '../core/appearance.js';
 import { follow, language, list, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
+import { setupInteractions } from '../core/interactions.js';
 import { pick } from '../core/math.js';
 import { displayName } from '../core/names.js';
 import { setupSeason, systemSouth } from '../core/season.js';
