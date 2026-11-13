@@ -113,6 +113,31 @@ function gliding() {
   node.glides = [];
   return node;
 }
+// A timer on battery in Windows ticks every 15.6 ms: a 50 ms frame comes at 46.9 or 62.5 ms, and
+// one two ticks late at 78. The glide to a step lasts until the next is likely to come: the gap
+// since the last step and one more tick, never shorter than the glide for a frame on time, and no
+// longer than twice that. A step after a long rest is a new walk, glided as one on time.
+test('a step that comes late is glided into until the next is likely to come, so the friend never stops', async t => {
+  const { document } = installDom(t);
+  const { GLIDE_MS: desktopGlide } = await import('../src/overlay/glide.js');
+  for (const glide of [GLIDE_MS, desktopGlide]) {
+    document.timeline = { currentTime: 1000 };
+    const node = gliding();
+    moveTo(node, 'translate', [0, 0], glide);
+    moveTo(node, 'translate', [1, 0], glide);
+    const lasts = (gap, x) => {
+      document.timeline.currentTime += gap;
+      moveTo(node, 'translate', [x, 0], glide);
+      return node.glides.at(-1).options.duration;
+    };
+    assert.equal(lasts(20, 2), glide, 'a step on time glides for the usual time');
+    assert.equal(lasts(62.5, 3), Math.max(glide, 78.5), 'a tick late: until a tick after the gap');
+    assert.equal(lasts(78, 4), 94, 'two ticks late');
+    assert.equal(lasts(glide * 2 - 1, 5), glide * 2, 'no longer than twice the usual');
+    assert.equal(lasts(5000, 6), glide, 'after a rest, a new walk');
+  }
+});
+
 test('a glide goes on from where the friend shows, from the time of the frame it shows in', t => {
   const { document } = installDom(t);
   document.timeline = { currentTime: 1000 };

@@ -12,9 +12,17 @@ const FORMATS = {
   translate: ([x, y]) => `${x}px ${y}px`,
   transform: ([x, y]) => `translate(${x}px,${y}px)`,
 };
+// A timer can come a tick late (15.6 ms in Windows on battery: a 50 ms frame at 62.5 or 78 ms), and
+// the next is likely to come as late. A glide lasts until then: the gap since the last step and one
+// more tick, up to twice its own time. A gap longer than that is a rest, not a late step.
+const TIMER_TICK = 16;
+function glideFor(ms, was, now) {
+  const gap = was.animation ? now - was.start : Infinity;
+  return gap < ms * 2 ? Math.min(ms * 2, Math.max(ms, gap + TIMER_TICK)) : ms;
+}
 /** Puts `node` at `to` ([x, y] px) by `property` (translate, or transform holding a translation
- * only): with `ms`, linearly over that long from where it shows now; at once without, and on its
- * first placing, so nothing slides in from the corner. */
+ * only): with `ms`, linearly over that long from where it shows now (longer after a late step,
+ * glideFor); at once without, and on its first placing, so nothing slides in from the corner. */
 export function moveTo(node, property, to, ms = 0) {
   const was = glides.get(node),
     value = FORMATS[property](to);
@@ -26,6 +34,7 @@ export function moveTo(node, property, to, ms = 0) {
     glides.set(node, { to, value });
     return;
   }
+  ms = glideFor(ms, was, now);
   let from = was.to;
   if (was.animation) {
     const k = Math.min(1, Math.max(0, (now - was.start) / was.ms));

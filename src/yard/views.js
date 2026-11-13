@@ -236,8 +236,8 @@ export function place(v, { glide = false } = {}) {
   stackLabel(v);
 }
 // A friend the frame loop moves (a walk, a parade) glides from one step to the next (core/ticker.js
-// moveTo), over a little longer than the loop's 50 ms step, so a step that comes late never shows a
-// stop. Each step asks for it (place's `glide`): a choice left on the friend would carry over to a
+// moveTo), over a little longer than the loop's 50 ms step, and longer after a step that came late
+// (glideFor), so a late step never shows a stop. Each step asks for it (place's `glide`): a choice left on the friend would carry over to a
 // place from anything between two steps, which would then slide instead of jump.
 export const GLIDE_MS = 64;
 /** Turns a friend toward the pointer that last moved over it (`v.pointer`), called by the frame

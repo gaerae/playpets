@@ -33,6 +33,8 @@
   - The weather canvas still moves only at the interval in the table, counted from its last repaint.
 - Between steps the compositor carries a moving friend: `moveTo` in `src/core/ticker.js`.
   - It starts a short linear Web Animation from where the friend shows to its new place: 64ms in the yard, 52ms on the desktop, a little longer than a step.
+  - After a step that came late, the glide lasts the gap since the last step plus one 16ms timer tick, up to twice its usual time: a timer that ticks every 15.6ms (Windows on battery) brings a 50ms frame at 62.5 or 78ms.
+  - A gap longer than twice the usual time is a rest, not a late step: the next glide takes the usual time.
   - Not on a friend's first placing, not while it is held, not with reduced motion.
   - Use it, not a CSS transition: WebKit starts a transition that replaces another a frame late, so the friend stops once every step.
 - Something that cycles on a canvas (a wing beat) spans at least six frames at the interval it is drawn at. A faster cycle is drawn at scattered points and flickers.
@@ -128,3 +130,4 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-11-11 Loops on the compositor (the breeze, a walking friend's step) may run while the yard is shown; `pnpm run measure` plants a small garden
 - 2026-11-13 The compositor carries a moving friend between steps; the yard wakes when a walking step ends, on one clock for all walks; creatures and falling petals keep the 50ms interval; wing beats span six frames
 - 2026-11-14 The overlay thread is woken by a change to what is out; a monitor's window stays a minute after its last thing leaves and opens early from the yard's menu, and its page draws nothing while it has nobody
+- 2026-11-14 A glide after a late step lasts until the next step is likely to come
