@@ -42,8 +42,11 @@
   --menu-surface: var(--panel-surface);
   --glass-blur: none;
   --soft: #eef3eb;
-  /* the keyboard focus ring */
+  /* the keyboard focus ring: one ring everywhere; on dark paint (water, the tree at night) the same
+     ring in candlelight, which reads there */
   --focus: #756451;
+  --focus-ring: 3px solid var(--focus);
+  --focus-ring-light: 3px solid #ffe7ad;
   /* the sheet a friend's things are on: the Friend and Invite tabs, the dialogs about a friend */
   --sheet: var(--panel-surface);
   /* an ink-filled button under the pointer */
@@ -101,6 +104,8 @@
   --radius-control: 5px;
   --radius-card: 6px;
   --radius-pill: 999px;
+  /* a line someone says, and a name: a chat message, a friend's bubble, a name tag */
+  --radius-bubble: 12px;
   /* The type scale: words take one of these steps, none under 11px (tests/ui-style.test.mjs). */
   --font-xs: 11px;
   --font-sm: 12px;
@@ -246,7 +251,7 @@ input:focus-visible,
 textarea:focus-visible,
 select:focus-visible,
 summary:focus-visible {
-  outline: 3px solid var(--focus);
+  outline: var(--focus-ring);
 }
 svg {
   width: 20px;
@@ -355,7 +360,7 @@ button:active:not(:disabled) {
   box-shadow: inset 0 0 0 1px var(--green-ink);
 }
 .choice-card:has(input:focus-visible) {
-  outline: 3px solid var(--focus);
+  outline: var(--focus-ring);
   outline-offset: 2px;
 }
 /* The radio stays for the keyboard and screen readers; the card shows the choice. */

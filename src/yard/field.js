@@ -172,7 +172,7 @@ export const EDGE = 14;
 const footRoom = () => (document.body.classList.contains('compact') ? 42 : 76);
 // A friend itself needs only its name tag's room below its feet (friends.css .pet-tag), so it walks
 // on down past the field's foot; the dock floats over it there, and strolls end clear of it.
-const TAG_ROOM = 28;
+export const TAG_ROOM = 28;
 /** The field friends and plants stand on, in yard pixels: its width, the ridge (top) and the
  * front edge (bottom) a foot can reach. */
 export function field() {
@@ -190,18 +190,25 @@ export function geometry(p, x) {
     top = Math.max(12, ground - petHeight(p));
   return { w, top, h: Math.max(1, r.height - petHeight(p) - TAG_ROOM - top) };
 }
-/** The dock floating over the yard's foot (shell.css .yard-dock) in yard pixels, or null while it
- * is hidden. It reads the layout: measure it once for the many questions a stroll asks. */
+/** What floats over the yard's foot, in yard pixels: the strip of a tool in hand, which takes the
+ * dock's place (garden.css .discovery-target), the dock (shell.css .yard-dock), or, in a small
+ * window that hides it, the corner button there (compact.css); null while none shows. It reads the
+ * layout: measure it once for the many questions a stroll asks. */
 export function dockBox() {
-  const dock = document.querySelector('.yard-dock')?.getBoundingClientRect?.();
+  let dock;
+  for (const selector of ['.discovery-target:not([hidden])', '.yard-dock', '.compact-launcher']) {
+    dock = document.querySelector(selector)?.getBoundingClientRect?.();
+    if (dock?.width) break;
+  }
   if (!dock?.width) return null;
   const yard = $('yard').getBoundingClientRect();
   return { left: dock.left - (yard.left || 0), top: dock.top - (yard.top || 0), width: dock.width };
 }
 /** Whether a friend whose feet are at (px, py) in the yard, `half` its width each side, stands
- * behind the dock (`box`, dockBox): a stroll does not end there. */
+ * behind the dock (`box`, dockBox), or would hang its name tag behind it: a stroll does not end
+ * there. */
 export function underDock(px, py, half, box = dockBox()) {
-  return !!box && px + half > box.left && px - half < box.left + box.width && py > box.top;
+  return !!box && px + half > box.left && px - half < box.left + box.width && py + TAG_ROOM > box.top;
 }
 /** A place on the field (0 to 1 each way, as plants and decorations keep it; a gift's y may go
  * past 1, decorFloor) in yard pixels. */

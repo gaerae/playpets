@@ -63,8 +63,15 @@
   background: none;
   cursor: pointer;
   pointer-events: auto;
-  /* Its transform places it (props.js setDown); eased, it would trail the pointer in a drag. */
-  transition: none;
+  /* Its transform places it (props.js setDown); eased, it would trail the pointer in a drag. Only
+     its fade in front of a friend eases (.veiled, below). */
+  transition: opacity 0.25s ease;
+}
+/* A friend standing mostly behind a flower, a shoot, a gift or a tree drawn in front of it would
+   show only its hat: the thing fades while the friend is there (yard/veil.js), and the friend and
+   its name read through it. */
+:is(.plant, .shoot, .decor, .planted-tree).veiled {
+  opacity: 0.45;
 }
 /* Outdoors a flower stands on a small soft shade where its stem or its soil ends (--foot, the share
    of its box at which its drawing ends, garden.js), under the drawing, as a gift does. */
@@ -147,7 +154,7 @@
   background: none;
   cursor: pointer;
   pointer-events: auto;
-  transition: none;
+  transition: opacity 0.25s ease;
 }
 .shoot::before {
   content: "";
@@ -212,7 +219,7 @@
   cursor: grab;
   pointer-events: auto;
   touch-action: none;
-  transition: none;
+  transition: opacity 0.25s ease;
   user-select: none;
 }
 .decor.dragging {
@@ -631,8 +638,8 @@
 }
 .dress-toggle:focus-visible,
 .dress-done:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: -2px;
+  outline: var(--focus-ring);
+  outline-offset: -3px;
 }
 /* Ground targeting is temporary and leaves the friends visible above it: the strip stands where the
    dock was (shell.css), so the person's eye stays at the bottom with the ground. */
@@ -846,7 +853,7 @@
   pointer-events: auto;
   touch-action: none;
   cursor: grab;
-  transition: none;
+  transition: opacity 0.25s ease;
   user-select: none;
 }
 .planted-tree svg {
@@ -920,7 +927,7 @@
   opacity: 0.5;
 }
 .planted-tree:focus-visible {
-  outline: 2px solid var(--focus);
+  outline: var(--focus-ring);
   outline-offset: 2px;
 }
 .dig-soil {
@@ -1190,7 +1197,7 @@
   pointer-events: auto;
 }
 .trail-follow:focus-visible {
-  outline: 2px solid var(--focus);
+  outline: var(--focus-ring);
   outline-offset: 2px;
 }
 /* With a tool in hand or in a game, a press on the prints is the yard's (trails.js gives way too). */

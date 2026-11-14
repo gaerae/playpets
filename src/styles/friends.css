@@ -224,7 +224,7 @@
   color: var(--scene-ink);
   font-weight: 650;
   background: var(--scene-label-soft);
-  border-radius: 12px;
+  border-radius: var(--radius-bubble);
   padding: 3px 8px;
   max-width: 150px;
   overflow: hidden;
@@ -240,10 +240,14 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* The friend's name keeps its room; an agent's name beside it gives way first. */
+/* The friend's name keeps its room; an agent's name beside it gives way first. The tag is wider
+   with an agent, so "Claude Code" fits beside a long name instead of both being cut. */
+.pet-tag:has(small:not([hidden])) {
+  max-width: 210px;
+}
 .pet-tag:has(small:not([hidden])) .tag-name {
   flex: none;
-  max-width: 96px;
+  max-width: 110px;
 }
 .tag-talk {
   display: none;
@@ -331,8 +335,9 @@
 /* hearts on a friend's tag for how close it is; the dearest wears a flower */
 .tag-bond {
   color: var(--heart);
-  font-size: 8px;
-  letter-spacing: -0.5px;
+  font-size: var(--font-xs);
+  letter-spacing: -1px;
+  line-height: 1;
   margin-left: 3px;
 }
 .tag-bond:empty {
@@ -356,7 +361,7 @@
   width: max-content;
   max-width: 190px;
   padding: 6px 10px;
-  border-radius: 12px;
+  border-radius: var(--radius-bubble);
   background: var(--scene-label);
   border: 1px solid var(--scene-line);
   box-shadow: 0 4px 12px var(--scene-shadow);
@@ -381,7 +386,7 @@
   left: 50%;
   transform: translateX(-50%);
   padding: 7px 10px;
-  border-radius: 12px;
+  border-radius: var(--radius-bubble);
   background: var(--scene-label);
   border: 1px solid var(--scene-line);
   box-shadow: 0 4px 12px var(--scene-shadow);

@@ -234,7 +234,7 @@ export const strings = {
   'steps.go_ai': '连接',
   'steps.go_agent': '选择',
   'steps.dismiss': '不再显示',
-  'friend.agent_chip': '负责，{agents}',
+  'friend.agent_chip': '负责：{agents}',
   'yard.pat_name': '摸摸{name}',
   'yard.pat_name_state': '摸摸{name}（{state}）',
   'hint.pat': '点击摸摸，拖动换个位置',

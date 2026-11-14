@@ -257,6 +257,8 @@ What each arrow in the diagram carries, path by path.
    - The page's image address is `pet-asset://sprite/<pet id>` (on Windows, `http://pet-asset.localhost/sprite/<pet id>`).
    - The backend reads the file on a worker thread and returns it.
    - The response carries a CORS allow header, because the page reads pixels to measure the empty rows at the top of each cell.
+   - The pictures of an imported background come the same way: `pet-asset://background/<background id>/<base or season>`.
+   - `listBackgrounds` names each picture by that address instead of carrying it, so a start reads no pictures; a place's picture is read when the place or its card is shown.
 4. **Agent status:**
    - A coding agent's hook runs `playpets hook claude`: the same executable in CLI mode, with no window.
    - It turns the hook payload into a state and a code (`@tool Bash`).
@@ -293,7 +295,7 @@ What each arrow in the diagram carries, path by path.
 |---|---|---|
 | Page → backend commands | The `COMMANDS` table in `src-tauri/src/commands.rs` (see Commands in [Components](#components)) | [Commands by area](#commands-by-area). The overlay gets only `bootstrap`, `play`, `openChat`, `dragStart`, `dragStop` |
 | Backend → page | `app::changed`, `app::push_event` | `change` (full state), `event` (status, say, play, chat-message, select, window, update, update-status, check-update, open-panel, persona-saved, history-reset, import-request, pet-moved) |
-| Sprites | `app::sprite_response` | The `pet-asset` custom protocol |
+| Sprites and imported backgrounds' pictures | `app::sprite_response` | The `pet-asset` custom protocol |
 | Coding agents | [Architecture: coding agent integration](agent-integration.md) | CLI commands, hooks, MCP, HTTP bridge |
 
 ### Commands by area

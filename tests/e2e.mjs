@@ -854,9 +854,14 @@ const scenario = `(async()=>{
       for(const lang of ['ko','en','ja','zh-hans']){
         localeUi.setLanguageForTests(lang);localeUi.apply();
         (await import('./core/controls.js')).openPlay();await wait(40);
-        // Wide windows keep every name on one line; small windows fold tiles and allow two lines, but nothing spills.
+        // Wide windows keep every name on one line at 12px or more. In small windows nothing spills; a
+        // Play name stays on one line too, never broken inside a word (three tiles a row, the
+        // shortest at 11px), while a menu's name may take a second line at a space. A font wider
+        // than the one here may end a Play name in its ellipsis (compact.css), which is not a break:
+        // only the line is checked, by where its text lies and by the name's height.
         const folded=document.body.classList.contains('compact');
-        const fits=(tile,labels)=>{tile.scrollIntoView({block:'nearest'});return visibleNode(tile)&&tile.scrollWidth<=tile.clientWidth+1&&tile.scrollHeight<=tile.clientHeight+1&&(folded||labels.every(noWrap));};
+        const oneLine=node=>{const range=document.createRange();range.selectNodeContents(node);const line=Number.parseFloat(getComputedStyle(node).lineHeight)||Number.parseFloat(getComputedStyle(node).fontSize)*1.4;return new Set([...range.getClientRects()].filter(rect=>rect.width>0).map(rect=>Math.round(rect.top))).size===1&&node.getBoundingClientRect().height<line*1.5;};
+        const fits=(tile,labels,whole=false)=>{tile.scrollIntoView({block:'nearest'});return visibleNode(tile)&&tile.scrollWidth<=tile.clientWidth+1&&tile.scrollHeight<=tile.clientHeight+1&&(folded?!whole||labels.every(oneLine):labels.every(noWrap));};
         // With seeds or without, the same: a two-digit count is the widest the seed tile shows.
         const seedsBefore=$('seed-count').textContent;$('seed-count').textContent='12';
         // The snowman's row (a winter yard) and Flower viewing (blossom time) show only in their season
@@ -864,7 +869,7 @@ const scenario = `(async()=>{
         const {syncGameUi}=await import('./yard/play.js'),seasonal=[document.querySelector('#games-menu [data-game=snowman]'),$('viewing-tool')];
         syncGameUi();for(const tile of seasonal)tile.hidden=false;
         const tiles=[...$('play-sections').querySelectorAll('.play-action')].filter(tile=>!tile.hidden);
-        const playChecks=tiles.map(tile=>({id:tile.id||tile.dataset.game,fits:fits(tile,[...tile.querySelectorAll('span[data-i18n],.game-name')])}));
+        const playChecks=tiles.map(tile=>({id:tile.id||tile.dataset.game,fits:fits(tile,[...tile.querySelectorAll('span[data-i18n],.game-name')],true)}));
         const playOk=tiles.length===12&&seasonal.every(tile=>tiles.includes(tile))&&playChecks.every(check=>check.fits)&&visibleNode($('play-panel'));
         syncGameUi();
         $('seed-count').textContent=seedsBefore;
@@ -1277,12 +1282,15 @@ const scenario = `(async()=>{
     const sourceIdentities=new Map(authoredViews.map(v=>[v.pet.id,JSON.stringify(v.asset)]));
     const authoredClips=['dig','plant','cast','wait','reel','discover'],authoredTrace=[];
     let authoredOk=true,cancellationOk=true;
+    const sceneState=await import('./core/state.js');
     const pixelHash=canvas=>canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data.reduce((sum,value,i)=>(sum+value*((i%29)+1))%2147483647,0);
     for(const shape of [{...fullAt,width:300,height:210},fullAt]){
       await nativeWindow(shape);await until(()=>Math.abs(innerWidth-shape.width)<=1);await wait(80);
       for(const season of ['spring','summer','autumn','winter']){
         $('scene-season').value=season;$('scene-season').dispatchEvent(new Event('change'));
-        await until(()=>world.scene.season===season);
+        // The backend's answer to the pick is drawn a moment later; with a wider font (Linux) a
+        // friend's tag can reach the dock then and lift it. Its box is read after that drawing.
+        await until(()=>world.scene.season===season&&sceneState.data.scene?.season===season);await wait(80);
         for(const v of authoredViews){
           companionTrips.release(v);companionViews.pose(v,'idle',Infinity);v.nextWander=Infinity;
           const canonicalBox=v.button.getBoundingClientRect(),canonicalHeight=v.canvas.style.height;

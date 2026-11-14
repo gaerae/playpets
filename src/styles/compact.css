@@ -148,14 +148,60 @@ body.compact .management-destinations .menu-destination {
   gap: 2px;
   text-align: center;
 }
-/* A tile's name may take two lines instead of a shortened word in each language. */
+/* Three tiles a row in every group, so a name stays whole on one line in each language: six games
+   in one row were too narrow and broke their names inside the word. A font that draws a name wider
+   than its tile cuts it with an ellipsis, never a break. The games take two rows, so the tiles are
+   close set (the icon over the name, the seed count in the corner above it, small gaps) and the
+   panel stays under two thirds of a 320px window. */
+body.compact .play-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px;
+}
+body.compact .play-board .dock-panel-body {
+  gap: 3px;
+}
+body.compact .play-board .dock-section + .dock-section {
+  padding-top: 3px;
+}
 body.compact .play-action {
-  flex: 1 1 0;
   min-width: 0;
-  padding: 4px 2px;
-  white-space: normal;
-  overflow-wrap: anywhere;
+  min-height: 0;
+  gap: 1px;
+  padding: 2px;
+  line-height: 1.2;
   text-align: center;
+}
+body.compact .play-action svg {
+  width: 14px;
+  height: 14px;
+}
+body.compact .play-action > :is(span[data-i18n], .game-name) {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body.compact .play-action > .tool-count {
+  top: 0;
+  right: max(1px, calc(50% - 30px));
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  line-height: 14px;
+}
+/* A tile in a narrow window is under 90px: the longest names (Flower viewing, the snowman's) take
+   the smallest step. */
+@media (max-width: 400px) {
+  body.compact .play-action {
+    font-size: var(--font-xs);
+  }
+}
+/* The shortest windows close the last gaps, so the four rows fit without scrolling. */
+@media (max-height: 280px) {
+  body.compact .play-action {
+    gap: 0;
+    padding: 1px 2px;
+  }
 }
 body.compact .background-gallery {
   grid-template-columns: none;
@@ -215,7 +261,7 @@ body.compact .catch-card svg {
 body.compact .catch-specimen {
   flex-basis: 44px;
   height: 34px;
-  border-radius: 8px;
+  border-radius: var(--radius-panel);
 }
 body.compact .catch-card strong {
   font-size: var(--font-sm);
@@ -250,6 +296,47 @@ body.compact .empty-yard:not(.aside) {
   max-height: calc(100% - 88px);
   overflow-y: auto;
   padding: 12px;
+}
+/* The next steps start at the top and end above the corner button (36px, 8px from the bottom),
+   scrolling if they must, instead of running past the bottom under it. */
+body.compact .empty-yard.aside {
+  top: 8px;
+  left: 8px;
+  max-width: calc(100% - 16px);
+  max-height: calc(100% - 60px);
+  overflow-y: auto;
+}
+/* The starters are drawn smaller, so the card shows them whole instead of a row cut at its
+   bottom; four in one row where the window is wide enough, or too short for two rows. */
+body.compact .starter {
+  padding: 6px 4px 8px;
+}
+body.compact .starter canvas {
+  width: 64px;
+  height: 69px;
+}
+@media (min-width: 480px) {
+  body.compact .starter-picks {
+    grid-template-columns: repeat(4, minmax(0, 88px));
+  }
+}
+@media (max-height: 280px) {
+  body.compact .empty-yard:not(.aside) small {
+    display: none;
+  }
+  body.compact .starter-picks {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    margin: 6px 0 0;
+  }
+  body.compact .starter {
+    padding: 4px 2px 6px;
+    font-size: var(--font-xs);
+  }
+  body.compact .starter canvas {
+    width: 44px;
+    height: 48px;
+  }
 }
 
 @media (max-width: 400px), (max-height: 280px) {

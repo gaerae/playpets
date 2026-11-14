@@ -78,7 +78,10 @@ test('a friend walks down to its name tag, past where plants keep to; a stroll d
   assert.equal(underDock(800, 660, 48), true);
   assert.equal(underDock(570, 660, 48), true, 'half a body beside it is still behind it');
   assert.equal(underDock(500, 660, 48), false);
-  assert.equal(underDock(800, 630, 48), false, 'feet above it leave the friend in view');
+  // The name tag hangs under the feet: feet just above the dock left the tag behind it (Miso's at
+  // 820 by 700), so a friend keeps its tag's room above the dock too.
+  assert.equal(underDock(800, 630, 48), true, 'feet just above it leave the tag behind it');
+  assert.equal(underDock(800, 617, 48), false, 'feet a tag above it leave the friend and its name in view');
   // Measured once and asked many times, as a stroll's tries are: the box itself reads no layout.
   const box = dockBox();
   globalThis.document.querySelector = () => assert.fail('the dock is not measured again');
@@ -87,6 +90,32 @@ test('a friend walks down to its name tag, past where plants keep to; a stroll d
   globalThis.document.querySelector = () => ({ getBoundingClientRect: () => ({ width: 0 }) });
   assert.equal(dockBox(), null);
   assert.equal(underDock(800, 660, 48), false, 'a hidden dock hides nothing');
+});
+// A tool in hand puts a strip where the dock was, twice as tall: friends at the front stood under
+// it with their names (Clover and Pip at 820 by 700, choosing where to dig).
+test('the strip of a tool in hand keeps friends and their names clear as the dock does', t => {
+  yardIn(t);
+  globalThis.document.querySelector = selector =>
+    selector === '.discovery-target:not([hidden])'
+      ? { getBoundingClientRect: () => ({ left: 400, top: 600, width: 420, height: 88 }) }
+      : selector === '.yard-dock'
+        ? { getBoundingClientRect: () => ({ width: 0 }) }
+        : null;
+  assert.deepEqual(dockBox(), { left: 400, top: 600, width: 420 });
+  assert.equal(underDock(600, 590, 48), true, 'its name would hang behind the strip');
+});
+// A small window hides the dock and keeps a corner button; a name tag at the foot went under it.
+test('in a small window the corner button keeps friends and their names clear as the dock does', t => {
+  yardIn(t);
+  globalThis.document.querySelector = selector =>
+    selector === '.yard-dock'
+      ? { getBoundingClientRect: () => ({ width: 0 }) }
+      : selector === '.compact-launcher'
+        ? { getBoundingClientRect: () => ({ left: 956, top: 656, width: 36, height: 36 }) }
+        : null;
+  assert.deepEqual(dockBox(), { left: 956, top: 656, width: 36 });
+  assert.equal(underDock(960, 640, 48), true);
+  assert.equal(underDock(500, 690, 48), false);
 });
 // The dock floats over the foot at the right (shell.css .yard-dock), in this test's document.
 function dockAt() {
@@ -108,12 +137,30 @@ test('a friend kept or dropped behind the dock is lifted to stand just above it'
   clearOfDock(v);
   const after = footOf(v);
   assert.equal(after.x, before.x, 'it is lifted, not moved aside');
-  assert.ok(Math.abs(after.y - 646) < 1e-6, "its feet stand on the dock's top edge");
+  assert.ok(Math.abs(after.y - (646 - 28)) < 1e-6, "its feet stand a tag's room above the dock's top edge");
   assert.equal(underDock(after.x, after.y, 48), false);
   const beside = friendAt(0.1, 1);
   place(beside);
   clearOfDock(beside);
   assert.equal(beside.y, 1, 'beside the dock it stays where it is');
+});
+// A name tag is often wider than its friend (みそ♥♥♥♥ at 300 by 210 reached 24px under the corner
+// button while Miso stood clear of it): the wider of the two decides.
+test('a friend whose name tag reaches behind the dock is lifted too', t => {
+  yardIn(t);
+  dockAt();
+  const v = { ...friendAt(0, 1), tag: { offsetWidth: 160 } };
+  place(v);
+  const left = footOf(v).x;
+  v.x = 1;
+  place(v);
+  v.x = (600 - 58 - left) / (footOf(v).x - left);
+  place(v);
+  const before = footOf(v);
+  assert.ok(Math.abs(before.x - 542) < 1e-6);
+  assert.equal(underDock(before.x, before.y, 48), false, 'the friend itself stands clear');
+  clearOfDock(v);
+  assert.ok(Math.abs(footOf(v).y - (646 - 28)) < 1e-6, 'its tag hung behind the dock, so it is lifted');
 });
 // A friend farther back is drawn smaller about its feet. What goes with it follows the drawing, not
 // its unshrunk box: the tag under its feet, its line and the agent's dot on its head (--depth), and

@@ -29,6 +29,7 @@ import {
 import { hint } from './hint.js';
 import { snowmanGame } from './snowman.js';
 import { release, rest, sendTo } from './trips.js';
+import { friendAt } from './veil.js';
 import { syncViewingAction } from './viewing.js';
 import { bubble, effect, labelTag, place, pose } from './views.js';
 
@@ -136,6 +137,7 @@ const hide = {
   arrived(v) {
     if (!game.hidden.has(v.pet.id)) return;
     v.button.classList.add('hiding');
+    friendAt(v);
     if (!party().some(o => game.hidden.has(o.pet.id) && o.target)) {
       say(t('hide.left', { count: game.hidden.size }));
       tell();
@@ -151,6 +153,7 @@ const hide = {
     game.hidden.delete(id);
     v.button.classList.remove('hiding');
     v.button.classList.add('found');
+    friendAt(v);
     after(900, () => v.button.classList.remove('found'));
     pose(v, 'jump', 1200);
     effect(v, '!');
@@ -299,6 +302,7 @@ export function endGame(message) {
     v.frozen = false;
     v.frozenUntil = 0;
     v.button.classList.remove('hiding', 'found');
+    friendAt(v);
     tagger(v, false);
     // Home again, or taken on the way (a press, a treat): either way it is no longer away.
     const home = () => (v.away = false);

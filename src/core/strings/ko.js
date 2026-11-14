@@ -233,7 +233,7 @@ export const strings = {
   'steps.go_ai': '연결하기',
   'steps.go_agent': '정하기',
   'steps.dismiss': '그만 보기',
-  'friend.agent_chip': '담당, {agents}',
+  'friend.agent_chip': '담당: {agents}',
   'yard.pat_name': '{name} 쓰다듬기',
   'yard.pat_name_state': '{name} 쓰다듬기 ({state})',
   'hint.pat': '눌러서 쓰다듬고, 끌어서 옮겨요',

@@ -11,7 +11,7 @@
 }
 .message {
   padding: 7px 9px;
-  border-radius: 12px;
+  border-radius: var(--radius-bubble);
   max-width: 95%;
   font-size: var(--font-md);
   line-height: 1.55;
@@ -85,7 +85,7 @@
   display: block;
   margin: 4px 0;
   padding: 7px 9px;
-  border-radius: 8px;
+  border-radius: var(--radius-panel);
   white-space: pre;
   overflow-x: auto;
 }

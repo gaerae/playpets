@@ -150,7 +150,7 @@
   font-weight: 600;
   color: var(--green-ink);
   background: var(--green-soft);
-  border-radius: 6px;
+  border-radius: var(--radius-card);
   padding: 1px 6px;
 }
 .link-state.outdated {

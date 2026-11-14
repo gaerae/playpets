@@ -60,8 +60,12 @@ function fitWindow() {
   if (changed && $('play-panel')?.hidden !== false) closeControls(focused);
 }
 
-/** Whether a pointer this far down the window is near enough for the window buttons to show. */
-export const nearTop = y => y < 56;
+// Surfaces that open at the top of a small window: over them the window's buttons would cover their
+// head, and a second Close would sit beside their own.
+const TOP_SURFACES = '.side-panel, .dock-panel, .empty-yard';
+/** Whether a pointer this far down the window, over `target`, is near enough for the window buttons
+ * to show: not while it is on an open panel, whose head the buttons would cover. */
+export const nearTop = (y, target = null) => y < 56 && !target?.closest?.(TOP_SURFACES);
 
 // Window movement and resizing use native gestures, so every platform keeps its own edge behavior.
 export function setupWindow() {
@@ -91,7 +95,7 @@ export function setupWindow() {
   $('window-fit').onclick = fit;
   onShortcut('fitWindow', fit);
   document.addEventListener('pointermove', event =>
-    document.body.classList.toggle('window-top', nearTop(event.clientY)),
+    document.body.classList.toggle('window-top', nearTop(event.clientY, event.target)),
   );
   document.body.addEventListener('pointerleave', () => document.body.classList.remove('window-top'));
   window.addEventListener(

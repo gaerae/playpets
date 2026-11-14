@@ -123,6 +123,25 @@ test('twelve friends are brought in line with one look at the dock', t => {
   assert.ok(reads.count <= 2, `a push reads the layout ${reads.count} times`);
 });
 
+// A name tag's width is a layout read, and syncViews writes each friend's label before its fit:
+// read for every friend on every push, it laid the page out again once a friend. Only a friend
+// standing as low as the dock needs its tag's reach.
+test("a push reads no name tag's width for friends standing above the dock", t => {
+  yard(t, 12);
+  syncViews();
+  let widths = 0;
+  for (const v of views.values())
+    Object.defineProperty(v.tag, 'offsetWidth', {
+      get: () => {
+        widths++;
+        return 160;
+      },
+    });
+  push();
+  syncViews();
+  assert.equal(widths, 0);
+});
+
 test('an unchanged push writes nothing on a friend: not its size, its depth or its tag', t => {
   yard(t, 12);
   syncViews();

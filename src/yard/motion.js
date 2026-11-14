@@ -16,7 +16,7 @@ import { visitTarget } from './garden.js';
 import { groundProfile } from './ground.js';
 import { loungeTarget, sitOut } from './lounge.js';
 import { sendTo } from './trips.js';
-import { followPointer, place, pose } from './views.js';
+import { followPointer, place, pose, reachOf } from './views.js';
 import { idleAction, strollClear, WANDER_DELAY, wanderTarget } from './wander.js';
 import { blocked } from './workspace.js';
 
@@ -33,17 +33,15 @@ const feetInYard = (v, at) => {
   return [EDGE + at.x * w + sizeOf(v.pet) / 2, top + at.y * h + petHeight(v.pet)];
 };
 // A stroll the ground allows: around the lake, not onto a tree, a flower, a gift or a workspace's
-// furniture, and not to a stop behind the dock. The dock is measured once for all the tries.
+// furniture, and not to a stop behind the dock, name tag and all. The dock and the friend's reach
+// (reachOf) are measured once for all the tries.
 function dryStroll(v) {
   const ground = groundProfile(),
-    dock = dockBox();
+    dock = dockBox(),
+    reach = reachOf(v);
   return (from, to) => {
     const feet = feetInYard(v, to);
-    return (
-      !underDock(...feet, sizeOf(v.pet) / 2, dock) &&
-      !blocked(...feet) &&
-      strollClear(feetAt(v, from), feetAt(v, to), ground)
-    );
+    return !underDock(...feet, reach, dock) && !blocked(...feet) && strollClear(feetAt(v, from), feetAt(v, to), ground);
   };
 }
 // A walking friend bobs at each step (friends.css .walking), more slowly on a stroll. Written only

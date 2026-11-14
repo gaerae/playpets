@@ -235,7 +235,7 @@ export const strings = {
   'steps.go_ai': 'Connect',
   'steps.go_agent': 'Choose',
   'steps.dismiss': 'Hide this',
-  'friend.agent_chip': 'Reports from, {agents}',
+  'friend.agent_chip': 'Reports from {agents}',
   'yard.pat_name': 'Pat {name}',
   'yard.pat_name_state': 'Pat {name} ({state})',
   'hint.pat': 'Click a friend to pat it, drag to move it',

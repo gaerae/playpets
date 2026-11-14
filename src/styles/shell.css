@@ -56,7 +56,7 @@ body {
   transform: translateX(13px);
 }
 .wander-toggle input:focus-visible ~ .wander-switch {
-  outline: 2px solid var(--accent);
+  outline: var(--focus-ring);
   outline-offset: 2px;
 }
 @keyframes wander-in {
@@ -114,7 +114,7 @@ body {
   gap: 2px;
   padding: 2px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-panel);
   background: var(--dock-surface);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
@@ -418,7 +418,7 @@ body.compact .toast > span {
   padding: 2px;
   max-width: calc(100% - 24px);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-panel);
   background: var(--dock-surface);
   -webkit-backdrop-filter: var(--glass-blur);
   backdrop-filter: var(--glass-blur);
@@ -430,7 +430,7 @@ body.compact .toast > span {
   padding: 0 11px;
   border: 0;
   border-right: 1px solid var(--line);
-  border-radius: 5px 0 0 5px;
+  border-radius: var(--radius-control) 0 0 var(--radius-control);
   background: color-mix(in srgb, var(--accent) 12%, var(--dock-surface));
   color: var(--accent);
   font-size: var(--font-sm);
@@ -441,11 +441,12 @@ body.compact .toast > span {
 }
 .yard-dock > .caption-main {
   min-width: 0;
-  max-width: 228px;
+  /* the place's name, the only label saying where the yard is, is cut only where room runs out */
+  max-width: clamp(228px, 40vw, 360px);
 }
 .yard-dock .scene-button {
   min-height: 36px;
-  border-radius: 5px;
+  border-radius: var(--radius-control);
   padding: 0 10px;
 }
 .yard-controls-toggle {
@@ -456,7 +457,7 @@ body.compact .toast > span {
   min-height: 36px;
   padding: 0 12px;
   border-left: 1px solid var(--line);
-  border-radius: 0 5px 5px 0;
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
   background: transparent;
   color: var(--ink);
   font-size: var(--font-sm);

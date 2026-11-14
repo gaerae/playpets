@@ -177,7 +177,11 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
         ['sky', 'weather', 'wildlife', 'seasonalEffects'].some(capability => worldAllows(scene.world, capability)),
       );
       if (worldAllows(scene.world, 'sky')) loadSky();
-      loadEnvironment(wanted(scene));
+      // A failure holds while its picture is wanted (the light changes often), and is forgotten
+      // once another is: wanted again, it may load now.
+      const art = wanted(scene);
+      if (!failed.has(art)) failed.clear();
+      loadEnvironment(art);
       paint();
     },
   };

@@ -37,6 +37,7 @@ import {
   underBody,
 } from './shoot-rules.js';
 import { forPerson, release } from './trips.js';
+import { thingGone } from './veil.js';
 import { bubble } from './views.js';
 import { doneDigging, sendToDig, startDig, stopWork } from './work.js';
 import { scene } from './world.js';
@@ -63,7 +64,10 @@ export const shootDigging = () => digs.size > 0;
 
 /** Reads the shoots out back from the webview's storage (app.js, before the sky first paints). */
 export function setupShoots() {
-  for (const v of shown.values()) v.button.remove();
+  for (const v of shown.values()) {
+    v.button.remove();
+    thingGone(v.button);
+  }
   shown.clear();
   made.clear();
   before = null;

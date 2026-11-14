@@ -55,7 +55,7 @@ test('the AI kind, relation and appearance cards are one choice card, chosen and
     assert.doesNotMatch(css, new RegExp(`\\.${kind}(\\.on|:has\\()`), kind);
   }
   assert.match(css, /\.choice-card:has\(input:checked\)\{[^}]*background:var\(--control-selected\)/);
-  assert.match(css, /\.choice-card:has\(input:focus-visible\)\{outline:3px solid var\(--focus\)/);
+  assert.match(css, /\.choice-card:has\(input:focus-visible\)\{outline:var\(--focus-ring\)/);
   assert.match(css, /\.choice-card input\{position:absolute;opacity:0;pointer-events:none/);
 });
 
@@ -175,6 +175,14 @@ test('compact windows keep every panel and shared menu within the viewport', asy
   assert.doesNotMatch(css, /body\.compact[^{}]*(?:#provider-select|\.companions)[^{}]*\{[^}]*display:none/);
 });
 
+// At 560 by 400 the Invite sheet shrank to an 18px sliver: a compact rule picking the sheet by
+// :has(#panel-invite) set width:auto, and its id outranked the 480-wide rule that sizes every sheet,
+// while that rule's left:auto stayed.
+test('a small window wide enough for a side sheet gives every destination the same sheet width', async () => {
+  const css = await styles();
+  assert.doesNotMatch(css, /body\.compact \.layout\.panel-open \.side-panel:has\([^{]*\{[^}]*width:/);
+});
+
 test('compact settings reserve height for their scroller and panels clear the dock', async () => {
   const css = await styles();
   const sheet = css.match(/body\.compact \.layout.settings-open \.side-panel\{([^}]*)\}/)?.[1] || '';
@@ -194,6 +202,101 @@ test('compact chat keeps its composer visible while the log owns scrolling', asy
     'small chat does not force a taller sheet than the window',
   );
   assert.doesNotMatch(css, /body\.compact[^{}]*\.relation-chip[^{}]*\{[^}]*display:none/);
+});
+
+// At 300 by 210 the panel's title row, the friend's row and the message box left the conversation
+// 15px. The friend's row already names who is talking, so the title gives up its row there and the
+// panel's buttons sit at the end of the friend's row.
+test('the shortest window gives the conversation the row the panel title took', async () => {
+  const css = await styles();
+  const short = [...css.matchAll(/@media\(max-height:280px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
+  const head = short.match(
+    /body\.compact \.side-panel:has\(#pet-panel:not\(\[hidden\]\)\)>\.panel-head\{([^}]*)\}/,
+  )?.[1];
+  assert.ok(head, 'a short window lifts the panel head out of the flow while a conversation shows');
+  assert.match(head, /position:absolute/);
+  assert.match(
+    short,
+    /body\.compact \.side-panel:has\(#pet-panel:not\(\[hidden\]\)\)#panel-title\{[^}]*clip-path:inset\(50%\)/,
+    'the title stays for screen readers',
+  );
+  // A select's smallest width is its longest option, so in an auto grid column a long name ran
+  // under the friend's menu button instead of ending in an ellipsis.
+  assert.match(css, /\.friend-id\{[^}]*grid-template-columns:minmax\(0,1fr\)/);
+});
+
+// At 560 by 400 the welcome card's second row of starters was cut off at the card's bottom, and at
+// 300 by 210 only the tops of two heads showed. A small window draws the starters smaller and puts
+// all four in one row where it is wide enough or too short for two.
+test('a small window shows the four starters in one row of small pictures', async () => {
+  const css = await styles();
+  assert.match(css, /body\.compact \.starter canvas\{width:64px;height:69px;?\}/);
+  const wide = [...css.matchAll(/@media\(min-width:480px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
+  assert.match(wide, /body\.compact \.starter-picks\{grid-template-columns:repeat\(4,/);
+  const short = [...css.matchAll(/@media\(max-height:280px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
+  assert.match(short, /body\.compact \.starter-picks\{grid-template-columns:repeat\(4,/);
+  assert.match(short, /body\.compact \.starter canvas\{width:44px;height:48px;?\}/);
+});
+
+// A small window's Play tiles shared one row per group, so six games at 300 by 210 were 46px each and
+// their names broke inside the word (種を植え/る, かくれ/んぼ, Par/ade). Every group is three tiles a
+// row, and a name stays whole on one line; only if a font draws it wider than its tile is it cut
+// with an ellipsis. With the games on two rows the tiles are close set (the icon over the name, the
+// seed count in the corner, no 40px floor), so the panel stays under two thirds of a 460 by 320
+// window (the e2e's quick Play check). Narrow windows take the smallest step.
+test('a Play name stays whole on one line in a small window', async () => {
+  const css = await styles();
+  assert.match(css, /body\.compact \.play-actions\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  const tile = css.match(/(?:^|\})body\.compact \.play-action\{([^}]*)\}/)?.[1] || '';
+  assert.doesNotMatch(tile, /white-space:normal|overflow-wrap:anywhere|word-break|flex-direction:row/);
+  assert.match(tile, /min-height:0/);
+  assert.match(
+    css,
+    /body\.compact \.play-action>:is\(span\[data-i18n\],\.game-name\)\{[^}]*overflow:hidden;text-overflow:ellipsis/,
+  );
+  assert.doesNotMatch(css, /body\.compact \.play-action>\.tool-count\{[^}]*position:static/);
+  const narrow = [...css.matchAll(/@media\(max-width:400px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
+  assert.match(narrow, /body\.compact \.play-action\{[^}]*font-size:var\(--font-xs\)/);
+});
+
+// At 300 by 210 the next-steps card began 112px down, ran past the bottom and went under the corner
+// button, and "Hide this" was a 14px-tall target. In a small window it starts at the top and ends
+// above the corner button, scrolling if it must.
+test('the next steps stay clear of the corner button in a small window, and Hide this is a real target', async () => {
+  const css = await styles();
+  const aside = css.match(/body\.compact \.empty-yard\.aside\{([^}]*)\}/)?.[1] || '';
+  assert.match(aside, /top:8px/);
+  assert.match(aside, /max-height:calc\(100% - 60px\)/);
+  assert.match(aside, /overflow-y:auto/);
+  assert.match(css, /\.empty-yard \.tiny-dismiss\{[^}]*min-height:24px/);
+});
+
+// On the desktop a long line showed half of its fourth line under the ellipsis: a clamped box clips
+// at its padding's outer edge, so the bubble's vertical padding showed the line that comes next. Its
+// room is a transparent border instead, where nothing inside is drawn.
+test("a desktop bubble's clamped line ends at the ellipsis", async () => {
+  const css = compact(await readFile('src/overlay/overlay.css', 'utf8'));
+  const rule = css.match(/(?:^|})\.bubble\{([^}]*)\}/)?.[1] || '';
+  assert.match(rule, /-webkit-line-clamp:3/);
+  assert.match(rule, /padding:0;/);
+  assert.match(rule, /border:8px solid transparent/);
+});
+
+// "Garden workshop, a sunny…" was cut at 228px even in a full-screen window, where the dock had
+// room to spare: the place's name is the only label saying where the yard is.
+test('the place caption grows with the window before it is cut', async () => {
+  const css = await styles();
+  assert.match(css, /\.yard-dock>\.caption-main\{min-width:0;max-width:clamp\(228px,40vw,360px\);?\}/);
+});
+
+// A cricket sat on Miso's name tag on an autumn evening: the weather layer, where the yard's rain,
+// snow and creatures are drawn, shared the labels' layer and came after them. It stays over the
+// friends and under what they say.
+test('rain, snow and creatures pass over the friends but under their names and lines', async () => {
+  const css = await styles();
+  const z = selector => Number(css.match(new RegExp(`(?:^|})${selector}\\{[^}]*z-index:(\\d+)`))?.[1]);
+  assert.ok(z('#pet-layer') <= z('\\.weather-layer'), 'over the friends (it comes after them)');
+  assert.ok(z('\\.weather-layer') < z('\\.label-layer'), 'under their names and lines');
 });
 
 // Squeezed onto one line in a short window, the message lost its words ("今日はどんな一日だ…") and
@@ -592,6 +695,16 @@ test("a sky moment's glow stays out of rooms, where furniture fronts would show 
 // The agent's state rides in the name tag, beside the name: by the head it floated off a friend
 // drawn smaller at the back, and a seated friend's head is where a desk's laptop is.
 // Where it sits in the tag is yard-lifecycle.test.mjs's.
+// A tag with an agent cut both names at once ("Sir Wiggleton F… • Cl…"), so neither could be read.
+// It is wider, so the agent's name fits beside a long friend's, and the agent's whole name is its
+// tooltip when it is cut anyway.
+test('a name tag with an agent has room for both names', async () => {
+  const [css, views] = await Promise.all([styles(), readFile('src/yard/views.js', 'utf8')]);
+  assert.match(css, /\.pet-tag:has\(small:not\(\[hidden\]\)\)\{max-width:210px;?\}/);
+  assert.match(css, /\.pet-tag:has\(small:not\(\[hidden\]\)\)\.tag-name\{flex:none;max-width:110px;?\}/);
+  assert.match(views, /put\(v\.agents, 'title', joinList\(agents\)\)/);
+});
+
 test("the agent's state dot flows in the name tag instead of floating over the friend", async () => {
   const css = await styles();
   const rule = css.match(/\.pet-state-dot\{([^}]*)\}/)?.[1] || '';
@@ -703,7 +816,7 @@ test('pin switches show their selected state for every window size', async () =>
 
 test('the seed count stays inside its tile however narrow the tile is', async () => {
   const css = await styles();
-  const rule = css.match(/\.play-action>\.tool-count\{([^}]*)\}/)?.[1] || '';
+  const rule = css.match(/(?:^|})\.play-action>\.tool-count\{([^}]*)\}/)?.[1] || '';
   assert.match(rule, /position:absolute/);
   assert.match(rule, /right:max\(3px,calc\(50% - 34px\)\)/, 'placed by its right edge, which never passes the tile');
   assert.doesNotMatch(rule, /left:/);
@@ -808,14 +921,14 @@ test('every media query on the window size uses one of the size tiers', async ()
 });
 
 // Sixteen sizes between 8 and 23px had grown up one rule at a time. Words take one of seven steps,
-// none under 11px; only drawn marks (a heart on a tag, a bite, a plus, a sparkle) keep their own.
+// none under 11px, the hearts on a name tag too; only drawn marks (a bite, a plus, a sparkle) keep their own.
 test('every size of words is a step of the type scale, none under 11px', async () => {
   const css = await styles();
   const steps = Object.fromEntries(
     [...css.matchAll(/--font-([a-z]+):([\d.]+)px/g)].map(([, name, px]) => [name, Number(px)]),
   );
   assert.deepEqual(steps, { xs: 11, sm: 12, md: 13, base: 14, lg: 15, xl: 17, display: 18 });
-  const marks = /\.(?:tag-bond|bobber|add-mark|particle)\b/;
+  const marks = /\.(?:bobber|add-mark|particle)\b/;
   for (const [, selector, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
     for (const [, size] of body.matchAll(/(?:^|;)font-size:([^;]+)/g)) {
       if (/^var\(--font-[a-z]+\)$/.test(size) || size === 'inherit' || marks.test(selector)) continue;
@@ -847,4 +960,39 @@ test('the sleigh is a night-blue silhouette with a thin rim', async () => {
   for (const [, blur] of filter.matchAll(/drop-shadow\(0 0 ([\d.]+)px/g)) assert.ok(Number(blur) <= 1, `rim ${blur}px`);
   const page = await readFile('src/index.html', 'utf8');
   assert.match(page, /<filter id="sleigh-silhouette"[^>]*>\s*<feFlood flood-color="#[0-9a-f]{6}"/);
+});
+
+// Keyboard focus looks one way everywhere: one ring, 3px in the focus colour. Only on dark paint
+// (the water under a bobber, the Christmas tree at night) is it the same ring in candlelight, which
+// reads there. A ring may sit closer or farther (outline-offset), or be a glow on a drawing.
+test('every focus ring is the one ring', async () => {
+  const css = await styles();
+  assert.match(css, /--focus-ring:3px solid var\(--focus\);/);
+  assert.match(css, /--focus-ring-light:3px solid #ffe7ad;/);
+  const odd = [];
+  for (const [, selector, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (!/:focus-visible/.test(selector)) continue;
+    for (const [, value] of body.matchAll(/(?:^|;)outline:([^;]+)/g))
+      if (!/^(?:none|var\(--focus-ring(?:-light)?\))$/.test(value)) odd.push(`${selector.trim()} outline:${value}`);
+  }
+  assert.deepEqual(odd, []);
+  // The desktop overlay is its own page without the window's tokens; its ring has the same width.
+  const overlay = compact(await readFile('src/overlay/overlay.css', 'utf8'));
+  const rings = [...overlay.matchAll(/:focus-visible\{[^}]*outline:([^;]+)/g)].map(([, value]) => value);
+  assert.ok(rings.length >= 2);
+  for (const ring of rings) assert.match(ring, /^3px solid /);
+});
+
+// Corners come from a few named sizes; a corner that is one of them by value names it, so changing
+// the size changes every corner that shares it. A drawn shape (a leaf, a pot, a tab's half) keeps its own.
+test('a corner the same size as a named one uses the name', async () => {
+  const css = await styles();
+  const named = Object.fromEntries(
+    [...css.matchAll(/--radius-([a-z]+):(\d+px);/g)].map(([, name, value]) => [value, name]),
+  );
+  assert.deepEqual(named, { '8px': 'panel', '5px': 'control', '6px': 'card', '999px': 'pill', '12px': 'bubble' });
+  const literal = [...css.matchAll(/([^{}]+)\{[^{}]*?(?:^|;)border-radius:(\d+px);/g)]
+    .filter(([, , value]) => named[value] || value === '99px')
+    .map(([, selector, value]) => `${selector.trim()} ${value}`);
+  assert.deepEqual(literal, []);
 });

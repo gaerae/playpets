@@ -14,7 +14,7 @@
   padding: 3px 9px;
   min-height: 28px;
   border: 1px solid var(--pink-line);
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--pink-soft);
   color: var(--pink-ink);
   font: inherit;
@@ -149,6 +149,9 @@
   flex: 1;
   min-width: 0;
   display: grid;
+  /* A select is never narrower than its longest option, so an auto column let a long name run
+     under the menu button; this one ends it in an ellipsis. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 2px;
 }
 .friend-id h3 {
@@ -197,7 +200,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   padding: 1px 7px;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--green-soft);
   color: var(--green-ink);
   font-weight: 650;
@@ -231,14 +234,14 @@
   min-width: 40px;
   max-width: 90px;
   height: 5px;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--pink-soft);
   overflow: hidden;
 }
 .bond-bar i {
   display: block;
   height: 100%;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--heart);
   transition: width 0.6s;
 }
@@ -396,5 +399,31 @@ body.compact .empty-panel {
 @media (max-height: 280px) {
   body.compact .friend-sub {
     display: none;
+  }
+  /* The friend's row already says who is talking, so the panel's title gives its row to the
+     conversation and the panel's buttons sit at the end of the friend's row. */
+  body.compact .side-panel:has(#pet-panel:not([hidden])) > .panel-head {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    /* under the friend's menu (4), which opens over this row */
+    z-index: 3;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  body.compact .side-panel:has(#pet-panel:not([hidden])) #panel-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  body.compact .side-panel:has(#pet-panel:not([hidden])) .friend-head {
+    padding-right: 116px;
+  }
+  body.compact .side-panel:has(#pet-panel:not([hidden])) .menu-anchor {
+    right: 78px;
   }
 }

@@ -16,6 +16,30 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The yard opens sooner and stays lighter while friends talk, coding agents report and the pointer moves, and a long conversation with a friend opens at once on its latest lines, with earlier ones coming in as you scroll up.
 - Friends keep walking smoothly when the computer slows its timers (Windows on battery), and the yard's backdrop and weather stay sharp when the window moves to a screen of another resolution.
 - Patting a friend, picking a scene, moving things in the yard and the tray's switches no longer wait for the save to disk, and time together with many friends is saved once instead of once a friend, so the yard no longer stutters every ten minutes.
+- With imported backgrounds the app starts sooner and uses less memory: a background's pictures are read only when its place or its card is shown.
+
+### Fixed
+
+- In a small window, Invite opens at its full width again instead of as a thin strip.
+- In the smallest window, a conversation keeps room for its lines, and a long friend name ends in an ellipsis instead of running under the menu button.
+- In a small window, the first-run card shows all four starter friends whole instead of cutting off a row.
+- In a small window, Play shows every game whole, three to a row, with each name on one line instead of broken in the middle of a word.
+- In the smallest window, the question before sending a friend away shows everything it warns of, even for a friend with a long name.
+- In a small window, the window's own buttons no longer come over an open panel's title and Close while the pointer is on the panel.
+- In a small window, the next-steps card stays clear of the corner button, and its Hide this is easier to press.
+- On the desktop, a long line in a friend's bubble ends at its ellipsis instead of showing half of the next line under it.
+- A name tag with a coding agent has room for both names instead of cutting both, and friends at the front stop with their name tag above the dock instead of behind it.
+- With a tool in hand, friends at the front step up out from behind its strip, so they and their names stay in sight.
+- A friend's coding agents read "Reports from Claude Code" instead of "Reports from, Claude Code", and alike in Korean, Japanese and Chinese.
+- The dock shows the place's whole name ("Garden workshop, a sunny day") where the window has room, instead of cutting it short.
+- Friends' speech bubbles stay inside a small window: when several friends talk at once and there is no room above, a newer line waits until the one it would cover has had time to be read, then takes its place; a letter waiting to be opened stays.
+- Crickets, fireflies, rain and snow pass under friends' name tags and lines instead of over them.
+- The numbers on the album's cards are easier to read, in light and dark mode.
+- The hearts on a friend's name tag are drawn at the size of the name, so how close you are reads at a glance.
+- The wooden whale you dig up shows its whole tail.
+- A friend with a long name tag no longer stops with the tag under the dock or the corner button.
+- The keyboard focus ring looks the same everywhere, in the scene menu, the Play panel and the album too.
+- A friend standing behind a tree, a flower or a gift no longer vanishes with only its hat showing: what covers it fades while it is there.
 
 ## [1.7.1] - 2026-11-13
 

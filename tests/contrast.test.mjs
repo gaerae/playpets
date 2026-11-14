@@ -61,3 +61,25 @@ for (const scheme of ['light', 'dark'])
       .map(([text, surface, r]) => `${text} on ${surface}: ${r.toFixed(2)}`);
     assert.deepEqual(low, []);
   });
+
+// A card's number in the album sits on the ground of its drawing; every book's ground, light and
+// dark, keeps it readable.
+test("an album card's number reads on every book's ground", async () => {
+  const css = (await readFile('src/styles/dialog.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const rule = css.match(/(?:^|\})\s*\.album-no\s*\{([^}]*)\}/)[1];
+  assert.match(rule, /color:\s*var\(--album-number\)/);
+  assert.doesNotMatch(rule, /opacity/);
+  const [lightPart, ...darkParts] = css.split(/@media \(prefers-color-scheme: dark\)/);
+  const darkPart = darkParts.join('');
+  const values = (part, name) => [...part.matchAll(new RegExp(`${name}:\\s*(#[0-9a-f]{6})`, 'g'))].map(m => m[1]);
+  const low = [];
+  for (const part of [lightPart, darkPart]) {
+    const [number] = values(part, '--album-number');
+    assert.ok(number, 'the number has its own colour in both schemes');
+    const grounds = ['--album-ground', '--album-ground-hi', '--album-wood', '--album-wood-hi'].flatMap(name =>
+      values(part, name),
+    );
+    for (const ground of grounds) if (ratio(number, ground) < 4.5) low.push(`${number} on ${ground}`);
+  }
+  assert.deepEqual(low, []);
+});
