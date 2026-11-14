@@ -297,11 +297,17 @@ const scenario = `(async()=>{
        for(let i=0;i<10;i++){const c=sprites.canvas(),t0=performance.now();sprites.drawSprite(c,asset,'idle',i*130);c.getContext('2d').getImageData(0,0,1,1);drawn.push(performance.now()-t0);}
        await P('sprite-draw',mean(drawn));}
       // The bridge again while the yard rests, as when its window is hidden: what the yard's frames cost the bridge.
+      // Which of the two: the frame loop resting with the CSS loops (clouds, breeze) running, then the other way round.
+      const root=document.documentElement;
       window.__pp('event',{type:'window',shown:false});await pause(300);
       await P('ipc-ping-yard-resting',await trips('e2ePing'));
-      window.__pp('event',{type:'window',shown:true});await pause(300);
+      root.toggleAttribute('data-unseen',false);await pause(300);
+      await P('ipc-ping-only-css-loops',await trips('e2ePing'));
+      window.__pp('event',{type:'window',shown:true});root.toggleAttribute('data-unseen',true);await pause(300);
+      await P('ipc-ping-only-frame-loop',await trips('e2ePing'));
+      root.toggleAttribute('data-unseen',false);await pause(300);
       // Text in a script the page's fonts may lack, laid out for the first time.
-      for(const [name,text,font] of [['han-simplified','简体中文 设置',''],['kana','ひらがな カタカナ',''],['hangul-mono','설정 복사','ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'],['emoji','🐾✨🌸','']]){
+      for(const [name,text,font] of [['han-simplified-named','简体 设定','"Microsoft YaHei UI", "PingFang SC", "Noto Sans CJK SC"'],['han-simplified','简体中文 设置',''],['kana','ひらがな カタカナ',''],['hangul-mono','설정 복사','ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'],['emoji','🐾✨🌸','']]){
         const probe=document.createElement('span');probe.textContent=text;probe.style.cssText='position:absolute;left:-9999px;top:0'+(font?';font-family:'+font:'');
         const t0=performance.now();document.body.append(probe);probe.getBoundingClientRect();await P('text-first-'+name,performance.now()-t0);probe.remove();}
       const same=(await playPets.bootstrap()).data,pushedAt=[];
