@@ -92,6 +92,14 @@
 - Otherwise the audio context is suspended and the sound timers are cleared.
 - Sound beds loop and drift inside the audio graph.
 - The page wakes only for scheduled events (a gust, a wave, a call), never on a fast timer.
+- A yard hidden for 30 seconds rests (`src/yard/rest.js`): the backdrop's and the weather's canvases are emptied (`width = height = 0`) and the yard takes `content-visibility: hidden` (`data-resting`), so WebKit lets go of what it drew.
+  - Only the page's own `document.hidden` starts a rest. The page wakes in `visibilitychange`, before WebKit draws it, and paints the backdrop and the weather at once: the first frame shows them. The backend's `window` event comes after the window shows, too late for that.
+  - Nothing is painted while it rests: a new scene, a resize or another density waits until it wakes.
+  - Emptying the canvases frees nothing while the yard is still drawn, and `content-visibility` alone frees about half: both are needed.
+  - The friends' decoded sheets stay: letting them go freed nothing measurable, and the friends would show late.
+  - Measured 2026-11-15, same machine, e2e build, three friends and the small garden, alternating runs, 50 s after hiding: hidden to the tray, the yard's page 335–341 → 293–298 MB and all processes 422–440 → 375–390 MB; minimized, 333 → 272 MB and 433 → 365 MB.
+  - Shown again, the first frame after `visibilitychange` has the backdrop painted, as before; two frames after showing took 126–143 ms against 62–148 ms before (a minimized window: about 690 ms both, the window's own animation).
+  - What stays (about 130 MB of graphics memory in WebKit, the decoded sheets and the page's heap) WebKit keeps whether the page is drawn or not.
 - Do not keep resources that decode large (sprite sheets, about 14MB each) for every pet.
 - One minute after the Invite tab closes, the yard releases the sheets it does not use.
 - A card that shows a drawing small (the album) draws its preview in `src/art/album/`, not the drawing's painted sheet (`previewSvg` in `src/yard/art.js`).

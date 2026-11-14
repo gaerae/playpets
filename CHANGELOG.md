@@ -18,6 +18,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Patting a friend, picking a scene, moving things in the yard and the tray's switches no longer wait for the save to disk, and time together with many friends is saved once instead of once a friend, so the yard no longer stutters every ten minutes.
 - With imported backgrounds the app starts sooner and uses less memory: a background's pictures are read only when its place or its card is shown.
 - The album opens each book at once: gifts, keepsakes and trees no longer pause for a moment the first time they are shown.
+- Hidden to the tray or minimized for a while, the yard uses less memory, and it is fully painted again the moment it shows.
 
 ### Fixed
 

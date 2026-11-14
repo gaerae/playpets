@@ -193,7 +193,9 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     spell = true,
     spellTurn = 0,
     // Something changed that the canvas does not show yet.
-    dirty = true;
+    dirty = true,
+    // The yard rests (rest.js): both canvases are let go until it wakes.
+    resting = false;
   const art = createWeatherArt(() => {
     if (!reduced.matches && worldAllows(world, 'seasonalEffects') && fallers.length) dirty = true;
   }, artOptions);
@@ -306,13 +308,9 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     spawnLife(false);
     dirty = true;
   }
-  function resize() {
-    const r = canvas.getBoundingClientRect(),
-      ratio = Math.min(2, window.devicePixelRatio || 1);
-    if (!r.width || !r.height) return;
-    w = r.width;
-    h = r.height;
-    scale = Math.max(0.5, Math.min(1, h / 560));
+  // Both canvases at the yard's size and the screen's density.
+  function fit() {
+    const ratio = Math.min(2, window.devicePixelRatio || 1);
     canvas.width = Math.round(w * ratio);
     canvas.height = Math.round(h * ratio);
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
@@ -321,7 +319,32 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       starCanvas.height = canvas.height;
       starCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
     }
+  }
+  function resize() {
+    const r = canvas.getBoundingClientRect();
+    if (resting || !r.width || !r.height) return;
+    w = r.width;
+    h = r.height;
+    scale = Math.max(0.5, Math.min(1, h / 560));
+    fit();
     populate();
+    paint(performance.now());
+    paintStars(performance.now());
+  }
+  // At rest a canvas of nothing holds no pixels; drawing on it costs nothing.
+  function rest() {
+    resting = true;
+    canvas.width = canvas.height = 0;
+    if (starCanvas) starCanvas.width = starCanvas.height = 0;
+  }
+  // Awake, the same sky is painted again, its stars where they were; a yard of another size is laid
+  // out anew.
+  function wake() {
+    if (!resting) return;
+    resting = false;
+    const r = canvas.getBoundingClientRect();
+    if (r.width !== w || r.height !== h) return resize();
+    fit();
     paint(performance.now());
     paintStars(performance.now());
   }
@@ -765,6 +788,8 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
   }
   return {
     resize,
+    rest,
+    wake,
     set,
     frame,
     busy,

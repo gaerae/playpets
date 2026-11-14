@@ -81,8 +81,9 @@ import { petalTick, setupPetals, wishAt } from './yard/petals.js';
 import { removeTree, renderTrees, setupTrees } from './yard/planted-trees.js';
 import { after, endGame, gameTap, judge, playGame, setupPlay, startGame, syncGameUi } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
+import { setupRest } from './yard/rest.js';
 import { cancelShootDigs, renderShoots, setupShoots, shootsMinute } from './yard/shoots.js';
-import { chosenSeason, setupSky, showSeason } from './yard/sky.js';
+import { chosenSeason, restSky, setupSky, showSeason, wakeSky } from './yard/sky.js';
 import { resizeTrail, setupSnowTrail } from './yard/snow-trail.js';
 import { canDress, closeDress, openDress, renderDress, setupDress } from './yard/snowman-dress.js';
 import { resizeSnowman, setupSnowman, showsWinter, snowmanTick } from './yard/snowman.js';
@@ -229,6 +230,18 @@ setupSky({
     renderDecor();
     renderShoots();
     renderTrees();
+  },
+});
+// Hidden for a while, the yard lets go of its paintings and is not drawn; seen again, it is painted
+// before WebKit draws it (yard/rest.js).
+const yardRest = setupRest({
+  rest: () => {
+    restSky();
+    document.documentElement.toggleAttribute('data-resting', true);
+  },
+  wake: () => {
+    document.documentElement.toggleAttribute('data-resting', false);
+    wakeSky();
   },
 });
 setupTouches();
@@ -409,6 +422,7 @@ const ON_EVENT = {
     soundSeen(shown);
     // CSS animations (the clouds) rest too; see base.css.
     document.documentElement.toggleAttribute('data-unseen', !shown);
+    yardRest.check();
     // Seen again, Christmas night catches up; hidden, its check stops the sleigh and the glints.
     christmasNightCheck();
     // Hidden, a friend on its way along a trail gives up (nobody would see the tail).
