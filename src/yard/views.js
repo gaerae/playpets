@@ -44,6 +44,7 @@ import {
 import { hint } from './hint.js';
 import { beginDrag, dragPoint, endDrag } from './props.js';
 import { release, rest } from './trips.js';
+import { friendAt, friendGone } from './veil.js';
 
 // The yard's dot is about agent work; see core/status.js.
 const agentState = p => agentStateOf(data, p.id);
@@ -253,6 +254,8 @@ export function place(v, { glide = false } = {}) {
   }
   moveTo(v.label, 'transform', [v.px, v.py + height * (1 - depth)], ms);
   stackLabel(v);
+  // A tree or a gift drawn in front that covers most of it fades (veil.js), from the boxes kept.
+  friendAt(v);
 }
 // A friend the frame loop moves (a walk, a parade) glides from one step to the next (core/ticker.js
 // moveTo), over a little longer than the loop's 50 ms step, and longer after a step that came late
@@ -546,6 +549,7 @@ export function syncViews() {
       v.button.remove();
       v.label.remove();
       views.delete(id);
+      friendGone(id);
     }
   for (const p of data.pets) {
     let v = views.get(p.id);

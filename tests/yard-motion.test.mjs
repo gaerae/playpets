@@ -187,7 +187,8 @@ test('trees and flowers sway outdoors on the compositor, and not with reduced mo
 });
 
 // props.js setDown places these by their transform. The base button rule eases a transform, which
-// would trail each drag step behind the pointer and catch up only after the drop.
+// would trail each drag step behind the pointer and catch up only after the drop. A fade in front of
+// a friend (veil.js) eases its opacity alone.
 test('what stands on the field follows the pointer: no easing on the transform that places it', async () => {
   const css = uncommented(
     (await Promise.all(['garden.css', 'play.css'].map(f => readFile(`src/styles/${f}`, 'utf8')))).join('\n'),
@@ -195,7 +196,11 @@ test('what stands on the field follows the pointer: no easing on the transform t
   for (const name of ['plant', 'shoot', 'decor', 'planted-tree', 'snowball']) {
     const base = blocks(css, new RegExp(`(^|\\})\\s*\\.${name}\\s*(?=\\{)`, 'g'));
     assert.equal(base.length, 1, `.${name} has one base rule`);
-    assert.match(base[0].body, /(^|;)\s*transition:\s*none\s*(;|$)/, `.${name} is not eased into place`);
+    assert.match(
+      base[0].body,
+      /(^|;)\s*transition:\s*(none|opacity [^;,]+)\s*(;|$)/,
+      `.${name} is not eased into place`,
+    );
   }
 });
 

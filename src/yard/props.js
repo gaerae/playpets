@@ -10,6 +10,7 @@ import { spoken } from '../core/text.js';
 import { artSize } from './art.js';
 import { giftKind } from './catalog.js';
 import { depthScaleAt, EDGE, field, fieldToYard, propZoom, yardToField } from './field.js';
+import { thingAt } from './veil.js';
 import { scene } from './world.js';
 
 /** Brings `shown` (id → view) in line with `items`: views of items that went are removed, new ones
@@ -40,6 +41,8 @@ export function setDown(button, x, y, w, h, z, foot = 1) {
   button.style.height = `${h}px`;
   button.style.transform = `translate(${x - w / 2}px,${y - h * foot}px)`;
   button.style.zIndex = String(z);
+  // What it draws ends at its foot: the box below it is empty.
+  thingAt(button, { x: x - w / 2, y: y - h * foot, width: w, height: h * foot, z });
 }
 // A tree's sway takes 7 s one way (garden.css breeze), so a start this far into it covers the swing.
 const SWAY_SPAN = 7;

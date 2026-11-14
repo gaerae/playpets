@@ -38,6 +38,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The wooden whale you dig up shows its whole tail.
 - A friend with a long name tag no longer stops with the tag under the dock or the corner button.
 - The keyboard focus ring looks the same everywhere, in the scene menu, the Play panel and the album too.
+- A friend standing behind a tree, a flower or a gift no longer vanishes with only its hat showing: what covers it fades while it is there.
 
 ## [1.7.1] - 2026-11-13
 

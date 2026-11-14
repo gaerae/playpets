@@ -63,11 +63,23 @@
   background: none;
   cursor: pointer;
   pointer-events: auto;
-  /* Its transform places it (props.js setDown); eased, it would trail the pointer in a drag. */
-  transition: none;
+  /* Its transform places it (props.js setDown); eased, it would trail the pointer in a drag. Only
+     its fade in front of a friend eases (.veiled, below). */
+  transition: opacity 0.25s ease;
 }
 /* Outdoors a flower stands on a small soft shade where its stem or its soil ends (--foot, the share
    of its box at which its drawing ends, garden.js), under the drawing, as a gift does. */
+/* A friend standing mostly behind a flower, a shoot, a gift or a tree drawn in front of it would
+   show only its hat: the thing fades while the friend is there (yard/veil.js), and the friend and
+   its name read through it. */
+:is(.plant, .shoot, .decor, .planted-tree).veiled {
+  opacity: 0.45;
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.plant, .shoot, .decor, .planted-tree) {
+    transition: none;
+  }
+}
 .plant::before {
   content: "";
   position: absolute;
@@ -147,7 +159,7 @@
   background: none;
   cursor: pointer;
   pointer-events: auto;
-  transition: none;
+  transition: opacity 0.25s ease;
 }
 .shoot::before {
   content: "";
@@ -212,7 +224,7 @@
   cursor: grab;
   pointer-events: auto;
   touch-action: none;
-  transition: none;
+  transition: opacity 0.25s ease;
   user-select: none;
 }
 .decor.dragging {
@@ -846,7 +858,7 @@
   pointer-events: auto;
   touch-action: none;
   cursor: grab;
-  transition: none;
+  transition: opacity 0.25s ease;
   user-select: none;
 }
 .planted-tree svg {
