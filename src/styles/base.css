@@ -127,17 +127,9 @@
   --sheet-width: 440px;
   --settings-width: 720px;
   --settings-height: 560px;
-  /* Each language's fonts: the page's own (lang on <html>), and the language picker's (settings.css). */
-  --font-ko:
+  font-family:
     system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Noto Sans CJK KR",
     sans-serif;
-  --font-ja:
-    system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Meiryo", "Noto Sans JP", "Noto Sans CJK JP",
-    sans-serif;
-  --font-zh-hans:
-    system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC",
-    "Noto Sans CJK SC", sans-serif;
-  font-family: var(--font-ko);
   color: var(--ink);
   font-size: var(--font-base);
   font-synthesis: none;
@@ -215,11 +207,15 @@
 /* Han characters are drawn in the shapes of the language on screen: a Korean font first would
    give Japanese text Korean glyph shapes. `lang` on <html> is set by core/i18n.js. */
 :root:lang(ja) {
-  font-family: var(--font-ja);
+  font-family:
+    system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Meiryo", "Noto Sans JP", "Noto Sans CJK JP",
+    sans-serif;
 }
 /* Simplified Chinese: its own glyph shapes, so the Japanese stack must not come first */
 :root:lang(zh-hans) {
-  font-family: var(--font-zh-hans);
+  font-family:
+    system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC",
+    "Noto Sans CJK SC", sans-serif;
 }
 * {
   box-sizing: border-box;
