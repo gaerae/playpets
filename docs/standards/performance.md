@@ -45,7 +45,8 @@
   - Events and answers may cross: an event heard while a question was on its way stands over the answer.
   - While the window waits hidden for its page, its Resized and Focused events say nothing about being seen (window.rs `FirstShow::seen`): sizing the hidden window would boot the page as unseen.
   - `data-unseen` stops CSS animations, those on `::before` and `::after` too.
-  - On Windows the backend also hides the webview (`Webview::hide`, WebView2's `IsVisible`) while the window is hidden or minimized: WebView2 is not told otherwise, and keeps the page drawing and reported as seen.
+  - On Windows the backend also hides the webview (`Webview::hide`, WebView2's `IsVisible`) while the window is hidden to the tray: WebView2 is not told otherwise, and keeps the page drawing and reported as seen.
+  - Not while it is minimized: the webview would show again only with the Resized after the window is restored, so the restored window would be blank for a moment. A minimized page still stops drawing and rests on the `window` event.
 - The yard window is made hidden and shows once the page has drawn the yard (`windowReady`), or after 3 s if the page never says so. A start at login that keeps it in the tray never shows it.
   - An e2e run waits 15 s instead, and checks that `windowReady` showed it (`firstShow` in `e2eWindow`).
 

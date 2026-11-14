@@ -204,12 +204,11 @@ static SHOWN: AtomicBool = AtomicBool::new(true);
 /// tells the page itself (document.hidden); WebView2 may not for a hidden or minimized window.
 pub fn shown(app: &AppHandle, visible: bool) {
     if SHOWN.swap(visible, Ordering::SeqCst) != visible {
-        // WebView2 is not told when its window is hidden or minimized; told, it reports the page
-        // hidden, stops drawing it and lets Windows throttle it.
+        // A WebView2 hidden with its window (`hide`) shows again here, before the window does.
         #[cfg(windows)]
-        if let Some(w) = app.get_webview_window("main") {
+        if visible && let Some(w) = app.get_webview_window("main") {
             let view: &tauri::Webview = w.as_ref();
-            let _ = if visible { view.show() } else { view.hide() };
+            let _ = view.show();
         }
         crate::app::push_event(app, &json!({"type": "window", "shown": visible}));
     }
@@ -226,6 +225,15 @@ pub fn hide(app: &AppHandle) {
     FIRST_SHOW.settled();
     if let Some(w) = app.get_webview_window("main") {
         let _ = w.hide();
+        // WebView2 is not told when its window is hidden; told, it reports the page hidden, stops
+        // drawing it and lets Windows throttle it. Not on minimize: the webview would come back only
+        // with the Resized after the window is restored, a blank moment. A minimized page still
+        // stops drawing and rests on the `window` event.
+        #[cfg(windows)]
+        {
+            let view: &tauri::Webview = w.as_ref();
+            let _ = view.hide();
+        }
     }
     shown(app, false);
     #[cfg(target_os = "macos")]
@@ -979,6 +987,20 @@ mod tests {
             "main.rs hands the window's events to window.rs"
         );
         assert!(!main.contains("window::shown("), "and does not tell the page itself");
+    }
+
+    // A WebView2 hidden on minimize came back only with the Resized after the window was restored:
+    // the restored window showed blank for a moment.
+    #[test]
+    fn only_a_window_hidden_to_the_tray_hides_its_webview() {
+        let source = include_str!("window.rs");
+        let body = |name: &str| {
+            let start = source.find(&format!("\npub fn {name}(")).unwrap();
+            &source[start..start + source[start..].find("\n}\n").unwrap()]
+        };
+        assert!(body("hide").contains("view.hide()"), "hidden to the tray");
+        assert!(!body("shown").contains("view.hide()"), "not when only the page is told");
+        assert!(body("shown").contains("view.show()"), "shown again before its window");
     }
 
     #[test]
