@@ -855,10 +855,12 @@ const scenario = `(async()=>{
         localeUi.setLanguageForTests(lang);localeUi.apply();
         (await import('./core/controls.js')).openPlay();await wait(40);
         // Wide windows keep every name on one line at 12px or more. In small windows nothing spills; a
-        // Play name stays whole on one line too, never broken inside a word (three tiles a row, the
-        // shortest at 11px), while a menu's name may take a second line at a space.
+        // Play name stays on one line too, never broken inside a word (three tiles a row, the
+        // shortest at 11px), while a menu's name may take a second line at a space. A font wider
+        // than the one here may end a Play name in its ellipsis (compact.css), which is not a break:
+        // only the line is checked, by where its text lies and by the name's height.
         const folded=document.body.classList.contains('compact');
-        const oneLine=node=>{const range=document.createRange();range.selectNodeContents(node);return new Set([...range.getClientRects()].filter(rect=>rect.width>0).map(rect=>Math.round(rect.top))).size===1&&node.scrollWidth<=node.clientWidth+1;};
+        const oneLine=node=>{const range=document.createRange();range.selectNodeContents(node);const line=Number.parseFloat(getComputedStyle(node).lineHeight)||Number.parseFloat(getComputedStyle(node).fontSize)*1.4;return new Set([...range.getClientRects()].filter(rect=>rect.width>0).map(rect=>Math.round(rect.top))).size===1&&node.getBoundingClientRect().height<line*1.5;};
         const fits=(tile,labels,whole=false)=>{tile.scrollIntoView({block:'nearest'});return visibleNode(tile)&&tile.scrollWidth<=tile.clientWidth+1&&tile.scrollHeight<=tile.clientHeight+1&&(folded?!whole||labels.every(oneLine):labels.every(noWrap));};
         // With seeds or without, the same: a two-digit count is the widest the seed tile shows.
         const seedsBefore=$('seed-count').textContent;$('seed-count').textContent='12';
