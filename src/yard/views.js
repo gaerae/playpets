@@ -96,9 +96,11 @@ const BUBBLE_GAP = 4;
 // A bubble that would cover a friend's bubble already showing rises just above it (--bubble-lift,
 // friends.css), so two friends talking at once both stay readable. Where there is no room above (a
 // small window, friends near its top) the newer line takes the place of the ones it would cover,
-// and no bubble starts above the window, where nobody could read it.
+// and no bubble starts above the window, where nobody could read it. A line takes the place of one
+// only once that one has been up half its reading time, and never of one that can be pressed (a
+// letter): until then it waits (the time to wait is returned, and nothing is changed).
 function clearOthers(v) {
-  if (!v.bubble.getBoundingClientRect) return;
+  if (!v.bubble.getBoundingClientRect) return 0;
   const mine = v.bubble.getBoundingClientRect();
   const top = ((globalThis.document && $('yard'))?.getBoundingClientRect?.().top || 0) + BUBBLE_EDGE;
   const covered = [];
@@ -112,11 +114,21 @@ function clearOthers(v) {
     lift = mine.bottom - theirs.top + BUBBLE_GAP;
   }
   if (covered.length && mine.top - lift < top) {
+    const wait = Math.max(...covered.map(heldFor));
+    if (wait > 0) return wait;
     for (const other of covered) hush(other);
     lift = 0;
   }
   if (mine.top - lift < top) lift = mine.top - top;
   if (lift) v.bubble.style?.setProperty('--bubble-lift', `${Math.round(lift)}px`);
+  return 0;
+}
+// How much longer a showing bubble keeps its place: a pressable one all its time, any other half
+// its reading time.
+function heldFor(v) {
+  const time = v.bubbleFor ?? 0;
+  const left = (v.bubbleShown ?? 0) + (v.bubble.classList?.contains('acts') ? time : time / 2) - Date.now();
+  return Math.max(0, Math.ceil(left));
 }
 function hush(v) {
   clearTimeout(v.bubbleTimer);
@@ -150,11 +162,36 @@ function keepInside(v) {
   if (shift) v.bubble.style?.setProperty('--bubble-shift', `${shift}px`);
   else v.bubble.style?.removeProperty('--bubble-shift');
 }
+// Lines waiting for a bubble they would cover (clearOthers), in the order they were said; a line
+// said while any waits joins them, so the talk keeps its order.
+const waiting = [];
+let waitTimer = null;
+function waitFor(ms) {
+  clearTimeout(waitTimer);
+  waitTimer = setTimeout(() => {
+    while (waiting.length) {
+      const wait = show(...waiting[0]);
+      if (wait) return waitFor(wait);
+      waiting.shift();
+    }
+  }, ms);
+}
 /** A friend says something above its head for its reading time (or `duration`, if longer); the
  * line is also read aloud, with the friend's name, from one quiet region. With `onPress` the bubble
  * can be pressed (the letter it brought); every other bubble cannot, so none is by accident. */
 export function bubble(v, message, duration = 0, onPress = null) {
   if (!message) return;
+  if (waiting.length) {
+    waiting.push([v, message, duration, onPress]);
+    return;
+  }
+  const wait = show(v, message, duration, onPress);
+  if (!wait) return;
+  waiting.push([v, message, duration, onPress]);
+  waitFor(wait);
+}
+// Shows a line, or leaves it unshown and says how long it has to wait (clearOthers).
+function show(v, message, duration, onPress) {
   const words = plain(message);
   v.bubble.textContent = words;
   // Its own press: the lake or a creature under it is not caught as well.
@@ -168,11 +205,18 @@ export function bubble(v, message, duration = 0, onPress = null) {
   v.bubble.hidden = false;
   v.bubble.style?.removeProperty('--bubble-lift');
   keepInside(v);
-  clearOthers(v);
+  const wait = clearOthers(v);
+  if (wait) {
+    hush(v);
+    return wait;
+  }
   const said = globalThis.document && $('friend-speech');
   if (said && v.pet) said.textContent = `${name(v.pet)}: ${words}`;
   clearTimeout(v.bubbleTimer);
-  v.bubbleTimer = setTimeout(() => hush(v), Math.max(duration, readingTime(words)));
+  v.bubbleShown = Date.now();
+  v.bubbleFor = Math.max(duration, readingTime(words));
+  v.bubbleTimer = setTimeout(() => hush(v), v.bubbleFor);
+  return 0;
 }
 /** A friend's reaction to something it did: a pose, a mark above it (✦, ♥ or none) and one of the
  * lines under `lines` in the string tables. */
