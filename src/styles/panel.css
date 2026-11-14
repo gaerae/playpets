@@ -120,7 +120,7 @@
   margin-left: 8px;
   font-size: var(--font-xs);
   border: 1px solid var(--line);
-  border-radius: 5px;
+  border-radius: var(--radius-control);
   padding: 2px 4px;
 }
 .badge {
@@ -128,7 +128,7 @@
   font-weight: 700;
   color: var(--white);
   background: var(--accent);
-  border-radius: 6px;
+  border-radius: var(--radius-card);
   padding: 1px 5px;
 }
 

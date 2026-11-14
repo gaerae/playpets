@@ -224,7 +224,7 @@
   color: var(--scene-ink);
   font-weight: 650;
   background: var(--scene-label-soft);
-  border-radius: 12px;
+  border-radius: var(--radius-bubble);
   padding: 3px 8px;
   max-width: 150px;
   overflow: hidden;
@@ -361,7 +361,7 @@
   width: max-content;
   max-width: 190px;
   padding: 6px 10px;
-  border-radius: 12px;
+  border-radius: var(--radius-bubble);
   background: var(--scene-label);
   border: 1px solid var(--scene-line);
   box-shadow: 0 4px 12px var(--scene-shadow);
@@ -386,7 +386,7 @@
   left: 50%;
   transform: translateX(-50%);
   padding: 7px 10px;
-  border-radius: 12px;
+  border-radius: var(--radius-bubble);
   background: var(--scene-label);
   border: 1px solid var(--scene-line);
   box-shadow: 0 4px 12px var(--scene-shadow);

@@ -232,7 +232,7 @@ body.compact .catch-card svg {
 body.compact .catch-specimen {
   flex-basis: 44px;
   height: 34px;
-  border-radius: 8px;
+  border-radius: var(--radius-panel);
 }
 body.compact .catch-card strong {
   font-size: var(--font-sm);

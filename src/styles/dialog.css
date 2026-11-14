@@ -455,7 +455,7 @@ body.compact .update-compact {
   width: 132px;
   height: 4px;
   margin-top: 5px;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: linear-gradient(90deg, var(--album-gold) calc(var(--album-found, 0) * 100%), var(--album-edge) 0);
 }
 .album-heading-actions {
@@ -620,7 +620,7 @@ body.compact .update-compact {
 .album-meter {
   grid-area: 2 / 1;
   height: 3px;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: linear-gradient(90deg, var(--album-fill) calc(var(--album-found, 0) * 100%), var(--album-edge) 0);
 }
 .album-tabs button.complete .album-meter {
@@ -729,7 +729,7 @@ body.compact .update-compact {
 .album-record {
   margin-top: auto;
   padding: 2px 8px;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--green-soft);
   color: var(--green-ink);
   font-weight: 650;
@@ -743,7 +743,7 @@ body.compact .update-compact {
   margin-top: 4px;
   padding: 3px 10px;
   border: 1px solid var(--album-edge);
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--album-paper);
   color: inherit;
   font: inherit;
@@ -789,7 +789,7 @@ body.compact .update-compact {
   top: 8px;
   right: 8px;
   padding: 1px 7px;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--album-gold-soft);
   color: var(--album-gold-ink);
   font-size: var(--font-xs);
@@ -875,7 +875,7 @@ body.compact .update-compact {
   width: max(22px, 12%);
 }
 .decorating-tree .bauble:focus-visible {
-  outline: 2px solid #ffe7ad;
+  outline: var(--focus-ring-light);
   outline-offset: 2px;
 }
 .decorating-tree .bauble-ball {
@@ -1034,7 +1034,7 @@ body.compact .update-compact {
   scale: 1.35;
 }
 .ornament-hook:focus-visible {
-  outline: 2px solid #ffe7ad;
+  outline: var(--focus-ring-light);
   outline-offset: 0;
 }
 /* The card: what a bauble is, and a button to take it down. Placed by decorating.js. */
@@ -1047,7 +1047,7 @@ body.compact .update-compact {
   gap: 2px;
   width: 132px;
   padding: 8px 8px 10px;
-  border-radius: 12px;
+  border-radius: var(--radius-bubble);
   background: var(--ornament-surface);
   color: var(--ornament-ink);
   box-shadow: var(--ornament-shadow);
@@ -1105,7 +1105,7 @@ body.compact .update-compact {
   max-width: 55%;
   padding: 6px 10px;
   border: 1px solid var(--scene-line);
-  border-radius: 12px;
+  border-radius: var(--radius-bubble);
   background: var(--scene-label);
   box-shadow: 0 4px 12px #0b102433;
   color: var(--scene-ink);
@@ -1322,7 +1322,7 @@ body.compact .update-compact {
   font-weight: 400;
 }
 .community-discovery summary:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: var(--focus-ring);
   outline-offset: 4px;
   border-radius: 3px;
 }

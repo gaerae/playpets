@@ -42,7 +42,7 @@
   flex: none;
   margin-left: 6px;
   padding: 1px 8px;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--pink-soft);
   color: var(--pink-ink);
   font-weight: 700;
@@ -59,7 +59,7 @@
   margin: 0 4px 0 6px;
   padding: 3px 9px 3px 7px;
   border: 0;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--pink-soft);
   color: var(--pink-ink);
   font: inherit;
@@ -144,7 +144,7 @@
   padding: 4px 24px 4px 8px;
   background-position: right 7px center;
   background-size: 9px 7px;
-  border-radius: 8px;
+  border-radius: var(--radius-panel);
   min-height: 36px;
 }
 .view-controls {
@@ -190,7 +190,7 @@
   cursor: default;
 }
 .view-button:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: var(--focus-ring);
   outline-offset: 1px;
 }
 /* Stable labels and right-aligned switches make desktop modes easy to scan. */
@@ -245,7 +245,7 @@
   transform: translateX(12px);
 }
 .view-wander input:focus-visible ~ .wander-switch {
-  outline: 2px solid var(--focus);
+  outline: var(--focus-ring);
   outline-offset: 3px;
 }
 #sound-button[aria-pressed="false"] {
@@ -405,7 +405,7 @@
   color: var(--ink);
 }
 .atmosphere-segments input:focus-visible + span {
-  outline: 2px solid var(--ink);
+  outline: var(--focus-ring);
   outline-offset: 2px;
 }
 body.compact .scene-menu {
@@ -445,7 +445,7 @@ body.compact .atmosphere-choice summary {
   color: var(--ink);
 }
 body.compact .atmosphere-choice summary:focus-visible {
-  outline: 2px solid var(--ink);
+  outline: var(--focus-ring);
   outline-offset: 2px;
   border-radius: var(--radius-control);
 }

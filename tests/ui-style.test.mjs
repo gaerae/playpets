@@ -55,7 +55,7 @@ test('the AI kind, relation and appearance cards are one choice card, chosen and
     assert.doesNotMatch(css, new RegExp(`\\.${kind}(\\.on|:has\\()`), kind);
   }
   assert.match(css, /\.choice-card:has\(input:checked\)\{[^}]*background:var\(--control-selected\)/);
-  assert.match(css, /\.choice-card:has\(input:focus-visible\)\{outline:3px solid var\(--focus\)/);
+  assert.match(css, /\.choice-card:has\(input:focus-visible\)\{outline:var\(--focus-ring\)/);
   assert.match(css, /\.choice-card input\{position:absolute;opacity:0;pointer-events:none/);
 });
 
@@ -947,4 +947,39 @@ test('the sleigh is a night-blue silhouette with a thin rim', async () => {
   for (const [, blur] of filter.matchAll(/drop-shadow\(0 0 ([\d.]+)px/g)) assert.ok(Number(blur) <= 1, `rim ${blur}px`);
   const page = await readFile('src/index.html', 'utf8');
   assert.match(page, /<filter id="sleigh-silhouette"[^>]*>\s*<feFlood flood-color="#[0-9a-f]{6}"/);
+});
+
+// Keyboard focus looks one way everywhere: one ring, 3px in the focus colour. Only on dark paint
+// (the water under a bobber, the Christmas tree at night) is it the same ring in candlelight, which
+// reads there. A ring may sit closer or farther (outline-offset), or be a glow on a drawing.
+test('every focus ring is the one ring', async () => {
+  const css = await styles();
+  assert.match(css, /--focus-ring:3px solid var\(--focus\);/);
+  assert.match(css, /--focus-ring-light:3px solid #ffe7ad;/);
+  const odd = [];
+  for (const [, selector, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    if (!/:focus-visible/.test(selector)) continue;
+    for (const [, value] of body.matchAll(/(?:^|;)outline:([^;]+)/g))
+      if (!/^(?:none|var\(--focus-ring(?:-light)?\))$/.test(value)) odd.push(`${selector.trim()} outline:${value}`);
+  }
+  assert.deepEqual(odd, []);
+  // The desktop overlay is its own page without the window's tokens; its ring has the same width.
+  const overlay = compact(await readFile('src/overlay/overlay.css', 'utf8'));
+  const rings = [...overlay.matchAll(/:focus-visible\{[^}]*outline:([^;]+)/g)].map(([, value]) => value);
+  assert.ok(rings.length >= 2);
+  for (const ring of rings) assert.match(ring, /^3px solid /);
+});
+
+// Corners come from a few named sizes; a corner that is one of them by value names it, so changing
+// the size changes every corner that shares it. A drawn shape (a leaf, a pot, a tab's half) keeps its own.
+test('a corner the same size as a named one uses the name', async () => {
+  const css = await styles();
+  const named = Object.fromEntries(
+    [...css.matchAll(/--radius-([a-z]+):(\d+px);/g)].map(([, name, value]) => [value, name]),
+  );
+  assert.deepEqual(named, { '8px': 'panel', '5px': 'control', '6px': 'card', '999px': 'pill', '12px': 'bubble' });
+  const literal = [...css.matchAll(/([^{}]+)\{[^{}]*?(?:^|;)border-radius:(\d+px);/g)]
+    .filter(([, , value]) => named[value] || value === '99px')
+    .map(([, selector, value]) => `${selector.trim()} ${value}`);
+  assert.deepEqual(literal, []);
 });

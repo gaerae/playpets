@@ -118,7 +118,7 @@
   box-shadow: 0 0 0 3px #fff4d944;
 }
 .bobber:focus-visible {
-  outline: 2px solid #fff4d9;
+  outline: var(--focus-ring-light);
   outline-offset: -6px;
   box-shadow: inset 0 0 0 3px #24404d;
 }
