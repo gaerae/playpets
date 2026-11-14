@@ -78,7 +78,10 @@ test('a friend walks down to its name tag, past where plants keep to; a stroll d
   assert.equal(underDock(800, 660, 48), true);
   assert.equal(underDock(570, 660, 48), true, 'half a body beside it is still behind it');
   assert.equal(underDock(500, 660, 48), false);
-  assert.equal(underDock(800, 630, 48), false, 'feet above it leave the friend in view');
+  // The name tag hangs under the feet: feet just above the dock left the tag behind it (Miso's at
+  // 820 by 700), so a friend keeps its tag's room above the dock too.
+  assert.equal(underDock(800, 630, 48), true, 'feet just above it leave the tag behind it');
+  assert.equal(underDock(800, 617, 48), false, 'feet a tag above it leave the friend and its name in view');
   // Measured once and asked many times, as a stroll's tries are: the box itself reads no layout.
   const box = dockBox();
   globalThis.document.querySelector = () => assert.fail('the dock is not measured again');
@@ -87,6 +90,19 @@ test('a friend walks down to its name tag, past where plants keep to; a stroll d
   globalThis.document.querySelector = () => ({ getBoundingClientRect: () => ({ width: 0 }) });
   assert.equal(dockBox(), null);
   assert.equal(underDock(800, 660, 48), false, 'a hidden dock hides nothing');
+});
+// A small window hides the dock and keeps a corner button; a name tag at the foot went under it.
+test('in a small window the corner button keeps friends and their names clear as the dock does', t => {
+  yardIn(t);
+  globalThis.document.querySelector = selector =>
+    selector === '.yard-dock'
+      ? { getBoundingClientRect: () => ({ width: 0 }) }
+      : selector === '.compact-launcher'
+        ? { getBoundingClientRect: () => ({ left: 956, top: 656, width: 36, height: 36 }) }
+        : null;
+  assert.deepEqual(dockBox(), { left: 956, top: 656, width: 36 });
+  assert.equal(underDock(960, 640, 48), true);
+  assert.equal(underDock(500, 690, 48), false);
 });
 // The dock floats over the foot at the right (shell.css .yard-dock), in this test's document.
 function dockAt() {
@@ -108,7 +124,7 @@ test('a friend kept or dropped behind the dock is lifted to stand just above it'
   clearOfDock(v);
   const after = footOf(v);
   assert.equal(after.x, before.x, 'it is lifted, not moved aside');
-  assert.ok(Math.abs(after.y - 646) < 1e-6, "its feet stand on the dock's top edge");
+  assert.ok(Math.abs(after.y - (646 - 28)) < 1e-6, "its feet stand a tag's room above the dock's top edge");
   assert.equal(underDock(after.x, after.y, 48), false);
   const beside = friendAt(0.1, 1);
   place(beside);

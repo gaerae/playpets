@@ -240,10 +240,14 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* The friend's name keeps its room; an agent's name beside it gives way first. */
+/* The friend's name keeps its room; an agent's name beside it gives way first. The tag is wider
+   with an agent, so "Claude Code" fits beside a long name instead of both being cut. */
+.pet-tag:has(small:not([hidden])) {
+  max-width: 210px;
+}
 .pet-tag:has(small:not([hidden])) .tag-name {
   flex: none;
-  max-width: 96px;
+  max-width: 110px;
 }
 .tag-talk {
   display: none;

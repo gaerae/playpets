@@ -38,6 +38,7 @@ import {
   measureYard,
   petHeight,
   sizeOf,
+  TAG_ROOM,
   underDock,
 } from './field.js';
 import { hint } from './hint.js';
@@ -200,14 +201,14 @@ function fit(v, box, resized = false) {
   clearOfDock(v, box);
   if (sized) keepInside(v);
 }
-/** Lifts a friend standing behind the dock to stand just above it, in view: one saved at the front
- * edge before friends walked past the field's foot, one dropped there, or one the dock grew over.
- * `box` is the dock (dockBox), when the caller has measured it for many friends. */
+/** Lifts a friend standing behind the dock to stand just above it, with its name tag, in view: one
+ * saved at the front edge before friends walked past the field's foot, one dropped there, or one the
+ * dock grew over. `box` is the dock (dockBox), when the caller has measured it for many friends. */
 export function clearOfDock(v, box = dockBox()) {
   if (!box) return;
   const foot = footOf(v);
   if (!underDock(foot.x, foot.y, sizeOf(v.pet) / 2, box)) return;
-  v.y = footTarget(v, foot.x, box.top, 0).y;
+  v.y = footTarget(v, foot.x, box.top - TAG_ROOM, 0).y;
   place(v);
 }
 /** Sets the friend's body and label where it stands (v.x, v.y). With `glide`, the frame loop's own
@@ -499,12 +500,13 @@ function createView(p) {
 // What a friend's body and label say: its name, its agents, its agent's state, whether it is the one
 // talked with or answering. Written only where it differs.
 function labelView(v, p) {
-  // One agent is named on the tag; more are counted, and the full list is the tooltip.
+  // One agent is named on the tag; more are counted. The full list is the tooltip, also for one
+  // agent whose name the tag cuts.
   const agents = agentsOf(data, p.id);
   labelTag(v);
   put(v.agents, 'textContent', agents.length > 1 ? `${agents[0]} +${agents.length - 1}` : agents[0] || '');
   put(v.agents, 'hidden', !agents.length);
-  put(v.agents, 'title', agents.length > 1 ? joinList(agents) : '');
+  put(v.agents, 'title', joinList(agents));
   put(v.tag, 'title', t('friend.talk', { name: name(p) }));
   const state = agentState(p);
   // The dot's colour is said in words too, for anyone who cannot see it.

@@ -665,6 +665,16 @@ test("a sky moment's glow stays out of rooms, where furniture fronts would show 
 // The agent's state rides in the name tag, beside the name: by the head it floated off a friend
 // drawn smaller at the back, and a seated friend's head is where a desk's laptop is.
 // Where it sits in the tag is yard-lifecycle.test.mjs's.
+// A tag with an agent cut both names at once ("Sir Wiggleton F… • Cl…"), so neither could be read.
+// It is wider, so the agent's name fits beside a long friend's, and the agent's whole name is its
+// tooltip when it is cut anyway.
+test('a name tag with an agent has room for both names', async () => {
+  const [css, views] = await Promise.all([styles(), readFile('src/yard/views.js', 'utf8')]);
+  assert.match(css, /\.pet-tag:has\(small:not\(\[hidden\]\)\)\{max-width:210px;?\}/);
+  assert.match(css, /\.pet-tag:has\(small:not\(\[hidden\]\)\)\.tag-name\{flex:none;max-width:110px;?\}/);
+  assert.match(views, /put\(v\.agents, 'title', joinList\(agents\)\)/);
+});
+
 test("the agent's state dot flows in the name tag instead of floating over the friend", async () => {
   const css = await styles();
   const rule = css.match(/\.pet-state-dot\{([^}]*)\}/)?.[1] || '';

@@ -27,6 +27,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In a small window, the window's own buttons no longer come over an open panel's title and Close while the pointer is on the panel.
 - In a small window, the next-steps card stays clear of the corner button, and its Hide this is easier to press.
 - On the desktop, a long line in a friend's bubble ends at its ellipsis instead of showing half of the next line under it.
+- A name tag with a coding agent has room for both names instead of cutting both, and friends at the front stop with their name tag above the dock instead of behind it.
 - Friends' speech bubbles stay inside a small window: when several friends talk at once and there is no room above, the newest line takes the place of the one it would cover.
 
 ## [1.7.1] - 2026-11-13
