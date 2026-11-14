@@ -166,7 +166,11 @@ export function renderConnections() {
 export function setupSettings() {
   // The language: the backend remembers it, the page keeps a copy and starts over in it.
   const languages = $('language');
-  languages.replaceChildren(...Object.entries(LANGUAGES).map(([code, label]) => new Option(label, code)));
+  // Each name in its own language, so it is drawn in that language's fonts (base.css), not found
+  // through the system's font fallback.
+  languages.replaceChildren(
+    ...Object.entries(LANGUAGES).map(([code, label]) => Object.assign(new Option(label, code), { lang: code })),
+  );
   languages.value = language();
   languages.onchange = guard(async () => {
     // The backend reloads every window in the new language, this one included.

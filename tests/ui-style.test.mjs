@@ -123,7 +123,13 @@ test('the logo is drawn and text uses the system font, so no system lacks the br
     /<a class="brand"[^>]*>\s*<img[^>]*>\s*<svg class="wordmark"[^>]*aria-label="PlayPets"/,
     'the wordmark is an inline drawing',
   );
-  assert.match(css, /:root\{[^}]*font-family:system-ui/, 'body text starts from the system font');
+  assert.match(
+    css,
+    /:root\{[^}]*--font-ko:system-ui[^}]*font-family:var\(--font-ko\)/,
+    'body text starts from the system font',
+  );
+  for (const code of ['ja', 'zh-hans'])
+    assert.match(css, new RegExp(`--font-${code}:system-ui`), `${code} text starts from the system font`);
   assert.doesNotMatch(css, /Avenir/, 'no typeface that only one system ships');
 });
 

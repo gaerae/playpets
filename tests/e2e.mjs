@@ -306,10 +306,6 @@ const scenario = `(async()=>{
       window.__pp('event',{type:'window',shown:true});root.toggleAttribute('data-unseen',true);await pause(300);
       await P('ipc-ping-only-frame-loop',await trips('e2ePing'));
       root.toggleAttribute('data-unseen',false);await pause(300);
-      // Text in a script the page's fonts may lack, laid out for the first time.
-      for(const [name,text,font] of [['han-simplified-named','简体 设定','"Microsoft YaHei UI", "PingFang SC", "Noto Sans CJK SC"'],['han-simplified','简体中文 设置',''],['kana','ひらがな カタカナ',''],['hangul-mono','설정 복사','ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'],['emoji','🐾✨🌸','']]){
-        const probe=document.createElement('span');probe.textContent=text;probe.style.cssText='position:absolute;left:-9999px;top:0'+(font?';font-family:'+font:'');
-        const t0=performance.now();document.body.append(probe);probe.getBoundingClientRect();await P('text-first-'+name,performance.now()-t0);probe.remove();}
       const same=(await playPets.bootstrap()).data,pushedAt=[];
       for(let i=0;i<5;i++){const copy=structuredClone(same),t0=performance.now();window.__pp('change',copy);await pause(0);layout();pushedAt.push(performance.now()-t0);}
       await P('push-unchanged',mean(pushedAt));
@@ -353,6 +349,11 @@ const scenario = `(async()=>{
       {const books=[...document.querySelectorAll('.album-tabs [data-book]')];
        if(books.length>1){await timed('album-book-first',()=>books[1].click());books[0].click();await timed('album-book-second',()=>books[1].click());books[0].click();}}
       $('close-album').click();
+      // Text in a script the page's fonts may lack, laid out for the first time: after the panels, so
+      // Settings' first opening (which names each language in its own) is timed with nothing loaded before.
+      for(const [name,text,font] of [['han-simplified-named','简体 设定','"Microsoft YaHei UI", "PingFang SC", "Noto Sans CJK SC"'],['han-simplified','简体中文 设置',''],['kana','ひらがな カタカナ',''],['hangul-mono','설정 복사','ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'],['emoji','🐾✨🌸','']]){
+        const probe=document.createElement('span');probe.textContent=text;probe.style.cssText='position:absolute;left:-9999px;top:0'+(font?';font-family:'+font:'');
+        const t0=performance.now();document.body.append(probe);probe.getBoundingClientRect();await P('text-first-'+name,performance.now()-t0);probe.remove();}
       // Each place and a season: the switch itself, and until the new land is hung on the wall.
       const land=document.querySelector('#yard .paint-land');
       const hung=()=>new Promise(done=>{const watch=new MutationObserver(()=>{watch.disconnect();done(performance.now());});watch.observe(land,{childList:true});setTimeout(()=>{watch.disconnect();done(null);},8000);});
