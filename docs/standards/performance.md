@@ -94,6 +94,8 @@
 - The page wakes only for scheduled events (a gust, a wave, a call), never on a fast timer.
 - Do not keep resources that decode large (sprite sheets, about 14MB each) for every pet.
 - One minute after the Invite tab closes, the yard releases the sheets it does not use.
+- Pictures travel by address, not inside a command's answer: `listBackgrounds` names each picture of an imported background as `pet-asset://background/<id>/<picture>`, read when its place or its card shows.
+  - Five packs (64 MB) sent whole held back the first friend by about 230 ms and kept about 200 MB in the app and the page all day.
 
 ### Recorded baseline
 - This baseline predates the later raster artwork and place changes. It is not a benchmark of the current release.
@@ -113,6 +115,25 @@
 - From 2026-11-11, `pnpm run measure` also plants four flowers in bloom and two grown trees in the woodland. The values above were measured without a garden.
 - Runs on the same machine differ by several points when anything else is busy. Compare medians of alternating runs (before, after, before, after).
 - Compare only values from the same machine.
+
+### Each process, measured 2026-11-14
+- Same machine as above, e2e build, three built-in friends and the small garden of `pnpm run measure`, two runs of each state, 20 seconds each.
+- CPU is a percentage of one core. Memory is each process's footprint (`top`'s MEM), summed.
+
+| State | App | GPU process | Yard's page | Desktop's page | All, CPU | All, memory |
+|---|---|---|---|---|---|---|
+| Yard, no friends | 2.6–2.7% | 4.1–4.3% | 3.4–3.6% | – | 10.0–10.7% | 526–554 MB |
+| Yard, friends strolling | 2.9–3.1% | 3.7–3.9% | 4.8–5.4% | – | 11.5–12.2% | 503–532 MB |
+| Yard and desktop, friends and a flower out | 5.7–6.1% | 3.7–4.7% | 5.1–5.2% | 3.5–4.2% | 18.9–19.3% | 638–664 MB |
+| Desktop only, yard hidden | 2.9–3.5% | 1.3–1.6% | 0.1% | 2.4–2.8% | 6.8–8.0% | 568–591 MB |
+| Hidden to the tray | 0–0.1% | 0.1% | 0.1% | – | 0.1–0.3% | 417–424 MB |
+| Minimized | 0.1% | 0.1% | 0.1% | – | 0.2–0.3% | 434–440 MB |
+
+- Left 12 minutes with every friend in the yard and out on the desktop, strolling, the yard's page grew and fell back with garbage collection (WebKit malloc 137–219 MB) and ended where it was after 3 minutes; the desktop's page stayed at 160 MB.
+  - The page's nodes, listeners, timers and Web Animations did not grow: finished glides are released.
+  - In Chrome with 12 friends, after a collection, the JS heap went from 3.5 to 4.1 MB in 10 minutes while 17,000 glides ran.
+- Turned off in turn, these cost nothing measurable here (within 2 points): the garden's light filter (evening rain), the glass blur behind the dock over the rain, a desktop window cut to the friends' width instead of the screen.
+  - The cut window saved 0.8 points and 18 MB, but would have to move and resize with every stroll: the window stays the size of the screen.
 
 ## Recommendations
 Follow these when you can. When you cannot, say why in the PR.
@@ -146,3 +167,4 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-11-13 The compositor carries a moving friend between steps; the yard wakes when a walking step ends, on one clock for all walks; creatures and falling petals keep the 50ms interval; wing beats span six frames
 - 2026-11-14 The overlay thread is woken by a change to what is out; a monitor's window stays a minute after its last thing leaves and opens early from the yard's menu, and its page draws nothing while it has nobody
 - 2026-11-14 A glide after a late step lasts until the next step is likely to come; a push re-renders only what changed; canvases follow a change of screen density
+- 2026-11-14 Pictures travel by address, not inside a command's answer (imported backgrounds); each process measured in each state, over 12 minutes, and with the filters and the blur off
