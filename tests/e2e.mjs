@@ -854,9 +854,11 @@ const scenario = `(async()=>{
       for(const lang of ['ko','en','ja','zh-hans']){
         localeUi.setLanguageForTests(lang);localeUi.apply();
         (await import('./core/controls.js')).openPlay();await wait(40);
-        // Wide windows keep every name on one line; small windows fold tiles and allow two lines, but nothing spills.
+        // Every name stays whole on one line, never broken inside a word: wide windows at 12px or more,
+        // small ones (three tiles a row, the shortest at 11px) uncut by their tile too.
         const folded=document.body.classList.contains('compact');
-        const fits=(tile,labels)=>{tile.scrollIntoView({block:'nearest'});return visibleNode(tile)&&tile.scrollWidth<=tile.clientWidth+1&&tile.scrollHeight<=tile.clientHeight+1&&(folded||labels.every(noWrap));};
+        const oneLine=node=>{const range=document.createRange();range.selectNodeContents(node);return new Set([...range.getClientRects()].filter(rect=>rect.width>0).map(rect=>Math.round(rect.top))).size===1&&node.scrollWidth<=node.clientWidth+1;};
+        const fits=(tile,labels)=>{tile.scrollIntoView({block:'nearest'});return visibleNode(tile)&&tile.scrollWidth<=tile.clientWidth+1&&tile.scrollHeight<=tile.clientHeight+1&&labels.every(folded?oneLine:noWrap);};
         // With seeds or without, the same: a two-digit count is the widest the seed tile shows.
         const seedsBefore=$('seed-count').textContent;$('seed-count').textContent='12';
         // The snowman's row (a winter yard) and Flower viewing (blossom time) show only in their season

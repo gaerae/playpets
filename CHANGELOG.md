@@ -22,7 +22,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In a small window, Invite opens at its full width again instead of as a thin strip.
 - In the smallest window, a conversation keeps room for its lines, and a long friend name ends in an ellipsis instead of running under the menu button.
 - In a small window, the first-run card shows all four starter friends whole instead of cutting off a row.
-- In the smallest window, Play shows every game whole instead of cutting off the last row.
+- In a small window, Play shows every game whole, three to a row, with each name on one line instead of broken in the middle of a word.
 - In the smallest window, the question before sending a friend away shows everything it warns of, even for a friend with a long name.
 - In a small window, the window's own buttons no longer come over an open panel's title and Close while the pointer is on the panel.
 - In a small window, the next-steps card stays clear of the corner button, and its Hide this is easier to press.

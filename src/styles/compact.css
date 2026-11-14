@@ -148,32 +148,53 @@ body.compact .management-destinations .menu-destination {
   gap: 2px;
   text-align: center;
 }
-/* A tile's name may take two lines instead of a shortened word in each language. */
+/* Three tiles a row in every group, so a name stays whole on one line in each language: six games
+   in one row were too narrow and broke their names inside the word. A font that draws a name wider
+   than its tile cuts it with an ellipsis, never a break. */
+body.compact .play-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
 body.compact .play-action {
-  flex: 1 1 0;
   min-width: 0;
   padding: 4px 2px;
-  white-space: normal;
-  overflow-wrap: anywhere;
   text-align: center;
 }
-/* In the shortest windows an icon over a two-line name made the rows taller than the panel and
-   cut the last one; the icon goes beside the name, and the seed count after it. */
+body.compact .play-action > :is(span[data-i18n], .game-name) {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* The shortest windows keep the icon over the name at the smallest step, with the seed count in the
+   corner above the name and the gaps closed, so the four rows fit without scrolling. */
 @media (max-height: 280px) {
+  body.compact .play-actions {
+    gap: 2px;
+  }
+  body.compact .play-board .dock-panel-body {
+    gap: 3px;
+  }
+  body.compact .play-board .dock-section + .dock-section {
+    padding-top: 3px;
+  }
   body.compact .play-action {
-    flex-direction: row;
-    min-height: 30px;
-    padding: 2px;
+    min-height: 0;
+    gap: 0;
+    padding: 1px 2px;
     font-size: var(--font-xs);
+    line-height: 1.2;
   }
   body.compact .play-action svg {
     width: 14px;
     height: 14px;
   }
-  /* After the name, whole: a shrinking pill broke a count of 12 onto two lines. */
   body.compact .play-action > .tool-count {
-    position: static;
-    flex: none;
+    top: 0;
+    right: max(1px, calc(50% - 30px));
+    min-width: 14px;
+    height: 14px;
+    padding: 0 3px;
+    line-height: 14px;
   }
 }
 body.compact .background-gallery {

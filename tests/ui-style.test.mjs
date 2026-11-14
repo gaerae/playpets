@@ -238,16 +238,24 @@ test('a small window shows the four starters in one row of small pictures', asyn
   assert.match(short, /body\.compact \.starter canvas\{width:44px;height:48px;?\}/);
 });
 
-// At 300 by 210 in Japanese the Play panel's last row of games was cut at its bottom: an icon over
-// a name that takes two lines left the rows 21px taller than the panel. The shortest windows put
-// the icon beside the name, and the seed count after it, whole: a count of 12 that shrank broke
-// onto two lines and spilled out of its tile (the e2e's two-digit check).
-test('the shortest window lays each Play tile out in one row so every game shows', async () => {
+// A small window's Play tiles shared one row per group, so six games at 300 by 210 were 46px each and
+// their names broke inside the word (種を植え/る, かくれ/んぼ, Par/ade). Every group is three tiles a
+// row, and a name stays whole on one line; only if a font draws it wider than its tile is it cut
+// with an ellipsis. The shortest windows put the icon over the name at the smallest step, the seed
+// count in the corner, and close the gaps, so the four rows fit without scrolling.
+test('a Play name stays whole on one line in a small window', async () => {
   const css = await styles();
+  assert.match(css, /body\.compact \.play-actions\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  const tile = css.match(/(?:^|\})body\.compact \.play-action\{([^}]*)\}/)?.[1] || '';
+  assert.doesNotMatch(tile, /white-space:normal|overflow-wrap:anywhere|word-break/);
+  assert.match(
+    css,
+    /body\.compact \.play-action>:is\(span\[data-i18n\],\.game-name\)\{[^}]*overflow:hidden;text-overflow:ellipsis/,
+  );
   const short = [...css.matchAll(/@media\(max-height:280px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
-  assert.match(short, /body\.compact \.play-action\{[^}]*flex-direction:row/);
-  assert.match(short, /body\.compact \.play-action>\.tool-count\{[^}]*position:static/);
-  assert.match(short, /body\.compact \.play-action>\.tool-count\{[^}]*flex:none/);
+  assert.doesNotMatch(short, /body\.compact \.play-action\{[^}]*flex-direction:row/);
+  assert.match(short, /body\.compact \.play-action\{[^}]*font-size:var\(--font-xs\)/);
+  assert.doesNotMatch(short, /body\.compact \.play-action>\.tool-count\{[^}]*position:static/);
 });
 
 // At 300 by 210 the next-steps card began 112px down, ran past the bottom and went under the corner
