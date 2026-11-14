@@ -190,12 +190,16 @@ export function geometry(p, x) {
     top = Math.max(12, ground - petHeight(p));
   return { w, top, h: Math.max(1, r.height - petHeight(p) - TAG_ROOM - top) };
 }
-/** The dock floating over the yard's foot (shell.css .yard-dock) in yard pixels, or, in a small
- * window that hides it, the corner button there instead (compact.css); null while neither shows. It
- * reads the layout: measure it once for the many questions a stroll asks. */
+/** What floats over the yard's foot, in yard pixels: the strip of a tool in hand, which takes the
+ * dock's place (garden.css .discovery-target), the dock (shell.css .yard-dock), or, in a small
+ * window that hides it, the corner button there (compact.css); null while none shows. It reads the
+ * layout: measure it once for the many questions a stroll asks. */
 export function dockBox() {
-  let dock = document.querySelector('.yard-dock')?.getBoundingClientRect?.();
-  if (!dock?.width) dock = document.querySelector('.compact-launcher')?.getBoundingClientRect?.();
+  let dock;
+  for (const selector of ['.discovery-target:not([hidden])', '.yard-dock', '.compact-launcher']) {
+    dock = document.querySelector(selector)?.getBoundingClientRect?.();
+    if (dock?.width) break;
+  }
   if (!dock?.width) return null;
   const yard = $('yard').getBoundingClientRect();
   return { left: dock.left - (yard.left || 0), top: dock.top - (yard.top || 0), width: dock.width };

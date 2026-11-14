@@ -18,7 +18,7 @@ import { groundProfile } from './ground.js';
 import { atRainbowEnd, clearRainbowEnd } from './rainbow-end.js';
 import { atTrailEnd, reservedForTrail } from './trails.js';
 import { forPerson, isFree, release } from './trips.js';
-import { bubble } from './views.js';
+import { bubble, clearAllOfDock } from './views.js';
 import { doneDigging, sendToDig, startDig, stopWork } from './work.js';
 import { scene } from './world.js';
 
@@ -134,6 +134,7 @@ export function beginDiscovery(action) {
   $('discovery-find-saplings').hidden = true;
   treeChoices();
   $('discovery-target').hidden = false;
+  clearAllOfDock();
   $('yard').focus();
 }
 
@@ -351,7 +352,10 @@ function syncTools(kind = aiming) {
     treeMenu?.close();
     $('discovery-tree-picker').hidden = true;
     $('discovery-find-saplings').hidden = true;
-    $('discovery-target').hidden = false;
+    if ($('discovery-target').hidden) {
+      $('discovery-target').hidden = false;
+      clearAllOfDock();
+    }
   } else if (!kind && intent) {
     // Put away from elsewhere (a press on the lake or a creature): the dig or tree choice ends too.
     intent = null;

@@ -204,12 +204,18 @@ function fit(v, box, resized = false) {
 /** Lifts a friend standing behind the dock to stand just above it, with its name tag, in view: one
  * saved at the front edge before friends walked past the field's foot, one dropped there, or one the
  * dock grew over. `box` is the dock (dockBox), when the caller has measured it for many friends. */
-export function clearOfDock(v, box = dockBox()) {
+export function clearOfDock(v, box = dockBox(), glide = false) {
   if (!box) return;
   const foot = footOf(v);
   if (!underDock(foot.x, foot.y, sizeOf(v.pet) / 2, box)) return;
   v.y = footTarget(v, foot.x, box.top - TAG_ROOM, 0).y;
-  place(v);
+  place(v, { glide });
+}
+/** Friends step up out from behind the strip of a tool in hand (dockBox), which stands taller than
+ * the dock it replaces; one being carried stays in the person's hand. */
+export function clearAllOfDock() {
+  const box = dockBox();
+  for (const v of views.values()) if (!v.drag) clearOfDock(v, box, true);
 }
 /** Sets the friend's body and label where it stands (v.x, v.y). With `glide`, the frame loop's own
  * step of a walk or a parade, it glides there (GLIDE_MS); anything else puts it there at once. */

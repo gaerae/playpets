@@ -91,6 +91,19 @@ test('a friend walks down to its name tag, past where plants keep to; a stroll d
   assert.equal(dockBox(), null);
   assert.equal(underDock(800, 660, 48), false, 'a hidden dock hides nothing');
 });
+// A tool in hand puts a strip where the dock was, twice as tall: friends at the front stood under
+// it with their names (Clover and Pip at 820 by 700, choosing where to dig).
+test('the strip of a tool in hand keeps friends and their names clear as the dock does', t => {
+  yardIn(t);
+  globalThis.document.querySelector = selector =>
+    selector === '.discovery-target:not([hidden])'
+      ? { getBoundingClientRect: () => ({ left: 400, top: 600, width: 420, height: 88 }) }
+      : selector === '.yard-dock'
+        ? { getBoundingClientRect: () => ({ width: 0 }) }
+        : null;
+  assert.deepEqual(dockBox(), { left: 400, top: 600, width: 420 });
+  assert.equal(underDock(600, 590, 48), true, 'its name would hang behind the strip');
+});
 // A small window hides the dock and keeps a corner button; a name tag at the foot went under it.
 test('in a small window the corner button keeps friends and their names clear as the dock does', t => {
   yardIn(t);
