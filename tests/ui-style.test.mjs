@@ -240,12 +240,14 @@ test('a small window shows the four starters in one row of small pictures', asyn
 
 // At 300 by 210 in Japanese the Play panel's last row of games was cut at its bottom: an icon over
 // a name that takes two lines left the rows 21px taller than the panel. The shortest windows put
-// the icon beside the name, and the seed count after it.
+// the icon beside the name, and the seed count after it, whole: a count of 12 that shrank broke
+// onto two lines and spilled out of its tile (the e2e's two-digit check).
 test('the shortest window lays each Play tile out in one row so every game shows', async () => {
   const css = await styles();
   const short = [...css.matchAll(/@media\(max-height:280px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
   assert.match(short, /body\.compact \.play-action\{[^}]*flex-direction:row/);
   assert.match(short, /body\.compact \.play-action>\.tool-count\{[^}]*position:static/);
+  assert.match(short, /body\.compact \.play-action>\.tool-count\{[^}]*flex:none/);
 });
 
 // At 300 by 210 the next-steps card began 112px down, ran past the bottom and went under the corner
