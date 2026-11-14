@@ -1,7 +1,6 @@
 // Entry point: sets every part of the page up in order, listens to the backend, and runs the frame loop.
 // No other module does anything when it is imported; each has a setup function, called here.
 
-import { setupCompanionActions } from './core/companion-actions.js';
 import { setupConfirm } from './core/confirm.js';
 import { openControls, openFriendMenu, setupControls } from './core/controls.js';
 import { apply, follow, t } from './core/i18n.js';
@@ -81,8 +80,9 @@ import { petalTick, setupPetals, wishAt } from './yard/petals.js';
 import { removeTree, renderTrees, setupTrees } from './yard/planted-trees.js';
 import { after, endGame, gameTap, judge, playGame, setupPlay, startGame, syncGameUi } from './yard/play.js';
 import { idleChatter } from './yard/remarks.js';
+import { setupRest } from './yard/rest.js';
 import { cancelShootDigs, renderShoots, setupShoots, shootsMinute } from './yard/shoots.js';
-import { chosenSeason, setupSky, showSeason } from './yard/sky.js';
+import { chosenSeason, restSky, setupSky, showSeason, wakeSky } from './yard/sky.js';
 import { resizeTrail, setupSnowTrail } from './yard/snow-trail.js';
 import { canDress, closeDress, openDress, renderDress, setupDress } from './yard/snowman-dress.js';
 import { resizeSnowman, setupSnowman, showsWinter, snowmanTick } from './yard/snowman.js';
@@ -96,8 +96,15 @@ import { drawWelcome, setupWelcome } from './yard/welcome.js';
 import { setupWinter } from './yard/winter.js';
 import { scene, scenery } from './yard/world.js';
 
-// Whether the yard can be seen; the backend says so for a window it hid or that was minimized.
-let shown = true;
+// Whether the yard can be seen. The backend says so in a `window` event as it hides, shows or
+// minimizes the window, and answers `bootstrap` and `windowReady` with it for what happened before
+// this page could hear it (a start at login, a window shown or closed while the page loaded).
+let shown = true,
+  // How many `window` events the page has heard. Events and answers come by different ways and may
+  // cross: an event heard while a question was on its way is as new as the answer, or newer.
+  windowEvents = 0,
+  // Until the yard is set up, a `window` event is only noted: what `seenAs` stops is not there yet.
+  setUp = false;
 // Reloads everything from the backend, for actions that need the page current right away.
 async function refresh() {
   setData(await call('bootstrap'));
@@ -110,14 +117,28 @@ function openChat(id) {
   $('message').focus();
 }
 
+// The engine drawing the page, where styles differ in cost between the two (scenery.css clouds):
+// only WebView2 (Windows) has `chrome.webview`.
+document.documentElement.toggleAttribute('data-webview2', !!globalThis.chrome?.webview);
+// The backend's word on the window, heard from before the first question: the window may be shown
+// (the tray, the Dock, a link, the wait in window.rs) or closed while the page loads.
+api.onEvent(event => {
+  if (event.type !== 'window') return;
+  windowEvents++;
+  if (setUp) seenAs(event.shown);
+  else shown = event.shown;
+});
 // The app's state first: the backgrounds (loadContent) and the place, season and weather picked
 // (setupSky) are read from it, and whether this data folder owns the webview's old copies. A
 // failure here is asked again, and shown, by the full start below.
+const eventsBeforeBoot = windowEvents;
 const booted = await call('bootstrap').catch(() => null);
 setData(booted || data);
-// What the yard is made of (the catalogue, the scenery, the drawings), before anything is drawn;
-// the friends' authored actions come in alongside.
-await Promise.all([loadContent(), setupCompanionActions()]);
+if (windowEvents === eventsBeforeBoot) shown = booted?.windowShown !== false;
+// What the yard is made of (the catalogue, the scenery, the drawings), before anything is drawn.
+// The bundled companions' authored actions are not needed for that: a bundled companion asks for
+// them as the yard draws it (views.js syncViews).
+await loadContent();
 // Words first: everything below builds its labels from them.
 apply();
 icons();
@@ -229,6 +250,19 @@ setupSky({
     renderDecor();
     renderShoots();
     renderTrees();
+  },
+});
+// Hidden for a while, the yard lets go of its paintings and is not drawn; seen again, it is painted
+// before WebKit draws it (yard/rest.js).
+const yardRest = setupRest({
+  seen: () => shown,
+  rest: () => {
+    restSky();
+    document.documentElement.toggleAttribute('data-resting', true);
+  },
+  wake: () => {
+    document.documentElement.toggleAttribute('data-resting', false);
+    wakeSky();
   },
 });
 setupTouches();
@@ -403,22 +437,27 @@ const ON_EVENT = {
     if (v) setTimeout(() => bubble(v, clip(plain(e.message), 80)), wait);
   },
   play: react,
-  window: e => {
-    shown = e.shown;
-    seen(shown);
-    soundSeen(shown);
-    // CSS animations (the clouds) rest too; see base.css.
-    document.documentElement.toggleAttribute('data-unseen', !shown);
-    // Seen again, Christmas night catches up; hidden, its check stops the sleigh and the glints.
-    christmasNightCheck();
-    // Hidden, a friend on its way along a trail gives up (nobody would see the tail).
-    trailsSeen();
-  },
 };
 api.onEvent(event => {
   chatEvent(event);
   if (Object.hasOwn(ON_EVENT, event.type)) ON_EVENT[event.type](event);
 });
+// The window was hidden or shown: what only runs for someone watching stops or catches up.
+function seenAs(visible) {
+  shown = visible;
+  seen(shown);
+  soundSeen(shown);
+  // CSS animations (the clouds) rest too; see base.css.
+  document.documentElement.toggleAttribute('data-unseen', !shown);
+  yardRest.check();
+  // Seen again, Christmas night catches up; hidden, its check stops the sleigh and the glints.
+  christmasNightCheck();
+  // Hidden, a friend on its way along a trail gives up (nobody would see the tail).
+  trailsSeen();
+}
+// From here the backend's word reaches what it stops; what it said while the page was set up counts now.
+setUp = true;
+if (!shown) seenAs(false);
 
 // Twenty frames a second while a friend moves (a walk, a pose, a game, a treat being placed) and
 // while creatures fly or petals and leaves fall, fifteen in rain and while birds or a shooting star
@@ -506,6 +545,8 @@ try {
   setupBond();
   refreshChat();
   announceInstalledUpdate();
+  // The window waited hidden, so it never showed white while the page loaded: the yard is drawn.
+  showWindow();
   last = sceneryLast = performance.now();
   every(BUSY_MS, animate);
   // Growth during closed time is recorded once the yard is drawn, so the first friend does not wait
@@ -513,4 +554,12 @@ try {
   await call('growTrees').catch(error => toast(spoken(error, t('error.start')), { error: true }));
 } catch (e) {
   toast(spoken(e, t('error.start')), { error: true });
+  showWindow();
+}
+// The backend shows the window only the first time, and never one a start at login keeps hidden.
+// It answers whether the yard can be seen now: its word may have come before the page could hear it.
+async function showWindow() {
+  const asked = windowEvents;
+  const visible = await call('windowReady').catch(() => null);
+  if (typeof visible === 'boolean' && windowEvents === asked && visible !== shown) seenAs(visible);
 }

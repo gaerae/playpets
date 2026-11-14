@@ -250,8 +250,9 @@ What each arrow in the diagram carries, path by path.
    - The result is `{ok, data}` or `{ok: false, error}`.
    - The error sentence is already in the current language.
 2. **State notifications:**
-   - On a state change, `app::changed` builds the full state for the page and sends it to every window as `__pp('change', state)`. The page redraws.
-   - Things that happen once (speech bubbles, reactions, chat arrivals, window hidden, new version) are sent separately as `__pp('event', …)`.
+   - On a state change, `app::changed` builds the full state and sends it to the yard window as `__pp('change', "<JSON text>")`; the page parses it and redraws.
+   - Each desktop window gets only what the overlay reads (`app::OVERLAY_KEYS`, with only its friends' pet files), and only when that differs from what it was last sent, apart from `desktopLayout`.
+   - Things that happen once (speech bubbles, reactions, chat arrivals, window hidden, new version) are sent separately as `__pp('event', …)`, only to the windows that act on that kind (`app::hears`).
    - So are changes too frequent for the full state: a friend's status (`status`) and who is waiting for a chat answer (`busy`).
 3. **Sprites:**
    - The page's image address is `pet-asset://sprite/<pet id>` (on Windows, `http://pet-asset.localhost/sprite/<pet id>`).
@@ -348,7 +349,8 @@ What each arrow in the diagram carries, path by path.
 The `e2e` build (`cargo build --profile e2e --features e2e`):
 - Writes `src-tauri/target/e2e/`, so it never replaces the app in `target/release/`.
 - Turns off single-instance, deep-link registration and the start-at-login plugin (the switch only pretends).
-- Turns on the `test_only` rows of `COMMANDS`: `e2eLog`, `e2eWindow`, `e2eFront`, `e2eTray`, `e2eImportZip`, `e2eFreshGifts`.
+- Turns on the `test_only` rows of `COMMANDS`: `e2eLog`, `e2eWindow`, `e2eFront`, `e2eTray`, `e2eImportZip`, `e2eFreshGifts`, `e2ePing` (a command that does nothing, for the bridge's round trip).
+- Keeps 5000 resource timings in the page instead of 250, so the perf lines count every file loaded at startup.
 - Skips the update check.
 
 `WEBKIT_DISABLE_DMABUF_RENDERER` on Linux:
@@ -360,10 +362,12 @@ Start at login:
 - The system starts the app at login with `--autostart` (`tauri-plugin-autostart`): a LaunchAgent on macOS, the Run key on Windows, an autostart entry on Linux.
 - A Microsoft Store package's Run key is its own copy, which Windows does not read at sign-in. There `startup.rs` switches the package's startup task (`TaskId="PlayPets"` in `AppxManifest.xml`), and a launch activated by it counts as at login.
 - A startup task the person turned off in Windows Settings can only be turned back on there; the switch says so (`error.autostart_in_settings`).
-- Started that way with desktop mode on, the yard window stays hidden.
+- Started that way with desktop mode on, the yard window stays hidden. The page hears it from `windowShown` in `bootstrap`, since the window was hidden before the page loaded.
 
 The yard window:
 - Frameless on every OS.
+- Made hidden: it shows once the page has drawn the yard (`windowReady`), or after 3 s if the page never says so (`FIRST_SHOW` in `window.rs`). A start at login that keeps it hidden never shows it.
+- With no saved place, it opens at the usual size in the middle of the screen.
 - A narrow transparent target along the top edge moves the window without reserving title-bar space.
 - Edges and corners resize it, up to the work area of the screen it is on.
 - Buttons for fit, minimize and close appear with the pointer near the top or with keyboard focus.

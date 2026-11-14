@@ -4,7 +4,7 @@ use crate::commands::{arg, text};
 use crate::i18n;
 use serde_json::{Value, json};
 use std::sync::Mutex;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::time::Duration;
 use tauri::{AppHandle, LogicalPosition, LogicalSize, Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
 
@@ -62,7 +62,10 @@ pub fn build_main(app: &tauri::App, bridge_js: &str) -> tauri::Result<WebviewWin
         .incognito(crate::commands::e2e_mode())
         .inner_size(SIZE_DEFAULT.0, SIZE_DEFAULT.1)
         .min_inner_size(SIZE_MIN.0, SIZE_MIN.1)
-        // The page's own background (--paper), so nothing flashes white before it loads.
+        // Hidden until the page has drawn the yard (FIRST_SHOW): a slow machine otherwise shows an
+        // empty window for seconds, and a start at login flashes one before hiding it.
+        .visible(false)
+        // The page's own background (--paper), should the window show before the page draws.
         .background_color(tauri::window::Color(0xf7, 0xf9, 0xf8, 0xff))
         .on_navigation(own_page)
         .initialization_script(bridge_js)
@@ -71,12 +74,118 @@ pub fn build_main(app: &tauri::App, bridge_js: &str) -> tauri::Result<WebviewWin
         .always_on_top(always_on_top);
     let w = builder.build()?;
     watch_fullscreen(&w);
-    let default = rect_now(&w).unwrap_or((0.0, 0.0, SIZE_DEFAULT.0, SIZE_DEFAULT.1));
-    let (x, y, width, height) = restored_rect(saved, &work_areas(&w), default);
+    let areas = work_areas(&w);
+    let now = rect_now(&w).unwrap_or((0.0, 0.0, SIZE_DEFAULT.0, SIZE_DEFAULT.1));
+    let (x, y, width, height) = start_rect(saved, &areas, now);
     w.set_size(size((width, height)))?;
     w.set_position(LogicalPosition::new(x, y))?;
-    limit_size(&w, size_limit((x, y, width, height), &work_areas(&w)));
+    limit_size(&w, size_limit((x, y, width, height), &areas));
+    FIRST_SHOW.wait();
+    let app = app.handle().clone();
+    std::thread::spawn(move || {
+        std::thread::sleep(first_show_wait());
+        first_show(&app, ShownBy::Wait);
+    });
     Ok(w)
+}
+
+/// Where the window opens: its saved place, kept on a screen, or the usual size in the middle of the
+/// screen the system put it on (Windows puts a new window in the top-left corner).
+fn start_rect(saved: Option<Rect>, areas: &[Rect], now: Rect) -> Rect {
+    restored_rect(saved, areas, usual_rect(now, areas))
+}
+
+/// How long the hidden window waits for its page before it shows anyway. An e2e run waits longer:
+/// its check that the page's `windowReady` showed the window must not race a slow runner.
+fn first_show_wait() -> Duration {
+    Duration::from_secs(if crate::commands::e2e_mode() { 15 } else { 3 })
+}
+
+/// Which way the window was shown at the start.
+#[derive(Clone, Copy)]
+pub enum ShownBy {
+    /// The page's `windowReady`: the yard is drawn.
+    Page = 1,
+    /// The wait ran out first.
+    Wait = 2,
+}
+
+/// The window's one showing at the start: the page's `windowReady` or the wait, whichever comes
+/// first. A window shown or hidden before that (the tray, a start at login) is left as it is.
+struct FirstShow {
+    state: AtomicU8,
+    by: AtomicU8,
+}
+
+const SETTLED: u8 = 0;
+const WAITING: u8 = 1;
+const SHOWING: u8 = 2;
+
+impl FirstShow {
+    const fn new() -> Self {
+        Self {
+            state: AtomicU8::new(SETTLED),
+            by: AtomicU8::new(0),
+        }
+    }
+    /// The window was made hidden for its page.
+    fn wait(&self) {
+        self.state.store(WAITING, Ordering::SeqCst);
+    }
+    /// Shown or hidden: the start does not show it again.
+    fn settled(&self) {
+        self.state.store(SETTLED, Ordering::SeqCst);
+    }
+    /// Whether this caller is the one to show it.
+    fn due(&self, by: ShownBy) -> bool {
+        let due = self
+            .state
+            .compare_exchange(WAITING, SHOWING, Ordering::SeqCst, Ordering::SeqCst)
+            .is_ok();
+        if due {
+            self.by.store(by as u8, Ordering::SeqCst);
+        }
+        due
+    }
+    /// Which way showed it, for the e2e's report.
+    fn by(&self) -> Option<&'static str> {
+        match self.by.load(Ordering::SeqCst) {
+            1 => Some("page"),
+            2 => Some("wait"),
+            _ => None,
+        }
+    }
+    /// Whether the window's own state (`visible`, `minimized`) says the yard can be seen. Nothing
+    /// while the window waits hidden for its page or is being shown: sizing it hidden (build_main)
+    /// sends a Resized that would otherwise boot the page as unseen into a window about to show.
+    fn seen(&self, visible: bool, minimized: bool) -> Option<bool> {
+        (self.state.load(Ordering::SeqCst) == SETTLED).then_some(visible && !minimized)
+    }
+}
+
+static FIRST_SHOW: FirstShow = FirstShow::new();
+
+/// Shows the window made hidden for its page, once: the page has drawn the yard, or waited too long.
+pub fn first_show(app: &AppHandle, by: ShownBy) {
+    if FIRST_SHOW.due(by) {
+        show(app);
+    }
+}
+
+/// The window was resized (minimized and restored count) or focused: the page hears whether the
+/// yard can be seen, unless the window still waits hidden for its page.
+pub fn looked_at(app: &AppHandle, focused: bool) {
+    let Some(w) = app.get_webview_window("main") else {
+        return;
+    };
+    if focused {
+        settle(&w);
+    }
+    let visible = w.is_visible().unwrap_or(true);
+    let minimized = w.is_minimized().unwrap_or(false);
+    if let Some(seen) = FIRST_SHOW.seen(visible, minimized) {
+        shown(app, seen);
+    }
 }
 
 /// Only the app's own pages load in its windows (tauri://localhost, or http://tauri.localhost
@@ -95,15 +204,36 @@ static SHOWN: AtomicBool = AtomicBool::new(true);
 /// tells the page itself (document.hidden); WebView2 may not for a hidden or minimized window.
 pub fn shown(app: &AppHandle, visible: bool) {
     if SHOWN.swap(visible, Ordering::SeqCst) != visible {
+        // A WebView2 hidden with its window (`hide`) shows again here, before the window does.
+        #[cfg(windows)]
+        if visible && let Some(w) = app.get_webview_window("main") {
+            let view: &tauri::Webview = w.as_ref();
+            let _ = view.show();
+        }
         crate::app::push_event(app, &json!({"type": "window", "shown": visible}));
     }
+}
+
+/// Whether the yard is meant to be seen, for a page that starts after the window was hidden.
+pub fn is_shown() -> bool {
+    SHOWN.load(Ordering::SeqCst)
 }
 
 /// Closing the yard leaves the app in the tray: on macOS the Dock icon goes with the window,
 /// so nothing sits in the Dock that does not answer a click.
 pub fn hide(app: &AppHandle) {
+    FIRST_SHOW.settled();
     if let Some(w) = app.get_webview_window("main") {
         let _ = w.hide();
+        // WebView2 is not told when its window is hidden; told, it reports the page hidden, stops
+        // drawing it and lets Windows throttle it. Not on minimize: the webview would come back only
+        // with the Resized after the window is restored, a blank moment. A minimized page still
+        // stops drawing and rests on the `window` event.
+        #[cfg(windows)]
+        {
+            let view: &tauri::Webview = w.as_ref();
+            let _ = view.hide();
+        }
     }
     shown(app, false);
     #[cfg(target_os = "macos")]
@@ -114,13 +244,16 @@ pub fn hide(app: &AppHandle) {
 pub fn show(app: &AppHandle) {
     #[cfg(target_os = "macos")]
     let _ = app.set_dock_visibility(true);
+    // Before the window: on Windows the page is shown first, so the window never shows it blank.
+    shown(app, true);
     if let Some(w) = app.get_webview_window("main") {
         let _ = w.show();
         let _ = w.unminimize();
         settle(&w);
         let _ = w.set_focus();
     }
-    shown(app, true);
+    // Only now: a Resized from a window still on its way to the screen does not say it is hidden.
+    FIRST_SHOW.settled();
 }
 
 pub fn command(app: &AppHandle, name: &str, args: &[Value]) -> Result<Value, String> {
@@ -136,6 +269,12 @@ pub fn command(app: &AppHandle, name: &str, args: &[Value]) -> Result<Value, Str
             shown(app, false);
         }
         "windowHide" => hide(app),
+        // Shown, or left as a start at login keeps it: the page hears which, should the word have
+        // come before it could hear it.
+        "windowReady" => {
+            first_show(app, ShownBy::Page);
+            return Ok(json!(is_shown()));
+        }
         "windowFit" => return fit(app),
         "windowFullscreen" => return set_fullscreen(app, arg(args, 0).as_bool().unwrap_or(false)),
         "windowIsFullscreen" => return fullscreen_now(app),
@@ -174,7 +313,7 @@ pub fn e2e_window(app: &AppHandle, args: &[Value]) -> Result<Value, String> {
     // set again would grow by that frame each time.
     let size = w.inner_size().map_err(|e| e.to_string())?.to_logical::<f64>(scale);
     Ok(
-        json!({"x": pos.x, "y": pos.y, "width": size.width, "height": size.height, "scale": scale, "fullscreen": w.is_fullscreen().map_err(|e| e.to_string())?, "alwaysOnTop": always_on_top_now(&w)?, "resizable": w.is_resizable().map_err(|e| e.to_string())?, "minimum": {"width": SIZE_MIN.0, "height": SIZE_MIN.1}, "maximum": hold(&SIZE_LIMIT).map(|(width, height)| json!({"width": width, "height": height}))}),
+        json!({"x": pos.x, "y": pos.y, "width": size.width, "height": size.height, "scale": scale, "fullscreen": w.is_fullscreen().map_err(|e| e.to_string())?, "alwaysOnTop": always_on_top_now(&w)?, "resizable": w.is_resizable().map_err(|e| e.to_string())?, "visible": w.is_visible().map_err(|e| e.to_string())?, "firstShow": FIRST_SHOW.by(), "minimum": {"width": SIZE_MIN.0, "height": SIZE_MIN.1}, "maximum": hold(&SIZE_LIMIT).map(|(width, height)| json!({"width": width, "height": height}))}),
     )
 }
 
@@ -739,8 +878,8 @@ pub fn moved(app: &AppHandle) {
 #[cfg(test)]
 mod tests {
     use super::{
-        confirm_always_on_top, fitted, own_page, reachable, rect_of, resize_direction, restored_rect, size_limit,
-        usual_rect,
+        FirstShow, ShownBy, confirm_always_on_top, fitted, own_page, reachable, rect_of, resize_direction,
+        restored_rect, size_limit, start_rect, usual_rect,
     };
     use serde_json::json;
 
@@ -789,6 +928,79 @@ mod tests {
             usual_rect((10.0, 40.0, 300.0, 210.0), &small),
             (0.0, 25.0, 1024.0, 743.0)
         );
+    }
+
+    #[test]
+    fn a_first_window_opens_at_the_usual_size_in_the_middle_of_its_screen() {
+        // Where the system first put it (Windows: the top-left corner), here on the second screen.
+        assert_eq!(
+            start_rect(None, &DESK, (1440.0, 0.0, 1180.0, 850.0)),
+            (1810.0, 115.0, 1180.0, 850.0)
+        );
+        // A saved place is kept as it was.
+        let saved = (100.0, 60.0, 800.0, 600.0);
+        assert_eq!(start_rect(Some(saved), &DESK, (0.0, 0.0, 1180.0, 850.0)), saved);
+        // With no screen known, the system's place stands.
+        assert_eq!(
+            start_rect(None, &[], (0.0, 0.0, 1180.0, 850.0)),
+            (0.0, 0.0, 1180.0, 850.0)
+        );
+    }
+
+    #[test]
+    fn the_window_shows_once_when_its_page_has_drawn_or_the_wait_ends_and_not_after_a_quiet_start() {
+        let first = FirstShow::new();
+        assert!(!first.due(ShownBy::Page), "no window was made hidden yet");
+        assert_eq!(first.by(), None);
+        first.wait();
+        assert!(first.due(ShownBy::Page), "the page's word, or the wait");
+        assert!(!first.due(ShownBy::Wait), "whichever comes second does nothing");
+        assert_eq!(first.by(), Some("page"), "the e2e's proof that the page showed it");
+        // Started at login with friends on the desktop: hidden before the page could say anything.
+        first.wait();
+        first.settled();
+        assert!(!first.due(ShownBy::Wait));
+        let late = FirstShow::new();
+        late.wait();
+        assert!(late.due(ShownBy::Wait));
+        assert_eq!(late.by(), Some("wait"));
+    }
+
+    // build_main sizes the window while it waits hidden for its page: the Resized that follows said
+    // "unseen", and every start booted a page that drew nothing in a window about to show.
+    #[test]
+    fn a_window_waiting_hidden_for_its_page_is_not_taken_for_one_hidden() {
+        let first = FirstShow::new();
+        assert_eq!(first.seen(false, false), Some(false), "hidden");
+        assert_eq!(first.seen(true, true), Some(false), "minimized");
+        assert_eq!(first.seen(true, false), Some(true));
+        first.wait();
+        assert_eq!(first.seen(false, false), None, "waiting for its page");
+        assert!(first.due(ShownBy::Page));
+        assert_eq!(first.seen(false, false), None, "being shown");
+        first.settled();
+        assert_eq!(first.seen(false, false), Some(false));
+        // The window's events reach the page through this gate.
+        let main = include_str!("main.rs");
+        assert!(
+            main.contains("window::looked_at(&handle"),
+            "main.rs hands the window's events to window.rs"
+        );
+        assert!(!main.contains("window::shown("), "and does not tell the page itself");
+    }
+
+    // A WebView2 hidden on minimize came back only with the Resized after the window was restored:
+    // the restored window showed blank for a moment.
+    #[test]
+    fn only_a_window_hidden_to_the_tray_hides_its_webview() {
+        let source = include_str!("window.rs");
+        let body = |name: &str| {
+            let start = source.find(&format!("\npub fn {name}(")).unwrap();
+            &source[start..start + source[start..].find("\n}\n").unwrap()]
+        };
+        assert!(body("hide").contains("view.hide()"), "hidden to the tray");
+        assert!(!body("shown").contains("view.hide()"), "not when only the page is told");
+        assert!(body("shown").contains("view.show()"), "shown again before its window");
     }
 
     #[test]

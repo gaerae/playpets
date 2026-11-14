@@ -47,7 +47,7 @@ export function growingLook(thing, season, now = Date.now(), size = artSize) {
 }
 
 /** Its name, as the yard's label says it: a flower is a young plant until its bud shows. */
-export function growingName(thing, now = Date.now()) {
+function growingName(thing, now = Date.now()) {
   if (thing.what === 'tree') return t(`tree.${thing.item.kind}`);
   const stage = stageOf(thing.item.planted, now).name;
   return ['seed', 'sprout', 'leaves'].includes(stage) ? t('garden.young') : t(`garden.kind_${thing.item.kind}`);

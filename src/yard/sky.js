@@ -87,7 +87,7 @@ export function worldCaption(world, period, weather) {
     : t('caption.indoor', parts);
 }
 // Returns whether the weather changed.
-export function paintScene() {
+function paintScene() {
   const before = scene.weather,
     was = scene.event,
     now = new Date(),
@@ -239,6 +239,16 @@ export function moveOldScene() {
 //   paints it, so what has to stop in the old place goes before it and what is laid out again after;
 // - landChanged(): the land was redrawn another way (its picture, or the painted fallback when the
 //   picture could not be loaded), so the field may begin at another height.
+/** The yard rests (rest.js): the backdrop and the weather let go of their canvases. */
+export function restSky() {
+  easel?.rest();
+  scenery?.rest();
+}
+/** The yard is seen again: the backdrop and the weather are painted at once. */
+export function wakeSky() {
+  easel?.wake();
+  scenery?.wake();
+}
 export function setupSky(options = {}) {
   south = systemSouth();
   const none = () => {};

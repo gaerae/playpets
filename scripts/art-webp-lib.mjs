@@ -32,6 +32,73 @@ export const previewName = name => name.replace(/([^/]+)\.png$/, 'previews/$1.we
 /** A preview's height for an export `width` × `height`, as cwebp scales it. */
 export const previewHeight = (width, height) => Math.round((PREVIEW_WIDTH * height) / width);
 
+// The album's cards (src/panel/album.js) draw a kind at most 112 × 64 pixels. Decoding the whole
+// 1536 × 1024 sheets of a book for that held up its first open by 80–140 ms, so each drawing an
+// album card shows (albumArt in src/yard/catalog.js) also ships as a small lossy crop at twice
+// the size it is drawn, in src/art/album/.
+export const ALBUM = 'album';
+export const ALBUM_BOX = [112, 64];
+export const ALBUM_DENSITY = 2;
+// At card size these show no difference from the gallery's quality, in colour or at the edges, and
+// make the previews 40% smaller (690 KB in all).
+export const ALBUM_QUALITY = 75;
+export const ALBUM_ALPHA_QUALITY = 60;
+/** `trees/oak-mature.svg` → `album/trees/oak-mature.webp` (relative to src/art). */
+export const albumPreviewName = art => `${ALBUM}/${art.replace(/\.svg$/, '.webp')}`;
+const numbers = text =>
+  text
+    .trim()
+    .split(/[\s,]+/)
+    .map(Number);
+/**
+ * What an SVG wrapper shows: its box, the crop of its sheet (x, y, width, height), the sheet
+ * (relative to src/art) and the sheet's size; null for a drawing that is not cut from a sheet.
+ */
+export function wrapperCrop(text) {
+  const box = text.match(/^<svg[^>]*\sviewBox="([^"]+)"/)?.[1],
+    inner = text.match(/<svg[^>]*\swidth="[^"]+"[^>]*\sviewBox="([^"]+)"/)?.[1],
+    image = text.match(/<image[^>]*\shref="art\/([^"]+)"[^>]*\swidth="(\d+)"[^>]*\sheight="(\d+)"/);
+  if (!box || !inner || !image) return null;
+  return {
+    box: numbers(box).slice(2),
+    crop: numbers(inner),
+    sheet: image[1],
+    sheetSize: [Number(image[2]), Number(image[3])],
+  };
+}
+/** The part of a crop that lies on its sheet: a few crops reach past the sheet's top edge, where
+ * there is nothing to cut (a tree's crown, a row or a few of transparency). */
+export function sheetCut({ crop: [x, y, width, height], sheetSize }) {
+  if (!sheetSize) return [x, y, width, height];
+  const left = Math.max(0, x),
+    top = Math.max(0, y);
+  return [left, top, Math.min(sheetSize[0], x + width) - left, Math.min(sheetSize[1], y + height) - top];
+}
+/** A preview's size: its crop as large as a card shows it, at ALBUM_DENSITY, never enlarged. */
+export function albumPreviewSize(wrapper) {
+  const {
+      box: [width, height],
+    } = wrapper,
+    [, , cropWidth, cropHeight] = sheetCut(wrapper);
+  const shown =
+      Math.min(ALBUM_BOX[0] / width, ALBUM_BOX[1] / height) * Math.min(width / cropWidth, height / cropHeight),
+    scale = Math.min(1, shown * ALBUM_DENSITY);
+  return [Math.max(1, Math.round(cropWidth * scale)), Math.max(1, Math.round(cropHeight * scale))];
+}
+/** Each album preview: the drawing it stands for, its file, its wrapper's text and what it cuts. */
+export async function albumPreviews(root = '.') {
+  const { albumArt } = await import('../src/yard/catalog.js');
+  const catalog = await readJson(path.join(root, 'src/content/catalog.json'));
+  return Promise.all(
+    albumArt(catalog).map(async art => {
+      const svg = await readFile(path.join(root, RUNTIME, art), 'utf8');
+      const crop = wrapperCrop(svg);
+      if (!crop) throw new Error(`${RUNTIME}/${art} is not cut from a sheet`);
+      return { art, name: albumPreviewName(art), svg, ...crop, png: pngFor(crop.sheet), size: albumPreviewSize(crop) };
+    }),
+  );
+}
+
 /** The PNG export behind a shipped WebP, named as the page does (`art/…`) or from the repository. */
 export const pngFor = name => `${EXPORTS}/${name.replace(/^(?:src\/)?art\//, '').replace(/\.webp$/, '.png')}`;
 
@@ -110,6 +177,25 @@ export async function webpProblems(root = '.') {
     else if (record.webp !== sha256(webp)) problems.push(`${RUNTIME}/${target} is not the recorded preview`);
     else if (imageSize(webp, 'webp').join('x') !== `${PREVIEW_WIDTH}x${previewHeight(width, height)}`)
       problems.push(`${RUNTIME}/${target} is not ${PREVIEW_WIDTH} pixels wide`);
+  }
+  // An album preview is recorded with the hashes of its wrapper and of the sheet's export.
+  for (const preview of await albumPreviews(root)) {
+    const record = manifest[preview.name],
+      target = `${RUNTIME}/${preview.name}`;
+    expected.add(preview.name);
+    let webp;
+    try {
+      webp = await readFile(path.join(root, target));
+    } catch {
+      problems.push(`${target} is missing`);
+      continue;
+    }
+    const png = await readFile(path.join(root, preview.png)).catch(() => null);
+    if (!record || !png || record.png !== sha256(png) || record.svg !== sha256(Buffer.from(preview.svg)))
+      problems.push(`${RUNTIME}/${preview.art} or ${preview.png} changed after its album preview was made`);
+    else if (record.webp !== sha256(webp)) problems.push(`${target} is not the recorded preview`);
+    else if (imageSize(webp, 'webp').join('x') !== preview.size.join('x'))
+      problems.push(`${target} is not ${preview.size.join(' × ')}`);
   }
   for (const name of webps) if (!expected.has(name)) problems.push(`${RUNTIME}/${name} has no PNG in ${EXPORTS}`);
   for (const name of Object.keys(manifest))

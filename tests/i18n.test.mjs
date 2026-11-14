@@ -65,7 +65,8 @@ test('every relationship has its own welcome, closeness and dear lines', async (
 });
 
 // Comments too: the code and its notes are read by contributors in every language. Only the
-// Korean table and the two modules that handle Korean particles (words.js, i18n.js) show Korean.
+// string tables that hold Korean (the Korean table, and names.js, each language's own name) and the
+// two modules that handle Korean particles (words.js, i18n.js) show Korean.
 test('modules and markup keep no Korean of their own, comments included', async () => {
   const files = [];
   const walk = async dir => {
@@ -76,7 +77,12 @@ test('modules and markup keep no Korean of their own, comments included', async 
     }
   };
   await walk('src');
-  const allowed = new Set(['src/core/strings/ko.js', 'src/core/words.js', 'src/core/i18n.js']);
+  const allowed = new Set([
+    'src/core/strings/ko.js',
+    'src/core/strings/names.js',
+    'src/core/words.js',
+    'src/core/i18n.js',
+  ]);
   for (const file of files) {
     if (allowed.has(file)) continue;
     const lines = (await readFile(file, 'utf8')).split('\n');

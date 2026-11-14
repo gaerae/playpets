@@ -40,16 +40,45 @@
 - Something that cycles on a canvas (a wing beat) spans at least six frames at the interval it is drawn at. A faster cycle is drawn at scattered points and flickers.
 - Do not draw when the window is not visible.
   - Loops return right away when `document.hidden` is set or when the backend reports the window hidden (the `window` event, `<html data-unseen>`).
-  - `data-unseen` stops CSS animations.
+  - The yard's page listens for the `window` event before its first question, so a window shown or closed while the page loads is heard.
+  - What came before that (a start at login) it reads from `windowShown` in `bootstrap`, and again from the answer to `windowReady`.
+  - Events and answers may cross: an event heard while a question was on its way stands over the answer.
+  - While the window waits hidden for its page, its Resized and Focused events say nothing about being seen (window.rs `FirstShow::seen`): sizing the hidden window would boot the page as unseen.
+  - `data-unseen` stops CSS animations, those on `::before` and `::after` too.
+  - On Windows the backend also hides the webview (`Webview::hide`, WebView2's `IsVisible`) while the window is hidden to the tray: WebView2 is not told otherwise, and keeps the page drawing and reported as seen.
+  - Not while it is minimized: the webview would show again only with the Resized after the window is restored, so the restored window would be blank for a moment. A minimized page still stops drawing and rests on the `window` event.
+- The yard window is made hidden and shows once the page has drawn the yard (`windowReady`), or after 3 s if the page never says so. A start at login that keeps it in the tray never shows it.
+  - An e2e run waits 15 s instead, and checks that `windowReady` showed it (`firstShow` in `e2eWindow`).
 
 ### Pushes from the backend
-- The backend pushes its whole state on most changes. A push re-renders only what changed:
+- The backend pushes its whole state to the yard window on most changes. A push re-renders only what changed:
   - Pushes that come together are drawn once, from the latest state, after a zero-delay timer (`app.js`).
   - A section of the page is rebuilt only when its own part of the state differs from what it was drawn from (a key per section, as in `render.js`).
   - Text, titles and attributes are written only when they differ (`put`, `putAttribute` in `src/core/dom.js`): writing the same value still costs a style check and a mutation.
   - A friend's size is written only when it changes; the dock is measured once for all friends.
 - An agent's status draws only its friend, the agent summary and the panel when that friend is shown.
 - A chat's start and end push no state: the `busy` event says who is waiting, and redraws only the friends whose wait began or ended and the chat's buttons (`syncBusy` in `src/panel/chat.js`).
+- A state is sent as JSON text that the page parses (`pp_script` in `app.rs`, `__pp` in `commands.rs`), not as a script literal: the page takes it in about a third faster.
+- A desktop window is sent only what the overlay reads (`OVERLAY_KEYS` in `app.rs`), with only its friends' pet files.
+  - `tests/overlay-slice.test.mjs` runs the overlay page and fails when it reads a key that is not sent, or is sent one it never reads.
+- A desktop window is sent a change only when its part differs from the last one sent, apart from `desktopLayout`: the overlay thread's `layout` event carries where things stand.
+  - A pat, time together, a letter or a catch changes nothing there and sends it nothing.
+- An event goes only to the windows that act on its kind (`hears` in `app.rs`):
+  - `status`, `say` and `play` go to both; `visit` to the desktop only.
+  - Every other kind (`busy`, chat messages, updates, the window shown or hidden) goes to the yard only.
+  - A new kind the overlay acts on goes into `OVERLAY_EVENTS`; the test above checks the list against `overlay.js`.
+- A change only the desktop shows is not pushed to the yard window:
+  - `decorNight` sends the desktop windows their part.
+  - `hideDecor` sends no state: the overlay places what is out again and each window hears its layout; the yard hears only when the desktop switch would read otherwise.
+- Measured 2026-11-15, Node 26 (V8), a synthetic state of six friends, 14 pet files, 12 letters and a small garden, each case in its own process, five alternating runs, medians of 200 evaluations:
+
+| Push | Bytes | Evaluated in |
+|---|---|---|
+| Before: the whole state as a literal, to every window | 38,852 | 392–441 µs |
+| After: the whole state as JSON text, to the yard window | 41,576 | 272–302 µs |
+| After: the desktop's part as JSON text, to each desktop window | 15,465 | 69–72 µs |
+| After: a change that leaves the desktop's part as it was, to each desktop window | 0 | – |
+
 - A pointer moving over the yard reads no layout: a friend under it reads its box once a frame at most.
 - A conversation draws its last 50 lines; earlier ones are drawn as it is scrolled to its top.
 
@@ -74,6 +103,9 @@
   - the breeze in trees and flowers (`garden.css`);
   - a walking friend's step (`friends.css`).
 - Such a loop pauses under `data-unseen` and stops with reduced motion. A loop that needs the page (a canvas, a style written each frame) is a drawing loop and follows the rules above.
+- In WebView2 (`<html data-webview2>`), the clouds move in steps of about a pixel (`steps()`): moved smoothly, they have the page composited on every display frame while nothing else moves.
+  - The clouds alone, measured 2026-11-15 in Chrome with software compositing (as WebView2 with no GPU), the frame loop resting, three runs: 600 frames and 1.9 s of CPU in 10 s smoothly, 115–119 frames and 0.7 s in steps of 1500.
+  - Not in WebKit, which moves steps on the page's own thread: the yard with one friend took 7.6–7.7% of a core with steps against 5.9–6.3% without (macOS, e2e build, three alternating runs of 40 s).
 - Do not use CSS variables (`var()`) inside keyframes. Keyframes that contain variables do not run in the compositing stage.
 - Do not put a filter on the element a looping animation moves: put it on what is inside (the light on a swaying tree is on its `use`, `garden.css`).
 
@@ -92,10 +124,34 @@
 - Otherwise the audio context is suspended and the sound timers are cleared.
 - Sound beds loop and drift inside the audio graph.
 - The page wakes only for scheduled events (a gust, a wave, a call), never on a fast timer.
+- A yard hidden for 30 seconds rests (`src/yard/rest.js`): the backdrop's and the weather's canvases are emptied (`width = height = 0`) and the yard takes `content-visibility: hidden` (`data-resting`), so WebKit lets go of what it drew.
+  - `document.hidden` or the backend's word (the `window` event, `windowShown` in `bootstrap`) starts a rest: WebView2 may never report a hidden window's page hidden.
+  - The page wakes in `visibilitychange`, before WebKit draws it, and paints the backdrop and the weather at once: the first frame shows them. The backend's `window` event cannot promise that: `show()` sends it before the window shows, but it runs as a script that may come after the first frame, and a window restored from minimized sends it only once it is back. It wakes the page where the page was never reported hidden.
+  - Nothing is painted while it rests: a new scene, a resize or another density waits until it wakes.
+  - Emptying the canvases frees nothing while the yard is still drawn, and `content-visibility` alone frees about half: both are needed.
+  - The friends' decoded sheets stay: letting them go freed nothing measurable, and the friends would show late.
+  - Measured 2026-11-15, same machine, e2e build, three friends and the small garden, alternating runs, 50 s after hiding: hidden to the tray, the yard's page 335–341 → 293–298 MB and all processes 422–440 → 375–390 MB; minimized, 333 → 272 MB and 433 → 365 MB.
+  - Shown again, the first frame after `visibilitychange` has the backdrop painted, as before; two frames after showing took 126–143 ms against 62–148 ms before (a minimized window: about 690 ms both, the window's own animation).
+  - What stays (about 130 MB of graphics memory in WebKit, the decoded sheets and the page's heap) WebKit keeps whether the page is drawn or not.
 - Do not keep resources that decode large (sprite sheets, about 14MB each) for every pet.
 - One minute after the Invite tab closes, the yard releases the sheets it does not use.
+- A card that shows a drawing small (the album) draws its preview in `src/art/album/`, not the drawing's painted sheet (`previewSvg` in `src/yard/art.js`).
+  - Decoding a book's 1536 × 1024 sheets for 112-pixel cards held up its first open: gifts 96–119 ms, keepsakes 95–114 ms, trees 160–175 ms, to the next frame.
+  - With previews: 30–32, 26–27 and 22–24 ms; the pictures are in 10–15 ms later. The 161 previews add 690 KB.
+  - Measured 2026-11-15, same machine, e2e build, three alternating runs each.
 - Pictures travel by address, not inside a command's answer: `listBackgrounds` names each picture of an imported background as `pet-asset://background/<id>/<picture>`, read when its place or its card shows.
   - Five packs (64 MB) sent whole held back the first friend by about 230 ms and kept about 200 MB in the app and the page all day.
+
+### Starting a window
+- A window loads the string table of the language it speaks and English, the fallback, not every table (`loadStrings` in `src/core/strings.js`, called by `i18n.js`).
+  - Changing the language reloads the page, which loads the new table. The Settings tab lists every language from `LANGUAGES`, which holds each one's own name, without loading their tables.
+  - Outside a page (the Node tests, scripts) every table loads: the tests check them all.
+  - The four tables are 246 KB. In Chrome, after a collection, the JS heap with `i18n.js` loaded went from 1,232 KB to 999 KB (Korean, which also loads English) and 875 KB (English); the import took 13–15 ms before and after, the files coming in parallel either way.
+  - Measured 2026-11-15, Apple M2 Pro, headless Chrome over localhost, medians of 15 runs.
+- The first render waits for the yard's content (`loadContent`), not for the bundled companions' authored actions (`src/content/companion-actions.json`, 102 KB).
+  - A bundled companion asks for them as the yard draws it (`syncViews` in `src/yard/views.js` calls `loadCompanionActionsFor` in `src/core/companion-actions.js`), at the first render or when it comes in later; a yard without one never loads them.
+  - On its own the file takes about 4 ms to fetch and 0.2 ms to parse in Chrome. Beside the hundred drawings `loadContent` fetches, the time to the content made no measurable difference (medians 105–222 ms either way, noisy); on Windows each request also passes through the window's thread (WebView2), and the start makes one fewer.
+- The content files stay formatted as people edit them: the app has no build step for the page (`frontendDist` is `src/`), and Tauri compresses what it embeds.
 
 ### Recorded baseline
 - This baseline predates the later raster artwork and place changes. It is not a benchmark of the current release.
@@ -153,10 +209,19 @@ Follow these when you can. When you cannot, say why in the PR.
 - Based on: decisions “[The page draws often only when something moves, and drawing loops run on timers](../decisions/2026-09-30-timer-frame-loops.md)”, “[Never wait on the main thread while holding the app state lock](../decisions/2026-09-30-no-waiting-on-main-thread-under-state-lock.md)”, “[Make the yard livelier on the current renderer before reaching for a game engine](../decisions/2026-11-11-living-yard-on-the-current-renderer.md)”
 
 ## Automated checks
-- None.
+- None assert a speed.
 - `pnpm run measure` is run by hand on macOS and Linux.
 - CI does not run it: load varies by runner, so there is no baseline.
 - On Windows, watch the CPU of the `msedgewebview2` process in Task Manager.
+- The e2e prints timings on every system CI runs it on, one `perf <name> <value> <unit>` line each:
+  - startup (from the process start and from the page's own start to the first friend drawn, and the files loaded before it);
+  - the bridge (a command that does nothing, one that asks the window), timers, and a sprite sheet's load and decode;
+  - a render and a push with nothing changed, the size of a pushed state and when it arrives, a commit saved and one saved later;
+  - a status event, a pat, a chat turn;
+  - each panel, the album and a book in it, the first time and the second; each place and a season, until the new land is hung;
+  - Show on desktop, cold, warm and again.
+- Read them with `gh run view <run> --job <job> --log | grep ' perf '`.
+- Compare systems by their ratio within one run, against the bridge's round trip and the render with nothing changed: runners differ in speed.
 
 ## Change history
 - 2026-10-01 First version — measurements are from the first run of `pnpm run measure`
@@ -168,3 +233,6 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-11-14 The overlay thread is woken by a change to what is out; a monitor's window stays a minute after its last thing leaves and opens early from the yard's menu, and its page draws nothing while it has nobody
 - 2026-11-14 A glide after a late step lasts until the next step is likely to come; a push re-renders only what changed; canvases follow a change of screen density
 - 2026-11-14 Pictures travel by address, not inside a command's answer (imported backgrounds); each process measured in each state, over 12 minutes, and with the filters and the blur off
+- 2026-11-15 A state travels as JSON text; a desktop window is sent only its part, only when it changed, and only the events it acts on
+- 2026-11-15 A window loads only the string table it speaks and English; the first render does not wait for the companions' authored actions
+- 2026-11-15 A page started in a hidden window knows it from `bootstrap`, and the backend's word starts a rest too; the window shows once the yard is drawn; WebView2 is told when the window is hidden; in WebView2 the clouds move in pixel steps

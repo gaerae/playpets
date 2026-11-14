@@ -53,7 +53,9 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
   let last = '',
     scene = null,
     timer = null,
-    paintedWorld = null;
+    paintedWorld = null,
+    // The yard rests (rest.js): nothing is painted until it wakes.
+    resting = false;
   // Keep only the current picture decoded (about 6 MB).
   const images = new Map();
   const loading = new Set(),
@@ -102,7 +104,7 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
   function paint() {
     const w = yard.clientWidth,
       h = yard.clientHeight;
-    if (!scene || !w || !h) return;
+    if (resting || !scene || !w || !h) return;
     const density = Math.min(2, window.devicePixelRatio || 1),
       style = getComputedStyle(yard),
       pal = readPalette(name => style.getPropertyValue(`--${name}`).trim()),
@@ -161,6 +163,21 @@ export function createEasel(yard, reduced, geometryChanged = () => {}) {
   return {
     /** The screen's density changed: paints again at the new one. */
     repaint: paint,
+    /** The yard rests: the paintings let go of their pixels (about 20 MB at most) and stay
+     * unpainted; the pictures they are painted from stay decoded for waking. */
+    rest() {
+      resting = true;
+      clearTimeout(timer);
+      last = '';
+      for (const canvas of [...sky.querySelectorAll('canvas'), ...land.querySelectorAll('canvas'), ...clouds])
+        canvas.width = canvas.height = 0;
+    },
+    /** Paints the scene again at once, before the yard is drawn, in place of what was let go. */
+    wake() {
+      if (!resting) return;
+      resting = false;
+      paint();
+    },
     /** The light changed (or may have): paints again if what it shows is different. */
     set(next) {
       scene = {

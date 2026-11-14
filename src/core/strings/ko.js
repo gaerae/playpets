@@ -3,7 +3,6 @@
 // Korean: 해요체 on the page, casual in the friends' speech bubbles. Particles that fit the word
 // (`{name:을/를}`) are chosen by words.js.
 
-export const name = '한국어';
 // A sentence in this language shows by its script.
 export const sentence = /[가-힣]/;
 export const strings = {

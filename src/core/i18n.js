@@ -4,8 +4,8 @@
 //
 // The language is decided as the modules load, so every constant built from t() is right from
 // the start: what the person chose (localStorage), else what the backend starts the page with,
-// else the system language. Changing it reloads the page.
-import { LANGUAGES, LIST_SEPARATOR, SENTENCE_SEPARATOR, STRINGS } from './strings.js';
+// else the system language. Changing it reloads the page, which loads the new language's table.
+import { LANGUAGES, LIST_SEPARATOR, SENTENCE_SEPARATOR, STRINGS, loadStrings } from './strings.js';
 import { withParticle } from './words.js';
 
 // Chinese comes in two scripts, and systems often say only the region: zh-CN, zh-SG and bare zh
@@ -45,10 +45,19 @@ function detect() {
   const system = typeof navigator !== 'undefined' ? navigator.language : null;
   return normalize(stored) || normalize(window.__PP_LANG) || normalize(system) || 'en';
 }
-let current = detect();
+// The language, once its table and English's (which fills any sentence it lacks) have loaded: the
+// modules that build labels from t() run only after this one, so they wait for both.
+async function loaded(code) {
+  await Promise.all([loadStrings(code), loadStrings('en')]);
+  return code;
+}
+let current = await loaded(detect());
 export const language = () => current;
+// Takes effect at once; in a page, its sentences arrive when the returned promise settles (until
+// then they read in English). Outside a page every table is already there.
 export function setLanguageForTests(code) {
   current = normalize(code) || 'en';
+  return loadStrings(current);
 }
 
 function fill(text, params) {
@@ -60,20 +69,20 @@ function fill(text, params) {
 }
 // The sentence for `key`; English when the language lacks it, the key itself when nobody has it.
 export function t(key, params = {}) {
-  const text = STRINGS[current][key] ?? STRINGS.en[key] ?? key;
+  const text = STRINGS[current]?.[key] ?? STRINGS.en[key] ?? key;
   return typeof text === 'string' ? fill(text, params) : text;
 }
 // Names in a row, joined the way the language lists things ("A, B" or "A、B").
 export function joinList(items) {
-  return items.join(LIST_SEPARATOR[current]);
+  return items.join(LIST_SEPARATOR[current] ?? LIST_SEPARATOR.en);
 }
 // Sentences in a row, as the language runs them on ("A. B" or "A。B").
 export function joinSentences(items) {
-  return items.join(SENTENCE_SEPARATOR[current]);
+  return items.join(SENTENCE_SEPARATOR[current] ?? SENTENCE_SEPARATOR.en);
 }
 // A key whose value is a list of sentences (greetings, idle chatter).
 export function list(key) {
-  const value = STRINGS[current][key] ?? STRINGS.en[key];
+  const value = STRINGS[current]?.[key] ?? STRINGS.en[key];
   return Array.isArray(value) ? value : [];
 }
 // Static markup names its sentences: <span data-i18n="tabs.friend"></span> for the text, and

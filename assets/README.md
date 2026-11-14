@@ -53,6 +53,11 @@ Shipped WebP:
   `src/art/environments/previews/` for the place gallery's cards (`PREVIEWS` in
   `scripts/art-webp-lib.mjs`); the same command makes them and the same test
   checks their hashes and width.
+- Each drawing an album card shows (`albumArt` in `src/yard/catalog.js`) also
+  ships as a small lossy crop in `src/art/album/`, at twice the size the card
+  draws it (at most 224 × 128). The same command cuts each from the PNG behind
+  its SVG wrapper; the same test checks that every album drawing has one, at
+  its size, made from the current wrapper and PNG.
 - Page code, content and SVG wrappers name the `.webp` file; scripts, tests and
   the site read the PNG.
 - `src/art/` holds only what the page loads: WebP, SVG and `collection.json`.

@@ -18,7 +18,7 @@ export const PUSH = 0.05;
 /** Size gained per field width rolled. */
 export const GROW = 0.5;
 /** How far a ball rests into the one below, as a share of its size. */
-export const OVERLAP = 0.18;
+const OVERLAP = 0.18;
 export const LIFT_MS = 900;
 export const SPARKLES = 5;
 export const DRAG_FASTER = 5;

@@ -1,6 +1,11 @@
 // Bundled companions can own extra game poses without changing the portable pet format.
+// Those poses (content/companion-actions.json, about 100 KB) are not waited for before the yard is
+// first drawn: they load once a bundled companion comes into the yard (views.js) or asks for one.
+// Until then, and for every other friend, the ordinary sheet plays.
 const companions = new Set(['playpets-clover', 'playpets-daisy', 'playpets-pip', 'playpets-miso']);
+const bundled = asset => asset?.place === 'builtin' && companions.has(asset.sourceId);
 let registry = { characters: {} };
+let loading = null;
 let season = '';
 let generation = 0;
 const actions = new WeakMap();
@@ -31,16 +36,22 @@ export function actionGroundOffset(clip, width, height) {
 
 export function useCompanionActions(value) {
   registry = value?.version === 1 ? value : { characters: {} };
+  loading ??= Promise.resolve();
   generation++;
   images.clear();
 }
-export async function setupCompanionActions() {
+async function loadCompanionActions() {
   try {
     const response = await fetch(new URL('../content/companion-actions.json', import.meta.url));
     if (response.ok) useCompanionActions(await response.json());
   } catch {
     // Missing optional artwork keeps the ordinary pet sheet available.
   }
+}
+/** Starts loading the authored actions, once, when any of `assets` is a bundled companion. */
+export function loadCompanionActionsFor(assets) {
+  if (!loading && assets.some(bundled)) loading = loadCompanionActions();
+  return loading ?? Promise.resolve();
 }
 export function setCompanionSeason(value) {
   if (value !== season) {
@@ -50,7 +61,10 @@ export function setCompanionSeason(value) {
   season = value;
 }
 function clipFor(asset, name) {
-  if (asset?.place !== 'builtin' || !companions.has(asset.sourceId)) return null;
+  if (!bundled(asset)) return null;
+  // A companion added after the start asks before its actions are there: this ask plays the
+  // ordinary sheet, and the ones after it find them.
+  loadCompanionActionsFor([asset]);
   const clip = registry.characters?.[asset.sourceId]?.variants?.[season]?.[name];
   if (!clip?.frames?.length || !clip.url) return null;
   if (!clip.frames.every(frame => frame.rect?.length === 4 && frame.foot?.length === 2 && frame.duration > 0))

@@ -26,11 +26,12 @@ use prefs::*;
 
 /// Injected into every window before its page runs: `window.playPets`, one method per command
 /// (each resolves to {ok, data} or {ok: false, error}), and `__pp`, which the backend calls
-/// to hand state changes and events to the page.
+/// to hand state changes and events to the page. A state comes as JSON text to parse (app.rs
+/// pp_script); an event as the value itself.
 const BRIDGE_JS: &str = r#"(()=>{
   const invoke=async(name,args)=>{try{return await window.__TAURI__.core.invoke('call',{name,args});}catch(e){return{ok:false,error:String(e)};}};
   const changes=[],events=[];
-  window.__pp=(type,payload)=>{for(const cb of (type==='change'?changes:events)){try{cb(payload)}catch(e){console.error(e)}}};
+  window.__pp=(type,payload)=>{if(typeof payload==='string')payload=JSON.parse(payload);for(const cb of (type==='change'?changes:events)){try{cb(payload)}catch(e){console.error(e)}}};
   const api={};
   for(const n of __COMMANDS__)api[n]=(...a)=>invoke(n,a);
   const listen=(list,cb)=>{list.push(cb);return()=>{const i=list.indexOf(cb);if(i>=0)list.splice(i,1)}};
@@ -108,7 +109,16 @@ const fn test_only(name: &'static str, run: fn(&Ctx) -> Result<Value, String>) -
 /// Every command, in one table: a new one is one row (and its page call). The bridge, who may call
 /// what, and the dispatch all come from here.
 static COMMANDS: &[Command] = &[
-    overlay("bootstrap", |c| Ok(public_state(c.app, &lock(&c.state)))),
+    // An overlay window starts from its own part of the state, as every change sends it (app.rs);
+    // the yard's own page also hears whether its window is shown.
+    overlay("bootstrap", |c| {
+        let state = public_state(c.app, &lock(&c.state));
+        Ok(if c.sender.starts_with("overlay") {
+            crate::app::overlay_state(&state)
+        } else {
+            bootstrap(state, window::is_shown())
+        })
+    }),
     // Friends in the yard.
     main("addPet", |c| add_pet(c.app, &c.state, c.text(0), c.arg(1))),
     main("updatePet", |c| {
@@ -470,8 +480,10 @@ static COMMANDS: &[Command] = &[
         if d.hidden_decor.as_ref() == Some(&kinds) {
             return Ok(Value::Null);
         }
+        let was_on = crate::app::desktop_on(&d);
         d.hidden_decor = Some(kinds);
-        crate::app::changed(c.app, &d);
+        // No page reads the list: the desktop hears where things are, the yard only of its switch.
+        crate::app::desktop_items_changed(c.app, &d, was_on);
         Ok(Value::Null)
     }),
     // (kinds): the gift kinds the yard shows in their night look now (the Christmas tree standing
@@ -483,7 +495,8 @@ static COMMANDS: &[Command] = &[
             return Ok(Value::Null);
         }
         d.night_decor = kinds;
-        crate::app::changed(c.app, &d);
+        // The yard sent it and draws its own: only the desktop windows hear.
+        crate::app::changed_on_desktop(c.app, &d);
         Ok(Value::Null)
     }),
     overlay("openChat", |c| {
@@ -551,6 +564,8 @@ static COMMANDS: &[Command] = &[
     main("windowMinimize", |c| window::command(c.app, c.name, c.args)),
     main("windowHide", |c| window::command(c.app, c.name, c.args)),
     main("windowFit", |c| window::command(c.app, c.name, c.args)),
+    // The page has drawn the yard: its window, made hidden, shows (window.rs FIRST_SHOW).
+    main("windowReady", |c| window::command(c.app, c.name, c.args)),
     // The app itself.
     main("checkUpdate", |c| crate::update::check(c.app)),
     main("installUpdate", |c| crate::update::install(c.app)),
@@ -567,6 +582,8 @@ static COMMANDS: &[Command] = &[
         println!("[e2e] {}", c.text(0));
         Ok(Value::Null)
     }),
+    // Answers at once: what one round trip through the bridge costs, on its own (the perf lines).
+    test_only("e2ePing", |_| Ok(Value::Null)),
     test_only("e2eWindow", |c| window::e2e_window(c.app, c.args)),
     test_only("e2eFront", |c| window::e2e_front(c.app)),
     test_only("e2eTray", |_| Ok(crate::tray::e2e_state())),
@@ -609,6 +626,13 @@ fn gift_kinds(arg: &Value) -> Result<Vec<String>, String> {
     Ok(kinds)
 }
 
+/// The state a page starts from, and whether the yard can be seen: a window hidden before its page
+/// loaded (a start at login) told a page that was not there yet.
+fn bootstrap(mut state: Value, shown: bool) -> Value {
+    state["windowShown"] = json!(shown);
+    state
+}
+
 fn command(name: &str) -> Option<&'static Command> {
     COMMANDS.iter().find(|c| c.name == name)
 }
@@ -617,8 +641,15 @@ fn command(name: &str) -> Option<&'static Command> {
 pub fn bridge_js() -> String {
     let names: Vec<&str> = COMMANDS.iter().filter(|c| c.who != Who::Test).map(|c| c.name).collect();
     let list = serde_json::to_string(&names).unwrap_or_default();
+    // An e2e run counts every file the page loads at startup (the perf lines); the browser keeps
+    // 250 by default, fewer than the page asks for before its first friend shows.
+    let counted = if e2e_mode() {
+        "\ntry{performance.setResourceTimingBufferSize(5000)}catch{}"
+    } else {
+        ""
+    };
     format!(
-        "{}\nwindow.__PP_LANG='{}';",
+        "{}\nwindow.__PP_LANG='{}';{counted}",
         BRIDGE_JS.replace("__COMMANDS__", &list),
         i18n::current().code()
     )
@@ -730,6 +761,17 @@ mod tests {
         ] {
             assert!(project_page(no).is_none(), "{no}");
         }
+    }
+
+    #[test]
+    fn the_start_tells_the_page_whether_its_window_can_be_seen() {
+        // Hidden at login before the page loaded: the window event that said so had nobody to hear it.
+        let state = json!({"pets": []});
+        assert_eq!(bootstrap(state.clone(), false)["windowShown"], json!(false));
+        assert_eq!(bootstrap(state, true)["windowShown"], json!(true));
+        let row = include_str!("commands.rs");
+        let row = &row[row.find("overlay(\"bootstrap\"").unwrap()..];
+        assert!(row[..row.find("\n    }),\n").unwrap()].contains("window::is_shown()"));
     }
 
     #[test]
@@ -848,6 +890,7 @@ mod tests {
             "windowResize",
             "windowMinimize",
             "windowHide",
+            "windowReady",
         ] {
             assert!(command(name).is_some() && window_rs.contains(&format!("\"{name}\" =>")));
         }

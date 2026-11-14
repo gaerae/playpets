@@ -250,3 +250,30 @@ test('dragging, a replacement trip and absence invalidate an authored action', (
     assert.equal(companionAction(v, 30), null, `${field}: no resumed stale action`);
   }
 });
+
+// The authored actions (102 KB) serve four bundled companions only: the yard draws first and they
+// load after, once, and only when a bundled companion is there or asks for one.
+test('the authored actions load once, and only for a bundled companion', async t => {
+  // A module of its own, not yet given any actions.
+  const fresh = await import('../src/core/companion-actions.js?lazy');
+  const asked = [];
+  globalThis.fetch = async url => {
+    asked.push(String(url));
+    return {
+      ok: true,
+      json: async () => ({ version: 1, characters: { 'playpets-clover': { variants: { spring: { dig: clip } } } } }),
+    };
+  };
+  t.after(() => delete globalThis.fetch);
+  fresh.setCompanionSeason('spring');
+  fresh.loadCompanionActionsFor([view('custom').asset, view('builtin', 'other').asset, undefined]);
+  assert.equal(fresh.prepareCompanionAction(view('custom').asset, 'dig'), null);
+  assert.deepEqual(asked, [], 'no bundled companion: nothing loads');
+  assert.equal(fresh.prepareCompanionAction(view().asset, 'dig'), null, 'not loaded on the first ask');
+  fresh.loadCompanionActionsFor([view().asset]);
+  assert.equal(asked.length, 1, 'asked once');
+  assert.match(asked[0], /content\/companion-actions\.json$/);
+  await fresh.loadCompanionActionsFor([view().asset]);
+  assert.equal(fresh.prepareCompanionAction(view().asset, 'dig'), clip);
+  assert.equal(asked.length, 1, 'still once');
+});

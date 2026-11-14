@@ -2,7 +2,6 @@
 // holes are the same in every language file (tests/i18n.test.mjs checks them against ko.js).
 // English: friendly and short.
 
-export const name = 'English';
 // An English sentence ends like one.
 export const sentence = /[.!?]$/;
 export const strings = {

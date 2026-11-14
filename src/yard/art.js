@@ -6,7 +6,9 @@
 // atlases instead and take none of them. A drawing's view box is its size in the yard.
 
 const NS = 'http://www.w3.org/2000/svg';
-const sizes = new Map();
+const sizes = new Map(),
+  // How each drawing sets its crop in its box (a tree stands on the box's floor).
+  aligns = new Map();
 const idOf = path => `art-${path.replace(/\.svg$/, '').replace(/[^a-z0-9]+/gi, '-')}`;
 
 // A drawing is data: nothing in it runs.
@@ -39,6 +41,7 @@ export async function loadArt(paths, base = 'art/') {
     symbol.setAttribute('viewBox', box);
     symbol.append(...[...inert(svg).childNodes].map(n => document.importNode(n, true)));
     defs.append(symbol);
+    aligns.set(unique[i], svg.querySelector?.('svg')?.getAttribute('preserveAspectRatio') || 'xMidYMid meet');
     sizes.set(
       unique[i],
       box
@@ -57,6 +60,15 @@ export const artHref = path => `#${idOf(path)}`;
 export function artSvg(path, attrs = '') {
   const [w, h] = artSize(path);
   return `<svg viewBox="0 0 ${w} ${h}" ${attrs} aria-hidden="true"><use href="${artHref(path)}"/></svg>`;
+}
+/** Where a drawing's album preview is: a small crop of its sheet that scripts/art-webp.mjs makes
+ * for each drawing an album card shows (albumArt in catalog.js). */
+const previewHref = path => `art/album/${path.replace(/\.svg$/, '.webp')}`;
+/** A drawing from its small preview, set in its box as the drawing sets its crop: for a card, where
+ * decoding the whole painted sheet would cost more than the card shows. */
+export function previewSvg(path, attrs = '') {
+  const [w, h] = artSize(path);
+  return `<svg viewBox="0 0 ${w} ${h}" ${attrs} aria-hidden="true"><image href="${previewHref(path)}" width="${w}" height="${h}" preserveAspectRatio="${aligns.get(path) || 'xMidYMid meet'}"/></svg>`;
 }
 /** The custom properties that colour a drawing (a flower's petals), as a style attribute's value. */
 export const colorStyle = colors =>

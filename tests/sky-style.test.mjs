@@ -14,6 +14,23 @@ test('rainbows stop immediately when night or precipitation begins', async () =>
   }
 });
 
+// A cloud crosses the yard in minutes, about a pixel at a time: moved smoothly, WebView2 composited
+// the yard 60 times a second while nothing else moved. WebKit moves steps on the page's own thread,
+// which costs more there, so only WebView2 takes them (docs/standards/performance.md).
+test('in WebView2 clouds drift in pixel-sized steps, so a still yard is not composited every frame', async () => {
+  const css = (await readFile('src/styles/scenery.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const rules = [...css.matchAll(/([^{}]+)\{([^{}]+)\}/g)];
+  const body = selector => rules.find(([, selectors]) => selectors.trim() === selector)?.[2] ?? '';
+  assert.match(body('.cloud-lane'), /animation:\s*drift var\(--t\) linear infinite;/);
+  const steps = Number(
+    body(':root[data-webview2] .cloud-lane').match(/animation-timing-function:\s*steps\((\d+)\);/)?.[1],
+  );
+  const travel = 1.22 * 1180;
+  assert.ok(steps >= travel && steps <= 2 * travel, `about one step a pixel in the usual window: ${steps}`);
+  const app = await readFile('src/app.js', 'utf8');
+  assert.match(app, /toggleAttribute\('data-webview2', !!globalThis\.chrome\?\.webview\)/);
+});
+
 test('night stars sit behind the land and only show on a clear night', async () => {
   const css = (await readFile('src/styles/scenery.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
   const rules = [...css.matchAll(/([^{}]+)\{([^{}]+)\}/g)].map(([, selectors, body]) => ({

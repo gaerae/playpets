@@ -32,7 +32,7 @@ test("the yard has the app's state before the sky reads the place and weather sa
   const source = await readFile('src/app.js', 'utf8');
   // At the top level, as the module starts; refresh() calls it too, later.
   const loaded = source.search(/^const booted = await call\('bootstrap'\)/m),
-    content = source.search(/^await Promise\.all\(\[loadContent\(/m),
+    content = source.search(/^await loadContent\(/m),
     sky = source.search(/^setupSky\(/m);
   assert.ok(loaded >= 0 && content >= 0 && sky >= 0);
   assert.ok(loaded < sky, 'setupSky runs before the first bootstrap, so a restart forgets the scene');

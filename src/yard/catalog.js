@@ -76,6 +76,23 @@ export function artOf(catalog, events = { events: [] }) {
     .map(k => k.art)
     .filter(Boolean);
 }
+/** A tree's drawing once grown: the one its album card shows. */
+export const grownArt = tree => tree.stages.find(stage => stage.name === 'mature')?.art;
+/** Every drawing an album card shows from a painted sheet: each ships a small preview
+ * (scripts/art-webp.mjs), which the card draws instead of the sheet. */
+export function albumArt(catalog) {
+  return [
+    ...(catalog.flowers || []),
+    ...(catalog.fish || []),
+    ...(catalog.bugs || []),
+    ...(catalog.gifts || []),
+    ...(catalog.trees || []).map(tree => ({ art: grownArt(tree) })),
+    ...(catalog.treasures || []),
+    ...(catalog.shoots || []),
+  ]
+    .map(kind => kind.art)
+    .filter(Boolean);
+}
 /** A flower or a gift by its id. */
 export const flowerKind = id => FLOWERS.find(f => f.id === id) || null;
 export const giftKind = id => GIFTS.find(g => g.id === id) || null;
