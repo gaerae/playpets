@@ -249,7 +249,7 @@ const scenario = `(async()=>{
       const pause=ms=>new Promise(r=>setTimeout(r,ms));
       // What a click or a call costs the page: its script, then the style and layout it leaves (read
       // here, so the cost is counted now rather than in whichever frame comes next).
-      const timed=async(name,act)=>{const t0=performance.now();await act();layout();await P(name,performance.now()-t0);};
+      const timed=async(name,act)=>{const t0=performance.now();await act();const t1=performance.now();layout();const t2=performance.now();await P(name,t2-t0);await P(name+'-layout',t2-t1);};
       await inView('perf');
       // Startup, on the page's clock from its navigation; the harness adds the time from the process start.
       const nav=performance.getEntriesByType('navigation')[0],first=performance.getEntriesByName('first-friend')[0];
@@ -288,6 +288,22 @@ const scenario = `(async()=>{
       const renderer=await import('./render.js'),rendered=[];
       for(let i=0;i<5;i++){const t0=performance.now();renderer.render();layout();rendered.push(performance.now()-t0);}
       await P('render-unchanged',mean(rendered));
+      // The same, from a copy of the state, as a push hands it over: what is compared by value, not by identity.
+      {const state=await import('./core/state.js'),copied=[];
+       for(let i=0;i<5;i++){const copy=structuredClone(state.data),t0=performance.now();state.setData(copy);renderer.render();layout();copied.push(performance.now()-t0);}
+       await P('render-copied-state',mean(copied));}
+      // A friend's sprite drawn on a new canvas, so no cell is skipped as already shown.
+      {const sprites=await import('./core/sprites.js'),asset=boot.data.assets.find(a=>a.sourceId==='playpets-daisy'),drawn=[];
+       for(let i=0;i<10;i++){const c=sprites.canvas(),t0=performance.now();sprites.drawSprite(c,asset,'idle',i*130);c.getContext('2d').getImageData(0,0,1,1);drawn.push(performance.now()-t0);}
+       await P('sprite-draw',mean(drawn));}
+      // The bridge again while the yard rests, as when its window is hidden: what the yard's frames cost the bridge.
+      window.__pp('event',{type:'window',shown:false});await pause(300);
+      await P('ipc-ping-yard-resting',await trips('e2ePing'));
+      window.__pp('event',{type:'window',shown:true});await pause(300);
+      // Text in a script the page's fonts may lack, laid out for the first time.
+      for(const [name,text,font] of [['han-simplified','简体中文 设置',''],['kana','ひらがな カタカナ',''],['hangul-mono','설정 복사','ui-monospace, SFMono-Regular, Menlo, Consolas, monospace'],['emoji','🐾✨🌸','']]){
+        const probe=document.createElement('span');probe.textContent=text;probe.style.cssText='position:absolute;left:-9999px;top:0'+(font?';font-family:'+font:'');
+        const t0=performance.now();document.body.append(probe);probe.getBoundingClientRect();await P('text-first-'+name,performance.now()-t0);probe.remove();}
       const same=(await playPets.bootstrap()).data,pushedAt=[];
       for(let i=0;i<5;i++){const copy=structuredClone(same),t0=performance.now();window.__pp('change',copy);await pause(0);layout();pushedAt.push(performance.now()-t0);}
       await P('push-unchanged',mean(pushedAt));
