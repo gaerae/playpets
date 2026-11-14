@@ -1,6 +1,7 @@
 // Makes src/art/**/*.webp from the reviewed PNG exports in assets/art, and the built-in friends'
 // lossless sheets in src-tauri/pets from assets/pets, and checks every sample against the PNG
-// before keeping it; the place gallery's small previews (PREVIEWS) are made too. Needs libwebp's
+// before keeping it; the place gallery's small previews (PREVIEWS) and the album cards' crops
+// (albumPreviews) are made too. Needs libwebp's
 // cwebp and dwebp; `--check` needs neither.
 import { execFile } from 'node:child_process';
 import { mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
@@ -8,6 +9,9 @@ import { availableParallelism, tmpdir } from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import {
+  ALBUM_ALPHA_QUALITY,
+  ALBUM_QUALITY,
+  albumPreviews,
   BUILTIN_MANIFEST,
   BUILTIN_RUNTIME,
   BUILTIN_SOURCE,
@@ -30,9 +34,11 @@ import {
   previewName,
   readManifest,
   runtimeWebps,
+  sheetCut,
   webpName,
   webpProblems,
 } from './art-webp-lib.mjs';
+import { imageSize } from './asset-audit-lib.mjs';
 import { decodePng, sha256 } from './png-lossless-lib.mjs';
 
 const run = promisify(execFile);
@@ -63,6 +69,7 @@ const force = process.argv.includes('--force'),
     builtinExports(),
     readBuiltinRecords(),
   ]),
+  albums = await albumPreviews(),
   work = await mkdtemp(path.join(tmpdir(), 'playpets-webp-')),
   next = {},
   nextBuiltin = {},
@@ -148,6 +155,51 @@ async function preview(name) {
   report.push(`${key}: ${png.length} → ${webp.length} bytes`);
 }
 
+// An album card's preview: the wrapper's crop of the sheet's export, at the size the card shows it
+// (albumPreviewSize), lossy like the gallery's. Remade when the wrapper or the export changes.
+async function albumPreview(album) {
+  const { name, svg, png: source, sheetSize, size } = album;
+  const png = await readFile(source),
+    target = path.join(RUNTIME, name),
+    record = manifest[name],
+    hashes = { png: sha256(png), svg: sha256(Buffer.from(svg)) };
+  if (!force && record?.png === hashes.png && record?.svg === hashes.svg) {
+    const current = await readFile(target).catch(() => null);
+    if (current && sha256(current) === record.webp) {
+      next[name] = record;
+      return;
+    }
+  }
+  const [width, height] = imageSize(png, 'png');
+  if (width !== sheetSize[0] || height !== sheetSize[1])
+    throw new Error(`${source} is ${width} × ${height}, but its wrapper cuts it as ${sheetSize.join(' × ')}`);
+  const temporary = path.join(work, `${sha256(Buffer.from(name)).slice(0, 16)}.webp`);
+  await run('cwebp', [
+    '-quiet',
+    '-crop',
+    ...sheetCut(album).map(String),
+    '-resize',
+    ...size.map(String),
+    '-q',
+    String(ALBUM_QUALITY),
+    '-alpha_q',
+    String(ALBUM_ALPHA_QUALITY),
+    '-m',
+    '6',
+    '-metadata',
+    'none',
+    source,
+    '-o',
+    temporary,
+  ]);
+  const webp = await readFile(temporary);
+  await mkdir(path.dirname(target), { recursive: true });
+  await writeFile(`${target}.tmp`, webp);
+  await rename(`${target}.tmp`, target);
+  next[name] = { ...hashes, webp: sha256(webp) };
+  report.push(`${name}: ${size.join(' × ')}, ${webp.length} bytes`);
+}
+
 const art = { from: EXPORTS, to: RUNTIME, records: manifest, made: next, encoding: nearLossless },
   builtin = { from: BUILTIN_SOURCE, to: BUILTIN_RUNTIME, records, made: nextBuiltin, encoding: lossless };
 for (const pet of pets) {
@@ -157,6 +209,7 @@ for (const pet of pets) {
 }
 try {
   for (const name of PREVIEWS.filter(name => pngs.includes(name))) await preview(name);
+  for (const album of albums) await albumPreview(album);
   const queue = [
     ...pngs.map(name => [name, art]),
     ...pets.flatMap(pet => pet.sheets.map(sheet => [`${pet.id}/${sheet}`, builtin])),
@@ -183,7 +236,11 @@ const sorted = records =>
   );
 await writeFile(MANIFEST, `${JSON.stringify(sorted(next), null, 2)}\n`);
 await writeFile(BUILTIN_MANIFEST, `${JSON.stringify(sorted(nextBuiltin), null, 2)}\n`);
-const made = new Set([...pngs.map(webpName), ...PREVIEWS.filter(name => pngs.includes(name)).map(previewName)]),
+const made = new Set([
+    ...pngs.map(webpName),
+    ...PREVIEWS.filter(name => pngs.includes(name)).map(previewName),
+    ...albums.map(album => album.name),
+  ]),
   orphans = (await runtimeWebps()).filter(name => !made.has(name)),
   // What is left is not the encoder's to fix: a leftover file, or builtin.rs naming other files.
   leftovers = await builtinWebpProblems(),

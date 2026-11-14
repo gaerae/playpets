@@ -9,10 +9,10 @@ import { limit } from '../core/limits.js';
 import { systemSouth } from '../core/season.js';
 import { $, call, data, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
-import { artSvg } from '../yard/art.js';
+import { previewSvg } from '../yard/art.js';
 import { albumSeen } from '../yard/card.js';
-import { BUGS, FISH, FLOWERS, GIFTS, giftKind, SHOOTS, TRACKS, TREASURES, TREES } from '../yard/catalog.js';
-import { bugSvg, fishSvg, flowerSvg, giftSvg } from '../yard/creatures.js';
+import { BUGS, FISH, FLOWERS, GIFTS, giftKind, grownArt, SHOOTS, TRACKS, TREASURES, TREES } from '../yard/catalog.js';
+import { bugSvg, fishSvg } from '../yard/creatures.js';
 import { decorShown, yardSeason } from '../yard/decor-shown.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
 import { eventDates, eventScene } from '../yard/events.js';
@@ -51,6 +51,9 @@ const favored = kind =>
       ...(kind.affinity?.places || []).map(value => t(`world.${value}`)),
     ]),
   });
+// A card draws its kind from a small preview (src/art/album/), not from the painted sheet the yard
+// uses: decoding a book's 1536 x 1024 sheets for 112-pixel cards held up its first open.
+const specimen = (art, unknown) => previewSvg(art, unknown ? 'class="unknown-art"' : '');
 const caughtLine = (entry, size) =>
   size && entry.best
     ? joinList([t('catch.count', { count: entry.count }), t('catch.best', { size: entry.best.toFixed(1) })])
@@ -66,7 +69,7 @@ const BOOKS = {
     tab: 'catch.tab_flowers',
     kinds: FLOWERS,
     found: () => data.album?.flowers || {},
-    draw: (k, unknown) => flowerSvg(k.id, unknown),
+    draw: (k, unknown) => specimen(k.art, unknown),
     name: k => t(`garden.kind_${k.id}`),
     unknown: 'catch.unknown_flower',
     hint: k => t('catch.flower_hint', { season: t(`catch.season_${k.season}`) }),
@@ -76,7 +79,7 @@ const BOOKS = {
     tab: 'catch.tab_fish',
     kinds: FISH,
     found: () => data.album?.fish || {},
-    draw: (k, unknown) => fishSvg(k, unknown),
+    draw: (k, unknown) => (k.art ? specimen(k.art, unknown) : fishSvg(k, unknown)),
     name: k => t(`catch.fish_${k.id}`),
     hint: k =>
       joinList([
@@ -91,7 +94,7 @@ const BOOKS = {
     tab: 'catch.tab_bugs',
     kinds: BUGS,
     found: () => data.album?.bugs || {},
-    draw: (k, unknown) => bugSvg(k, unknown),
+    draw: (k, unknown) => (k.art ? specimen(k.art, unknown) : bugSvg(k, unknown)),
     name: k => t(`catch.bug_${k.id}`),
     hint: k =>
       joinList([
@@ -107,7 +110,7 @@ const BOOKS = {
     kinds: GIFTS,
     // The garden keeps which gifts have come; each counts once.
     found: () => Object.fromEntries((data.garden?.received || []).map(id => [id, { count: 1 }])),
-    draw: (k, unknown) => giftSvg(k, unknown),
+    draw: (k, unknown) => specimen(k.art, unknown),
     name: k => t(`decor.kind_${k.id}`),
     unknown: 'catch.unknown_gift',
     hint: k => (k.event ? eventHint(k) : t(k.built ? 'catch.built_hint' : 'catch.gift_hint')),
@@ -119,8 +122,7 @@ const BOOKS = {
     tab: 'album.trees',
     kinds: TREES,
     found: () => data.album?.trees || {},
-    draw: (k, unknown) =>
-      artSvg(k.stages.find(stage => stage.name === 'mature').art, unknown ? 'class="unknown-art"' : ''),
+    draw: (k, unknown) => specimen(grownArt(k), unknown),
     name: k => t(`tree.${k.id}`),
     hint: favored,
     record: entry => t('catch.trees_grown', { count: entry.count }),
@@ -129,7 +131,7 @@ const BOOKS = {
     tab: 'album.treasures',
     kinds: TREASURES,
     found: () => data.album?.treasures || {},
-    draw: (k, unknown) => artSvg(k.art, unknown ? 'class="unknown-art"' : ''),
+    draw: (k, unknown) => specimen(k.art, unknown),
     name: k => t(`treasure.${k.id}`),
     hint: favored,
     record: entry => caughtLine(entry, false),
@@ -151,7 +153,7 @@ const BOOKS = {
     tab: 'album.shoots',
     kinds: SHOOTS,
     found: () => data.album?.shoots || {},
-    draw: (k, unknown) => artSvg(k.art, unknown ? 'class="unknown-art"' : ''),
+    draw: (k, unknown) => specimen(k.art, unknown),
     name: k => t(`shoot.${k.id}`),
     hint: k => t('shoot.hint', { season: t(`catch.season_${k.season}`) }),
     record: entry => t('shoot.count', { count: entry.count }),
@@ -272,7 +274,7 @@ function renderBox(open) {
       button.disabled = !room || !shows;
       button.title = !shows ? whenShown(d.kind) : room ? t('album.set_out', { kind: named }) : t('album.set_out_full');
       button.setAttribute('aria-label', button.title);
-      button.innerHTML = kind ? giftSvg(kind) : '';
+      button.innerHTML = kind ? specimen(kind.art, false) : '';
       label.textContent = named;
       button.append(label);
       button.onclick = () => {

@@ -1,4 +1,809 @@
 {
+  "album/bugs/black_swallowtail.webp": {
+    "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
+    "svg": "34e1b9d7e313941f88ba50bcc510cdba58d7029f8c12fe048762851ea51b26f3",
+    "webp": "71d886d0fd736a1587b3673b0c98a64fb83506110fd2fe8f9cc67fe837fa3278"
+  },
+  "album/bugs/blue_butterfly.webp": {
+    "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
+    "svg": "f783ea60d8f22125b45726c0f92e9d9a401f2679fa8db902fb17df2fb1a9361c",
+    "webp": "5d2a4d9592ff21a129832d0fd1a7f9878af57979f8a6ff4a7349c3512fa66e36"
+  },
+  "album/bugs/brimstone.webp": {
+    "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
+    "svg": "9debc8247ebdd5d3a0bdd63d2be902514eebc794a6042840374fedab29910c8d",
+    "webp": "353c3569203ba36be6f88384bdde9d2b76977ccd233e1f8264d3c72366113953"
+  },
+  "album/bugs/butterfly_dragonfly.webp": {
+    "png": "c9eab471860c37784a3d8f89c59252b5d1ff7a8a05c0d889015009cee129d6f8",
+    "svg": "92b7b62ece5cb1adbf6e35a8ddf6c567bff6f1395a651136c03c38ebae333f9c",
+    "webp": "18a2da16a10a6a931a9c739c2049e2d4b92e97f157b73956c9e17ee0696bd884"
+  },
+  "album/bugs/cabbage_white.webp": {
+    "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
+    "svg": "71a3057d257593d774773ef36031a98bdd34585b8ccb29671f4649226fdd781c",
+    "webp": "3ba8e955eeb831dcf280d811a6b87fca5dabf05db01d69ff7ca74db9d31743ba"
+  },
+  "album/bugs/damselfly.webp": {
+    "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
+    "svg": "b70ed178d5968c863d90b6ff206fb20e72230fda6b7c4e1634d8bb491a4fcbe3",
+    "webp": "a41df7a140a6319bb7c8ea9acc37351661f718f67994281148ffe45196579ac7"
+  },
+  "album/bugs/dragonfly.webp": {
+    "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
+    "svg": "4cedb1eb87843d3398aa0998d3f0c9095e3f8ae1b8a3ab8c6293a9417baaef4c",
+    "webp": "0e674ece1e9595c420bfa020318cd34583ec27d1bc5ebb093a7422d1b42a8f0c"
+  },
+  "album/bugs/emma_cricket.webp": {
+    "png": "c9eab471860c37784a3d8f89c59252b5d1ff7a8a05c0d889015009cee129d6f8",
+    "svg": "d6f3009dcba53252aac3adc05e305f86fb12999413f93dd25ad920ad59080337",
+    "webp": "cd73becda0e97a7a3a60ae9e1a68467e98c9c040a76b89a88eb765896ea7d7af"
+  },
+  "album/bugs/emperor_dragonfly.webp": {
+    "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
+    "svg": "08fceed33ac71f9de81d6b1e41e5a48677439f2be9f19abe080ea31f12b8c838",
+    "webp": "07b5ffdbba77183c8d8a31440a9ec7feb7fdb5d0fd2b12be622a028ac9b8c36a"
+  },
+  "album/bugs/field_cricket.webp": {
+    "png": "878d0c1a0d5a5139733b0f950a6d4c43c69a902cb25c258f736eea51310ca562",
+    "svg": "5d6d15679783e0b40b0622fe69bd6735ec25bb90f4247add1a8fc3d8fd45c729",
+    "webp": "580ce070ce594476895143a2b80aaa0d9770677694c0b5eced74fc2e39bc22ce"
+  },
+  "album/bugs/firefly.webp": {
+    "png": "deffae088dfc25fa73b486e6891878aa6c1e1736f3b20baad59bbb6d366180de",
+    "svg": "f88ab771edca5e5b1464b89c20f12642abb68b1d1d58fb6d6c0e6f39a2ca52c2",
+    "webp": "0af899f92fa1142906e5326db5b279c9750262ed7da26b3b7f2eda28834b116f"
+  },
+  "album/bugs/golden_firefly.webp": {
+    "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
+    "svg": "04ccf8860732ff57b7eea0d317caaaddcfe01baea01dbecd28d746a690d318db",
+    "webp": "2f5745b989e7137c1e4ce2e5ccce30605a5fb0241a77e1babd3d6b4ea3dcc824"
+  },
+  "album/bugs/hawk_moth.webp": {
+    "png": "c9eab471860c37784a3d8f89c59252b5d1ff7a8a05c0d889015009cee129d6f8",
+    "svg": "a5d81c528971170655971f0796c50232ac790d9d33f90bd1b1b54f0d2897490f",
+    "webp": "a7aadaad5a9a6b3bfdd942c7209d32b1e64aa092960675abb0d0b8e2e54e07d5"
+  },
+  "album/bugs/heike_firefly.webp": {
+    "png": "deffae088dfc25fa73b486e6891878aa6c1e1736f3b20baad59bbb6d366180de",
+    "svg": "87dfa93b9c74a21166caa9061bf93e660e898d11282e7278a182caa8d8160ba7",
+    "webp": "d9d060ea732d7a249ba5b9dc39e56c247582dee715534e2116bd3d81f9f25f5f"
+  },
+  "album/bugs/katydid.webp": {
+    "png": "ba50e20476e930e4d4a8bfbd37a78e2cfbb2a100fcdae5e3b8963636a5228dff",
+    "svg": "e4a43d4c6a8420e9b17afb76985f0f1f8cfc5d537ee66171a544f9c9095b19e2",
+    "webp": "1e05b3782cf762476060205bf0f9b1ad5cdd4888da250fe674caa9cd9f4bb668"
+  },
+  "album/bugs/ladybug.webp": {
+    "png": "480774c6b4ac79c37a955ae8208d2afae6c57f62b50709b41ad7799e237d5e9f",
+    "svg": "47ec3c005863cc185af95f5c20c730aafc4727b29e7dd1fee9431cb048370948",
+    "webp": "d2cb59ea414f7591c200f3d4a110b2e9a483a9383b24e86ad527aa20b161ee94"
+  },
+  "album/bugs/late_firefly.webp": {
+    "png": "ba50e20476e930e4d4a8bfbd37a78e2cfbb2a100fcdae5e3b8963636a5228dff",
+    "svg": "4d94075345b9e7dd2f632f7723e0caa3c8de914ac4db5c180d298549d0f8fa12",
+    "webp": "aa3ffa7235bdb4e7cd40519571d5a27d5fcf9d27ec5e1be316de7811defd4449"
+  },
+  "album/bugs/longheaded_grasshopper.webp": {
+    "png": "c9eab471860c37784a3d8f89c59252b5d1ff7a8a05c0d889015009cee129d6f8",
+    "svg": "f6ed87997c1bee65be1ebb3f74b075a10bffb5a83b154ef9ca5288d05053c823",
+    "webp": "c9814ba0b03e34aed009f5ae63c1f2f9aede94f3f4a6e688717c57469fc46f57"
+  },
+  "album/bugs/longhorn_beetle.webp": {
+    "png": "33a105ed0f4f965a95b0b25e46dfb8b0fa41b89827eb1e27e4c482f8223cf872",
+    "svg": "a225f92fd40712e0d2c76da27e8a19def996e8637c9561bb546bbf14d3641280",
+    "webp": "02e4ab0b4a27b50ab26a44872aeb4bc93b2734df5b0065cc8bb3ffd803cb0f06"
+  },
+  "album/bugs/mantis.webp": {
+    "png": "33a105ed0f4f965a95b0b25e46dfb8b0fa41b89827eb1e27e4c482f8223cf872",
+    "svg": "96a6161d055e95881218a204c7776c0a61e7ab1be3246fb624868a50bdd919ff",
+    "webp": "9a6c0b64ca2488cff03776d46c9f561bcffa2feb118711695276f37f72a2fa9d"
+  },
+  "album/bugs/orange_tip.webp": {
+    "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
+    "svg": "88cf853078fb7b76f273ca8bd16ccb45d8e5eba75d462ee522b2c9f7230ab4e8",
+    "webp": "a46634bf81a37cd1916ab29b31255dc6c4a10146fd83749549d4b4acba150cad"
+  },
+  "album/bugs/peacock.webp": {
+    "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
+    "svg": "01ec09a37eefdfc68c71504bc715f7d4f6942a0db727d56b289966f10472949a",
+    "webp": "6f883fd5e9c6afff90425593825beeb8d9097e9de111cf40e356a6d8b14cf103"
+  },
+  "album/bugs/purple_emperor.webp": {
+    "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
+    "svg": "3ff78773d707c350ef6ccf32d551b52ad186e076a142d07d99d11eda0a624abb",
+    "webp": "176cad47cf443db3328aad83439dad8eb67eeab579b915f8888240d317c723b4"
+  },
+  "album/bugs/red_dragonfly.webp": {
+    "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
+    "svg": "131f9bc1f6ac307a5c0f221ede8ead686c0cbcd49fbebe7b74be1dc938bfabbe",
+    "webp": "509e84c5c0401058b6cd9a519aabb78d474c87e0e0502caf96a471dc5c7e56a8"
+  },
+  "album/bugs/rhinoceros_beetle.webp": {
+    "png": "33a105ed0f4f965a95b0b25e46dfb8b0fa41b89827eb1e27e4c482f8223cf872",
+    "svg": "26ab656629f51181f0d2e45eac78d9dbfa60bfe53fc9998b96c636af8089425f",
+    "webp": "410e7f3719af4e3441dea620bae4f3547b0c3703d0672f82d9db3d3d7df865f1"
+  },
+  "album/bugs/swallowtail.webp": {
+    "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
+    "svg": "0c085eefa3e2356311fe2f1f58476e77c92fbf8fa90a27d9b68d062e341abc92",
+    "webp": "e369ad6551aad7ec20b22ed92aeba192aaff353ac41b4a9a1aec664f16f3e328"
+  },
+  "album/bugs/tiger_beetle.webp": {
+    "png": "33a105ed0f4f965a95b0b25e46dfb8b0fa41b89827eb1e27e4c482f8223cf872",
+    "svg": "55d78f3a2462b7a0d44b2ff0aeb03af46a81f707ebe66daaeb2c1747bf6d8424",
+    "webp": "507317bdefa1eb8ed4a4cba7f7c5ab5b71a4e888c01479dd5cc7600b040dbc4a"
+  },
+  "album/bugs/yellow_butterfly.webp": {
+    "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
+    "svg": "86a6a45995be304f93cb23340699864537400c09202b28af684ab0a18eb5a211",
+    "webp": "178c879b932ba68a3464a81a3e0b324e6cd3741032b3f121c2b32273cae23793"
+  },
+  "album/decor/baby_reindeer.webp": {
+    "png": "187e379051a39cc7fa91838644adcfa41621a6387b1eadb44a6b2a6f01c811e6",
+    "svg": "3c3127f10993c138ee6c1d4a6ba26d5722ff234ae7a33887d5f58216af852290",
+    "webp": "4a9c51df7e9661db6966fb0bb99b98b6b54ef438af79913fcea876d2272098f2"
+  },
+  "album/decor/bench.webp": {
+    "png": "54c472e449d6192a5bbb6055f390a9a58ed5cd64a14b69d17e768ba04a4e77fd",
+    "svg": "3bfd66622e8c811d4024570a2a9f1f9eac586b59e2de245c250ef49a30e0b43f",
+    "webp": "ef99ec877710bee0b5e4a2d80a7d2f4356aeab8ca0a6a1516f1e0f06a4ff7525"
+  },
+  "album/decor/bunny_watering_can.webp": {
+    "png": "a1a273906dfa7dc353a23bc37a62c2d72ec7ca3c10c7c1b30870a4906758276a",
+    "svg": "2cd6f17b8c098c4bbf4f4477a3e6b73cfb45e419f08f80d60240ed7dc4ac462e",
+    "webp": "bc3ef4038b7656ea9e84c64082232b375df4bd088d38ff41170af94bc4943667"
+  },
+  "album/decor/campfire.webp": {
+    "png": "54c472e449d6192a5bbb6055f390a9a58ed5cd64a14b69d17e768ba04a4e77fd",
+    "svg": "42a5a410d24737143d356e857079f86ab8643e9155dcbf3332c4f99930645ae7",
+    "webp": "2b9d08b98b8c55126c9d8bda6696a73857fd5fd0c25bd8ac7895cda3a0c843f0"
+  },
+  "album/decor/hammock.webp": {
+    "png": "f31116a3360b0982ca037350d7565c9712a69096338fc6a064830dab109ce5e4",
+    "svg": "031686343416ce865702bc937a9fde10a5f50cea342b03d50d1190b42da414d6",
+    "webp": "d149a732f9a84b9a9325f13e3e875fd884ebee79b4268e5e7e7cf7352b115c53"
+  },
+  "album/decor/hedgehog_planter.webp": {
+    "png": "a1a273906dfa7dc353a23bc37a62c2d72ec7ca3c10c7c1b30870a4906758276a",
+    "svg": "2a76ec5648cadde0134dcd3e4cfc32e8410e2bf48b751ae22f3709b1711834d3",
+    "webp": "aff1778cc218f4ee0adaf7fd24520266063b5dde9efca596791ed716df84a4d6"
+  },
+  "album/decor/kite.webp": {
+    "png": "f31116a3360b0982ca037350d7565c9712a69096338fc6a064830dab109ce5e4",
+    "svg": "305f7dd176fb9ea5a3a721a1358f062ff2a1c9956cd6a4e0986fbacfb3e01819",
+    "webp": "ebb9441d01a7782384856c9853e76bd27d6071f72110c8efa8715a42dedb32af"
+  },
+  "album/decor/mailbox.webp": {
+    "png": "54c472e449d6192a5bbb6055f390a9a58ed5cd64a14b69d17e768ba04a4e77fd",
+    "svg": "3f57f1660222df65d2fd8dd3636d0c2719a5038a22bbae5890310071f799cf4a",
+    "webp": "d90a4d1e776e5859459d9a396605d749d5430f8fcbd443cc9d417e69ce5d8aa3"
+  },
+  "album/decor/onggi.webp": {
+    "png": "f31116a3360b0982ca037350d7565c9712a69096338fc6a064830dab109ce5e4",
+    "svg": "bb17ee7258cbeba66de0bdb70284f4a506c7c9218a1493b51472ec89f97d014f",
+    "webp": "5b3ee621b7b7acf28f340b91a8a66e874e9113ebd36d24272a73e13f5c61b6b1"
+  },
+  "album/decor/picnic.webp": {
+    "png": "54c472e449d6192a5bbb6055f390a9a58ed5cd64a14b69d17e768ba04a4e77fd",
+    "svg": "ecbea81e9318151f8970c9ba17876d55eaffef0f13c98da210cc14a855cc5794",
+    "webp": "698a7c3e21610769bcb4591b1763ed16ce668533db66b65f5e6d95bad67e534f"
+  },
+  "album/decor/pond.webp": {
+    "png": "54c472e449d6192a5bbb6055f390a9a58ed5cd64a14b69d17e768ba04a4e77fd",
+    "svg": "824c8517ab765b1d685554cfa8907bde5e0175d3f7168755c3df46332ec2721d",
+    "webp": "12ae0703df07e026c0b277ffe69a19ddada5b7dc3bb59fa0e60011574f721846"
+  },
+  "album/decor/santa.webp": {
+    "png": "187e379051a39cc7fa91838644adcfa41621a6387b1eadb44a6b2a6f01c811e6",
+    "svg": "be3bb504ecdd8746a4048f3fa7310f2d9959bc7f9d87111e3b8aa8e668c0e86e",
+    "webp": "90d8cd71b2cfe06eba81ca7ffb33fc94cd4ae7dde7979d07bf390435f6458ee9"
+  },
+  "album/decor/scarecrow.webp": {
+    "png": "f31116a3360b0982ca037350d7565c9712a69096338fc6a064830dab109ce5e4",
+    "svg": "c752275b03ea312979b4624df60b3adc1db7f54194e5d71350dcdf9da4b1c657",
+    "webp": "2bd51b4d1ea03f6e71cb0ac40322e3d45e09ded5e81008ad4804bdf7d2a29361"
+  },
+  "album/decor/sculpted/birdhouse.webp": {
+    "png": "96fc15d3db5404814f64607f6c6acad8cc6303d0deb4384d7e1162420d292cf3",
+    "svg": "045d4225211dc5b205dce067c97e1dd92a7ec5d9be34b3993fcd3444e773e487",
+    "webp": "bdbb3a2699819866a62f3db8a32bbfb98dc9cef939645571ac9b7c1755c8ddb9"
+  },
+  "album/decor/sculpted/cherry_sapling.webp": {
+    "png": "96fc15d3db5404814f64607f6c6acad8cc6303d0deb4384d7e1162420d292cf3",
+    "svg": "93ab6cb23db0f14506fd50da1ba5b2d37d9717358caaec1b2b8a977406b23dae",
+    "webp": "a7cf84fd01c78dda42ea135649aff66ab4f9655ac8c67663f317accf37dee3c6"
+  },
+  "album/decor/sculpted/flowerpot.webp": {
+    "png": "96fc15d3db5404814f64607f6c6acad8cc6303d0deb4384d7e1162420d292cf3",
+    "svg": "9af1ce076ee76e3067b5976be38fe1f0f2027f3b3abd34abfc767a28db89fc55",
+    "webp": "614440704e70ea1e987fd0ec1e21f077305742e1c534ed96a1f1edc58cd5b016"
+  },
+  "album/decor/sculpted/lantern.webp": {
+    "png": "96fc15d3db5404814f64607f6c6acad8cc6303d0deb4384d7e1162420d292cf3",
+    "svg": "a3fc971e7ffc2d9a519274128ea07c1c27b546b434a9b140d3aab62798dd9e9b",
+    "webp": "dda7db22fa61574a8f9ea04f23548b025937ea4ae1c5003d422f58d1bf13d1e9"
+  },
+  "album/decor/sculpted/pinwheel.webp": {
+    "png": "96fc15d3db5404814f64607f6c6acad8cc6303d0deb4384d7e1162420d292cf3",
+    "svg": "46b5524688a67c42bc66da2892ec32289ea72e4a9c073b992b908feacdbb489b",
+    "webp": "2d3a7e157de2e5b68a10aeb8ff390ff815e9491fc70fb7c98a10ae7a68e5e74d"
+  },
+  "album/decor/sculpted/pumpkin.webp": {
+    "png": "96fc15d3db5404814f64607f6c6acad8cc6303d0deb4384d7e1162420d292cf3",
+    "svg": "8cb052cf11e29cf17af357f1fc89581d68d6bd07729458d0353dc0260d02b159",
+    "webp": "da896911d8f05e8a4b002baa5aabffdf17d170dde085e02e4c91c1f130cd988b"
+  },
+  "album/decor/sculpted/signpost.webp": {
+    "png": "96fc15d3db5404814f64607f6c6acad8cc6303d0deb4384d7e1162420d292cf3",
+    "svg": "12774b5dca1cfd18887984e5d3449249b0c1ab9566c2ce89259215dc9ab73cfc",
+    "webp": "8dff0d085d0febcb172f77fc94d4ff404ff129561841ceea0569f3c65a9055e2"
+  },
+  "album/decor/sculpted/snowman.webp": {
+    "png": "0fefa42f0e2772ef22ca5fd0e06ec21151ab85aec6735ce7870f396507d3e3ff",
+    "svg": "e5aa067f4290ed4a572b22bbd26b594c2905f74625d6aa25b251ee4e00ab2f35",
+    "webp": "c7c4bb56e1910f890236e5ec4b27a041b32222b59bdad68bcd6e6cd4fb295e47"
+  },
+  "album/decor/sculpted/stump.webp": {
+    "png": "96fc15d3db5404814f64607f6c6acad8cc6303d0deb4384d7e1162420d292cf3",
+    "svg": "a0efb299a786179485f7aafa0c48bd04d0c81dd4e46bcf3eea2fd3282703578a",
+    "webp": "53fa7601d82989b00a9a34261775684b20f6b93f66818bfa48801cf47541eea5"
+  },
+  "album/decor/sculpted/swing.webp": {
+    "png": "96fc15d3db5404814f64607f6c6acad8cc6303d0deb4384d7e1162420d292cf3",
+    "svg": "cc26804ab5e2deff8ccc8cbb6ca6bf51a550e5bab53fe42b9fc1fd5a9ff0dba3",
+    "webp": "e945cc264264fd07e752c7c15a6d304e13c33d1d77caeae5f2d20d1d6b106bf2"
+  },
+  "album/decor/sculpted/watermelon.webp": {
+    "png": "96fc15d3db5404814f64607f6c6acad8cc6303d0deb4384d7e1162420d292cf3",
+    "svg": "18a889de927aa10cfe53aa1360d5dcf7c1fae0b1a8448d093a5eeaa645b551e6",
+    "webp": "201ffc9e85788cc89c3a288a4cbe3bbd3e6f28093f408fe4b1f1a68889af5530"
+  },
+  "album/decor/sculpted/windchime.webp": {
+    "png": "96fc15d3db5404814f64607f6c6acad8cc6303d0deb4384d7e1162420d292cf3",
+    "svg": "53c9a5404d8458c9d7e3f7a53ef9e920ffb9b94ffb86afa6bc94f0f71ad99800",
+    "webp": "a5f09c92c81b80061f8cce7d10be611fc2f8dfd4ffb7d6677996ee4370b3a792"
+  },
+  "album/decor/stepping_stones.webp": {
+    "png": "f31116a3360b0982ca037350d7565c9712a69096338fc6a064830dab109ce5e4",
+    "svg": "67085938dca8111222cbcc658583ed7d3ea453d05d5d7c3b6b82c22a04fac662",
+    "webp": "5f6c7e36e599ffb02aa8b91975db5b78a91a1f389e6d61cd76a63525e84d5ea2"
+  },
+  "album/decor/tent.webp": {
+    "png": "54c472e449d6192a5bbb6055f390a9a58ed5cd64a14b69d17e768ba04a4e77fd",
+    "svg": "1a98821f86cb52263b3e6dc3dbca561a0b376773c69b97596e95397c1cceba24",
+    "webp": "9b86cd498cd76045952833c9da5df467603c2d27812b9f729a3545fccbff478f"
+  },
+  "album/decor/water_wheel.webp": {
+    "png": "f31116a3360b0982ca037350d7565c9712a69096338fc6a064830dab109ce5e4",
+    "svg": "05bc2c274dbf60e5253d02457326989c6411f761eff2015ab539069a11a0bc58",
+    "webp": "83fd4ed4b3f323ec3c1db530997266b6400f18e7c8e5944b10fbd456d4730dae"
+  },
+  "album/decor/xmas_tree.webp": {
+    "png": "23cca024a3f917d472c774c66a1f03fe8a7fc32e9682fcd976b00ee31bc77e43",
+    "svg": "bf54d2146e279589af992840d8836b15d317e721caec072d022cf1b2ef8aaf00",
+    "webp": "63d13d939c30f0162d2f5b002f1d18d5560f6f82138429a8feabffd189effb91"
+  },
+  "album/discovery/acorn_teacup.webp": {
+    "png": "a1a273906dfa7dc353a23bc37a62c2d72ec7ca3c10c7c1b30870a4906758276a",
+    "svg": "fee5ff0869fd461d07e23d74e4998c689ad1408398a28f4827019f27e082f9ea",
+    "webp": "5c07dcdc4093918a44b9892ba2cd8870f6e67207e49c5f97fcf8f93cbb2b2c43"
+  },
+  "album/discovery/amber.webp": {
+    "png": "eb5063f1d17313205e38d8e8c3caffe2d0a9b05ff5fdbf5622d4a25018dcd0fb",
+    "svg": "7f594d11afc23707e9ee5af887253074f51931e57fe2ad35b4dd44fea509728e",
+    "webp": "ee1752d9a9ec0d84d17157ee94cc59472c0ea59e559e6840e64c84b704540600"
+  },
+  "album/discovery/blue_feather.webp": {
+    "png": "e22916992c750a280e2957024256027991b764ab4fd25bdafe6c14580298581f",
+    "svg": "5e44adb180996e9af72ba233523bdf7cb475ab769410f99334af2e5ebaa431b5",
+    "webp": "5fc75e4d93ca31ca52bcc69b3a1930725cf6af3b39391c7e2ec0e5153a74aa95"
+  },
+  "album/discovery/bottle_cap.webp": {
+    "png": "dfe7469fd947a890adcd637fcaf56b6dd75d9e719e5d2f18814e21f8e879af81",
+    "svg": "862fe50589f9e33581d27c25ce2d894635665aa44c8ac0000406ef5d5f1cd77a",
+    "webp": "054c8a47739ca7e30fe9cdf5a6ff13b166617cabd508a5892065666670f357ea"
+  },
+  "album/discovery/clay_shard.webp": {
+    "png": "eb5063f1d17313205e38d8e8c3caffe2d0a9b05ff5fdbf5622d4a25018dcd0fb",
+    "svg": "9d952234b0cca7cd7bed92820e6184840dc1c76a6c316d8b45d86f58fe5cd150",
+    "webp": "d8cb3214a5fac57cde66e4582d4305adaf0a38c92fad90c0ea74969e2c42305a"
+  },
+  "album/discovery/felt_mushroom.webp": {
+    "png": "a1a273906dfa7dc353a23bc37a62c2d72ec7ca3c10c7c1b30870a4906758276a",
+    "svg": "eda1913356c7007c95596094aff3cade2169799ab531500f269d177aaeb6cd33",
+    "webp": "113db0a66c24a5034e82d18056b310e6f5f3a4ead80ad6830fd826cbe2afedbb"
+  },
+  "album/discovery/four_leaf_clover.webp": {
+    "png": "e22916992c750a280e2957024256027991b764ab4fd25bdafe6c14580298581f",
+    "svg": "b1d950155091fbf50eab335e82b4b412cff2b5bb3393d42f74ef01bae88fe9d8",
+    "webp": "eca60e010d2ae81510a222f55e54de8a4b035adedb0f26e650a54f3d8e3730a9"
+  },
+  "album/discovery/freshwater_pearl.webp": {
+    "png": "e22916992c750a280e2957024256027991b764ab4fd25bdafe6c14580298581f",
+    "svg": "9493f420013d928bb55120e8700d69779ba7bdf4aa2145f0ecb00075751d607e",
+    "webp": "4df4bbd9b97b164a7a24c8f7bdd18f25db7b04fca03be09d7bc68a60ea06c108"
+  },
+  "album/discovery/glass_marble.webp": {
+    "png": "02fe56390476c82539337f8e784d54d19bb23efc3519541530a3a38c055e5cf8",
+    "svg": "3703f4129229714878b9d7062ccc19fcd615f55c3961e5f7ac184afb523aa7e6",
+    "webp": "5edcae2819cd2ed335da83389677970091517fadb32c087139542bbe45d1c74a"
+  },
+  "album/discovery/leaf_fossil.webp": {
+    "png": "eb5063f1d17313205e38d8e8c3caffe2d0a9b05ff5fdbf5622d4a25018dcd0fb",
+    "svg": "af0b3feffeef9d7a776abcd8ef3a5941bab3c88daa1db39773c75169c311bb09",
+    "webp": "03753f7d357d8c9c1fecca8a0afecb4a5d19d8bc8c8606206bea75c625ab84ba"
+  },
+  "album/discovery/old_button.webp": {
+    "png": "eb5063f1d17313205e38d8e8c3caffe2d0a9b05ff5fdbf5622d4a25018dcd0fb",
+    "svg": "7539e0a5708ca271de8e7d4ebd12949efc07dbadfd1c49be92b52317a872ea4d",
+    "webp": "3798e69d8e11cbff526392f17a5622cbe3f5667d692a0b3f8ce8e826723089fb"
+  },
+  "album/discovery/old_coin.webp": {
+    "png": "9e52faf5c2f388031a184f7c0f80353f3613486a0bcb69ae07cb8e0f55c825cc",
+    "svg": "d586b00fc1743c60690ebcb2bc649baf12b59ba855df5600c9f7cb3b9d271578",
+    "webp": "f718bae22f4f6d6a7351cd4d279fbc1bed23684a7d234890df8608c780b6a36b"
+  },
+  "album/discovery/old_key.webp": {
+    "png": "e22916992c750a280e2957024256027991b764ab4fd25bdafe6c14580298581f",
+    "svg": "dcb782310f2af7420dd4aa4f36f915c3c9a362abf4ecab949a9ea56840aeae0a",
+    "webp": "10016ecc4e148004ce02c355e0a7340e0e62bab7cff71002af42182ed96e31a8"
+  },
+  "album/discovery/paper_boat.webp": {
+    "png": "e22916992c750a280e2957024256027991b764ab4fd25bdafe6c14580298581f",
+    "svg": "b30dafda1ecfb02b24d0a2fdedcdbf2ac4d6f919a2171ac2db07aae384847673",
+    "webp": "b5de88467c97a1b70478f83cb4ea7f70deb6c08e315ba89ac0def688390fa753"
+  },
+  "album/discovery/pinecone.webp": {
+    "png": "e22916992c750a280e2957024256027991b764ab4fd25bdafe6c14580298581f",
+    "svg": "dab8fe7e56c073b7fb5ae27c416bf1f10ac075633ff3663cdc11ec0df144179f",
+    "webp": "02202a1e2524d7a5a0fb84a0757a276ae2a420eddc94bb8fafc8463bdd6abf4f"
+  },
+  "album/discovery/quartz.webp": {
+    "png": "eb5063f1d17313205e38d8e8c3caffe2d0a9b05ff5fdbf5622d4a25018dcd0fb",
+    "svg": "f2d4ded8efa9d23541e86c1ab1519ad8964618993c5ea9e84ea8fb3c8fbe990f",
+    "webp": "675a921994fd6b6dc105cf5f0b779a9a2eb40b2c9c4b7dee65d45918ed1b16e0"
+  },
+  "album/discovery/sea_glass.webp": {
+    "png": "eb5063f1d17313205e38d8e8c3caffe2d0a9b05ff5fdbf5622d4a25018dcd0fb",
+    "svg": "59e06705319d019b2c5d353f7d079e66a82d30fdeb8f3dae9f84706f5a7ee305",
+    "webp": "a79a1ee99188285c9333f2827eacb84cf298ad42d7f19fcf442222d433f34f47"
+  },
+  "album/discovery/sleeping_fox.webp": {
+    "png": "a1a273906dfa7dc353a23bc37a62c2d72ec7ca3c10c7c1b30870a4906758276a",
+    "svg": "aa2a90ec4f7bc9934113f15ff23ed07e94e03af491f959ecea24920f10faf2d2",
+    "webp": "ae12729bd53d7f73fa25b0b830c2b53789d874100b830194b4ecfcf302e1a794"
+  },
+  "album/discovery/spinning_top.webp": {
+    "png": "e22916992c750a280e2957024256027991b764ab4fd25bdafe6c14580298581f",
+    "svg": "95bc00db0d28a3a7a74d3681cd29e37508d41ad2b22f079103bee97d59223c4e",
+    "webp": "6b1df05996387f4d81de717bd672824bf8ba36ba138193d22e9898a24820173a"
+  },
+  "album/discovery/star_fragment.webp": {
+    "png": "dfe7469fd947a890adcd637fcaf56b6dd75d9e719e5d2f18814e21f8e879af81",
+    "svg": "17266825989d25ade16dcdae9713aca20e262c17cc96dbda7ca4de90964fe25f",
+    "webp": "b3699721ec68e8a91a75a464faef86cc567ebdbeec8a0e30374c5aa7ea3e3ab5"
+  },
+  "album/discovery/striped_pebble.webp": {
+    "png": "eb5063f1d17313205e38d8e8c3caffe2d0a9b05ff5fdbf5622d4a25018dcd0fb",
+    "svg": "184f91c75f3bbb7668b89d9e2f5c694bddd3b020f8c08d94302181b53a3cb1f9",
+    "webp": "c3ad7a2b8ced71c57583c13ffcab8681debffda685661bcf3b3ebe52dba80645"
+  },
+  "album/discovery/tiny_crown.webp": {
+    "png": "dfe7469fd947a890adcd637fcaf56b6dd75d9e719e5d2f18814e21f8e879af81",
+    "svg": "c3b02e6268efc4898af5f8f59d3c2c2a2d9c97244a3b7612f72effe3ed5e33c3",
+    "webp": "3c25f508d191a642c5b5ccf1011bd7f4e3fc0b3e83af7273bb7347856ef4d3aa"
+  },
+  "album/discovery/tiny_shell.webp": {
+    "png": "eb5063f1d17313205e38d8e8c3caffe2d0a9b05ff5fdbf5622d4a25018dcd0fb",
+    "svg": "bc70716b4c4387243e67ee12033bd24039d882d50f761c1417f08aa3cdf8c43e",
+    "webp": "5d97d78106f6f312030237804b5e642153400e8959ac728e76de9c6bfe45b00b"
+  },
+  "album/discovery/toy_robot.webp": {
+    "png": "dfe7469fd947a890adcd637fcaf56b6dd75d9e719e5d2f18814e21f8e879af81",
+    "svg": "121c1839923478e6af847b3aaa09b30a222ebdd27062677ad08ff7b454a60e6f",
+    "webp": "c0c5f8490e1b002f2c9335b5fec77be6e531bd2619dce8715bed1de24b58f710"
+  },
+  "album/discovery/wooden_whale.webp": {
+    "png": "02fe56390476c82539337f8e784d54d19bb23efc3519541530a3a38c055e5cf8",
+    "svg": "f7b30b35454919b2ff4838e9b9f9d6dfb3cd8196842eade8329c1ba8d1c5b6bd",
+    "webp": "5e0b8ddf9b019723ad2e68fbe91e619e73481627c3be5e47ad26853f90fd7280"
+  },
+  "album/fish/aucha_perch.webp": {
+    "png": "d859c083890eaedc291d94d2ce8fc8326a1e547071db80a486809c212606d30c",
+    "svg": "04765bb06ab61778956ee678d20a51499525bf7518c42fb37dfe91ab3056ee39",
+    "webp": "adb88d0a21ca624a2a7c5a003ab294228dde77f3255a5e6f1fd8f6279f4940c8"
+  },
+  "album/fish/bass.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "9b6b757b6d9d0062043f39ad221c935a820d76c8779e70d5c7392335016a4764",
+    "webp": "317aa836437b827088bf3e25d77455a0a70de58c3a4ba446ca9c5ebf6e7cc8b6"
+  },
+  "album/fish/bitterling.webp": {
+    "png": "d5578ddbe4d6c1be978e2876b1187c4a779d3fafb4643b599a8e1d50e97c1620",
+    "svg": "71b9d0408a4215576f1df1ffff05d7c707a09b79a445f18d49ec0db446d18a7c",
+    "webp": "9e0b794a1bcd787a6218c4421fcc4d81290b4978a36a5561392ebb067d598c8e"
+  },
+  "album/fish/bluegill.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "ffb79ca93827acd7df5dd7db7ea2daeb939659f8c9856c2028cfe792e1f465de",
+    "webp": "46f56823e0722cb60fb670814fde1196cba373dc5e6622b6a09a3d85860a130e"
+  },
+  "album/fish/bullhead.webp": {
+    "png": "d5578ddbe4d6c1be978e2876b1187c4a779d3fafb4643b599a8e1d50e97c1620",
+    "svg": "6a07791a8f3d0f9557cf3ddab3f6da207368ec429cb6fa6a2716b72a3cb9a5e4",
+    "webp": "f1cf31f5df30e0d44d7349d193c6678f151710501eb44e24761baa4efe0662ee"
+  },
+  "album/fish/carp.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "ad700cfc3f21e9bcc0c27c26258b2b7ff055a40a2bd60161f30656774a1f47c1",
+    "webp": "3e5023c74f91e8c7d637d13012535ae633f09bc9992da41140a049a5a75290c2"
+  },
+  "album/fish/catfish.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "cf180d8e76d954eb9503526b800e61a2fb1d496d9d16ce4d2e3d2f21e6e743c2",
+    "webp": "9ff57d3a9edae4a839b9a20fba0b70147b4243896f456b164e424679210d1b43"
+  },
+  "album/fish/crayfish.webp": {
+    "png": "0742fb0721a97cad17e66a3833c26e2a2a7780bcb5788f0f280b0b2eb142f884",
+    "svg": "9c944589e3378cf1b83c1d0200fd3d9d3e78ebf33f62397da24d0abcab5cbf2b",
+    "webp": "7b9cadaa34c0352cfc1c3e5e48407fd301c9b48b768c6ddea99e9f10920a1682"
+  },
+  "album/fish/crucian.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "70f3c497295b5d45c84518c41b31fc82598d1dd95c2729ef777ebe739321b288",
+    "webp": "69a61a2b8e176c01a6cf5d6093919d57ce787e4bc31e3a92256e9551c6e12d2c"
+  },
+  "album/fish/dark_sleeper.webp": {
+    "png": "d5578ddbe4d6c1be978e2876b1187c4a779d3fafb4643b599a8e1d50e97c1620",
+    "svg": "f1644c5a9cf336848e5760273d3a6ac81a0f0091b09c81b6626c017dc21708cd",
+    "webp": "1c1221b95bcfee93f37bcd2d29cc23301cfd47072870c073cfa623fe0a805e62"
+  },
+  "album/fish/eel.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "53ef88b6b70d4163b9a6789334c9fb489199e64ee6322d84de308a373e7dfedd",
+    "webp": "7f1ddc398343eb54da7e9e20c6c9c4db8ebc438e9205a02e15554fb29785d4b7"
+  },
+  "album/fish/freshwater_prawn.webp": {
+    "png": "0742fb0721a97cad17e66a3833c26e2a2a7780bcb5788f0f280b0b2eb142f884",
+    "svg": "2c26a374148a863f58ae387ef1d98c5618a1d2b865edfe48d25c2dead2d060d1",
+    "webp": "4bbe5fcf2d3724ac06164571786d6bd6192c9776457a69ffad8f496dddfdebc6"
+  },
+  "album/fish/golden_carp.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "65f4a5fc2763748c5720fd73e2b4bb1315b78cff96a703cf5eecb2722dc28c0c",
+    "webp": "dbf1da4c1d4084df01bc25ca55bdfb81c4ef514ff535063b08cff9e8616ce9eb"
+  },
+  "album/fish/goldfish.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "82443a5bfc7f33a8c80b5407e5bc36cf9d1bfda89f79bc6bc10125142e8de719",
+    "webp": "c9d3f4f72ef72484b7105985542784c2d4228a6df97f04c6c29d08977fe6a195"
+  },
+  "album/fish/gudgeon.webp": {
+    "png": "413e0b3d320a16686e655be6253c4e8bf6d040f51ee514e3fba3e8f6738bb306",
+    "svg": "a377e270c38df84758a44c71456f8abba6f17790fa7b3a264d23e0d5ade34875",
+    "webp": "f98aa153784f76f59d6d5206805cf649fe72665e349467a82929d9765ece89c3"
+  },
+  "album/fish/killifish.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "89c4782fe5408d782bd7d9dfa8e1ac33466f54edc13ac483f77acb7734f56cb9",
+    "webp": "9cafce306e94490a485157f0b037bb9a2669a4fb1ab510fd6912aa1deb68e365"
+  },
+  "album/fish/loach.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "14b6f10e28b9aae1adb9587fa21f4a6afb6436686542819b92432c0f73d8381e",
+    "webp": "ebad2d0530e0804920b51af2be52de36174b260ca43227fd9edb93bb2692db1c"
+  },
+  "album/fish/mandarin.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "4febaa79ea144f2c8729af5b10ca16abf67c6ec1e421dd3e06efcc5237f053a4",
+    "webp": "6fe32bd4ccccfc75a7f9d86434112ec84159203431809658830fc3b9e8276637"
+  },
+  "album/fish/melania_snail.webp": {
+    "png": "a4ce380811fb75b65ce039134ba77b680645358bdaf5b3171e996da2ca651d70",
+    "svg": "0a3aa23af6c7344b433262b2fa345a3b51d9e4e399d02b6419ed2068430f2603",
+    "webp": "34f16ae5dab107db155a0c72280e1af389ec439f5569342553ce0e0a60c45a40"
+  },
+  "album/fish/minnow.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "aa7ef2d1e6b44108b7a950e2bd3a7e4b48055c859b275962ef2d2012108a6cf5",
+    "webp": "ef7abbab13f1c55e8d650027b7a307be867460c9983695cce9bfec41c6715d80"
+  },
+  "album/fish/mitten_crab.webp": {
+    "png": "c6f1cc6bfbdc5cbf10e0ffec894d6c3db73471204eb72e3e9da7dd683a5b9198",
+    "svg": "d4d1f83b8eb3d7c1834f34a30bbfa6ea78dfb1ef3aa7baca5e3467e0b74c54a7",
+    "webp": "98b995372451aa4a207aee1ea0520403ee6423bd17d1e3bc99f89b9e89214a22"
+  },
+  "album/fish/moon_carp.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "9c9110ab0546d142804db371339a6969f1ea290c3dd8b3dd60a5820c71c9b11e",
+    "webp": "dcb0e05b1d2bad5c7cfb46c19a21cfd7e8a843bf90545c1a4a3b83f6c6af3700"
+  },
+  "album/fish/mussel.webp": {
+    "png": "c6f1cc6bfbdc5cbf10e0ffec894d6c3db73471204eb72e3e9da7dd683a5b9198",
+    "svg": "981216000a49631e9d62bcf6549ab952c408ee0588230cab99b04132e0b073b0",
+    "webp": "783b876f089570e05856e1aa47e10980fab4b5a1ddfc9c0e0acbc44eaa6e2d07"
+  },
+  "album/fish/paradise_fish.webp": {
+    "png": "d5578ddbe4d6c1be978e2876b1187c4a779d3fafb4643b599a8e1d50e97c1620",
+    "svg": "47e21d8db1a5fdd2b2475ae7b349521813cf3555b12823f163608abf44a0d984",
+    "webp": "8a290c86822e395859c87cf0acad09c20e8ac0b4bf4d6034fb77c10deee92960"
+  },
+  "album/fish/pond_snail.webp": {
+    "png": "0742fb0721a97cad17e66a3833c26e2a2a7780bcb5788f0f280b0b2eb142f884",
+    "svg": "187499c26a4ff0464c99c42ef8db24554df4ba85a17c3e7ef37333ba8c90c8ae",
+    "webp": "890b0a52a4e2d6eca16f30eb818dd9a2e12d2a4bb9e7503fc5b33448625d882b"
+  },
+  "album/fish/salmon.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "55ff7594b097773a1a35b4fce9313dbfacecbe25b7bc5c897a20d5ae33c9a6b6",
+    "webp": "ce2c8abb8e2d4e629f8ef97571bccc7c8c53554732ee46db869100f05ec4db69"
+  },
+  "album/fish/skygazer.webp": {
+    "png": "cf346de0a43afa9482b685f8be76c0b9f676cbc8d11c30d1a8e0668bff7ac10f",
+    "svg": "4a928d8b8418f6e238aef1035f14e6ac10e775076c88f00eb0ddeb9e13d3bcf6",
+    "webp": "c7e38c4fadf36de58cfff2042c88f779aae24c033084150edf7d52f5f85f4ac9"
+  },
+  "album/fish/smelt.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "ee959ad7b68df6356d4990ff5498b54b7003d2f4e8350176129bddd034be9a6f",
+    "webp": "7fc4d280bccf2d2d8a26033528defa18fe7bdc75237d3a98f9d1a7022c769dc3"
+  },
+  "album/fish/snakehead.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "962dd7a29e614eb08f79ca3f04c47cacd9d3dcc9be6c2ba728b00f62ae88f5f2",
+    "webp": "5f7448bd2c35adb16576ac49d6c07ae95281a4d4821e145833c610fa201d6ccb"
+  },
+  "album/fish/softshell_turtle.webp": {
+    "png": "c6f1cc6bfbdc5cbf10e0ffec894d6c3db73471204eb72e3e9da7dd683a5b9198",
+    "svg": "a25b9b9bb0f697875d603ad6c100067764ddbc6dd0c05b8ad88e99ab61802ab5",
+    "webp": "168393a52095d662ca32679607aaed2ff4647f845c0d578d95ed03dc91cbd898"
+  },
+  "album/fish/splendid_dace.webp": {
+    "png": "cf346de0a43afa9482b685f8be76c0b9f676cbc8d11c30d1a8e0668bff7ac10f",
+    "svg": "8ee7c464e0af23bc0579950efb155e29d87448e74c21f7439ad7348929146ada",
+    "webp": "326099f5f05a48c6193566856de99ac4e81c3c5b64e9d492f8d0f01f8002fa18"
+  },
+  "album/fish/stickleback.webp": {
+    "png": "7303eec4e412ed475ef0b5d636c79483c2e4d93d7b2ad58ef0821451bca812c6",
+    "svg": "4053187e164c8fd981745ad7df31aa156d7de05fc7b8f6367162b6977cbcd0a6",
+    "webp": "4b22339744fed5cd952a2b3d872bc22679183857d171399bd9f15369e3fdfcda"
+  },
+  "album/fish/sturgeon.webp": {
+    "png": "cf346de0a43afa9482b685f8be76c0b9f676cbc8d11c30d1a8e0668bff7ac10f",
+    "svg": "01bd6ee7b7d71bf1835d3dc7b273e81b61f65b02e6402a7cc4354851c39dd9a3",
+    "webp": "ec03f7b76c5d383b698331496b5478d89155eb2eb946f265add2720b8032e2ea"
+  },
+  "album/fish/sweetfish.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "4beec1ec4d0d7bfbf2362880da8150d1625e99e430fc7cfedbcbb4469a4a671e",
+    "webp": "83a16ac07c8b8674ce10e3ae9939044ee9ac2b3c7d9f721e532c374a8c273293"
+  },
+  "album/fish/trout.webp": {
+    "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
+    "svg": "b68327ef74049c809fb4e0fcc60dfc5efe4502339b5e67f88523d6db217e1193",
+    "webp": "db27f2e312b37dbed0ccced8494c1aa1a9a4b2f8764b79a8216c25c36851c4ed"
+  },
+  "album/flowers/adonis.webp": {
+    "png": "92f6cbbeaa23e09c007b9c93e0ba2414afc59e8f04759c33e3827769c381651e",
+    "svg": "550a55264a6b0bfa4150e4ce7195c847fc75ee28bf282c3c43fbfc01b902ae08",
+    "webp": "30f44762da322ad8b7d83f4ab28af3129d823bfe090269534f5e08680cad2eed"
+  },
+  "album/flowers/aster.webp": {
+    "png": "525bf43f34374639e89425c40038d93d6b957d2fd92852dd8fc8419cef56b93c",
+    "svg": "e4d11c8a1e8d66dcdf2740d95995899dc3e13afed288bae04081fceef0635c82",
+    "webp": "acdbafaf5f580526a7f39a84778d00b936bee8a52abd581e6229eabd1249856c"
+  },
+  "album/flowers/azalea.webp": {
+    "png": "92f6cbbeaa23e09c007b9c93e0ba2414afc59e8f04759c33e3827769c381651e",
+    "svg": "8ff1119d7d55dc0f51207ad7869a4f0a4f7aafb1009ba4ad3b91f43f5ee35c03",
+    "webp": "e354f62ade36ca6a0cf48b7cdaf28fb7a1faabe76215a6d64ca94b6db890fd03"
+  },
+  "album/flowers/balsam.webp": {
+    "png": "92f6cbbeaa23e09c007b9c93e0ba2414afc59e8f04759c33e3827769c381651e",
+    "svg": "0ad0b1b9d333f0db615a44c5f13a19ad61cfee94177801a6bc079b165441ef5a",
+    "webp": "52138c5f8aba61ff63ccab46efe10784c711eff916d3ffd07b1d260358123b78"
+  },
+  "album/flowers/bellflower.webp": {
+    "png": "525bf43f34374639e89425c40038d93d6b957d2fd92852dd8fc8419cef56b93c",
+    "svg": "e5288eebd1f4e41cdd00ed98847689f8ff40b776f9c7d76fea5fd0b1ea1a7033",
+    "webp": "2b1ae89d5f58a161ddfa1616ada22d266359a2bad04615d109f60bf5c3acde75"
+  },
+  "album/flowers/camellia.webp": {
+    "png": "4facb70ea74cd5db0592bc7cd68d02d3067a183c3f1bbd26070c7fabab284194",
+    "svg": "d023664c3510c8974bbaa050851760cd6b4a0836d3a3530b1263da5e003719f6",
+    "webp": "0b084aaae2db768a3c06b298bd17dabafb4270ba32ca5a24cdd94169d54311b2"
+  },
+  "album/flowers/celosia.webp": {
+    "png": "92f6cbbeaa23e09c007b9c93e0ba2414afc59e8f04759c33e3827769c381651e",
+    "svg": "d7a48a662efcf76746802857751e60870ebf761633191dff3fcc8e3a5f16b279",
+    "webp": "0ed323a0a9b50bd0affe8dd99e1c4ccf04bd9671b5091a749435df89905101c3"
+  },
+  "album/flowers/chrysanthemum.webp": {
+    "png": "4facb70ea74cd5db0592bc7cd68d02d3067a183c3f1bbd26070c7fabab284194",
+    "svg": "48544dd92e9f21a51d9adacab53b74da7b58edf4054c69dfe6d20f29b1fe31b5",
+    "webp": "165c6a47e095776ca74039f19b526e32163b0377bc1b14e7fe6be1877ceb1b1d"
+  },
+  "album/flowers/cosmos.webp": {
+    "png": "4facb70ea74cd5db0592bc7cd68d02d3067a183c3f1bbd26070c7fabab284194",
+    "svg": "f8bc720348794939e99d7f524ddf017a78a6f22b0013148a8f4712b872759afe",
+    "webp": "bf00415eb5081ae9deba08f21f763cca3f1f75a9eedbe0f8ac2f0586f5b1c93a"
+  },
+  "album/flowers/crocus.webp": {
+    "png": "525bf43f34374639e89425c40038d93d6b957d2fd92852dd8fc8419cef56b93c",
+    "svg": "674b08c7a2497ec42ea50166d7da5d99778f69dac521d18f5bcb83504a0dc95c",
+    "webp": "1d3181c4683522344d84fe1af6b8fc489ccb37ca63305188274ebaa18ebf52d8"
+  },
+  "album/flowers/cyclamen.webp": {
+    "png": "525bf43f34374639e89425c40038d93d6b957d2fd92852dd8fc8419cef56b93c",
+    "svg": "32f03dec2aba7b63a87e1b98961456b2e5d1015df33bc89c8186866b4383b723",
+    "webp": "a68e811c66d1057ce0e915f382e66367e6500787ab57b704922873f4cbc69709"
+  },
+  "album/flowers/daffodil.webp": {
+    "png": "4facb70ea74cd5db0592bc7cd68d02d3067a183c3f1bbd26070c7fabab284194",
+    "svg": "bace70ea3fdf363cbae83a5a1e4e569836f703c775381ad8444a0053d648b1aa",
+    "webp": "fcde598358192ab70b277a4649c9b10c9426b863ccfaaadadf15e5d8865e1d74"
+  },
+  "album/flowers/dahlia.webp": {
+    "png": "525bf43f34374639e89425c40038d93d6b957d2fd92852dd8fc8419cef56b93c",
+    "svg": "5eb70fa62f7978c4c14c8addb12a4c072cfa27ed0ca56c252bee4de1abba97a8",
+    "webp": "a60dcb7ec7a8ebca058577d89dd95479042e632e52dab952d5762e1ca94588f5"
+  },
+  "album/flowers/dandelion.webp": {
+    "png": "92f6cbbeaa23e09c007b9c93e0ba2414afc59e8f04759c33e3827769c381651e",
+    "svg": "11696cb4db9fc9060409c724650739aa6c7c2c5fda526fb6aaeb99096e26da5f",
+    "webp": "63b627892df0c6ad3aeda871883c43758c014b12e584df52c7300cd5e185c037"
+  },
+  "album/flowers/grape_hyacinth.webp": {
+    "png": "525bf43f34374639e89425c40038d93d6b957d2fd92852dd8fc8419cef56b93c",
+    "svg": "13b37918141bbd81d65f791dc8c078f7a2c98a9b77dfee6ea80101585e84a84a",
+    "webp": "356a35d52f55f5d88f59787d4c8b92b099fdbe3224d72b207d1912ceaeeba2dd"
+  },
+  "album/flowers/hellebore.webp": {
+    "png": "525bf43f34374639e89425c40038d93d6b957d2fd92852dd8fc8419cef56b93c",
+    "svg": "b52a3e725d4a61ba1c8014c6e8267b0203bdd1a54c7de1138f6c24dbca2abfaa",
+    "webp": "d36561b8e8668c9efdf2024e7eef5ea891a805d11282ed196ff23f3d3ec13dad"
+  },
+  "album/flowers/hydrangea.webp": {
+    "png": "4facb70ea74cd5db0592bc7cd68d02d3067a183c3f1bbd26070c7fabab284194",
+    "svg": "0d30f069d9502d183773bbb2c15a9bf293f9bb122389eb9ddb9647101a17f67b",
+    "webp": "ff79883bc2d7fa25a6cb57a8291a4982bfd8d6b29df915cf627a9ee388753776"
+  },
+  "album/flowers/lavender.webp": {
+    "png": "525bf43f34374639e89425c40038d93d6b957d2fd92852dd8fc8419cef56b93c",
+    "svg": "fedf77d077e2b638164305b3b143bd7c8b0b22d143a8627428e49c8d762c0652",
+    "webp": "9522397c66c3f49f2c9c0c17807138698cbb94b181a11e6fcd7e3dc98d106f91"
+  },
+  "album/flowers/morning_glory.webp": {
+    "png": "92f6cbbeaa23e09c007b9c93e0ba2414afc59e8f04759c33e3827769c381651e",
+    "svg": "fb7b59820431925fcd537ae959f11b8aec6b1b117a12f16668ffe656abe34ead",
+    "webp": "565d5b5f1887408753d368b273917618419452057f52a7f447248e648ea57bc4"
+  },
+  "album/flowers/pansy.webp": {
+    "png": "92f6cbbeaa23e09c007b9c93e0ba2414afc59e8f04759c33e3827769c381651e",
+    "svg": "576c490393a139309a2df409984dac64b0901a6adc8609b95f4d11c6093c613a",
+    "webp": "fbca4972ab53be269952206d5c0c49813c3a40acffff7bc4d09f61a2e63bb473"
+  },
+  "album/flowers/snowdrop.webp": {
+    "png": "4facb70ea74cd5db0592bc7cd68d02d3067a183c3f1bbd26070c7fabab284194",
+    "svg": "0269163f689d600a18482e4144ae80f95d39fc8f34c96ef4a5151159fca0fef2",
+    "webp": "a0311ebcc7da6a7a93471f4bcb8bca8c56ee3ac8f6c45e0188bbd7eb28072fe0"
+  },
+  "album/flowers/spider_lily.webp": {
+    "png": "92f6cbbeaa23e09c007b9c93e0ba2414afc59e8f04759c33e3827769c381651e",
+    "svg": "6d471aed5c64dbdd49e3037dfbd4449f6e649e2143136a08c220fa6516cf1d28",
+    "webp": "a2ff6becee5c01a8021112d05ebdee0fd9ed9350471da83648fcbb6e09e80c1d"
+  },
+  "album/flowers/sunflower.webp": {
+    "png": "4facb70ea74cd5db0592bc7cd68d02d3067a183c3f1bbd26070c7fabab284194",
+    "svg": "d1db0c4ba8923e7301c755bc2335b48344e86b2a939f3e7eb094bc60c5278cbd",
+    "webp": "ca1587cb1b65170d40bf6ecd922ee254573720e618aa92bf5ab176b0af5c1455"
+  },
+  "album/flowers/tulip.webp": {
+    "png": "4facb70ea74cd5db0592bc7cd68d02d3067a183c3f1bbd26070c7fabab284194",
+    "svg": "2382ca87194479a82b9f4563e854fe59228313bba1766d9434c1a5795d82c4cf",
+    "webp": "7e6636ea5bd1a94af16a23449d3775ecae7cecf362a519a42e0cea592d9878d0"
+  },
+  "album/shoots/asparagus.webp": {
+    "png": "2bd4bb4460eac500066f073236161d6c784162b120603b9d1c6e2a98a7b4308e",
+    "svg": "fbdfd8bafc3a4d4fb93dfccdda39386e06f366cedc9c84c757b61b7e700db1e5",
+    "webp": "a5551bef0933b8ac16491fd915a5ce74d63ad8000d17d87587cc06b649aff50e"
+  },
+  "album/shoots/bamboo_shoot.webp": {
+    "png": "2bd4bb4460eac500066f073236161d6c784162b120603b9d1c6e2a98a7b4308e",
+    "svg": "32c8ffd50841c94ce51587091537fca70b5579f3088da143adfc70b16a569a8c",
+    "webp": "c8f68bdd7547257db50d620f65eb34f10bfc2ec21b37207abd56b98a89c7568d"
+  },
+  "album/shoots/fiddlehead.webp": {
+    "png": "2bd4bb4460eac500066f073236161d6c784162b120603b9d1c6e2a98a7b4308e",
+    "svg": "d65fbba8cf84deade5ff6c3f78f8333790b1f8d2119d67160a0bc423f4b6b533",
+    "webp": "6197ac71888a89e6f251809f5db9206a104f022346f6aff6df67b42a7e1f02ed"
+  },
+  "album/shoots/horsetail.webp": {
+    "png": "2bd4bb4460eac500066f073236161d6c784162b120603b9d1c6e2a98a7b4308e",
+    "svg": "d8afe555fdeb6aceaec3d8fc61d2a086d36595c56c12aadea33c42e0bc0d9f0e",
+    "webp": "99ba9074e77cd302c692f17e562500f2037db9fa26fab26583e4d7526b232658"
+  },
+  "album/shoots/morel.webp": {
+    "png": "2bd4bb4460eac500066f073236161d6c784162b120603b9d1c6e2a98a7b4308e",
+    "svg": "d3672f3c3349e2171abf1647b04f51bb88c6a94e538d79055c646588e57198a9",
+    "webp": "7338dba333a5fe9109328a9cad69561381492488f19649e8091447b202c3f99f"
+  },
+  "album/shoots/mugwort.webp": {
+    "png": "2bd4bb4460eac500066f073236161d6c784162b120603b9d1c6e2a98a7b4308e",
+    "svg": "03e1fbb0a8f5934279f25a1c64bca62998e5f90b5094046d7c6b6ff8942dc0f0",
+    "webp": "0208cd74b3bdf15d37bb138efea51dde65b722763e1812b644fe79ed2a0f5ced"
+  },
+  "album/shoots/shepherds_purse.webp": {
+    "png": "2bd4bb4460eac500066f073236161d6c784162b120603b9d1c6e2a98a7b4308e",
+    "svg": "b20ff73e6ae87a57cca7aa59fe05f023146471ba7b012fdd4c70319d87917ed5",
+    "webp": "c309f143e690b71a405c3f1320694677f287280d79ab4f5a7b62fc4cb679d738"
+  },
+  "album/shoots/wild_garlic.webp": {
+    "png": "2bd4bb4460eac500066f073236161d6c784162b120603b9d1c6e2a98a7b4308e",
+    "svg": "38df84ed0eae1a78048568d9af4af227831e5873af0c7bd320a1e1247647ce35",
+    "webp": "22e7971f9bb78c2c8f473c929272032ae60dadc64b0ce1553e61b7bd2081a04f"
+  },
+  "album/trees/bamboo-mature.webp": {
+    "png": "2308990b8de34e59f5744ec2e426e998480e5cc4629a341ed8b9d045fe8860d5",
+    "svg": "3cd1c99f8839a0257664ca2a16cd332799fc88d189bde6a5f5ba569ad5520e2c",
+    "webp": "56c4ec6d67ee86e5f1da67165ab0b06f62b6a04c42e81bc4081c085ab4d2f773"
+  },
+  "album/trees/birch-mature.webp": {
+    "png": "4a0dba6dc7593af06164921d0ea5e1dd4237307075c146c83948fa88790442fc",
+    "svg": "9a07a3a7ca2cfc4f75765955db758137f59c487b236b449f7069d46c2c8d43df",
+    "webp": "72c072f6f4f35feb343c6424df1316698b40b707ca747c0cce2434a7d1934ca1"
+  },
+  "album/trees/cherry-mature.webp": {
+    "png": "5b01351d9ae5f1d84ff5710b65363b1d4de49a02e23d22625e9b8e000f9a9f7a",
+    "svg": "232460ece48081b4e6e49399922702889e24acc79c4582a02ee4a55b4460edee",
+    "webp": "bfeffc55a4855e9624756cafc786461c2ba79f9d938d89b93aa0a2ee4a07d880"
+  },
+  "album/trees/crape_myrtle-mature.webp": {
+    "png": "2e3913e17b8fcc80a4db7032817892350ee321fcdb2d93bc426baca506886487",
+    "svg": "3f779973b04b4b0432d7e71ee760a6b42b140a5c73e2c24d088ee360e615b7eb",
+    "webp": "2f94cecb17375f134138453441a5f9ec605cbd06a167c2273015c20230e00d74"
+  },
+  "album/trees/ginkgo-mature.webp": {
+    "png": "8a2376d416e58e9f2f454e4db8bc750ae3a1b37e282e29d7fc87782ac057a014",
+    "svg": "fc4e30f5b7dbde88cbfed3cd14ea49b4a4a76c860fb7b0018783dfeb7a647ed2",
+    "webp": "06b5226eab1643bc6496ec55b9b29df25349facad16f93c22222217f9aa6fbc2"
+  },
+  "album/trees/magnolia-mature.webp": {
+    "png": "4533b4db8ee912e2f126a76ccb916264eeb4b7fd37d5d68029d937abd2fbdd74",
+    "svg": "a6471cd841a4001a462eb9870c273c0ab8c22cf06e732765444cf125eecac990",
+    "webp": "417ae21b21890ddcfcb543e3c7f71125129e9ea3f07c196166e2a09169e2b5bf"
+  },
+  "album/trees/maple-mature.webp": {
+    "png": "5b01351d9ae5f1d84ff5710b65363b1d4de49a02e23d22625e9b8e000f9a9f7a",
+    "svg": "e1b9da45d755c63c760ac8b40b09d853d09152478076436f028919676522586a",
+    "webp": "0872e477aad8108f9977edd1cf87d4eabee0f78f1df1bdd91e63fc35ed7605c2"
+  },
+  "album/trees/metasequoia-mature.webp": {
+    "png": "62e075c5f61df462b056a3879e1f7afc180791df3ad09664345aceddc2ab6652",
+    "svg": "49644928c4e6dcd341e19c0db93e103ae44ed65ac858d01c606eff13740e2fc1",
+    "webp": "d5013784089503fd86acfce9feddabb993d229e72eabebf25558c0e2331dc0de"
+  },
+  "album/trees/oak-mature.webp": {
+    "png": "644c6a15b82b247be8f623f2952c375cd84157f40e11857447a7636a47dec9a0",
+    "svg": "e24d313107d5dbc146c33fefaa7592c57dca336e23ea0a8b0be1c67a8875abc8",
+    "webp": "66529d8716d16d008a20b2d2b441ccd256367499c221dd19f65a5a0d21109e9f"
+  },
+  "album/trees/persimmon-mature.webp": {
+    "png": "5f6ef2c5bb57e1692e346028fae2ae740bea5769d8a82afc3fdf2f8f180521e1",
+    "svg": "efa9b56869175074e701517e71e144157e4e3e3260e10c407111064de4363418",
+    "webp": "63bd12ddae621082fb03563867b5ad440f6d7f2d6403e8c126aee0d9437b796c"
+  },
+  "album/trees/pine-mature.webp": {
+    "png": "5b01351d9ae5f1d84ff5710b65363b1d4de49a02e23d22625e9b8e000f9a9f7a",
+    "svg": "55b8c28671d89c18267d88848b898328c19378ffa3bd36a2cd9a5d0e536b8afa",
+    "webp": "76d386324d191ae6db255235f89b739bb57cac070c2334a474b3f778b060c6ae"
+  },
+  "album/trees/willow-mature.webp": {
+    "png": "0da261196f35dd1d68e88749e608c9f46c86f3ed9ea693dae0c9546aefd73924",
+    "svg": "936e6c4c2f5d511018f1dcb81d0e6294151cad87432bc715acff85d72a581635",
+    "webp": "d80f4cd86a33da0cd866e7ee0714ac8c3ae9ef18dc0e77f29163f3855514322d"
+  },
   "ambient/birds.png": {
     "png": "c35c9341af502cebec3e900561a6645ff13a859b63c6e376c5110338c252f140",
     "webp": "8f194af1867b4e41b549d9c0d50d87bb940ce73a5049a64cf12e54fd62b64ce0"

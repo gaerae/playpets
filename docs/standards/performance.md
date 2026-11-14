@@ -94,6 +94,10 @@
 - The page wakes only for scheduled events (a gust, a wave, a call), never on a fast timer.
 - Do not keep resources that decode large (sprite sheets, about 14MB each) for every pet.
 - One minute after the Invite tab closes, the yard releases the sheets it does not use.
+- A card that shows a drawing small (the album) draws its preview in `src/art/album/`, not the drawing's painted sheet (`previewSvg` in `src/yard/art.js`).
+  - Decoding a book's 1536 × 1024 sheets for 112-pixel cards held up its first open: gifts 96–119 ms, keepsakes 95–114 ms, trees 160–175 ms, to the next frame.
+  - With previews: 30–32, 26–27 and 22–24 ms; the pictures are in 10–15 ms later. The 161 previews add 690 KB.
+  - Measured 2026-11-15, same machine, e2e build, three alternating runs each.
 - Pictures travel by address, not inside a command's answer: `listBackgrounds` names each picture of an imported background as `pet-asset://background/<id>/<picture>`, read when its place or its card shows.
   - Five packs (64 MB) sent whole held back the first friend by about 230 ms and kept about 200 MB in the app and the page all day.
 
