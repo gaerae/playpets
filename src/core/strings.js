@@ -1,13 +1,14 @@
 // The languages the page speaks, one file each under strings/. Adding a language is a new file
-// there and one entry in LANGUAGES (docs/how-to/add-a-language.md has the whole checklist).
-// ko is the reference the others are checked against.
+// there and one entry in NAMES, in strings/names.js (docs/how-to/add-a-language.md has the
+// whole checklist). ko is the reference the others are checked against.
 //
 // A table is about 60 KB and a window speaks one language, so a page loads only the table it
-// speaks and English, the fallback (i18n.js), not all four. Each language's own name is kept here
-// rather than in its table, so the settings tab lists every language without loading them.
+// speaks and English, the fallback (i18n.js), not all four. Each language's own name is kept in a
+// small table of its own, so the settings tab lists every language without loading them.
+import { NAMES } from './strings/names.js';
 
 /** Language code → its own name, in the order the settings tab lists them. */
-export const LANGUAGES = { ko: '한국어', en: 'English', ja: '日本語', 'zh-hans': '简体中文' };
+export const LANGUAGES = NAMES;
 /** Language code → key → sentence (or a list of sentences), for each table loaded so far. */
 export const STRINGS = {};
 /** Language code → how a sentence in it is recognised (text.js tells an error sentence from a code). */

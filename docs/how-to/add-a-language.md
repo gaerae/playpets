@@ -6,7 +6,7 @@
 - Add two string files and register them, then update the site and installer language lists below.
 - The Korean file is the reference: copy its key order and placeholders (`{name}`) as they are.
 - The tests tell you what is missing.
-- The language list has two sources: `LANGUAGES` in `src/core/strings.js` (page) and `ALL` in `src-tauri/src/i18n/mod.rs` (backend).
+- The language list has two sources: `NAMES` in `src/core/strings/names.js` (page) and `ALL` in `src-tauri/src/i18n/mod.rs` (backend).
 - The list in the Settings tab, the capture script and the site tests read from those two.
 
 ## 1. Page strings
@@ -20,7 +20,7 @@
    | `listSeparator` (optional) | The separator when listing names. Default `', '`; Japanese uses `'、'` |
    | `sentenceSeparator` (optional) | What goes between two sentences shown in a row. Default `' '`; Japanese and Chinese use `''` |
 
-2. Add one entry to `LANGUAGES` in `src/core/strings.js`: the code and what the language calls itself. The language list in the Settings tab comes from here, and a page loads `strings/<code>.js` by that code only when it speaks the language.
+2. Add one entry to `NAMES` in `src/core/strings/names.js`: the code and what the language calls itself. The language list in the Settings tab comes from here, and a page loads `strings/<code>.js` by that code only when it speaks the language.
 3. Use plain placeholders. `words.js` adds Korean particles (a placeholder with the two particle forms after a colon) for Korean only. When listing names, `joinList` picks that language's comma; sentences shown in a row go through `joinSentences`.
 4. For a different writing system, add a font stack for the language in `src/styles/base.css`, like `:root:lang(ja)` (Chinese drawn with Japanese fonts gets different glyph shapes).
 
