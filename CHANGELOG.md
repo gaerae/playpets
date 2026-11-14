@@ -34,6 +34,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Friends' speech bubbles stay inside a small window: when several friends talk at once and there is no room above, the newest line takes the place of the one it would cover.
 - Crickets, fireflies, rain and snow pass under friends' name tags and lines instead of over them.
 - The numbers on the album's cards are easier to read, in light and dark mode.
+- The hearts on a friend's name tag are drawn at the size of the name, so how close you are reads at a glance.
 
 ## [1.7.1] - 2026-11-13
 

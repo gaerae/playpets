@@ -908,14 +908,14 @@ test('every media query on the window size uses one of the size tiers', async ()
 });
 
 // Sixteen sizes between 8 and 23px had grown up one rule at a time. Words take one of seven steps,
-// none under 11px; only drawn marks (a heart on a tag, a bite, a plus, a sparkle) keep their own.
+// none under 11px, the hearts on a name tag too; only drawn marks (a bite, a plus, a sparkle) keep their own.
 test('every size of words is a step of the type scale, none under 11px', async () => {
   const css = await styles();
   const steps = Object.fromEntries(
     [...css.matchAll(/--font-([a-z]+):([\d.]+)px/g)].map(([, name, px]) => [name, Number(px)]),
   );
   assert.deepEqual(steps, { xs: 11, sm: 12, md: 13, base: 14, lg: 15, xl: 17, display: 18 });
-  const marks = /\.(?:tag-bond|bobber|add-mark|particle)\b/;
+  const marks = /\.(?:bobber|add-mark|particle)\b/;
   for (const [, selector, body] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
     for (const [, size] of body.matchAll(/(?:^|;)font-size:([^;]+)/g)) {
       if (/^var\(--font-[a-z]+\)$/.test(size) || size === 'inherit' || marks.test(selector)) continue;
