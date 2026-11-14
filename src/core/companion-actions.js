@@ -1,7 +1,7 @@
 // Bundled companions can own extra game poses without changing the portable pet format.
-// Those poses (content/companion-actions.json, about 100 KB) load after the yard is first drawn,
-// and only once a bundled companion is in the yard or asks for one: until then, and for every
-// other friend, the ordinary sheet plays.
+// Those poses (content/companion-actions.json, about 100 KB) are not waited for before the yard is
+// first drawn: they load once a bundled companion comes into the yard (views.js) or asks for one.
+// Until then, and for every other friend, the ordinary sheet plays.
 const companions = new Set(['playpets-clover', 'playpets-daisy', 'playpets-pip', 'playpets-miso']);
 const bundled = asset => asset?.place === 'builtin' && companions.has(asset.sourceId);
 let registry = { characters: {} };

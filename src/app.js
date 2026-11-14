@@ -1,7 +1,6 @@
 // Entry point: sets every part of the page up in order, listens to the backend, and runs the frame loop.
 // No other module does anything when it is imported; each has a setup function, called here.
 
-import { loadCompanionActionsFor } from './core/companion-actions.js';
 import { setupConfirm } from './core/confirm.js';
 import { openControls, openFriendMenu, setupControls } from './core/controls.js';
 import { apply, follow, t } from './core/i18n.js';
@@ -117,8 +116,8 @@ function openChat(id) {
 const booted = await call('bootstrap').catch(() => null);
 setData(booted || data);
 // What the yard is made of (the catalogue, the scenery, the drawings), before anything is drawn.
-// The bundled companions' authored actions are not needed for that: they load after the first
-// render (below).
+// The bundled companions' authored actions are not needed for that: a bundled companion asks for
+// them as the yard draws it (views.js syncViews).
 await loadContent();
 // Words first: everything below builds its labels from them.
 apply();
@@ -518,7 +517,6 @@ try {
   // A first start opens on the yard alone: its card shows the starter pets.
   openPanel(PANELS.includes(saved) ? saved : null);
   render();
-  loadCompanionActionsFor([...views.values()].map(v => v.asset));
   setupBond();
   refreshChat();
   announceInstalledUpdate();

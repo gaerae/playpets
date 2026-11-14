@@ -6,7 +6,7 @@ import { cellLeft } from '../src/core/animation.js';
 
 // Runs the end of app.js (its last top-level try) with `booted` saying whether the state came at
 // the start, and returns the commands and toasts in order.
-async function start({ booted, companions = false }) {
+async function start({ booted }) {
   const source = await readFile('src/app.js', 'utf8');
   const startup = source.slice(source.lastIndexOf('\ntry {'));
   const calls = [];
@@ -29,10 +29,6 @@ async function start({ booted, companions = false }) {
     setupBond() {},
     refreshChat() {},
     announceInstalledUpdate() {},
-    views: new Map([['a', { asset: { place: 'builtin', sourceId: 'playpets-clover' } }]]),
-    loadCompanionActionsFor(assets) {
-      if (companions && assets.length) calls.push('companions');
-    },
     performance: { now: () => 0 },
     last: 0,
     every() {
@@ -68,22 +64,14 @@ test('the state is asked for once: again at the full start only when the first a
 });
 
 // The bundled companions' authored actions (about 100 KB) are not needed to draw the yard: the
-// first render waits for the content only, and the actions are asked for right after it, for the
-// friends then in the yard.
-test("the companions' actions load after the first render, not before it", async () => {
+// first render waits for the content only. A bundled companion asks for them as its view is made
+// or synced (views.js), so they are on their way before it first plays, whenever it came in.
+test("the companions' actions are asked for by the friends in the yard, not waited for at the start", async () => {
   const source = await readFile('src/app.js', 'utf8');
   assert.match(source, /^await loadContent\(\);$/m);
-  const startup = source.slice(source.lastIndexOf('\ntry {'));
-  assert.ok(
-    startup.indexOf('render();') < startup.indexOf('loadCompanionActionsFor('),
-    'asked for after the first render',
-  );
-  assert.deepEqual(await start({ booted: true, companions: true }), [
-    'companions',
-    'animate',
-    'growTrees',
-    'The garden could not be saved.',
-  ]);
+  assert.doesNotMatch(source, /CompanionActions/);
+  const views = await readFile('src/yard/views.js', 'utf8');
+  assert.match(views, /v\.asset = asset\(p\);\n(?:\s*\/\/.*\n)*\s*loadCompanionActionsFor\(\[v\.asset\]\);/);
 });
 
 // The frame loop's part of app.js (its constants, interval and animate), with the page around it.
