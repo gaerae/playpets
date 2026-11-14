@@ -144,6 +144,24 @@ test('a friend kept or dropped behind the dock is lifted to stand just above it'
   clearOfDock(beside);
   assert.equal(beside.y, 1, 'beside the dock it stays where it is');
 });
+// A name tag is often wider than its friend (みそ♥♥♥♥ at 300 by 210 reached 24px under the corner
+// button while Miso stood clear of it): the wider of the two decides.
+test('a friend whose name tag reaches behind the dock is lifted too', t => {
+  yardIn(t);
+  dockAt();
+  const v = { ...friendAt(0, 1), tag: { offsetWidth: 160 } };
+  place(v);
+  const left = footOf(v).x;
+  v.x = 1;
+  place(v);
+  v.x = (600 - 58 - left) / (footOf(v).x - left);
+  place(v);
+  const before = footOf(v);
+  assert.ok(Math.abs(before.x - 542) < 1e-6);
+  assert.equal(underDock(before.x, before.y, 48), false, 'the friend itself stands clear');
+  clearOfDock(v);
+  assert.ok(Math.abs(footOf(v).y - (646 - 28)) < 1e-6, 'its tag hung behind the dock, so it is lifted');
+});
 // A friend farther back is drawn smaller about its feet. What goes with it follows the drawing, not
 // its unshrunk box: the tag under its feet, its line and the agent's dot on its head (--depth), and
 // the rod in its paws (drawnBox), or they float above a friend at the back.

@@ -36,6 +36,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The numbers on the album's cards are easier to read, in light and dark mode.
 - The hearts on a friend's name tag are drawn at the size of the name, so how close you are reads at a glance.
 - The wooden whale you dig up shows its whole tail.
+- A friend with a long name tag no longer stops with the tag under the dock or the corner button.
 - The keyboard focus ring looks the same everywhere, in the scene menu, the Play panel and the album too.
 
 ## [1.7.1] - 2026-11-13

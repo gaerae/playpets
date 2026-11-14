@@ -201,13 +201,16 @@ function fit(v, box, resized = false) {
   clearOfDock(v, box);
   if (sized) keepInside(v);
 }
+/** How far a friend reaches each side of its feet: its own half width, or its name tag's when that
+ * is wider (a long name, hearts, an agent). Read off the page, so not in the frame loop. */
+export const reachOf = v => Math.max(sizeOf(v.pet), v.tag?.offsetWidth || 0) / 2;
 /** Lifts a friend standing behind the dock to stand just above it, with its name tag, in view: one
  * saved at the front edge before friends walked past the field's foot, one dropped there, or one the
  * dock grew over. `box` is the dock (dockBox), when the caller has measured it for many friends. */
 export function clearOfDock(v, box = dockBox(), glide = false) {
   if (!box) return;
   const foot = footOf(v);
-  if (!underDock(foot.x, foot.y, sizeOf(v.pet) / 2, box)) return;
+  if (!underDock(foot.x, foot.y, reachOf(v), box)) return;
   v.y = footTarget(v, foot.x, box.top - TAG_ROOM, 0).y;
   place(v, { glide });
 }
