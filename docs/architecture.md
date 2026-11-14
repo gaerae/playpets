@@ -250,8 +250,9 @@ What each arrow in the diagram carries, path by path.
    - The result is `{ok, data}` or `{ok: false, error}`.
    - The error sentence is already in the current language.
 2. **State notifications:**
-   - On a state change, `app::changed` builds the full state for the page and sends it to every window as `__pp('change', state)`. The page redraws.
-   - Things that happen once (speech bubbles, reactions, chat arrivals, window hidden, new version) are sent separately as `__pp('event', …)`.
+   - On a state change, `app::changed` builds the full state and sends it to the yard window as `__pp('change', "<JSON text>")`; the page parses it and redraws.
+   - Each desktop window gets only what the overlay reads (`app::OVERLAY_KEYS`, with only its friends' pet files), and only when that differs from what it was last sent, apart from `desktopLayout`.
+   - Things that happen once (speech bubbles, reactions, chat arrivals, window hidden, new version) are sent separately as `__pp('event', …)`, only to the windows that act on that kind (`app::hears`).
    - So are changes too frequent for the full state: a friend's status (`status`) and who is waiting for a chat answer (`busy`).
 3. **Sprites:**
    - The page's image address is `pet-asset://sprite/<pet id>` (on Windows, `http://pet-asset.localhost/sprite/<pet id>`).
