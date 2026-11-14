@@ -186,11 +186,6 @@ fn decode(body: &[u8]) -> Option<Vec<u8>> {
     Some(out)
 }
 
-#[cfg(test)]
-fn decode_base64(text: &str) -> Option<Vec<u8>> {
-    decode(base64_body(text)?)
-}
-
 /// Every background saved, oldest first, as `(id, pack)`.
 fn read_all(dir: &Path) -> Vec<(String, Head)> {
     #[derive(serde::Deserialize)]
@@ -280,6 +275,10 @@ mod tests {
 
     const A: &str = "custom-0b6f2c1e-8d4a-4f1b-9c3e-2a7d5e6f8a90";
     const B: &str = "custom-f1e2d3c4-b5a6-4978-8a9b-0c1d2e3f4a5b";
+
+    fn decode_base64(text: &str) -> Option<Vec<u8>> {
+        decode(base64_body(text)?)
+    }
 
     fn temp() -> std::path::PathBuf {
         std::env::temp_dir().join(format!("playpets-backgrounds-{}", uuid::Uuid::new_v4()))
