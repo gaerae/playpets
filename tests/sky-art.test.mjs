@@ -122,3 +122,22 @@ test('a first picture that fails lays the field out again on the painted land', 
   assert.equal(yard.dataset.environment, 'painted');
   assert.deepEqual(changed, ['painted']);
 });
+
+// A picture that failed once was never asked for again in that session, though it may load later
+// (a background's picture served once the app has it, a file put back).
+test('a picture that failed is asked for again once the yard has wanted another', async t => {
+  const { easel, images, yard } = await easelOnFakeYard(t);
+  const scene = { world: 'woodland', period: 'day', weather: 'clear', season: 'summer' };
+  const asked = name => images.filter(image => image.src.endsWith(name)).length;
+  easel.set(scene);
+  await settle(images, '/green.webp', false);
+  easel.set({ ...scene, period: 'evening' });
+  assert.equal(asked('/green.webp'), 1, 'while it is still wanted, a failure is not tried over and over');
+  easel.set({ ...scene, season: 'winter' });
+  await settle(images, '/winter.webp');
+  easel.set(scene);
+  assert.equal(asked('/green.webp'), 2, 'wanted again, it is asked for again');
+  images.findLast(image => image.src.endsWith('/green.webp')).decoded();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(yard.dataset.environment, 'illustrated');
+});

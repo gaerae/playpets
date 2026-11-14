@@ -38,10 +38,12 @@ pub fn image_url(id: &str, key: &str) -> String {
 /// (image_url) rather than carried. A package holds up to 32 MB of pictures, and the list is read
 /// at every start: the page asks for a picture only when it shows that place or its card.
 /// A file that cannot be read is left where it is and skipped, as the page skips a package it
-/// cannot use.
+/// cannot use. Only the pictures `image` serves are named, and a package whose base picture it
+/// would not serve is skipped too: a named picture it then refused painted the fallback land.
 pub fn list(dir: &Path) -> Vec<Value> {
     read_all(dir)
         .into_iter()
+        .filter(|(_, head)| head.pictures.iter().any(|p| p == "base"))
         .map(|(id, head)| {
             let images: serde_json::Map<String, Value> = PICTURES
                 .iter()
@@ -76,8 +78,22 @@ pub fn image(dir: &Path, id: &str, key: &str) -> Option<Vec<u8>> {
     let Some(Picture::Text(text)) = saved.pack.images.get(key) else {
         return None;
     };
-    let bytes = decode_base64(text.strip_prefix(PNG_DATA)?)?;
-    (bytes.starts_with(b"\x89PNG") && crate::pets::catalog::image_size(&bytes) == Ok((1536, 1024))).then_some(bytes)
+    let bytes = decode(base64_body(text.strip_prefix(PNG_DATA)?)?)?;
+    background_png(&bytes).then_some(bytes)
+}
+
+/// A 1536 x 1024 PNG, by its first 24 bytes.
+fn background_png(bytes: &[u8]) -> bool {
+    bytes.starts_with(b"\x89PNG") && crate::pets::catalog::image_size(bytes) == Ok((1536, 1024))
+}
+
+/// A picture `image` would serve, told from the whole of its base64 and the PNG header in its
+/// first 32 characters: the list is read at every start, and a picture is up to 8 MB.
+fn servable(text: &str) -> bool {
+    text.strip_prefix(PNG_DATA)
+        .and_then(base64_body)
+        .and_then(|body| decode(&body[..body.len().min(32)]))
+        .is_some_and(|head| background_png(&head))
 }
 
 /// A picture as a file holds it: read in place, never copied (the file is most of it).
@@ -112,7 +128,7 @@ impl<'de> serde::Deserialize<'de> for Head {
                         head.pictures = images
                             .into_iter()
                             .flatten()
-                            .filter(|(_, p)| matches!(p, Picture::Text(_)))
+                            .filter(|(_, p)| matches!(p, Picture::Text(text) if servable(text)))
                             .map(|(k, _)| k)
                             .collect();
                     } else {
@@ -126,39 +142,53 @@ impl<'de> serde::Deserialize<'de> for Head {
     }
 }
 
-/// Standard base64 with its padding, as a data URL holds it; nothing for anything else.
-fn decode_base64(text: &str) -> Option<Vec<u8>> {
+/// Standard base64 as a data URL holds it, with or without its `=` padding, as the importer and
+/// the webview take it: the characters before any padding, or nothing for anything else.
+fn base64_body(text: &str) -> Option<&[u8]> {
     let text = text.as_bytes();
-    if !text.len().is_multiple_of(4) {
+    let body = text
+        .strip_suffix(b"==")
+        .or_else(|| text.strip_suffix(b"="))
+        .unwrap_or(text);
+    let padded = body.len() != text.len();
+    if body.len() % 4 == 1 || (padded && !text.len().is_multiple_of(4)) {
         return None;
     }
-    let value = |c: u8| match c {
+    body.iter().all(|&c| sextet(c).is_some()).then_some(body)
+}
+
+fn sextet(c: u8) -> Option<u8> {
+    match c {
         b'A'..=b'Z' => Some(c - b'A'),
         b'a'..=b'z' => Some(c - b'a' + 26),
         b'0'..=b'9' => Some(c - b'0' + 52),
         b'+' => Some(62),
         b'/' => Some(63),
         _ => None,
-    };
-    let mut out = Vec::with_capacity(text.len() / 4 * 3);
-    for (i, quad) in text.chunks(4).enumerate() {
-        let last = i == text.len() / 4 - 1;
-        let pad = if last {
-            quad.iter().rev().take_while(|&&c| c == b'=').count()
-        } else {
-            0
-        };
-        if pad > 2 {
-            return None;
-        }
+    }
+}
+
+/// The bytes of base64 characters with no padding (base64_body); a last group of two or three
+/// characters holds one or two bytes.
+fn decode(body: &[u8]) -> Option<Vec<u8>> {
+    if body.len() % 4 == 1 {
+        return None;
+    }
+    let mut out = Vec::with_capacity(body.len() / 4 * 3 + 2);
+    for group in body.chunks(4) {
         let mut n = 0u32;
-        for &c in &quad[..4 - pad] {
-            n = n << 6 | value(c)? as u32;
+        for &c in group {
+            n = n << 6 | sextet(c)? as u32;
         }
-        n <<= 6 * pad as u32;
-        out.extend_from_slice(&n.to_be_bytes()[1..4 - pad]);
+        n <<= 6 * (4 - group.len()) as u32;
+        out.extend_from_slice(&n.to_be_bytes()[1..group.len()]);
     }
     Some(out)
+}
+
+#[cfg(test)]
+fn decode_base64(text: &str) -> Option<Vec<u8>> {
+    decode(base64_body(text)?)
 }
 
 /// Every background saved, oldest first, as `(id, pack)`.
@@ -255,13 +285,18 @@ mod tests {
         std::env::temp_dir().join(format!("playpets-backgrounds-{}", uuid::Uuid::new_v4()))
     }
 
+    /// A package with a base picture, as the list names only those.
+    fn named(name: &str) -> Value {
+        json!({"name": name, "images": {"base": data_url(&png(1536, name.as_bytes()))}})
+    }
+
     #[test]
     fn a_background_is_kept_in_the_data_folder_until_it_is_removed() {
         let dir = temp();
         assert!(list(&dir).is_empty(), "no folder yet");
-        save(&dir, A, &json!({"name": "Lake"})).unwrap();
-        save(&dir, B, &json!({"name": "Attic"})).unwrap();
-        save(&dir, A, &json!({"name": "Replaced"})).unwrap();
+        save(&dir, A, &named("Lake")).unwrap();
+        save(&dir, B, &named("Attic")).unwrap();
+        save(&dir, A, &named("Replaced")).unwrap();
         let saved = list(&dir);
         let names: Vec<&str> = saved.iter().map(|b| b["pack"]["name"].as_str().unwrap()).collect();
         assert_eq!(
@@ -282,7 +317,7 @@ mod tests {
         let dir = temp();
         fs::create_dir_all(dir.join(FOLDER)).unwrap();
         fs::write(dir.join(FOLDER).join(format!("{A}.json")), "not json").unwrap();
-        save(&dir, A, &json!({"name": "Lake"})).unwrap();
+        save(&dir, A, &named("Lake")).unwrap();
         assert_eq!(
             list(&dir)[0]["pack"]["name"],
             "Lake",
@@ -371,6 +406,77 @@ mod tests {
         save(&dir, A, &json!({"name": "Odd", "images": images})).unwrap();
         for key in ["base", "spring", "summer", "autumn", "winter"] {
             assert!(image(&dir, A, key).is_none(), "{key}");
+        }
+        fs::remove_dir_all(dir).unwrap();
+    }
+
+    /// A data URL as some tools write it: no `=` at the end.
+    fn unpadded(bytes: &[u8]) -> String {
+        data_url(bytes).trim_end_matches('=').to_string()
+    }
+
+    // The importer takes base64 without its padding (and the webview reads it), so a picture
+    // imported that way was shown in its first session and missing after a restart.
+    #[test]
+    fn a_picture_without_base64_padding_is_served_as_it_was_imported() {
+        let dir = temp();
+        // 1, 2 and 3 bytes left over after the whole groups: two, one and no `=`.
+        let pictures = [png(1536, b"x"), png(1536, b"xy"), png(1536, b"xyz")];
+        let images = json!({
+            "base": unpadded(&pictures[0]),
+            "spring": unpadded(&pictures[1]),
+            "summer": unpadded(&pictures[2]),
+        });
+        assert!(
+            !images["base"].as_str().unwrap()[PNG_DATA.len()..]
+                .len()
+                .is_multiple_of(4),
+            "{images}"
+        );
+        save(&dir, A, &json!({"name": "Lake", "images": images})).unwrap();
+        assert_eq!(image(&dir, A, "base").unwrap(), pictures[0]);
+        assert_eq!(image(&dir, A, "spring").unwrap(), pictures[1]);
+        assert_eq!(image(&dir, A, "summer").unwrap(), pictures[2]);
+        assert_eq!(decode_base64("QUJD"), Some(b"ABC".to_vec()));
+        assert_eq!(decode_base64("QUI="), Some(b"AB".to_vec()));
+        for broken in ["QUJDR", "QUJDRA=", "QUI==", "QU===", "QUJD===", "QU=J"] {
+            assert_eq!(decode_base64(broken), None, "{broken}");
+        }
+        fs::remove_dir_all(dir).unwrap();
+    }
+
+    // A listed picture the backend then refuses painted the fallback land, kept an unseen lake
+    // and showed an empty card; a package without its base was skipped by the page before.
+    #[test]
+    fn the_list_names_only_pictures_it_can_serve_and_skips_a_package_without_its_base() {
+        let dir = temp();
+        let good = data_url(&png(1536, b"good"));
+        let images = json!({
+            "base": good,
+            "spring": data_url(&png(1024, b"square")),
+            "summer": "data:image/png;base64,***",
+            "autumn": format!("{}A", good),
+            "winter": good,
+        });
+        save(&dir, A, &json!({"name": "Lake", "images": images})).unwrap();
+        save(
+            &dir,
+            B,
+            &json!({"name": "Broken", "images": {"base": data_url(b"GIF89a not a png"), "winter": good}}),
+        )
+        .unwrap();
+        let listed = list(&dir);
+        assert_eq!(listed.len(), 1, "the package whose base cannot be served is not listed");
+        let names: Vec<&String> = listed[0]["pack"]["images"].as_object().unwrap().keys().collect();
+        assert_eq!(names, ["base", "winter"]);
+        for (key, served) in [
+            ("base", true),
+            ("spring", false),
+            ("summer", false),
+            ("autumn", false),
+            ("winter", true),
+        ] {
+            assert_eq!(image(&dir, A, key).is_some(), served, "{key}");
         }
         fs::remove_dir_all(dir).unwrap();
     }
