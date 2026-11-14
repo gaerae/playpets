@@ -175,6 +175,14 @@ test('compact windows keep every panel and shared menu within the viewport', asy
   assert.doesNotMatch(css, /body\.compact[^{}]*(?:#provider-select|\.companions)[^{}]*\{[^}]*display:none/);
 });
 
+// At 560 by 400 the Invite sheet shrank to an 18px sliver: a compact rule picking the sheet by
+// :has(#panel-invite) set width:auto, and its id outranked the 480-wide rule that sizes every sheet,
+// while that rule's left:auto stayed.
+test('a small window wide enough for a side sheet gives every destination the same sheet width', async () => {
+  const css = await styles();
+  assert.doesNotMatch(css, /body\.compact \.layout\.panel-open \.side-panel:has\([^{]*\{[^}]*width:/);
+});
+
 test('compact settings reserve height for their scroller and panels clear the dock', async () => {
   const css = await styles();
   const sheet = css.match(/body\.compact \.layout.settings-open \.side-panel\{([^}]*)\}/)?.[1] || '';

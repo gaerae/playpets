@@ -183,9 +183,6 @@ body.compact .panel-body {
   overflow-y: auto;
   overscroll-behavior: contain;
 }
-body.compact .layout.panel-open .side-panel:has(#panel-invite:not([hidden])) {
-  width: auto;
-}
 body.compact #panel-expand {
   display: inline-flex;
 }

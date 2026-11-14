@@ -17,6 +17,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Friends keep walking smoothly when the computer slows its timers (Windows on battery), and the yard's backdrop and weather stay sharp when the window moves to a screen of another resolution.
 - Patting a friend, picking a scene, moving things in the yard and the tray's switches no longer wait for the save to disk, and time together with many friends is saved once instead of once a friend, so the yard no longer stutters every ten minutes.
 
+### Fixed
+
+- In a small window, Invite opens at its full width again instead of as a thin strip.
+
 ## [1.7.1] - 2026-11-13
 
 ### Changed
