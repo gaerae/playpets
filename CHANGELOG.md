@@ -30,6 +30,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A name tag with a coding agent has room for both names instead of cutting both, and friends at the front stop with their name tag above the dock instead of behind it.
 - With a tool in hand, friends at the front step up out from behind its strip, so they and their names stay in sight.
 - A friend's coding agents read "Reports from Claude Code" instead of "Reports from, Claude Code", and alike in Korean, Japanese and Chinese.
+- The dock shows the place's whole name ("Garden workshop, a sunny day") where the window has room, instead of cutting it short.
 - Friends' speech bubbles stay inside a small window: when several friends talk at once and there is no room above, the newest line takes the place of the one it would cover.
 
 ## [1.7.1] - 2026-11-13

@@ -269,6 +269,13 @@ test("a desktop bubble's clamped line ends at the ellipsis", async () => {
   assert.match(rule, /border:8px solid transparent/);
 });
 
+// "Garden workshop, a sunny…" was cut at 228px even in a full-screen window, where the dock had
+// room to spare: the place's name is the only label saying where the yard is.
+test('the place caption grows with the window before it is cut', async () => {
+  const css = await styles();
+  assert.match(css, /\.yard-dock>\.caption-main\{min-width:0;max-width:clamp\(228px,40vw,360px\);?\}/);
+});
+
 // Squeezed onto one line in a short window, the message lost its words ("今日はどんな一日だ…") and
 // the AI its name ("Oll…"). The message keeps its own row and the AI stays readable under it.
 test('a short window keeps the message on its own row and the AI readable', async () => {

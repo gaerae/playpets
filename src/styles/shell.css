@@ -441,7 +441,8 @@ body.compact .toast > span {
 }
 .yard-dock > .caption-main {
   min-width: 0;
-  max-width: 228px;
+  /* the place's name, the only label saying where the yard is, is cut only where room runs out */
+  max-width: clamp(228px, 40vw, 360px);
 }
 .yard-dock .scene-button {
   min-height: 36px;
