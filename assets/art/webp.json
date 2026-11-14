@@ -795,9 +795,9 @@
     "webp": "63bd12ddae621082fb03563867b5ad440f6d7f2d6403e8c126aee0d9437b796c"
   },
   "album/trees/pine-mature.webp": {
-    "png": "5b01351d9ae5f1d84ff5710b65363b1d4de49a02e23d22625e9b8e000f9a9f7a",
-    "svg": "55b8c28671d89c18267d88848b898328c19378ffa3bd36a2cd9a5d0e536b8afa",
-    "webp": "76d386324d191ae6db255235f89b739bb57cac070c2334a474b3f778b060c6ae"
+    "png": "6412eda618dd27f24fbf5dea393db6af52f3aa74a0f1a7d4948894206ce54cc4",
+    "svg": "2d734266c875e82e73f1650a9ca45c88ef82865534694261b9bb31b4744c3d5b",
+    "webp": "a70e8ca3f27f8e179ecc3138d38efb7ab033f1334fdada875bf6be090841f0f9"
   },
   "album/trees/willow-mature.webp": {
     "png": "0da261196f35dd1d68e88749e608c9f46c86f3ed9ea693dae0c9546aefd73924",
@@ -1252,9 +1252,17 @@
     "png": "4a0dba6dc7593af06164921d0ea5e1dd4237307075c146c83948fa88790442fc",
     "webp": "d3ec8322dd6a35d8ecbb8852409f6d7d1caa24e6e42d0b70322eb0ecbe37e3d9"
   },
+  "trees/cherry-seasons.png": {
+    "png": "495343a88509da036bf3924e580bfdc3d937f16dddb81269e5d312d6ddb7ced6",
+    "webp": "216afa926c4ae7e09a456a88daa5a6c2491e10e47f996a4e752d59ab0d129294"
+  },
   "trees/cherry-summer.png": {
     "png": "4f132916aa6c848a7d2528054463707566cae4187dd134ac092916dfead36168",
     "webp": "8877681f6f1111fce34f49e6803ee85251297518ef5306a0f4be73fbb62fee47"
+  },
+  "trees/crape_myrtle-spring.png": {
+    "png": "129676a12bc29577a6d3813958355bfef48e181977673410c0bdf075d012e4b0",
+    "webp": "1ac57153ca35ff24b932550b4253162a52adb1b847da69a278b2e72770ea39b5"
   },
   "trees/crape_myrtle.png": {
     "png": "2e3913e17b8fcc80a4db7032817892350ee321fcdb2d93bc426baca506886487",
@@ -1288,6 +1296,10 @@
     "png": "5f6ef2c5bb57e1692e346028fae2ae740bea5769d8a82afc3fdf2f8f180521e1",
     "webp": "dfa694edb6e701e4e185908886ae19a1c7bd4ad8aec832cbda38bcacd20498bd"
   },
+  "trees/pine-mature.png": {
+    "png": "6412eda618dd27f24fbf5dea393db6af52f3aa74a0f1a7d4948894206ce54cc4",
+    "webp": "4fa24941f0f92f060fd0698711fe12d2a4eaf80a90b72017f6819a6fdb73c731"
+  },
   "trees/seasons.png": {
     "png": "b553c5caca07c86ff1ead83eb8cb6bab10c2d4d295bb92a3cf1298664083fa7e",
     "webp": "df7dec944504a8e8eb1457fd2c18533d4254424b68b10bf3b270885f71b6b4d6"
@@ -1295,6 +1307,10 @@
   "trees/willow.png": {
     "png": "0da261196f35dd1d68e88749e608c9f46c86f3ed9ea693dae0c9546aefd73924",
     "webp": "406c1da42032c707c6848d8f177db195d9de33af319dbf4e33e9b66ecd2a5780"
+  },
+  "trees/winter-2.png": {
+    "png": "1268878667b679c7493d910c32b9316169bab9626f1b4fd111eee0cf52de1b8b",
+    "webp": "b409326750eff3ea0339a1d96fd47053a4e63ca90db3bfb540516f9de7845257"
   },
   "trees/winter.png": {
     "png": "0b756ba037096ca7212ebd5e2d10f4eb966d6af8b26a116fe6ff74bd6754fac8",

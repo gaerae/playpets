@@ -238,6 +238,90 @@
         "role": "Style reference"
       },
       "notes": "Generated 2026-11-10. Replaces the persimmon seedling and young tree, which looked like the magnolia's. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 32978aa3a487e35912750455839d89372dfff069b1a51b80fe85f6f8c1e0b241) is not kept."
+    },
+    {
+      "id": "cherry-seasons",
+      "file": "cherry-seasons-source.png",
+      "atlas": "trees/cherry-seasons.png",
+      "size": [1536, 1024],
+      "sha256": "495343a88509da036bf3924e580bfdc3d937f16dddb81269e5d312d6ddb7ced6",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent tree sprite sheet. Match the reference trees exactly: the same soft painterly illustrated look, warm saturated colours, gentle highlights, key light from the upper left. TRUE transparent alpha background: NO painted background, NO sky, NO snow, NO frost, NO ground beyond the base shown in the reference, NO cast shadow, NO text. Landscape 1536x1024 canvas, exactly TWO trees in two equal columns, each centered on the same baseline near the bottom with 8% transparent padding, nothing crossing the column boundary. The reference is the accepted mature CHERRY tree in spring bloom. Redraw THIS SAME TREE — the same twisting warm-brown trunk and bark, the same branch structure, the same rounded crown size and outline, the same small green leafy root rosette at its base — in two other seasons. COL1 AUTUMN: the blossoms replaced by OVAL, pointed, finely toothed cherry leaves (simple elliptic leaves like a cherry or plum leaf, NOT lobed, NOT maple-shaped, NOT star-shaped, NOT oak-shaped), a warm glowing mix of crimson red, orange and golden yellow with a few yellow-green leaves, filling the same rounded crown. COL2 WINTER: completely bare: the same warm-brown twisting trunk and bark colour as the reference (warm brown, NOT purple, NOT plum, NO stripes or bands), the same limbs dividing into many fine brown twigs that fill the same rounded crown size and outline, tiny brown winter buds at the twig tips, no leaves, no flowers, no snow.",
+      "references": [
+        {
+          "path": "assets/discovery/trees-growth-source.png",
+          "crop": [814, 17, 430, 397],
+          "role": "Identity and scale reference: the accepted cherry mature cut from it"
+        }
+      ],
+      "notes": "Generated 2026-11-15. Replaces the cherry autumn tree, which had maple-shaped leaves and read as a maple, and the cherry winter tree, whose purple banded trunk and umbrella shape did not match the cherry in bloom. Both redraw the mature cherry on its own twisting brown trunk and crown. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 575d1b8b8b26f07fb96a5d2053c0e65d8482fd0402089f2ab0542e04d8d4456e) is not kept."
+    },
+    {
+      "id": "winter-trees-2",
+      "file": "winter-trees-2-source.png",
+      "atlas": "trees/winter-2.png",
+      "size": [1536, 1024],
+      "sha256": "1268878667b679c7493d910c32b9316169bab9626f1b4fd111eee0cf52de1b8b",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent tree sprite sheet. Match the reference trees exactly: the same soft painterly illustrated look, warm saturated colours, gentle highlights, key light from the upper left. TRUE transparent alpha background: NO painted background, NO sky, NO snow, NO frost, NO ground beyond the base shown in the reference, NO cast shadow, NO text. Landscape 1536x1024 canvas, exactly THREE trees in three equal columns, each centered on the same baseline near the bottom with 8% transparent padding, nothing crossing the column boundaries. Each reference is an accepted mature tree in leaf (first maple, second birch, third dawn redwood). Draw the SAME three trees bare in WINTER, left to right in the same order: the same trunk shape, bark colour, branching and root base, and the same height and crown width as each reference, just without leaves. The bare twigs are solid painted WOOD, warm and saturated like the trunks, NOT pale, NOT frosted, NOT white, silver or pink twigs, NOT thin wispy lines. COL1 MAPLE (first reference): the same short sturdy warm-brown trunk and several thick spreading limbs dividing into a full broad rounded crown of brown twigs, small red buds at the tips, the same small green leafy root rosette; as big as the reference. COL2 BIRCH (second reference): the same white papery trunk with dark marks, bare dark reddish-brown twigs filling the same broad rounded crown, a few small brown catkins hanging, the same leafy root rosette. COL3 DAWN REDWOOD (third reference): the same straight tapering rust-brown trunk and spreading roots, bare slender upswept branches in the same narrow cone outline, fine russet-brown twigs, no needles. IMPORTANT: the background must be truly transparent alpha everywhere outside each tree, including the gaps between twigs and between the trees: no paper, cream, white, grey or pale haze, no glow, no soft backdrop behind the crowns.",
+      "references": [
+        {
+          "path": "assets/discovery/trees-growth-source.png",
+          "crop": [810, 424, 439, 391],
+          "role": "Identity and scale reference: the accepted maple mature cut from it"
+        },
+        {
+          "path": "assets/discovery/birch-source.png",
+          "crop": [1021, 5, 459, 487],
+          "role": "Identity and scale reference: the accepted birch mature cut from it"
+        },
+        {
+          "path": "assets/discovery/metasequoia-source.png",
+          "crop": [1106, 6, 307, 483],
+          "role": "Identity and scale reference: the accepted metasequoia mature cut from it"
+        }
+      ],
+      "notes": "Generated 2026-11-15. Replaces the maple, birch and dawn redwood winter trees, drawn with pale frosted twigs (the maple also thinner, smaller and on another trunk), so that every bare tree is painted wood like the ginkgo, oak and persimmon: each on its mature tree's trunk, bark and crown. A first generation painted a pale haze between the trees and was not kept. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 c3ad8dcc5885dc7628d56e999b6c8288231150db0e12c9e70830db635d8d082b) is not kept."
+    },
+    {
+      "id": "crape_myrtle-spring",
+      "file": "crape_myrtle-spring-source.png",
+      "atlas": "trees/crape_myrtle-spring.png",
+      "size": [1254, 1254],
+      "sha256": "129676a12bc29577a6d3813958355bfef48e181977673410c0bdf075d012e4b0",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent tree sprite sheet. Match the reference trees exactly: the same soft painterly illustrated look, warm saturated colours, gentle highlights, key light from the upper left. TRUE transparent alpha background: NO painted background, NO sky, NO snow, NO frost, NO ground beyond the base shown in the reference, NO cast shadow, NO text. Square 1024x1024 canvas, exactly ONE tree centered on a baseline near the bottom with 8% transparent padding. The first reference is the accepted mature CRAPE MYRTLE tree in summer bloom; the second is the same tree in autumn. Redraw THIS SAME TREE in SPRING: the same smooth mottled pinkish-tan multi-stem trunk, the same branching, the same crown size and outline, the same spreading roots, with fresh, bright, light spring-GREEN new leaves (small glossy oval leaves, lime and fresh green), NO flowers, NO fruit, NO red, orange, bronze, brown or autumn-coloured leaves.",
+      "references": [
+        {
+          "path": "assets/discovery/crape_myrtle-source.png",
+          "crop": [1008, 5, 516, 466],
+          "role": "Identity and scale reference: the accepted crape_myrtle mature cut from it"
+        },
+        {
+          "path": "assets/discovery/crape_myrtle-source.png",
+          "crop": [516, 524, 496, 460],
+          "role": "Identity and scale reference: the accepted crape_myrtle mature autumn cut from it"
+        }
+      ],
+      "notes": "Generated 2026-11-15. Replaces the crape myrtle spring tree, whose reddish leaves read as autumn, with fresh green spring leaves on the same mottled trunk. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 c0ef193cab2ceda3cedd4f539c34938f2165638b9cd4ccfe9c6e57b70f0a2903) is not kept."
+    },
+    {
+      "id": "pine-mature",
+      "file": "pine-mature-source.png",
+      "atlas": "trees/pine-mature.png",
+      "size": [1254, 1254],
+      "sha256": "6412eda618dd27f24fbf5dea393db6af52f3aa74a0f1a7d4948894206ce54cc4",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent tree sprite sheet. Match the reference trees exactly: the same soft painterly illustrated look, warm saturated colours, gentle highlights, key light from the upper left. TRUE transparent alpha background: NO painted background, NO sky, NO snow, NO frost, NO ground beyond the base shown in the reference, NO cast shadow, NO text. Square 1024x1024 canvas, exactly ONE tree centered on a baseline near the bottom with 8% transparent padding. The first reference is the accepted YOUNG pine of this species: grow it into the MATURE tree. The second reference is the old mature drawing, for style, size and the green leafy root rosette ONLY; do NOT copy its spruce shape. MATURE KOREAN RED PINE (Pinus densiflora, sonamu): a gently curving, slightly leaning trunk with REDDISH-ORANGE scaly plated bark that turns brighter red-orange toward the top, a few long curving limbs reaching out, and an irregular, broad, flat-topped UMBRELLA crown made of four to six separate rounded PADS of long dark-green needle tufts, each pad built from starburst tufts of long needles like the young pine reference, with sky gaps between the pads and a few small brown cones. The same small green leafy root rosette at the base. NOT a cone shape, NOT a Christmas tree, NOT a spruce or fir, NOT drooping tiers, NOT a bonsai pot.",
+      "references": [
+        {
+          "path": "assets/discovery/trees-growth-source.png",
+          "crop": [497, 913, 237, 299],
+          "role": "Identity and scale reference: the accepted pine young cut from it"
+        },
+        {
+          "path": "assets/discovery/trees-growth-source.png",
+          "crop": [841, 817, 384, 401],
+          "role": "Identity and scale reference: the accepted pine mature cut from it"
+        }
+      ],
+      "notes": "Generated 2026-11-15. Replaces the mature pine, a spruce-like cone close to the Christmas tree gift that did not match its own long-needle young tree, with a Korean red pine: a curving red scaly trunk under layered pads of long needles. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 ed50b1a94c23229eff42fe1e83454a2ea3d468202da793ba0f6eccbffcd27dee) is not kept."
     }
   ],
   "assets": [
@@ -307,11 +391,12 @@
     },
     {
       "id": "pine-mature",
-      "source": "growth",
+      "source": "pine-mature",
       "art": "trees/pine-mature.svg",
       "size": [160, 170],
-      "crop": [841, 817, 384, 401],
-      "anchor": [0.5, 1]
+      "crop": [37, 49, 1179, 1148],
+      "anchor": [0.5, 1],
+      "frame": [-5.6, -98.8, 1219.6, 1295.8]
     },
     {
       "id": "striped_pebble",
@@ -387,21 +472,21 @@
     },
     {
       "id": "cherry-mature-autumn",
-      "source": "seasons",
+      "source": "cherry-seasons",
       "art": "trees/cherry-mature-autumn.svg",
       "size": [160, 170],
-      "crop": [442, 9, 373, 401],
-      "frame": [413.5, 0, 430, 410],
-      "anchor": [0.5, 1]
+      "crop": [19, 111, 751, 760],
+      "anchor": [0.5, 1],
+      "frame": [-10, 10.2, 810.2, 860.8]
     },
     {
       "id": "cherry-mature-winter",
-      "source": "winter-trees",
+      "source": "cherry-seasons",
       "art": "trees/cherry-mature-winter.svg",
       "size": [160, 170],
-      "crop": [0, 317, 560, 467],
-      "frame": [7.1, 193.3, 542.8, 576.7],
-      "anchor": [0.5, 1]
+      "crop": [770, 109, 738, 762],
+      "anchor": [0.5, 1],
+      "frame": [719.8, 7.9, 812.3, 863.1]
     },
     {
       "id": "maple-mature-spring",
@@ -423,12 +508,12 @@
     },
     {
       "id": "maple-mature-winter",
-      "source": "winter-trees",
+      "source": "winter-trees-2",
       "art": "trees/maple-mature-winter.svg",
       "size": [160, 170],
-      "crop": [554, 156, 422, 628],
-      "frame": [413.2, 59.7, 668.5, 710.3],
-      "anchor": [0.5, 1]
+      "crop": [7, 219, 541, 629],
+      "anchor": [0.5, 1],
+      "frame": [-47.5, 112, 692.7, 736]
     },
     {
       "id": "cherry-mature-summer",
@@ -535,12 +620,12 @@
     },
     {
       "id": "birch-mature-winter",
-      "source": "birch",
+      "source": "winter-trees-2",
       "art": "trees/birch-mature-winter.svg",
       "size": [160, 170],
-      "crop": [1054, 514, 441, 479],
+      "crop": [548, 112, 548, 738],
       "anchor": [0.5, 1],
-      "frame": [1043.5, 504, 462, 489]
+      "frame": [477.1, 118.2, 688.7, 731.8]
     },
     {
       "id": "willow-seedling",
@@ -834,12 +919,12 @@
     },
     {
       "id": "crape_myrtle-mature-spring",
-      "source": "crape_myrtle",
+      "source": "crape_myrtle-spring",
       "art": "trees/crape_myrtle-mature-spring.svg",
       "size": [160, 170],
-      "crop": [8, 524, 489, 460],
+      "crop": [25, 36, 1203, 1123],
       "anchor": [0.5, 1],
-      "frame": [-5.5, 518, 516, 466]
+      "frame": [3.8, -148.1, 1230.2, 1307.1]
     },
     {
       "id": "crape_myrtle-mature-autumn",
@@ -904,12 +989,12 @@
     },
     {
       "id": "metasequoia-mature-winter",
-      "source": "metasequoia",
+      "source": "winter-trees-2",
       "art": "trees/metasequoia-mature-winter.svg",
       "size": [160, 170],
-      "crop": [1107, 520, 309, 483],
+      "crop": [1099, 61, 426, 792],
       "anchor": [0.5, 1],
-      "frame": [1105.5, 518, 312, 485]
+      "frame": [935.3, 69, 737.9, 784]
     },
     {
       "id": "old_coin",

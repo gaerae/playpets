@@ -12,6 +12,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- The cherry tree's autumn and winter, the maple's, birch's and dawn redwood's winter and the crape myrtle's spring are drawn again, each on its own tree's trunk, and the grown pine is now a Korean red pine.
 - Show on desktop answers at once: a friend, gift, flower or tree sent out shows on the desktop right away, also when nothing was out before or everything just came back in.
 - The yard opens sooner and stays lighter while friends talk, coding agents report and the pointer moves, and a long conversation with a friend opens at once on its latest lines, with earlier ones coming in as you scroll up.
 - Friends keep walking smoothly when the computer slows its timers (Windows on battery), and the yard's backdrop and weather stay sharp when the window moves to a screen of another resolution.
