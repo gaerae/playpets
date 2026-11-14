@@ -96,9 +96,15 @@ import { drawWelcome, setupWelcome } from './yard/welcome.js';
 import { setupWinter } from './yard/winter.js';
 import { scene, scenery } from './yard/world.js';
 
-// Whether the yard can be seen; the backend says so for a window it hid or that was minimized, and
-// in `bootstrap` for one it hid before this page could hear it (a start at login).
-let shown = true;
+// Whether the yard can be seen. The backend says so in a `window` event as it hides, shows or
+// minimizes the window, and answers `bootstrap` and `windowReady` with it for what happened before
+// this page could hear it (a start at login, a window shown or closed while the page loaded).
+let shown = true,
+  // How many `window` events the page has heard. Events and answers come by different ways and may
+  // cross: an event heard while a question was on its way is as new as the answer, or newer.
+  windowEvents = 0,
+  // Until the yard is set up, a `window` event is only noted: what `seenAs` stops is not there yet.
+  setUp = false;
 // Reloads everything from the backend, for actions that need the page current right away.
 async function refresh() {
   setData(await call('bootstrap'));
@@ -111,15 +117,24 @@ function openChat(id) {
   $('message').focus();
 }
 
-// The app's state first: the backgrounds (loadContent) and the place, season and weather picked
-// (setupSky) are read from it, and whether this data folder owns the webview's old copies. A
-// failure here is asked again, and shown, by the full start below.
 // The engine drawing the page, where styles differ in cost between the two (scenery.css clouds):
 // only WebView2 (Windows) has `chrome.webview`.
 document.documentElement.toggleAttribute('data-webview2', !!globalThis.chrome?.webview);
+// The backend's word on the window, heard from before the first question: the window may be shown
+// (the tray, the Dock, a link, the wait in window.rs) or closed while the page loads.
+api.onEvent(event => {
+  if (event.type !== 'window') return;
+  windowEvents++;
+  if (setUp) seenAs(event.shown);
+  else shown = event.shown;
+});
+// The app's state first: the backgrounds (loadContent) and the place, season and weather picked
+// (setupSky) are read from it, and whether this data folder owns the webview's old copies. A
+// failure here is asked again, and shown, by the full start below.
+const eventsBeforeBoot = windowEvents;
 const booted = await call('bootstrap').catch(() => null);
 setData(booted || data);
-shown = booted?.windowShown !== false;
+if (windowEvents === eventsBeforeBoot) shown = booted?.windowShown !== false;
 // What the yard is made of (the catalogue, the scenery, the drawings), before anything is drawn.
 // The bundled companions' authored actions are not needed for that: a bundled companion asks for
 // them as the yard draws it (views.js syncViews).
@@ -422,7 +437,6 @@ const ON_EVENT = {
     if (v) setTimeout(() => bubble(v, clip(plain(e.message), 80)), wait);
   },
   play: react,
-  window: e => seenAs(e.shown),
 };
 api.onEvent(event => {
   chatEvent(event);
@@ -441,6 +455,8 @@ function seenAs(visible) {
   // Hidden, a friend on its way along a trail gives up (nobody would see the tail).
   trailsSeen();
 }
+// From here the backend's word reaches what it stops; what it said while the page was set up counts now.
+setUp = true;
 if (!shown) seenAs(false);
 
 // Twenty frames a second while a friend moves (a walk, a pose, a game, a treat being placed) and
@@ -541,6 +557,9 @@ try {
   showWindow();
 }
 // The backend shows the window only the first time, and never one a start at login keeps hidden.
-function showWindow() {
-  call('windowReady').catch(() => {});
+// It answers whether the yard can be seen now: its word may have come before the page could hear it.
+async function showWindow() {
+  const asked = windowEvents;
+  const visible = await call('windowReady').catch(() => null);
+  if (typeof visible === 'boolean' && windowEvents === asked && visible !== shown) seenAs(visible);
 }

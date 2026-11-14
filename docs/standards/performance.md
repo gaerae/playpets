@@ -40,10 +40,14 @@
 - Something that cycles on a canvas (a wing beat) spans at least six frames at the interval it is drawn at. A faster cycle is drawn at scattered points and flickers.
 - Do not draw when the window is not visible.
   - Loops return right away when `document.hidden` is set or when the backend reports the window hidden (the `window` event, `<html data-unseen>`).
-  - A page that starts after its window was hidden (a start at login) reads it from `windowShown` in `bootstrap`: the `window` event came before the page could hear it.
+  - The yard's page listens for the `window` event before its first question, so a window shown or closed while the page loads is heard.
+  - What came before that (a start at login) it reads from `windowShown` in `bootstrap`, and again from the answer to `windowReady`.
+  - Events and answers may cross: an event heard while a question was on its way stands over the answer.
+  - While the window waits hidden for its page, its Resized and Focused events say nothing about being seen (window.rs `FirstShow::seen`): sizing the hidden window would boot the page as unseen.
   - `data-unseen` stops CSS animations, those on `::before` and `::after` too.
   - On Windows the backend also hides the webview (`Webview::hide`, WebView2's `IsVisible`) while the window is hidden or minimized: WebView2 is not told otherwise, and keeps the page drawing and reported as seen.
 - The yard window is made hidden and shows once the page has drawn the yard (`windowReady`), or after 3 s if the page never says so. A start at login that keeps it in the tray never shows it.
+  - An e2e run waits 15 s instead, and checks that `windowReady` showed it (`firstShow` in `e2eWindow`).
 
 ### Pushes from the backend
 - The backend pushes its whole state to the yard window on most changes. A push re-renders only what changed:

@@ -6,16 +6,26 @@ import { cellLeft } from '../src/core/animation.js';
 
 // Runs the end of app.js (its last top-level try) with `booted` saying whether the state came at
 // the start, and returns the commands and toasts in order.
-async function start({ booted, unreachable = false }) {
+// `ready` is the answer to windowReady; `heardMeanwhile`, a window event heard while it was on its way.
+async function start({ booted, unreachable = false, ready = null, heardMeanwhile = false }) {
   const source = await readFile('src/app.js', 'utf8');
   const startup = source.slice(source.lastIndexOf('\ntry {'));
   const calls = [];
   const context = {
     booted,
+    shown: true,
+    windowEvents: 0,
+    seenAs(visible) {
+      calls.push(`seenAs ${visible}`);
+    },
     call: async method => {
       calls.push(method);
       if (method === 'growTrees') throw new Error('The garden could not be saved.');
       if (method === 'bootstrap' && unreachable) throw new Error('The app could not start.');
+      if (method === 'windowReady') {
+        if (heardMeanwhile) context.windowEvents++;
+        return ready;
+      }
       return { language: 'en' };
     },
     setData(value) {
@@ -44,6 +54,8 @@ async function start({ booted, unreachable = false }) {
     t: key => key,
   };
   await vm.runInNewContext(`(async () => {${startup}\n})()`, context);
+  // The answer to windowReady is not waited for: whatever it does is done once it has come.
+  await new Promise(resolve => setImmediate(resolve));
   return calls;
 }
 
@@ -80,21 +92,32 @@ test('the state is asked for once: again at the full start only when the first a
   ]);
 });
 
-// The first ask of app.js (from `const booted` to the content), answered with `reply`: whether the
-// page then takes its yard as seen.
-async function firstAsk(reply) {
+// The first ask of app.js (from the window listener to the content), answered with `reply`, with
+// the window events in `meanwhile` heard while the ask was on its way and those in `later` heard as
+// the page goes on setting up: whether the page then takes its yard as seen.
+async function firstAsk(reply, { meanwhile = [], later = [] } = {}) {
   const source = await readFile('src/app.js', 'utf8');
-  const ask = source.slice(source.indexOf('\nconst booted'), source.indexOf('\n// What the yard is made of'));
+  const ask = source.slice(
+    source.indexOf("\n// The backend's word on the window"),
+    source.indexOf('\n// What the yard is made of'),
+  );
+  const listeners = [];
+  const hear = shown => listeners.forEach(listener => listener({ type: 'window', shown }));
   const context = {
     shown: true,
+    windowEvents: 0,
+    setUp: false,
     data: {},
     setData() {},
+    api: { onEvent: listener => listeners.push(listener) },
     call: async () => {
+      meanwhile.forEach(hear);
       if (reply instanceof Error) throw reply;
       return reply;
     },
   };
   await vm.runInNewContext(`(async () => {${ask}\n})()`, context);
+  later.forEach(hear);
   return context.shown;
 }
 
@@ -105,7 +128,34 @@ test('a yard whose window was hidden before the page loaded is unseen from the s
   assert.equal(await firstAsk({ windowShown: true }), true);
   assert.equal(await firstAsk(new Error('no state')), true, 'without an answer, the window is taken as seen');
   const source = await readFile('src/app.js', 'utf8');
-  assert.match(source, /\nif \(!shown\) seenAs\(false\);\n/, 'what an unseen window stops, it stops at the start');
+  assert.match(
+    source,
+    /\nsetUp = true;\nif \(!shown\) seenAs\(false\);\n/,
+    'what an unseen window stops, it stops at the start',
+  );
+});
+
+// The window shows (the tray, the Dock, a second launch, a link, the wait in window.rs) or is closed
+// while the page loads: the event that says so came before the page's listener, and the yard stayed
+// frozen in a window people could see, or kept drawing in one they could not.
+test('a window shown or closed while the page loads is heard, and an older answer does not undo it', async () => {
+  assert.equal(await firstAsk({ windowShown: false }, { meanwhile: [true] }), true, 'shown while asking');
+  assert.equal(await firstAsk({ windowShown: true }, { meanwhile: [false] }), false, 'closed while asking');
+  assert.equal(await firstAsk({ windowShown: false }, { later: [true] }), true, 'shown while setting up');
+  assert.equal(await firstAsk({ windowShown: true }, { later: [false] }), false, 'closed while setting up');
+  assert.equal(await firstAsk(new Error('no state'), { meanwhile: [false] }), false);
+  // One listener hears the window: the table of events does not call seenAs a second time.
+  const source = await readFile('src/app.js', 'utf8');
+  assert.doesNotMatch(source, /\n {2}window: /);
+});
+
+// The window's showing at the start answers whether the yard can be seen now: the backend's word may
+// have come before the page could hear it, and a failed first ask told it nothing.
+test('the answer to windowReady says whether the yard is seen, unless a newer event said so', async () => {
+  assert.ok((await start({ booted: true, ready: false })).includes('seenAs false'));
+  assert.ok(!(await start({ booted: true, ready: true })).some(c => c.startsWith('seenAs')), 'already seen');
+  assert.ok(!(await start({ booted: true, ready: false, heardMeanwhile: true })).includes('seenAs false'));
+  assert.ok((await start({ booted: false, unreachable: true, ready: false })).includes('seenAs false'));
 });
 
 // The bundled companions' authored actions (about 100 KB) are not needed to draw the yard: the

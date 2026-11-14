@@ -134,9 +134,10 @@ const scenario = `(async()=>{
     {const shoots=await import('./yard/shoots.js');shoots.setupShoots();shoots.renderShoots();}
     await L('assets='+boot.data.assets.length);
     await L('communities='+boot.data.communities.length);
-    // The window, made hidden while its page loads, shows; the page starts as seen.
-    const startWindow=await until(async()=>(await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main']})).data?.visible);
-    await L('windowStart='+(startWindow&&boot.data.windowShown===true?'shown':'err'));
+    // The window, made hidden while its page loads, is shown by the page's windowReady, not by the
+    // wait (longer in an e2e run than any start takes), nor by front() above; the page starts as seen.
+    const startWindow=await until(async()=>{const w=(await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main']})).data;return w?.visible&&w.firstShow?w:null;});
+    await L('windowStart='+(startWindow?.firstShow==='page'&&boot.data.windowShown===true?'page':'err:'+startWindow?.firstShow+'/'+boot.data.windowShown));
     // The shelf says where each pet file lives: the fixture sits in Codex's pet folder.
     const fx=boot.data.assets.find(x=>x.displayName==='Fixture');
     await L('builtin='+boot.data.assets.filter(x=>x.place==='builtin').length);
@@ -1766,7 +1767,10 @@ const expect = [
   [/^attach=ok/, 'attach a provider to a pet'],
   [/^assigned=named$/, 'assign a friend to an agent'],
   [/^communities=[1-9]/, 'list of communities'],
-  [/^windowStart=shown$/, 'the window made hidden for its page shows, and the page starts seen'],
+  [
+    /^windowStart=page$/,
+    "the window made hidden for its page is shown by the page's windowReady, and the page starts seen",
+  ],
   [/^inviteFilters=all-person-restore$/, 'Invite filters survive Settings wiring'],
   [
     /^inviteAppearance=separate-saved-duplicate$/,
