@@ -1,7 +1,6 @@
 // Entry point: sets every part of the page up in order, listens to the backend, and runs the frame loop.
 // No other module does anything when it is imported; each has a setup function, called here.
 
-import { setupCompanionActions } from './core/companion-actions.js';
 import { setupConfirm } from './core/confirm.js';
 import { openControls, openFriendMenu, setupControls } from './core/controls.js';
 import { apply, follow, t } from './core/i18n.js';
@@ -116,9 +115,10 @@ function openChat(id) {
 // failure here is asked again, and shown, by the full start below.
 const booted = await call('bootstrap').catch(() => null);
 setData(booted || data);
-// What the yard is made of (the catalogue, the scenery, the drawings), before anything is drawn;
-// the friends' authored actions come in alongside.
-await Promise.all([loadContent(), setupCompanionActions()]);
+// What the yard is made of (the catalogue, the scenery, the drawings), before anything is drawn.
+// The bundled companions' authored actions are not needed for that: a bundled companion asks for
+// them as the yard draws it (views.js syncViews).
+await loadContent();
 // Words first: everything below builds its labels from them.
 apply();
 icons();

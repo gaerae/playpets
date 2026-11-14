@@ -89,7 +89,7 @@ export function clip(text, max) {
 }
 export function spoken(error, fallback) {
   const raw = (typeof error === 'string' ? error : error?.message || '').trim();
-  if (raw && (error?.spoken || SENTENCES[language()].test(raw))) return raw;
+  if (raw && (error?.spoken || SENTENCES[language()]?.test(raw))) return raw;
   return raw ? t('error.with_detail', { sentence: fallback, detail: raw }) : fallback;
 }
 export function waitingLine(seconds) {

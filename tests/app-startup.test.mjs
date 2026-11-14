@@ -63,9 +63,15 @@ test('the state is asked for once: again at the full start only when the first a
   ]);
 });
 
-test("the companions' actions load alongside the yard's content, not after it", async () => {
+// The bundled companions' authored actions (about 100 KB) are not needed to draw the yard: the
+// first render waits for the content only. A bundled companion asks for them as its view is made
+// or synced (views.js), so they are on their way before it first plays, whenever it came in.
+test("the companions' actions are asked for by the friends in the yard, not waited for at the start", async () => {
   const source = await readFile('src/app.js', 'utf8');
-  assert.match(source, /await Promise\.all\(\[loadContent\(\), setupCompanionActions\(\)\]\)/);
+  assert.match(source, /^await loadContent\(\);$/m);
+  assert.doesNotMatch(source, /CompanionActions/);
+  const views = await readFile('src/yard/views.js', 'utf8');
+  assert.match(views, /v\.asset = asset\(p\);\n(?:\s*\/\/.*\n)*\s*loadCompanionActionsFor\(\[v\.asset\]\);/);
 });
 
 // The frame loop's part of app.js (its constants, interval and animate), with the page around it.

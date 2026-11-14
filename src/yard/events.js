@@ -82,7 +82,7 @@ export function eventOn(date, south = false) {
 }
 /** Whether a scene is the one an event asks for ("scene" in events.json: its seasons, and its
  * periods and weathers when it names them). */
-export function sceneCalls(event, { season, period, weather }) {
+function sceneCalls(event, { season, period, weather }) {
   const asks = event.scene;
   return (
     !!asks?.seasons?.includes(season) &&

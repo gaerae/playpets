@@ -2,6 +2,7 @@
 
 import { agentsOf } from '../core/agents.js';
 import { lookAt, renewsClock } from '../core/animation.js';
+import { loadCompanionActionsFor } from '../core/companion-actions.js';
 import { put, putAttribute } from '../core/dom.js';
 import { joinList, list, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
@@ -317,7 +318,7 @@ export function followPointer(v) {
   v.pointer = null;
 }
 /** Stops a friend's glide at once where it was going, as a press takes it. */
-export function unglide(v) {
+function unglide(v) {
   halt(v.button);
   halt(v.label);
 }
@@ -605,6 +606,9 @@ export function syncViews() {
     }
     v.pet = p;
     v.asset = asset(p);
+    // A bundled companion's authored actions start loading as it comes into the yard, so they are
+    // there before its first game; once they are, this is one check.
+    loadCompanionActionsFor([v.asset]);
     // A friend at a spot for its agent (the front, a desk) stands away from its own place (duty.js).
     if (!v.drag && !v.target && !v.away && !v.spot) {
       v.x = p.x;

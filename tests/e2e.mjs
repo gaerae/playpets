@@ -982,7 +982,7 @@ const scenario = `(async()=>{
     for(const shape of [{...fullAt,width:300,height:210},fullAt]){
       await nativeWindow(shape);await until(()=>Math.abs(innerWidth-shape.width)<=1);await wait(80);
       for(const lang of ['ko','en','ja','zh-hans']){
-        localeUi.setLanguageForTests(lang);localeUi.apply();
+        await localeUi.setLanguageForTests(lang);localeUi.apply();
         (await import('./core/controls.js')).openPlay();await wait(40);
         // Wide windows keep every name on one line at 12px or more. In small windows nothing spills; a
         // Play name stays on one line too, never broken inside a word (three tiles a row, the
@@ -1059,7 +1059,7 @@ const scenario = `(async()=>{
 
       }
     }
-    localeUi.setLanguageForTests('ko');localeUi.apply();
+    await localeUi.setLanguageForTests('ko');localeUi.apply();
     await L('menuCopy='+(menuCopyFits?'four-locales-fit-small-and-wide':'err:'+JSON.stringify(menuCopyTrace)));
     await L('digRewardLocales='+(rewardLocaleFits?'four-locales-small-wide-hints-status':'err:'+JSON.stringify(rewardTrace)));
     await L('albumConditionsOnly='+(conditionsOnlyFits?'no-numbers-or-toggle-four-locales-small-wide':'err:'+JSON.stringify(rewardTrace)));

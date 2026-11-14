@@ -130,6 +130,17 @@
 - Pictures travel by address, not inside a command's answer: `listBackgrounds` names each picture of an imported background as `pet-asset://background/<id>/<picture>`, read when its place or its card shows.
   - Five packs (64 MB) sent whole held back the first friend by about 230 ms and kept about 200 MB in the app and the page all day.
 
+### Starting a window
+- A window loads the string table of the language it speaks and English, the fallback, not every table (`loadStrings` in `src/core/strings.js`, called by `i18n.js`).
+  - Changing the language reloads the page, which loads the new table. The Settings tab lists every language from `LANGUAGES`, which holds each one's own name, without loading their tables.
+  - Outside a page (the Node tests, scripts) every table loads: the tests check them all.
+  - The four tables are 246 KB. In Chrome, after a collection, the JS heap with `i18n.js` loaded went from 1,232 KB to 999 KB (Korean, which also loads English) and 875 KB (English); the import took 13–15 ms before and after, the files coming in parallel either way.
+  - Measured 2026-11-15, Apple M2 Pro, headless Chrome over localhost, medians of 15 runs.
+- The first render waits for the yard's content (`loadContent`), not for the bundled companions' authored actions (`src/content/companion-actions.json`, 102 KB).
+  - A bundled companion asks for them as the yard draws it (`syncViews` in `src/yard/views.js` calls `loadCompanionActionsFor` in `src/core/companion-actions.js`), at the first render or when it comes in later; a yard without one never loads them.
+  - On its own the file takes about 4 ms to fetch and 0.2 ms to parse in Chrome. Beside the hundred drawings `loadContent` fetches, the time to the content made no measurable difference (medians 105–222 ms either way, noisy); on Windows each request also passes through the window's thread (WebView2), and the start makes one fewer.
+- The content files stay formatted as people edit them: the app has no build step for the page (`frontendDist` is `src/`), and Tauri compresses what it embeds.
+
 ### Recorded baseline
 - This baseline predates the later raster artwork and place changes. It is not a benchmark of the current release.
 - Each value is the CPU of the app process plus the WebKit process, as a percentage of one core.
@@ -211,3 +222,4 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-11-14 A glide after a late step lasts until the next step is likely to come; a push re-renders only what changed; canvases follow a change of screen density
 - 2026-11-14 Pictures travel by address, not inside a command's answer (imported backgrounds); each process measured in each state, over 12 minutes, and with the filters and the blur off
 - 2026-11-15 A state travels as JSON text; a desktop window is sent only its part, only when it changed, and only the events it acts on
+- 2026-11-15 A window loads only the string table it speaks and English; the first render does not wait for the companions' authored actions

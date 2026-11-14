@@ -170,6 +170,7 @@ const TABLE: &[(&str, &str)] = &[
     ("cli.missing", "找不到 {name} CLI。请在终端安装：{command}"),
     ("cli.spawn_failed", "无法运行 {name} CLI。{detail}"),
     ("cli.error", "{name} CLI 错误：{detail}"),
+    ("cli.lost", "与 {name} CLI 的连接中断了。请再试一次。"),
     ("cli.timeout", "回答超时。请再试一次。"),
     ("cli.nothing_to_send", "没有要发送的消息。"),
     ("cli.codex_empty", "Codex CLI 的回答是空的。请检查登录状态。"),

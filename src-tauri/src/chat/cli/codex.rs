@@ -59,8 +59,16 @@ fn run(bin: &Path, model: &str, prompt: &str, cancel: &AtomicBool) -> Result<Str
             i18n::tr("cli.spawn_failed", &[("name", "Codex"), ("detail", &i18n::reason(&e))])
         })
     })?;
-    let _ = child.stdin.take().unwrap().write_all(prompt.as_bytes());
-    let mut stderr = child.stderr.take().unwrap();
+    // Both pipes were asked for above, so they are there; were one missing, the run would only
+    // wait out the timeout, so it ends now.
+    let (Some(mut stdin), Some(mut stderr)) = (child.stdin.take(), child.stderr.take()) else {
+        tree.kill(&mut child);
+        let _ = child.wait();
+        return Err(CodexError::Failed(i18n::tr("cli.lost", &[("name", "Codex")])));
+    };
+    // Closed once written: Codex reads the prompt to its end.
+    let _ = stdin.write_all(prompt.as_bytes());
+    drop(stdin);
     let errors = std::thread::spawn(move || {
         let mut s = String::new();
         let _ = stderr.read_to_string(&mut s);
@@ -72,7 +80,13 @@ fn run(bin: &Path, model: &str, prompt: &str, cancel: &AtomicBool) -> Result<Str
         match child.try_wait() {
             Ok(Some(status)) => break Ok(status),
             Ok(None) => {}
-            Err(e) => break Err(e.to_string()),
+            // The OS could not tell whether Codex still runs, and its message is not a sentence for
+            // the person: Codex is stopped rather than left running unwatched.
+            Err(_) => {
+                tree.kill(&mut child);
+                let _ = child.wait();
+                break Err(i18n::tr("cli.lost", &[("name", "Codex")]));
+            }
         }
         // A stopped run ends with everything it started (npm's codex.js runs the real codex as its
         // child, which would go on spending the person's quota), and is reaped so no zombie is left.

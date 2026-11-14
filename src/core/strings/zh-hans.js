@@ -2,7 +2,6 @@
 // holes are the same in every language file (tests/i18n.test.mjs checks them against ko.js).
 // Chinese: plain, friendly register; the friends' bubbles are casual and short.
 
-export const name = '简体中文';
 // A sentence in this language shows by its script (Han characters).
 export const sentence = /[一-鿿]/;
 // Names in a row are joined with the enumeration comma.

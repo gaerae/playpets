@@ -128,8 +128,12 @@ impl Session {
                 )
             }
         })?;
-        let stdin = child.stdin.take().unwrap();
-        let stdout = child.stdout.take().unwrap();
+        // Both pipes were asked for above, so they are there; without one no turn could be had.
+        let (Some(stdin), Some(stdout)) = (child.stdin.take(), child.stdout.take()) else {
+            tree.kill(&mut child);
+            let _ = child.wait();
+            return Err(i18n::tr("cli.lost", &[("name", "Claude Code")]));
+        };
         let stderr = match child.stderr.take() {
             Some(pipe) => StderrTail::follow(pipe),
             None => Arc::new(StderrTail::default()),

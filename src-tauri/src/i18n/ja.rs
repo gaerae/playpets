@@ -170,6 +170,7 @@ const TABLE: &[(&str, &str)] = &[
     ("cli.missing", "{name} CLI が見つかりません。ターミナルでインストールしてください: {command}"),
     ("cli.spawn_failed", "{name} CLI を起動できませんでした。{detail}"),
     ("cli.error", "{name} CLI エラー: {detail}"),
+    ("cli.lost", "{name} CLI との接続が切れました。もう一度お試しください。"),
     ("cli.timeout", "返事に時間がかかりすぎました。もう一度お試しください。"),
     ("cli.nothing_to_send", "送るメッセージがありません。"),
     ("cli.codex_empty", "Codex CLI の返事が空でした。ログインしているか確認してください。"),

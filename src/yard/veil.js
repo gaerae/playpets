@@ -11,7 +11,7 @@
 import { drawnBox } from './field.js';
 
 /** How much of a friend's body a thing in front must cover for the thing to fade. */
-export const VEIL_COVER = 0.6;
+const VEIL_COVER = 0.6;
 // What fades (garden.css); the snowman game's balls are set down too, and do not.
 const FADES = ['plant', 'shoot', 'decor', 'planted-tree'];
 // The yard is cut into strips this many pixels wide, and each thing is kept under every strip

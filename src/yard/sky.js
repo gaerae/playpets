@@ -87,7 +87,7 @@ export function worldCaption(world, period, weather) {
     : t('caption.indoor', parts);
 }
 // Returns whether the weather changed.
-export function paintScene() {
+function paintScene() {
   const before = scene.weather,
     was = scene.event,
     now = new Date(),

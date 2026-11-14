@@ -17,7 +17,7 @@ const END_ZOOM_MIN = 0.75;
 export const endZoom = zoom => Math.max(zoom, END_ZOOM_MIN);
 
 /** Start of the first snowfall that begins in [fromMs, toMs): three snow blocks after a block that is not snow. */
-export function snowfallStart(fromMs, toMs, weatherAt) {
+function snowfallStart(fromMs, toMs, weatherAt) {
   for (let b = Math.ceil(fromMs / BLOCK_MS) * BLOCK_MS; b < toMs; b += BLOCK_MS) {
     if (
       weatherAt(b) === 'snow' &&
@@ -39,7 +39,7 @@ export function coveredAt(laid, now, weatherAt) {
 }
 
 /** December 26 to January 7: the days the yard keeps to one quiet trail. */
-export function quietDay(date) {
+function quietDay(date) {
   const m = date.getMonth(),
     d = date.getDate();
   return (m === 11 && d >= 26) || (m === 0 && d <= 7);
