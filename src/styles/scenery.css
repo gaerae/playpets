@@ -509,6 +509,12 @@
   animation: drift var(--t) linear infinite;
   animation-delay: var(--d);
 }
+/* WebView2 composites the whole yard on every display frame while a cloud moves smoothly, all on
+   the processor where there is no GPU: steps of about a pixel in the usual window let it rest in
+   between. WebKit moves steps on the page's own thread, which costs it more than it saves. */
+:root[data-webview2] .cloud-lane {
+  animation-timing-function: steps(1500);
+}
 .cloud {
   position: absolute;
   width: calc(14% * var(--s));

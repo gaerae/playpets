@@ -490,8 +490,10 @@ select:focus {
 :root[data-resting] #yard {
   content-visibility: hidden;
 }
-/* The window is hidden or minimized (app.js): nothing on it needs to move. */
-:root[data-unseen] * {
+/* The window is hidden or minimized (app.js): nothing on it needs to move, drawn parts included. */
+:root[data-unseen] *,
+:root[data-unseen] *::before,
+:root[data-unseen] *::after {
   /* biome-ignore-start lint/complexity/noImportantStyles: an unseen page pauses every animation. */
   animation-play-state: paused !important;
   /* biome-ignore-end lint/complexity/noImportantStyles: an unseen page pauses every animation. */

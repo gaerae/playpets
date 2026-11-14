@@ -6,7 +6,7 @@ import { cellLeft } from '../src/core/animation.js';
 
 // Runs the end of app.js (its last top-level try) with `booted` saying whether the state came at
 // the start, and returns the commands and toasts in order.
-async function start({ booted }) {
+async function start({ booted, unreachable = false }) {
   const source = await readFile('src/app.js', 'utf8');
   const startup = source.slice(source.lastIndexOf('\ntry {'));
   const calls = [];
@@ -15,6 +15,7 @@ async function start({ booted }) {
     call: async method => {
       calls.push(method);
       if (method === 'growTrees') throw new Error('The garden could not be saved.');
+      if (method === 'bootstrap' && unreachable) throw new Error('The app could not start.');
       return { language: 'en' };
     },
     setData(value) {
@@ -49,7 +50,22 @@ async function start({ booted }) {
 // Growth during closed time is recorded after the yard is first drawn: trees that grew come back as
 // a change, like every other save, and the first friend is not kept waiting for a save.
 test('a growth save error remains visible without stopping yard startup', async () => {
-  assert.deepEqual(await start({ booted: true }), ['animate', 'growTrees', 'The garden could not be saved.']);
+  assert.deepEqual(await start({ booted: true }), [
+    'windowReady',
+    'animate',
+    'growTrees',
+    'The garden could not be saved.',
+  ]);
+});
+
+// The window is made hidden so that it never shows white while the page loads (window.rs): it
+// shows once the yard is first drawn, and with the error when the start fails.
+test('the window is shown once the yard is first drawn, or with the error when the start fails', async () => {
+  assert.deepEqual(await start({ booted: false, unreachable: true }), [
+    'bootstrap',
+    'The app could not start.',
+    'windowReady',
+  ]);
 });
 
 test('the state is asked for once: again at the full start only when the first ask failed', async () => {
@@ -57,10 +73,39 @@ test('the state is asked for once: again at the full start only when the first a
   assert.ok(!(await start({ booted: true })).includes('bootstrap'));
   assert.deepEqual(await start({ booted: false }), [
     'bootstrap',
+    'windowReady',
     'animate',
     'growTrees',
     'The garden could not be saved.',
   ]);
+});
+
+// The first ask of app.js (from `const booted` to the content), answered with `reply`: whether the
+// page then takes its yard as seen.
+async function firstAsk(reply) {
+  const source = await readFile('src/app.js', 'utf8');
+  const ask = source.slice(source.indexOf('\nconst booted'), source.indexOf('\n// What the yard is made of'));
+  const context = {
+    shown: true,
+    data: {},
+    setData() {},
+    call: async () => {
+      if (reply instanceof Error) throw reply;
+      return reply;
+    },
+  };
+  await vm.runInNewContext(`(async () => {${ask}\n})()`, context);
+  return context.shown;
+}
+
+// Started at login with friends on the desktop, the window is hidden before the page loads, and the
+// window event that said so had nobody to hear it: the yard kept drawing for nobody.
+test('a yard whose window was hidden before the page loaded is unseen from the start', async () => {
+  assert.equal(await firstAsk({ windowShown: false }), false);
+  assert.equal(await firstAsk({ windowShown: true }), true);
+  assert.equal(await firstAsk(new Error('no state')), true, 'without an answer, the window is taken as seen');
+  const source = await readFile('src/app.js', 'utf8');
+  assert.match(source, /\nif \(!shown\) seenAs\(false\);\n/, 'what an unseen window stops, it stops at the start');
 });
 
 // The bundled companions' authored actions (about 100 KB) are not needed to draw the yard: the

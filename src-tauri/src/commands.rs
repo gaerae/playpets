@@ -109,13 +109,14 @@ const fn test_only(name: &'static str, run: fn(&Ctx) -> Result<Value, String>) -
 /// Every command, in one table: a new one is one row (and its page call). The bridge, who may call
 /// what, and the dispatch all come from here.
 static COMMANDS: &[Command] = &[
-    // An overlay window starts from its own part of the state, as every change sends it (app.rs).
+    // An overlay window starts from its own part of the state, as every change sends it (app.rs);
+    // the yard's own page also hears whether its window is shown.
     overlay("bootstrap", |c| {
         let state = public_state(c.app, &lock(&c.state));
         Ok(if c.sender.starts_with("overlay") {
             crate::app::overlay_state(&state)
         } else {
-            state
+            bootstrap(state, window::is_shown())
         })
     }),
     // Friends in the yard.
@@ -563,6 +564,8 @@ static COMMANDS: &[Command] = &[
     main("windowMinimize", |c| window::command(c.app, c.name, c.args)),
     main("windowHide", |c| window::command(c.app, c.name, c.args)),
     main("windowFit", |c| window::command(c.app, c.name, c.args)),
+    // The page has drawn the yard: its window, made hidden, shows (window.rs FIRST_SHOW).
+    main("windowReady", |c| window::command(c.app, c.name, c.args)),
     // The app itself.
     main("checkUpdate", |c| crate::update::check(c.app)),
     main("installUpdate", |c| crate::update::install(c.app)),
@@ -621,6 +624,13 @@ fn gift_kinds(arg: &Value) -> Result<Vec<String>, String> {
         return Err(i18n::t("error.bad_request"));
     }
     Ok(kinds)
+}
+
+/// The state a page starts from, and whether the yard can be seen: a window hidden before its page
+/// loaded (a start at login) told a page that was not there yet.
+fn bootstrap(mut state: Value, shown: bool) -> Value {
+    state["windowShown"] = json!(shown);
+    state
 }
 
 fn command(name: &str) -> Option<&'static Command> {
@@ -754,6 +764,17 @@ mod tests {
     }
 
     #[test]
+    fn the_start_tells_the_page_whether_its_window_can_be_seen() {
+        // Hidden at login before the page loaded: the window event that said so had nobody to hear it.
+        let state = json!({"pets": []});
+        assert_eq!(bootstrap(state.clone(), false)["windowShown"], json!(false));
+        assert_eq!(bootstrap(state, true)["windowShown"], json!(true));
+        let row = include_str!("commands.rs");
+        let row = &row[row.find("overlay(\"bootstrap\"").unwrap()..];
+        assert!(row[..row.find("\n    }),\n").unwrap()].contains("window::is_shown()"));
+    }
+
+    #[test]
     fn every_pet_folder_the_page_lists_can_be_opened() {
         // The Invite tab shows an Open folder button for each place in `petFolders`.
         let app = include_str!("app.rs");
@@ -869,6 +890,7 @@ mod tests {
             "windowResize",
             "windowMinimize",
             "windowHide",
+            "windowReady",
         ] {
             assert!(command(name).is_some() && window_rs.contains(&format!("\"{name}\" =>")));
         }

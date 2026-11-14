@@ -362,10 +362,12 @@ Start at login:
 - The system starts the app at login with `--autostart` (`tauri-plugin-autostart`): a LaunchAgent on macOS, the Run key on Windows, an autostart entry on Linux.
 - A Microsoft Store package's Run key is its own copy, which Windows does not read at sign-in. There `startup.rs` switches the package's startup task (`TaskId="PlayPets"` in `AppxManifest.xml`), and a launch activated by it counts as at login.
 - A startup task the person turned off in Windows Settings can only be turned back on there; the switch says so (`error.autostart_in_settings`).
-- Started that way with desktop mode on, the yard window stays hidden.
+- Started that way with desktop mode on, the yard window stays hidden. The page hears it from `windowShown` in `bootstrap`, since the window was hidden before the page loaded.
 
 The yard window:
 - Frameless on every OS.
+- Made hidden: it shows once the page has drawn the yard (`windowReady`), or after 3 s if the page never says so (`FIRST_SHOW` in `window.rs`). A start at login that keeps it hidden never shows it.
+- With no saved place, it opens at the usual size in the middle of the screen.
 - A narrow transparent target along the top edge moves the window without reserving title-bar space.
 - Edges and corners resize it, up to the work area of the screen it is on.
 - Buttons for fit, minimize and close appear with the pointer near the top or with keyboard focus.
