@@ -1282,12 +1282,15 @@ const scenario = `(async()=>{
     const sourceIdentities=new Map(authoredViews.map(v=>[v.pet.id,JSON.stringify(v.asset)]));
     const authoredClips=['dig','plant','cast','wait','reel','discover'],authoredTrace=[];
     let authoredOk=true,cancellationOk=true;
+    const sceneState=await import('./core/state.js');
     const pixelHash=canvas=>canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data.reduce((sum,value,i)=>(sum+value*((i%29)+1))%2147483647,0);
     for(const shape of [{...fullAt,width:300,height:210},fullAt]){
       await nativeWindow(shape);await until(()=>Math.abs(innerWidth-shape.width)<=1);await wait(80);
       for(const season of ['spring','summer','autumn','winter']){
         $('scene-season').value=season;$('scene-season').dispatchEvent(new Event('change'));
-        await until(()=>world.scene.season===season);
+        // The backend's answer to the pick is drawn a moment later; with a wider font (Linux) a
+        // friend's tag can reach the dock then and lift it. Its box is read after that drawing.
+        await until(()=>world.scene.season===season&&sceneState.data.scene?.season===season);await wait(80);
         for(const v of authoredViews){
           companionTrips.release(v);companionViews.pose(v,'idle',Infinity);v.nextWander=Infinity;
           const canonicalBox=v.button.getBoundingClientRect(),canonicalHeight=v.canvas.style.height;
