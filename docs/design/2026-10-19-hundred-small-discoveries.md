@@ -85,3 +85,12 @@ event gifts), and about one keepsake in four is uncommon. Only the sturgeon is a
 new rare kind; the peacock butterfly and emperor dragonfly become ordinary so
 the bug book keeps its share. The New Year gains its own gift, a kite, so every
 event brings one. Names that sound special stay on rare kinds.
+
+## Follow-up: 185 entries (2026-11-15)
+
+The flower book grows to 32 (eight per season) and the tree book to 20. A new
+kind never shares a name or a silhouette with one already there: chestnut has
+yellow-green leaves and open burrs, not the oak's rust leaves; gentian stands in
+closed upright tubes, not the bellflower's open bells; juniper is a narrow
+spiral column, not the pine's spreading crown. Each new tree likes one season,
+one weather and one place with soil.

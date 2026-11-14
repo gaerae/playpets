@@ -141,10 +141,10 @@ What blooms depends on the season you planted in:
 
 | Planted in | Flowers |
 |---|---|
-| Spring | Tulips, daffodils, crocuses, grape hyacinths |
-| Summer | Sunflowers, hydrangeas, lavender, bellflowers |
-| Autumn | Cosmos, chrysanthemums, dahlias, asters |
-| Winter | Camellias, snowdrops, hellebores, cyclamen |
+| Spring | Tulips, daffodils, crocuses, grape hyacinths, dandelions, azaleas, bleeding hearts, pasque flowers |
+| Summer | Sunflowers, hydrangeas, lavender, bellflowers, morning glories, garden balsam, daylilies, hollyhocks |
+| Autumn | Cosmos, chrysanthemums, dahlias, asters, red spider lilies, cockscomb, buckwheat, gentians |
+| Winter | Camellias, snowdrops, hellebores, cyclamen, Amur adonis, pansies, flowering kale, winter heath |
 
 | On a plant | What happens |
 |---|---|
@@ -344,7 +344,7 @@ Hearts on a friend's name tag show how close it is to you. The Friend panel show
 ### Planting a tree
 
 1. Find a sapling by digging.
-2. Choose **Play → Garden → Plant a tree** to see your stock: cherry, maple, pine, oak, birch, willow, ginkgo, persimmon, bamboo, magnolia, crape myrtle, dawn redwood, wisteria, fringe tree, fig, golden rain tree, chestnut, red plum, yuzu and juniper.
+2. Choose **Play → Garden → Plant a tree** to see your stock: cherry, maple, pine, oak, birch, willow, ginkgo, persimmon, bamboo, magnolia, crape myrtle, dawn redwood, wisteria, Korean fringe tree, fig, golden rain tree, chestnut, red plum, yuzu and juniper.
 3. Pick a kind you have and click clear ground. It uses one sapling.
 
 - Growth counts time with the app closed: young after two hours, mature after twelve. A mature tree is recorded once in **Album → Trees**.
