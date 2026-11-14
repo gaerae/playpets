@@ -53,6 +53,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The keyboard focus ring looks the same everywhere, in the scene menu, the Play panel and the album too.
 - A friend standing behind a tree, a flower or a gift no longer vanishes with only its hat showing: what covers it fades while it is there.
 
+### Website and docs
+
+- The guide lists the eight new trees among the saplings to plant, and the guide and README count 185 album entries.
+
 ## [1.7.1] - 2026-11-13
 
 ### Changed
