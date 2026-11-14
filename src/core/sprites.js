@@ -122,6 +122,14 @@ function actionSurface(canvas, clip) {
     for (const [key, value] of Object.entries(values)) if (canvas.style[key] !== value) canvas.style[key] = value;
   }
 }
+// The first sprite drawn on a page is marked, so a run can say how long the first friend took to
+// show from the page's start (the e2e's perf lines read it).
+let firstMarked = false;
+function markFirst(canvas) {
+  if (firstMarked || !canvas.isConnected) return;
+  firstMarked = true;
+  globalThis.performance?.mark?.('first-friend');
+}
 export function drawSprite(canvas, asset, state = 'idle', elapsed = 0, look = null, action = null) {
   if (!asset) return;
   const authored = action && sameCompanionAppearance(action.asset, asset) ? companionImage(action) : null;
@@ -144,6 +152,7 @@ export function drawSprite(canvas, asset, state = 'idle', elapsed = 0, look = nu
     );
     canvas._pk = key;
     canvas._sheet = authored;
+    markFirst(canvas);
     return;
   }
   const image = drawable(asset);
@@ -168,6 +177,7 @@ export function drawSprite(canvas, asset, state = 'idle', elapsed = 0, look = nu
   ctx.drawImage(image, frame.column * 192, frame.row * 208, 192, 208, 0, 0, 192, 208);
   canvas._pk = key;
   canvas._sheet = image._spriteRevision;
+  markFirst(canvas);
 }
 export function canvas() {
   const c = document.createElement('canvas');
