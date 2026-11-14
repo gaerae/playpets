@@ -101,13 +101,19 @@ test('a step that does not move the friend works nothing out again', t => {
   assert.equal(writes, 0);
 });
 
-// The fade is to about half, eased a quarter of a second, and with reduced motion it is not eased.
+// The fade is to about half, eased a quarter of a second. With reduced motion it is not eased:
+// base.css stops every transition then, so garden.css keeps no rule of its own that never applies.
 test('a thing in front of a friend fades to about half, eased unless motion is reduced', async () => {
-  const css = (await readFile('src/styles/garden.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ');
-  assert.match(css, /:is\(\.plant, \.shoot, \.decor, \.planted-tree\)\.veiled \{ opacity: 0\.45; \}/);
+  const read = async name =>
+    (await readFile(`src/styles/${name}`, 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ');
+  const garden = await read('garden.css');
+  assert.match(garden, /:is\(\.plant, \.shoot, \.decor, \.planted-tree\)\.veiled \{ opacity: 0\.45; \}/);
+  for (const kind of ['plant', 'shoot', 'decor', 'planted-tree'])
+    assert.match(garden, new RegExp(`(^| )\\.${kind} \\{[^}]*transition: opacity 0\\.25s ease;`), kind);
+  assert.doesNotMatch(garden, /\{ :is\(\.plant, \.shoot, \.decor, \.planted-tree\) \{ transition: none; \} \}/);
   assert.match(
-    css,
-    /@media \(prefers-reduced-motion: reduce\) \{ :is\(\.plant, \.shoot, \.decor, \.planted-tree\) \{ transition: none; \} \}/,
+    await read('base.css'),
+    /@media \(prefers-reduced-motion: reduce\) \{ \* \{ animation: none !important; transition: none !important;/,
   );
 });
 
