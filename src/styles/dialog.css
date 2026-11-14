@@ -424,6 +424,8 @@ body.compact .update-compact {
   --album-ground-hi: #f4f8ec;
   --album-wood: #f3e6d2;
   --album-wood-hi: #fbf5ec;
+  /* A card's number, on the ground of its drawing: quieter than the ink, readable on every book's. */
+  --album-number: #4a5c5d;
   height: min(640px, calc(100dvh - 16px));
   width: min(760px, 94vw);
   padding: 14px;
@@ -712,8 +714,7 @@ body.compact .update-compact {
   font-size: var(--font-xs);
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: var(--muted);
-  opacity: 0.75;
+  color: var(--album-number);
   font-variant-numeric: tabular-nums;
 }
 .album-card strong {
@@ -1372,6 +1373,7 @@ body.compact .update-compact {
     --album-ground-hi: #41573b;
     --album-wood: #43382a;
     --album-wood-hi: #554735;
+    --album-number: #d0dbd3;
   }
   .album-grid[data-book="fish"] {
     --album-ground: #24403f;
