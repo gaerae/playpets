@@ -567,6 +567,8 @@ static COMMANDS: &[Command] = &[
         println!("[e2e] {}", c.text(0));
         Ok(Value::Null)
     }),
+    // Answers at once: what one round trip through the bridge costs, on its own (the perf lines).
+    test_only("e2ePing", |_| Ok(Value::Null)),
     test_only("e2eWindow", |c| window::e2e_window(c.app, c.args)),
     test_only("e2eFront", |c| window::e2e_front(c.app)),
     test_only("e2eTray", |_| Ok(crate::tray::e2e_state())),
@@ -617,8 +619,15 @@ fn command(name: &str) -> Option<&'static Command> {
 pub fn bridge_js() -> String {
     let names: Vec<&str> = COMMANDS.iter().filter(|c| c.who != Who::Test).map(|c| c.name).collect();
     let list = serde_json::to_string(&names).unwrap_or_default();
+    // An e2e run counts every file the page loads at startup (the perf lines); the browser keeps
+    // 250 by default, fewer than the page asks for before its first friend shows.
+    let counted = if e2e_mode() {
+        "\ntry{performance.setResourceTimingBufferSize(5000)}catch{}"
+    } else {
+        ""
+    };
     format!(
-        "{}\nwindow.__PP_LANG='{}';",
+        "{}\nwindow.__PP_LANG='{}';{counted}",
         BRIDGE_JS.replace("__COMMANDS__", &list),
         i18n::current().code()
     )

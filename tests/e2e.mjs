@@ -72,9 +72,10 @@ const provider = http.createServer(async (req, res) => {
   let body = '';
   for await (const c of req) body += c;
   chatRequests.push(JSON.parse(body));
-  if (body.includes('천천히')) await new Promise(r => setTimeout(r, 1500));
-  res.writeHead(200, { 'Content-Type': 'application/json' });
+  // Only the message that asks for it is slow: the history after it is not.
   const asked = chatRequests.at(-1).messages.at(-1).content;
+  if (asked.includes('천천히')) await new Promise(r => setTimeout(r, 1500));
+  res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(
     JSON.stringify({
       message: {
@@ -236,6 +237,112 @@ const scenario = `(async()=>{
     stopChanges();stopBusy();
     await L('waiting='+(waitingShown&&!shownLog.querySelector('.waiting')&&!document.querySelector('.yard-pet.thinking')?'shown-then-gone':'err:'+waitingShown));
     await L('chatPushes='+(pushes.join()===['busy:'+p1.data.id,'busy:'].join()?'busy-only':'err:'+pushes.join()));
+    // Timings, one "perf <name> <value> <unit>" line each, the same on every system CI runs on, so a
+    // step slow on one system only stands out beside the others. Nothing is asserted: runners differ
+    // in speed, and a bound would fail on a slow one.
+    {
+      const P=(name,v,unit='ms')=>L('perf '+name+' '+(typeof v!=='number'||!isFinite(v)?'none':Math.round(v*10)/10)+' '+unit);
+      const $=id=>document.getElementById(id),layout=()=>document.body.getBoundingClientRect().height;
+      const median=list=>{const s=list.filter(n=>typeof n==='number').sort((a,b)=>a-b);return s.length?s[s.length>>1]:null;};
+      // WebKit's clock counts whole milliseconds: a step shorter than one is timed as a mean of many.
+      const mean=list=>list.length?list.reduce((a,b)=>a+b,0)/list.length:null;
+      const pause=ms=>new Promise(r=>setTimeout(r,ms));
+      // What a click or a call costs the page: its script, then the style and layout it leaves (read
+      // here, so the cost is counted now rather than in whichever frame comes next).
+      const timed=async(name,act)=>{const t0=performance.now();await act();layout();await P(name,performance.now()-t0);};
+      await inView('perf');
+      // Startup, on the page's clock from its navigation; the harness adds the time from the process start.
+      const nav=performance.getEntriesByType('navigation')[0],first=performance.getEntriesByName('first-friend')[0];
+      await P('startup-dom-ready',nav?.domContentLoadedEventEnd);
+      await P('startup-first-friend',first?.startTime);
+      await L('perf-epoch navigation '+performance.timeOrigin);
+      if(first)await L('perf-epoch first-friend '+(performance.timeOrigin+first.startTime));
+      // The files the page asked for before its first friend showed, by kind, and how long each took.
+      const beforeFirst=first?.startTime??Infinity,loads=performance.getEntriesByType('resource').filter(r=>r.startTime<beforeFirst);
+      const kindOf=r=>/ipc[:.]/.test(r.name)?'ipc':/pet-asset/.test(r.name)?'sheet':(r.name.split('?')[0].match(/\\.(\\w+)$/)||[,'other'])[1];
+      const kinds={};for(const r of loads)kinds[kindOf(r)]=(kinds[kindOf(r)]||0)+1;
+      await P('resource-entries',performance.getEntriesByType('resource').length,'count');
+      await P('startup-requests',loads.length,'count');
+      for(const k of ['js','css','svg','json','webp','sheet','ipc'])await P('startup-requests-'+k,kinds[k]||0,'count');
+      const own=loads.filter(r=>!['ipc','sheet'].includes(kindOf(r)));
+      await P('startup-request-median',median(own.map(r=>r.duration)));
+      await P('startup-requests-done',own.length?Math.max(...own.map(r=>r.responseEnd)):null);
+      // Sprite sheets, megabytes each, through the app's own address: one at a time, then up to six at once.
+      {const loaded=new Set(performance.getEntriesByType('resource').map(r=>r.name)),fresh=[...new Set(boot.data.assets.map(a=>a.spriteUrl))].filter(u=>u&&!loaded.has(new URL(u,location.href).href));
+       const load=url=>new Promise(done=>{const image=new Image(),t0=performance.now();image.onload=()=>{const t1=performance.now();image.decode().then(()=>done([t1-t0,performance.now()-t1]),()=>done([t1-t0,null]));};image.onerror=()=>done([null,null]);image.src=url;});
+       const alone=[];for(const url of fresh.slice(0,4))alone.push(await load(url));
+       await P('sheet-load',median(alone.map(a=>a[0])));
+       await P('sheet-decode',median(alone.map(a=>a[1])));
+       const together=fresh.slice(4,10),t0=performance.now();await Promise.all(together.map(load));
+       await P('sheets-at-once',together.length?performance.now()-t0:null);
+       await P('sheets-at-once-count',together.length,'count');}
+      // One trip through the bridge: a command that does nothing, one that asks the window (the main
+      // thread), and timers, whose granularity differs between systems.
+      const trips=async(name,args=[])=>{const t=[];for(let i=0;i<20;i++){const t0=performance.now();await window.__TAURI__.core.invoke('call',{name,args});t.push(performance.now()-t0);}return mean(t);};
+      await P('ipc-ping',await trips('e2ePing'));
+      await P('ipc-main-thread',await trips('windowIsFullscreen'));
+      const lateBy=async ms=>{const t=[];for(let i=0;i<10;i++){const t0=performance.now();await pause(ms);t.push(performance.now()-t0);}return mean(t);};
+      await P('timer-0',await lateBy(0));
+      await P('timer-50',await lateBy(50));
+      // A whole render with nothing changed, and a push of the same state as the backend sends one.
+      const renderer=await import('./render.js'),rendered=[];
+      for(let i=0;i<5;i++){const t0=performance.now();renderer.render();layout();rendered.push(performance.now()-t0);}
+      await P('render-unchanged',mean(rendered));
+      const same=(await playPets.bootstrap()).data,pushedAt=[];
+      for(let i=0;i<5;i++){const copy=structuredClone(same),t0=performance.now();window.__pp('change',copy);await pause(0);layout();pushedAt.push(performance.now()-t0);}
+      await P('push-unchanged',mean(pushedAt));
+      // A change from the backend: setSound to what it is goes through commit, shown to every page and
+      // written to disk before it answers; setScene to what it is is shown at once and written later.
+      {const arrived=[],stop=playPets.onChange(s=>arrived.push([performance.now(),new TextEncoder().encode(JSON.stringify(s)).length]));
+       const evals=[],saved=[],soon=[];let bytes=null;
+       for(let i=0;i<5;i++){arrived.length=0;const t0=performance.now();await playPets.setSound(false,null);saved.push(performance.now()-t0);await until(()=>arrived.length,2000);if(arrived.length){evals.push(arrived[0][0]-t0);bytes=arrived[0][1];}await pause(20);}
+       for(let i=0;i<5;i++){const t0=performance.now();await playPets.setScene('weather',$('weather').value);soon.push(performance.now()-t0);await pause(20);}
+       stop();
+       await P('change-size',bytes,'bytes');
+       await P('change-arrives',mean(evals));
+       await P('commit-saved',median(saved));
+       await P('commit-soon',mean(soon));}
+      // An agent's status as the backend sends it: the friend, the summary and the panel are drawn.
+      {const now=(await import('./core/state.js')).data.statuses[p1.data.id];
+       if(now){const t0=performance.now();window.__pp('event',{type:'status',petId:p1.data.id,...now});layout();await P('status-event',performance.now()-t0);}
+       else await P('status-event',null);}
+      // A pat: the command, and the play event it sends back to every page.
+      {const got=[],stop=playPets.onEvent(e=>{if(e.type==='play')got.push(performance.now());}),events=[],replies=[];
+       for(let i=0;i<5;i++){got.length=0;const t0=performance.now();await playPets.play('pet',p1.data.id);replies.push(performance.now()-t0);await until(()=>got.length,2000);if(got.length)events.push(got[0]-t0);await pause(100);}
+       stop();
+       await P('pat-reply',mean(replies));
+       await P('pat-event',mean(events));}
+      // A chat turn with the fake AI, which answers at once: when the page hears the wait begin, the
+      // answer, and the command's own reply.
+      {const at={},stop=playPets.onEvent(e=>{if(e.type==='busy'&&e.busy.length&&!at.busy)at.busy=performance.now();if(e.type==='chat-message'&&!at.message)at.message=performance.now();});
+       const t0=performance.now();await playPets.chat(p1.data.id,'안녕!');const t1=performance.now();await until(()=>at.message,2000);stop();
+       await P('chat-busy',at.busy-t0);
+       await P('chat-message',at.message-t0);
+       await P('chat-reply',t1-t0);}
+      // Each panel, the first time it opens and the second.
+      const tabs=await import('./panel/tabs.js');
+      for(const [name,button,panel] of [['scene','scene-button','scene-menu'],['play','play-button','play-panel'],['menu','yard-controls-toggle','yard-controls-panel']])
+        for(const round of ['first','second']){await timed('dock-'+name+'-'+round,()=>$(button).click());if(!$(panel).hidden)$(button).click();await pause(50);}
+      for(const kind of ['pet','invite','settings'])
+        for(const round of ['first','second']){await timed('panel-'+kind+'-'+round,()=>tabs.openPanel(kind));tabs.openPanel(null);await pause(50);}
+      // The album, and a book in it, each the first time and the second.
+      for(const round of ['first','second']){await timed('album-'+round,()=>$('album-button').click());$('close-album').click();await pause(50);}
+      $('album-button').click();
+      {const books=[...document.querySelectorAll('.album-tabs [data-book]')];
+       if(books.length>1){await timed('album-book-first',()=>books[1].click());books[0].click();await timed('album-book-second',()=>books[1].click());books[0].click();}}
+      $('close-album').click();
+      // Each place and a season: the switch itself, and until the new land is hung on the wall.
+      const land=document.querySelector('#yard .paint-land');
+      const hung=()=>new Promise(done=>{const watch=new MutationObserver(()=>{watch.disconnect();done(performance.now());});watch.observe(land,{childList:true});setTimeout(()=>{watch.disconnect();done(null);},8000);});
+      const scenePaint=async(name,act)=>{await inView('perf '+name);const painted=hung(),t0=performance.now();act();layout();await P(name,performance.now()-t0);const at=await painted;await P(name+'-painted',at&&at-t0);await pause(300);};
+      const fromWorld=$('world').value,pick=(id,value)=>{$(id).value=value;$(id).dispatchEvent(new Event('change'));};
+      for(const world of ['woodland','workshop','courtyard','lakeside'].filter(w=>w!==fromWorld).concat(fromWorld))
+        await scenePaint('place-'+world,()=>pick('world',world));
+      const fromSeason=$('scene-season').value,shownSeason=(await import('./yard/world.js')).scene.season;
+      await scenePaint('season',()=>pick('scene-season',shownSeason==='autumn'?'spring':'autumn'));
+      pick('scene-season',fromSeason);await pause(300);
+      await L('perf=measured');
+    }
     // The yard itself: scenery-first layout, games.
     const playing=()=>document.querySelector('[data-game].playing'),gameLabel=()=>playing()?.textContent||'none';
     const $=id=>document.getElementById(id),wait=ms=>new Promise(r=>setTimeout(r,ms)),press=el=>el.dispatchEvent(new PointerEvent('pointerdown',{button:0,bubbles:true}));
@@ -1239,7 +1346,7 @@ const scenario = `(async()=>{
     await playPets.setOnDesktop(outPlant.id,false);await playPets.setOnDesktop(p1.data.id,false);
     await soon(async()=>!(await playPets.bootstrap()).data.desktopLayout.length);
     const sendAgain=await sendOut(p1.data.id);
-    for(const [name,ms] of [['cold',sendCold],['warm',sendWarm],['again',sendAgain]])await L('send-out '+name+' '+(ms===null?'over 8000':ms)+' ms');
+    for(const [name,ms] of [['cold',sendCold],['warm',sendWarm],['again',sendAgain]])await L('perf send-out-'+name+' '+(ms===null?'none':ms)+' ms');
     await L('sendOut='+([sendCold,sendWarm,sendAgain].every(ms=>ms!==null)?'measured':'err:'+JSON.stringify({sendCold,sendWarm,sendAgain})));
     // Brought in with the switch, the windows close; opening the menu of something not out then readies
     // the window it would show in, empty (overlay.rs warm), so Show on desktop shows it at once.
@@ -1433,6 +1540,8 @@ try {
 // A file, not the variable itself: Linux caps one environment variable at 128 KiB.
 const scenarioFile = path.join(dataDir, 'scenario.js');
 await writeFile(scenarioFile, scenario);
+// When the process started, so the perf lines can count the startup from it, not only from the page's own start.
+const spawnedAt = Date.now();
 const child = spawn(binary, [], {
   env: {
     ...process.env,
@@ -1458,6 +1567,12 @@ child.stdout.on('data', d => {
   for (const line of pieces) {
     if (!line.startsWith('[e2e] ')) continue;
     const msg = line.slice(6).trim();
+    // The page gives these moments on the wall clock; the harness turns them into times from the spawn.
+    const epoch = msg.match(/^perf-epoch (\S+) ([\d.]+)$/);
+    if (epoch) {
+      console.log(`  perf startup-${epoch[1]}-from-spawn ${Math.round(Number(epoch[2]) - spawnedAt)} ms`);
+      continue;
+    }
     lines.push(msg);
     console.log(' ', msg);
     if (msg === 'DONE' || msg.startsWith('FATAL')) done = true;
@@ -1828,7 +1943,8 @@ const expect = [
   [/^removeProvider=ok/, 'delete a provider'],
   [/^detached=true/, 'deleting a provider detaches it from pets'],
   [/^overlayClosed=alive$/, 'the desktop windows close and the app stays alive when desktop mode turns off'],
-  [/^sendOut=measured$/, 'Show on desktop shows a thing cold, warm and again (send-out lines give the times)'],
+  [/^perf=measured$/, 'the perf lines are written (startup, the bridge, pushes, panels, places and a season)'],
+  [/^sendOut=measured$/, 'Show on desktop shows a thing cold, warm and again (the perf send-out lines give the times)'],
   [/^desktopWarm=ready-before-out$/, "a thing's menu readies its desktop window before it goes out"],
   [/^DONE$/, 'scenario finished'],
 ];

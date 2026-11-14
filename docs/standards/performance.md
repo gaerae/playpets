@@ -153,10 +153,19 @@ Follow these when you can. When you cannot, say why in the PR.
 - Based on: decisions “[The page draws often only when something moves, and drawing loops run on timers](../decisions/2026-09-30-timer-frame-loops.md)”, “[Never wait on the main thread while holding the app state lock](../decisions/2026-09-30-no-waiting-on-main-thread-under-state-lock.md)”, “[Make the yard livelier on the current renderer before reaching for a game engine](../decisions/2026-11-11-living-yard-on-the-current-renderer.md)”
 
 ## Automated checks
-- None.
+- None assert a speed.
 - `pnpm run measure` is run by hand on macOS and Linux.
 - CI does not run it: load varies by runner, so there is no baseline.
 - On Windows, watch the CPU of the `msedgewebview2` process in Task Manager.
+- The e2e prints timings on every system CI runs it on, one `perf <name> <value> <unit>` line each:
+  - startup (from the process start and from the page's own start to the first friend drawn, and the files loaded before it);
+  - the bridge (a command that does nothing, one that asks the window), timers, and a sprite sheet's load and decode;
+  - a render and a push with nothing changed, the size of a pushed state and when it arrives, a commit saved and one saved later;
+  - a status event, a pat, a chat turn;
+  - each panel, the album and a book in it, the first time and the second; each place and a season, until the new land is hung;
+  - Show on desktop, cold, warm and again.
+- Read them with `gh run view <run> --job <job> --log | grep ' perf '`.
+- Compare systems by their ratio within one run, against the bridge's round trip and the render with nothing changed: runners differ in speed.
 
 ## Change history
 - 2026-10-01 First version — measurements are from the first run of `pnpm run measure`
