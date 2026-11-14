@@ -258,6 +258,17 @@ test('the next steps stay clear of the corner button in a small window, and Hide
   assert.match(css, /\.empty-yard \.tiny-dismiss\{[^}]*min-height:24px/);
 });
 
+// On the desktop a long line showed half of its fourth line under the ellipsis: a clamped box clips
+// at its padding's outer edge, so the bubble's vertical padding showed the line that comes next. Its
+// room is a transparent border instead, where nothing inside is drawn.
+test("a desktop bubble's clamped line ends at the ellipsis", async () => {
+  const css = compact(await readFile('src/overlay/overlay.css', 'utf8'));
+  const rule = css.match(/(?:^|})\.bubble\{([^}]*)\}/)?.[1] || '';
+  assert.match(rule, /-webkit-line-clamp:3/);
+  assert.match(rule, /padding:0;/);
+  assert.match(rule, /border:8px solid transparent/);
+});
+
 // Squeezed onto one line in a short window, the message lost its words ("今日はどんな一日だ…") and
 // the AI its name ("Oll…"). The message keeps its own row and the AI stays readable under it.
 test('a short window keeps the message on its own row and the AI readable', async () => {

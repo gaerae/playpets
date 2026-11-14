@@ -96,9 +96,12 @@ canvas {
   max-width: 200px;
   text-align: center;
   border-radius: 12px;
-  padding: 8px;
+  /* The room around the words is a transparent border, not padding: a clamped box clips at its
+     padding's outer edge, so padding showed half of the fourth line under the ellipsis. */
+  padding: 0;
+  border: 8px solid transparent;
   background: #ffffffee;
-  border: 1px solid #d3ddd3;
+  box-shadow: 0 0 0 1px #d3ddd3;
   font-size: 11px;
   line-height: 1.5;
   /* three lines at most, ending in an ellipsis rather than cut through a line */
