@@ -1,6 +1,7 @@
 // Imported backgrounds: one JSON file each in the data folder's `backgrounds`, so a copy of the
 // data folder carries them and deleting it takes them away. The page checks a package when it is
-// imported and again when it reads it back; here a file is only named, sized and written whole.
+// imported and again when it reads it back; here a file is only named, sized and written whole,
+// and its pictures served one at a time (image) as PNGs of the size the page takes.
 use crate::i18n;
 use serde_json::{Value, json};
 use std::fs;
@@ -19,27 +20,172 @@ pub fn valid_id(id: &str) -> bool {
         .is_some_and(|uuid| uuid.len() == 36 && uuid.chars().all(|c| c.is_ascii_hexdigit() || c == '-'))
 }
 
-/// Every background saved, oldest first: `{id, pack}` each. A file that cannot be read is left
-/// where it is and skipped, as the page skips a package it cannot use.
+/// The pictures a background may have: one for all year, and one for each season.
+const PICTURES: [&str; 5] = ["base", "spring", "summer", "autumn", "winter"];
+const PNG_DATA: &str = "data:image/png;base64,";
+
+/// Where the page reads one picture of a background: pet-asset://background/{id}/{key}, which
+/// Windows spells http://pet-asset.localhost/background/{id}/{key}.
+pub fn image_url(id: &str, key: &str) -> String {
+    if cfg!(windows) {
+        format!("http://pet-asset.localhost/background/{id}/{key}")
+    } else {
+        format!("pet-asset://background/{id}/{key}")
+    }
+}
+
+/// Every background saved, oldest first: `{id, pack}` each, each picture named by its address
+/// (image_url) rather than carried. A package holds up to 32 MB of pictures, and the list is read
+/// at every start: the page asks for a picture only when it shows that place or its card.
+/// A file that cannot be read is left where it is and skipped, as the page skips a package it
+/// cannot use.
 pub fn list(dir: &Path) -> Vec<Value> {
+    read_all(dir)
+        .into_iter()
+        .map(|(id, head)| {
+            let images: serde_json::Map<String, Value> = PICTURES
+                .iter()
+                .filter(|key| head.pictures.iter().any(|p| p == *key))
+                .map(|key| (key.to_string(), json!(image_url(&id, key))))
+                .collect();
+            let mut pack = head.fields;
+            pack.insert("images".into(), Value::Object(images));
+            json!({"id": id, "pack": pack})
+        })
+        .collect()
+}
+
+/// One picture of a saved background, as the PNG it was imported as; nothing for a picture it
+/// does not have, or one that is not a 1536 x 1024 PNG (the page refuses any other on import).
+pub fn image(dir: &Path, id: &str, key: &str) -> Option<Vec<u8>> {
+    #[derive(serde::Deserialize)]
+    struct Saved<'a> {
+        #[serde(borrow)]
+        pack: Pictures<'a>,
+    }
+    #[derive(serde::Deserialize)]
+    struct Pictures<'a> {
+        #[serde(borrow, default)]
+        images: std::collections::BTreeMap<String, Picture<'a>>,
+    }
+    if !valid_id(id) || !PICTURES.contains(&key) {
+        return None;
+    }
+    let file = fs::read(dir.join(FOLDER).join(format!("{id}.json"))).ok()?;
+    let saved: Saved = serde_json::from_slice(&file).ok()?;
+    let Some(Picture::Text(text)) = saved.pack.images.get(key) else {
+        return None;
+    };
+    let bytes = decode_base64(text.strip_prefix(PNG_DATA)?)?;
+    (bytes.starts_with(b"\x89PNG") && crate::pets::catalog::image_size(&bytes) == Ok((1536, 1024))).then_some(bytes)
+}
+
+/// A picture as a file holds it: read in place, never copied (the file is most of it).
+#[derive(serde::Deserialize)]
+#[serde(untagged)]
+enum Picture<'a> {
+    Text(#[serde(borrow)] std::borrow::Cow<'a, str>),
+    Other(serde::de::IgnoredAny),
+}
+
+/// A saved package as the list needs it: everything but its pictures, and which pictures it has.
+struct Head {
+    fields: serde_json::Map<String, Value>,
+    pictures: Vec<String>,
+}
+impl<'de> serde::Deserialize<'de> for Head {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        struct Fields;
+        impl<'de> serde::de::Visitor<'de> for Fields {
+            type Value = Head;
+            fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                f.write_str("a background package")
+            }
+            fn visit_map<A: serde::de::MapAccess<'de>>(self, mut map: A) -> Result<Head, A::Error> {
+                let mut head = Head {
+                    fields: serde_json::Map::new(),
+                    pictures: Vec::new(),
+                };
+                while let Some(key) = map.next_key::<String>()? {
+                    if key == "images" {
+                        let images: Option<std::collections::BTreeMap<String, Picture<'de>>> = map.next_value()?;
+                        head.pictures = images
+                            .into_iter()
+                            .flatten()
+                            .filter(|(_, p)| matches!(p, Picture::Text(_)))
+                            .map(|(k, _)| k)
+                            .collect();
+                    } else {
+                        head.fields.insert(key, map.next_value()?);
+                    }
+                }
+                Ok(head)
+            }
+        }
+        d.deserialize_map(Fields)
+    }
+}
+
+/// Standard base64 with its padding, as a data URL holds it; nothing for anything else.
+fn decode_base64(text: &str) -> Option<Vec<u8>> {
+    let text = text.as_bytes();
+    if !text.len().is_multiple_of(4) {
+        return None;
+    }
+    let value = |c: u8| match c {
+        b'A'..=b'Z' => Some(c - b'A'),
+        b'a'..=b'z' => Some(c - b'a' + 26),
+        b'0'..=b'9' => Some(c - b'0' + 52),
+        b'+' => Some(62),
+        b'/' => Some(63),
+        _ => None,
+    };
+    let mut out = Vec::with_capacity(text.len() / 4 * 3);
+    for (i, quad) in text.chunks(4).enumerate() {
+        let last = i == text.len() / 4 - 1;
+        let pad = if last {
+            quad.iter().rev().take_while(|&&c| c == b'=').count()
+        } else {
+            0
+        };
+        if pad > 2 {
+            return None;
+        }
+        let mut n = 0u32;
+        for &c in &quad[..4 - pad] {
+            n = n << 6 | value(c)? as u32;
+        }
+        n <<= 6 * pad as u32;
+        out.extend_from_slice(&n.to_be_bytes()[1..4 - pad]);
+    }
+    Some(out)
+}
+
+/// Every background saved, oldest first, as `(id, pack)`.
+fn read_all(dir: &Path) -> Vec<(String, Head)> {
+    #[derive(serde::Deserialize)]
+    struct Saved {
+        #[serde(default)]
+        at: Value,
+        pack: Head,
+    }
     let Ok(entries) = fs::read_dir(dir.join(FOLDER)) else {
         return Vec::new();
     };
-    let mut found: Vec<(u64, String, Value)> = entries
+    let mut found: Vec<(u64, String, Head)> = entries
         .flatten()
         .filter_map(|entry| {
             let name = entry.file_name().to_string_lossy().into_owned();
             let id = name.strip_suffix(".json").filter(|id| valid_id(id))?.to_string();
-            let saved: Value = serde_json::from_slice(&fs::read(entry.path()).ok()?).ok()?;
-            let at = saved.get("at").and_then(Value::as_u64).unwrap_or(0);
-            Some((at, id, saved.get("pack")?.clone()))
+            let saved: Saved = serde_json::from_slice(&fs::read(entry.path()).ok()?).ok()?;
+            Some((saved.at.as_u64().unwrap_or(0), id, saved.pack))
         })
         .collect();
     found.sort_by(|a, b| (a.0, &a.1).cmp(&(b.0, &b.1)));
     found
         .into_iter()
         .take(COUNT_LIMIT)
-        .map(|(_, id, pack)| json!({"id": id, "pack": pack}))
+        .map(|(_, id, pack)| (id, pack))
         .collect()
 }
 
@@ -155,6 +301,77 @@ mod tests {
             full,
             i18n::tr("backgrounds.full", &[("limit", &COUNT_LIMIT.to_string())])
         );
+        fs::remove_dir_all(dir).unwrap();
+    }
+
+    /// A PNG's first bytes as a 1536 x 1024 picture, and the rest of it.
+    fn png(width: u32, tail: &[u8]) -> Vec<u8> {
+        let mut bytes = b"\x89PNG\r\n\x1a\n\0\0\0\x0dIHDR".to_vec();
+        bytes.extend(width.to_be_bytes());
+        bytes.extend(1024u32.to_be_bytes());
+        bytes.extend(tail);
+        bytes
+    }
+    fn data_url(bytes: &[u8]) -> String {
+        const ABC: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        let mut out = String::from("data:image/png;base64,");
+        for chunk in bytes.chunks(3) {
+            let n = chunk
+                .iter()
+                .enumerate()
+                .fold(0u32, |n, (i, b)| n | (*b as u32) << (16 - 8 * i));
+            for i in 0..4 {
+                out.push(if i <= chunk.len() {
+                    ABC[(n >> (18 - 6 * i) & 63) as usize] as char
+                } else {
+                    '='
+                });
+            }
+        }
+        out
+    }
+
+    #[test]
+    fn the_list_names_each_picture_by_its_address_and_the_address_serves_it() {
+        let dir = temp();
+        let (base, winter) = (png(1536, b"base"), png(1536, b"winter!"));
+        let pack = json!({"name": "Lake", "floor": 0.6, "images": {"base": data_url(&base), "winter": data_url(&winter), "odd": data_url(&base), "spring": 7}});
+        save(&dir, A, &pack).unwrap();
+        let listed = list(&dir);
+        let images = &listed[0]["pack"]["images"];
+        assert_eq!(listed[0]["pack"]["name"], "Lake", "everything else is as saved");
+        assert_eq!(listed[0]["pack"]["floor"], 0.6);
+        assert_eq!(images["base"], image_url(A, "base"));
+        assert_eq!(images["winter"], image_url(A, "winter"));
+        assert!(
+            images.get("odd").is_none() && images.get("spring").is_none(),
+            "{images}"
+        );
+        assert!(
+            !listed[0].to_string().contains("base64"),
+            "no picture travels with the list"
+        );
+        assert_eq!(image(&dir, A, "base").unwrap(), base);
+        assert_eq!(image(&dir, A, "winter").unwrap(), winter);
+        for (id, key) in [(A, "spring"), (A, "odd"), (B, "base"), ("../x", "base"), (A, "../base")] {
+            assert!(image(&dir, id, key).is_none(), "{id} {key}");
+        }
+        fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn a_picture_that_is_not_a_background_png_is_not_served() {
+        let dir = temp();
+        let images = json!({
+            "base": data_url(&png(1024, b"square")),
+            "spring": "data:image/svg+xml;base64,PHN2Zz4=",
+            "summer": "data:image/png;base64,***",
+            "autumn": data_url(b"GIF89a not a png at all"),
+        });
+        save(&dir, A, &json!({"name": "Odd", "images": images})).unwrap();
+        for key in ["base", "spring", "summer", "autumn", "winter"] {
+            assert!(image(&dir, A, key).is_none(), "{key}");
+        }
         fs::remove_dir_all(dir).unwrap();
     }
 

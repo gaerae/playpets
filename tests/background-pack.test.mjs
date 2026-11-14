@@ -41,6 +41,25 @@ test('untrusted images and invalid coordinates are rejected', () => {
     assert.throws(() => validateBackgroundPack({ ...pack(), water }));
   assert.throws(() => validateBackgroundPack({ ...pack(), version: 2 }));
 });
+test("a kept background's pictures may be the data folder's addresses for it, and no others", () => {
+  const id = 'custom-0b6f2c1e-8d4a-4f1b-9c3e-2a7d5e6f8a90';
+  for (const base of [`pet-asset://background/${id}/base`, `http://pet-asset.localhost/background/${id}/base`]) {
+    const images = { base, winter: base.replace(/base$/, 'winter') };
+    assert.deepEqual(validateBackgroundPack({ ...pack(), images }, id).images, images);
+  }
+  for (const base of [
+    `pet-asset://background/${id}/winter`,
+    `pet-asset://background/custom-11111111-2222-4333-8444-555555555555/base`,
+    `pet-asset://sprite/${id}`,
+    `https://example.com/background/${id}/base`,
+  ])
+    assert.throws(() => validateBackgroundPack({ ...pack(), images: { base } }, id), base);
+  assert.throws(
+    () => validateBackgroundPack({ ...pack(), images: { base: `pet-asset://background/${id}/base` } }),
+    'an import carries its pictures',
+  );
+  assert.equal(validateBackgroundPack(pack(), id).images.base, png, 'an older copy carries its own');
+});
 test('indoor packs can omit sky and water and confine weather to windows', () => {
   const p = validateBackgroundPack({
     ...pack(),

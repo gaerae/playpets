@@ -95,32 +95,47 @@ fn read_sheet(asset: &catalog::Asset, query: Option<&str>) -> Option<(Vec<u8>, P
         .or_else(|| read(&asset.sprite_path))
 }
 
-/// Serves sprite sheets to the pages: pet-asset://sprite/{asset id}, which Windows spells
-/// http://pet-asset.localhost/sprite/{asset id}.
-pub fn sprite_response(app: &AppHandle, uri: &tauri::http::Uri) -> tauri::http::Response<Vec<u8>> {
+/// What pet-asset:// serves (http://pet-asset.localhost/ on Windows), as `(kind, rest)`: `sprite`
+/// and an asset id, or `background` and `{id}/{picture}`.
+fn route(uri: &tauri::http::Uri) -> (&str, &str) {
     let path = uri.path().trim_start_matches('/');
-    let id = if uri.host() == Some("sprite") {
-        path
-    } else {
-        path.trim_start_matches("sprite/")
-    };
-    let found = lock(&app.state::<Shared>()).assets.iter().find(|a| a.id == id).cloned();
-    // Files can change after catalog scanning; validate again without holding application state.
-    match found.and_then(|asset| read_sheet(&asset, uri.query())) {
-        Some((bytes, p)) => {
-            let mime = if p.extension().is_some_and(|e| e == "webp") {
-                "image/webp"
-            } else {
-                "image/png"
-            };
-            // The page reads the sheet's pixels (to put bubbles just above the head), which a
-            // cross-origin image allows only with this header.
-            tauri::http::Response::builder()
-                .header("Content-Type", mime)
-                .header("Access-Control-Allow-Origin", "*")
-                .body(bytes)
-                .unwrap()
+    match uri.host() {
+        Some(kind @ ("sprite" | "background")) => (kind, path),
+        _ => path.split_once('/').unwrap_or(("", "")),
+    }
+}
+
+/// Serves the pictures the pages read from this computer: sprite sheets,
+/// pet-asset://sprite/{asset id}, and the pictures of imported backgrounds,
+/// pet-asset://background/{id}/{picture} (backgrounds::image_url).
+pub fn sprite_response(app: &AppHandle, uri: &tauri::http::Uri) -> tauri::http::Response<Vec<u8>> {
+    let found = match route(uri) {
+        ("sprite", id) => {
+            let found = lock(&app.state::<Shared>()).assets.iter().find(|a| a.id == id).cloned();
+            // Files can change after catalog scanning; validate again without holding application state.
+            found
+                .and_then(|asset| read_sheet(&asset, uri.query()))
+                .map(|(bytes, p)| {
+                    let webp = p.extension().is_some_and(|e| e == "webp");
+                    (bytes, if webp { "image/webp" } else { "image/png" })
+                })
         }
+        ("background", rest) => {
+            let dir = lock(&app.state::<Shared>()).store.dir.clone();
+            rest.split_once('/')
+                .and_then(|(id, key)| super::backgrounds::image(&dir, id, key))
+                .map(|bytes| (bytes, "image/png"))
+        }
+        _ => None,
+    };
+    match found {
+        // The page reads a sheet's pixels (to put bubbles just above the head), which a
+        // cross-origin image allows only with this header.
+        Some((bytes, mime)) => tauri::http::Response::builder()
+            .header("Content-Type", mime)
+            .header("Access-Control-Allow-Origin", "*")
+            .body(bytes)
+            .unwrap(),
         None => tauri::http::Response::builder().status(404).body(Vec::new()).unwrap(),
     }
 }
@@ -129,6 +144,26 @@ pub fn sprite_response(app: &AppHandle, uri: &tauri::http::Uri) -> tauri::http::
 mod tests {
     use super::*;
     use std::fs;
+
+    #[test]
+    fn each_address_goes_to_what_it_names_on_every_platform() {
+        for (url, want) in [
+            ("pet-asset://sprite/abc", ("sprite", "abc")),
+            ("http://pet-asset.localhost/sprite/abc", ("sprite", "abc")),
+            (
+                "pet-asset://background/custom-1/winter",
+                ("background", "custom-1/winter"),
+            ),
+            (
+                "http://pet-asset.localhost/background/custom-1/winter",
+                ("background", "custom-1/winter"),
+            ),
+            ("pet-asset://elsewhere/abc", ("", "")),
+        ] {
+            let uri: tauri::http::Uri = url.parse().unwrap();
+            assert_eq!(route(&uri), want, "{url}");
+        }
+    }
 
     #[test]
     fn baseline_portrait_urls_serve_only_the_optional_validated_image() {

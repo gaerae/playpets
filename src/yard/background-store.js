@@ -68,7 +68,8 @@ export async function restoreBackgrounds() {
   }
   for (const row of rows.values()) {
     try {
-      if (isCustom(row.id)) worlds.push(backgroundWorld(validateBackgroundPack(row.pack), row.id));
+      // The data folder names its pictures by address, read only when the place or its card shows.
+      if (isCustom(row.id)) worlds.push(backgroundWorld(validateBackgroundPack(row.pack, row.id), row.id));
     } catch {
       /* A damaged package does not prevent the built-in yard from opening. */
     }
