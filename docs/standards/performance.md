@@ -115,6 +115,10 @@
   - Outside a page (the Node tests, scripts) every table loads: the tests check them all.
   - The four tables are 246 KB. In Chrome, after a collection, the JS heap with `i18n.js` loaded went from 1,232 KB to 999 KB (Korean, which also loads English) and 875 KB (English); the import took 13–15 ms before and after, the files coming in parallel either way.
   - Measured 2026-11-15, Apple M2 Pro, headless Chrome over localhost, medians of 15 runs.
+- The first render waits for the yard's content (`loadContent`), not for the bundled companions' authored actions (`src/content/companion-actions.json`, 102 KB).
+  - `app.js` asks for them right after the first render, and only when a bundled companion is in the yard (`loadCompanionActionsFor` in `src/core/companion-actions.js`). A companion added later asks on its first action, which plays the ordinary sheet.
+  - On its own the file takes about 4 ms to fetch and 0.2 ms to parse in Chrome. Beside the hundred drawings `loadContent` fetches, the time to the content made no measurable difference (medians 105–222 ms either way, noisy); on Windows each request also passes through the window's thread (WebView2), and the start makes one fewer.
+- The content files stay formatted as people edit them: the app has no build step for the page (`frontendDist` is `src/`), and Tauri compresses what it embeds.
 
 ### Recorded baseline
 - This baseline predates the later raster artwork and place changes. It is not a benchmark of the current release.
@@ -187,4 +191,4 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-11-14 The overlay thread is woken by a change to what is out; a monitor's window stays a minute after its last thing leaves and opens early from the yard's menu, and its page draws nothing while it has nobody
 - 2026-11-14 A glide after a late step lasts until the next step is likely to come; a push re-renders only what changed; canvases follow a change of screen density
 - 2026-11-14 Pictures travel by address, not inside a command's answer (imported backgrounds); each process measured in each state, over 12 minutes, and with the filters and the blur off
-- 2026-11-15 A window loads only the string table it speaks and English
+- 2026-11-15 A window loads only the string table it speaks and English; the first render does not wait for the companions' authored actions
