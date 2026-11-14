@@ -255,7 +255,9 @@ export const reachOf = v => Math.max(sizeOf(v.pet), v.tag?.offsetWidth || 0) / 2
 export function clearOfDock(v, box = dockBox(), glide = false) {
   if (!box) return;
   const foot = footOf(v);
-  if (!underDock(foot.x, foot.y, reachOf(v), box)) return;
+  // Its tag's width (reachOf) is read off the page, after syncViews has written its label: only
+  // for a friend standing as low as the dock.
+  if (foot.y + TAG_ROOM <= box.top || !underDock(foot.x, foot.y, reachOf(v), box)) return;
   v.y = footTarget(v, foot.x, box.top - TAG_ROOM, 0).y;
   place(v, { glide });
 }
