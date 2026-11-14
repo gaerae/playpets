@@ -77,6 +77,12 @@
 - Do not use CSS variables (`var()`) inside keyframes. Keyframes that contain variables do not run in the compositing stage.
 - Do not put a filter on the element a looping animation moves: put it on what is inside (the light on a swaying tree is on its `use`, `garden.css`).
 
+### Text in another script
+- Text in a script no font in the stack has goes through the system's font fallback: on Windows the first time took 234–307 ms (simplified Han under the Korean page, CI 2026-11-14), against 1–25 ms on macOS and Linux.
+- The same text with its font named took 49–94 ms on Windows.
+- An element that shows several languages names every language's stack (`--font-ko`, `--font-ja`, `--font-zh-hans` from `base.css`), the page's first: the language picker in `settings.css`.
+- A closed `<select>` is measured in its own font, not its options': the stack goes on the `<select>`.
+
 ### Backend, sound and memory
 - The overlay thread does not ask the runtime for monitors on every tick (it uses the cache).
 - With nobody walking, nothing dragged and the cursor not within 300px of a friend, it rests at 120ms intervals.
@@ -177,3 +183,4 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-11-14 The overlay thread is woken by a change to what is out; a monitor's window stays a minute after its last thing leaves and opens early from the yard's menu, and its page draws nothing while it has nobody
 - 2026-11-14 A glide after a late step lasts until the next step is likely to come; a push re-renders only what changed; canvases follow a change of screen density
 - 2026-11-14 Pictures travel by address, not inside a command's answer (imported backgrounds); each process measured in each state, over 12 minutes, and with the filters and the blur off
+- 2026-11-15 The e2e prints the same perf lines on every CI runner; the language picker names every language's fonts, so Windows does not search its font fallback for a language's name

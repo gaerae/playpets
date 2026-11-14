@@ -127,7 +127,7 @@
   --sheet-width: 440px;
   --settings-width: 720px;
   --settings-height: 560px;
-  /* Each language's fonts: the page's own (lang on <html>), and a word that names its own language. */
+  /* Each language's fonts: the page's own (lang on <html>), and the language picker's (settings.css). */
   --font-ko:
     system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Noto Sans CJK KR",
     sans-serif;
@@ -219,18 +219,6 @@
 }
 /* Simplified Chinese: its own glyph shapes, so the Japanese stack must not come first */
 :root:lang(zh-hans) {
-  font-family: var(--font-zh-hans);
-}
-/* A word in another language (a language's own name in Settings) is drawn in that language's fonts,
-   named in the stack: a script none of the page's fonts has goes through the system's fallback,
-   which on Windows takes about 250 ms the first time. Only an element that names its language. */
-[lang]:not(:root):lang(ko) {
-  font-family: var(--font-ko);
-}
-[lang]:not(:root):lang(ja) {
-  font-family: var(--font-ja);
-}
-[lang]:not(:root):lang(zh-hans) {
   font-family: var(--font-zh-hans);
 }
 * {

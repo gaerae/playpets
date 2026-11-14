@@ -260,6 +260,18 @@ body.compact .link-row:has(.agent-actions) > div {
   padding: 0 32px 0 10px;
   font-size: var(--font-md);
 }
+/* Each language's name is in its own script, and a closed picker is as wide as its longest name,
+   measured in the picker's own fonts: every language's fonts are named here, the page's first, so no
+   name goes to the system's font fallback (on Windows about 250 ms, the first time Settings opens). */
+#language {
+  font-family: var(--font-ko), var(--font-ja), var(--font-zh-hans);
+}
+:root:lang(ja) #language {
+  font-family: var(--font-ja), var(--font-ko), var(--font-zh-hans);
+}
+:root:lang(zh-hans) #language {
+  font-family: var(--font-zh-hans), var(--font-ko), var(--font-ja);
+}
 .link-row .agent-pet .language-select {
   flex: 1;
   width: 0;
