@@ -92,19 +92,35 @@ export function gaze(v, look, ms) {
 // Space kept between two bubbles when one rises above the other.
 const BUBBLE_GAP = 4;
 // A bubble that would cover a friend's bubble already showing rises just above it (--bubble-lift,
-// friends.css), so two friends talking at once both stay readable.
+// friends.css), so two friends talking at once both stay readable. Where there is no room above (a
+// small window, friends near its top) the newer line takes the place of the ones it would cover,
+// and no bubble starts above the window, where nobody could read it.
 function clearOthers(v) {
   if (!v.bubble.getBoundingClientRect) return;
   const mine = v.bubble.getBoundingClientRect();
+  const top = ((globalThis.document && $('yard'))?.getBoundingClientRect?.().top || 0) + BUBBLE_EDGE;
+  const covered = [];
   let lift = 0;
   for (const other of views.values()) {
     if (other === v || other.bubble?.hidden !== false || !other.bubble.getBoundingClientRect) continue;
     const theirs = other.bubble.getBoundingClientRect();
     if (theirs.right <= mine.left || theirs.left >= mine.right) continue;
     if (mine.bottom - lift <= theirs.top || mine.top - lift >= theirs.bottom) continue;
+    covered.push(other);
     lift = mine.bottom - theirs.top + BUBBLE_GAP;
   }
+  if (covered.length && mine.top - lift < top) {
+    for (const other of covered) hush(other);
+    lift = 0;
+  }
+  if (mine.top - lift < top) lift = mine.top - top;
   if (lift) v.bubble.style?.setProperty('--bubble-lift', `${Math.round(lift)}px`);
+}
+function hush(v) {
+  clearTimeout(v.bubbleTimer);
+  v.bubble.hidden = true;
+  v.bubble.style?.removeProperty('--bubble-lift');
+  v.bubble.style?.removeProperty('--bubble-shift');
 }
 // Room kept between a bubble and either side of the yard.
 const BUBBLE_EDGE = 6;
@@ -154,14 +170,7 @@ export function bubble(v, message, duration = 0, onPress = null) {
   const said = globalThis.document && $('friend-speech');
   if (said && v.pet) said.textContent = `${name(v.pet)}: ${words}`;
   clearTimeout(v.bubbleTimer);
-  v.bubbleTimer = setTimeout(
-    () => {
-      v.bubble.hidden = true;
-      v.bubble.style?.removeProperty('--bubble-lift');
-      v.bubble.style?.removeProperty('--bubble-shift');
-    },
-    Math.max(duration, readingTime(words)),
-  );
+  v.bubbleTimer = setTimeout(() => hush(v), Math.max(duration, readingTime(words)));
 }
 /** A friend's reaction to something it did: a pose, a mark above it (✦, ♥ or none) and one of the
  * lines under `lines` in the string tables. */

@@ -63,3 +63,36 @@ test('a bubble shown at the right edge of the mini window is moved inside it', t
   t.mock.timers.tick(10_000);
   assert.equal(pip.bubble.style['--bubble-shift'], undefined, 'hidden: nothing kept for the next line');
 });
+
+// In a 300 by 210 window three friends talking at once stacked their bubbles up past the window's
+// top (at -40, -123 and -204), where nobody could read them.
+test('a bubble with no room above the one it would cover takes its place instead of leaving the window', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  installDom(t, { anyId: true });
+  const daisy = friend('Daisy', { left: 100, right: 220, top: 20, bottom: 60 });
+  const pip = friend('Pip', { left: 160, right: 280, top: 30, bottom: 70 });
+  views.clear();
+  views.set('daisy', daisy);
+  views.set('pip', pip);
+  setData({ pets: [daisy.pet, pip.pet], assets: [] });
+  t.after(() => views.clear());
+  bubble(daisy, 'Look, a ladybug!');
+  bubble(pip, 'Where?');
+  assert.equal(pip.bubble.style['--bubble-lift'], undefined, 'rising above Daisy would leave the window');
+  assert.equal(daisy.bubble.hidden, true, "the newer line takes the place of Daisy's");
+  t.mock.timers.tick(10_000);
+  assert.equal(pip.bubble.hidden, true);
+});
+
+test('a lone bubble that would start above the window comes down inside it', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  installDom(t, { anyId: true });
+  const pip = friend('Pip', { left: 160, right: 280, top: -40, bottom: 0 });
+  views.clear();
+  views.set('pip', pip);
+  setData({ pets: [pip.pet], assets: [] });
+  t.after(() => views.clear());
+  bubble(pip, 'Up here!');
+  assert.equal(pip.bubble.style['--bubble-lift'], '-46px', 'its top six pixels inside the window');
+  t.mock.timers.tick(10_000);
+});
