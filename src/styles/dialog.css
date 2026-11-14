@@ -232,6 +232,21 @@ input[type="range"] {
 .confirm-dialog .button.text {
   padding: 8px 14px;
 }
+/* In the shortest windows a long friend's name took three lines of the question and left what
+   follows a one-line scroller; the question is set smaller, in at most two lines. */
+@media (max-height: 280px) {
+  .confirm-dialog {
+    padding: 14px;
+  }
+  .confirm-dialog h2 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-size: var(--font-lg);
+    line-height: 1.35;
+  }
+}
 .button.primary.danger-fill,
 .button.primary.danger-fill:hover {
   background: var(--danger);
