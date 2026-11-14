@@ -246,6 +246,18 @@ test('the shortest window lays each Play tile out in one row so every game shows
   assert.match(short, /body\.compact \.play-action>\.tool-count\{[^}]*position:static/);
 });
 
+// At 300 by 210 the next-steps card began 112px down, ran past the bottom and went under the corner
+// button, and "Hide this" was a 14px-tall target. In a small window it starts at the top and ends
+// above the corner button, scrolling if it must.
+test('the next steps stay clear of the corner button in a small window, and Hide this is a real target', async () => {
+  const css = await styles();
+  const aside = css.match(/body\.compact \.empty-yard\.aside\{([^}]*)\}/)?.[1] || '';
+  assert.match(aside, /top:8px/);
+  assert.match(aside, /max-height:calc\(100% - 60px\)/);
+  assert.match(aside, /overflow-y:auto/);
+  assert.match(css, /\.empty-yard \.tiny-dismiss\{[^}]*min-height:24px/);
+});
+
 // Squeezed onto one line in a short window, the message lost its words ("今日はどんな一日だ…") and
 // the AI its name ("Oll…"). The message keeps its own row and the AI stays readable under it.
 test('a short window keeps the message on its own row and the AI readable', async () => {

@@ -166,9 +166,9 @@
   margin: 0;
 }
 .empty-yard .tiny-dismiss {
-  min-height: 0;
-  padding: 0;
-  margin: 2px 0 0;
+  min-height: 24px;
+  padding: 2px 6px;
+  margin: 2px -6px 0 0;
   font-size: var(--font-xs);
   color: var(--muted);
   align-self: flex-end;
