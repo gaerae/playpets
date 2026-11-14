@@ -16,6 +16,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The yard opens sooner and stays lighter while friends talk, coding agents report and the pointer moves, and a long conversation with a friend opens at once on its latest lines, with earlier ones coming in as you scroll up.
 - Friends keep walking smoothly when the computer slows its timers (Windows on battery), and the yard's backdrop and weather stay sharp when the window moves to a screen of another resolution.
 - Patting a friend, picking a scene, moving things in the yard and the tray's switches no longer wait for the save to disk, and time together with many friends is saved once instead of once a friend, so the yard no longer stutters every ten minutes.
+- With imported backgrounds the app starts sooner and uses less memory: a background's pictures are read only when its place or its card is shown.
 
 ### Fixed
 

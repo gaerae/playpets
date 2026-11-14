@@ -178,6 +178,21 @@ test("another data folder sharing the webview copies the installed app's old cop
   assert.deepEqual(worlds, []);
 });
 
+test("a kept background is shown from the data folder's addresses for its pictures", async t => {
+  keepGlobals(t, 'indexedDB');
+  freshWorlds(t);
+  delete globalThis.indexedDB;
+  const address = key => `pet-asset://background/${LAKE}/${key}`;
+  backend({
+    saved: [{ id: LAKE, pack: { ...pack('Lake'), images: { base: address('base'), winter: address('winter') } } }],
+  });
+  await restoreBackgrounds();
+  assert.deepEqual(
+    worlds.map(w => w.imageSources),
+    [{ base: address('base'), winter: address('winter') }],
+  );
+});
+
 test('with no old storage the backgrounds come from the data folder alone', async t => {
   keepGlobals(t, 'indexedDB');
   freshWorlds(t);

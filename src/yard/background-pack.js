@@ -7,7 +7,14 @@ const fail = () => {
   throw new Error('background.invalid');
 };
 const fraction = (n, min = 0, max = 1) => typeof n === 'number' && Number.isFinite(n) && n >= min && n <= max;
-function image(value) {
+// The data folder lists a kept background's pictures by address (the backend's
+// backgrounds::image_url), not whole: read at every start, they would be tens of megabytes.
+const served = (id, key) => [
+  `pet-asset://background/${id}/${key}`,
+  `http://pet-asset.localhost/background/${id}/${key}`,
+];
+function image(value, key, id) {
+  if (id && served(id, key).includes(value)) return value;
   if (
     typeof value !== 'string' ||
     value.length > 8 * 1024 * 1024 ||
@@ -74,7 +81,9 @@ export function validateBackgroundGeometry(input) {
   return { floor: input.floor, water, fishingSpot, windows };
 }
 
-export function validateBackgroundPack(input) {
+/** A package as imported, or with `id`, as the data folder keeps it under that id (its pictures
+ * may then be the addresses it is served from). */
+export function validateBackgroundPack(input, id) {
   if (
     input?.format !== 'playpets-background' ||
     input.version !== 1 ||
@@ -98,8 +107,8 @@ export function validateBackgroundPack(input) {
     .join('')
     .trim();
   if (!name) return fail();
-  const images = { base: image(input.images?.base) };
-  for (const season of seasons) if (input.images[season]) images[season] = image(input.images[season]);
+  const images = { base: image(input.images?.base, 'base', id) };
+  for (const season of seasons) if (input.images[season]) images[season] = image(input.images[season], season, id);
   let geometry;
   try {
     geometry = validateBackgroundGeometry(input);
