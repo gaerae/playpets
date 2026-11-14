@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { pngFor } from '../scripts/art-webp-lib.mjs';
+import { decodePng } from '../scripts/png-lossless-lib.mjs';
 import { catalog } from './support/content.mjs';
 
 const art = path => new URL(`../src/art/${path}`, import.meta.url);
@@ -81,4 +82,25 @@ test('the built snowman draws the plain snowman from its own atlas', () => {
     ),
   );
   assert.ok(svg.includes('clip-path="url(#specimen-gifts-snowman)"'));
+});
+
+// A treasure dug up is shown whole: no part of its drawing runs on past the crop's edges (the wooden
+// whale's tail was cut off at the right). The winter tails are cut on purpose; they peek from a bush.
+test('a dug-up find is cropped around its whole drawing', () => {
+  const records = JSON.parse(readFileSync(art('collection.json'), 'utf8'));
+  const finds = records.filter(record => record.atlas === 'collection-extension/finds.webp');
+  assert.deepEqual(finds.map(record => record.id).sort(), ['glass_marble', 'wooden_whale']);
+  const { width, height, channels, pixels } = decodePng(readFileSync(pngFor(finds[0].atlas)));
+  const opaque = (x, y) =>
+    x >= 0 && y >= 0 && x < width && y < height && pixels[(y * width + x) * channels + 3] > 8;
+  for (const { id, crop } of finds) {
+    const [x, y, w, h] = crop;
+    const edges = {
+      left: Array.from({ length: h }, (_, i) => opaque(x - 1, y + i)),
+      right: Array.from({ length: h }, (_, i) => opaque(x + w, y + i)),
+      top: Array.from({ length: w }, (_, i) => opaque(x + i, y - 1)),
+      bottom: Array.from({ length: w }, (_, i) => opaque(x + i, y + h)),
+    };
+    for (const [edge, line] of Object.entries(edges)) assert.ok(!line.some(Boolean), `${id}: drawn past the ${edge} edge`);
+  }
 });

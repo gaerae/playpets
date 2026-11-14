@@ -520,7 +520,7 @@
     "kind": "treasure",
     "atlas": "collection-extension/finds.webp",
     "atlasSize": [1536, 1024],
-    "crop": [530, 47, 494, 419],
+    "crop": [530, 47, 558, 419],
     "size": [40, 40],
     "art": "discovery/wooden_whale.svg"
   },
