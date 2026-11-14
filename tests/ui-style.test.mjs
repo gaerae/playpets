@@ -241,21 +241,22 @@ test('a small window shows the four starters in one row of small pictures', asyn
 // A small window's Play tiles shared one row per group, so six games at 300 by 210 were 46px each and
 // their names broke inside the word (種を植え/る, かくれ/んぼ, Par/ade). Every group is three tiles a
 // row, and a name stays whole on one line; only if a font draws it wider than its tile is it cut
-// with an ellipsis. The shortest windows put the icon over the name at the smallest step, the seed
-// count in the corner, and close the gaps, so the four rows fit without scrolling.
+// with an ellipsis. With the games on two rows the tiles are close set (the icon over the name, the
+// seed count in the corner, no 40px floor), so the panel stays under two thirds of a 460 by 320
+// window (the e2e's quick Play check). Narrow windows take the smallest step.
 test('a Play name stays whole on one line in a small window', async () => {
   const css = await styles();
   assert.match(css, /body\.compact \.play-actions\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
   const tile = css.match(/(?:^|\})body\.compact \.play-action\{([^}]*)\}/)?.[1] || '';
-  assert.doesNotMatch(tile, /white-space:normal|overflow-wrap:anywhere|word-break/);
+  assert.doesNotMatch(tile, /white-space:normal|overflow-wrap:anywhere|word-break|flex-direction:row/);
+  assert.match(tile, /min-height:0/);
   assert.match(
     css,
     /body\.compact \.play-action>:is\(span\[data-i18n\],\.game-name\)\{[^}]*overflow:hidden;text-overflow:ellipsis/,
   );
-  const short = [...css.matchAll(/@media\(max-height:280px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
-  assert.doesNotMatch(short, /body\.compact \.play-action\{[^}]*flex-direction:row/);
-  assert.match(short, /body\.compact \.play-action\{[^}]*font-size:var\(--font-xs\)/);
-  assert.doesNotMatch(short, /body\.compact \.play-action>\.tool-count\{[^}]*position:static/);
+  assert.doesNotMatch(css, /body\.compact \.play-action>\.tool-count\{[^}]*position:static/);
+  const narrow = [...css.matchAll(/@media\(max-width:400px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
+  assert.match(narrow, /body\.compact \.play-action\{[^}]*font-size:var\(--font-xs\)/);
 });
 
 // At 300 by 210 the next-steps card began 112px down, ran past the bottom and went under the corner

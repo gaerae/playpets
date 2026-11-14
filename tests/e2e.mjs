@@ -854,11 +854,12 @@ const scenario = `(async()=>{
       for(const lang of ['ko','en','ja','zh-hans']){
         localeUi.setLanguageForTests(lang);localeUi.apply();
         (await import('./core/controls.js')).openPlay();await wait(40);
-        // Every name stays whole on one line, never broken inside a word: wide windows at 12px or more,
-        // small ones (three tiles a row, the shortest at 11px) uncut by their tile too.
+        // Wide windows keep every name on one line at 12px or more. In small windows nothing spills; a
+        // Play name stays whole on one line too, never broken inside a word (three tiles a row, the
+        // shortest at 11px), while a menu's name may take a second line at a space.
         const folded=document.body.classList.contains('compact');
         const oneLine=node=>{const range=document.createRange();range.selectNodeContents(node);return new Set([...range.getClientRects()].filter(rect=>rect.width>0).map(rect=>Math.round(rect.top))).size===1&&node.scrollWidth<=node.clientWidth+1;};
-        const fits=(tile,labels)=>{tile.scrollIntoView({block:'nearest'});return visibleNode(tile)&&tile.scrollWidth<=tile.clientWidth+1&&tile.scrollHeight<=tile.clientHeight+1&&labels.every(folded?oneLine:noWrap);};
+        const fits=(tile,labels,whole=false)=>{tile.scrollIntoView({block:'nearest'});return visibleNode(tile)&&tile.scrollWidth<=tile.clientWidth+1&&tile.scrollHeight<=tile.clientHeight+1&&(folded?!whole||labels.every(oneLine):labels.every(noWrap));};
         // With seeds or without, the same: a two-digit count is the widest the seed tile shows.
         const seedsBefore=$('seed-count').textContent;$('seed-count').textContent='12';
         // The snowman's row (a winter yard) and Flower viewing (blossom time) show only in their season
@@ -866,7 +867,7 @@ const scenario = `(async()=>{
         const {syncGameUi}=await import('./yard/play.js'),seasonal=[document.querySelector('#games-menu [data-game=snowman]'),$('viewing-tool')];
         syncGameUi();for(const tile of seasonal)tile.hidden=false;
         const tiles=[...$('play-sections').querySelectorAll('.play-action')].filter(tile=>!tile.hidden);
-        const playChecks=tiles.map(tile=>({id:tile.id||tile.dataset.game,fits:fits(tile,[...tile.querySelectorAll('span[data-i18n],.game-name')])}));
+        const playChecks=tiles.map(tile=>({id:tile.id||tile.dataset.game,fits:fits(tile,[...tile.querySelectorAll('span[data-i18n],.game-name')],true)}));
         const playOk=tiles.length===12&&seasonal.every(tile=>tiles.includes(tile))&&playChecks.every(check=>check.fits)&&visibleNode($('play-panel'));
         syncGameUi();
         $('seed-count').textContent=seedsBefore;
