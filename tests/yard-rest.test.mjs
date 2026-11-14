@@ -50,16 +50,54 @@ test('a yard hidden for a while rests once, and wakes in the same moment it is s
   assert.deepEqual(calls, ['rest', 'wake', 'rest']);
 });
 
-test('a page the browser never reports hidden keeps everything', t => {
+test('a yard whose window the backend hid rests too, from the start, and wakes when it shows', t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const doc = page(),
     calls = [];
-  const rest = setupRest({ rest: () => calls.push('rest'), wake: () => calls.push('wake'), doc });
-  // The backend says the window was hidden, but the page can still be drawn: nothing is let go,
-  // so nothing could show unpainted when it comes back.
+  // Started at login, the window was hidden before the page loaded; WebView2 may never report the
+  // page hidden, so the backend's word is all the page has (app.js reads it from bootstrap).
+  let shown = false;
+  const rest = setupRest({ rest: () => calls.push('rest'), wake: () => calls.push('wake'), seen: () => shown, doc });
+  t.mock.timers.tick(REST_MS);
+  assert.deepEqual(calls, ['rest']);
+  shown = true;
   rest.check();
-  t.mock.timers.tick(REST_MS * 3);
-  assert.deepEqual(calls, []);
+  assert.deepEqual(calls, ['rest', 'wake'], 'woken as the backend says the window shows');
+  // Shown again before the delay: nothing is let go.
+  shown = false;
+  rest.check();
+  t.mock.timers.tick(REST_MS / 2);
+  shown = true;
+  rest.check();
+  t.mock.timers.tick(REST_MS * 2);
+  assert.deepEqual(calls, ['rest', 'wake']);
+});
+
+test('a page the browser sees again wakes at once, before the backend says the window shows', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const doc = page(),
+    calls = [];
+  let shown = true;
+  const rest = setupRest({ rest: () => calls.push('rest'), wake: () => calls.push('wake'), seen: () => shown, doc });
+  shown = false;
+  doc.show(true);
+  rest.check();
+  t.mock.timers.tick(REST_MS);
+  assert.deepEqual(calls, ['rest']);
+  // The window shows: WebKit says so first, and the yard is painted before it is drawn.
+  doc.show(false);
+  assert.deepEqual(calls, ['rest', 'wake']);
+  shown = true;
+  rest.check();
+  t.mock.timers.tick(REST_MS * 2);
+  assert.deepEqual(calls, ['rest', 'wake'], 'the backend coming after changes nothing');
+  // Its word that the window is still hidden, late, holds only once it has held for the delay.
+  shown = false;
+  rest.check();
+  shown = true;
+  rest.check();
+  t.mock.timers.tick(REST_MS * 2);
+  assert.deepEqual(calls, ['rest', 'wake']);
 });
 
 function scenery(t) {
@@ -189,5 +227,16 @@ test('a resting yard is taken out of rendering, and the app wires the rest', () 
   const css = readFileSync('src/styles/base.css', 'utf8');
   assert.match(css, /:root\[data-resting\] #yard\s*\{\s*content-visibility: hidden;/);
   const app = readFileSync('src/app.js', 'utf8');
-  assert.match(app, /setupRest\(/);
+  assert.match(app, /setupRest\(\{[^}]*seen: \(\) => shown,/);
+});
+
+test('an unseen page pauses every CSS animation, those drawn before and after an element too', () => {
+  const css = readFileSync('src/styles/base.css', 'utf8');
+  const rule = css.match(/([^{}]*)\{[^{}]*animation-play-state: paused !important;/);
+  assert.ok(rule, 'the pause rule');
+  const selectors = rule[1]
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .split(',')
+    .map(s => s.trim());
+  assert.deepEqual(selectors, [':root[data-unseen] *', ':root[data-unseen] *::before', ':root[data-unseen] *::after']);
 });

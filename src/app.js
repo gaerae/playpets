@@ -97,7 +97,8 @@ import { drawWelcome, setupWelcome } from './yard/welcome.js';
 import { setupWinter } from './yard/winter.js';
 import { scene, scenery } from './yard/world.js';
 
-// Whether the yard can be seen; the backend says so for a window it hid or that was minimized.
+// Whether the yard can be seen; the backend says so for a window it hid or that was minimized, and
+// in `bootstrap` for one it hid before this page could hear it (a start at login).
 let shown = true;
 // Reloads everything from the backend, for actions that need the page current right away.
 async function refresh() {
@@ -114,8 +115,12 @@ function openChat(id) {
 // The app's state first: the backgrounds (loadContent) and the place, season and weather picked
 // (setupSky) are read from it, and whether this data folder owns the webview's old copies. A
 // failure here is asked again, and shown, by the full start below.
+// The engine drawing the page, where styles differ in cost between the two (scenery.css clouds):
+// only WebView2 (Windows) has `chrome.webview`.
+document.documentElement.toggleAttribute('data-webview2', !!globalThis.chrome?.webview);
 const booted = await call('bootstrap').catch(() => null);
 setData(booted || data);
+shown = booted?.windowShown !== false;
 // What the yard is made of (the catalogue, the scenery, the drawings), before anything is drawn;
 // the friends' authored actions come in alongside.
 await Promise.all([loadContent(), setupCompanionActions()]);
@@ -235,6 +240,7 @@ setupSky({
 // Hidden for a while, the yard lets go of its paintings and is not drawn; seen again, it is painted
 // before WebKit draws it (yard/rest.js).
 const yardRest = setupRest({
+  seen: () => shown,
   rest: () => {
     restSky();
     document.documentElement.toggleAttribute('data-resting', true);
@@ -416,23 +422,26 @@ const ON_EVENT = {
     if (v) setTimeout(() => bubble(v, clip(plain(e.message), 80)), wait);
   },
   play: react,
-  window: e => {
-    shown = e.shown;
-    seen(shown);
-    soundSeen(shown);
-    // CSS animations (the clouds) rest too; see base.css.
-    document.documentElement.toggleAttribute('data-unseen', !shown);
-    yardRest.check();
-    // Seen again, Christmas night catches up; hidden, its check stops the sleigh and the glints.
-    christmasNightCheck();
-    // Hidden, a friend on its way along a trail gives up (nobody would see the tail).
-    trailsSeen();
-  },
+  window: e => seenAs(e.shown),
 };
 api.onEvent(event => {
   chatEvent(event);
   if (Object.hasOwn(ON_EVENT, event.type)) ON_EVENT[event.type](event);
 });
+// The window was hidden or shown: what only runs for someone watching stops or catches up.
+function seenAs(visible) {
+  shown = visible;
+  seen(shown);
+  soundSeen(shown);
+  // CSS animations (the clouds) rest too; see base.css.
+  document.documentElement.toggleAttribute('data-unseen', !shown);
+  yardRest.check();
+  // Seen again, Christmas night catches up; hidden, its check stops the sleigh and the glints.
+  christmasNightCheck();
+  // Hidden, a friend on its way along a trail gives up (nobody would see the tail).
+  trailsSeen();
+}
+if (!shown) seenAs(false);
 
 // Twenty frames a second while a friend moves (a walk, a pose, a game, a treat being placed) and
 // while creatures fly or petals and leaves fall, fifteen in rain and while birds or a shooting star
@@ -520,6 +529,8 @@ try {
   setupBond();
   refreshChat();
   announceInstalledUpdate();
+  // The window waited hidden, so it never showed white while the page loaded: the yard is drawn.
+  showWindow();
   last = sceneryLast = performance.now();
   every(BUSY_MS, animate);
   // Growth during closed time is recorded once the yard is drawn, so the first friend does not wait
@@ -527,4 +538,9 @@ try {
   await call('growTrees').catch(error => toast(spoken(error, t('error.start')), { error: true }));
 } catch (e) {
   toast(spoken(e, t('error.start')), { error: true });
+  showWindow();
+}
+// The backend shows the window only the first time, and never one a start at login keeps hidden.
+function showWindow() {
+  call('windowReady').catch(() => {});
 }

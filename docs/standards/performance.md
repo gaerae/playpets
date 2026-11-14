@@ -40,7 +40,10 @@
 - Something that cycles on a canvas (a wing beat) spans at least six frames at the interval it is drawn at. A faster cycle is drawn at scattered points and flickers.
 - Do not draw when the window is not visible.
   - Loops return right away when `document.hidden` is set or when the backend reports the window hidden (the `window` event, `<html data-unseen>`).
-  - `data-unseen` stops CSS animations.
+  - A page that starts after its window was hidden (a start at login) reads it from `windowShown` in `bootstrap`: the `window` event came before the page could hear it.
+  - `data-unseen` stops CSS animations, those on `::before` and `::after` too.
+  - On Windows the backend also hides the webview (`Webview::hide`, WebView2's `IsVisible`) while the window is hidden or minimized: WebView2 is not told otherwise, and keeps the page drawing and reported as seen.
+- The yard window is made hidden and shows once the page has drawn the yard (`windowReady`), or after 3 s if the page never says so. A start at login that keeps it in the tray never shows it.
 
 ### Pushes from the backend
 - The backend pushes its whole state on most changes. A push re-renders only what changed:
@@ -74,6 +77,9 @@
   - the breeze in trees and flowers (`garden.css`);
   - a walking friend's step (`friends.css`).
 - Such a loop pauses under `data-unseen` and stops with reduced motion. A loop that needs the page (a canvas, a style written each frame) is a drawing loop and follows the rules above.
+- In WebView2 (`<html data-webview2>`), the clouds move in steps of about a pixel (`steps()`): moved smoothly, they have the page composited on every display frame while nothing else moves.
+  - The clouds alone, measured 2026-11-15 in Chrome with software compositing (as WebView2 with no GPU), the frame loop resting, three runs: 600 frames and 1.9 s of CPU in 10 s smoothly, 115–119 frames and 0.7 s in steps of 1500.
+  - Not in WebKit, which moves steps on the page's own thread: the yard with one friend took 7.6–7.7% of a core with steps against 5.9–6.3% without (macOS, e2e build, three alternating runs of 40 s).
 - Do not use CSS variables (`var()`) inside keyframes. Keyframes that contain variables do not run in the compositing stage.
 - Do not put a filter on the element a looping animation moves: put it on what is inside (the light on a swaying tree is on its `use`, `garden.css`).
 
@@ -93,7 +99,8 @@
 - Sound beds loop and drift inside the audio graph.
 - The page wakes only for scheduled events (a gust, a wave, a call), never on a fast timer.
 - A yard hidden for 30 seconds rests (`src/yard/rest.js`): the backdrop's and the weather's canvases are emptied (`width = height = 0`) and the yard takes `content-visibility: hidden` (`data-resting`), so WebKit lets go of what it drew.
-  - Only the page's own `document.hidden` starts a rest. The page wakes in `visibilitychange`, before WebKit draws it, and paints the backdrop and the weather at once: the first frame shows them. The backend's `window` event comes after the window shows, too late for that.
+  - `document.hidden` or the backend's word (the `window` event, `windowShown` in `bootstrap`) starts a rest: WebView2 may never report a hidden window's page hidden.
+  - The page wakes in `visibilitychange`, before WebKit draws it, and paints the backdrop and the weather at once: the first frame shows them. The backend's `window` event comes after the window shows, too late for that; it wakes the page only where the page was never reported hidden.
   - Nothing is painted while it rests: a new scene, a resize or another density waits until it wakes.
   - Emptying the canvases frees nothing while the yard is still drawn, and `content-visibility` alone frees about half: both are needed.
   - The friends' decoded sheets stay: letting them go freed nothing measurable, and the friends would show late.
@@ -180,3 +187,4 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-11-14 The overlay thread is woken by a change to what is out; a monitor's window stays a minute after its last thing leaves and opens early from the yard's menu, and its page draws nothing while it has nobody
 - 2026-11-14 A glide after a late step lasts until the next step is likely to come; a push re-renders only what changed; canvases follow a change of screen density
 - 2026-11-14 Pictures travel by address, not inside a command's answer (imported backgrounds); each process measured in each state, over 12 minutes, and with the filters and the blur off
+- 2026-11-15 A page started in a hidden window knows it from `bootstrap`, and the backend's word starts a rest too; the window shows once the yard is drawn; WebView2 is told when the window is hidden; in WebView2 the clouds move in pixel steps

@@ -19,9 +19,13 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - With imported backgrounds the app starts sooner and uses less memory: a background's pictures are read only when its place or its card is shown.
 - The album opens each book at once: gifts, keepsakes and trees no longer pause for a moment the first time they are shown.
 - Hidden to the tray or minimized for a while, the yard uses less memory, and it is fully painted again the moment it shows.
+- The yard window opens once the yard is drawn, instead of showing an empty window for a few seconds on a slow computer.
+- On Windows, a still yard asks less of the computer, most on one without a graphics card: the clouds drift a pixel at a time.
 
 ### Fixed
 
+- Started with the computer and kept in the tray, the yard no longer flashes on screen first, and no longer keeps moving where nobody sees it.
+- The first time the app opens, its window is in the middle of the screen instead of in the top-left corner.
 - In a small window, Invite opens at its full width again instead of as a thin strip.
 - In the smallest window, a conversation keeps room for its lines, and a long friend name ends in an ellipsis instead of running under the menu button.
 - In a small window, the first-run card shows all four starter friends whole instead of cutting off a row.
