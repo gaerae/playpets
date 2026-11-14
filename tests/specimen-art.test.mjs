@@ -91,8 +91,7 @@ test('a dug-up find is cropped around its whole drawing', () => {
   const finds = records.filter(record => record.atlas === 'collection-extension/finds.webp');
   assert.deepEqual(finds.map(record => record.id).sort(), ['glass_marble', 'wooden_whale']);
   const { width, height, channels, pixels } = decodePng(readFileSync(pngFor(finds[0].atlas)));
-  const opaque = (x, y) =>
-    x >= 0 && y >= 0 && x < width && y < height && pixels[(y * width + x) * channels + 3] > 8;
+  const opaque = (x, y) => x >= 0 && y >= 0 && x < width && y < height && pixels[(y * width + x) * channels + 3] > 8;
   for (const { id, crop } of finds) {
     const [x, y, w, h] = crop;
     const edges = {
@@ -101,6 +100,7 @@ test('a dug-up find is cropped around its whole drawing', () => {
       top: Array.from({ length: w }, (_, i) => opaque(x + i, y - 1)),
       bottom: Array.from({ length: w }, (_, i) => opaque(x + i, y + h)),
     };
-    for (const [edge, line] of Object.entries(edges)) assert.ok(!line.some(Boolean), `${id}: drawn past the ${edge} edge`);
+    for (const [edge, line] of Object.entries(edges))
+      assert.ok(!line.some(Boolean), `${id}: drawn past the ${edge} edge`);
   }
 });

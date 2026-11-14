@@ -210,7 +210,9 @@ test('compact chat keeps its composer visible while the log owns scrolling', asy
 test('the shortest window gives the conversation the row the panel title took', async () => {
   const css = await styles();
   const short = [...css.matchAll(/@media\(max-height:280px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
-  const head = short.match(/body\.compact \.side-panel:has\(#pet-panel:not\(\[hidden\]\)\)>\.panel-head\{([^}]*)\}/)?.[1];
+  const head = short.match(
+    /body\.compact \.side-panel:has\(#pet-panel:not\(\[hidden\]\)\)>\.panel-head\{([^}]*)\}/,
+  )?.[1];
   assert.ok(head, 'a short window lifts the panel head out of the flow while a conversation shows');
   assert.match(head, /position:absolute/);
   assert.match(

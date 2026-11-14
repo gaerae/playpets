@@ -37,7 +37,8 @@ test('every language says every key, with the same holes', () => {
 // language, so a "rare" badge never sits beside an "uncommon" rule.
 // "Reports from, Claude Code": a label is not joined to the names it introduces with a comma.
 test('the agent chip introduces its agents without a comma', () => {
-  for (const lang of Object.keys(STRINGS)) assert.doesNotMatch(STRINGS[lang]['friend.agent_chip'], /[,、，]\s*\{agents\}/, lang);
+  for (const lang of Object.keys(STRINGS))
+    assert.doesNotMatch(STRINGS[lang]['friend.agent_chip'], /[,、，]\s*\{agents\}/, lang);
 });
 
 test('the dig rule calls its finds by the word on the album badge', () => {
