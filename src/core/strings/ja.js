@@ -2,7 +2,6 @@
 // holes are the same in every language file (tests/i18n.test.mjs checks them against ko.js).
 // Japanese: です、ます体 on the page, casual in the friends' speech bubbles.
 
-export const name = '日本語';
 // A sentence in this language shows by its script.
 export const sentence = /[぀-ヿ一-鿿]/;
 // 名前を並べるときの区切り。

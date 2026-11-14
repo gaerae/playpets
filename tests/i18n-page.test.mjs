@@ -1,5 +1,6 @@
 // The page's t(): holes, Korean particles, the English fallback and the key as last resort.
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import test from 'node:test';
 import { joinList, list, setLanguageForTests, t } from '../src/core/i18n.js';
 import { STRINGS } from '../src/core/strings.js';
@@ -31,4 +32,29 @@ test('lists are joined the way the language writes them', () => {
   assert.equal(t('tabs.friend'), '伙伴', 'a region-only tag reaches the simplified file');
   setLanguageForTests('en');
   assert.equal(joinList(['Tabby', 'Smoky']), 'Tabby, Smoky');
+});
+
+// A table is about 60 KB and a window speaks one language: a page loads the table it speaks and
+// English (the fallback), not all four, and loads another when asked for it. Run in a fresh
+// process, with the window and stored choice a page has, since a module loads once per process.
+test('a page loads its own language and English, and another one only when asked', () => {
+  const strings = new URL('../src/core/strings.js', import.meta.url).href;
+  const i18n = new URL('../src/core/i18n.js', import.meta.url).href;
+  const script = `
+    globalThis.window = {};
+    globalThis.localStorage = { getItem: () => 'ja', setItem() {} };
+    const { STRINGS, LANGUAGES } = await import(${JSON.stringify(strings)});
+    const { t, setLanguageForTests } = await import(${JSON.stringify(i18n)});
+    const first = { loaded: Object.keys(STRINGS).sort(), friend: t('tabs.friend'), names: Object.keys(LANGUAGES) };
+    await setLanguageForTests('ko');
+    console.log(JSON.stringify({ ...first, after: Object.keys(STRINGS).sort(), friendKo: t('tabs.friend') }));
+  `;
+  const run = spawnSync(process.execPath, ['--input-type=module', '-e', script], { encoding: 'utf8' });
+  assert.equal(run.status, 0, run.stderr);
+  const seen = JSON.parse(run.stdout);
+  assert.deepEqual(seen.loaded, ['en', 'ja']);
+  assert.equal(seen.friend, STRINGS.ja['tabs.friend']);
+  assert.deepEqual(seen.names, ['ko', 'en', 'ja', 'zh-hans'], 'the settings tab still lists every language');
+  assert.deepEqual(seen.after, ['en', 'ja', 'ko']);
+  assert.equal(seen.friendKo, STRINGS.ko['tabs.friend']);
 });

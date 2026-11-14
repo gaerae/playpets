@@ -109,6 +109,13 @@
 - Pictures travel by address, not inside a command's answer: `listBackgrounds` names each picture of an imported background as `pet-asset://background/<id>/<picture>`, read when its place or its card shows.
   - Five packs (64 MB) sent whole held back the first friend by about 230 ms and kept about 200 MB in the app and the page all day.
 
+### Starting a window
+- A window loads the string table of the language it speaks and English, the fallback, not every table (`loadStrings` in `src/core/strings.js`, called by `i18n.js`).
+  - Changing the language reloads the page, which loads the new table. The Settings tab lists every language from `LANGUAGES`, which holds each one's own name, without loading their tables.
+  - Outside a page (the Node tests, scripts) every table loads: the tests check them all.
+  - The four tables are 246 KB. In Chrome, after a collection, the JS heap with `i18n.js` loaded went from 1,232 KB to 999 KB (Korean, which also loads English) and 875 KB (English); the import took 13–15 ms before and after, the files coming in parallel either way.
+  - Measured 2026-11-15, Apple M2 Pro, headless Chrome over localhost, medians of 15 runs.
+
 ### Recorded baseline
 - This baseline predates the later raster artwork and place changes. It is not a benchmark of the current release.
 - Each value is the CPU of the app process plus the WebKit process, as a percentage of one core.
@@ -180,3 +187,4 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-11-14 The overlay thread is woken by a change to what is out; a monitor's window stays a minute after its last thing leaves and opens early from the yard's menu, and its page draws nothing while it has nobody
 - 2026-11-14 A glide after a late step lasts until the next step is likely to come; a push re-renders only what changed; canvases follow a change of screen density
 - 2026-11-14 Pictures travel by address, not inside a command's answer (imported backgrounds); each process measured in each state, over 12 minutes, and with the filters and the blur off
+- 2026-11-15 A window loads only the string table it speaks and English
