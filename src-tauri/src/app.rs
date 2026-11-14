@@ -359,6 +359,73 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
     state
 }
 
+/// What an overlay window reads of the state (overlay.js and the modules it imports); the rest is
+/// the yard window's. tests/overlay-slice.test.mjs runs the overlay page on this list and fails on
+/// a key it reads that is not here, or one here it never reads.
+pub const OVERLAY_KEYS: [&str; 9] = [
+    "pets",
+    "assets",
+    "statuses",
+    "garden",
+    "nightDecor",
+    "desktopLayout",
+    "language",
+    "scene",
+    "ownsWebviewStorage",
+];
+
+/// The state as an overlay window sees it: OVERLAY_KEYS of the yard's (`public_state`), with only
+/// the pet files its friends wear. On Windows each monitor's window evaluates every push, and the
+/// letters, the album and the shelf of pet files it never draws were most of each one.
+pub fn overlay_state(state: &Value) -> Value {
+    let worn: HashSet<&str> = state["pets"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter_map(|p| p["assetId"].as_str())
+        .collect();
+    let mut slice = Map::new();
+    for key in OVERLAY_KEYS {
+        let value = if key == "assets" {
+            json!(
+                state[key]
+                    .as_array()
+                    .into_iter()
+                    .flatten()
+                    .filter(|a| a["id"].as_str().is_some_and(|id| worn.contains(id)))
+                    .collect::<Vec<_>>()
+            )
+        } else {
+            state[key].clone()
+        };
+        slice.insert(key.into(), value);
+    }
+    Value::Object(slice)
+}
+
+/// The script that hands a page `value`: a JSON string the page parses (`__pp` in commands.rs),
+/// which a webview takes in faster than the same value written out as a script's own literal.
+fn pp_script(kind: &str, value: &Value) -> String {
+    let text = serde_json::to_string(&value.to_string()).unwrap_or_default();
+    format!("window.__pp&&__pp('{kind}',{text})")
+}
+
+/// Whether the window `label` acts on an event of `kind`: the yard on all but those only the desktop
+/// acts on, an overlay on its own few (overlay.js onEvent). An agent's hook sends `status` on every
+/// tool it uses and a chat sends `busy` as it starts and ends: none of it goes where nothing listens.
+fn hears(label: &str, kind: &str) -> bool {
+    if label == "main" {
+        !OVERLAY_ONLY_EVENTS.contains(&kind)
+    } else {
+        label.starts_with("overlay") && OVERLAY_EVENTS.contains(&kind)
+    }
+}
+/// The events an overlay window acts on; it hears `layout` and `hover` too, each window its own
+/// (overlay.rs sync_windows). tests/overlay-slice.test.mjs holds this list to overlay.js.
+const OVERLAY_EVENTS: [&str; 4] = ["status", "say", "play", "visit"];
+/// The events only an overlay acts on: the yard window is not sent them.
+const OVERLAY_ONLY_EVENTS: [&str; 1] = ["visit"];
+
 /// Runs a script in the main window and in every overlay.
 fn eval_all(app: &AppHandle, script: &str) {
     for (label, win) in app.webview_windows() {
@@ -377,8 +444,15 @@ pub fn relanguage(app: &AppHandle, code: &str) {
     );
 }
 
+/// An event, to the windows that act on its kind (`hears`).
 pub fn push_event(app: &AppHandle, payload: &Value) {
-    eval_all(app, &format!("window.__pp&&__pp('event',{payload})"));
+    let kind = payload["type"].as_str().unwrap_or_default();
+    let script = format!("window.__pp&&__pp('event',{payload})");
+    for (label, win) in app.webview_windows() {
+        if hears(&label, kind) {
+            let _ = win.eval(&script);
+        }
+    }
 }
 
 /// Call after any change to the state: the overlay and every page are brought up to date.
@@ -387,11 +461,78 @@ pub fn changed(app: &AppHandle, d: &AppData) {
         o.0.sync(desktop_items(d), desktop_on(d), d.prefs.wander);
     }
     crate::tray::refresh(app, crate::tray::snapshot(d));
-    eval_all(app, &format!("window.__pp&&__pp('change',{})", public_state(app, d)));
+    let state = public_state(app, d);
+    if let Some(win) = app.get_webview_window("main") {
+        let _ = win.eval(pp_script("change", &state));
+    }
+    show_overlays(app, &state);
     // After the pages were told: the layout the overlay sends next comes after this change.
     if let Some(o) = app.try_state::<OverlayHandle>() {
         o.0.wake();
     }
+}
+
+/// A change only the desktop shows (the yard's night look for a gift): the overlay windows are
+/// sent their part of the state, the yard window nothing.
+pub fn changed_on_desktop(app: &AppHandle, d: &AppData) {
+    show_overlays(app, &public_state(app, d));
+}
+
+/// What is out on the desktop changed and no page's state did (a gift kind left out for the
+/// season): the overlay places what is out again and each window hears its layout (overlay.rs).
+/// The yard window and the tray hear only when the desktop switch would read otherwise (`was_on`).
+pub fn desktop_items_changed(app: &AppHandle, d: &AppData, was_on: bool) {
+    if desktop_on(d) != was_on {
+        return changed(app, d);
+    }
+    if let Some(o) = app.try_state::<OverlayHandle>() {
+        o.0.sync(desktop_items(d), desktop_on(d), d.prefs.wander);
+        o.0.wake();
+    }
+}
+
+/// What the overlay windows were last sent, less where things stand (`desktopLayout`, which each
+/// window hears as it changes): most changes (a pat, a letter, a chat) leave the rest as it was,
+/// and every monitor's window would parse it again for nothing. None while no overlay window is
+/// open; one that opens asks for the state itself (`bootstrap`) once it listens. Taken only in
+/// `show_overlays`, under the state lock, and let go before any window is told.
+static OVERLAYS_SHOWN: Mutex<Option<String>> = Mutex::new(None);
+
+/// Sends the overlay windows their part of `state` when it differs from what they were last sent.
+fn show_overlays(app: &AppHandle, state: &Value) {
+    let windows: Vec<_> = app
+        .webview_windows()
+        .into_iter()
+        .filter(|(label, _)| label.starts_with("overlay"))
+        .map(|(_, win)| win)
+        .collect();
+    let script = {
+        let mut shown = hold(&OVERLAYS_SHOWN);
+        if windows.is_empty() {
+            *shown = None;
+            return;
+        }
+        let Some(script) = news(&mut shown, overlay_state(state)) else {
+            return;
+        };
+        script
+    };
+    for win in windows {
+        let _ = win.eval(&script);
+    }
+}
+
+/// The script that sends `slice` (an overlay's state) when it differs from `shown` other than in
+/// where things stand; `shown` then remembers it. None when nothing else differs.
+fn news(shown: &mut Option<String>, mut slice: Value) -> Option<String> {
+    let layout = slice.as_object_mut()?.remove("desktopLayout");
+    let key = slice.to_string();
+    if shown.as_deref() == Some(key.as_str()) {
+        return None;
+    }
+    *shown = Some(key);
+    slice["desktopLayout"] = layout.unwrap_or_else(|| json!([]));
+    Some(pp_script("change", &slice))
 }
 
 /// A save that was put off: asked for many times, written once, and tried again while its writes
@@ -813,7 +954,7 @@ pub(crate) mod tests {
             "the next start finds it"
         );
         let _ = std::fs::remove_dir_all(&dir);
-        // Every change sends the whole state to every page: it never asks the disk.
+        // Every change builds the whole state for the pages: it never asks the disk.
         let source = include_str!("app.rs");
         let public = &source[source.find("pub fn public_state(").unwrap()..];
         let public = &public[..public.find("\n}\n").unwrap()];
@@ -1040,5 +1181,80 @@ pub(crate) mod tests {
         wait_for_write(&written);
         assert!(done.load(Ordering::SeqCst), "the write in flight finished first");
         writer.join().unwrap();
+    }
+
+    #[test]
+    fn an_overlay_is_sent_what_it_reads_and_the_pet_files_its_friends_wear() {
+        let state = json!({
+            "pets": [{"id": "a", "assetId": "cat"}, {"id": "b", "assetId": "dog"}],
+            "assets": [{"id": "cat"}, {"id": "owl"}, {"id": "dog"}],
+            "letters": [{"text": "long"}],
+            "album": {},
+            "garden": {"decor": []},
+            "language": "en",
+        });
+        let slice = overlay_state(&state);
+        let keys: Vec<&str> = slice.as_object().unwrap().keys().map(String::as_str).collect();
+        assert_eq!(keys, OVERLAY_KEYS, "nothing but what the overlay reads");
+        assert_eq!(
+            slice["assets"],
+            json!([{"id": "cat"}, {"id": "dog"}]),
+            "the shelf stays home"
+        );
+        assert_eq!(slice["pets"], state["pets"]);
+        assert_eq!(slice["garden"], state["garden"]);
+    }
+
+    #[test]
+    fn an_event_goes_only_to_the_windows_that_act_on_it() {
+        for kind in ["status", "say", "play"] {
+            assert!(hears("main", kind) && hears("overlay0", kind), "{kind} shows in both");
+        }
+        assert!(
+            hears("overlay1", "visit") && !hears("main", "visit"),
+            "a stroll to a gift is the desktop's"
+        );
+        for kind in [
+            "busy",
+            "chat-message",
+            "window",
+            "update-status",
+            "select",
+            "pet-moved",
+            "cliLogin",
+        ] {
+            assert!(hears("main", kind) && !hears("overlay0", kind), "{kind} is the yard's");
+        }
+        assert!(!hears("other", "status"), "a window of no page hears nothing");
+    }
+
+    #[test]
+    fn an_overlay_hears_a_change_only_when_more_than_where_things_stand_changed() {
+        let slice =
+            |mood: &str, x: f64| json!({"pets": [{"id": "a", "name": mood}], "desktopLayout": [{"id": "a", "x": x}]});
+        let mut shown = None;
+        let first = news(&mut shown, slice("o'k \\ \"quoted\" \u{2028}", 1.0)).expect("the first is news");
+        // The page parses what it gets: a JSON string whose text is the slice, layout and all.
+        let text: String = serde_json::from_str(
+            first
+                .strip_prefix("window.__pp&&__pp('change',")
+                .unwrap()
+                .strip_suffix(')')
+                .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(
+            serde_json::from_str::<Value>(&text).unwrap(),
+            slice("o'k \\ \"quoted\" \u{2028}", 1.0)
+        );
+        assert!(
+            news(&mut shown, slice("o'k \\ \"quoted\" \u{2028}", 2.0)).is_none(),
+            "a step is the layout event's"
+        );
+        assert!(
+            news(&mut shown, slice("sleepy", 2.0)).is_some(),
+            "a friend renamed is news"
+        );
+        assert!(news(&mut shown, slice("sleepy", 2.0)).is_none());
     }
 }

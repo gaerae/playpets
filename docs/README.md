@@ -21,8 +21,8 @@
   - Both windows draw only the state the backend holds.
 - **Commands and notifications:**
   - The page calls the backend through a single `window.playPets.<command>()`.
-  - On a state change, the backend sends the new state (`change`) to every window.
-  - Things that happen once are sent as events (`event`).
+  - On a state change, the backend sends the new state (`change`) to the yard window, and the part the desktop draws to each desktop window.
+  - Things that happen once are sent as events (`event`), to the windows that act on them.
 - **Pets and friends:**
   - A pet is a character file: `pet.json` plus a sprite sheet, in the Codex pet format.
   - A friend is a pet invited into the yard, with a name, a personality, a size and an AI connection.

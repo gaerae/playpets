@@ -43,13 +43,34 @@
   - `data-unseen` stops CSS animations.
 
 ### Pushes from the backend
-- The backend pushes its whole state on most changes. A push re-renders only what changed:
+- The backend pushes its whole state to the yard window on most changes. A push re-renders only what changed:
   - Pushes that come together are drawn once, from the latest state, after a zero-delay timer (`app.js`).
   - A section of the page is rebuilt only when its own part of the state differs from what it was drawn from (a key per section, as in `render.js`).
   - Text, titles and attributes are written only when they differ (`put`, `putAttribute` in `src/core/dom.js`): writing the same value still costs a style check and a mutation.
   - A friend's size is written only when it changes; the dock is measured once for all friends.
 - An agent's status draws only its friend, the agent summary and the panel when that friend is shown.
 - A chat's start and end push no state: the `busy` event says who is waiting, and redraws only the friends whose wait began or ended and the chat's buttons (`syncBusy` in `src/panel/chat.js`).
+- A state is sent as JSON text that the page parses (`pp_script` in `app.rs`, `__pp` in `commands.rs`), not as a script literal: the page takes it in about a third faster.
+- A desktop window is sent only what the overlay reads (`OVERLAY_KEYS` in `app.rs`), with only its friends' pet files.
+  - `tests/overlay-slice.test.mjs` runs the overlay page and fails when it reads a key that is not sent, or is sent one it never reads.
+- A desktop window is sent a change only when its part differs from the last one sent, apart from `desktopLayout`: the overlay thread's `layout` event carries where things stand.
+  - A pat, time together, a letter or a catch changes nothing there and sends it nothing.
+- An event goes only to the windows that act on its kind (`hears` in `app.rs`):
+  - `status`, `say` and `play` go to both; `visit` to the desktop only.
+  - Every other kind (`busy`, chat messages, updates, the window shown or hidden) goes to the yard only.
+  - A new kind the overlay acts on goes into `OVERLAY_EVENTS`; the test above checks the list against `overlay.js`.
+- A change only the desktop shows is not pushed to the yard window:
+  - `decorNight` sends the desktop windows their part.
+  - `hideDecor` sends no state: the overlay places what is out again and each window hears its layout; the yard hears only when the desktop switch would read otherwise.
+- Measured 2026-11-15, Node 26 (V8), a synthetic state of six friends, 14 pet files, 12 letters and a small garden, each case in its own process, five alternating runs, medians of 200 evaluations:
+
+| Push | Bytes | Evaluated in |
+|---|---|---|
+| Before: the whole state as a literal, to every window | 38,852 | 392–441 µs |
+| After: the whole state as JSON text, to the yard window | 41,576 | 272–302 µs |
+| After: the desktop's part as JSON text, to each desktop window | 15,465 | 69–72 µs |
+| After: a change that leaves the desktop's part as it was, to each desktop window | 0 | – |
+
 - A pointer moving over the yard reads no layout: a friend under it reads its box once a frame at most.
 - A conversation draws its last 50 lines; earlier ones are drawn as it is scrolled to its top.
 
@@ -189,3 +210,4 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-11-14 The overlay thread is woken by a change to what is out; a monitor's window stays a minute after its last thing leaves and opens early from the yard's menu, and its page draws nothing while it has nobody
 - 2026-11-14 A glide after a late step lasts until the next step is likely to come; a push re-renders only what changed; canvases follow a change of screen density
 - 2026-11-14 Pictures travel by address, not inside a command's answer (imported backgrounds); each process measured in each state, over 12 minutes, and with the filters and the blur off
+- 2026-11-15 A state travels as JSON text; a desktop window is sent only its part, only when it changed, and only the events it acts on

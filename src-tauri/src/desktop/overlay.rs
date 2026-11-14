@@ -654,7 +654,7 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
             existing,
         ) {
             (true, None) => {
-                // A new window starts from the whole state; the next move is sent to it in full.
+                // A new window starts from its part of the state; the next move is sent to it in full.
                 crate::app::hold(inner).sent.remove(&mon.id);
                 let app2 = app.clone();
                 let mon_id = mon.id.clone();
