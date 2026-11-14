@@ -157,6 +157,23 @@ body.compact .play-action {
   overflow-wrap: anywhere;
   text-align: center;
 }
+/* In the shortest windows an icon over a two-line name made the rows taller than the panel and
+   cut the last one; the icon goes beside the name, and the seed count after it. */
+@media (max-height: 280px) {
+  body.compact .play-action {
+    flex-direction: row;
+    min-height: 30px;
+    padding: 2px;
+    font-size: var(--font-xs);
+  }
+  body.compact .play-action svg {
+    width: 14px;
+    height: 14px;
+  }
+  body.compact .play-action > .tool-count {
+    position: static;
+  }
+}
 body.compact .background-gallery {
   grid-template-columns: none;
   grid-auto-flow: column;

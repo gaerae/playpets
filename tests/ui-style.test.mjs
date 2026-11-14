@@ -236,6 +236,16 @@ test('a small window shows the four starters in one row of small pictures', asyn
   assert.match(short, /body\.compact \.starter canvas\{width:44px;height:48px;?\}/);
 });
 
+// At 300 by 210 in Japanese the Play panel's last row of games was cut at its bottom: an icon over
+// a name that takes two lines left the rows 21px taller than the panel. The shortest windows put
+// the icon beside the name, and the seed count after it.
+test('the shortest window lays each Play tile out in one row so every game shows', async () => {
+  const css = await styles();
+  const short = [...css.matchAll(/@media\(max-height:280px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
+  assert.match(short, /body\.compact \.play-action\{[^}]*flex-direction:row/);
+  assert.match(short, /body\.compact \.play-action>\.tool-count\{[^}]*position:static/);
+});
+
 // Squeezed onto one line in a short window, the message lost its words ("今日はどんな一日だ…") and
 // the AI its name ("Oll…"). The message keeps its own row and the AI stays readable under it.
 test('a short window keeps the message on its own row and the AI readable', async () => {
@@ -743,7 +753,7 @@ test('pin switches show their selected state for every window size', async () =>
 
 test('the seed count stays inside its tile however narrow the tile is', async () => {
   const css = await styles();
-  const rule = css.match(/\.play-action>\.tool-count\{([^}]*)\}/)?.[1] || '';
+  const rule = css.match(/(?:^|})\.play-action>\.tool-count\{([^}]*)\}/)?.[1] || '';
   assert.match(rule, /position:absolute/);
   assert.match(rule, /right:max\(3px,calc\(50% - 34px\)\)/, 'placed by its right edge, which never passes the tile');
   assert.doesNotMatch(rule, /left:/);
