@@ -38,6 +38,15 @@ test('the top of the yard counts as near only while the pointer is there', () =>
   assert.equal(nearTop(56), false);
 });
 
+// In a small window an open panel starts 8px from the top, so pointing at its Close brought the
+// window's own Close, Minimize and Fit over the panel's head: two Close buttons, one over the title.
+test('the window buttons stay away while the pointer is on an open panel at the top', () => {
+  const on = selector => ({ closest: s => (s.split(',').some(part => part.trim() === selector) ? {} : null) });
+  for (const surface of ['.side-panel', '.dock-panel', '.empty-yard'])
+    assert.equal(nearTop(20, on(surface)), false, surface);
+  assert.equal(nearTop(4, { closest: () => null }), true, 'the strip above the panel still brings them');
+});
+
 test('the right-click menu and the shortcut reach the same fitting as the buttons', async () => {
   const [html, controls, wiring, tray, menu] = await Promise.all(
     ['src/index.html', 'src/core/controls.js', 'src/window.js', 'src-tauri/src/tray.rs', 'src-tauri/src/menu.rs'].map(

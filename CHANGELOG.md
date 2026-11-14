@@ -24,6 +24,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In a small window, the first-run card shows all four starter friends whole instead of cutting off a row.
 - In the smallest window, Play shows every game whole instead of cutting off the last row.
 - In the smallest window, the question before sending a friend away shows everything it warns of, even for a friend with a long name.
+- In a small window, the window's own buttons no longer come over an open panel's title and Close while the pointer is on the panel.
 - Friends' speech bubbles stay inside a small window: when several friends talk at once and there is no room above, the newest line takes the place of the one it would cover.
 
 ## [1.7.1] - 2026-11-13
