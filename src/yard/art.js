@@ -63,7 +63,7 @@ export function artSvg(path, attrs = '') {
 }
 /** Where a drawing's album preview is: a small crop of its sheet that scripts/art-webp.mjs makes
  * for each drawing an album card shows (albumArt in catalog.js). */
-export const previewHref = path => `art/album/${path.replace(/\.svg$/, '.webp')}`;
+const previewHref = path => `art/album/${path.replace(/\.svg$/, '.webp')}`;
 /** A drawing from its small preview, set in its box as the drawing sets its crop: for a card, where
  * decoding the whole painted sheet would cost more than the card shows. */
 export function previewSvg(path, attrs = '') {

@@ -30,7 +30,7 @@ const edited = () => data.pets.find(p => p.id === editing) || null;
 // Keep failures beside the fields that can correct them.
 const petError = e => showFormError('pet-error', spoken(e, t('error.generic')));
 const SIZE_NAMES = [t('size.xs'), t('size.s'), t('size.m'), t('size.l'), t('size.xl')];
-export function showSize(size) {
+function showSize(size) {
   $('size-range').value = size;
   $('size-label').textContent = SIZE_NAMES[Math.round((size - 64) / 32)] || SIZE_NAMES[2];
 }

@@ -317,7 +317,7 @@ export function followPointer(v) {
   v.pointer = null;
 }
 /** Stops a friend's glide at once where it was going, as a press takes it. */
-export function unglide(v) {
+function unglide(v) {
   halt(v.button);
   halt(v.label);
 }
