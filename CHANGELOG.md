@@ -20,7 +20,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The album opens each book at once: gifts, keepsakes and trees no longer pause for a moment the first time they are shown.
 - Hidden to the tray or minimized for a while, the yard uses less memory, and it is painted again as it comes back.
 - Friends out on the desktop use less CPU while you chat with friends, pat them and change things in the yard, most of all on Windows with more than one screen: each desktop window now hears only what it draws.
-- The yard window opens once the yard is drawn, instead of showing an empty window for a few seconds on a slow computer.
+- The yard window waits up to three seconds for the yard to be drawn before it opens, so it shows empty less often while the app starts.
 - On Windows, a still yard asks less of the computer, most on one without a graphics card: the clouds drift a pixel at a time.
 
 ### Fixed

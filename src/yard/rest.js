@@ -1,9 +1,12 @@
 // A yard that cannot be seen for a while lets go of what it can paint again: the backdrop's and the
 // weather's canvases, and its whole drawing (content-visibility), about 45 MB in WebKit. It paints
 // them again when the page is seen, before WebKit draws it, so nothing shows unpainted.
-// The page's own `document.hidden` wakes it: the backend's word that the window shows again comes
-// after the window does, too late to paint first. That word still counts for resting, since WebView2
-// may never report a hidden window's page hidden (docs/standards/performance.md).
+// The page's own `document.hidden` wakes it, in `visibilitychange`, before WebKit draws. The
+// backend's word that the window shows again cannot promise that: sent before the window shows, it
+// still runs as a script that may come after the first frame, and a window restored from minimized
+// sends it only once it is back. That word wakes a page never reported hidden, and counts for
+// resting, since WebView2 may never report a hidden window's page hidden
+// (docs/standards/performance.md).
 
 /** How long the page is hidden before the yard rests. */
 export const REST_MS = 30_000;

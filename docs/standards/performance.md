@@ -126,7 +126,7 @@
 - The page wakes only for scheduled events (a gust, a wave, a call), never on a fast timer.
 - A yard hidden for 30 seconds rests (`src/yard/rest.js`): the backdrop's and the weather's canvases are emptied (`width = height = 0`) and the yard takes `content-visibility: hidden` (`data-resting`), so WebKit lets go of what it drew.
   - `document.hidden` or the backend's word (the `window` event, `windowShown` in `bootstrap`) starts a rest: WebView2 may never report a hidden window's page hidden.
-  - The page wakes in `visibilitychange`, before WebKit draws it, and paints the backdrop and the weather at once: the first frame shows them. The backend's `window` event comes after the window shows, too late for that; it wakes the page only where the page was never reported hidden.
+  - The page wakes in `visibilitychange`, before WebKit draws it, and paints the backdrop and the weather at once: the first frame shows them. The backend's `window` event cannot promise that: `show()` sends it before the window shows, but it runs as a script that may come after the first frame, and a window restored from minimized sends it only once it is back. It wakes the page where the page was never reported hidden.
   - Nothing is painted while it rests: a new scene, a resize or another density waits until it wakes.
   - Emptying the canvases frees nothing while the yard is still drawn, and `content-visibility` alone frees about half: both are needed.
   - The friends' decoded sheets stay: letting them go freed nothing measurable, and the friends would show late.
