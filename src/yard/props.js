@@ -10,7 +10,7 @@ import { spoken } from '../core/text.js';
 import { artSize } from './art.js';
 import { giftKind } from './catalog.js';
 import { depthScaleAt, EDGE, field, fieldToYard, propZoom, yardToField } from './field.js';
-import { thingAt } from './veil.js';
+import { thingAt, thingGone } from './veil.js';
 import { scene } from './world.js';
 
 /** Brings `shown` (id → view) in line with `items`: views of items that went are removed, new ones
@@ -19,6 +19,7 @@ export function reconcile(shown, items, create, update) {
   for (const [id, v] of shown)
     if (!items.some(item => item.id === id)) {
       v.button.remove();
+      thingGone(v.button);
       shown.delete(id);
     }
   for (const item of items) {

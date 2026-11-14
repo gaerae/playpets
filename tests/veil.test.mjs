@@ -2,8 +2,8 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { drawnBox, measureYard } from '../src/yard/field.js';
-import { setDown } from '../src/yard/props.js';
-import { friendAt, friendGone } from '../src/yard/veil.js';
+import { reconcile, setDown } from '../src/yard/props.js';
+import { friendAt, friendGone, thingsNear } from '../src/yard/veil.js';
 import { place } from '../src/yard/views.js';
 import { scene } from '../src/yard/world.js';
 import { element, installDom } from './support/dom.mjs';
@@ -41,10 +41,10 @@ function friend(t, x, y) {
 }
 // A thing on the field `share` as wide as the friend's drawing and a little taller, centred on it,
 // its foot 8px below the friend's feet, drawn at depth `z` (in front of the friend by default), and
-// moved `aside` of the friend's width to the right.
-function thingOver(v, share, z = v.z + 1, aside = 0) {
+// moved `aside` of the friend's width to the right; a gift unless it is `kind`.
+function thingOver(v, share, z = v.z + 1, aside = 0, kind = 'decor') {
   const box = drawnBox(v),
-    button = unmeasured(element());
+    button = unmeasured(element('button', { className: kind }));
   setDown(button, box.x + box.width * (0.5 + aside), box.y + box.height + 8, box.width * share, box.height * 1.2, z);
   return button;
 }
@@ -109,4 +109,54 @@ test('a thing in front of a friend fades to about half, eased unless motion is r
     css,
     /@media \(prefers-reduced-motion: reduce\) \{ :is\(\.plant, \.shoot, \.decor, \.planted-tree\) \{ transition: none; \} \}/,
   );
+});
+
+// The snowman game's balls and its preview are set down too, but nothing about them fades.
+test('only a tree, a shoot, a flower or a gift fades', t => {
+  yardIn(t);
+  const v = friend(t, 0.5, 0.4);
+  place(v);
+  for (const kind of ['plant', 'shoot', 'decor', 'planted-tree'])
+    assert.equal(thingOver(v, 1.2, v.z + 1, 0, kind).classList.contains('veiled'), true, kind);
+  for (const kind of ['snowball', 'snowman-preview'])
+    assert.equal(thingOver(v, 1.2, v.z + 1, 0, kind).classList.contains('veiled'), false, kind);
+});
+
+// A thing taken away was kept until a friend next moved, and only if the page said it was gone.
+test('a thing taken off the field is forgotten as it goes', t => {
+  yardIn(t);
+  const v = friend(t, 0.5, 0.4);
+  place(v);
+  const shown = new Map([['gift', { button: thingOver(v, 1.2) }]]);
+  const { button } = shown.get('gift');
+  assert.equal(button.classList.contains('veiled'), true);
+  reconcile(
+    shown,
+    [],
+    () => assert.fail('nothing new'),
+    () => {},
+  );
+  assert.equal(button.classList.contains('veiled'), false, 'it no longer covers anyone');
+  v.x = 0.1;
+  place(v);
+  v.x = 0.5;
+  place(v);
+  assert.equal(button.classList.contains('veiled'), false, 'and is not worked out again');
+});
+
+// A step of a walk is compared only with what stands near it, not with every thing on the field.
+test("a friend's step looks only at the things near it", t => {
+  yardIn(t);
+  const v = friend(t, 0.5, 0.4);
+  place(v);
+  const near = thingOver(v, 1.2);
+  v.x = 0.05;
+  place(v);
+  const far = thingOver(v, 1.2);
+  v.x = 0.5;
+  place(v);
+  const found = thingsNear(drawnBox(v));
+  assert.equal(found.has(near), true);
+  assert.equal(found.has(far), false);
+  assert.equal(far.classList.contains('veiled'), false, 'the friend walked out from behind it');
 });
