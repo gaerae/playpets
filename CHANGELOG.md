@@ -10,6 +10,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.7.2] - 2026-11-14
+
 ### Added
 
 - Eight new trees to plant (wisteria, Korean fringe tree, fig, golden rain tree, chestnut, red plum, yuzu and juniper) and eight new flowers to grow (bleeding heart and pasque flower in spring, daylily and hollyhock in summer, buckwheat and gentian in autumn, flowering kale and winter heath in winter), so the album holds 185 entries.

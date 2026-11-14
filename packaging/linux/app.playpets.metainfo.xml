@@ -73,6 +73,30 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.7.2" date="2026-11-14">
+      <description>
+        <p>Eight new trees and eight new flowers grow in the yard. Show on desktop answers right away, and the yard stays smooth while friends talk, coding agents work and things are saved.</p>
+        <ul>
+          <li>Eight new trees and eight new flowers to grow; the album holds 185 entries.</li>
+          <li>Some trees' seasons are drawn again, and the grown pine is now a Korean red pine.</li>
+          <li>Show on desktop answers at once, also the first time and right after everything came back in.</li>
+          <li>The yard opens sooner.</li>
+          <li>The yard stays smooth while friends talk, coding agents report and the pointer moves.</li>
+          <li>A long conversation opens on its latest lines; earlier ones come in as you scroll up.</li>
+          <li>Friends keep walking smoothly when a Windows laptop runs on battery.</li>
+          <li>The backdrop and weather stay sharp when the window moves to a screen of another resolution.</li>
+          <li>Patting, picking a scene, moving things and the tray's switches no longer wait for saving.</li>
+          <li>With many friends, the yard no longer stutters every ten minutes.</li>
+          <li>With imported backgrounds, the app starts sooner and uses less memory.</li>
+          <li>In small windows, panels, chat, bubbles and name tags fit whole, in every language.</li>
+          <li>A tree, a flower or a gift fades while a friend stands behind it, so no friend vanishes.</li>
+          <li>Started with the computer and kept in the tray, the yard no longer flashes on screen.</li>
+          <li>The first time the app opens, its window is in the middle of the screen.</li>
+          <li>Friends out on the desktop use less CPU, most of all on Windows with several screens.</li>
+        </ul>
+      </description>
+      <url type="details">https://playpets.gaerae.com/releases/1.7.2</url>
+    </release>
     <release version="1.7.1" date="2026-11-13">
       <description>
         <p>Friends walk smoothly instead of in small hops, and what you set out in the yard stands on the ground: smaller farther back, with a shadow at its feet and the light of the hour.</p>
