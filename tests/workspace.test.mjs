@@ -76,6 +76,9 @@ function inRoom(t) {
     useWorlds(before.list);
     scene.world = before.world;
     reduced.matches = before.reduced;
+    // A friend sitting down may say a line (lounge.js), whose bubble hides on a timer of a few
+    // seconds; left running, it kept the whole file waiting for it after the tests had finished.
+    for (const v of views.values()) clearTimeout(v.bubbleTimer);
     views.clear();
   });
 }
