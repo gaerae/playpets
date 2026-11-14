@@ -236,7 +236,7 @@ export const strings = {
   'steps.go_ai': 'つなぐ',
   'steps.go_agent': '選ぶ',
   'steps.dismiss': '表示しない',
-  'friend.agent_chip': '担当、{agents}',
+  'friend.agent_chip': '担当: {agents}',
   'yard.pat_name': '{name}をなでる',
   'yard.pat_name_state': '{name}をなでる({state})',
   'hint.pat': 'クリックでなでて、ドラッグで動かせます',

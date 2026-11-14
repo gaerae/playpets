@@ -35,6 +35,11 @@ test('every language says every key, with the same holes', () => {
 // friend speaks up on its own (bond.js lineFor); a friend uses the plain lines.
 // The album's badge and the dig's 24-hour rule name the same finds: one word for them in each
 // language, so a "rare" badge never sits beside an "uncommon" rule.
+// "Reports from, Claude Code": a label is not joined to the names it introduces with a comma.
+test('the agent chip introduces its agents without a comma', () => {
+  for (const lang of Object.keys(STRINGS)) assert.doesNotMatch(STRINGS[lang]['friend.agent_chip'], /[,、，]\s*\{agents\}/, lang);
+});
+
 test('the dig rule calls its finds by the word on the album badge', () => {
   for (const [language, table] of Object.entries(STRINGS)) {
     const word = table['catch.rare'];
