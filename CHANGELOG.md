@@ -10,6 +10,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- Eight new trees to plant (wisteria, Korean fringe tree, fig, golden rain tree, chestnut, red plum, yuzu and juniper) and eight new flowers to grow (bleeding heart and pasque flower in spring, daylily and hollyhock in summer, buckwheat and gentian in autumn, flowering kale and winter heath in winter), so the album holds 185 entries.
+
 ### Changed
 
 - The cherry tree's autumn and winter, the maple's, birch's and dawn redwood's winter and the crape myrtle's spring are drawn again, each on its own tree's trunk, and the grown pine is now a Korean red pine.

@@ -1,0 +1,41 @@
+{
+  "generated": "2026-11-15",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "sources": [
+    {
+      "name": "flowers",
+      "prompt": "Use case: stylized-concept. Production transparent game sprite atlas, exactly 8 botanical flower specimens, strict FOUR columns by TWO rows, equal cells, landscape 1536x1024. Style matches the first reference solely for soft sculpted painted miniature detail and rich restrained colours; the second and third references are approved concepts (ignore the lily of the valley): follow their subjects and silhouettes ONLY, not their flat style. New flowers only. Each one charming and lovable, with one clear signature feature that still reads at 50 pixels, warm saturated colours, never dull, muddy or cluttered. Row1: (1) BLEEDING HEART: one gracefully ARCHING stem over a clump of soft ferny divided leaves, hanging a neat row of plump heart-shaped rose-pink flowers with small white tips below, the hearts getting smaller toward the stem tip. (2) KOREAN PASQUE FLOWER: two or three NODDING bell flowers on curved stems, deep wine-red inside with golden stamens, the outside covered in silvery-white soft hairs, finely divided feathery grey-green leaves at the base, and one big white silky feathery SEED HEAD like a soft shining pompom on its own stem; the whole plant softly fuzzy. (3) ORANGE DAYLILY: three open bright orange trumpet flowers with six recurved petals and a darker orange throat, long stamens, two buds, on tall bare stems over a fountain of long arching strap-shaped leaves. (4) WHITE HOLLYHOCK: one tall upright spike of wide ruffled PURE WHITE saucer flowers with a soft yellow centre stacked along the stem, round green buds at the top, large rounded lobed leaves at the base; the tallest of the eight. Row2: (5) BUCKWHEAT: a bushy clump of slender bright RED-pink stems with heart-arrow-shaped green leaves, topped by many fluffy clusters of tiny white five-petal flowers. (6) GENTIAN: two or three straight UPRIGHT stems with narrow opposite lance leaves, each topped by a tight upright cluster of cobalt-blue TUBULAR flowers, mostly CLOSED tubes with pointed tips, one just opening into a small star; NOT nodding bells, NOT open trumpets. (7) FLOWERING KALE: an ornamental kale rosette seen from slightly above, round ruffled frilly-edged leaves, the centre CREAMY WHITE, then pale green, then broad blue-green outer leaves; NO pink, NO purple, NO magenta. (8) WINTER HEATH: a low rounded mound of dense fine dark-green needle leaves with many short upright spikes covered in tiny bright MAGENTA-pink urn-shaped bells. Entire plant including all stem bases and leaf tips in the central 80% of its cell. Similar overall height in each cell except the taller hollyhock, upright specimens, bottom baseline aligned. Deliberate clean silhouettes, subtle material shading, softly dimensional with beautiful distinctive petals. ACTUAL fully transparent RGBA background, no painted haze, no floor, no pot, no text, labels or gridlines. IMPORTANT: the background must be truly transparent alpha everywhere outside each plant, no paper, cream, white or grey background, no haze.",
+      "references": [
+        "assets/art/collection-extension/flowers-2.png",
+        "approved concept sheet of flowers (look only, not kept), sha256 99a70db005e0b7d6439d2ab4e6e3357dbdac5c04523b60ae329c7e4215b3344c",
+        "approved concept of the pasque flower (look only, not kept), sha256 66a24e5448cba28c50c86a5f6c24ee0a18b63369d53ba26e7623d722e333ab3b"
+      ],
+      "file": "flowers.png",
+      "sha256": "9aad05a7403a426979c8645acd60ae268c9e3280aaa362a5adc02609157333ad",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/flowers-3.png",
+      "runtimeSha256": "11f00a904e0238e35826460b94aebdf26d921f772a7434b986456209875f6cf3",
+      "processing": "Alpha below 50 cleared to 0,0,0,0 in the runtime atlas; all other samples unchanged.",
+      "acceptedIds": [
+        "bleeding_heart",
+        "pasque_flower",
+        "daylily",
+        "hollyhock",
+        "buckwheat",
+        "gentian",
+        "flowering_kale",
+        "winter_heath"
+      ],
+      "boxes": {
+        "bleeding_heart": [41, 111, 315, 368],
+        "pasque_flower": [410, 54, 323, 429],
+        "daylily": [778, 62, 365, 423],
+        "hollyhock": [1197, 29, 303, 464],
+        "buckwheat": [35, 567, 322, 403],
+        "gentian": [422, 546, 295, 418],
+        "flowering_kale": [752, 611, 380, 339],
+        "winter_heath": [1169, 588, 338, 376]
+      }
+    }
+  ]
+}

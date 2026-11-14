@@ -236,3 +236,21 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   three quarters of their size (`shootScale`, `endZoom`).
 - Accepted sources, prompts, hashes, processing and measured boxes:
   `assets/sources/season-leftovers-2026-11-10/accepted-art.json`.
+
+## Eight more flowers (2026-11-15)
+
+- `collection-extension/flowers-3` holds two new flowers for each season in
+  reading order: bleeding heart and pasque flower (spring), daylily and
+  hollyhock (summer), buckwheat and gentian (autumn), flowering kale and winter
+  heath (winter).
+- Each has one feature that reads at album size: the bleeding heart's row of
+  hearts, the pasque flower's silky seed head, the daylily's orange trumpets,
+  the hollyhock's white spike, buckwheat's red stems under white froth, the
+  gentian's closed cobalt tubes, the kale's creamy rosette and the heath's
+  magenta mound.
+- The hollyhock is drawn tallest and stands taller in the yard
+  (`stature` 1.3 in `catalog.json`); every new flower has a measured `foot`.
+- Alpha below 50 is cleared to fully transparent; crops follow measured
+  silhouettes. Reproduce the wrappers with `node scripts/pack-collection.mjs`.
+- Accepted source, prompt, hashes and measured boxes:
+  `assets/sources/more-kinds-2026-11-15/accepted-art.json`.
