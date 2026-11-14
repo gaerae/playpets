@@ -204,6 +204,25 @@ test('compact chat keeps its composer visible while the log owns scrolling', asy
   assert.doesNotMatch(css, /body\.compact[^{}]*\.relation-chip[^{}]*\{[^}]*display:none/);
 });
 
+// At 300 by 210 the panel's title row, the friend's row and the message box left the conversation
+// 15px. The friend's row already names who is talking, so the title gives up its row there and the
+// panel's buttons sit at the end of the friend's row.
+test('the shortest window gives the conversation the row the panel title took', async () => {
+  const css = await styles();
+  const short = [...css.matchAll(/@media\(max-height:280px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
+  const head = short.match(/body\.compact \.side-panel:has\(#pet-panel:not\(\[hidden\]\)\)>\.panel-head\{([^}]*)\}/)?.[1];
+  assert.ok(head, 'a short window lifts the panel head out of the flow while a conversation shows');
+  assert.match(head, /position:absolute/);
+  assert.match(
+    short,
+    /body\.compact \.side-panel:has\(#pet-panel:not\(\[hidden\]\)\)#panel-title\{[^}]*clip-path:inset\(50%\)/,
+    'the title stays for screen readers',
+  );
+  // A select's smallest width is its longest option, so in an auto grid column a long name ran
+  // under the friend's menu button instead of ending in an ellipsis.
+  assert.match(css, /\.friend-id\{[^}]*grid-template-columns:minmax\(0,1fr\)/);
+});
+
 // Squeezed onto one line in a short window, the message lost its words ("今日はどんな一日だ…") and
 // the AI its name ("Oll…"). The message keeps its own row and the AI stays readable under it.
 test('a short window keeps the message on its own row and the AI readable', async () => {

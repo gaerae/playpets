@@ -149,6 +149,9 @@
   flex: 1;
   min-width: 0;
   display: grid;
+  /* A select is never narrower than its longest option, so an auto column let a long name run
+     under the menu button; this one ends it in an ellipsis. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 2px;
 }
 .friend-id h3 {
@@ -396,5 +399,31 @@ body.compact .empty-panel {
 @media (max-height: 280px) {
   body.compact .friend-sub {
     display: none;
+  }
+  /* The friend's row already says who is talking, so the panel's title gives its row to the
+     conversation and the panel's buttons sit at the end of the friend's row. */
+  body.compact .side-panel:has(#pet-panel:not([hidden])) > .panel-head {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    /* under the friend's menu (4), which opens over this row */
+    z-index: 3;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  body.compact .side-panel:has(#pet-panel:not([hidden])) #panel-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  body.compact .side-panel:has(#pet-panel:not([hidden])) .friend-head {
+    padding-right: 116px;
+  }
+  body.compact .side-panel:has(#pet-panel:not([hidden])) .menu-anchor {
+    right: 78px;
   }
 }
