@@ -32,6 +32,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A friend's coding agents read "Reports from Claude Code" instead of "Reports from, Claude Code", and alike in Korean, Japanese and Chinese.
 - The dock shows the place's whole name ("Garden workshop, a sunny day") where the window has room, instead of cutting it short.
 - Friends' speech bubbles stay inside a small window: when several friends talk at once and there is no room above, the newest line takes the place of the one it would cover.
+- Crickets, fireflies, rain and snow pass under friends' name tags and lines instead of over them.
 
 ## [1.7.1] - 2026-11-13
 

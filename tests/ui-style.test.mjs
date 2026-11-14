@@ -276,6 +276,16 @@ test('the place caption grows with the window before it is cut', async () => {
   assert.match(css, /\.yard-dock>\.caption-main\{min-width:0;max-width:clamp\(228px,40vw,360px\);?\}/);
 });
 
+// A cricket sat on Miso's name tag on an autumn evening: the weather layer, where the yard's rain,
+// snow and creatures are drawn, shared the labels' layer and came after them. It stays over the
+// friends and under what they say.
+test('rain, snow and creatures pass over the friends but under their names and lines', async () => {
+  const css = await styles();
+  const z = selector => Number(css.match(new RegExp(`(?:^|})${selector}\\{[^}]*z-index:(\\d+)`))?.[1]);
+  assert.ok(z('#pet-layer') <= z('\\.weather-layer'), 'over the friends (it comes after them)');
+  assert.ok(z('\\.weather-layer') < z('\\.label-layer'), 'under their names and lines');
+});
+
 // Squeezed onto one line in a short window, the message lost its words ("今日はどんな一日だ…") and
 // the AI its name ("Oll…"). The message keeps its own row and the AI stays readable under it.
 test('a short window keeps the message on its own row and the AI readable', async () => {
