@@ -1190,5 +1190,77 @@
     "crop": [1211, 602, 223, 312],
     "size": [29, 40],
     "art": "shoots/morel.svg"
+  },
+  {
+    "id": "bleeding_heart",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-3.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [27, 97, 343, 396],
+    "size": [40, 54],
+    "art": "flowers/bleeding_heart.svg"
+  },
+  {
+    "id": "pasque_flower",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-3.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [396, 40, 351, 457],
+    "size": [40, 54],
+    "art": "flowers/pasque_flower.svg"
+  },
+  {
+    "id": "daylily",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-3.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [764, 48, 393, 451],
+    "size": [40, 54],
+    "art": "flowers/daylily.svg"
+  },
+  {
+    "id": "hollyhock",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-3.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1183, 15, 331, 492],
+    "size": [40, 54],
+    "art": "flowers/hollyhock.svg"
+  },
+  {
+    "id": "buckwheat",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-3.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [21, 553, 350, 431],
+    "size": [40, 54],
+    "art": "flowers/buckwheat.svg"
+  },
+  {
+    "id": "gentian",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-3.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [408, 532, 323, 446],
+    "size": [40, 54],
+    "art": "flowers/gentian.svg"
+  },
+  {
+    "id": "flowering_kale",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-3.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [738, 597, 408, 367],
+    "size": [40, 54],
+    "art": "flowers/flowering_kale.svg"
+  },
+  {
+    "id": "winter_heath",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-3.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1155, 574, 366, 404],
+    "size": [40, 54],
+    "art": "flowers/winter_heath.svg"
   }
 ]

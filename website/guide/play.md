@@ -141,10 +141,10 @@ What blooms depends on the season you planted in:
 
 | Planted in | Flowers |
 |---|---|
-| Spring | Tulips, daffodils, crocuses, grape hyacinths |
-| Summer | Sunflowers, hydrangeas, lavender, bellflowers |
-| Autumn | Cosmos, chrysanthemums, dahlias, asters |
-| Winter | Camellias, snowdrops, hellebores, cyclamen |
+| Spring | Tulips, daffodils, crocuses, grape hyacinths, dandelions, azaleas, bleeding hearts, pasque flowers |
+| Summer | Sunflowers, hydrangeas, lavender, bellflowers, morning glories, garden balsam, daylilies, hollyhocks |
+| Autumn | Cosmos, chrysanthemums, dahlias, asters, red spider lilies, cockscomb, buckwheat, gentians |
+| Winter | Camellias, snowdrops, hellebores, cyclamen, Amur adonis, pansies, flowering kale, winter heath |
 
 | On a plant | What happens |
 |---|---|
@@ -344,7 +344,7 @@ Hearts on a friend's name tag show how close it is to you. The Friend panel show
 ### Planting a tree
 
 1. Find a sapling by digging.
-2. Choose **Play → Garden → Plant a tree** to see your stock: cherry, maple, pine, oak, birch, willow, ginkgo, persimmon, bamboo, magnolia, crape myrtle and dawn redwood.
+2. Choose **Play → Garden → Plant a tree** to see your stock: cherry, maple, pine, oak, birch, willow, ginkgo, persimmon, bamboo, magnolia, crape myrtle, dawn redwood, wisteria, Korean fringe tree, fig, golden rain tree, chestnut, red plum, yuzu and juniper.
 3. Pick a kind you have and click clear ground. It uses one sapling.
 
 - Growth counts time with the app closed: young after two hours, mature after twelve. A mature tree is recorded once in **Album → Trees**.
@@ -451,7 +451,7 @@ A window is small at 640 pixels wide or less, or 480 tall or less.
 
 ## Collecting at your own pace
 
-The album has 169 entries across aquatic life, bugs, flowers, gifts, trees, footprints, spring shoots and little finds. Look for Korean aucha perch and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights. Grow dandelions, morning glories, red spider lilies and pansies, plant a ginkgo or a persimmon tree, dig up a pinecone, a paper boat or, now and then, a four-leaf clover, and make room for a water wheel, a hammock or a crock stand from a friend.
+The album has 185 entries across aquatic life, bugs, flowers, gifts, trees, footprints, spring shoots and little finds. Look for Korean aucha perch and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights. Grow dandelions, morning glories, red spider lilies and pansies, plant a ginkgo or a persimmon tree, dig up a pinecone, a paper boat or, now and then, a four-leaf clover, and make room for a water wheel, a hammock or a crock stand from a friend.
 
 ### How long it takes
 

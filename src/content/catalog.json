@@ -313,6 +313,103 @@
         "petal-lo": "#4a3088",
         "heart": "#f2d24a"
       }
+    },
+    {
+      "id": "bleeding_heart",
+      "season": "spring",
+      "art": "flowers/bleeding_heart.svg",
+      "foot": 0.897,
+      "colors": {
+        "petal": "#e8608c",
+        "petal-hi": "#f6a3bf",
+        "petal-lo": "#b83e68",
+        "heart": "#fbf3f4"
+      }
+    },
+    {
+      "id": "pasque_flower",
+      "season": "spring",
+      "art": "flowers/pasque_flower.svg",
+      "foot": 0.953,
+      "colors": {
+        "petal": "#8e2443",
+        "petal-hi": "#c9a7c0",
+        "petal-lo": "#64162e",
+        "heart": "#f2b833"
+      }
+    },
+    {
+      "id": "daylily",
+      "season": "summer",
+      "art": "flowers/daylily.svg",
+      "foot": 0.899,
+      "colors": {
+        "petal": "#f08a24",
+        "petal-hi": "#f8b860",
+        "petal-lo": "#c95f12",
+        "heart": "#e04a1c"
+      }
+    },
+    {
+      "id": "hollyhock",
+      "season": "summer",
+      "art": "flowers/hollyhock.svg",
+      "foot": 0.972,
+      "stature": 1.3,
+      "colors": {
+        "petal": "#fbfaf4",
+        "petal-hi": "#ffffff",
+        "petal-lo": "#e2e2d4",
+        "heart": "#f2d24a"
+      }
+    },
+    {
+      "id": "buckwheat",
+      "season": "autumn",
+      "art": "flowers/buckwheat.svg",
+      "foot": 0.926,
+      "colors": {
+        "petal": "#fbf8f0",
+        "petal-hi": "#ffffff",
+        "petal-lo": "#e8dcd0",
+        "heart": "#c8504a"
+      }
+    },
+    {
+      "id": "gentian",
+      "season": "autumn",
+      "art": "flowers/gentian.svg",
+      "foot": 0.969,
+      "colors": {
+        "petal": "#2f55c4",
+        "petal-hi": "#6f8fe6",
+        "petal-lo": "#1f3a96",
+        "heart": "#e8eef8"
+      }
+    },
+    {
+      "id": "flowering_kale",
+      "season": "winter",
+      "art": "flowers/flowering_kale.svg",
+      "foot": 0.808,
+      "colors": {
+        "petal": "#f4f0dc",
+        "petal-hi": "#fffdf2",
+        "petal-lo": "#7fa6a0",
+        "heart": "#e8e6b8"
+      }
+    },
+    {
+      "id": "winter_heath",
+      "season": "winter",
+      "art": "flowers/winter_heath.svg",
+      "foot": 0.88,
+      "colors": {
+        "petal": "#d83c8e",
+        "petal-hi": "#f07cb8",
+        "petal-lo": "#a82468",
+        "heart": "#4a6a34"
+      }
     }
   ],
   "gifts": [
@@ -1865,6 +1962,225 @@
         "seasons": ["winter"],
         "weather": ["snow"],
         "places": ["lakeside"]
+      }
+    },
+    {
+      "id": "wisteria",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/wisteria-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/wisteria-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/wisteria-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {
+        "summer": "trees/wisteria-mature-summer.svg",
+        "autumn": "trees/wisteria-mature-autumn.svg",
+        "winter": "trees/wisteria-mature-winter.svg"
+      },
+      "affinity": {
+        "seasons": ["spring"],
+        "weather": ["rain"],
+        "places": ["lakeside"]
+      }
+    },
+    {
+      "id": "fringe_tree",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/fringe_tree-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/fringe_tree-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/fringe_tree-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {
+        "summer": "trees/fringe_tree-mature-summer.svg",
+        "autumn": "trees/fringe_tree-mature-autumn.svg",
+        "winter": "trees/fringe_tree-mature-winter.svg"
+      },
+      "affinity": {
+        "seasons": ["spring"],
+        "weather": ["clear"],
+        "places": ["woodland"]
+      }
+    },
+    {
+      "id": "fig",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/fig-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/fig-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/fig-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {
+        "spring": "trees/fig-mature-spring.svg",
+        "autumn": "trees/fig-mature-autumn.svg",
+        "winter": "trees/fig-mature-winter.svg"
+      },
+      "affinity": {
+        "seasons": ["summer"],
+        "weather": ["rain"],
+        "places": ["courtyard"]
+      }
+    },
+    {
+      "id": "golden_rain_tree",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/golden_rain_tree-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/golden_rain_tree-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/golden_rain_tree-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {
+        "spring": "trees/golden_rain_tree-mature-spring.svg",
+        "autumn": "trees/golden_rain_tree-mature-autumn.svg",
+        "winter": "trees/golden_rain_tree-mature-winter.svg"
+      },
+      "affinity": {
+        "seasons": ["summer"],
+        "weather": ["clear"],
+        "places": ["woodland"]
+      }
+    },
+    {
+      "id": "chestnut",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/chestnut-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/chestnut-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/chestnut-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {
+        "spring": "trees/chestnut-mature-spring.svg",
+        "summer": "trees/chestnut-mature-summer.svg",
+        "winter": "trees/chestnut-mature-winter.svg"
+      },
+      "affinity": {
+        "seasons": ["autumn"],
+        "weather": ["clear"],
+        "places": ["lakeside"]
+      }
+    },
+    {
+      "id": "red_plum",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/red_plum-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/red_plum-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/red_plum-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {
+        "spring": "trees/red_plum-mature-spring.svg",
+        "summer": "trees/red_plum-mature-summer.svg",
+        "autumn": "trees/red_plum-mature-autumn.svg"
+      },
+      "affinity": {
+        "seasons": ["winter"],
+        "weather": ["snow"],
+        "places": ["courtyard"]
+      }
+    },
+    {
+      "id": "yuzu",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/yuzu-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/yuzu-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/yuzu-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {
+        "spring": "trees/yuzu-mature-spring.svg",
+        "summer": "trees/yuzu-mature-summer.svg",
+        "autumn": "trees/yuzu-mature-autumn.svg"
+      },
+      "affinity": {
+        "seasons": ["winter"],
+        "weather": ["clear"],
+        "places": ["lakeside"]
+      }
+    },
+    {
+      "id": "juniper",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/juniper-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/juniper-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/juniper-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "affinity": {
+        "seasons": ["winter"],
+        "weather": ["rain"],
+        "places": ["woodland"]
       }
     }
   ],

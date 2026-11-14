@@ -40,7 +40,7 @@ const TOPICS: &[Topic] = &[
     },
     Topic {
         id: "album",
-        facts: "Album: Play → Find → Album. Eight books (Flowers, Aquatic life, Bugs, Gifts, Trees, Keepsakes, Footprints, Spring shoots), 169 entries. Fish come from fishing, bugs from catching them, flowers and trees from planting, keepsakes from digging, gifts from friends, footprints from following them in winter snow, shoots from sending a friend to dig them up in spring. What is not found yet shows as a silhouette with when and where to look. It takes months, and that is fine.",
+        facts: "Album: Play → Find → Album. Eight books (Flowers, Aquatic life, Bugs, Gifts, Trees, Keepsakes, Footprints, Spring shoots), 185 entries. Fish come from fishing, bugs from catching them, flowers and trees from planting, keepsakes from digging, gifts from friends, footprints from following them in winter snow, shoots from sending a friend to dig them up in spring. What is not found yet shows as a silhouette with when and where to look. It takes months, and that is fine.",
     },
     Topic {
         id: "fishing",

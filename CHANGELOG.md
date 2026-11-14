@@ -10,8 +10,13 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- Eight new trees to plant (wisteria, Korean fringe tree, fig, golden rain tree, chestnut, red plum, yuzu and juniper) and eight new flowers to grow (bleeding heart and pasque flower in spring, daylily and hollyhock in summer, buckwheat and gentian in autumn, flowering kale and winter heath in winter), so the album holds 185 entries.
+
 ### Changed
 
+- The cherry tree's autumn and winter, the maple's, birch's and dawn redwood's winter and the crape myrtle's spring are drawn again, each on its own tree's trunk, and the grown pine is now a Korean red pine.
 - Show on desktop answers at once: a friend, gift, flower or tree sent out shows on the desktop right away, also when nothing was out before or everything just came back in.
 - The yard opens sooner and stays lighter while friends talk, coding agents report and the pointer moves, and a long conversation with a friend opens at once on its latest lines, with earlier ones coming in as you scroll up.
 - Friends keep walking smoothly when the computer slows its timers (Windows on battery), and the yard's backdrop and weather stay sharp when the window moves to a screen of another resolution.
@@ -47,6 +52,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A friend with a long name tag no longer stops with the tag under the dock or the corner button.
 - The keyboard focus ring looks the same everywhere, in the scene menu, the Play panel and the album too.
 - A friend standing behind a tree, a flower or a gift no longer vanishes with only its hat showing: what covers it fades while it is there.
+
+### Website and docs
+
+- The guide lists the eight new trees among the saplings to plant, and the guide and README count 185 album entries.
 
 ## [1.7.1] - 2026-11-13
 

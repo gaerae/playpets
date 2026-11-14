@@ -8,7 +8,7 @@ const read = name => readFileSync(new URL(`../${name}`, import.meta.url));
 const catalog = JSON.parse(read('src/content/catalog.json'));
 const sources = JSON.parse(read('assets/discovery/ART-SOURCES.json'));
 
-test('discovery offers twelve distinct tree species with growth and deciduous seasonal art', () => {
+test('discovery offers twenty distinct tree species with growth and deciduous seasonal art', () => {
   assert.deepEqual(
     catalog.trees.map(tree => tree.id),
     [
@@ -24,6 +24,14 @@ test('discovery offers twelve distinct tree species with growth and deciduous se
       'magnolia',
       'crape_myrtle',
       'metasequoia',
+      'wisteria',
+      'fringe_tree',
+      'fig',
+      'golden_rain_tree',
+      'chestnut',
+      'red_plum',
+      'yuzu',
+      'juniper',
     ],
   );
   for (const id of ['oak', 'birch', 'willow', 'ginkgo', 'persimmon', 'magnolia', 'crape_myrtle', 'metasequoia']) {
@@ -35,6 +43,30 @@ test('discovery offers twelve distinct tree species with growth and deciduous se
     for (const season of ['spring', 'autumn', 'winter']) assert.ok(tree.seasonArt[season], `${id} ${season}`);
     assert.equal(new Set([tree.stages[2].art, ...Object.values(tree.seasonArt)]).size, 4);
   }
+  // A deciduous tree's mature drawing is one season's look; the other three seasons each have their own
+  for (const [id, own] of [
+    ['wisteria', 'spring'],
+    ['fringe_tree', 'spring'],
+    ['fig', 'summer'],
+    ['golden_rain_tree', 'summer'],
+    ['chestnut', 'autumn'],
+    ['red_plum', 'winter'],
+  ]) {
+    const tree = catalog.trees.find(item => item.id === id);
+    assert.deepEqual(
+      Object.keys(tree.seasonArt).sort(),
+      ['spring', 'summer', 'autumn', 'winter'].filter(season => season !== own).sort(),
+      id,
+    );
+    assert.equal(new Set([tree.stages[2].art, ...Object.values(tree.seasonArt)]).size, 4, id);
+  }
+  // Evergreens keep their leaves: the yuzu only blossoms and ripens, the juniper never changes
+  assert.deepEqual(Object.keys(catalog.trees.find(item => item.id === 'yuzu').seasonArt).sort(), [
+    'autumn',
+    'spring',
+    'summer',
+  ]);
+  assert.deepEqual(catalog.trees.find(item => item.id === 'juniper').seasonArt ?? {}, {});
 });
 
 test('whimsical keepsakes have translated names and year-round weighted discovery records', () => {
@@ -64,6 +96,14 @@ test('whimsical keepsakes have translated names and year-round weighted discover
     'magnolia',
     'crape_myrtle',
     'metasequoia',
+    'wisteria',
+    'fringe_tree',
+    'fig',
+    'golden_rain_tree',
+    'chestnut',
+    'red_plum',
+    'yuzu',
+    'juniper',
   ])
     for (const strings of Object.values(STRINGS)) assert.ok(strings[`tree.${id}`]);
 });

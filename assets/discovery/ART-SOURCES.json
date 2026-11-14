@@ -238,6 +238,270 @@
         "role": "Style reference"
       },
       "notes": "Generated 2026-11-10. Replaces the persimmon seedling and young tree, which looked like the magnolia's. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 32978aa3a487e35912750455839d89372dfff069b1a51b80fe85f6f8c1e0b241) is not kept."
+    },
+    {
+      "id": "wisteria",
+      "file": "wisteria-source.png",
+      "atlas": "trees/wisteria.png",
+      "size": [1536, 1024],
+      "sha256": "30eb9d5d15f8aacc4bdb05f8f699678cde11329091803a6ae9820616b000a7d3",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. The first two reference images are STYLE ONLY: match their warm tactile miniature sculpted illustration, detailed natural hand-painted wood and leaves, crisp botanical silhouette, soft top-left light. Charming and lovable, a tree people want to collect: warm, saturated, glowing colours like the best reference trees, clean readable shapes that still read at 80 pixels, never dull, muddy, grey or cluttered. Genuine transparent RGBA background, no floor, cast shadow, background colour, haze, checkerboard ink, labels, text, grid, pot, grass tuft or dirt mound. NO snow, NO frost anywhere. Landscape 1536x1024 canvas: six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside their cells with wide transparent gutters, nothing touches or crosses a cell edge. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered, a few short spreading surface roots at the base like the magnolia reference. Row1: small seedling (30% cell height), young sapling (60%), mature tree in its DEFAULT look (85%). Row2: the SAME mature tree in three other seasons (all 85%, same trunk, branching, root identity, crown size and proportions). Designed to look polished at 35/70/160 CSS pixels. The third reference is an approved concept for this species: follow its subject and silhouette ONLY, not its flat style. WISTERIA (freestanding tree-form wisteria, no trellis, no pergola). Signature: a curtain of long hanging lavender flower clusters. Gnarled, rope-like TWISTING grey-brown trunk with braided stems, arching branches forming a broad umbrella crown of fresh green pinnate leaves (many small oval leaflets). Seedling: a little twining woody shoot with two pinnate leaves. Young: a small twisted trunk, a few pinnate leaves and one or two short lavender clusters. Row1 col3 mature DEFAULT = SPRING IN BLOOM: MANY long, plump, tapering hanging clusters (racemes) of lavender-to-violet pea flowers, paler at the tips, cascading below the crown all around like a curtain. Row2: col1 SUMMER: the same tree with a full lush green pinnate crown, a few long velvety green seed pods hanging, no flowers; col2 AUTUMN: the pinnate leaves turned butter yellow and gold, a few velvety tan pods hanging; col3 WINTER: bare twisting branches and trunk, the same crown outline in fine brown twigs, a few dry brown pods.",
+      "references": [
+        {
+          "path": "assets/discovery/magnolia-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "assets/discovery/oak-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "approved concept mockup cell for wisteria (look only, not kept), sha256 7a59f67d1a053a7becc35d2b75f5129beb942030dcffe73cd15e146339b79f04",
+          "role": "Subject and silhouette reference"
+        }
+      ],
+      "notes": "Generated 2026-11-15. Wisteria: a twisting rope trunk under a curtain of lavender clusters in spring, green pods in summer, gold in autumn, bare in winter. Row 1: seedling, young tree, mature tree in its default look; row 2: summer, autumn, winter. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 8015027712e5ce2a5f41d148f47c2ee04139490bbd55eafe81560aeff617d71e) is not kept."
+    },
+    {
+      "id": "fringe_tree",
+      "file": "fringe_tree-source.png",
+      "atlas": "trees/fringe_tree.png",
+      "size": [1536, 1024],
+      "sha256": "f001a29108479c55f9b596c455a672481438a9b2e336baf9d694b0d08dae1871",
+      "prompt": "A sprite sheet on a TRULY TRANSPARENT background (real alpha channel, nothing painted behind the trees). Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. The first two reference images are STYLE ONLY: match their warm tactile miniature sculpted illustration, detailed natural hand-painted wood and leaves, crisp botanical silhouette, soft top-left light. Charming and lovable, a tree people want to collect: warm, saturated, glowing colours like the best reference trees, clean readable shapes that still read at 80 pixels, never dull, muddy, grey or cluttered. Genuine transparent RGBA background, no floor, cast shadow, background colour, haze, checkerboard ink, labels, text, grid, pot, grass tuft or dirt mound. NO snow, NO frost anywhere. Landscape 1536x1024 canvas: six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside their cells with wide transparent gutters, nothing touches or crosses a cell edge. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered, a few short spreading surface roots at the base like the magnolia reference. Row1: small seedling (30% cell height), young sapling (60%), mature tree in its DEFAULT look (85%). Row2: the SAME mature tree in three other seasons (all 85%, same trunk, branching, root identity, crown size and proportions). Designed to look polished at 35/70/160 CSS pixels. The third reference is an approved concept for this species: follow its subject and silhouette ONLY, not its flat style. KOREAN FRINGE TREE (Chionanthus retusus). Signature: a rounded crown frothing with pure white fluffy blossom, like a heap of popped rice. Straight sturdy grey-brown trunk with a few upturned limbs and a dense ROUNDED DOME crown. Seedling: a short stem with a few opposite glossy oval green leaves. Young: a small rounded crown of glossy oval leaves with two or three white flower tufts. Row1 col3 mature DEFAULT = LATE SPRING IN BLOOM: the whole dome is buried under soft billowing clouds of PURE WHITE blossom: thousands of tiny feathery fringe flowers with very thin thread-like petals massed together into fluffy cotton-like froth (like heaps of popped rice or sea foam), NOT daisies, NOT star or chrysanthemum flowers, NOT individual round flowers, with small glossy green oval leaves peeking through between the white clusters (NOT cup-shaped flowers, NOT on bare branches, NOT pink). Row2: col1 SUMMER: the same dome of glossy fresh green oval leaves, no flowers; col2 AUTUMN: leaves turning warm golden yellow with small clusters of dark navy-blue berries; col3 WINTER: bare grey-brown branches in the same rounded dome outline, fine twigs. IMPORTANT: the background must be truly transparent alpha everywhere outside each tree, including the gaps between the bare winter twigs: no paper, cream, white, grey or pale haze, no glow, no soft backdrop behind any crown.",
+      "references": [
+        {
+          "path": "assets/discovery/magnolia-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "assets/discovery/oak-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "approved concept mockup cell for fringe_tree (look only, not kept), sha256 10367c9e638aa840d329c1b02d4849bf1177e4532979583de7e2495592226124",
+          "role": "Subject and silhouette reference"
+        }
+      ],
+      "notes": "Generated 2026-11-15. Korean fringe tree: a rounded crown frothing with white fringe flowers in spring, glossy green in summer, gold with navy berries in autumn, bare in winter. Two earlier generations were not kept: one drew daisy-like flowers and a haze between the winter twigs, the other painted a grey background. Row 1: seedling, young tree, mature tree in its default look; row 2: summer, autumn, winter. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 b66f176efa8384dc3b9baf0dd5b6018bc27e1864654de8a8ba4ff18f5a2154db) is not kept."
+    },
+    {
+      "id": "fig",
+      "file": "fig-source.png",
+      "atlas": "trees/fig.png",
+      "size": [1536, 1024],
+      "sha256": "3412d47dcab20f0efa96e5f0ae6850b9fd364f13968db714444c8c1a6e46319b",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. The first two reference images are STYLE ONLY: match their warm tactile miniature sculpted illustration, detailed natural hand-painted wood and leaves, crisp botanical silhouette, soft top-left light. Charming and lovable, a tree people want to collect: warm, saturated, glowing colours like the best reference trees, clean readable shapes that still read at 80 pixels, never dull, muddy, grey or cluttered. Genuine transparent RGBA background, no floor, cast shadow, background colour, haze, checkerboard ink, labels, text, grid, pot, grass tuft or dirt mound. NO snow, NO frost anywhere. Landscape 1536x1024 canvas: six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside their cells with wide transparent gutters, nothing touches or crosses a cell edge. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered, a few short spreading surface roots at the base like the magnolia reference. Row1: small seedling (30% cell height), young sapling (60%), mature tree in its DEFAULT look (85%). Row2: the SAME mature tree in three other seasons (all 85%, same trunk, branching, root identity, crown size and proportions). Designed to look polished at 35/70/160 CSS pixels. The third reference is an approved concept for this species: follow its subject and silhouette ONLY, not its flat style. FIG TREE (Ficus carica). Signature: huge hand-shaped leaves with plump purple figs tucked among them. A LOW, WIDE spreading tree, wider than tall, on a short SMOOTH PALE SILVER-GREY multi-stemmed trunk (smooth bark, NOT furrowed, NOT brown like an oak). Seedling: a short pale stem with two or three large lobed leaves. Young: a small bushy fig with a few big lobed leaves and one small green fig. Row1 col3 mature DEFAULT = SUMMER: very LARGE, deeply lobed hand-shaped leaves with three to five rounded lobes and pale veins, bright lush green, in a loose open crown, with six or seven plump pear-shaped figs in rich purple-violet with a soft bloom hanging under the leaves. Row2: col1 SPRING: small fresh light-green young lobed leaves unfolding at the branch tips, a few tiny green figs; col2 AUTUMN: the big lobed leaves turning golden yellow with a few brown edges, two or three ripe purple figs; col3 WINTER: bare thick, smooth pale grey stubby branches with blunt rounded tips and small green buds, same wide outline.",
+      "references": [
+        {
+          "path": "assets/discovery/magnolia-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "assets/discovery/oak-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "approved concept mockup cell for fig (look only, not kept), sha256 6c64e2982f1ebbedf0aca4912063e7760858987eacf49860278ec880f21ff8ba",
+          "role": "Subject and silhouette reference"
+        }
+      ],
+      "notes": "Generated 2026-11-15. Fig tree: a low, wide tree on smooth pale grey stems with big hand-shaped leaves and purple figs in summer. Row 1: seedling, young tree, mature tree in its default look; row 2: spring, autumn, winter. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 73628f58e1824d76115cb2fa0fb3a9d7d1b073a0bdc240eb898846c464dcc42b) is not kept."
+    },
+    {
+      "id": "golden_rain_tree",
+      "file": "golden_rain_tree-source.png",
+      "atlas": "trees/golden_rain_tree.png",
+      "size": [1536, 1024],
+      "sha256": "367fd0a7bfcd282161c952c14e5b881c6db13b108edb2889c50356ed1417dbb9",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. The first two reference images are STYLE ONLY: match their warm tactile miniature sculpted illustration, detailed natural hand-painted wood and leaves, crisp botanical silhouette, soft top-left light. Charming and lovable, a tree people want to collect: warm, saturated, glowing colours like the best reference trees, clean readable shapes that still read at 80 pixels, never dull, muddy, grey or cluttered. Genuine transparent RGBA background, no floor, cast shadow, background colour, haze, checkerboard ink, labels, text, grid, pot, grass tuft or dirt mound. NO snow, NO frost anywhere. Landscape 1536x1024 canvas: six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside their cells with wide transparent gutters, nothing touches or crosses a cell edge. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered, a few short spreading surface roots at the base like the magnolia reference. Row1: small seedling (30% cell height), young sapling (60%), mature tree in its DEFAULT look (85%). Row2: the SAME mature tree in three other seasons (all 85%, same trunk, branching, root identity, crown size and proportions). Designed to look polished at 35/70/160 CSS pixels. The third reference is an approved concept for this species: follow its subject and silhouette ONLY, not its flat style. GOLDEN RAIN TREE (Koelreuteria paniculata). Signature: upright golden flower sprays rising like little fountains above airy feathery leaves. Slender grey-brown trunk and an open, airy rounded crown of feathery COMPOUND leaves made of many small toothed leaflets. Seedling: a thin stem with two feathery compound leaves. Young: a small airy crown of feathery leaves. Row1 col3 mature DEFAULT = SUMMER: fresh green feathery leaves topped by many tall UPRIGHT plume-shaped sprays (panicles) of tiny bright GOLDEN-YELLOW flowers sticking up above the crown. Row2: col1 SPRING: soft feathery young leaves in coppery pink and light green, no flowers; col2 AUTUMN: the feathery leaves turned warm golden yellow with many clusters of papery inflated three-sided LANTERN-shaped seed pods in rosy pink and tan hanging among them; col3 WINTER: bare slender branches with a few dry brown papery lantern pods still hanging.",
+      "references": [
+        {
+          "path": "assets/discovery/magnolia-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "assets/discovery/oak-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "approved concept mockup cell for golden_rain_tree (look only, not kept), sha256 b966cf9bccc8318c7ec245a9756d1ec66afd030b507822ff95b1f0d8a2288c8d",
+          "role": "Subject and silhouette reference"
+        }
+      ],
+      "notes": "Generated 2026-11-15. Golden rain tree: airy feathery leaves under upright golden flower sprays in summer, coppery in spring, paper lanterns in autumn and winter. Row 1: seedling, young tree, mature tree in its default look; row 2: spring, autumn, winter. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 b171b79422e13a3c5cd6a6ab2bf745f9c4be3c121fb39db669612410017dfdc3) is not kept."
+    },
+    {
+      "id": "chestnut",
+      "file": "chestnut-source.png",
+      "atlas": "trees/chestnut.png",
+      "size": [1536, 1024],
+      "sha256": "720794940927f5a2d1af50e49ff99e12d790ef7ac10bef72831163b58373278a",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. The first two reference images are STYLE ONLY: match their warm tactile miniature sculpted illustration, detailed natural hand-painted wood and leaves, crisp botanical silhouette, soft top-left light. Charming and lovable, a tree people want to collect: warm, saturated, glowing colours like the best reference trees, clean readable shapes that still read at 80 pixels, never dull, muddy, grey or cluttered. Genuine transparent RGBA background, no floor, cast shadow, background colour, haze, checkerboard ink, labels, text, grid, pot, grass tuft or dirt mound. NO snow, NO frost anywhere. Landscape 1536x1024 canvas: six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside their cells with wide transparent gutters, nothing touches or crosses a cell edge. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered, a few short spreading surface roots at the base like the magnolia reference. Row1: small seedling (30% cell height), young sapling (60%), mature tree in its DEFAULT look (85%). Row2: the SAME mature tree in three other seasons (all 85%, same trunk, branching, root identity, crown size and proportions). Designed to look polished at 35/70/160 CSS pixels. Row1 col3 mature DEFAULT = AUTUMN. Row2: SPRING, SUMMER, WINTER. The third reference is an approved concept for this species: follow its subject and silhouette ONLY, not its flat style. CHESTNUT TREE (Castanea). Signature: big round spiky burrs split open to show glossy brown chestnuts. A broad rounded crown on a thick grey-brown trunk with long ridged, slightly spiralling bark. Its leaves are LONG and NARROW lance-shaped with saw-toothed edges and straight parallel veins. Seedling: a stem with three long toothed leaves and the empty chestnut shell it sprouted from. Young: a small crown of long toothed leaves. Row1 col3 mature DEFAULT = AUTUMN: the long toothed leaves in warm YELLOW-GREEN to bright GOLDEN yellow (NOT orange, NOT red, NOT rust or copper), with eight or so large round SPIKY burrs, golden-green with fine sharp spines, most split open into a star showing two or three plump glossy chestnut-brown nuts. Row2 (in this order): col1 SPRING: the same tree with fresh light-green long toothed leaves; col2 SUMMER: deep green long toothed leaves with many long fluffy creamy-white catkin flower strands sprinkled over the crown and a few small green spiky burrs; col3 WINTER: bare broad branches on the ridged trunk, a couple of empty open brown burr husks.",
+      "references": [
+        {
+          "path": "assets/discovery/magnolia-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "assets/discovery/oak-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "approved concept mockup cell for chestnut (look only, not kept), sha256 28f2d73fba43101f3c192338a779c1117c0d2898c0f2912ce1403db0ee523eba",
+          "role": "Subject and silhouette reference"
+        }
+      ],
+      "notes": "Generated 2026-11-15. Chestnut: long toothed golden leaves and open spiky burrs in autumn, catkins in summer, empty husks in winter. Row 1: seedling, young tree, mature tree in its default look; row 2: spring, summer, winter. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 340908698b06d874fe5421920feaa6a39d459b642435f0d6011d2367c1d5269a) is not kept."
+    },
+    {
+      "id": "red_plum",
+      "file": "red_plum-source.png",
+      "atlas": "trees/red_plum.png",
+      "size": [1536, 1024],
+      "sha256": "e3e9f182c374c6cbebea00551f6f032e41180a7dd60a181e3bd4bcc913711d9f",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. The first two reference images are STYLE ONLY: match their warm tactile miniature sculpted illustration, detailed natural hand-painted wood and leaves, crisp botanical silhouette, soft top-left light. Charming and lovable, a tree people want to collect: warm, saturated, glowing colours like the best reference trees, clean readable shapes that still read at 80 pixels, never dull, muddy, grey or cluttered. Genuine transparent RGBA background, no floor, cast shadow, background colour, haze, checkerboard ink, labels, text, grid, pot, grass tuft or dirt mound. NO snow, NO frost anywhere. Landscape 1536x1024 canvas: six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside their cells with wide transparent gutters, nothing touches or crosses a cell edge. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered, a few short spreading surface roots at the base like the magnolia reference. Row1: small seedling (30% cell height), young sapling (60%), mature tree in its DEFAULT look (85%). Row2: the SAME mature tree in three other seasons (all 85%, same trunk, branching, root identity, crown size and proportions). Designed to look polished at 35/70/160 CSS pixels. Row1 col3 mature DEFAULT = LATE WINTER IN BLOOM. Row2: SPRING, SUMMER, AUTUMN. The third reference is an approved concept for this species: follow its subject and silhouette ONLY, not its flat style. KOREAN RED PLUM (hongmae, Prunus mume). Signature: small crimson blossoms glowing on dark, sharply zig-zag branches. A LOW, small tree, about as wide as tall, with a dark brown-black gnarled leaning trunk and few ANGULAR branches that zig-zag sharply, plus long straight thin shoots pointing upward; open and sparse with plenty of space between branches. Seedling: a tiny dark woody twig with two or three crimson buds and one open crimson flower. Young: a small zig-zag twiggy tree with a few crimson blossoms. Row1 col3 mature DEFAULT = LATE WINTER IN BLOOM: NO leaves at all; the dark branches studded with small round deep CRIMSON-red five-petal blossoms with golden stamens and round crimson buds dotted along every twig (NOT pink, NOT fluffy, NOT a full crown). Row2 (in this order): col1 SPRING: the same zig-zag branches sprouting small fresh light-green pointed oval leaves, no flowers; col2 SUMMER: a small crown of green oval toothed leaves with a few round green-yellow plums; col3 AUTUMN: sparse leaves turning yellow and soft orange on the dark zig-zag branches.",
+      "references": [
+        {
+          "path": "assets/discovery/magnolia-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "assets/discovery/oak-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "approved concept mockup cell for red_plum (look only, not kept), sha256 ac345dccc246c881c89a47c530f9164bca8d86c491f99b6fa80114cbf4a9f646",
+          "role": "Subject and silhouette reference"
+        }
+      ],
+      "notes": "Generated 2026-11-15. Red plum: small crimson blossoms on dark zig-zag branches in winter, leaves and green plums the rest of the year. Row 1: seedling, young tree, mature tree in its default look; row 2: spring, summer, autumn. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 b7e4dfc978b38870e842879055a6a760f2813e4b9b10f11d75bba6f8b6bbd433) is not kept."
+    },
+    {
+      "id": "yuzu",
+      "file": "yuzu-source.png",
+      "atlas": "trees/yuzu.png",
+      "size": [1536, 1024],
+      "sha256": "f6a1d0ea9b5348a972cbfcfc0ebe6c66d55029b5c38a737cd845a23a0efb44f8",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. The first two reference images are STYLE ONLY: match their warm tactile miniature sculpted illustration, detailed natural hand-painted wood and leaves, crisp botanical silhouette, soft top-left light. Charming and lovable, a tree people want to collect: warm, saturated, glowing colours like the best reference trees, clean readable shapes that still read at 80 pixels, never dull, muddy, grey or cluttered. Genuine transparent RGBA background, no floor, cast shadow, background colour, haze, checkerboard ink, labels, text, grid, pot, grass tuft or dirt mound. NO snow, NO frost anywhere. Landscape 1536x1024 canvas: six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside their cells with wide transparent gutters, nothing touches or crosses a cell edge. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered, a few short spreading surface roots at the base like the magnolia reference. Row1: small seedling (30% cell height), young sapling (60%), mature tree in its DEFAULT look (85%). Row2: the SAME mature tree in three other seasons (all 85%, same trunk, branching, root identity, crown size and proportions). Designed to look polished at 35/70/160 CSS pixels. Row1 col3 mature DEFAULT = ripe fruit in late autumn and winter. Row2: SPRING, SUMMER, AUTUMN. The third reference is an approved concept for this species: follow its subject and silhouette ONLY, not its flat style. YUZU TREE (citrus junos), an EVERGREEN. Signature: glowing round bright-yellow fruit like little lanterns among glossy dark leaves. A small rounded tree on a smooth grey-brown trunk with slender branches, a dense crown of GLOSSY dark-green elliptic leaves with a bright shine. Seedling: a thin green stem with four glossy elliptic leaves. Young: a small rounded glossy-leaved bush-tree with one small yellow fruit. Row1 col3 mature DEFAULT: many round BRIGHT LEMON-YELLOW fruits with a bumpy dimpled peel and tiny green stem buttons, glowing among the glossy dark-green leaves (yellow, NOT orange, NOT persimmon-shaped, no four-lobed caps). Row2 (in this order): col1 SPRING: the same evergreen tree sprinkled with small white five-petal citrus blossoms, no fruit; col2 SUMMER: many small round green fruits; col3 AUTUMN: round fruits turning from green to yellow-green and half yellow.",
+      "references": [
+        {
+          "path": "assets/discovery/magnolia-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "assets/discovery/oak-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "approved concept mockup cell for yuzu (look only, not kept), sha256 099045584805bdd3d3a693725471ff5490cee48b72459c59cafbc4dbef06b31b",
+          "role": "Subject and silhouette reference"
+        }
+      ],
+      "notes": "Generated 2026-11-15. Yuzu: an evergreen with glossy leaves and bright yellow fruit; white blossom in spring, green fruit in summer, ripening in autumn. Row 1: seedling, young tree, mature tree in its default look; row 2: spring, summer, autumn. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 fba6af68b0b6d1b12e973239fa91324ab5cbbf9d552fd3aca4d30626370ffe70) is not kept."
+    },
+    {
+      "id": "juniper",
+      "file": "juniper-source.png",
+      "atlas": "trees/juniper.png",
+      "size": [1536, 1024],
+      "sha256": "d89daecce11830e185f3d736d9137b633a1ef540d3622535880d528b1c42803e",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. The first two reference images are STYLE ONLY: match their warm tactile miniature sculpted illustration, detailed natural hand-painted wood and leaves, crisp botanical silhouette, soft top-left light. Charming and lovable, a tree people want to collect: warm, saturated, glowing colours like the best reference trees, clean readable shapes that still read at 80 pixels, never dull, muddy, grey or cluttered. Genuine transparent RGBA background, no floor, cast shadow, background colour, haze, checkerboard ink, labels, text, grid, pot, grass tuft or dirt mound. NO snow, NO frost anywhere. Landscape 1536x1024 canvas: exactly THREE isolated plants in three equal columns, entire silhouettes inside their columns with wide transparent gutters. Front orthographic view. Roots at a common baseline near the bottom, centered. COL1 small seedling (30% height), COL2 young tree (60%), COL3 mature tree (85%). Designed to look polished at 35/70/160 CSS pixels. KAIZUKA JUNIPER (Juniperus chinensis 'Kaizuka', an evergreen). Signature: a tall flame-shaped column of dense foliage twisting upward like a candle flame. An upright, NARROW COLUMNAR tree about twice as tall as it is wide, whose dense rich BLUE-GREEN to emerald scale-like foliage grows in soft rounded TWISTING tufts that swirl upward around the trunk in a spiral, so the outline is wavy and flame-like with curling flame-tip points, the top a soft pointed flame. Only a short reddish-brown shredding trunk shows at the base, with a few short surface roots. NOT a cone-shaped Christmas tree, NOT horizontal layered branches, NOT a pine with long needles, NOT feathery or fern-like, NOT a bonsai with flat pads. COL1 seedling: a small upright tuft of blue-green scaly sprigs. COL2 young: a narrow little flame-shaped column. COL3 mature: the full twisting flame column.",
+      "references": [
+        {
+          "path": "assets/discovery/magnolia-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "assets/discovery/oak-source.png",
+          "role": "Style reference only"
+        }
+      ],
+      "notes": "Generated 2026-11-15. Kaizuka juniper: an evergreen column of foliage twisting upward like a flame; only its first row of three stages. Row 1: seedling, young tree, mature tree in its default look. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 029bb4fd26783283f10a25e48415dacbdbdb03f15008e199691dc2b6bd60af0a) is not kept."
+    },
+    {
+      "id": "cherry-seasons",
+      "file": "cherry-seasons-source.png",
+      "atlas": "trees/cherry-seasons.png",
+      "size": [1536, 1024],
+      "sha256": "495343a88509da036bf3924e580bfdc3d937f16dddb81269e5d312d6ddb7ced6",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent tree sprite sheet. Match the reference trees exactly: the same soft painterly illustrated look, warm saturated colours, gentle highlights, key light from the upper left. TRUE transparent alpha background: NO painted background, NO sky, NO snow, NO frost, NO ground beyond the base shown in the reference, NO cast shadow, NO text. Landscape 1536x1024 canvas, exactly TWO trees in two equal columns, each centered on the same baseline near the bottom with 8% transparent padding, nothing crossing the column boundary. The reference is the accepted mature CHERRY tree in spring bloom. Redraw THIS SAME TREE — the same twisting warm-brown trunk and bark, the same branch structure, the same rounded crown size and outline, the same small green leafy root rosette at its base — in two other seasons. COL1 AUTUMN: the blossoms replaced by OVAL, pointed, finely toothed cherry leaves (simple elliptic leaves like a cherry or plum leaf, NOT lobed, NOT maple-shaped, NOT star-shaped, NOT oak-shaped), a warm glowing mix of crimson red, orange and golden yellow with a few yellow-green leaves, filling the same rounded crown. COL2 WINTER: completely bare: the same warm-brown twisting trunk and bark colour as the reference (warm brown, NOT purple, NOT plum, NO stripes or bands), the same limbs dividing into many fine brown twigs that fill the same rounded crown size and outline, tiny brown winter buds at the twig tips, no leaves, no flowers, no snow.",
+      "references": [
+        {
+          "path": "assets/discovery/trees-growth-source.png",
+          "crop": [814, 17, 430, 397],
+          "role": "Identity and scale reference: the accepted cherry mature cut from it"
+        }
+      ],
+      "notes": "Generated 2026-11-15. Replaces the cherry autumn tree, which had maple-shaped leaves and read as a maple, and the cherry winter tree, whose purple banded trunk and umbrella shape did not match the cherry in bloom. Both redraw the mature cherry on its own twisting brown trunk and crown. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 575d1b8b8b26f07fb96a5d2053c0e65d8482fd0402089f2ab0542e04d8d4456e) is not kept."
+    },
+    {
+      "id": "winter-trees-2",
+      "file": "winter-trees-2-source.png",
+      "atlas": "trees/winter-2.png",
+      "size": [1536, 1024],
+      "sha256": "1268878667b679c7493d910c32b9316169bab9626f1b4fd111eee0cf52de1b8b",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent tree sprite sheet. Match the reference trees exactly: the same soft painterly illustrated look, warm saturated colours, gentle highlights, key light from the upper left. TRUE transparent alpha background: NO painted background, NO sky, NO snow, NO frost, NO ground beyond the base shown in the reference, NO cast shadow, NO text. Landscape 1536x1024 canvas, exactly THREE trees in three equal columns, each centered on the same baseline near the bottom with 8% transparent padding, nothing crossing the column boundaries. Each reference is an accepted mature tree in leaf (first maple, second birch, third dawn redwood). Draw the SAME three trees bare in WINTER, left to right in the same order: the same trunk shape, bark colour, branching and root base, and the same height and crown width as each reference, just without leaves. The bare twigs are solid painted WOOD, warm and saturated like the trunks, NOT pale, NOT frosted, NOT white, silver or pink twigs, NOT thin wispy lines. COL1 MAPLE (first reference): the same short sturdy warm-brown trunk and several thick spreading limbs dividing into a full broad rounded crown of brown twigs, small red buds at the tips, the same small green leafy root rosette; as big as the reference. COL2 BIRCH (second reference): the same white papery trunk with dark marks, bare dark reddish-brown twigs filling the same broad rounded crown, a few small brown catkins hanging, the same leafy root rosette. COL3 DAWN REDWOOD (third reference): the same straight tapering rust-brown trunk and spreading roots, bare slender upswept branches in the same narrow cone outline, fine russet-brown twigs, no needles. IMPORTANT: the background must be truly transparent alpha everywhere outside each tree, including the gaps between twigs and between the trees: no paper, cream, white, grey or pale haze, no glow, no soft backdrop behind the crowns.",
+      "references": [
+        {
+          "path": "assets/discovery/trees-growth-source.png",
+          "crop": [810, 424, 439, 391],
+          "role": "Identity and scale reference: the accepted maple mature cut from it"
+        },
+        {
+          "path": "assets/discovery/birch-source.png",
+          "crop": [1021, 5, 459, 487],
+          "role": "Identity and scale reference: the accepted birch mature cut from it"
+        },
+        {
+          "path": "assets/discovery/metasequoia-source.png",
+          "crop": [1106, 6, 307, 483],
+          "role": "Identity and scale reference: the accepted metasequoia mature cut from it"
+        }
+      ],
+      "notes": "Generated 2026-11-15. Replaces the maple, birch and dawn redwood winter trees, drawn with pale frosted twigs (the maple also thinner, smaller and on another trunk), so that every bare tree is painted wood like the ginkgo, oak and persimmon: each on its mature tree's trunk, bark and crown. A first generation painted a pale haze between the trees and was not kept. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 c3ad8dcc5885dc7628d56e999b6c8288231150db0e12c9e70830db635d8d082b) is not kept."
+    },
+    {
+      "id": "crape_myrtle-spring",
+      "file": "crape_myrtle-spring-source.png",
+      "atlas": "trees/crape_myrtle-spring.png",
+      "size": [1254, 1254],
+      "sha256": "129676a12bc29577a6d3813958355bfef48e181977673410c0bdf075d012e4b0",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent tree sprite sheet. Match the reference trees exactly: the same soft painterly illustrated look, warm saturated colours, gentle highlights, key light from the upper left. TRUE transparent alpha background: NO painted background, NO sky, NO snow, NO frost, NO ground beyond the base shown in the reference, NO cast shadow, NO text. Square 1024x1024 canvas, exactly ONE tree centered on a baseline near the bottom with 8% transparent padding. The first reference is the accepted mature CRAPE MYRTLE tree in summer bloom; the second is the same tree in autumn. Redraw THIS SAME TREE in SPRING: the same smooth mottled pinkish-tan multi-stem trunk, the same branching, the same crown size and outline, the same spreading roots, with fresh, bright, light spring-GREEN new leaves (small glossy oval leaves, lime and fresh green), NO flowers, NO fruit, NO red, orange, bronze, brown or autumn-coloured leaves.",
+      "references": [
+        {
+          "path": "assets/discovery/crape_myrtle-source.png",
+          "crop": [1008, 5, 516, 466],
+          "role": "Identity and scale reference: the accepted crape_myrtle mature cut from it"
+        },
+        {
+          "path": "assets/discovery/crape_myrtle-source.png",
+          "crop": [516, 524, 496, 460],
+          "role": "Identity and scale reference: the accepted crape_myrtle mature autumn cut from it"
+        }
+      ],
+      "notes": "Generated 2026-11-15. Replaces the crape myrtle spring tree, whose reddish leaves read as autumn, with fresh green spring leaves on the same mottled trunk. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 c0ef193cab2ceda3cedd4f539c34938f2165638b9cd4ccfe9c6e57b70f0a2903) is not kept."
+    },
+    {
+      "id": "pine-mature",
+      "file": "pine-mature-source.png",
+      "atlas": "trees/pine-mature.png",
+      "size": [1254, 1254],
+      "sha256": "6412eda618dd27f24fbf5dea393db6af52f3aa74a0f1a7d4948894206ce54cc4",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent tree sprite sheet. Match the reference trees exactly: the same soft painterly illustrated look, warm saturated colours, gentle highlights, key light from the upper left. TRUE transparent alpha background: NO painted background, NO sky, NO snow, NO frost, NO ground beyond the base shown in the reference, NO cast shadow, NO text. Square 1024x1024 canvas, exactly ONE tree centered on a baseline near the bottom with 8% transparent padding. The first reference is the accepted YOUNG pine of this species: grow it into the MATURE tree. The second reference is the old mature drawing, for style, size and the green leafy root rosette ONLY; do NOT copy its spruce shape. MATURE KOREAN RED PINE (Pinus densiflora, sonamu): a gently curving, slightly leaning trunk with REDDISH-ORANGE scaly plated bark that turns brighter red-orange toward the top, a few long curving limbs reaching out, and an irregular, broad, flat-topped UMBRELLA crown made of four to six separate rounded PADS of long dark-green needle tufts, each pad built from starburst tufts of long needles like the young pine reference, with sky gaps between the pads and a few small brown cones. The same small green leafy root rosette at the base. NOT a cone shape, NOT a Christmas tree, NOT a spruce or fir, NOT drooping tiers, NOT a bonsai pot.",
+      "references": [
+        {
+          "path": "assets/discovery/trees-growth-source.png",
+          "crop": [497, 913, 237, 299],
+          "role": "Identity and scale reference: the accepted pine young cut from it"
+        },
+        {
+          "path": "assets/discovery/trees-growth-source.png",
+          "crop": [841, 817, 384, 401],
+          "role": "Identity and scale reference: the accepted pine mature cut from it"
+        }
+      ],
+      "notes": "Generated 2026-11-15. Replaces the mature pine, a spruce-like cone close to the Christmas tree gift that did not match its own long-needle young tree, with a Korean red pine: a curving red scaly trunk under layered pads of long needles. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 ed50b1a94c23229eff42fe1e83454a2ea3d468202da793ba0f6eccbffcd27dee) is not kept."
     }
   ],
   "assets": [
@@ -307,11 +571,12 @@
     },
     {
       "id": "pine-mature",
-      "source": "growth",
+      "source": "pine-mature",
       "art": "trees/pine-mature.svg",
       "size": [160, 170],
-      "crop": [841, 817, 384, 401],
-      "anchor": [0.5, 1]
+      "crop": [37, 49, 1179, 1148],
+      "anchor": [0.5, 1],
+      "frame": [-5.6, -98.8, 1219.6, 1295.8]
     },
     {
       "id": "striped_pebble",
@@ -387,21 +652,21 @@
     },
     {
       "id": "cherry-mature-autumn",
-      "source": "seasons",
+      "source": "cherry-seasons",
       "art": "trees/cherry-mature-autumn.svg",
       "size": [160, 170],
-      "crop": [442, 9, 373, 401],
-      "frame": [413.5, 0, 430, 410],
-      "anchor": [0.5, 1]
+      "crop": [19, 111, 751, 760],
+      "anchor": [0.5, 1],
+      "frame": [-10, 10.2, 810.2, 860.8]
     },
     {
       "id": "cherry-mature-winter",
-      "source": "winter-trees",
+      "source": "cherry-seasons",
       "art": "trees/cherry-mature-winter.svg",
       "size": [160, 170],
-      "crop": [0, 317, 560, 467],
-      "frame": [7.1, 193.3, 542.8, 576.7],
-      "anchor": [0.5, 1]
+      "crop": [770, 109, 738, 762],
+      "anchor": [0.5, 1],
+      "frame": [719.8, 7.9, 812.3, 863.1]
     },
     {
       "id": "maple-mature-spring",
@@ -423,12 +688,12 @@
     },
     {
       "id": "maple-mature-winter",
-      "source": "winter-trees",
+      "source": "winter-trees-2",
       "art": "trees/maple-mature-winter.svg",
       "size": [160, 170],
-      "crop": [554, 156, 422, 628],
-      "frame": [413.2, 59.7, 668.5, 710.3],
-      "anchor": [0.5, 1]
+      "crop": [7, 219, 541, 629],
+      "anchor": [0.5, 1],
+      "frame": [-47.5, 112, 692.7, 736]
     },
     {
       "id": "cherry-mature-summer",
@@ -535,12 +800,12 @@
     },
     {
       "id": "birch-mature-winter",
-      "source": "birch",
+      "source": "winter-trees-2",
       "art": "trees/birch-mature-winter.svg",
       "size": [160, 170],
-      "crop": [1054, 514, 441, 479],
+      "crop": [548, 112, 548, 738],
       "anchor": [0.5, 1],
-      "frame": [1043.5, 504, 462, 489]
+      "frame": [477.1, 118.2, 688.7, 731.8]
     },
     {
       "id": "willow-seedling",
@@ -834,12 +1099,12 @@
     },
     {
       "id": "crape_myrtle-mature-spring",
-      "source": "crape_myrtle",
+      "source": "crape_myrtle-spring",
       "art": "trees/crape_myrtle-mature-spring.svg",
       "size": [160, 170],
-      "crop": [8, 524, 489, 460],
+      "crop": [25, 36, 1203, 1123],
       "anchor": [0.5, 1],
-      "frame": [-5.5, 518, 516, 466]
+      "frame": [3.8, -148.1, 1230.2, 1307.1]
     },
     {
       "id": "crape_myrtle-mature-autumn",
@@ -904,12 +1169,12 @@
     },
     {
       "id": "metasequoia-mature-winter",
-      "source": "metasequoia",
+      "source": "winter-trees-2",
       "art": "trees/metasequoia-mature-winter.svg",
       "size": [160, 170],
-      "crop": [1107, 520, 309, 483],
+      "crop": [1099, 61, 426, 792],
       "anchor": [0.5, 1],
-      "frame": [1105.5, 518, 312, 485]
+      "frame": [935.3, 69, 737.9, 784]
     },
     {
       "id": "old_coin",
@@ -974,6 +1239,411 @@
       "size": [40, 40],
       "crop": [1381, 482, 335, 364],
       "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "wisteria-seedling",
+      "source": "wisteria",
+      "art": "trees/wisteria-seedling.svg",
+      "size": [35, 40],
+      "crop": [172, 274, 184, 183],
+      "anchor": [0.5, 1],
+      "frame": [162.8, 238.5, 191.2, 218.5]
+    },
+    {
+      "id": "wisteria-young",
+      "source": "wisteria",
+      "art": "trees/wisteria-young.svg",
+      "size": [70, 95],
+      "crop": [563, 120, 315, 340],
+      "anchor": [0.5, 1],
+      "frame": [558.2, 28.7, 317.8, 431.3]
+    },
+    {
+      "id": "wisteria-mature",
+      "source": "wisteria",
+      "art": "trees/wisteria-mature.svg",
+      "size": [160, 170],
+      "crop": [957, 6, 571, 467],
+      "anchor": [0.5, 1],
+      "frame": [953.2, -135.6, 572.8, 608.6]
+    },
+    {
+      "id": "wisteria-mature-summer",
+      "source": "wisteria",
+      "art": "trees/wisteria-mature-summer.svg",
+      "size": [160, 170],
+      "crop": [6, 530, 500, 454],
+      "anchor": [0.5, 1],
+      "frame": [-27.9, 375.4, 572.8, 608.6]
+    },
+    {
+      "id": "wisteria-mature-autumn",
+      "source": "wisteria",
+      "art": "trees/wisteria-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [511, 531, 499, 453],
+      "anchor": [0.5, 1],
+      "frame": [475.3, 375.4, 572.8, 608.6]
+    },
+    {
+      "id": "wisteria-mature-winter",
+      "source": "wisteria",
+      "art": "trees/wisteria-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [1022, 533, 505, 451],
+      "anchor": [0.5, 1],
+      "frame": [986.2, 375.4, 572.8, 608.6]
+    },
+    {
+      "id": "fringe_tree-seedling",
+      "source": "fringe_tree",
+      "art": "trees/fringe_tree-seedling.svg",
+      "size": [35, 40],
+      "crop": [182, 297, 165, 176],
+      "anchor": [0.5, 1],
+      "frame": [164.8, 267.1, 180.2, 205.9]
+    },
+    {
+      "id": "fringe_tree-young",
+      "source": "fringe_tree",
+      "art": "trees/fringe_tree-young.svg",
+      "size": [70, 95],
+      "crop": [579, 111, 339, 364],
+      "anchor": [0.5, 1],
+      "frame": [581, 14.7, 339.2, 460.3]
+    },
+    {
+      "id": "fringe_tree-mature",
+      "source": "fringe_tree",
+      "art": "trees/fringe_tree-mature.svg",
+      "size": [160, 170],
+      "crop": [1009, 16, 494, 460],
+      "anchor": [0.5, 1],
+      "frame": [982.4, -81.8, 525, 557.8]
+    },
+    {
+      "id": "fringe_tree-mature-summer",
+      "source": "fringe_tree",
+      "art": "trees/fringe_tree-mature-summer.svg",
+      "size": [160, 170],
+      "crop": [22, 525, 485, 462],
+      "anchor": [0.5, 1],
+      "frame": [2.8, 429.2, 525, 557.8]
+    },
+    {
+      "id": "fringe_tree-mature-autumn",
+      "source": "fringe_tree",
+      "art": "trees/fringe_tree-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [510, 521, 490, 466],
+      "anchor": [0.5, 1],
+      "frame": [486, 429.2, 525, 557.8]
+    },
+    {
+      "id": "fringe_tree-mature-winter",
+      "source": "fringe_tree",
+      "art": "trees/fringe_tree-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [1011, 526, 502, 462],
+      "anchor": [0.5, 1],
+      "frame": [986, 430.2, 525, 557.8]
+    },
+    {
+      "id": "fig-seedling",
+      "source": "fig",
+      "art": "trees/fig-seedling.svg",
+      "size": [35, 40],
+      "crop": [132, 269, 221, 202],
+      "anchor": [0.5, 1],
+      "frame": [133.2, 222.1, 217.8, 248.9]
+    },
+    {
+      "id": "fig-young",
+      "source": "fig",
+      "art": "trees/fig-young.svg",
+      "size": [70, 95],
+      "crop": [566, 129, 334, 348],
+      "anchor": [0.5, 1],
+      "frame": [568, 25.9, 332.4, 451.1]
+    },
+    {
+      "id": "fig-mature",
+      "source": "fig",
+      "art": "trees/fig-mature.svg",
+      "size": [160, 170],
+      "crop": [1004, 16, 516, 464],
+      "anchor": [0.5, 1],
+      "frame": [1006, -80.4, 527.4, 560.4]
+    },
+    {
+      "id": "fig-mature-spring",
+      "source": "fig",
+      "art": "trees/fig-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [16, 534, 479, 457],
+      "anchor": [0.5, 1],
+      "frame": [-1.6, 430.6, 527.4, 560.4]
+    },
+    {
+      "id": "fig-mature-autumn",
+      "source": "fig",
+      "art": "trees/fig-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [507, 528, 500, 462],
+      "anchor": [0.5, 1],
+      "frame": [505.1, 429.6, 527.4, 560.4]
+    },
+    {
+      "id": "fig-mature-winter",
+      "source": "fig",
+      "art": "trees/fig-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [1027, 543, 495, 447],
+      "anchor": [0.5, 1],
+      "frame": [1004.4, 429.6, 527.4, 560.4]
+    },
+    {
+      "id": "golden_rain_tree-seedling",
+      "source": "golden_rain_tree",
+      "art": "trees/golden_rain_tree-seedling.svg",
+      "size": [35, 40],
+      "crop": [172, 285, 168, 159],
+      "anchor": [0.5, 1],
+      "frame": [174, 249, 170.6, 195]
+    },
+    {
+      "id": "golden_rain_tree-young",
+      "source": "golden_rain_tree",
+      "art": "trees/golden_rain_tree-young.svg",
+      "size": [70, 95],
+      "crop": [597, 124, 306, 324],
+      "anchor": [0.5, 1],
+      "frame": [599, 31.4, 307, 416.6]
+    },
+    {
+      "id": "golden_rain_tree-mature",
+      "source": "golden_rain_tree",
+      "art": "trees/golden_rain_tree-mature.svg",
+      "size": [160, 170],
+      "crop": [1032, 8, 470, 444],
+      "anchor": [0.5, 1],
+      "frame": [1020.4, -58.6, 480.6, 510.6]
+    },
+    {
+      "id": "golden_rain_tree-mature-spring",
+      "source": "golden_rain_tree",
+      "art": "trees/golden_rain_tree-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [30, 528, 465, 449],
+      "anchor": [0.5, 1],
+      "frame": [20.6, 466.4, 480.6, 510.6]
+    },
+    {
+      "id": "golden_rain_tree-mature-autumn",
+      "source": "golden_rain_tree",
+      "art": "trees/golden_rain_tree-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [523, 524, 471, 453],
+      "anchor": [0.5, 1],
+      "frame": [522.2, 466.4, 480.6, 510.6]
+    },
+    {
+      "id": "golden_rain_tree-mature-winter",
+      "source": "golden_rain_tree",
+      "art": "trees/golden_rain_tree-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [1034, 524, 470, 453],
+      "anchor": [0.5, 1],
+      "frame": [1021.4, 466.4, 480.6, 510.6]
+    },
+    {
+      "id": "chestnut-seedling",
+      "source": "chestnut",
+      "art": "trees/chestnut-seedling.svg",
+      "size": [35, 40],
+      "crop": [127, 211, 261, 265],
+      "anchor": [0.5, 1],
+      "frame": [121.6, 173.8, 264.4, 302.2]
+    },
+    {
+      "id": "chestnut-young",
+      "source": "chestnut",
+      "art": "trees/chestnut-young.svg",
+      "size": [70, 95],
+      "crop": [561, 80, 379, 392],
+      "anchor": [0.5, 1],
+      "frame": [542.8, -64.3, 395.2, 536.3]
+    },
+    {
+      "id": "chestnut-mature",
+      "source": "chestnut",
+      "art": "trees/chestnut-mature.svg",
+      "size": [160, 170],
+      "crop": [992, 0, 532, 478],
+      "anchor": [0.5, 1],
+      "frame": [990, -87.2, 532, 565.3]
+    },
+    {
+      "id": "chestnut-mature-spring",
+      "source": "chestnut",
+      "art": "trees/chestnut-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [9, 518, 500, 473],
+      "anchor": [0.5, 1],
+      "frame": [-3.1, 425.8, 532, 565.3]
+    },
+    {
+      "id": "chestnut-mature-summer",
+      "source": "chestnut",
+      "art": "trees/chestnut-mature-summer.svg",
+      "size": [160, 170],
+      "crop": [517, 516, 499, 474],
+      "anchor": [0.5, 1],
+      "frame": [497.2, 424.8, 532, 565.3]
+    },
+    {
+      "id": "chestnut-mature-winter",
+      "source": "chestnut",
+      "art": "trees/chestnut-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [1023, 516, 500, 474],
+      "anchor": [0.5, 1],
+      "frame": [991.3, 424.8, 532, 565.3]
+    },
+    {
+      "id": "red_plum-seedling",
+      "source": "red_plum",
+      "art": "trees/red_plum-seedling.svg",
+      "size": [35, 40],
+      "crop": [212, 314, 122, 150],
+      "anchor": [0.5, 1],
+      "frame": [187.2, 298.5, 144.8, 165.5]
+    },
+    {
+      "id": "red_plum-young",
+      "source": "red_plum",
+      "art": "trees/red_plum-young.svg",
+      "size": [70, 95],
+      "crop": [615, 113, 280, 354],
+      "anchor": [0.5, 1],
+      "frame": [600.8, 70.4, 292.2, 396.6]
+    },
+    {
+      "id": "red_plum-mature",
+      "source": "red_plum",
+      "art": "trees/red_plum-mature.svg",
+      "size": [160, 170],
+      "crop": [1029, 15, 457, 452],
+      "anchor": [0.5, 1],
+      "frame": [1012.4, -56, 492.2, 523]
+    },
+    {
+      "id": "red_plum-mature-spring",
+      "source": "red_plum",
+      "art": "trees/red_plum-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [24, 525, 463, 454],
+      "anchor": [0.5, 1],
+      "frame": [7.7, 456, 492.2, 523]
+    },
+    {
+      "id": "red_plum-mature-summer",
+      "source": "red_plum",
+      "art": "trees/red_plum-mature-summer.svg",
+      "size": [160, 170],
+      "crop": [519, 525, 492, 454],
+      "anchor": [0.5, 1],
+      "frame": [516.8, 456, 492.2, 523]
+    },
+    {
+      "id": "red_plum-mature-autumn",
+      "source": "red_plum",
+      "art": "trees/red_plum-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [1030, 525, 475, 455],
+      "anchor": [0.5, 1],
+      "frame": [1013.3, 457, 492.2, 523]
+    },
+    {
+      "id": "yuzu-seedling",
+      "source": "yuzu",
+      "art": "trees/yuzu-seedling.svg",
+      "size": [35, 40],
+      "crop": [183, 295, 160, 171],
+      "anchor": [0.5, 1],
+      "frame": [185, 286.3, 157.2, 179.7]
+    },
+    {
+      "id": "yuzu-young",
+      "source": "yuzu",
+      "art": "trees/yuzu-young.svg",
+      "size": [70, 95],
+      "crop": [604, 138, 297, 332],
+      "anchor": [0.5, 1],
+      "frame": [606, 56.1, 305, 413.9]
+    },
+    {
+      "id": "yuzu-mature",
+      "source": "yuzu",
+      "art": "trees/yuzu-mature.svg",
+      "size": [160, 170],
+      "crop": [1017, 3, 487, 468],
+      "anchor": [0.5, 1],
+      "frame": [1018.6, -56, 496, 527]
+    },
+    {
+      "id": "yuzu-mature-spring",
+      "source": "yuzu",
+      "art": "trees/yuzu-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [15, 521, 487, 468],
+      "anchor": [0.5, 1],
+      "frame": [14.2, 462, 496, 527]
+    },
+    {
+      "id": "yuzu-mature-summer",
+      "source": "yuzu",
+      "art": "trees/yuzu-mature-summer.svg",
+      "size": [160, 170],
+      "crop": [512, 520, 486, 472],
+      "anchor": [0.5, 1],
+      "frame": [514, 465, 496, 527]
+    },
+    {
+      "id": "yuzu-mature-autumn",
+      "source": "yuzu",
+      "art": "trees/yuzu-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [1018, 519, 488, 471],
+      "anchor": [0.5, 1],
+      "frame": [1019, 463, 496, 527]
+    },
+    {
+      "id": "juniper-seedling",
+      "source": "juniper",
+      "art": "trees/juniper-seedling.svg",
+      "size": [35, 40],
+      "crop": [185, 732, 136, 264],
+      "anchor": [0.5, 1],
+      "frame": [142.9, 740, 224, 256]
+    },
+    {
+      "id": "juniper-young",
+      "source": "juniper",
+      "art": "trees/juniper-young.svg",
+      "size": [70, 95],
+      "crop": [614, 367, 234, 630],
+      "anchor": [0.5, 1],
+      "frame": [499.9, 375, 458.3, 622]
+    },
+    {
+      "id": "juniper-mature",
+      "source": "juniper",
+      "art": "trees/juniper-mature.svg",
+      "size": [160, 170],
+      "crop": [1088, 19, 350, 981],
+      "anchor": [0.5, 1],
+      "frame": [980, 27, 556, 973]
     }
   ]
 }

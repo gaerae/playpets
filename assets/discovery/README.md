@@ -104,6 +104,27 @@ Winter trees and the persimmon's growth (2026-11-10):
 - Both sheets had alpha below 50 cleared to remove the generator's halo; the raw
   generations are not kept, and their hashes are in `ART-SOURCES.json`.
 
+Eight more trees and redrawn seasons (2026-11-15):
+- Wisteria, Korean fringe tree, fig, golden rain tree, chestnut, red plum, yuzu
+  and juniper use the six-tree sheet layout, one source each. The mature tree is
+  the look of the season the species belongs to; the second row holds the other
+  three seasons.
+- Yuzu stays evergreen and its second row is spring, summer and autumn; juniper
+  exports only its first row, like pine and bamboo.
+- `cherry-seasons-source.png` replaces the cherry's autumn tree (it had maple
+  leaves) and winter tree (purple banded bark on another trunk).
+- `winter-trees-2-source.png` replaces the maple, birch and dawn redwood winter
+  trees, which were pale frosted twigs, so every bare tree is painted wood on
+  its own mature tree's trunk. Of the 2026-11-10 winter trees, the oak stays;
+  the cherry and the maple are replaced.
+- `crape_myrtle-spring-source.png` replaces the spring crape myrtle, whose
+  reddish leaves read as autumn.
+- `pine-mature-source.png` replaces the mature pine, a spruce-like cone close to
+  the Christmas tree gift, with a Korean red pine that matches its young tree.
+- Mature frames of one species share a scale and the trunk's centerline; a
+  redrawn tree is scaled to its species' mature crown.
+- Alpha below 50 is cleared as before; raw hashes are in `ART-SOURCES.json`.
+
 More finds (2026-11-03):
 - `more-finds-source.png` holds the cicada shell, blue feather, pinecone, old
   key, paper boat, spinning top, freshwater pearl and four-leaf clover in
