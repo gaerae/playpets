@@ -251,6 +251,38 @@ body.compact .empty-yard:not(.aside) {
   overflow-y: auto;
   padding: 12px;
 }
+/* The starters are drawn smaller, so the card shows them whole instead of a row cut at its
+   bottom; four in one row where the window is wide enough, or too short for two rows. */
+body.compact .starter {
+  padding: 6px 4px 8px;
+}
+body.compact .starter canvas {
+  width: 64px;
+  height: 69px;
+}
+@media (min-width: 480px) {
+  body.compact .starter-picks {
+    grid-template-columns: repeat(4, minmax(0, 88px));
+  }
+}
+@media (max-height: 280px) {
+  body.compact .empty-yard:not(.aside) small {
+    display: none;
+  }
+  body.compact .starter-picks {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    margin: 6px 0 0;
+  }
+  body.compact .starter {
+    padding: 4px 2px 6px;
+    font-size: var(--font-xs);
+  }
+  body.compact .starter canvas {
+    width: 44px;
+    height: 48px;
+  }
+}
 
 @media (max-width: 400px), (max-height: 280px) {
   body.compact .background-card span {

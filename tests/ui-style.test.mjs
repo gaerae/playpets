@@ -223,6 +223,19 @@ test('the shortest window gives the conversation the row the panel title took', 
   assert.match(css, /\.friend-id\{[^}]*grid-template-columns:minmax\(0,1fr\)/);
 });
 
+// At 560 by 400 the welcome card's second row of starters was cut off at the card's bottom, and at
+// 300 by 210 only the tops of two heads showed. A small window draws the starters smaller and puts
+// all four in one row where it is wide enough or too short for two.
+test('a small window shows the four starters in one row of small pictures', async () => {
+  const css = await styles();
+  assert.match(css, /body\.compact \.starter canvas\{width:64px;height:69px;?\}/);
+  const wide = [...css.matchAll(/@media\(min-width:480px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
+  assert.match(wide, /body\.compact \.starter-picks\{grid-template-columns:repeat\(4,/);
+  const short = [...css.matchAll(/@media\(max-height:280px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
+  assert.match(short, /body\.compact \.starter-picks\{grid-template-columns:repeat\(4,/);
+  assert.match(short, /body\.compact \.starter canvas\{width:44px;height:48px;?\}/);
+});
+
 // Squeezed onto one line in a short window, the message lost its words ("今日はどんな一日だ…") and
 // the AI its name ("Oll…"). The message keeps its own row and the AI stays readable under it.
 test('a short window keeps the message on its own row and the AI readable', async () => {
