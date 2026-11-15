@@ -203,6 +203,46 @@ test('a friend taken on its way to the plum frees the visit for another time', t
   assert.ok(v.button.classList.contains('looking-up'));
 });
 
+test('a plum moved or pulled up while a friend walks to it or looks up at it lets the friend go', async t => {
+  for (const [name, change] of [
+    ['moved on the way', { arrived: false, trees: plum => [{ ...plum, x: plum.x + 0.1 }] }],
+    ['moved while it looks up', { arrived: true, trees: plum => [{ ...plum, y: plum.y + 0.05 }] }],
+    ['pulled up', { arrived: true, trees: () => [] }],
+  ])
+    await t.test(name, s => {
+      const plum = grown('r', 'red_plum', 0.5, 0.3),
+        y = yard(s, { garden: { trees: [plum] }, pets: 1, values: { ...spring, season: 'winter' } }),
+        [v] = y.views();
+      y.run(3 * 60_000 + 2000);
+      assert.ok(v.trip?.arrive, 'it sets off');
+      if (change.arrived) {
+        arrive(v);
+        assert.ok(v.button.classList.contains('looking-up'));
+      }
+      state.data.garden.trees = change.trees(plum);
+      syncTreeMoments();
+      assert.equal(v.visiting, false, 'no longer on a visit');
+      assert.equal(v.target, null, 'not walking to where the tree stood');
+      assert.equal(v.doing, null);
+      assert.equal(v.button.classList.contains('looking-up'), false);
+      assert.equal(v.button.dataset.tilt, undefined);
+      y.run(6000);
+      assert.equal(v.bubble.hidden, true, 'and nothing is said to empty snow');
+    });
+});
+
+test('a garden change that leaves the plum where it stands lets the visit go on', t => {
+  const plum = grown('r', 'red_plum', 0.5, 0.3),
+    y = yard(t, { garden: { trees: [plum] }, pets: 1, values: { ...spring, season: 'winter' } }),
+    [v] = y.views();
+  y.run(3 * 60_000 + 2000);
+  arrive(v);
+  state.data.garden.trees = [{ ...plum }, grown('o', 'oak', 0.8, 0.4)];
+  syncTreeMoments();
+  assert.ok(v.button.classList.contains('looking-up'));
+  assert.equal(v.visiting, true);
+});
+
 test('a friend at the plum, or on its way, gives way to what the person asks', t => {
   const plum = grown('r', 'red_plum', 0.5, 0.3),
     y = yard(t, { garden: { trees: [plum] }, pets: 1, values: { ...spring, season: 'winter' } }),
@@ -560,6 +600,19 @@ test('a tree pulled up while its fruit rises takes the fruit, and nothing is sai
   assert.equal(y.v.bubble.textContent ?? '', '');
   assert.equal(y.v.doing, null, 'the friend is let go');
   assert.equal(fruitPicking(), false);
+});
+
+test('a friend on its way to fruit that is no longer there is let go at once', async ctx => {
+  const y = await pickYard(ctx);
+  y.click();
+  assert.ok(y.v.target);
+  // The tree is moved, and the garden drawn again: its fruit goes, and the walk to it with it.
+  state.data.garden.trees = [{ ...chestnut, x: chestnut.x + 0.1 }];
+  fruitMinute();
+  assert.equal(y.live().length, 0);
+  assert.equal(y.v.target, null, 'not walking to empty grass');
+  assert.equal(fruitPicking(), false);
+  assert.equal(y.v.bubble.textContent ?? '', '', 'nothing said');
 });
 
 test('with no friend in the yard a click says who could pick it up', async ctx => {

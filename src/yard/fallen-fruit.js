@@ -175,9 +175,16 @@ function update(v, fruit) {
   v.button.classList.toggle('picking', picks.has(fruit.id));
 }
 
-/** Draws the fallen fruit lying in this place. */
+/** Draws the fallen fruit lying in this place, and lets go of a friend going for fruit that is no
+ * longer there (its tree moved or pulled up, its time over), rather than on its arrival. */
 export function renderFruit() {
-  reconcile(shown, here(Date.now()), create, update);
+  const lying = here(Date.now());
+  reconcile(shown, lying, create, update);
+  for (const [id, { v, end }] of picks)
+    if (!lying.some(f => f.id === id)) {
+      if (v.doing?.end === end || v.trip?.cancel === end) release(v);
+      else end();
+    }
 }
 
 // Whether fruit still lies where it was.
