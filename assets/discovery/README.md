@@ -142,6 +142,16 @@ Fallen fruit (2026-11-16):
   and halved with premultiplied averaging, so the WebP stays near 100 KB.
 - Alpha below 50 is cleared as before; raw hashes are in `ART-SOURCES.json`.
 
+The red plum redrawn (2026-11-16):
+- `red_plum-source.png` replaces the 2026-11-15 red plum with a fuller crown,
+  crimson blossom clusters along every branch and an S-curved trunk; the layout
+  is the six-tree sheet as before.
+- The summer tree's green plums match `green-plums-source.png`.
+- The generator left coloured RGB under transparent pixels; clearing alpha
+  below 50 to 0,0,0,0 removes it with the halo. The raw hash is in
+  `ART-SOURCES.json`.
+- The four mature frames share one scale and the trunk's centerline.
+
 More finds (2026-11-03):
 - `more-finds-source.png` holds the cicada shell, blue feather, pinecone, old
   key, paper boat, spinning top, freshwater pearl and four-leaf clover in

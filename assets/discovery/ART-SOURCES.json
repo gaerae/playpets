@@ -359,8 +359,8 @@
       "file": "red_plum-source.png",
       "atlas": "trees/red_plum.png",
       "size": [1536, 1024],
-      "sha256": "e3e9f182c374c6cbebea00551f6f032e41180a7dd60a181e3bd4bcc913711d9f",
-      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. The first two reference images are STYLE ONLY: match their warm tactile miniature sculpted illustration, detailed natural hand-painted wood and leaves, crisp botanical silhouette, soft top-left light. Charming and lovable, a tree people want to collect: warm, saturated, glowing colours like the best reference trees, clean readable shapes that still read at 80 pixels, never dull, muddy, grey or cluttered. Genuine transparent RGBA background, no floor, cast shadow, background colour, haze, checkerboard ink, labels, text, grid, pot, grass tuft or dirt mound. NO snow, NO frost anywhere. Landscape 1536x1024 canvas: six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside their cells with wide transparent gutters, nothing touches or crosses a cell edge. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered, a few short spreading surface roots at the base like the magnolia reference. Row1: small seedling (30% cell height), young sapling (60%), mature tree in its DEFAULT look (85%). Row2: the SAME mature tree in three other seasons (all 85%, same trunk, branching, root identity, crown size and proportions). Designed to look polished at 35/70/160 CSS pixels. Row1 col3 mature DEFAULT = LATE WINTER IN BLOOM. Row2: SPRING, SUMMER, AUTUMN. The third reference is an approved concept for this species: follow its subject and silhouette ONLY, not its flat style. KOREAN RED PLUM (hongmae, Prunus mume). Signature: small crimson blossoms glowing on dark, sharply zig-zag branches. A LOW, small tree, about as wide as tall, with a dark brown-black gnarled leaning trunk and few ANGULAR branches that zig-zag sharply, plus long straight thin shoots pointing upward; open and sparse with plenty of space between branches. Seedling: a tiny dark woody twig with two or three crimson buds and one open crimson flower. Young: a small zig-zag twiggy tree with a few crimson blossoms. Row1 col3 mature DEFAULT = LATE WINTER IN BLOOM: NO leaves at all; the dark branches studded with small round deep CRIMSON-red five-petal blossoms with golden stamens and round crimson buds dotted along every twig (NOT pink, NOT fluffy, NOT a full crown). Row2 (in this order): col1 SPRING: the same zig-zag branches sprouting small fresh light-green pointed oval leaves, no flowers; col2 SUMMER: a small crown of green oval toothed leaves with a few round green-yellow plums; col3 AUTUMN: sparse leaves turning yellow and soft orange on the dark zig-zag branches.",
+      "sha256": "49724ead351cce40028c7990ccfcaab3b5b54e4ac804777f19493d7bf6931129",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. The first two reference images are STYLE ONLY: match their warm tactile miniature sculpted illustration, detailed natural hand-painted wood and leaves, crisp botanical silhouette, soft top-left light. Charming and lovable, a tree people want to collect: warm, saturated, glowing colours like the best reference trees, clean readable shapes that still read at 80 pixels, never dull, muddy, grey or cluttered. ABSOLUTELY TRANSPARENT background: every pixel outside the trees has alpha 0, with NO coloured glow, aura, halo, vignette, gradient or backdrop behind any tree (a previous attempt wrongly painted red, green and orange glows behind the trees). Genuine transparent RGBA background, no floor, cast shadow, background colour, haze, checkerboard ink, labels, text, grid, pot, grass tuft or dirt mound. NO snow, NO frost anywhere. Landscape 1536x1024 canvas: six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside their cells with wide transparent gutters, nothing touches or crosses a cell edge. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered, a few short spreading surface roots at the base like the magnolia reference. Row1: small seedling (30% cell height), young sapling (60%), mature tree in its DEFAULT look (85%). Row2: the SAME mature tree in three other seasons (all 85%, same trunk, branching, root identity, crown size and proportions). Designed to look polished at 35/70/160 CSS pixels. Row1 col3 mature DEFAULT = LATE WINTER IN BLOOM. Row2: SPRING, SUMMER, AUTUMN. The third reference is an approved mood picture: follow the plum tree in it for its fullness and grace ONLY, not its snow or scene. KOREAN RED PLUM (hongmae, Prunus mume), drawn to be BEAUTIFUL and generous, the tree people stop to admire in the snow. A small elegant tree about as wide as tall: a dark brown-black gnarled trunk with a graceful S-curve lean, branches that zig-zag gently and spread into a soft, balanced, rounded-fan crown (NOT scraggly, NOT a few bare sticks, NOT lopsided). Seedling: a tiny dark woody twig with a cluster of crimson buds and two open crimson flowers. Young: a small graceful zig-zag tree already covered in crimson blossom clusters. Row1 col3 mature DEFAULT = LATE WINTER IN FULL BLOOM: NO leaves; ABUNDANT small round deep CRIMSON-red five-petal blossoms with golden stamens and round crimson buds densely lining EVERY branch and twig in clusters, so the whole crown reads crimson from a distance, while the dark graceful branch lines still show through between the clusters (NOT pink, NOT fluffy cotton, NOT a solid ball). Row2 (in this order): col1 SPRING: the same branches in a soft full crown of fresh light-green pointed oval leaves, no flowers; col2 SUMMER: a full rounded crown of green oval toothed leaves with several round green-yellow plums; col3 AUTUMN: the same full crown turning warm yellow and soft orange. Every season keeps the same trunk, branch skeleton and crown outline.",
       "references": [
         {
           "path": "assets/discovery/magnolia-source.png",
@@ -371,11 +371,11 @@
           "role": "Style reference only"
         },
         {
-          "path": "approved concept mockup cell for red_plum (look only, not kept), sha256 ac345dccc246c881c89a47c530f9164bca8d86c491f99b6fa80114cbf4a9f646",
-          "role": "Subject and silhouette reference"
+          "path": "approved mood picture of a red plum in bloom in the snow (look only, not kept), sha256 89f3a9370cdfa5b7f774e9381cd52e5d4525e04cf677000803704e389081c309",
+          "role": "Fullness and grace reference"
         }
       ],
-      "notes": "Generated 2026-11-15. Red plum: small crimson blossoms on dark zig-zag branches in winter, leaves and green plums the rest of the year. Row 1: seedling, young tree, mature tree in its default look; row 2: spring, summer, autumn. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 b7e4dfc978b38870e842879055a6a760f2813e4b9b10f11d75bba6f8b6bbd433) is not kept."
+      "notes": "Generated 2026-11-16, replacing the 2026-11-15 red plum: a fuller crown, crimson blossom clusters lining every branch, an S-curved trunk. Row 1: seedling, young tree, mature tree in its default look (late winter in full bloom); row 2: spring, summer with green plums, autumn. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged), which also clears the coloured RGB the generator left under transparent pixels; the raw generation (sha256 b43e1f856d11dd29f42cba96ddad9ee39462541b2e4e93daced80238bcee2c42) is not kept."
     },
     {
       "id": "yuzu",
@@ -1677,54 +1677,54 @@
       "source": "red_plum",
       "art": "trees/red_plum-seedling.svg",
       "size": [35, 40],
-      "crop": [212, 314, 122, 150],
+      "crop": [194, 283, 142, 191],
       "anchor": [0.5, 1],
-      "frame": [187.2, 298.5, 144.8, 165.5]
+      "frame": [169.5, 274, 175, 200]
     },
     {
       "id": "red_plum-young",
       "source": "red_plum",
       "art": "trees/red_plum-young.svg",
       "size": [70, 95],
-      "crop": [615, 113, 280, 354],
+      "crop": [594, 115, 337, 361],
       "anchor": [0.5, 1],
-      "frame": [600.8, 70.4, 292.2, 396.6]
+      "frame": [592, 13.2, 341, 462.8]
     },
     {
       "id": "red_plum-mature",
       "source": "red_plum",
       "art": "trees/red_plum-mature.svg",
       "size": [160, 170],
-      "crop": [1029, 15, 457, 452],
+      "crop": [1002, 17, 523, 459],
       "anchor": [0.5, 1],
-      "frame": [1012.4, -56, 492.2, 523]
+      "frame": [1003, -82.9, 526, 558.9]
     },
     {
       "id": "red_plum-mature-spring",
       "source": "red_plum",
       "art": "trees/red_plum-mature-spring.svg",
       "size": [160, 170],
-      "crop": [24, 525, 463, 454],
+      "crop": [3, 524, 510, 465],
       "anchor": [0.5, 1],
-      "frame": [7.7, 456, 492.2, 523]
+      "frame": [-6.5, 430.1, 526, 558.9]
     },
     {
       "id": "red_plum-mature-summer",
       "source": "red_plum",
       "art": "trees/red_plum-mature-summer.svg",
       "size": [160, 170],
-      "crop": [519, 525, 492, 454],
+      "crop": [512, 526, 512, 463],
       "anchor": [0.5, 1],
-      "frame": [516.8, 456, 492.2, 523]
+      "frame": [504.5, 430.1, 526, 558.9]
     },
     {
       "id": "red_plum-mature-autumn",
       "source": "red_plum",
       "art": "trees/red_plum-mature-autumn.svg",
       "size": [160, 170],
-      "crop": [1030, 525, 475, 455],
+      "crop": [1024, 525, 508, 465],
       "anchor": [0.5, 1],
-      "frame": [1013.3, 457, 492.2, 523]
+      "frame": [1017, 431.1, 526, 558.9]
     },
     {
       "id": "yuzu-seedling",

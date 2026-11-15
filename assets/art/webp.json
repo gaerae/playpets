@@ -865,9 +865,9 @@
     "webp": "a70e8ca3f27f8e179ecc3138d38efb7ab033f1334fdada875bf6be090841f0f9"
   },
   "album/trees/red_plum-mature.webp": {
-    "png": "e3e9f182c374c6cbebea00551f6f032e41180a7dd60a181e3bd4bcc913711d9f",
-    "svg": "981100d2fddad9b5ba1049b42803c5a9f92a70440c5dddd52687a9ddb5d53a42",
-    "webp": "0785abc9d974cece28cfdd9edbb1982ec190f80cc07279f835137baa3be6e780"
+    "png": "49724ead351cce40028c7990ccfcaab3b5b54e4ac804777f19493d7bf6931129",
+    "svg": "61738ea2cec30b236b8713b6f7f707365360a8e3be687ee9a0d012bbe5913381",
+    "webp": "ddec639aacd1223454f575e66c50ea2354a93455050a9cdda94ec9bf4df148a8"
   },
   "album/trees/willow-mature.webp": {
     "png": "0da261196f35dd1d68e88749e608c9f46c86f3ed9ea693dae0c9546aefd73924",
@@ -1429,8 +1429,8 @@
     "webp": "4fa24941f0f92f060fd0698711fe12d2a4eaf80a90b72017f6819a6fdb73c731"
   },
   "trees/red_plum.png": {
-    "png": "e3e9f182c374c6cbebea00551f6f032e41180a7dd60a181e3bd4bcc913711d9f",
-    "webp": "41e170a320b8b4868b9f04a3a75cd177aae5d4c61d8eac2f470f3650863abe81"
+    "png": "49724ead351cce40028c7990ccfcaab3b5b54e4ac804777f19493d7bf6931129",
+    "webp": "92f0a3d3bf8308573ce8db21c9ac503e06d9056e2fb1bcaba6ba3542c593d6ef"
   },
   "trees/seasons.png": {
     "png": "b553c5caca07c86ff1ead83eb8cb6bab10c2d4d295bb92a3cf1298664083fa7e",
