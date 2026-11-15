@@ -19,8 +19,8 @@ const { element, installDom, keepGlobals } = await import('./support/dom.mjs');
 const { artHref } = await import('../src/yard/art.js');
 const { fieldToYard, footOf, measureYard } = await import('../src/yard/field.js');
 const { scene, setScenery } = await import('../src/yard/world.js');
-const { release } = await import('../src/yard/trips.js');
-const { place, syncViews } = await import('../src/yard/views.js');
+const { release, sendTo } = await import('../src/yard/trips.js');
+const { bubble, place, syncViews } = await import('../src/yard/views.js');
 const { petalTick, setupPetals } = await import('../src/yard/petals.js');
 const { setupTreeMoments, syncTreeMoments, treeMomentTick } = await import('../src/yard/tree-moments.js');
 const { BURR_FIRST, GUST_FIRST, momentOf } = await import('../src/yard/tree-moment-rules.js');
@@ -197,6 +197,38 @@ test('now and then a free friend walks to a red plum in winter, looks up at it a
   assert.equal(v.doing, null, 'then it goes on with its day');
   assert.equal(v.button.classList.contains('looking-up'), false);
   assert.equal(v.button.dataset.tilt, undefined);
+});
+
+test('a friend still speaking when it reaches the plum says its line once that one is done', t => {
+  const plum = grown('r', 'red_plum', 0.5, 0.3),
+    y = yard(t, { garden: { trees: [plum] }, pets: 1, values: { ...spring, season: 'winter' } }),
+    [v] = y.views();
+  y.run(3 * 60_000 + 2000);
+  const { trip } = v;
+  v.target = null;
+  v.trip = null;
+  trip.arrive(v, performance.now());
+  // A line shows at least three seconds (readingTime).
+  bubble(v, 'Something else', 3000);
+  y.run(1000);
+  assert.equal(v.bubble.textContent, 'Something else', 'never over its own words');
+  y.run(2500);
+  assert.ok(list('moment.plum_smell').includes(v.bubble.textContent), v.bubble.textContent);
+});
+
+test('a friend out for a stroll turns aside to the plum, but not one on an errand', t => {
+  const plum = grown('r', 'red_plum', 0.5, 0.3),
+    y = yard(t, { garden: { trees: [plum] }, pets: 1, values: { ...spring, season: 'winter' } }),
+    [v] = y.views();
+  const away = { x: 0.9, y: 0.9 };
+  sendTo(v, away, { arrive: () => {} });
+  y.run(8 * 60_000);
+  assert.equal(v.target, away, 'an errand goes on');
+  release(v);
+  sendTo(v, away, { slow: true });
+  y.run(8 * 60_000);
+  assert.notEqual(v.target, away, 'a stroll gives way');
+  assert.ok(v.trip?.arrive, 'to the tree');
 });
 
 test('a visit ends whenever the friend is taken, and none starts in a game', t => {

@@ -48,7 +48,7 @@ export const GUST_FIRST = [6_000, 25_000];
 /** The most trees gusting at once. */
 export const GUSTS_AT_ONCE = 2;
 /** How long a petal rests on the ground before it is gone; it fades over the second half. */
-export const LIE_MS = 4_000;
+export const LIE_MS = 6_000;
 // A petal falls this many yard pixels a millisecond at a pace of 1 (catalog moment.pace), a little
 // slower than the spring petals that cross the whole sky (scene.js spawnFaller).
 const FALL = 0.02;

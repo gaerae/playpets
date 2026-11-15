@@ -477,8 +477,8 @@ test('petals cannot be caught with reduced motion', t => {
   assert.equal(scene.nearPetal(500, 0.5 * groundFor(0.5, 600)), false);
 });
 
-// A grown tree's gust (tree-moments.js): a few petals in its own colour come off its crown over the
-// gust's time, fall to its foot, lie there a few seconds and go; then the canvas rests again.
+// A grown tree's gust (tree-moments.js): a few petals in its own colour come off its crown, most as
+// the gust starts, fall to its foot, lie there a few seconds and go; then the canvas rests again.
 const GUST = {
   x: 500,
   top: 250,
@@ -496,7 +496,7 @@ const gustPetalsAt = (scene, draws, now, dt = 100) => {
   return draws.fills.filter(fill => fill === '#123456').length;
 };
 
-test("a tree's gust lets its petals go over its time; they lie at the foot and go, and the canvas rests", t => {
+test("a tree's gust lets most of its petals go early, the rest over its time; they lie at the foot and go, and the canvas rests", t => {
   const { scene, draws } = yard(t, false);
   // Winter has no petals of its own, so only the gust's fall.
   scene.set('day', 'clear', 'winter', null);
@@ -507,11 +507,13 @@ test("a tree's gust lets its petals go over its time; they lie at the foot and g
   assert.equal(scene.lively(), true, 'the yard runs at its busy pace while it blows');
   let most = 0,
     now = 30100;
+  for (; now <= 32200; now += 100) most = Math.max(most, gustPetalsAt(scene, draws, now));
+  assert.equal(most, 3, 'half of them in its first quarter, as a breeze lifts them');
   for (; now <= 34600; now += 100) most = Math.max(most, gustPetalsAt(scene, draws, now));
-  assert.ok(most >= 2 && most <= 4, `half way through, about half of them (${most})`);
+  assert.equal(most, 5, 'and the rest trailing after');
   for (; now <= 40000; now += 100) most = Math.max(most, gustPetalsAt(scene, draws, now));
   assert.equal(most, 6, 'all of them by its end');
-  // Each falls at most 170 px at 0.017 px/ms (10 s), then lies 4 s.
+  // Each falls at most 170 px at 0.017 px/ms (10 s), then lies 6 s.
   for (; now <= 56000; now += 100) scene.frame(now, 100);
   assert.equal(gustPetalsAt(scene, draws, now), 0, 'every one is gone');
   assert.equal(scene.lively(), false, 'and the canvas may rest');

@@ -30,10 +30,10 @@
 |---|---|---|
 | Which trees | A planted tree at stage 2 in the current place whose kind names a `moment` in `catalog.json` | Growing it is the way in; data, not code, decides which kinds |
 | When | The yard shows the moment's `season` (`yardSeason`), outdoors with seasonal effects, morning to evening, in the moment's `weather` (clear by default; the plum also in snow) | Daytime, fair-weather outings, as flower viewing |
-| A gust | 8–12 s of falling petals, the first 6–25 s after the moment starts, then one every 40–90 s per tree; at most two trees gust at once | Sparse and slow; the canvas rests between gusts |
-| Petals | Drawn by the scenery canvas in the moment's `colors`, falling from the crown to a ring at the foot, lying about four seconds, then fading | One painter for falling things; nothing in the DOM |
+| A gust | 8–12 s of falling petals, half of them in its first quarter. The first gust comes 6–25 s after the moment starts, then one every 40–90 s per tree; at most two trees gust at once | Sparse and slow; the canvas rests between gusts |
+| Petals | Drawn by the scenery canvas in the moment's `colors`, falling from the crown to a ring at the foot, lying about six seconds and fading over the last three | One painter for falling things; nothing in the DOM |
 | A petal on a head | As a gust's first petals reach the ground, 60 % of the time one lands on a friend standing under the crown; it stays until the friend moves or the moment ends, and the friend may say a `lines.head` line | The flower viewing detail, kept by the tree instead of the festival |
-| A visit | Every 3–7 min, half the time, a free idle friend strolls beside a tree with `lines.visit`, faces it, looks up, says a line and goes on after about five seconds | A friend notices the tree too |
+| A visit | Every 3–7 min, half the time, an idle friend standing or strolling walks beside a tree with `lines.visit`, faces it, looks up, says a line (once any line of its own is done) and goes on after about five seconds | A friend notices the tree too |
 | A burr | The first 1–4 min after the moment starts, then one every 6–15 min in the yard, with a short fall and one bounce, in front of the trunk | Rare enough to notice |
 | Burrs lying | At most two under a tree and three in the yard; each stays six hours, until it is picked, or the season, the place or the tree changes | A few, never a carpet |
 | A pick | A click sends the selected friend, else the nearest free one, with the walk and stroke of gathering a spring shoot; the burr leaves and the friend says a `lines.pick` line, or `lines.first` for the local day's first pick | The same gesture as other finds, with no reward |

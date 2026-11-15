@@ -27,7 +27,7 @@ import { landPetal } from './petals.js';
 import { propScale } from './props.js';
 import { shootDigging } from './shoots.js';
 import { gustPetals, momentTrees, stepGusts } from './tree-moment-rules.js';
-import { isFree, release, rest, sendTo, setDoing } from './trips.js';
+import { isFree, release, rest, sendTo, setDoing, strolling } from './trips.js';
 import { viewing } from './viewing.js';
 import { bubble, gaze } from './views.js';
 import { scene, scenery } from './world.js';
@@ -46,6 +46,7 @@ const VISIT_CHANCE = 0.5;
 const VISIT_MS = 5000;
 const LINE_AFTER = 800;
 const LINE_MS = 3200;
+const LINE_RETRY = 400;
 
 // The drift trees whose moment is on, each with its crown in yard pixels (syncTreeMoments).
 let live = [];
@@ -159,11 +160,13 @@ function headPetal(tree) {
 const busy = () =>
   !!game || !!aiming || fishingNow() || digging() || shootDigging() || burrPicking() || viewing() || !!visitor;
 
-// A free friend with nothing on walks to a tree with a visit line, to the side nearer it.
+// A free friend with nothing on walks to a tree with a visit line, to the side nearer it. One only
+// strolling counts as free, as for flower viewing: friends stroll most of the time, and the visit
+// takes the place of the stroll.
 function visit() {
   const trees = live.filter(tree => tree.moment.lines?.visit);
   if (!trees.length || busy()) return;
-  const free = [...views.values()].filter(v => isFree(v) && stateOf(data, v.pet.id) === 'idle');
+  const free = [...views.values()].filter(v => (isFree(v) || strolling(v)) && stateOf(data, v.pet.id) === 'idle');
   if (!free.length) return;
   const tree = pick(trees),
     v = pick(free),
@@ -195,9 +198,13 @@ function smell(v, tree, side) {
     }, ms);
     timers.add(timer);
   };
-  later(LINE_AFTER, () => {
+  // Never over its own words: a friend still saying something says its line once that is done, while
+  // it stands there.
+  const say = at => {
     if (v.bubble.hidden) bubble(v, pick(list(tree.moment.lines.visit)), LINE_MS);
-  });
+    else if (at + LINE_RETRY < VISIT_MS - LINE_RETRY) later(LINE_RETRY, () => say(at + LINE_RETRY));
+  };
+  later(LINE_AFTER, () => say(LINE_AFTER));
   later(VISIT_MS, () => {
     release(v);
     rest(v);

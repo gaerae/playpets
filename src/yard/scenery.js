@@ -710,9 +710,11 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       moved = true;
     }
     if (gusts.length || drifting.length) {
-      // A gust lets its petals go evenly over its time.
+      // A gust lets half its petals go in its first quarter, as a breeze lifts them, and the rest
+      // trail after.
       for (const g of gusts) {
-        const due = Math.min(g.gust.petals, Math.ceil(((now - g.since) / g.gust.ms) * g.gust.petals));
+        const part = Math.sqrt(Math.max(0, now - g.since) / g.gust.ms),
+          due = Math.min(g.gust.petals, Math.ceil(part * g.gust.petals));
         for (; g.made < due; g.made++) drifting.push(driftPetal(g.gust, Math.random));
       }
       gusts = gusts.filter(g => g.made < g.gust.petals);
