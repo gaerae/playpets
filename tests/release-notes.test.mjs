@@ -50,6 +50,11 @@ test('a page keeps the rules: an opening sentence, short "What changed" lines, n
   assert.match(problems(page('Rain.', ['<Only os="macOS" /> <Only os="Linux" /> Faster.'])), /once/);
   // "Also" holds what needs a command or a link: install ways, the guide, security updates.
   assert.deepEqual(pageProblems(page('Rain.', ['Rain falls.'], ['Run `winget install`.']), 'en'), []);
+  // A middle dot is not a separator on the site (visible-notation.test.mjs), so a page with one stops
+  // before the release is tagged, in any of its forms.
+  assert.match(problems(page('비가 와요.', ['밤·감이 떨어져요.'], [], 'ko'), 'ko'), /middle dot/);
+  assert.match(problems(page('雨です。', ['栗・柿が落ちます。'], [], 'ja'), 'ja'), /middle dot/);
+  assert.match(problems(page('Rain · snow.', ['Rain falls.'])), /middle dot/);
 });
 
 test('a line can be for two systems, and names only known ones', () => {
