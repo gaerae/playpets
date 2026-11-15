@@ -10,9 +10,17 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- Grown trees have a moment in their season: now and then a Korean fringe tree in spring sends white petals off its crown, and one may land on a friend's head; a red plum in winter drops a few red petals onto the snow, and friends sometimes walk over to smell the blossom; a chestnut in autumn drops a burr that a friend picks up when you click it, with a special line for the day's first.
+
 ### Changed
 
 - Friends out on the desktop use less CPU while they stand about: the desktop is drawn only when a friend's picture changes, not ten times a second, and with reduced motion not at all until something happens; the app also checks where the pointer is less often while it is far from them.
+
+### Website and docs
+
+- The guide's trees section describes the fringe tree's petals, the red plum's visits and the chestnut's burrs.
 
 ## [1.7.2] - 2026-11-14
 

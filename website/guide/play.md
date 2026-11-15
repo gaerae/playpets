@@ -352,6 +352,8 @@ Hearts on a friend's name tag show how close it is to you. The Friend panel show
 - Drag a tree to move it. Right-click → **Remove**, or **Delete**: gone at once, with **Undo** for about six seconds. Its album entry stays; the sapling doesn't come back.
 - Imported backgrounds can allow or turn off soil.
 
+A few grown trees have a moment of their own in their season, from morning to evening and never in the rain. Now and then a breeze lifts white petals off a Korean fringe tree in spring, and one may land on a friend standing underneath. In winter a red plum drops a few deep red petals onto the snow, and a friend sometimes wanders over to smell the blossom. In autumn a chestnut lets a burr fall at its foot: click it, and a friend picks it up, pleased, with something special to say about the first one of the day.
+
 ### Footprints in the snow
 
 In a winter yard, faint animal footprints cross the snow: one trail a day, plus another on a morning after a snowy night (only one a day from December 26 to January 7).

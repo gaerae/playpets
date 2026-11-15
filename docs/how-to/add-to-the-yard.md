@@ -327,6 +327,13 @@ Trees:
 - `planted-trees.js` owns these saved trees.
 - `trees.js` is still the procedural scenery painter.
 
+Tree moments:
+- A tree names its grown moment with an optional `moment` object; its fields are listed in the [tree moments design](../design/2026-11-15-tree-moments.md#data).
+- `kind` is `drift` (gusts of petals, `src/yard/tree-moments.js` and `scenery.js`) or `harvest` (burrs, `src/yard/burrs.js`); `MOMENT_KINDS` in `tree-moment-rules.js` lists them.
+- A drift moment gives `colors`, `petals`, `petal` and optionally `pace`; a harvest moment gives `art` and `size`, packed like other discovery art.
+- `lines` names string keys of three or four friend lines in every language: `head` or `visit` for a drift, `pick` and `first` for a harvest.
+- `tests/content.test.mjs` checks the kind, the colours and sizes, the drawing and the lines; the backend ignores the field.
+
 Keepsakes:
 - Keepsakes use the `treasures` list, an art path and `rarity` (`common` or `uncommon`), plus `treasure.<id>` in every language.
 - Each tier uses the item weights within that tier.
