@@ -4,8 +4,9 @@
 //
 // - visit: now and then a free friend walks to the tree, faces it, looks up at the blossom and says
 //   a line, then goes back to its own doings.
-// - The trees whose moment is on are looked up when the scene is painted, the garden drawn or the
-//   yard laid out again (syncTreeMoments); the frame loop's tick does nothing while there are none.
+// - The trees whose moment is on are looked up when the scene is painted or the garden changes
+//   (syncTreeMoments); the frame loop's tick does nothing while there are none. A tree's crown is
+//   worked out when a visit starts, so a new size or land needs no new look.
 // - Nothing is saved: no counts, no rewards, as for flower viewing.
 
 import { list } from '../core/i18n.js';
@@ -13,12 +14,11 @@ import { between, pick } from '../core/math.js';
 import { aiming, data, game, views } from '../core/state.js';
 import { stateOf } from '../core/status.js';
 import { cadence } from '../core/ticker.js';
-import { treeSize } from './catalog.js';
 import { fishingNow } from './catch.js';
 import { digging } from './discovery.js';
 import { fruitPicking } from './fallen-fruit.js';
 import { fieldToYard, footOf, footTarget, petHeight, sizeOf } from './field.js';
-import { propScale } from './props.js';
+import { treeBox } from './planted-trees.js';
 import { shootDigging } from './shoots.js';
 import { momentTrees, visitX } from './tree-moment-rules.js';
 import { isFree, release, rest, sendTo, setDoing, strolling } from './trips.js';
@@ -35,7 +35,7 @@ const LINE_AFTER = 800;
 const LINE_MS = 3200;
 const LINE_RETRY = 400;
 
-// The trees whose visit moment is on, each with its crown in yard pixels (syncTreeMoments).
+// The trees whose visit moment is on (syncTreeMoments).
 let live = [];
 // When a friend next thinks of visiting a tree.
 let visiting = cadence(() => between(Math.random, VISIT_EVERY));
@@ -54,17 +54,13 @@ export function setupTreeMoments() {
 // draws it.
 function crownOf(tree) {
   const foot = fieldToYard(tree),
-    zoom = propScale(foot),
-    [w] = treeSize(tree.kind, 2);
-  return { x: foot.x, width: w * zoom * 0.8, foot: foot.y, zoom };
+    { width, zoom } = treeBox(tree.kind, foot);
+  return { x: foot.x, width: width * 0.8, foot: foot.y, zoom };
 }
 
-/** Looks up the trees whose visit moment is on, with the scene's repaint, a garden change and a new
- * layout. */
+/** Looks up the trees whose visit moment is on, with the scene's repaint and a garden change. */
 export function syncTreeMoments() {
-  live = momentTrees(data.garden?.trees, scene, Date.now(), data.limits)
-    .filter(tree => tree.moment.kind === 'visit')
-    .map(tree => ({ ...tree, crown: crownOf(tree) }));
+  live = momentTrees(data.garden?.trees, scene, Date.now(), data.limits).filter(tree => tree.moment.kind === 'visit');
 }
 
 /** Called by the frame loop beside the other yard life: now and then a visit. */
@@ -85,13 +81,12 @@ const busy = () =>
 // takes the place of the stroll. The walk is the visit already: no second friend is sent while it
 // is on its way, and whatever takes it there ends the visit (leave).
 function visit() {
-  const trees = live.filter(tree => tree.moment.kind === 'visit');
-  if (!trees.length || busy()) return;
+  if (!live.length || busy()) return;
   const free = [...views.values()].filter(v => (isFree(v) || strolling(v)) && stateOf(data, v.pet.id) === 'idle');
   if (!free.length) return;
-  const tree = pick(trees),
+  const tree = pick(live),
     v = pick(free),
-    { crown } = tree,
+    crown = crownOf(tree),
     side = footOf(v).x < crown.x ? -1 : 1,
     x = visitX(crown.x, crown.width, sizeOf(v.pet), side);
   sendTo(v, footTarget(v, x, crown.foot + 6 * crown.zoom), {
@@ -108,10 +103,10 @@ function visit() {
 // At the tree: it faces the blossom and looks up, says a line, and after a while goes on its way.
 function smell(v, tree, side) {
   if (visitor?.v !== v || !on(tree.id) || game) return leave(v);
+  // The walk is over (motion.js lets go of the trip before it calls arrive), so setDoing ends nothing
+  // and the friend is still `visiting`.
   setDoing(v, VISIT, true);
-  // setDoing lets go of the walk without a word to it, so the visit is still this friend's.
-  v.visiting = true;
-  const look = { x: tree.crown.x - footOf(v).x, y: -petHeight(v.pet) * 1.2 },
+  const look = { x: crownOf(tree).x - footOf(v).x, y: -petHeight(v.pet) * 1.2 },
     { timers } = visitor;
   // The blossom is on the other side from where it stands.
   v.button.dataset.tilt = side < 0 ? 'right' : 'left';

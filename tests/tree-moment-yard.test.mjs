@@ -22,8 +22,7 @@ const { forPerson, release, sendTo } = await import('../src/yard/trips.js');
 const { bubble, place, syncViews } = await import('../src/yard/views.js');
 const { setupTreeMoments, syncTreeMoments, treeMomentTick } = await import('../src/yard/tree-moments.js');
 const { FRUIT_FIRST, fruitFall, harvestOf } = await import('../src/yard/tree-moment-rules.js');
-const { treeSize } = await import('../src/yard/catalog.js');
-const { propScale } = await import('../src/yard/props.js');
+const { treeBox } = await import('../src/yard/planted-trees.js');
 const { drawYard } = await import('./support/yard.mjs');
 const { FRUIT_LIFT_MS, cancelFruitPicks, fruitPicking, fruitMinute, pickFruit, renderFruit, setupFruit } =
   await import('../src/yard/fallen-fruit.js');
@@ -277,7 +276,7 @@ test('a grown chestnut in autumn drops a burr at its foot now and then, drawn as
   // From the crown's lower edge: the tree's foot and height as planted-trees.js draws it.
   const foot = fieldToYard(chestnut),
     spot = fieldToYard(burr),
-    tall = treeSize('chestnut', 2)[1] * propScale(foot);
+    tall = treeBox('chestnut', foot).height;
   assert.equal(button.style['--fall'], `${fruitFall(spot.y, foot.y, tall)}px`);
   assert.ok(fruitFall(spot.y, foot.y, tall) > 40, 'a fall the eye can follow');
   // Its shade settling first is not the fall ending.
@@ -588,12 +587,25 @@ test('the yard wires the moments in with the sky, the garden and the frame loop'
     const from = app.indexOf(`${hook}:`),
       body = app.slice(from, app.indexOf('},', app.indexOf('renderTrees();', from)) + 2);
     assert.ok(body.indexOf('renderFruit();') > body.indexOf('renderTrees();'), hook);
-    assert.ok(body.includes('syncTreeMoments();'), hook);
-    if (hook !== 'worldChanged') assert.ok(body.includes('cancelFruitPicks();'), hook);
+    if (hook !== 'worldChanged') {
+      assert.ok(body.includes('cancelFruitPicks();'), hook);
+      // A visit works out the tree's crown when it starts, so a new size or land has nothing to look up.
+      assert.ok(!body.includes('syncTreeMoments();'), hook);
+    }
   }
   assert.match(app, /const YARD_LIFE = \[[^\]]*treeMomentTick,/);
-  assert.ok(render.indexOf('renderFruit();') > render.indexOf('renderTrees();'), 'a state change redraws them');
-  assert.ok(render.indexOf('syncTreeMoments();') > render.indexOf('renderTrees();'));
+  // A state change redraws the fruit and looks the moments up only when what they stand on changed:
+  // the place, the season, the limits or the garden. The clock, the hour and the weather reach them
+  // through each repaint of the scene (above), and a drop or a pick redraws the fruit itself.
+  const trees = render.match(/if \(changed\('trees', [^\n]*\) \{\n([\s\S]*?)\n {2}\}/);
+  assert.ok(trees, 'the garden-change block');
+  assert.match(trees[0], /changed\('trees', `\$\{scene\.world\}\|\$\{scene\.season\}\|[^`]*data\.limits[^`]*\$\{garden\}`\)/);
+  assert.deepEqual(
+    trees[1].split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('//')),
+    ['renderTrees();', 'renderFruit();', 'syncTreeMoments();'],
+  );
+  assert.equal(render.split('renderFruit();').length, 2, 'drawn nowhere else in render');
+  assert.equal(render.split('syncTreeMoments();').length, 2);
 });
 
 test('fruit falls from the crown, bounces once and settles, stays still for reduced motion, and lets a tool or a game through', async () => {

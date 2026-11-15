@@ -25,10 +25,10 @@ import { pick } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { aiming, data, game, recall, remember, selected, toast, views } from '../core/state.js';
 import { artHref } from './art.js';
-import { treeSize } from './catalog.js';
 import { depthAt, depthScaleAt, fieldToYard, footOf, footTarget, petHeight, sizeOf } from './field.js';
 import { groundProfile } from './ground.js';
 import { localDay } from './growth.js';
+import { treeBox } from './planted-trees.js';
 import { propButton, propScale, reconcile, setDown } from './props.js';
 import { shootScale } from './shoot-rules.js';
 import {
@@ -170,7 +170,7 @@ function update(v, fruit) {
   const tree = v.button.classList.contains('dropped') && data.garden?.trees?.find(each => each.id === fruit.tree);
   if (tree) {
     const foot = fieldToYard(tree);
-    v.button.style.setProperty('--fall', `${fruitFall(y, foot.y, treeSize(tree.kind, 2)[1] * propScale(foot))}px`);
+    v.button.style.setProperty('--fall', `${fruitFall(y, foot.y, treeBox(tree.kind, foot).height)}px`);
   }
   v.button.classList.toggle('picking', picks.has(fruit.id));
 }

@@ -66,15 +66,17 @@ export function render() {
   const garden = JSON.stringify(data.garden ?? null);
   if (changed('garden', `${scene.world}|${garden}`)) renderGarden();
   renderDecor();
-  if (changed('trees', `${scene.world}|${scene.season}|${JSON.stringify(data.limits ?? null)}|${garden}`))
+  if (changed('trees', `${scene.world}|${scene.season}|${JSON.stringify(data.limits ?? null)}|${garden}`)) {
     renderTrees();
+    // A grown tree's fallen fruit and moments follow it: a tree pulled up or moved takes them along.
+    // The clock, the hour and the weather reach them with each repaint of the scene (app.js
+    // seasonChanged), and a drop or a pick redraws the fruit itself.
+    renderFruit();
+    syncTreeMoments();
+  }
   // After what stands on the ground: a shoot where a gift, a plant or a tree now stands is
   // not drawn.
   renderShoots();
-  // A grown tree's fallen fruit and moments follow the garden: a tree pulled up or moved takes
-  // them along.
-  renderFruit();
-  syncTreeMoments();
   syncDiscovery();
   renderAlbum();
   renderDecorating();

@@ -262,7 +262,6 @@ setupSky({
     renderShoots();
     renderTrees();
     renderFruit();
-    syncTreeMoments();
   },
 });
 // Hidden for a while, the yard lets go of its paintings and is not drawn; seen again, it is painted
@@ -303,7 +302,6 @@ setupViews({
     renderShoots();
     renderTrees();
     renderFruit();
-    syncTreeMoments();
   },
 });
 setupPlay();
