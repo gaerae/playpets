@@ -328,7 +328,8 @@ Trees:
 - `trees.js` is still the procedural scenery painter.
 
 Tree moments:
-- A tree names its grown moments with an optional `moments` list, at most one per season and one of each kind; the fields are listed in the [tree moments design](../design/2026-11-15-tree-moments.md#data).
+- A tree names its grown moments with an optional `moments` list, at most one per season and one of each kind; the fields table is in the [tree moments design](../design/2026-11-15-tree-moments.md#data).
+- Every moment names its `season` and may name `weather` (`["clear"]` when absent).
 - `kind` is `visit` (a friend walks over to look up at the tree, `src/yard/tree-moments.js`) or `harvest` (fallen fruit, `src/yard/fallen-fruit.js`); `MOMENT_KINDS` in `tree-moment-rules.js` lists them.
 - A harvest moment gives `art` and `size` (the fallen fruit, packed like other discovery art) and `title`, a string key for its button's title.
 - `lines` names string keys of friend lines in every language: `say` for a visit (three or four lines), `pick` (three or four) and `first` (two or three) for a harvest.

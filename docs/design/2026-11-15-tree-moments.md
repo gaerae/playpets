@@ -2,25 +2,24 @@
 
 ## Why
 
-- Since 1.7.2 the garden grows a Korean fringe tree, a red plum and a chestnut, but a grown one only stands there: the same drawing as any other tree, apart from its season art.
-- Each of the three has a moment people know: the fringe tree's white blossom blown off like snow in late spring, the red plum flowering in the snow, chestnut burrs dropping in autumn.
+- Since 1.7.2 the garden grows fruit trees and a red plum, but a grown tree only stands there: the same drawing as any other tree, apart from its season art.
+- People know what these trees do in their season: the red plum flowers in the snow, chestnut burrs and persimmons drop in autumn, figs and green plums in summer, yuzu in winter.
 - PlayPets is a yard to rest the eyes on. A tree that now and then does its one thing rewards growing it without adding a task.
 
 ## Goals
 
-- A grown fringe tree in spring now and then sends a gust of white petals off its crown; they settle at its foot and fade. A friend under it may get one on its head.
-- A grown red plum in winter sheds a few deep pink-red petals onto the snow, and now and then a friend walks over, looks up and smells the blossom.
-- A grown chestnut in autumn now and then drops a burr at its foot. Clicking it sends a friend to pick it up, with a happy line, and the day's first pick has a line of its own.
+- A grown red plum in winter now and then draws a friend over to look up and smell the blossom.
+- Every grown tree whose art shows fruit drops it at its foot in the season the art shows it. Clicking the fruit sends a friend to pick it up with a happy line; the day's first pick of each fruit has a line of its own.
 
 ## Non-goals
 
-- No counts, no rewards, no album entries, no backend state: nothing to collect or finish.
-- No new friend animation frames: a friend faces the tree with the look-up tilt flower viewing uses, and picks a burr with the dig stroke.
+- No counts, no rewards, no album entries, no baskets, no backend state: nothing to collect or finish.
+- No new friend animation frames: a visiting friend uses the look-up tilt of flower viewing; a pick uses the friend's own `discover` pose or the `jump` row every pet has.
 - Not shown on the desktop overlay.
 
 ## Anti-goals
 
-- Petals fill the yard or fall all the time.
+- Fruit carpets the yard or drops all the time.
 - The canvas or the frame loop gains steady work in a yard without such a tree.
 - A visit or a pick interrupts something the person started (a game, fishing, a dig, a gathering).
 
@@ -28,67 +27,58 @@
 
 | What | Rule | Why |
 |---|---|---|
-| Which trees | A planted tree at stage 2 in the current place whose kind names a `moment` in `catalog.json` | Growing it is the way in; data, not code, decides which kinds |
-| When | The yard shows the moment's `season` (`yardSeason`), outdoors with seasonal effects, morning to evening, in the moment's `weather` (clear by default; the plum also in snow) | Daytime, fair-weather outings, as flower viewing |
-| A gust | 8–12 s of falling petals, half of them in its first quarter. The first gust comes 6–25 s after the moment starts, then one every 40–90 s per tree; at most two trees gust at once | Sparse and slow; the canvas rests between gusts |
-| Petals | Drawn by the scenery canvas in the moment's `colors`, falling from the crown to a ring at the foot, lying about six seconds and fading over the last three | One painter for falling things; nothing in the DOM |
-| A petal on a head | As a gust's first petals reach the ground, 60 % of the time one lands on a friend standing under the crown; it stays until the friend moves or the moment ends, and the friend may say a `lines.head` line | The flower viewing detail, kept by the tree instead of the festival |
-| A visit | Every 3–7 min, half the time, an idle friend standing or strolling walks beside a tree with `lines.visit`, faces it, looks up, says a line (once any line of its own is done) and goes on after about five seconds | A friend notices the tree too |
-| A burr | The first 1–4 min after the moment starts, then one every 6–15 min in the yard, with a short fall and one bounce, in front of the trunk | Rare enough to notice |
-| Burrs lying | At most two under a tree and three in the yard; each stays six hours, until it is picked, or the season, the place or the tree changes | A few, never a carpet |
-| A pick | A click sends the selected friend, else the nearest free one, with the walk and stroke of gathering a spring shoot; the burr leaves and the friend says a `lines.pick` line, or `lines.first` for the local day's first pick | The same gesture as other finds, with no reward |
-| Reduced motion | No falling petals and no drop or bounce; burrs still appear, still, and can be picked; head petals, visits and lines still happen | The meaning stays without motion |
+| Which trees | A planted tree at stage 2 in the current place whose kind names `moments` in `catalog.json` | Growing it is the way in; data, not code, decides which kinds |
+| When | The yard shows the moment's `season` (`yardSeason`, so never in a place without seasons), morning to evening, in the moment's `weather` (clear by default; the plum's visit also in snow) | Daytime, fair-weather outings, as flower viewing |
+| A visit | Every 3–7 min, half the time, an idle friend standing or strolling walks beside a tree with a `visit` moment, faces it, looks up, says a `lines.say` line (once any line of its own is done) and goes on after about five seconds | A friend notices the tree too |
+| A visit ends | Whatever takes the friend (a press, a game, its agent, the person's errand) ends it; so does its tree moving, going or leaving its moment, on the way or there. A friend walking to the tree already counts as the visit: no second one is sent | Nobody looks up at empty snow |
+| Fruit drops | The first 1–4 min after a harvest's time starts in the place shown, then one every 6–15 min, under a tree with room, on free ground in front of the trunk. Night, rain or another season forgets the wait, so the first wait comes again each time the harvest does, and at each start | Rare enough to notice |
+| Fruit lying | At most two under a tree and three in each place. Each fruit stays six hours, until it is picked, its tree is pulled up or moved at all, or the yard's season (`scene.season`) is no longer its tree's harvest season. The hour, the weather and the place shown do not take it: fruit is there on coming back | A few, never a carpet |
+| Its fall | From the lower edge of the tree's crown (a quarter of the drawn tree's height above its foot, `fruitFall`, `--fall`) in 1 s: faster as it goes, turning upright, one small lift (a tenth of its own height), a slight rock and rest, while its shade gathers under it. No squash, no stretch, nothing below the ground. Landed, it lies like any other fruit | A small, believable drop |
+| A pick | A click sends the selected friend, else the nearest free one, else one viewing the blossom or visiting a tree. It walks to stand beside the fruit; the fruit rises toward its paws and fades in 600 ms (`FRUIT_LIFT_MS`, `--lift-x`, `--lift-y`) while the friend shows its pose; then it says a `lines.pick` line, or `lines.first` for the local day's first pick of that kind of tree. No soil, no shovel: spring shoots still dig | The same gesture as other finds, with no reward |
+| A pick ends | Whatever takes the friend leaves the fruit lying, and rising fruit settles back. Fruit that is no longer there (its tree moved or pulled up, its time over) lets the friend go at once | The fruit and the friend never disagree |
+| Reduced motion | No fall, no bounce and no lift: fruit is simply there and simply goes; visits, poses and lines still happen | The meaning stays without motion |
 
 ## Data
 
-- `catalog.json` trees: an optional `moment`.
+- `catalog.json` trees: an optional `moments` list, at most one moment a season and one of each kind.
 
   | Field | Kind | Meaning |
   |---|---|---|
   | `season` | both | The season the yard shows when it is on |
-  | `kind` | both | `drift` (gusts of petals) or `harvest` (burrs) |
+  | `kind` | both | `visit` (a friend looks up at the tree) or `harvest` (fallen fruit); `MOMENT_KINDS` |
   | `weather` | both | The weathers it is on in; `["clear"]` when absent |
-  | `colors` | drift | Two or three petal colours, main first |
-  | `petals` | drift | Petals in one gust, up to 16 |
-  | `pace` | drift | A fall speed under 1 for a slower fall |
-  | `petal` | drift | Petal length and breadth in yard pixels, each up to 5 |
-  | `art`, `size` | harvest | The burr's drawing and its view box |
-  | `lines` | both | String keys: `head`, `visit` (drift), `pick` and `first` (harvest) |
-- The webview's storage key `burrs`: `{ next, picked, out }` (when the next burr may drop, the last local day of a first pick, and the burrs lying). Not in `state.json`.
-- New strings in all four languages: the burr's title, the no-friend hint, and the four friend line lists.
-- The burr drawing: `src/art/discovery/chestnut_burr.svg`, packed from `assets/discovery/chestnut-burr-source.png` (`assets/discovery/ART-SOURCES.json`).
+  | `art`, `size` | harvest | The fruit's drawing and its view box |
+  | `title` | harvest | A string key: the fruit button's title and label |
+  | `lines` | both | String keys of friend line lists: `say` (visit, three or four lines); `pick` (three or four) and `first` (two or three) (harvest) |
 
-## Code
-
-- `src/yard/tree-moment-rules.js`: pure rules (when a moment is on, gusts, petal paths, burr spots and limits, the day's first pick).
-- `src/yard/tree-moments.js`: gusts, head petals and visits; its tick returns at once while no drift tree is on.
-- `src/yard/burrs.js`: the burrs, checked with the scene's minute repaint, never in the frame loop.
-- `src/yard/scenery.js` `drift(gust)`: paints a gust's petals and keeps drawing only while they move or lie.
-
-## Follow-up: fallen fruit, several moments a tree, and quieter blossom (2026-11-16)
-
-- Nothing falls from a crown any more: the yard's own spring petals already fall, and a second fall from one tree was easy to stop noticing. The `drift` kind, its timing and the scenery's part are gone.
-- The fringe tree has no moment. A petal landing on a friend under it was kept for a while, but it came only to a friend standing still under the tree and was a few white pixels against white blossom, so it was close to invisible.
-- `visit` (the red plum in winter): now and then a free friend walks over, looks up at the blossom and says a `lines.say` line. Nothing else marks the moment.
-- The kinds are `visit` and `harvest`. A visit names only `lines.say`; `colors`, `petals`, `pace` and `petal` are gone.
-- A tree names a `moments` list instead of one `moment`: at most one moment a season and one of each kind, so the red plum can flower in winter and drop fruit in summer.
-- The chestnut's burr is one kind of fallen fruit: `src/yard/fallen-fruit.js` drops, draws and picks up what a tree's harvest moment names (`art`, `size`, a `title` key for the button, and `lines`). The rules use fruit names (`fruitDue`, `FRUIT_OUT`).
-- The day's first pick is counted per kind of tree, so the first chestnut and the first persimmon of a day each have their line. `first` lists have two or three lines.
-- The webview's key is now `fallen-fruit`: `{ picked, out }`, with `picked` a map from tree kind to its last local day of a first pick. The chestnut-only `burrs` key was never released and is not read.
-- The wait for the next fruit is not stored. A start, and every return of a harvest's time (a new morning, the end of rain), waits the first wait again.
-- Fruit keeps its place: each stored fruit names its `world`, only the shown place's fruit is drawn, and going to another place no longer takes it. It goes when it is picked, after six hours, when its tree is pulled up or moved, or when the yard's season (`scene.season`, even in a place that shows none) is no longer its tree's harvest season. At most three lie in each place (`FRUIT_OUT`). The stored record is unchanged.
-- A friend walking to the plum already counts as the visit, so no second friend is sent; a visiting friend, walking or there, gives way to the person's errands like a friend viewing the blossom.
-- Every tree whose art shows fruit drops it, in the season the art shows it:
+- The one visit: the red plum in winter, clear or snowy.
+- The harvests, one for every tree whose art shows fruit, in the season the art shows it:
 
   | Tree | Season | What falls | Drawing |
   |---|---|---|---|
+  | `red_plum` | summer | three green plums (maesil) | `discovery/green_plums.svg` |
   | `chestnut` | autumn | a split burr with three chestnuts | `discovery/chestnut_burr.svg` |
   | `persimmon` | autumn | an orange persimmon with its calyx | `discovery/persimmon_fruit.svg` |
   | `oak` | autumn | two acorns, one in its cap | `discovery/acorns.svg` |
   | `fig` | summer | a ripe purple fig | `discovery/fig_fruit.svg` |
-  | `red_plum` | summer | three green plums (maesil) | `discovery/green_plums.svg` |
   | `yuzu` | winter | a yuzu with a leaf | `discovery/yuzu_fruit.svg` |
-- The oak joins the list because its summer and autumn art carries acorns. The persimmon's winter art keeps a few fruit too; it drops only in autumn, one harvest a tree.
-- No basket, no count, no reward: as for the burr, picking up fruit is a gesture and a line.
-- Fruit falls from the lower edge of its tree's crown (a quarter of the drawn tree's height above its foot, `fruitFall`, set as `--fall`) in 1 s: faster as it goes, turning upright, then one small lift (a tenth of its own height), a slight rock and rest, while its shade gathers under it. No squash, no stretch, nothing below the ground; with reduced motion it is simply there.
-- Picking fruit up is not a dig: no soil, no dirt, no shovel. The friend walks to stand beside the fruit; the fruit rises toward its paws and fades in 600 ms (`FRUIT_LIFT_MS`, `--lift-x`, `--lift-y`) while the friend plays its own `discover` pose (the "found it" after a treasure or a catch) or, with none, the `jump` row every pet has; then it says its line. With reduced motion the fruit simply goes. Spring shoots still dig.
+
+- The persimmon's winter art keeps a few fruit too; it drops only in autumn, one harvest a tree.
+- The webview's storage key `fallen-fruit`: `{ picked, out }`. Not in `state.json`.
+  - `picked`: tree kind → the last local day of its first pick.
+  - `out`: the fruit lying, each `{ id, tree, world, x, y, treeX, treeY, at }`; `treeX` and `treeY` are where its tree stood when it dropped.
+  - The wait for the next fruit is not stored: a start waits the first wait again.
+- Strings in all four languages: each fruit's title, the no-friend hint, and the line lists.
+- Drawings are packed from `assets/discovery/*-source.png` (`assets/discovery/ART-SOURCES.json`).
+
+## Code
+
+- `src/yard/tree-moment-rules.js`: pure rules (when a moment is on, which trees, when fruit is due, where it lands, how far it falls, what stays, the stored record, the day's first pick).
+- `src/yard/tree-moments.js`: visits; its frame-loop tick returns at once while no visit tree is on.
+- `src/yard/fallen-fruit.js`: drops, draws and picks up fruit; checked with the scene's repaint (`fruitMinute`), never in the frame loop.
+- `src/render.js` redraws fruit and looks the moments up when the garden, place, season or limits change; `src/app.js` does it with each scene repaint, a place change, a new land and a new size.
+- `src/yard/planted-trees.js` `treeBox`: the drawn size of a tree, shared by fruit falls and visits.
+
+## Considered and dropped
+
+- Gusts of petals off a crown (the fringe tree in spring, the red plum in winter), and a petal landing on a friend's head: the yard's own spring petals already fall, a second fall from one tree was easy to stop noticing, and a white petal on a friend under white blossom was close to invisible.
