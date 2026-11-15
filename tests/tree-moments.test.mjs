@@ -144,7 +144,10 @@ test('the first look only sets when fruit drops; then one drops now and then und
   assert.equal(none.tree, null);
   assert.equal(none.kept.next, T + FRUIT_FIRST[0] + FRUIT_EVERY[0]);
   // Fruit lying in another place takes no room here.
-  const elsewhere = { ...first.kept, out: ['1', '2', '3'].map(id => fallen(id, 'c', 0.5, 0.35, { world: 'lakeside' })) };
+  const elsewhere = {
+    ...first.kept,
+    out: ['1', '2', '3'].map(id => fallen(id, 'c', 0.5, 0.35, { world: 'lakeside' })),
+  };
   assert.equal(fruitDue(elsewhere, trees, T + FRUIT_FIRST[0], seq(0), 'woodland').tree.id, 'a');
   // Night, rain or another season forgets the wait, so the first wait comes again.
   assert.deepEqual(fruitDue(none.kept, [], T + FRUIT_FIRST[0] + 1, seq(0), 'woodland').kept, { ...none.kept, next: 0 });

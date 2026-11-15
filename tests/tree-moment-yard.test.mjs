@@ -429,7 +429,9 @@ test('a tree moved even a little takes its fallen fruit along', async ctx => {
 });
 
 test('at most two fruit lie under a tree, and none drop at night, but those there stay', async ctx => {
-  const y = await fruitYard(ctx, { stored: record([lyingFruit('1'), lyingFruit('2', 0.46, 0.34)], { next: AUTUMN - 1 }) });
+  const y = await fruitYard(ctx, {
+    stored: record([lyingFruit('1'), lyingFruit('2', 0.46, 0.34)], { next: AUTUMN - 1 }),
+  });
   fruitMinute();
   assert.equal(y.live().length, 2, 'a third waits for room');
   assert.equal(y.saved().out.length, 2);
@@ -652,9 +654,15 @@ test('the yard wires the moments in with the sky, the garden and the frame loop'
   // through each repaint of the scene (above), and a drop or a pick redraws the fruit itself.
   const trees = render.match(/if \(changed\('trees', [^\n]*\) \{\n([\s\S]*?)\n {2}\}/);
   assert.ok(trees, 'the garden-change block');
-  assert.match(trees[0], /changed\('trees', `\$\{scene\.world\}\|\$\{scene\.season\}\|[^`]*data\.limits[^`]*\$\{garden\}`\)/);
+  assert.match(
+    trees[0],
+    /changed\('trees', `\$\{scene\.world\}\|\$\{scene\.season\}\|[^`]*data\.limits[^`]*\$\{garden\}`\)/,
+  );
   assert.deepEqual(
-    trees[1].split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('//')),
+    trees[1]
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line && !line.startsWith('//')),
     ['renderTrees();', 'renderFruit();', 'syncTreeMoments();'],
   );
   assert.equal(render.split('renderFruit();').length, 2, 'drawn nowhere else in render');
