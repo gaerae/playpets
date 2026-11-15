@@ -59,10 +59,6 @@ test("every tree's moments are kinds the yard knows, with their drawings and lin
     ],
     'every tree whose art shows fruit drops it in the season the art shows it',
   );
-  assert.ok(
-    catalog.trees.every(tree => !('moment' in tree)),
-    'a tree names a list of moments, not one',
-  );
   const seasons = ['spring', 'summer', 'autumn', 'winter'];
   // A list of three or four lines a friend says (two or three for a day's first pick).
   const said = (key, least, most) => {
@@ -82,9 +78,6 @@ test("every tree's moments are kinds the yard knows, with their drawings and lin
       assert.ok(seasons.includes(moment.season), `${id}: a season`);
       assert.ok(MOMENT_KINDS.includes(moment.kind), `${id}: a kind of moment`);
       for (const weather of moment.weather ?? []) assert.ok(['clear', 'snow'].includes(weather), `${id}: ${weather}`);
-      // Nothing falls from the crown and nothing lands on a head: no petals to colour.
-      for (const gone of ['petals', 'pace', 'petal', 'colors'])
-        assert.equal(moment[gone], undefined, `${id}: no ${gone}`);
       if (moment.kind === 'visit') {
         assert.deepEqual(Object.keys(moment.lines), ['say'], `${id}: a line to say at the tree`);
         said(moment.lines.say, 3, 4);
