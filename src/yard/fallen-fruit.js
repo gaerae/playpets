@@ -180,11 +180,14 @@ function update(v, fruit) {
 export function renderFruit() {
   const lying = here(Date.now());
   reconcile(shown, lying, create, update);
-  for (const [id, { v, end }] of picks)
-    if (!lying.some(f => f.id === id)) {
-      if (v.doing?.end === end || v.trip?.cancel === end) release(v);
-      else end();
-    }
+  for (const [id, task] of picks) if (!lying.some(f => f.id === id)) letGo(task);
+}
+
+// Ends a pick: the friend is let go while the pick is still what it is doing, else (something else
+// took it over) only the pick ends.
+function letGo({ v, end }) {
+  if (v.doing?.end === end || v.trip?.cancel === end) release(v);
+  else end();
 }
 
 // Whether fruit still lies where it was.
@@ -195,7 +198,7 @@ const mark = (id, on) => shown.get(id)?.button.classList.toggle('picking', on);
 /** Ends every pick a friend is on its way to or at (a new window size or land): the friend is let go
  * and the fruit stays. */
 export function cancelFruitPicks() {
-  for (const { v, end } of picks.values()) if (v.doing?.end === end || v.trip?.cancel === end) release(v);
+  for (const task of picks.values()) letGo(task);
 }
 
 /** Sends a friend to pick up the fallen fruit `id`: the selected friend when it is free, else the

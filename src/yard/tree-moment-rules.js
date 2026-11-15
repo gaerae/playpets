@@ -4,11 +4,11 @@
 // its foot (a chestnut's burr, a persimmon, a fig). The page runs them (tree-moments.js,
 // fallen-fruit.js); what is decided here takes the time, the random draws and the ground as
 // arguments.
-import { between } from '../core/math.js';
+import { between, distance, pick } from '../core/math.js';
 import { treeKind } from './catalog.js';
 import { yardSeason } from './decor-shown.js';
 import { behind, freeSpot, treeStage } from './discovery-rules.js';
-import { underBody } from './shoot-rules.js';
+import { underBody, unit } from './shoot-rules.js';
 
 /** What a moment may be, and the weather it keeps when it names none. */
 export const MOMENT_KINDS = Object.freeze(['visit', 'harvest']);
@@ -77,7 +77,7 @@ export function fruitDue(kept, trees, now, rng, world) {
     room =
       here.length < FRUIT_OUT ? trees.filter(tree => here.filter(f => f.tree === tree.id).length < FRUIT_PER_TREE) : [],
     next = { ...kept, next: now + between(rng, FRUIT_EVERY) };
-  return { kept: next, tree: room.length ? room[Math.min(room.length - 1, Math.floor(rng() * room.length))] : null };
+  return { kept: next, tree: room.length ? pick(room, rng) : null };
 }
 
 /** A spot at `tree`'s foot for fruit `width` drawing pixels wide: on free ground in front of the
@@ -93,10 +93,7 @@ export function fruitSpot(rng, ground, tree, near, width = 0) {
       x: [tree.x - FRUIT_SIDE * ux, tree.x + FRUIT_SIDE * ux],
       y: [tree.y + FRUIT_FRONT[0] * uy, tree.y + FRUIT_FRONT[1] * uy],
     },
-    p =>
-      !behind(p, ground) &&
-      !underBody(p, width, ground) &&
-      near.every(n => Math.hypot(p.x - n.x, p.y - n.y) >= FRUIT_APART),
+    p => !behind(p, ground) && !underBody(p, width, ground) && near.every(n => distance(p, n) >= FRUIT_APART),
   );
 }
 
@@ -137,7 +134,6 @@ export function fruitStays(out, { trees, season, now, limits }) {
   });
 }
 
-const unit = n => Number.isFinite(n) && n >= 0 && n <= 1;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 
 /** Reads the webview's stored record back ({ picked, out }), keeping only what makes sense, and no

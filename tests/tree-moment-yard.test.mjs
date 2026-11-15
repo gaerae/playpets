@@ -20,7 +20,8 @@ const { fieldToYard, measureYard } = await import('../src/yard/field.js');
 const { scene } = await import('../src/yard/world.js');
 const { forPerson, release, sendTo } = await import('../src/yard/trips.js');
 const { bubble, place, syncViews } = await import('../src/yard/views.js');
-const { setupTreeMoments, syncTreeMoments, treeMomentTick } = await import('../src/yard/tree-moments.js');
+const { cancelTreeVisit, setupTreeMoments, syncTreeMoments, treeMomentTick } =
+  await import('../src/yard/tree-moments.js');
 const { FRUIT_FIRST, fruitFall, harvestOf } = await import('../src/yard/tree-moment-rules.js');
 const { treeBox } = await import('../src/yard/planted-trees.js');
 const { drawYard } = await import('./support/yard.mjs');
@@ -241,6 +242,39 @@ test('a garden change that leaves the plum where it stands lets the visit go on'
   syncTreeMoments();
   assert.ok(v.button.classList.contains('looking-up'));
   assert.equal(v.visiting, true);
+});
+
+test('a visit under way when its hour or weather ends finishes gently, and no new one starts', t => {
+  const plum = grown('r', 'red_plum', 0.5, 0.3),
+    y = yard(t, { garden: { trees: [plum] }, pets: 1, values: { ...spring, season: 'winter' } }),
+    [v] = y.views();
+  y.run(3 * 60_000 + 2000);
+  arrive(v);
+  scene.period = 'night';
+  syncTreeMoments();
+  assert.ok(v.button.classList.contains('looking-up'), 'it keeps looking up');
+  assert.equal(v.visiting, true);
+  y.run(6000);
+  assert.equal(v.button.classList.contains('looking-up'), false, 'then goes on its way');
+  assert.equal(v.visiting, false);
+  y.run(10 * 60_000);
+  assert.equal(v.visiting, false, 'no visit at night');
+});
+
+test('a new window size or land ends a visit, on the way or at the tree', async t => {
+  for (const arrived of [false, true])
+    await t.test(arrived ? 'at the tree' : 'on the way', s => {
+      const plum = grown('r', 'red_plum', 0.5, 0.3),
+        y = yard(s, { garden: { trees: [plum] }, pets: 1, values: { ...spring, season: 'winter' } }),
+        [v] = y.views();
+      y.run(3 * 60_000 + 2000);
+      if (arrived) arrive(v);
+      cancelTreeVisit();
+      assert.equal(v.visiting, false);
+      assert.equal(v.target, null, 'not walking to where the tree was drawn');
+      assert.equal(v.button.classList.contains('looking-up'), false);
+      assert.equal(v.button.dataset.tilt, undefined);
+    });
 });
 
 test('a friend at the plum, or on its way, gives way to what the person asks', t => {
@@ -617,6 +651,17 @@ test('a friend on its way to fruit that is no longer there is let go at once', a
   assert.equal(y.v.bubble.textContent ?? '', '', 'nothing said');
 });
 
+test('a pick whose friend was already taken by something else ends on a new size, and frees the yard', async ctx => {
+  const y = await pickYard(ctx);
+  y.click();
+  assert.ok(fruitPicking());
+  // Something else took the walk over without ending the pick.
+  y.v.trip = { cancel() {} };
+  cancelFruitPicks();
+  assert.equal(fruitPicking(), false, 'visits and flower viewing are not held back');
+  assert.equal(y.live()[0].classList.contains('picking'), false, 'and the fruit can be clicked again');
+});
+
 test('with no friend in the yard a click says who could pick it up', async ctx => {
   const y = await fruitYard(ctx, { stored: record([lyingFruit('1')]) });
   fruitMinute();
@@ -644,7 +689,9 @@ test('the yard wires the moments in with the sky, the garden and the frame loop'
     assert.ok(body.indexOf('renderFruit();') > body.indexOf('renderTrees();'), hook);
     if (hook !== 'worldChanged') {
       assert.ok(body.includes('cancelFruitPicks();'), hook);
-      // A visit works out the tree's crown when it starts, so a new size or land has nothing to look up.
+      // A visit's walk and look were worked out in yard pixels: a new size or land ends it, and has
+      // nothing else to look up.
+      assert.ok(body.includes('cancelTreeVisit();'), hook);
       assert.ok(!body.includes('syncTreeMoments();'), hook);
     }
   }
@@ -658,13 +705,9 @@ test('the yard wires the moments in with the sky, the garden and the frame loop'
     trees[0],
     /changed\('trees', `\$\{scene\.world\}\|\$\{scene\.season\}\|[^`]*data\.limits[^`]*\$\{garden\}`\)/,
   );
-  assert.deepEqual(
-    trees[1]
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line && !line.startsWith('//')),
-    ['renderTrees();', 'renderFruit();', 'syncTreeMoments();'],
-  );
+  const block = trees[1];
+  assert.ok(block.indexOf('renderFruit();') > block.indexOf('renderTrees();'), 'after the trees they lie under');
+  assert.ok(block.includes('syncTreeMoments();'));
   assert.equal(render.split('renderFruit();').length, 2, 'drawn nowhere else in render');
   assert.equal(render.split('syncTreeMoments();').length, 2);
 });

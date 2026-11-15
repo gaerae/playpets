@@ -90,7 +90,7 @@ import { resizeSnowman, setupSnowman, showsWinter, snowmanTick } from './yard/sn
 import { cue, setupSound, soundSeen } from './yard/sound.js';
 import { setupTouches } from './yard/touches.js';
 import { resizeTrails, setupTrails, trailsCheck, trailsSeen } from './yard/trails.js';
-import { setupTreeMoments, syncTreeMoments, treeMomentTick } from './yard/tree-moments.js';
+import { cancelTreeVisit, setupTreeMoments, syncTreeMoments, treeMomentTick } from './yard/tree-moments.js';
 import { release } from './yard/trips.js';
 import { setupViewing, viewing, viewingTick } from './yard/viewing.js';
 import { bubble, place, setupViews, syncView, syncViews } from './yard/views.js';
@@ -254,6 +254,7 @@ setupSky({
     cancelDiscoveryWork();
     cancelShootDigs();
     cancelFruitPicks();
+    cancelTreeVisit();
     endFishing();
     for (const v of views.values()) place(v);
     resizeTrails();
@@ -292,6 +293,7 @@ setupViews({
     cancelDiscoveryWork();
     cancelShootDigs();
     cancelFruitPicks();
+    cancelTreeVisit();
     refitFishing();
     scenery.resize();
     resizeTrail();

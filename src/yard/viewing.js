@@ -112,11 +112,12 @@ function callFriends() {
 /** Whether friends are viewing the blossom now. */
 export const viewing = () => !!gathering;
 
-// Nothing the person started that a gathering would call friends away from.
-const busy = () => !!game || !!aiming || fishingNow() || digging() || shootDigging() || fruitPicking();
-// Friends free to come, a stroll let go of; when the friends start it, only those not busy with an
-// agent or a chat.
-const freeFriends = idle =>
+/** Whether the person started something in the yard that friends' own doings (a gathering, a visit
+ * to a tree) would call friends away from. */
+export const yardBusy = () => !!game || !!aiming || fishingNow() || digging() || shootDigging() || fruitPicking();
+/** Friends free to come, a stroll let go of; when the friends start it (`idle`), only those not busy
+ * with an agent or a chat. */
+export const freeFriends = idle =>
   [...views.values()].filter(v => (isFree(v) || strolling(v)) && (!idle || stateOf(data, v.pet.id) === 'idle'));
 
 /** Called by the frame loop beside the other yard life: now and then, in blossom time, friends who
@@ -125,7 +126,7 @@ export function viewingTick(now) {
   if (!calling?.due(now) || gathering || Math.random() >= GATHER_CHANCE || !viewingTime(scene)) return;
   const today = localDay(new Date()),
     free = freeFriends(true).length;
-  if (mayGather({ today, viewed: data.garden?.viewed ?? '', free, busy: busy() })) startViewing('friends');
+  if (mayGather({ today, viewed: data.garden?.viewed ?? '', free, busy: yardBusy() })) startViewing('friends');
 }
 
 // The spot in yard pixels: its foot (x, y) and the size it is drawn at (w, h).

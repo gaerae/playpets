@@ -6,23 +6,18 @@
 //   a line, then goes back to its own doings.
 // - The trees whose moment is on are looked up when the scene is painted or the garden changes
 //   (syncTreeMoments); the frame loop's tick does nothing while there are none. A tree's crown is
-//   worked out when a visit starts, so a new size or land needs no new look.
+//   worked out when a visit starts; a new size or land ends a visit under way (cancelTreeVisit).
 // - Nothing is saved: no counts, no rewards, as for flower viewing.
 
 import { list } from '../core/i18n.js';
 import { between, pick } from '../core/math.js';
-import { aiming, data, game, views } from '../core/state.js';
-import { stateOf } from '../core/status.js';
+import { data, game } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
-import { fishingNow } from './catch.js';
-import { digging } from './discovery.js';
-import { fruitPicking } from './fallen-fruit.js';
 import { fieldToYard, footOf, footTarget, petHeight, sizeOf } from './field.js';
 import { treeBox } from './planted-trees.js';
-import { shootDigging } from './shoots.js';
 import { momentTrees, visitX } from './tree-moment-rules.js';
-import { isFree, release, rest, sendTo, setDoing, strolling } from './trips.js';
-import { viewing } from './viewing.js';
+import { release, rest, sendTo, setDoing } from './trips.js';
+import { freeFriends, viewing, yardBusy } from './viewing.js';
 import { bubble, gaze } from './views.js';
 import { scene } from './world.js';
 
@@ -60,13 +55,19 @@ function crownOf(tree) {
 }
 
 /** Looks up the trees whose visit moment is on, with the scene's repaint and a garden change. A
- * friend visiting a tree that has gone, moved or left its moment is let go, so it never stands
- * looking up where the tree no longer is. */
+ * friend visiting a tree that has gone or moved is let go, so it never stands looking up where the
+ * tree no longer is; a visit whose hour or weather ends only finishes in its own time. */
 export function syncTreeMoments() {
   live = momentTrees(data.garden?.trees, scene, Date.now(), data.limits).filter(tree => tree.moment.kind === 'visit');
   if (!visitor) return;
   const { v, tree } = visitor;
-  if (!live.some(each => each.id === tree.id && each.x === tree.x && each.y === tree.y)) release(v);
+  if (!data.garden?.trees?.some(each => each.id === tree.id && each.x === tree.x && each.y === tree.y)) release(v);
+}
+
+/** Ends a visit on its way or at the tree (a new window size or land): its walk and look were worked
+ * out in yard pixels. */
+export function cancelTreeVisit() {
+  if (visitor) release(visitor.v);
 }
 
 /** Called by the frame loop beside the other yard life: now and then a visit. */
@@ -78,9 +79,8 @@ export function treeMomentTick(now) {
 // A tree's moment is still on.
 const on = id => live.some(tree => tree.id === id);
 
-// Nothing the person started that a visit would get in the way of.
-const busy = () =>
-  !!game || !!aiming || fishingNow() || digging() || shootDigging() || fruitPicking() || viewing() || !!visitor;
+// Nothing the person started that a visit would get in the way of, no gathering, no visit already on.
+const busy = () => yardBusy() || viewing() || !!visitor;
 
 // A free friend with nothing on walks to a tree with a visit line, to the side nearer it. One only
 // strolling counts as free, as for flower viewing: friends stroll most of the time, and the visit
@@ -88,7 +88,7 @@ const busy = () =>
 // is on its way, and whatever takes it there ends the visit (leave).
 function visit() {
   if (!live.length || busy()) return;
-  const free = [...views.values()].filter(v => (isFree(v) || strolling(v)) && stateOf(data, v.pet.id) === 'idle');
+  const free = freeFriends(true);
   if (!free.length) return;
   const tree = pick(live),
     v = pick(free),
@@ -108,6 +108,7 @@ function visit() {
 
 // At the tree: it faces the blossom and looks up, says a line, and after a while goes on its way.
 function smell(v, tree, side) {
+  // Its hour or weather ended on the way, or a game began: nothing to look up at.
   if (visitor?.v !== v || !on(tree.id) || game) return leave(v);
   // The walk is over (motion.js lets go of the trip before it calls arrive), so setDoing ends nothing
   // and the friend is still `visiting`.
