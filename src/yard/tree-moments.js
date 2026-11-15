@@ -39,7 +39,8 @@ const LINE_RETRY = 400;
 let live = [];
 // When a friend next thinks of visiting a tree.
 let visiting = cadence(() => between(Math.random, VISIT_EVERY));
-// The friend visiting a tree, on its way or there: { v, timers }, or null.
+// The friend visiting a tree, on its way or there, and the tree as it stood when the visit began:
+// { v, timers, tree }, or null.
 let visitor = null;
 const VISIT = { end: v => leave(v) };
 
@@ -58,9 +59,14 @@ function crownOf(tree) {
   return { x: foot.x, width: width * 0.8, foot: foot.y, zoom };
 }
 
-/** Looks up the trees whose visit moment is on, with the scene's repaint and a garden change. */
+/** Looks up the trees whose visit moment is on, with the scene's repaint and a garden change. A
+ * friend visiting a tree that has gone, moved or left its moment is let go, so it never stands
+ * looking up where the tree no longer is. */
 export function syncTreeMoments() {
   live = momentTrees(data.garden?.trees, scene, Date.now(), data.limits).filter(tree => tree.moment.kind === 'visit');
+  if (!visitor) return;
+  const { v, tree } = visitor;
+  if (!live.some(each => each.id === tree.id && each.x === tree.x && each.y === tree.y)) release(v);
 }
 
 /** Called by the frame loop beside the other yard life: now and then a visit. */
@@ -95,7 +101,7 @@ function visit() {
     arrive: () => smell(v, tree, side),
     cancel: () => leave(v),
   });
-  visitor = { v, timers: new Set() };
+  visitor = { v, timers: new Set(), tree };
   // What the person asks of it comes first (trips.js forPerson).
   v.visiting = true;
 }
