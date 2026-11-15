@@ -122,6 +122,11 @@ const scenario = `(async()=>{
   // resize to the next frame, not a fault in the page, so it is not counted.
   let pageError='';window.addEventListener('error',e=>{if(!pageError&&!String(e.message).startsWith('ResizeObserver loop'))pageError=e.message+' @'+(e.filename||'').split('/').pop()+':'+e.lineno;});
   try{
+    // The scenario is run a fixed time after the page starts loading, which on a slow machine can be
+    // before the page's modules have finished (the string tables load first): a module imported from
+    // here then meets one still waiting. The page's windowReady, sent once everything is set up, is the
+    // start. The window shown by the page and not by the wait is checked below.
+    const startWindow=await until(async()=>{const w=(await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main']})).data;return w?.visible&&w.firstShow?w:null;},20000);
     const boot=await playPets.bootstrap();
     // The run stays quiet: the yard sounds are on by default (a unit test checks that), so they go off first.
     const soundDefault=boot.data.sound;await playPets.setSound(false,null);
@@ -136,7 +141,6 @@ const scenario = `(async()=>{
     await L('communities='+boot.data.communities.length);
     // The window, made hidden while its page loads, is shown by the page's windowReady, not by the
     // wait (longer in an e2e run than any start takes), nor by front() above; the page starts as seen.
-    const startWindow=await until(async()=>{const w=(await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main']})).data;return w?.visible&&w.firstShow?w:null;});
     await L('windowStart='+(startWindow?.firstShow==='page'&&boot.data.windowShown===true?'page':'err:'+startWindow?.firstShow+'/'+boot.data.windowShown));
     // The shelf says where each pet file lives: the fixture sits in Codex's pet folder.
     const fx=boot.data.assets.find(x=>x.displayName==='Fixture');
