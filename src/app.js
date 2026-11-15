@@ -196,6 +196,23 @@ setupTrails({
 setupShoots();
 setupFruit();
 setupTreeMoments();
+// A new window size or land: the work friends were sent to do (a dig, a spring shoot, fallen fruit, a
+// visit to a tree) was worked out in yard pixels, so it ends, and each friend is let go where it is.
+function cancelYardWork() {
+  cancelDiscoveryWork();
+  cancelShootDigs();
+  cancelFruitPicks();
+  cancelTreeVisit();
+}
+// What stands on the ground, drawn again where the yard now puts it: the garden, the gifts, the spring
+// shoots, the trees, and the fruit after the trees it lies under.
+function redrawGround() {
+  renderGarden();
+  renderDecor();
+  renderShoots();
+  renderTrees();
+  renderFruit();
+}
 // December's question about the winter yard, checked at each repaint of the scene.
 const winterCheck = setupWinter({ choice: chosenSeason, show: showSeason, visible: () => shown && !document.hidden });
 // The year-end letter, written and brought while the yard is seen (letter.js).
@@ -238,11 +255,7 @@ setupSky({
     }
     enter();
     syncViews();
-    renderGarden();
-    renderDecor();
-    renderShoots();
-    renderTrees();
-    renderFruit();
+    redrawGround();
     syncTreeMoments();
     syncDiscovery();
     hint();
@@ -251,18 +264,11 @@ setupSky({
   // be loaded): the field may begin at another height (field.js fieldTop), so the fishing ends and
   // the friends, the garden and the gifts stand again on the land that shows.
   landChanged: () => {
-    cancelDiscoveryWork();
-    cancelShootDigs();
-    cancelFruitPicks();
-    cancelTreeVisit();
+    cancelYardWork();
     endFishing();
     for (const v of views.values()) place(v);
     resizeTrails();
-    renderGarden();
-    renderDecor();
-    renderShoots();
-    renderTrees();
-    renderFruit();
+    redrawGround();
   },
 });
 // Hidden for a while, the yard lets go of its paintings and is not drawn; seen again, it is painted
@@ -290,20 +296,13 @@ setupViews({
   openChat,
   friendMenu: openFriendMenu,
   resized: () => {
-    cancelDiscoveryWork();
-    cancelShootDigs();
-    cancelFruitPicks();
-    cancelTreeVisit();
+    cancelYardWork();
     refitFishing();
     scenery.resize();
     resizeTrail();
     resizeSnowman();
     resizeTrails();
-    renderGarden();
-    renderDecor();
-    renderShoots();
-    renderTrees();
-    renderFruit();
+    redrawGround();
   },
 });
 setupPlay();

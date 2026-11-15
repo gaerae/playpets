@@ -689,17 +689,33 @@ test('the yard wires the moments in with the sky, the garden and the frame loop'
   const minute = app.indexOf('fruitMinute();');
   assert.ok(minute > app.indexOf('shootsMinute();') && minute < app.indexOf('seasonPicked'), 'each repaint looks');
   assert.ok(app.indexOf('syncTreeMoments();') < app.indexOf('seasonPicked'));
+  // The ground is drawn again in one helper, the fruit after the trees it lies under, and the work
+  // friends were sent to in yard pixels ends in another.
+  const helper = name => {
+    const from = app.indexOf(`function ${name}() {`);
+    return app.slice(from, app.indexOf('\n}', from));
+  };
+  const ground = helper('redrawGround'),
+    work = helper('cancelYardWork');
+  for (const step of ['renderGarden();', 'renderDecor();', 'renderShoots();', 'renderTrees();', 'renderFruit();'])
+    assert.ok(ground.includes(step), step);
+  assert.ok(ground.indexOf('renderFruit();') > ground.indexOf('renderTrees();'));
+  for (const step of ['cancelDiscoveryWork();', 'cancelShootDigs();', 'cancelFruitPicks();', 'cancelTreeVisit();'])
+    assert.ok(work.includes(step), step);
   for (const hook of ['worldChanged', 'landChanged', 'resized']) {
     const from = app.indexOf(`${hook}:`),
-      body = app.slice(from, app.indexOf('},', app.indexOf('renderTrees();', from)) + 2);
-    assert.ok(body.indexOf('renderFruit();') > body.indexOf('renderTrees();'), hook);
+      body = app.slice(from, app.indexOf('\n  },', from));
+    assert.ok(body.includes('redrawGround();'), hook);
+    assert.ok(!body.includes('renderFruit();'), `${hook} draws the ground through redrawGround`);
     if (hook !== 'worldChanged') {
-      assert.ok(body.includes('cancelFruitPicks();'), hook);
       // A visit's walk and look were worked out in yard pixels: a new size or land ends it, and has
       // nothing else to look up.
-      assert.ok(body.includes('cancelTreeVisit();'), hook);
+      assert.ok(
+        body.indexOf('cancelYardWork();') >= 0 && body.indexOf('cancelYardWork();') < body.indexOf('redrawGround();'),
+        hook,
+      );
       assert.ok(!body.includes('syncTreeMoments();'), hook);
-    }
+    } else assert.ok(body.indexOf('syncTreeMoments();') > body.indexOf('redrawGround();'), hook);
   }
   assert.match(app, /const YARD_LIFE = \[[^\]]*treeMomentTick,/);
   // A state change redraws the fruit and looks the moments up only when what they stand on changed:

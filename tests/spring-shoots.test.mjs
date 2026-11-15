@@ -360,13 +360,22 @@ test('the yard wires the shoots in before the sky first paints, and draws them w
   const minute = app.indexOf('shootsMinute();'),
     shown = app.indexOf('refreshShownDecor();');
   assert.ok(minute > shown && minute < app.indexOf('seasonPicked'), 'each repaint looks at the shoots');
+  // Each hook draws the ground again (app.js redrawGround), and a new size or land ends the work under
+  // way (cancelYardWork).
+  const helper = name => {
+    const from = app.indexOf(`function ${name}() {`);
+    return app.slice(from, app.indexOf('\n}', from));
+  };
+  const ground = helper('redrawGround'),
+    work = helper('cancelYardWork');
+  assert.ok(ground.indexOf('renderShoots();') > ground.indexOf('renderDecor();'), 'drawn with the rest');
+  // A new size or land ends a dig under way, as it ends a dig for treasure.
+  assert.ok(work.indexOf('cancelShootDigs();') > work.indexOf('cancelDiscoveryWork();'));
   for (const hook of ['worldChanged', 'landChanged', 'resized']) {
     const from = app.indexOf(`${hook}:`),
-      body = app.slice(from, app.indexOf('},', app.indexOf('renderDecor();', from)) + 2);
-    assert.ok(body.indexOf('renderShoots();') > body.indexOf('renderDecor();'), hook);
-    // A new size or land ends a dig under way, as it ends a dig for treasure.
-    if (hook !== 'worldChanged')
-      assert.ok(body.indexOf('cancelShootDigs();') > body.indexOf('cancelDiscoveryWork();'), hook);
+      body = app.slice(from, app.indexOf('\n  },', from));
+    assert.ok(body.includes('redrawGround();'), hook);
+    if (hook !== 'worldChanged') assert.ok(body.includes('cancelYardWork();'), hook);
   }
   assert.ok(render.indexOf('renderShoots();') > render.indexOf('renderTrees();'), 'a state change redraws them');
 });
