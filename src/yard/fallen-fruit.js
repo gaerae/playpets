@@ -113,7 +113,7 @@ export function fruitMinute(now = new Date()) {
   if (seen()) next = drop(next, ms);
   if (next.out !== kept.out) save(next);
   kept = next;
-  renderFruit();
+  renderFruit(fruitHere(next.out, scene.world));
 }
 
 // The record after fruit that is due drops under a harvest tree in the place shown, if any is.
@@ -190,12 +190,12 @@ function update(v, fruit) {
   v.button.classList.toggle('picking', picks.has(fruit.id));
 }
 
-/** Draws the fallen fruit lying in this place, and lets go of a friend going for fruit that is no
- * longer there (its tree moved or pulled up, its time over), rather than on its arrival. */
-export function renderFruit() {
-  const lying = here(Date.now());
-  reconcile(shown, lying, create, update);
-  for (const [id, task] of picks) if (!lying.some(f => f.id === id)) letGo(task);
+/** Draws the fallen fruit lying in this place (`list`, when the caller has just worked it out), and
+ * lets go of a friend going for fruit that is no longer there (its tree moved or pulled up, its time
+ * over), rather than on its arrival. */
+export function renderFruit(list = here(Date.now())) {
+  reconcile(shown, list, create, update);
+  for (const [id, task] of picks) if (!list.some(f => f.id === id)) letGo(task);
 }
 
 // Ends a pick: the friend is let go while the pick is still what it is doing, else (something else
