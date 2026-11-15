@@ -29,7 +29,8 @@ import { scene } from './world.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 // The record: { next, picked, out }; null until setupBurrs has read it, so a look at the yard before
-// that (the sky's first paint) cannot write over the stored one.
+// that (the sky's first paint) cannot write over the stored one. Only `picked` and `out` are stored:
+// the wait starts again with each start.
 let kept = null;
 // The burrs dropped in this run and not drawn yet: only these fall as they come.
 const made = new Set();
@@ -52,6 +53,8 @@ export function setupBurrs() {
   kept = keptBurrs(recall('burrs'), Date.now());
 }
 
+// The record as stored.
+const save = ({ picked, out }) => remember('burrs', JSON.stringify({ picked, out }));
 // The kind of tree a burr lies under, and its moment.
 const kindUnder = burr => data.garden?.trees?.find(tree => tree.id === burr.tree)?.kind;
 const momentUnder = burr => momentOf(kindUnder(burr));
@@ -62,12 +65,12 @@ const lying = now => (kept ? burrsStay(kept.out, { trees: data.garden?.trees, sc
  * gone go, and one that is due drops. */
 export function burrsMinute(now = new Date()) {
   if (!kept) return;
-  const ms = now.getTime();
-  let next = { ...kept, out: lying(ms) },
-    changed = next.out.length !== kept.out.length;
+  const ms = now.getTime(),
+    still = lying(ms);
+  let next = { ...kept, out: still.length === kept.out.length ? kept.out : still };
   const trees = momentTrees(data.garden?.trees, scene, ms, data.limits).filter(tree => tree.moment.kind === 'harvest'),
     due = burrDue(next, trees, ms, Math.random);
-  if (due.kept !== next) [next, changed] = [due.kept, true];
+  next = due.kept;
   if (due.tree) {
     const ground = groundProfile(),
       spot = burrSpot(Math.random, ground, due.tree, next.out, due.tree.moment.size[0]);
@@ -77,8 +80,8 @@ export function burrsMinute(now = new Date()) {
       made.add(burr.id);
     }
   }
+  if (next.out !== kept.out) save(next);
   kept = next;
-  if (changed) remember('burrs', JSON.stringify(kept));
   for (const id of made) if (!kept.out.some(b => b.id === id)) made.delete(id);
   renderBurrs();
 }
@@ -174,7 +177,7 @@ export function pickBurr(id) {
         if (!ours() || !stillOut(id, world)) return release(v);
         const said = pickLine(kept, momentUnder(burr), localDay(new Date()));
         kept = { ...said.kept, out: said.kept.out.filter(b => b.id !== id) };
-        remember('burrs', JSON.stringify(kept));
+        save(kept);
         doneDigging(v, true);
         bubble(v, pick(list(said.key)), 2600);
         renderBurrs();

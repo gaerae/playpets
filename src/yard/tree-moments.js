@@ -32,8 +32,10 @@ import { viewing } from './viewing.js';
 import { bubble, gaze } from './views.js';
 import { scene, scenery } from './world.js';
 
-// The gusts are looked at about once a second.
+// The gusts are looked at about once a second; a longer gap between two looks means the yard was
+// not running (hidden, or a game), and each tree waits its first wait again.
 const CHECK_MS = 1000;
+const AWAY_MS = 5 * CHECK_MS;
 // A breeze this many yard pixels a millisecond sideways, either way.
 const WIND = [0.003, 0.007];
 // Now and then a petal of a gust lands on a friend under the crown, as the first petals reach it.
@@ -53,6 +55,7 @@ let live = [];
 // Each tree's gusts (tree-moment-rules.js stepGusts), and when they are next looked at.
 let plan = {};
 let checkAt = 0;
+let lookedAt = 0;
 // When a friend next thinks of visiting a tree.
 let visiting = cadence(() => between(Math.random, VISIT_EVERY));
 // The friend visiting a tree, on its way or there: { v, timers }, or null; and the waiting petal
@@ -66,6 +69,7 @@ export function setupTreeMoments() {
   live = [];
   plan = {};
   checkAt = 0;
+  lookedAt = 0;
   visiting = cadence(() => between(Math.random, VISIT_EVERY));
   clearTimeout(falling);
   falling = null;
@@ -88,18 +92,22 @@ function crownOf(tree) {
 }
 
 /** Looks up the drift trees whose moment is on, with the scene's repaint, a garden change and a new
- * layout. */
+ * layout. A tree whose moment went (night, rain, another season) leaves the plan, so it waits its
+ * first wait again when the moment comes back. */
 export function syncTreeMoments() {
   live = momentTrees(data.garden?.trees, scene, Date.now(), data.limits)
     .filter(tree => tree.moment.kind === 'drift')
     .map(tree => ({ ...tree, crown: crownOf(tree) }));
+  plan = Object.fromEntries(Object.entries(plan).filter(([id]) => on(id)));
 }
 
 /** Called by the frame loop beside the other yard life: the gusts, and now and then a visit. */
 export function treeMomentTick(now) {
   if (!live.length) return;
   if (now >= checkAt) {
+    if (now - lookedAt > AWAY_MS) plan = {};
     checkAt = now + CHECK_MS;
+    lookedAt = now;
     blow(now);
   }
   if (visiting.due(now) && Math.random() < VISIT_CHANCE) visit();

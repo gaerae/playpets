@@ -189,6 +189,8 @@ test('the first look only sets when a burr drops; then one drops now and then un
   const none = burrDue(yard, trees, T + BURR_FIRST[0], seq(0));
   assert.equal(none.tree, null);
   assert.equal(none.kept.next, T + BURR_FIRST[0] + BURR_EVERY[0]);
+  // Night, rain or another season forgets the wait, so the first wait comes again.
+  assert.deepEqual(burrDue(none.kept, [], T + BURR_FIRST[0] + 1, seq(0)).kept, { ...none.kept, next: 0 });
   assert.equal(BURRS_PER_TREE, 2);
   assert.equal(BURRS_OUT, 3);
 });
@@ -257,7 +259,7 @@ test('the stored burrs are read back, keeping only what makes sense', () => {
     }),
     T,
   );
-  assert.equal(read.next, T + 5);
+  assert.equal(read.next, 0, 'the wait is not kept: a start waits the first wait again');
   assert.equal(read.picked, '2027-10-05');
   assert.deepEqual(
     read.out.map(b => b.id),

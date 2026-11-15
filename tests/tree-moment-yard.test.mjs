@@ -82,6 +82,11 @@ function yard(t, { garden = {}, pets = 2, values = spring } = {}) {
     gusts,
     views: () => [...state.views.values()],
     clock: () => clock,
+    // Lets `ms` go by with no tick, as while the window is hidden.
+    skip(ms) {
+      clock += ms;
+      t.mock.timers.tick(ms);
+    },
     // Runs the yard's ticks a second at a time for `ms`.
     run(ms) {
       for (let at = 0; at < ms; at += 1000) {
@@ -118,6 +123,32 @@ test('a grown fringe tree in spring now and then sends a gust of its own white p
   assert.ok(gust.ms >= 8000 && gust.ms <= 12000);
   y.run(30_000);
   assert.equal(y.gusts.length, 1, 'and then the canvas rests a good while');
+});
+
+test('a gust waits its first wait again each time the moment comes back, or the yard is seen again', async t => {
+  for (const [name, away] of [
+    ['night', () => (scene.period = 'night')],
+    ['rain', () => (scene.weather = 'rain')],
+    ['a hidden spell', null],
+  ])
+    await t.test(name, s => {
+      const y = yard(s, { garden: { trees: [grown('f', 'fringe_tree', 0.5, 0.3)] } });
+      y.run(GUST_FIRST[0] + 1000);
+      assert.equal(y.gusts.length, 1);
+      // The next would be due about 54 s in; the moment is away until 60 s.
+      if (away) {
+        y.run(8000);
+        away();
+        syncTreeMoments();
+        y.run(45_000);
+        Object.assign(scene, spring);
+        syncTreeMoments();
+      } else y.skip(53_000);
+      y.run(GUST_FIRST[0] - 1000);
+      assert.equal(y.gusts.length, 1, 'not at once on its return');
+      y.run(2000);
+      assert.equal(y.gusts.length, 2, 'but after its first wait');
+    });
 });
 
 test('no gust at night, in rain, in another season, or under a tree still growing', async t => {
@@ -340,8 +371,11 @@ test('a grown chestnut in autumn drops a burr at its foot now and then, drawn as
   const y = await burrYard(ctx);
   burrsMinute();
   assert.equal(y.live().length, 0, 'the first look only sets the wait');
-  assert.equal(y.saved().next, AUTUMN + BURR_FIRST[0] + 0.5 * (BURR_FIRST[1] - BURR_FIRST[0]));
-  ctx.mock.timers.tick(BURR_FIRST[1]);
+  // 0.5 of the way through the first wait.
+  ctx.mock.timers.tick((BURR_FIRST[0] + BURR_FIRST[1]) / 2 - 1);
+  burrsMinute();
+  assert.equal(y.live().length, 0, 'not before it is due');
+  ctx.mock.timers.tick(1);
   burrsMinute();
   const [button, ...more] = y.live();
   assert.equal(more.length, 0);
@@ -362,6 +396,23 @@ test('a grown chestnut in autumn drops a burr at its foot now and then, drawn as
   renderBurrs();
   const [again] = y.live();
   assert.ok(!again.classList.contains('dropped'));
+});
+
+test('the first wait comes again each time the harvest comes back, and at each start', async ctx => {
+  const y = await burrYard(ctx, { stored: record([], { next: AUTUMN - 1 }) });
+  burrsMinute();
+  assert.equal(y.live().length, 0, 'a start waits first, whatever was stored');
+  ctx.mock.timers.tick(BURR_FIRST[0] - 1000);
+  scene.period = 'night';
+  burrsMinute();
+  ctx.mock.timers.tick(10 * 60_000);
+  burrsMinute();
+  scene.period = 'day';
+  burrsMinute();
+  assert.equal(y.live().length, 0, 'a new morning waits first too');
+  ctx.mock.timers.tick(BURR_FIRST[1]);
+  burrsMinute();
+  assert.equal(y.live().length, 1, 'and then one drops');
 });
 
 test('at most two burrs lie under a tree, and none drop at night, but those there stay', async ctx => {

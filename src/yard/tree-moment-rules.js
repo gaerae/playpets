@@ -167,11 +167,12 @@ const BURR_FRONT = [5, 26];
  * Whether a burr drops at this look at the yard, and under which tree. `kept` is the record
  * ({ next, picked, out }); `trees` the harvest trees whose moment is on. The first look with such a
  * tree only sets when the first burr is due; then a due drop goes under a tree with room (fewer than
- * BURRS_PER_TREE under it, fewer than BURRS_OUT in the yard), and the next is set either way. Returns
- * a new record and the tree (null for none).
+ * BURRS_PER_TREE under it, fewer than BURRS_OUT in the yard), and the next is set either way. A look
+ * with none (night, rain, another season) forgets the wait, so the first wait comes again each time
+ * the harvest does. Returns a new record and the tree (null for none).
  */
 export function burrDue(kept, trees, now, rng) {
-  if (!trees.length) return { kept, tree: null };
+  if (!trees.length) return { kept: kept.next ? { ...kept, next: 0 } : kept, tree: null };
   if (!kept.next) return { kept: { ...kept, next: now + between(rng, BURR_FIRST) }, tree: null };
   if (now < kept.next) return { kept, tree: null };
   const room =
@@ -231,7 +232,8 @@ export function burrsStay(out, { trees, scene, now, limits }) {
 const unit = n => Number.isFinite(n) && n >= 0 && n <= 1;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 
-/** Reads the webview's stored record back, keeping only what makes sense. */
+/** Reads the webview's stored record back, keeping only what makes sense. The wait for the next
+ * burr is not kept: a start waits the first wait again. */
 export function keptBurrs(text, now) {
   let saved = null;
   try {
@@ -255,7 +257,7 @@ export function keptBurrs(text, now) {
     return ok;
   });
   return {
-    next: Number.isFinite(saved.next) && saved.next > 0 ? saved.next : 0,
+    next: 0,
     picked: typeof saved.picked === 'string' && DAY.test(saved.picked) ? saved.picked : '',
     out: good.slice(0, BURRS_OUT).map(({ id, tree, world, x, y, at }) => ({ id, tree, world, x, y, at })),
   };
