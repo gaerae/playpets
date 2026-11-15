@@ -206,8 +206,8 @@ setupSky({
     refreshShownDecor();
     // Spring shoots come up after rain and on fair mornings, and go after a few hours.
     shootsMinute();
-    // A grown tree's moment comes and goes with the season, the hour and the weather: its gusts of
-    // petals, and the fruit a fruit tree drops.
+    // A grown tree's moment comes and goes with the season, the hour and the weather: petals on
+    // heads, visits, and the fruit a fruit tree drops.
     syncTreeMoments();
     fruitMinute();
     winterCheck();

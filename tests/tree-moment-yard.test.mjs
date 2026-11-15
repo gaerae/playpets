@@ -1,5 +1,5 @@
-// Tree moments in the yard: a grown fringe tree's gusts and the petals they leave on heads, a red
-// plum's visits (src/yard/tree-moments.js), and the burrs a chestnut drops and friends pick up
+// Tree moments in the yard: the petals a grown fringe tree leaves on heads, a red plum's visits
+// (src/yard/tree-moments.js), and the fruit a fruit tree drops and friends pick up
 // (src/yard/fallen-fruit.js). The rules are tested in tree-moments.test.mjs; here the page runs them with
 // the clock, the random draws and the scene the test holds.
 import assert from 'node:assert/strict';
@@ -18,12 +18,12 @@ const { reduced } = await import('../src/core/sprites.js');
 const { element, installDom, keepGlobals } = await import('./support/dom.mjs');
 const { artHref } = await import('../src/yard/art.js');
 const { fieldToYard, footOf, measureYard } = await import('../src/yard/field.js');
-const { scene, setScenery } = await import('../src/yard/world.js');
+const { scene } = await import('../src/yard/world.js');
 const { forPerson, release, sendTo } = await import('../src/yard/trips.js');
 const { bubble, place, syncViews } = await import('../src/yard/views.js');
 const { petalTick, setupPetals } = await import('../src/yard/petals.js');
 const { setupTreeMoments, syncTreeMoments, treeMomentTick } = await import('../src/yard/tree-moments.js');
-const { FRUIT_FIRST, GUST_FIRST, harvestOf, momentsOf } = await import('../src/yard/tree-moment-rules.js');
+const { FRUIT_FIRST, HEAD_PETAL_EVERY, harvestOf, momentsOf } = await import('../src/yard/tree-moment-rules.js');
 const { drawYard } = await import('./support/yard.mjs');
 const { fruitPicking, fruitMinute, pickFruit, renderFruit, setupFruit } = await import('../src/yard/fallen-fruit.js');
 
@@ -31,7 +31,7 @@ const spring = { world: 'woodland', season: 'spring', period: 'day', weather: 'c
 const grown = (id, kind, x, y) => ({ id, kind, world: 'woodland', x, y, planted: 0, stage: 2 });
 
 // A yard of 1000 x 700 on April 20, 2027 at 10:00 local time, with friends drawn the way the page
-// draws them (views.js), a scenery that records the gusts it is sent, and a clock the test holds.
+// draws them (views.js), and a clock the test holds.
 function yard(t, { garden = {}, pets = 2, values = spring } = {}) {
   t.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: new Date(2027, 3, 20, 10).getTime() });
   let clock = 1000;
@@ -49,13 +49,6 @@ function yard(t, { garden = {}, pets = 2, values = spring } = {}) {
   Object.assign(scene, values);
   const motion = reduced.matches;
   reduced.matches = false;
-  const gusts = [];
-  setScenery({
-    drift: gust => {
-      gusts.push(gust);
-      return true;
-    },
-  });
   const previous = state.data;
   state.setData({
     pets: Array.from({ length: pets }, (_, i) => ({ id: `p${i}`, name: `p${i}`, size: 100, x: 0.2 + i * 0.5, y: 0.6 })),
@@ -74,19 +67,12 @@ function yard(t, { garden = {}, pets = 2, values = spring } = {}) {
     for (const v of state.views.values()) release(v);
     state.views.clear();
     state.setData(previous);
-    setScenery(null);
     Object.assign(scene, was);
     reduced.matches = motion;
   });
   return {
-    gusts,
     views: () => [...state.views.values()],
     clock: () => clock,
-    // Lets `ms` go by with no tick, as while the window is hidden.
-    skip(ms) {
-      clock += ms;
-      t.mock.timers.tick(ms);
-    },
     // Runs the yard's ticks a second at a time for `ms`.
     run(ms) {
       for (let at = 0; at < ms; at += 1000) {
@@ -105,53 +91,57 @@ function standAt(v, x, y) {
   v.py += y - foot.y;
 }
 
-test('a grown fringe tree in spring now and then sends a gust of its own white petals off its crown', t => {
+test('a friend standing under a grown fringe tree in spring now and then gets one of its white petals', t => {
   const fringe = grown('f', 'fringe_tree', 0.5, 0.3),
-    y = yard(t, { garden: { trees: [fringe] } });
-  y.run(GUST_FIRST[0] - 1000);
-  assert.equal(y.gusts.length, 0, 'it waits a little first');
-  y.run(2000);
-  assert.equal(y.gusts.length, 1);
-  const [gust] = y.gusts,
-    foot = fieldToYard(fringe),
-    moment = momentsOf('fringe_tree')[0];
-  assert.deepEqual(gust.colors, moment.colors);
-  assert.equal(gust.petals, moment.petals);
-  assert.equal(gust.x, foot.x);
-  assert.equal(gust.foot, foot.y);
-  assert.ok(gust.top < gust.bottom && gust.bottom < gust.foot, 'the crown is above the foot');
-  assert.ok(gust.ms >= 8000 && gust.ms <= 12000);
-  y.run(30_000);
-  assert.equal(y.gusts.length, 1, 'and then the canvas rests a good while');
+    y = yard(t, { garden: { trees: [fringe] } }),
+    [v, far] = y.views(),
+    foot = fieldToYard(fringe);
+  standAt(v, foot.x + 20, foot.y + 10);
+  y.run(HEAD_PETAL_EVERY[0] - 2000);
+  assert.equal(v.petal ?? null, null, 'it waits a while first');
+  y.run(3000);
+  assert.ok(v.petal, 'then one lands on the friend under the crown');
+  assert.ok(v.petal.classList.contains('tinted'), 'in the tree’s colours');
+  assert.equal(v.petal.style['--petal'], momentsOf('fringe_tree')[0].colors[0]);
+  assert.equal(far.petal ?? null, null, 'not on a friend away from the tree');
+  // Brushed off, the next one waits as long again: never a shower of them.
+  release(v);
+  assert.equal(v.petal, null);
+  y.run(HEAD_PETAL_EVERY[0] - 3000);
+  assert.equal(v.petal, null, 'not again so soon');
+  y.run(3000);
+  assert.ok(v.petal, 'but in a while');
 });
 
-test('a gust waits its first wait again each time the moment comes back, or the yard is seen again', async t => {
+test('a head petal waits its first wait again each time the moment comes back', async t => {
   for (const [name, away] of [
     ['night', () => (scene.period = 'night')],
     ['rain', () => (scene.weather = 'rain')],
-    ['a hidden spell', null],
   ])
     await t.test(name, s => {
-      const y = yard(s, { garden: { trees: [grown('f', 'fringe_tree', 0.5, 0.3)] } });
-      y.run(GUST_FIRST[0] + 1000);
-      assert.equal(y.gusts.length, 1);
-      // The next would be due about 54 s in; the moment is away until 60 s.
-      if (away) {
-        y.run(8000);
-        away();
-        syncTreeMoments();
-        y.run(45_000);
-        Object.assign(scene, spring);
-        syncTreeMoments();
-      } else y.skip(53_000);
-      y.run(GUST_FIRST[0] - 1000);
-      assert.equal(y.gusts.length, 1, 'not at once on its return');
-      y.run(2000);
-      assert.equal(y.gusts.length, 2, 'but after its first wait');
+      const fringe = grown('f', 'fringe_tree', 0.5, 0.3),
+        y = yard(s, { garden: { trees: [fringe] }, pets: 1 }),
+        [v] = y.views(),
+        foot = fieldToYard(fringe);
+      standAt(v, foot.x, foot.y + 10);
+      y.run(HEAD_PETAL_EVERY[0] + 1000);
+      assert.ok(v.petal);
+      release(v);
+      // The next would be due about 25 s on; the moment is away until 45 s.
+      y.run(5000);
+      away();
+      syncTreeMoments();
+      y.run(40_000);
+      Object.assign(scene, spring);
+      syncTreeMoments();
+      y.run(HEAD_PETAL_EVERY[0] - 2000);
+      assert.equal(v.petal, null, 'not at once on its return');
+      y.run(3000);
+      assert.ok(v.petal, 'but after its first wait');
     });
 });
 
-test('no gust at night, in rain, in another season, or under a tree still growing', async t => {
+test('no head petal at night, in rain, in another season, or under a tree still growing', async t => {
   for (const [values, trees] of [
     [{ ...spring, period: 'night' }, [grown('f', 'fringe_tree', 0.5, 0.3)]],
     [{ ...spring, weather: 'rain' }, [grown('f', 'fringe_tree', 0.5, 0.3)]],
@@ -162,24 +152,24 @@ test('no gust at night, in rain, in another season, or under a tree still growin
     await t.test(
       `${values.period}, ${values.weather}, ${values.season}, ${trees[0].kind} at stage ${trees[0].stage}`,
       s => {
-        const y = yard(s, { garden: { trees }, values });
+        const y = yard(s, { garden: { trees }, values, pets: 1 }),
+          [v] = y.views(),
+          foot = fieldToYard(trees[0]);
+        standAt(v, foot.x, foot.y + 10);
         y.run(120_000);
-        assert.deepEqual(y.gusts, []);
+        assert.equal(v.petal ?? null, null);
       },
     );
 });
 
-test('a friend under the crown may get a white petal, kept while the moment lasts', t => {
+test('a fringe petal stays on while the moment lasts, and comes off when it ends', t => {
   const fringe = grown('f', 'fringe_tree', 0.5, 0.3),
-    y = yard(t, { garden: { trees: [fringe] } }),
-    [v, far] = y.views(),
+    y = yard(t, { garden: { trees: [fringe] }, pets: 1 }),
+    [v] = y.views(),
     foot = fieldToYard(fringe);
   standAt(v, foot.x + 20, foot.y + 10);
-  y.run(GUST_FIRST[0] + 6000);
-  assert.ok(v.petal, 'a petal of the gust landed on it');
-  assert.ok(v.petal.classList.contains('tinted'), 'in the tree’s colours');
-  assert.equal(v.petal.style['--petal'], momentsOf('fringe_tree')[0].colors[0]);
-  assert.equal(far.petal ?? null, null, 'not on a friend away from the tree');
+  y.run(HEAD_PETAL_EVERY[0] + 1000);
+  assert.ok(v.petal);
   // Not blossom time (no festival), and still it stays while the fringe tree's moment lasts.
   y.run(20_000);
   assert.ok(v.petal && !v.petal.removed, 'it stays on');
@@ -196,9 +186,9 @@ test('a friend wearing a fringe petal notices it in the tree’s own words', t =
     [v] = y.views(),
     foot = fieldToYard(fringe);
   standAt(v, foot.x, foot.y + 10);
-  y.run(GUST_FIRST[0] + 4000);
+  y.run(HEAD_PETAL_EVERY[0] + 1000);
   assert.ok(v.petal);
-  y.run(3000);
+  y.run(4000);
   assert.equal(v.bubble.hidden, false);
   assert.ok(list('moment.fringe_head').includes(v.bubble.textContent), v.bubble.textContent);
 });

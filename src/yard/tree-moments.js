@@ -1,14 +1,13 @@
 // Tree moments in the yard (the rules are tree-moment-rules.js's): a grown tree whose kind names a
-// drift moment has it in its own season, morning to evening, outdoors. A fruit tree's harvest is
-// fallen-fruit.js's.
+// head-petal or a visit moment has it in its own season, morning to evening, outdoors. A fruit
+// tree's harvest is fallen-fruit.js's.
 //
-// - Now and then a breeze lifts a gust of petals off the crown (stepGusts): the scenery paints them
-//   falling to the foot, lying there and fading (scenery.drift). At most two trees gust at once,
-//   each for about ten seconds, so the canvas rests between gusts.
-// - With `lines.head`, a friend standing under the crown may get a petal on its head (petals.js
-//   landPetal), kept until it moves or the tree's moment is over, and may say so.
-// - With `lines.visit`, now and then a free friend walks to the tree, faces it, looks up at the
-//   blossom and says a line, then goes back to its own doings.
+// - head-petal: now and then (as seldom as the cherry's petals on heads, petals.js) a petal in the
+//   tree's colours lands on a friend standing under the crown (petals.js landPetal), kept until it
+//   moves or the moment is over; the friend may notice it in the tree's own words. Nothing is drawn
+//   falling: the yard's own spring petals already fall.
+// - visit: now and then a free friend walks to the tree, faces it, looks up at the blossom and says
+//   a line, then goes back to its own doings.
 // - The trees whose moment is on are looked up when the scene is painted, the garden drawn or the
 //   yard laid out again (syncTreeMoments); the frame loop's tick does nothing while there are none.
 // - Nothing is saved: no counts, no rewards, as for flower viewing.
@@ -26,21 +25,12 @@ import { fieldToYard, footOf, footTarget, petHeight, sizeOf } from './field.js';
 import { landPetal } from './petals.js';
 import { propScale } from './props.js';
 import { shootDigging } from './shoots.js';
-import { gustPetals, momentTrees, stepGusts, visitX } from './tree-moment-rules.js';
+import { HEAD_PETAL_EVERY, momentTrees, underCrown, visitX } from './tree-moment-rules.js';
 import { isFree, release, rest, sendTo, setDoing, strolling } from './trips.js';
 import { viewing } from './viewing.js';
 import { bubble, gaze } from './views.js';
-import { scene, scenery } from './world.js';
+import { scene } from './world.js';
 
-// The gusts are looked at about once a second; a longer gap between two looks means the yard was
-// not running (hidden, or a game), and each tree waits its first wait again.
-const CHECK_MS = 1000;
-const AWAY_MS = 5 * CHECK_MS;
-// A breeze this many yard pixels a millisecond sideways, either way.
-const WIND = [0.003, 0.007];
-// Now and then a petal of a gust lands on a friend under the crown, as the first petals reach it.
-const HEAD_CHANCE = 0.6;
-const HEAD_AFTER = [2500, 5000];
 // A friend now and then visits a tree with a visit line: looked at every few minutes, half the time.
 const VISIT_EVERY = [3 * 60_000, 7 * 60_000];
 const VISIT_CHANCE = 0.5;
@@ -50,120 +40,68 @@ const LINE_AFTER = 800;
 const LINE_MS = 3200;
 const LINE_RETRY = 400;
 
-// The drift trees whose moment is on, each with its crown in yard pixels (syncTreeMoments).
+// The trees whose head-petal or visit moment is on, each with its crown in yard pixels
+// (syncTreeMoments).
 let live = [];
-// Each tree's gusts (tree-moment-rules.js stepGusts), and when they are next looked at.
-let plan = {};
-let checkAt = 0;
-let lookedAt = 0;
+// When a petal next lands on a head under a tree; drawn afresh each time such a moment comes back.
+const petalWait = () => between(Math.random, HEAD_PETAL_EVERY);
+let petalling = cadence(petalWait);
 // When a friend next thinks of visiting a tree.
 let visiting = cadence(() => between(Math.random, VISIT_EVERY));
-// The friend visiting a tree, on its way or there: { v, timers }, or null; and the waiting petal
-// timer.
+// The friend visiting a tree, on its way or there: { v, timers }, or null.
 let visitor = null;
-let falling = null;
 const VISIT = { end: v => leave(v) };
 
-/** Wiring: a fresh plan and wait. Called once, by app.js. */
+/** Wiring: fresh waits. Called once, by app.js. */
 export function setupTreeMoments() {
   live = [];
-  plan = {};
-  checkAt = 0;
-  lookedAt = 0;
+  petalling = cadence(petalWait);
   visiting = cadence(() => between(Math.random, VISIT_EVERY));
-  clearTimeout(falling);
-  falling = null;
   visitor = null;
 }
 
-// A grown tree's crown, foot and size in yard pixels, as planted-trees.js draws it.
+// A grown tree's crown (its middle and width), foot and size in yard pixels, as planted-trees.js
+// draws it.
 function crownOf(tree) {
   const foot = fieldToYard(tree),
     zoom = propScale(foot),
-    [w, h] = treeSize(tree.kind, 2);
-  return {
-    x: foot.x,
-    top: foot.y - h * zoom * 0.9,
-    bottom: foot.y - h * zoom * 0.45,
-    width: w * zoom * 0.8,
-    foot: foot.y,
-    zoom,
-  };
+    [w] = treeSize(tree.kind, 2);
+  return { x: foot.x, width: w * zoom * 0.8, foot: foot.y, zoom };
 }
 
-/** Looks up the drift trees whose moment is on, with the scene's repaint, a garden change and a new
- * layout. A tree whose moment went (night, rain, another season) leaves the plan, so it waits its
- * first wait again when the moment comes back. */
+const petalTrees = () => live.filter(tree => tree.moment.kind === 'head-petal');
+
+/** Looks up the trees whose head-petal or visit moment is on, with the scene's repaint, a garden
+ * change and a new layout. With no head-petal tree left (night, rain, another season) the petal's
+ * wait starts over, so it waits its first wait again when the moment comes back. */
 export function syncTreeMoments() {
   live = momentTrees(data.garden?.trees, scene, Date.now(), data.limits)
-    .filter(tree => tree.moment.kind === 'drift')
+    .filter(tree => tree.moment.kind !== 'harvest')
     .map(tree => ({ ...tree, crown: crownOf(tree) }));
-  plan = Object.fromEntries(Object.entries(plan).filter(([id]) => on(id)));
+  if (!petalTrees().length) petalling = cadence(petalWait);
 }
 
-/** Called by the frame loop beside the other yard life: the gusts, and now and then a visit. */
+/** Called by the frame loop beside the other yard life: now and then a petal on a head, and now
+ * and then a visit. */
 export function treeMomentTick(now) {
   if (!live.length) return;
-  if (now >= checkAt) {
-    if (now - lookedAt > AWAY_MS) plan = {};
-    checkAt = now + CHECK_MS;
-    lookedAt = now;
-    blow(now);
-  }
+  if (petalling.due(now)) headPetal();
   if (visiting.due(now) && Math.random() < VISIT_CHANCE) visit();
-}
-
-function blow(now) {
-  const step = stepGusts(
-    plan,
-    live.map(tree => tree.id),
-    now,
-    Math.random,
-  );
-  plan = step.plan;
-  for (const id of step.started) {
-    const tree = live.find(t => t.id === id),
-      { moment, crown } = tree;
-    scenery?.drift({
-      ...crown,
-      colors: moment.colors,
-      petals: gustPetals(moment),
-      pace: moment.pace,
-      petal: moment.petal,
-      wind: (Math.random() < 0.5 ? -1 : 1) * between(Math.random, WIND),
-      ms: plan[id].until - now,
-    });
-    if (moment.lines?.head) headPetal(tree);
-  }
 }
 
 // A tree's moment is still on.
 const on = id => live.some(tree => tree.id === id);
 
-// As the first petals reach them, one may land on a friend standing under the crown.
-function headPetal(tree) {
-  if (falling || Math.random() >= HEAD_CHANCE) return;
-  falling = setTimeout(
-    () => {
-      falling = null;
-      if (!on(tree.id)) return;
-      const { crown, moment } = tree,
-        under = [...views.values()].filter(v => {
-          const foot = footOf(v);
-          return (
-            (isFree(v) || v.viewing) &&
-            !v.drag &&
-            !v.petal &&
-            Math.abs(foot.x - crown.x) <= crown.width / 2 &&
-            foot.y >= crown.foot - 30 * crown.zoom &&
-            foot.y <= crown.foot + 60 * crown.zoom
-          );
-        });
-      if (under.length)
-        landPetal(pick(under), { colors: moment.colors, notice: moment.lines.head, keep: () => on(tree.id) });
-    },
-    between(Math.random, HEAD_AFTER),
+// A petal lands on one of the friends standing under a head-petal tree, if any stands there.
+function headPetal() {
+  const under = petalTrees().flatMap(tree =>
+    [...views.values()]
+      .filter(v => (isFree(v) || v.viewing) && !v.drag && !v.petal && underCrown(footOf(v), tree.crown))
+      .map(v => ({ v, tree })),
   );
+  if (!under.length) return;
+  const { v, tree } = pick(under);
+  landPetal(v, { colors: tree.moment.colors, notice: tree.moment.lines.notice, keep: () => on(tree.id) });
 }
 
 // Nothing the person started that a visit would get in the way of.
@@ -175,7 +113,7 @@ const busy = () =>
 // takes the place of the stroll. The walk is the visit already: no second friend is sent while it
 // is on its way, and whatever takes it there ends the visit (leave).
 function visit() {
-  const trees = live.filter(tree => tree.moment.lines?.visit);
+  const trees = live.filter(tree => tree.moment.kind === 'visit');
   if (!trees.length || busy()) return;
   const free = [...views.values()].filter(v => (isFree(v) || strolling(v)) && stateOf(data, v.pet.id) === 'idle');
   if (!free.length) return;
@@ -217,7 +155,7 @@ function smell(v, tree, side) {
   // Never over its own words: a friend still saying something says its line once that is done, while
   // it stands there.
   const say = at => {
-    if (v.bubble.hidden) bubble(v, pick(list(tree.moment.lines.visit)), LINE_MS);
+    if (v.bubble.hidden) bubble(v, pick(list(tree.moment.lines.say)), LINE_MS);
     else if (at + LINE_RETRY < VISIT_MS - LINE_RETRY) later(LINE_RETRY, () => say(at + LINE_RETRY));
   };
   later(LINE_AFTER, () => say(LINE_AFTER));

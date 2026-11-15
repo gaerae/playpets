@@ -460,7 +460,7 @@
   pointer-events: none;
   z-index: 2;
 }
-/* A petal from a grown tree's gust (yard/tree-moments.js) in that tree's colours (--petal,
+/* A petal from a grown tree (yard/tree-moments.js) in that tree's colours (--petal,
    --petal-hi, --petal-lo, from catalog.json): a slender petal, shaded from the upper left, and a
    grey shadow that keeps a white one apart from a pale friend. */
 .head-petal.tinted {

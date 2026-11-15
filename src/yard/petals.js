@@ -1,7 +1,7 @@
 // Petals on heads: during the blossom festival a falling petal now and then lands on a friend that
 // stands still, and stays there until the friend moves or blossom time is over; now and then the
-// friend notices it. A grown tree's gust of petals (tree-moments.js) lands one too, in its own
-// colours, kept while that tree's moment is on.
+// friend notices it. A grown fringe tree (tree-moments.js) lands one too, in its own colours,
+// kept while that tree's moment is on.
 //
 // - The petal sits in the friend's label, the layer above the field, at the top of its head
 //   (--head, core/sprites.js crown); friends.css draws it.

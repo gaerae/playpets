@@ -2042,11 +2042,9 @@
       "moments": [
         {
           "season": "spring",
-          "kind": "drift",
+          "kind": "head-petal",
           "colors": ["#fffdf5", "#f3efdf", "#ffffff"],
-          "petals": 16,
-          "petal": [4.4, 1.9],
-          "lines": { "head": "moment.fringe_head" }
+          "lines": { "notice": "moment.fringe_head" }
         }
       ]
     },
@@ -2184,13 +2182,9 @@
       "moments": [
         {
           "season": "winter",
-          "kind": "drift",
+          "kind": "visit",
           "weather": ["clear", "snow"],
-          "colors": ["#c8304b", "#e0516a", "#a8253d"],
-          "petals": 6,
-          "pace": 0.7,
-          "petal": [3.4, 2.8],
-          "lines": { "visit": "moment.plum_smell" }
+          "lines": { "say": "moment.plum_smell" }
         },
         {
           "season": "summer",

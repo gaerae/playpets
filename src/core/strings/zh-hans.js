@@ -1026,7 +1026,7 @@ export const strings = {
   'viewing.wish': ['接住花瓣啦！愿望一定会实现。', '快许个愿吧，一定会实现的！'],
   'moment.chestnut_title': '一颗栗子球。点一下，伙伴会去捡起来',
   'moment.fruit_no_friend': '邀请伙伴来，就会帮你捡起来',
-  'moment.fringe_head': ['咦，头上落了片白花瓣？', '花瓣像雪一样飘下来啦！', '看，我戴了朵小白花！'],
+  'moment.fringe_head': ['咦，头上落了片白花瓣？', '流苏树送了我一片花瓣！', '看，我戴了朵小白花！'],
   'moment.plum_smell': ['嗯，梅花好香呀。', '这么冷还开花，真了不起！', '有一股淡淡的甜香。'],
   'moment.chestnut_pick': ['捡到栗子啦！', '亮晶晶、圆滚滚的！', '小心扎手！里面有三颗呢！'],
   'moment.chestnut_first': ['今天的第一颗栗子！', '我第一个捡到的！', '今年秋天的栗子熟得真好。'],

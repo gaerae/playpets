@@ -71,8 +71,8 @@ export function render() {
   // After what stands on the ground: a shoot where a gift, a plant or a tree now stands is
   // not drawn.
   renderShoots();
-  // A grown tree's fallen fruit and gusts follow the garden: a tree pulled up or moved takes them
-  // along.
+  // A grown tree's fallen fruit and moments follow the garden: a tree pulled up or moved takes
+  // them along.
   renderFruit();
   syncTreeMoments();
   syncDiscovery();

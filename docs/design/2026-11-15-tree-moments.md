@@ -65,14 +65,17 @@
 - `src/yard/burrs.js`: the burrs, checked with the scene's minute repaint, never in the frame loop.
 - `src/yard/scenery.js` `drift(gust)`: paints a gust's petals and keeps drawing only while they move or lie.
 
-## Follow-up: fallen fruit, several moments a tree, and the first waits (2026-11-16)
+## Follow-up: fallen fruit, several moments a tree, and quieter blossom (2026-11-16)
 
+- Nothing falls from a crown any more: the yard's own spring petals already fall, and a second fall from one tree was easy to stop noticing. The `drift` kind, its timing and the scenery's part are gone; what stays are two quiet details.
+- `head-petal` (the fringe tree in spring): now and then a white petal lands on a friend standing under the grown tree, as seldom as the cherry's petals on heads (one every 25–60 s at most, `HEAD_PETAL_EVERY`). It stays until the friend moves or the moment ends, and the friend may say a `lines.notice` line. The wait starts over each time the moment comes back.
+- `visit` (the red plum in winter): now and then a free friend walks over, looks up at the blossom and says a `lines.say` line. Nothing else marks the moment.
+- A head-petal moment names only `colors` (main, light, shade) and `lines.notice`; a visit names `lines.say`; `petals`, `pace` and `petal` are gone.
 - A tree names a `moments` list instead of one `moment`: at most one moment a season and one of each kind, so the red plum can flower in winter and drop fruit in summer.
 - The chestnut's burr is one kind of fallen fruit: `src/yard/fallen-fruit.js` drops, draws and picks up what a tree's harvest moment names (`art`, `size`, a `title` key for the button, and `lines`). The rules use fruit names (`fruitDue`, `FRUIT_OUT`).
 - The day's first pick is counted per kind of tree, so the first chestnut and the first persimmon of a day each have their line. `first` lists have two or three lines.
 - The webview's key is now `fallen-fruit`: `{ picked, out }`, with `picked` a map from tree kind to its last local day of a first pick. The chestnut-only `burrs` key was never released and is not read.
-- The wait for the next fruit is not stored. A start, and every return of a harvest's time (a new morning, the end of rain), waits the first wait again; a drift tree whose moment went, or a yard not run for more than five seconds (hidden, a game), waits its first gust again.
-- Petals lying at full strength no longer repaint the canvas; it repaints while a petal falls or fades, and the calm pace (100 ms) starts the fade on time.
+- The wait for the next fruit is not stored. A start, and every return of a harvest's time (a new morning, the end of rain), waits the first wait again.
 - A friend walking to the plum already counts as the visit, so no second friend is sent; a visiting friend, walking or there, gives way to the person's errands like a friend viewing the blossom.
 - Every tree whose art shows fruit drops it, in the season the art shows it:
 

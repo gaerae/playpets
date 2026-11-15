@@ -1,7 +1,8 @@
 // Tree moments (src/yard/tree-moment-rules.js): a grown tree whose kind names a moment has it in its
-// own season, in fair hours, outdoors. A drift moment sends gusts of petals off the crown that land
-// on a ring at the foot and fade; a harvest moment drops the tree's fruit at the foot, kept in the
-// webview's storage. The clock, the random draws and the ground are the test's.
+// own season, in fair hours, outdoors. A head-petal moment lets a petal land on a friend standing
+// under the crown now and then; a visit moment draws a friend to the tree; a harvest moment drops the
+// tree's fruit at the foot, kept in the webview's storage. The clock, the random draws and the ground
+// are the test's.
 import './support/content.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -16,24 +17,16 @@ import {
   fruitDue,
   fruitSpot,
   fruitStays,
-  driftMoving,
-  driftPetal,
   freshFruit,
-  GUST_EVERY,
-  GUST_FIRST,
-  GUST_MS,
-  GUSTS_AT_ONCE,
-  gustPetals,
+  HEAD_PETAL_EVERY,
   keptFruit,
-  LIE_MS,
-  lyingAlpha,
   harvestOf,
+  MOMENT_KINDS,
   momentsOf,
   momentTime,
   momentTrees,
   pickLine,
-  stepDrift,
-  stepGusts,
+  underCrown,
   visitX,
 } from '../src/yard/tree-moment-rules.js';
 
@@ -45,35 +38,39 @@ const seq =
 const grown = (id, kind, x = 0.5, y = 0.3, extra = {}) => ({ id, kind, world: 'woodland', x, y, planted: 0, ...extra });
 const fair = season => ({ world: 'woodland', season, period: 'day', weather: 'clear', event: null });
 
-// A kind's one drift moment, for these tests.
-const drift = kind => momentsOf(kind).find(moment => moment.kind === 'drift');
+// A kind's moment of one kind, for these tests.
+const momentOf = (kind, what) => momentsOf(kind).find(moment => moment.kind === what);
 
-test('the fringe tree, the red plum and the chestnut each name their moments', () => {
+test('the fringe tree, the red plum and the fruit trees each name their moments', () => {
+  assert.deepEqual(MOMENT_KINDS, ['head-petal', 'visit', 'harvest']);
   assert.deepEqual(
     momentsOf('fringe_tree').map(m => [m.kind, m.season]),
-    [['drift', 'spring']],
+    [['head-petal', 'spring']],
   );
-  assert.deepEqual(drift('red_plum').season, 'winter');
-  assert.equal(harvestOf('red_plum').season, 'summer', 'the red plum drops its plums in summer');
+  assert.deepEqual(
+    momentsOf('red_plum').map(m => [m.kind, m.season]),
+    [
+      ['visit', 'winter'],
+      ['harvest', 'summer'],
+    ],
+    'the red plum draws friends to its blossom in winter and drops its plums in summer',
+  );
   for (const [kind, season] of [
     ['persimmon', 'autumn'],
     ['fig', 'summer'],
     ['yuzu', 'winter'],
     ['oak', 'autumn'],
+    ['chestnut', 'autumn'],
   ])
     assert.equal(harvestOf(kind).season, season, kind);
-  assert.equal(harvestOf('chestnut').season, 'autumn');
   assert.equal(harvestOf('fringe_tree'), null, 'a tree with no harvest has none');
   assert.deepEqual(momentsOf('cherry'), [], 'a tree with no moment has none');
   assert.deepEqual(momentsOf('nothing'), []);
-  // The plum's petals are fewer and slower than the fringe tree's.
-  assert.ok(gustPetals(drift('red_plum')) < gustPetals(drift('fringe_tree')));
-  assert.ok(drift('red_plum').pace < (drift('fringe_tree').pace ?? 1));
 });
 
 test('a moment is on in its season, morning to evening, in its weather, outdoors', () => {
-  const fringe = drift('fringe_tree'),
-    plum = drift('red_plum');
+  const fringe = momentOf('fringe_tree', 'head-petal'),
+    plum = momentOf('red_plum', 'visit');
   assert.equal(momentTime(fair('spring'), fringe), true);
   for (const period of ['morning', 'evening']) assert.equal(momentTime({ ...fair('spring'), period }, fringe), true);
   assert.equal(momentTime({ ...fair('spring'), period: 'night' }, fringe), false, 'not at night');
@@ -103,85 +100,28 @@ test('only grown trees in this place with their moment on count', () => {
     'a seedling, another place, a tree with no moment and another season are left out',
   );
   const [a] = momentTrees(trees, fair('spring'), now, LIMITS);
-  assert.deepEqual(a, { id: 'a', kind: 'fringe_tree', x: 0.5, y: 0.3, moment: drift('fringe_tree') });
+  assert.deepEqual(a, { id: 'a', kind: 'fringe_tree', x: 0.5, y: 0.3, moment: momentOf('fringe_tree', 'head-petal') });
   assert.deepEqual(
     momentTrees(trees, fair('autumn'), now, LIMITS).map(t => t.id),
     ['e'],
   );
   // A tree with two moments has the one of the season.
   const plum = [grown('p', 'red_plum')];
-  assert.equal(momentTrees(plum, fair('winter'), now, LIMITS)[0].moment.kind, 'drift');
+  assert.equal(momentTrees(plum, fair('winter'), now, LIMITS)[0].moment.kind, 'visit');
   assert.equal(momentTrees(plum, fair('summer'), now, LIMITS)[0].moment.kind, 'harvest');
   assert.deepEqual(momentTrees(plum, fair('autumn'), now, LIMITS), []);
   assert.deepEqual(momentTrees(undefined, fair('spring'), now, LIMITS), []);
 });
 
-test('each tree gusts now and then, for a while, at most two at once', () => {
-  let { plan, started } = stepGusts({}, ['a', 'b', 'c'], 0, seq(0));
-  assert.deepEqual(started, [], 'a new tree waits for its first gust');
-  assert.equal(plan.a.next, GUST_FIRST[0]);
-  ({ plan, started } = stepGusts(plan, ['a', 'b', 'c'], GUST_FIRST[0], seq(0)));
-  assert.deepEqual(started, ['a', 'b'], `no more than ${GUSTS_AT_ONCE} at once`);
-  assert.equal(plan.a.until, GUST_FIRST[0] + GUST_MS[0]);
-  assert.equal(plan.c.until, 0, 'the third waits for room');
-  const end = GUST_FIRST[0] + GUST_MS[0];
-  ({ plan, started } = stepGusts(plan, ['a', 'b', 'c'], end, seq(1)));
-  assert.deepEqual(started, ['c'], 'once a gust ends the waiting tree starts');
-  assert.equal(plan.a.next, end + GUST_EVERY[1], 'a tree whose gust ended waits its turn');
-  assert.equal(plan.a.until, 0);
-  assert.deepEqual(stepGusts(plan, ['a'], end + GUST_EVERY[1] - 1, seq(0)).started, [], 'not before');
-  ({ plan, started } = stepGusts(plan, ['a'], end + GUST_EVERY[1], seq(0)));
-  assert.deepEqual(started, ['a']);
-  assert.deepEqual(Object.keys(plan), ['a'], 'a tree whose moment is over leaves the plan');
-  assert.ok(GUST_MS[0] >= 8000 && GUST_MS[1] <= 12000, 'a gust lasts eight to twelve seconds');
-  assert.ok(GUST_EVERY[0] >= 40000 && GUST_EVERY[1] <= 90000, 'and comes every forty to ninety');
-});
-
-const crown = { x: 400, top: 200, bottom: 300, width: 200, foot: 400, colors: ['#fff', '#eee'], wind: 0.005 };
-
-test('a petal starts in the crown, upwind of its spot, and its spot is on a ring in front of the trunk', () => {
-  for (const values of [
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-    [0.99, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99, 0.99],
-    [0.3, 0.9, 0.1, 0.7, 0.2, 0.6, 0.4, 0.8],
-  ]) {
-    const p = driftPetal(crown, seq(...values));
-    assert.ok(p.y >= crown.top && p.y <= crown.bottom, `starts in the crown (${p.y})`);
-    assert.ok(p.ty >= crown.foot, `lies at or in front of the foot (${p.ty})`);
-    assert.ok(p.ty <= crown.foot + crown.width * 0.46 * 0.2 + 1.001, 'on a flat ring');
-    const tx = p.x + p.wind * ((p.ty - p.y) / p.vy);
-    assert.ok(Math.abs(tx - crown.x) <= crown.width * 0.46 + 1e-9, `near the trunk (${tx})`);
-    assert.ok(crown.colors.includes(p.color));
-    assert.equal(p.lay, null);
-  }
-  const slow = driftPetal({ ...crown, pace: 0.7 }, seq(0.5)),
-    plain = driftPetal(crown, seq(0.5));
-  assert.ok(slow.vy < plain.vy, 'a slower moment falls slower');
-});
-
-test('a petal falls, lies on its spot, fades and is gone', () => {
-  const p = driftPetal({ ...crown, wind: 0 }, seq(0.5));
-  let petals = [p],
-    now = 0;
-  while (p.lay === null && now < 60_000) {
-    now += 50;
-    petals = stepDrift(petals, 50, now);
-  }
-  assert.equal(p.lay, now, 'it came to rest');
-  assert.equal(p.y, p.ty);
-  const x = p.x;
-  petals = stepDrift(petals, 50, now + 50);
-  assert.equal(p.x, x, 'lying, it no longer moves');
-  assert.equal(lyingAlpha(0), 1);
-  assert.equal(lyingAlpha(LIE_MS / 2), 1);
-  assert.ok(lyingAlpha(LIE_MS * 0.75) > 0 && lyingAlpha(LIE_MS * 0.75) < 1, 'it fades over the second half');
-  assert.equal(lyingAlpha(LIE_MS), 0);
-  assert.equal(driftMoving([driftPetal(crown, seq(0.5))], now), true, 'one falling changes the picture');
-  assert.equal(driftMoving(petals, now + LIE_MS / 2), false, 'lying whole, it does not');
-  assert.equal(driftMoving(petals, now + LIE_MS / 2 + 1), true, 'fading, it does again');
-  assert.equal(stepDrift(petals, 50, now + LIE_MS - 1).length, 1);
-  assert.equal(stepDrift(petals, 50, now + LIE_MS).length, 0, 'gone');
+test('a head petal comes as seldom as a cherry petal on a head, and only to a friend under the crown', () => {
+  assert.deepEqual(HEAD_PETAL_EVERY, [25_000, 60_000], 'every 25 to 60 seconds at most');
+  const crown = { x: 400, width: 200, foot: 500, zoom: 1 };
+  assert.equal(underCrown({ x: 400, y: 500 }, crown), true, 'at the trunk');
+  assert.equal(underCrown({ x: 499, y: 520 }, crown), true, 'under the crown’s edge, a little in front');
+  assert.equal(underCrown({ x: 501, y: 500 }, crown), false, 'past the edge');
+  assert.equal(underCrown({ x: 400, y: 469 }, crown), false, 'too far behind the trunk');
+  assert.equal(underCrown({ x: 400, y: 561 }, crown), false, 'too far in front');
+  assert.equal(underCrown({ x: 400, y: 590 }, { ...crown, zoom: 1.5 }), true, 'the reach grows with the tree');
 });
 
 // ---- fallen fruit ----

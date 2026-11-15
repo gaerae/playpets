@@ -52,10 +52,10 @@ test("every tree's moments are kinds the yard knows, with their colours, drawing
     [
       ['oak', ['harvest autumn']],
       ['persimmon', ['harvest autumn']],
-      ['fringe_tree', ['drift spring']],
+      ['fringe_tree', ['head-petal spring']],
       ['fig', ['harvest summer']],
       ['chestnut', ['harvest autumn']],
-      ['red_plum', ['drift winter', 'harvest summer']],
+      ['red_plum', ['visit winter', 'harvest summer']],
       ['yuzu', ['harvest winter']],
     ],
     'every tree whose art shows fruit drops it in the season the art shows it',
@@ -84,17 +84,16 @@ test("every tree's moments are kinds the yard knows, with their colours, drawing
       assert.ok(seasons.includes(moment.season), `${id}: a season`);
       assert.ok(MOMENT_KINDS.includes(moment.kind), `${id}: a kind of moment`);
       for (const weather of moment.weather ?? []) assert.ok(['clear', 'snow'].includes(weather), `${id}: ${weather}`);
-      if (moment.kind === 'drift') {
-        assert.ok(moment.colors.length >= 1 && moment.colors.every(c => hex.test(c)), `${id}: petal colours`);
-        assert.ok(Number.isInteger(moment.petals) && moment.petals > 0 && moment.petals <= 16, `${id}: a few petals`);
-        assert.ok((moment.pace ?? 1) > 0 && (moment.pace ?? 1) <= 1, `${id}: no faster than a petal falls`);
-        assert.ok(moment.petal.length === 2 && moment.petal.every(n => n > 0 && n <= 5), `${id}: a small petal`);
-        assert.equal(moment.art, undefined);
-        assert.ok(moment.lines.head || moment.lines.visit, `${id}: a head or a visit line`);
-        for (const [use, key] of Object.entries(moment.lines)) {
-          assert.ok(['head', 'visit'].includes(use), `${id}: lines.${use}`);
-          said(key, 3, 4);
-        }
+      // Nothing falls from the crown: a petal lands on a head, or a friend comes to the tree.
+      for (const gone of ['petals', 'pace', 'petal']) assert.equal(moment[gone], undefined, `${id}: no ${gone}`);
+      if (moment.kind === 'head-petal') {
+        assert.ok(moment.colors.length === 3 && moment.colors.every(c => hex.test(c)), `${id}: petal colours`);
+        assert.deepEqual(Object.keys(moment.lines), ['notice'], `${id}: a line to notice it with`);
+        said(moment.lines.notice, 3, 4);
+      } else if (moment.kind === 'visit') {
+        assert.equal(moment.colors, undefined, `${id}: no petals to colour`);
+        assert.deepEqual(Object.keys(moment.lines), ['say'], `${id}: a line to say at the tree`);
+        said(moment.lines.say, 3, 4);
       } else {
         assert.deepEqual(Object.keys(moment.lines).sort(), ['first', 'pick'], `${id}: a pick line and a first one`);
         said(moment.lines.pick, 3, 4);

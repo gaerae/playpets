@@ -1,9 +1,10 @@
 // Tree moments, as pure rules: a grown tree whose kind names moments in the catalogue
-// (catalog.json trees[].moments) has each in its own season, in fair hours, outdoors. A `drift`
-// moment sends gusts of petals off the crown now and then; a `harvest` moment drops the tree's fruit
-// at its foot (a chestnut's burr, a persimmon, a fig). The page runs them (tree-moments.js,
-// fallen-fruit.js) and the scenery paints the petals (scenery.js); what is decided here takes the
-// time, the random draws and the ground as arguments.
+// (catalog.json trees[].moments) has each in its own season, in fair hours, outdoors. A
+// `head-petal` moment now and then lets a petal land on a friend standing under the crown; a `visit`
+// moment draws a friend to the tree to look up at it; a `harvest` moment drops the tree's fruit at
+// its foot (a chestnut's burr, a persimmon, a fig). The page runs them (tree-moments.js,
+// fallen-fruit.js); what is decided here takes the time, the random draws and the ground as
+// arguments.
 import { between } from '../core/math.js';
 import { treeKind } from './catalog.js';
 import { yardSeason } from './decor-shown.js';
@@ -11,7 +12,7 @@ import { behind, freeSpot, treeStage } from './discovery-rules.js';
 import { underBody } from './shoot-rules.js';
 
 /** What a moment may be, and the weather it keeps when it names none. */
-export const MOMENT_KINDS = Object.freeze(['drift', 'harvest']);
+export const MOMENT_KINDS = Object.freeze(['head-petal', 'visit', 'harvest']);
 const FAIR = ['morning', 'day', 'evening'];
 const CLEAR = ['clear'];
 
@@ -43,113 +44,18 @@ export function momentTrees(trees, scene, now, limits) {
     );
 }
 
-// ---- drift: petal snow ----
+// ---- head-petal: a petal on a friend under the crown ----
 
-/** How long a gust sends petals off a crown, in ms (from, to). */
-export const GUST_MS = [8_000, 12_000];
-/** The wait between one tree's gusts, from the end of one to the start of the next. */
-export const GUST_EVERY = [40_000, 90_000];
-/** The wait for a tree's first gust once its moment is on: soon enough to be seen. */
-export const GUST_FIRST = [6_000, 25_000];
-/** The most trees gusting at once. */
-export const GUSTS_AT_ONCE = 2;
-/** How long a petal rests on the ground before it is gone; it fades over the second half. */
-export const LIE_MS = 6_000;
-// A petal falls this many yard pixels a millisecond at a pace of 1 (catalog moment.pace), a little
-// slower than the spring petals that cross the whole sky (scene.js spawnFaller).
-const FALL = 0.02;
-// Petals a gust sends off when the moment names no number.
-const PETALS = 10;
+/** The wait between two petals landing on heads under a tree, as for the cherry's petals on heads
+ * (petals.js): seldom enough to stay a small thing. */
+export const HEAD_PETAL_EVERY = [25_000, 60_000];
 
-/**
- * One look at the gusts. `plan` maps a tree id to { next, until }: when its next gust is due and,
- * while one blows, when it ends. `ids` are the drift trees whose moment is on; a tree no longer
- * among them leaves the plan, a new one waits GUST_FIRST. A tree whose gust ended waits GUST_EVERY;
- * a due tree starts one unless GUSTS_AT_ONCE already blow, and then waits for room. Returns the new
- * plan and the ids that start a gust now.
- */
-export function stepGusts(plan, ids, now, rng) {
-  const next = {},
-    started = [];
-  let blowing = ids.filter(id => plan[id]?.until > now).length;
-  for (const id of ids) {
-    let p = plan[id] ?? { next: now + between(rng, GUST_FIRST), until: 0 };
-    if (p.until && p.until <= now) p = { next: p.until + between(rng, GUST_EVERY), until: 0 };
-    if (!p.until && now >= p.next && blowing < GUSTS_AT_ONCE) {
-      p = { next: p.next, until: now + between(rng, GUST_MS) };
-      started.push(id);
-      blowing++;
-    }
-    next[id] = p;
-  }
-  return { plan: next, started };
-}
-
-/** How many petals a gust of `moment` sends off. */
-export const gustPetals = moment => moment.petals ?? PETALS;
-
-/**
- * A petal of a gust, in yard pixels. `gust` is the crown ({ x, top, bottom, width }, its middle, top,
- * lowest leaves and width), the tree's `foot`, the moment's `colors`, `pace` and `petal` size, and
- * its `wind` (pixels a millisecond, sideways). The petal starts in the crown, upwind of the spot it
- * comes to rest on, so the breeze carries it there: on a ring at the foot, in front of the trunk and
- * a little round its sides, never behind it, where it would lie over the trunk.
- */
-export function driftPetal(gust, rng) {
-  const angle = (-0.12 + rng() * 1.24) * Math.PI,
-    reach = 0.4 + 0.6 * rng(),
-    rx = gust.width * 0.46,
-    ry = rx * 0.2,
-    tx = gust.x + Math.cos(angle) * rx * reach,
-    ty = gust.foot + Math.max(0, Math.sin(angle)) * ry * reach + 1,
-    y = gust.top + (gust.bottom - gust.top) * (0.2 + 0.8 * rng()),
-    vy = FALL * (gust.pace ?? 1) * (0.85 + 0.3 * rng()),
-    wind = gust.wind ?? 0,
-    [length, breadth] = gust.petal ?? [3, 1.8],
-    grow = 0.8 + 0.4 * rng();
-  return {
-    x: tx - wind * Math.max(0, (ty - y) / vy),
-    y,
-    ty,
-    vy,
-    wind,
-    phase: rng() * Math.PI * 2,
-    spin: (rng() - 0.5) * 0.003,
-    tilt: (rng() - 0.5) * 1.2,
-    color: gust.colors[Math.min(gust.colors.length - 1, Math.floor(rng() * gust.colors.length))],
-    length: length * grow,
-    breadth: breadth * grow,
-    lay: null,
-  };
-}
-
-/** Moves the petals on by `dt` ms at `now`: one reaching its spot lies there (`lay`, when) and is
- * gone LIE_MS later. Returns the ones still to draw. */
-export function stepDrift(petals, dt, now) {
-  const kept = [];
-  for (const p of petals) {
-    if (p.lay !== null) {
-      if (now - p.lay < LIE_MS) kept.push(p);
-      continue;
-    }
-    p.phase += dt * 0.0016;
-    p.y += p.vy * dt;
-    p.x += (p.wind + Math.sin(p.phase) * 0.012) * dt;
-    if (p.y >= p.ty) {
-      p.y = p.ty;
-      p.lay = now;
-    }
-    kept.push(p);
-  }
-  return kept;
-}
-
-/** How much of a lying petal shows, `age` ms after it came to rest: all of it, then fading out. */
-export const lyingAlpha = age => Math.max(0, Math.min(1, (LIE_MS - age) / (LIE_MS / 2)));
-
-/** Whether any of `petals` looks different from one frame to the next at `now`: one still falling,
- * or one lying in its fade. Petals lying at full strength do not, and the canvas may rest. */
-export const driftMoving = (petals, now) => petals.some(p => p.lay === null || now - p.lay > LIE_MS / 2);
+/** Whether a friend's feet at `foot` stand under `crown` ({ x, width, foot, zoom }, in yard pixels):
+ * within the crown's width, from a little behind the trunk to a little in front of it. */
+export const underCrown = (foot, crown) =>
+  Math.abs(foot.x - crown.x) <= crown.width / 2 &&
+  foot.y >= crown.foot - 30 * crown.zoom &&
+  foot.y <= crown.foot + 60 * crown.zoom;
 
 // ---- harvest: fruit at the foot ----
 

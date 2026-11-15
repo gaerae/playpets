@@ -1091,7 +1091,7 @@ export const strings = {
   'moment.fruit_no_friend': 'Invite a friend to pick it up',
   'moment.fringe_head': [
     'Oh! A little white petal landed on me.',
-    'It’s snowing flowers!',
+    'The fringe tree gave me a petal!',
     'Look, I’ve got a white flower in my hair.',
   ],
   'moment.plum_smell': [

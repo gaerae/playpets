@@ -12,8 +12,6 @@
 // show no petals. They land and go when the band is done, and never fall where petals do not.
 // A falling petal can be caught during the blossom festival (catchPetal): it leaves the fall, twirls
 // up and turns into a small glint; the twirls last about a second each, so that is bounded work too.
-// A grown tree's gust (tree-moments.js, drift) sends a few petals off its crown: they fall to its
-// foot, lie there a few seconds and go, so a gust is bounded work too, and the canvas rests after.
 import { between } from '../core/math.js';
 import { createAmbientArt, WING_BEAT, wingSpread } from './ambient-art.js';
 import { bugChances, weighted, wildlifeGroup } from './catalog.js';
@@ -22,7 +20,6 @@ import { boostOf } from './events.js';
 import { drawMeteors, drawSparks, drawStars, lightYard } from './light-art.js';
 import { shower as showerOf, wish } from './meteors.js';
 import { dropCount, fallerCount, fireflyCount, spawnDrop, spawnFaller, stepDrops, stepFallers } from './scene.js';
-import { driftMoving, driftPetal, lyingAlpha, stepDrift } from './tree-moment-rules.js';
 import { createWeatherArt } from './weather-art.js';
 import { worldAllows, worldFor } from './worlds.js';
 
@@ -192,12 +189,6 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     sparks = [],
     // Caught petals twirling up and glinting ({ x, y, since, tint }).
     twirls = [],
-    // Grown trees' gusts sending petals off ({ gust, since, made }), and those petals, falling or
-    // lying at the foot (tree-moment-rules.js driftPetal).
-    gusts = [],
-    drifting = [],
-    // Whether a gust is letting petals go or one of its petals falls or fades: the canvas changes.
-    drifts = false,
     // Whether a spell of small life is on, and when it ends (or the next begins).
     spell = true,
     spellTurn = 0,
@@ -298,10 +289,6 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     art.use(season, precipitation() ? weather : 'clear', !reduced.matches && worldAllows(world, 'seasonalEffects'));
     fallers = [];
     refillAt = 0;
-    // A gust's petals belong to the scene and the size they fell in.
-    gusts = [];
-    drifting = [];
-    drifts = false;
     drops = Array.from({ length: precipitation() ? dropCount(weather, w, h) : 0 }, () =>
       spawnDrop(weather, w, h, Math.random),
     );
@@ -540,28 +527,6 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       ctx.restore();
     }
   }
-  // A gust's petals: tumbling as they fall, then lying flat at the foot and fading.
-  function paintDrift(now) {
-    for (const p of drifting) {
-      const lying = p.lay !== null;
-      ctx.globalAlpha = lying ? 0.9 * lyingAlpha(now - p.lay) : 0.92;
-      if (ctx.globalAlpha <= 0) continue;
-      ctx.fillStyle = p.color;
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      if (lying) {
-        ctx.rotate(p.tilt);
-        ctx.scale(1, 0.55);
-      } else {
-        ctx.rotate(p.phase * 0.8 + p.spin * now);
-        ctx.scale(1, 0.45 + 0.55 * Math.abs(Math.cos(p.phase)));
-      }
-      ctx.beginPath();
-      ctx.ellipse(0, 0, p.length * scale, p.breadth * scale, 0, 0, TAU);
-      ctx.fill();
-      ctx.restore();
-    }
-  }
   // A caught petal turns as it rises, then a four-point glint fades where it ends.
   function paintTwirls(now) {
     for (const k of twirls) {
@@ -638,7 +603,6 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     paintWeather(now);
     if (flock) paintFlock(now);
     paintFallers(now);
-    if (drifting.length) paintDrift(now);
     if (twirls.length) paintTwirls(now);
     for (const c of critters) paintCritter(c);
     if (sparks.length) {
@@ -655,9 +619,6 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       if (still) {
         fallers = [];
         twirls = [];
-        gusts = [];
-        drifting = [];
-        drifts = false;
         flock = null;
         // A shooting star half way across is wiped from the sky layer, not left frozen there.
         if (meteors.length || sparks.length) {
@@ -713,23 +674,6 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       twirls = twirls.filter(k => now - k.since < TWIRL + GLINT_MS);
       moved = true;
     }
-    if (gusts.length || drifting.length) {
-      // A gust lets half its petals go in its first quarter, as a breeze lifts them, and the rest
-      // trail after.
-      for (const g of gusts) {
-        const part = Math.sqrt(Math.max(0, now - g.since) / g.gust.ms),
-          due = Math.min(g.gust.petals, Math.ceil(part * g.gust.petals));
-        for (; g.made < due; g.made++) drifting.push(driftPetal(g.gust, Math.random));
-      }
-      gusts = gusts.filter(g => g.made < g.gust.petals);
-      const were = drifting.length;
-      drifting = stepDrift(drifting, dt, now);
-      // Petals lying at full strength look the same each frame: the canvas rests until they fade,
-      // and repaints once more as the last one goes. The calm pace still looks every 100 ms
-      // (app.js), so a fade starts on time.
-      drifts = gusts.length > 0 || driftMoving(drifting, now);
-      if (drifts || drifting.length !== were) moved = true;
-    }
     if (flock) {
       flock.x += flock.dir * flock.speed * dt;
       if (flock.x < -120 || flock.x > w + 120) flock = null;
@@ -778,7 +722,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       sparks.length > 0);
   // Whether creatures or falling petals and leaves are out, moving every frame: app.js runs the
   // yard at its busy pace then, as at its calm pace they crossed in visible hops.
-  const lively = () => enabled() && !reduced.matches && (critters.length > 0 || fallers.length > 0 || drifts);
+  const lively = () => enabled() && !reduced.matches && (critters.length > 0 || fallers.length > 0);
   // The sky layer's extras; each says whether it could be shown here and now.
   const showers = on => {
     soon = on && !shower;
@@ -819,16 +763,6 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     dirty = true;
     return { kind: c.kind, species: c.species, x: c.x, y: c.y };
   }
-  /** A gust off a grown tree's crown (`gust`: tree-moment-rules.js driftPetal's crown, foot and
-   * look, with `petals`, how many, and `ms`, how long it lets them go): they fall to the foot, lie
-   * there a few seconds and go. False where nothing falls (reduced motion, a place without seasons). */
-  function drift(gust) {
-    if (reduced.matches || !worldAllows(world, 'seasonalEffects')) return false;
-    gusts.push({ gust, since: performance.now(), made: 0 });
-    drifts = true;
-    dirty = true;
-    return true;
-  }
   // The falling petal within reach of a point, nearest first, when petals can be caught: in the
   // blossom festival, with motion, where petals fall. Not one still above the yard.
   function petalNear(x, y) {
@@ -865,7 +799,6 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     nearPetal: (x, y) => !!petalNear(x, y),
     catchPetal,
     gather,
-    drift,
     shower: showers,
     sunlit: sunlights,
     shoot,
