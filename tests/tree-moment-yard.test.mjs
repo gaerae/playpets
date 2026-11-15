@@ -280,6 +280,17 @@ test('a grown chestnut in autumn drops a burr at its foot now and then, drawn as
     tall = treeSize('chestnut', 2)[1] * propScale(foot);
   assert.equal(button.style['--fall'], `${fruitFall(spot.y, foot.y, tall)}px`);
   assert.ok(fruitFall(spot.y, foot.y, tall) > 40, 'a fall the eye can follow');
+  // Its shade settling first is not the fall ending.
+  button.dispatch('animationend', { animationName: 'fruit-shade' });
+  assert.ok(button.classList.contains('dropped'));
+  // Landed, it is fruit lying like any other: nothing holds its last frame, so it can dim while a
+  // friend comes for it, and nothing makes it fall again; its fall is no longer worked out.
+  button.dispatch('animationend', { animationName: 'fruit-drop' });
+  assert.ok(!button.classList.contains('dropped'), 'landed');
+  button.style.removeProperty('--fall');
+  renderFruit();
+  assert.equal(button.style['--fall'], undefined);
+  assert.equal(y.live()[0], button, 'the same fruit');
   // Drawn again (a state change), it stays where it lies and does not drop a second time.
   renderFruit();
   setupFruit();
@@ -453,6 +464,35 @@ test('clicking fruit sends a friend to pick it up; the day’s first pick has it
   assert.equal(fruitPicking(), false);
   ctx.mock.timers.tick(1000);
   assert.equal(y.v.doing, null, 'and then it goes on with its day');
+});
+
+test('fruit picked up before it has landed never falls again, even when the pick is called off', async ctx => {
+  const y = await pickYard(ctx);
+  ctx.mock.timers.tick(FRUIT_FIRST[1]);
+  fruitMinute();
+  const falling = y.live().find(button => button.classList.contains('dropped'));
+  assert.ok(falling, 'a second fruit is falling');
+  falling.dispatch('click', {});
+  y.arrive();
+  assert.ok(falling.classList.contains('lifting'));
+  assert.ok(!falling.classList.contains('dropped'), 'the lift takes over from the fall');
+  release(y.v);
+  assert.ok(!falling.classList.contains('lifting'));
+  assert.ok(!falling.classList.contains('dropped'), 'it settles back where it lies');
+});
+
+test('with reduced motion fruit is simply there, with no fall to work out', async ctx => {
+  const motion = reduced.matches;
+  const y = await fruitYard(ctx);
+  reduced.matches = true;
+  ctx.after(() => (reduced.matches = motion));
+  fruitMinute();
+  ctx.mock.timers.tick(FRUIT_FIRST[1]);
+  fruitMinute();
+  const [button] = y.live();
+  assert.ok(button);
+  assert.ok(!button.classList.contains('dropped'));
+  assert.equal(button.style['--fall'], undefined);
 });
 
 test('with reduced motion the fruit does not rise: it goes as the friend shows its pose and speaks', async ctx => {

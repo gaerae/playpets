@@ -142,7 +142,15 @@ function create(fruit) {
   button.append(svg);
   button.title = t(harvest.title);
   button.setAttribute('aria-label', button.title);
-  if (made.delete(fruit.id)) button.classList.add('dropped');
+  // Fruit dropped in this run falls as it comes (with reduced motion it is simply there); landed, it
+  // lies like any other, so nothing holds the fall's last frame over a pick's dimming or lift, and
+  // nothing starts the fall again.
+  if (made.delete(fruit.id) && !reduced.matches) {
+    button.classList.add('dropped');
+    button.addEventListener('animationend', event => {
+      if (event.animationName === 'fruit-drop') button.classList.remove('dropped');
+    });
+  }
   // With a tool in hand or in a game the press is the yard's (garden.css lets it through).
   button.addEventListener('click', event => {
     if (aiming || game) return;
@@ -158,9 +166,9 @@ function update(v, fruit) {
     // Smaller farther back, as a friend there is, and no smaller than a spring shoot in a small yard.
     scale = shootScale(propScale()) * depthScaleAt(x, y);
   setDown(v.button, x, y, w * scale, h * scale, depthAt(y));
-  // Fruit coming now falls from where the tree's leaves end, as planted-trees.js draws the tree.
-  const tree = data.garden?.trees?.find(each => each.id === fruit.tree);
-  if (tree && v.button.classList.contains('dropped')) {
+  // Fruit still falling falls from where the tree's leaves end, as planted-trees.js draws the tree.
+  const tree = v.button.classList.contains('dropped') && data.garden?.trees?.find(each => each.id === fruit.tree);
+  if (tree) {
     const foot = fieldToYard(tree);
     v.button.style.setProperty('--fall', `${fruitFall(y, foot.y, treeSize(tree.kind, 2)[1] * propScale(foot))}px`);
   }
@@ -235,6 +243,9 @@ export function pickFruit(id) {
           tall = Number.parseFloat(button.style.height) || 0;
         button.style.setProperty('--lift-x', `${Math.round((feet.x - spot.x) * TOWARD)}px`);
         button.style.setProperty('--lift-y', `${Math.min(-4, Math.round(tall / 2 - petHeight(v.pet) * PAWS))}px`);
+        // The lift takes over from a fall not yet over, which must not start again if the pick is
+        // called off.
+        button.classList.remove('dropped');
         button.classList.add('lifting');
       }
       later(lift, () => {
