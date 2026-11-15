@@ -303,7 +303,28 @@
   opacity: 0.7;
   transition: opacity 0.3s;
 }
+/* Picked up, the fruit rises toward the friend's paws (--lift-x, --lift-y, fallen-fruit.js) in one
+   easing move, and fades at the end of it as the friend takes it; its shade goes. */
+.fallen-fruit.lifting svg {
+  animation: fruit-lift 600ms cubic-bezier(0.3, 0.5, 0.4, 1) forwards;
+}
+.fallen-fruit.lifting::before {
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+@keyframes fruit-lift {
+  55% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translate(var(--lift-x), var(--lift-y)) scale(0.85);
+  }
+}
 @media (prefers-reduced-motion: reduce) {
+  .fallen-fruit.lifting svg {
+    animation: none;
+  }
   .fallen-fruit.dropped svg,
   .fallen-fruit.dropped::before {
     animation: none;

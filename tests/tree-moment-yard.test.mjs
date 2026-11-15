@@ -28,7 +28,8 @@ const { FRUIT_FIRST, HEAD_PETAL_EVERY, fruitFall, harvestOf, momentsOf } =
 const { treeSize } = await import('../src/yard/catalog.js');
 const { propScale } = await import('../src/yard/props.js');
 const { drawYard } = await import('./support/yard.mjs');
-const { fruitPicking, fruitMinute, pickFruit, renderFruit, setupFruit } = await import('../src/yard/fallen-fruit.js');
+const { FRUIT_LIFT_MS, cancelFruitPicks, fruitPicking, fruitMinute, pickFruit, renderFruit, setupFruit } =
+  await import('../src/yard/fallen-fruit.js');
 
 const spring = { world: 'woodland', season: 'spring', period: 'day', weather: 'clear', event: null };
 const grown = (id, kind, x, y) => ({ id, kind, world: 'woodland', x, y, planted: 0, stage: 2 });
@@ -445,7 +446,7 @@ test('a friend picking up green plums says the plum’s own lines', async ctx =>
   });
   y.click();
   y.arrive();
-  ctx.mock.timers.tick(1950);
+  ctx.mock.timers.tick(FRUIT_LIFT_MS);
   assert.ok(list('moment.plum_first').includes(y.v.bubble.textContent), 'a chestnut picked today does not count');
   assert.deepEqual(y.saved().picked, { chestnut: '2027-07-05', red_plum: '2027-07-05' });
 });
@@ -465,7 +466,8 @@ test('at most two burrs lie under a tree, and none drop at night, but those ther
   assert.deepEqual(y.saved().out, []);
 });
 
-// A friend picking a burr up (fallen-fruit.js pickFruit): the walk and stroke of a shoot's gathering.
+// A friend picking fruit up (fallen-fruit.js pickFruit): it walks to stand beside the fruit and picks
+// it up, with no digging.
 async function pickYard(ctx, options = {}) {
   const y = await burrYard(ctx, { stored: record([lyingBurr('1')]), ...options });
   fruitMinute();
@@ -486,14 +488,18 @@ async function pickYard(ctx, options = {}) {
     click: () => button.dispatch('click', {}),
     arrive() {
       const { trip } = v;
+      v.x = v.target.x;
+      v.y = v.target.y;
       v.target = null;
       v.trip = null;
       trip.arrive(v, 0);
     },
+    // Anything in the garden layer that is not fruit (a dig's soil, dirt or shovel).
+    digging: () => y.shown().filter(node => !node.classList.contains('fallen-fruit')),
   };
 }
 
-test('clicking a burr sends a friend to pick it up; the day’s first pick has its own line', async ctx => {
+test('clicking fruit sends a friend to pick it up; the day’s first pick has its own line', async ctx => {
   const y = await pickYard(ctx);
   y.click();
   assert.ok(y.v.target, 'the friend sets off');
@@ -501,17 +507,43 @@ test('clicking a burr sends a friend to pick it up; the day’s first pick has i
   assert.equal(fruitPicking(), true);
   y.click();
   assert.equal(pickFruit('1'), false, 'one friend for one burr');
+  // It stands beside the fruit, not on it, at the fruit's depth.
+  const spot = fieldToYard(lyingBurr('1')),
+    stand = fieldToYard(y.v.target);
+  assert.ok(Math.abs(stand.x - spot.x) > 10, 'beside it');
   y.arrive();
-  ctx.mock.timers.tick(1950);
-  assert.equal(y.live().length, 0, 'the burr leaves the yard');
+  assert.deepEqual(y.digging(), [], 'no soil, no dirt, no shovel');
+  assert.equal(y.v.pose, 'jump', 'a friend with no pose of its own looks pleased');
+  assert.ok(y.button.classList.contains('lifting'), 'the fruit lifts toward its paws');
+  assert.match(y.button.style['--lift-x'], /^-?\d+px$/);
+  assert.match(y.button.style['--lift-y'], /^-\d+px$/, 'upward');
+  assert.ok(y.v.doing, 'held there while it picks');
+  ctx.mock.timers.tick(FRUIT_LIFT_MS);
+  assert.equal(y.live().length, 0, 'the fruit leaves the yard');
   assert.deepEqual(y.saved().out, []);
   assert.deepEqual(y.saved().picked, { chestnut: '2027-10-05' });
   assert.ok(list('moment.chestnut_first').includes(y.v.bubble.textContent), y.v.bubble.textContent);
-  assert.equal(y.v.doing, null);
   assert.equal(fruitPicking(), false);
+  ctx.mock.timers.tick(1000);
+  assert.equal(y.v.doing, null, 'and then it goes on with its day');
 });
 
-test('a later pick the same day says an ordinary line, and a friend taken away leaves the burr', async ctx => {
+test('with reduced motion the fruit does not rise: it goes as the friend shows its pose and speaks', async ctx => {
+  const y = await pickYard(ctx);
+  const motion = reduced.matches;
+  reduced.matches = true;
+  ctx.after(() => (reduced.matches = motion));
+  y.click();
+  y.arrive();
+  assert.ok(!y.button.classList.contains('lifting'));
+  ctx.mock.timers.tick(0);
+  assert.equal(y.live().length, 0, 'gone at once');
+  assert.equal(y.v.pose, 'jump');
+  assert.ok(list('moment.chestnut_first').includes(y.v.bubble.textContent));
+  assert.deepEqual(y.digging(), []);
+});
+
+test('a later pick the same day says an ordinary line, and a friend taken away leaves the fruit', async ctx => {
   const y = await pickYard(ctx, { stored: record([lyingBurr('1')], { picked: { chestnut: '2027-10-05' } }) });
   y.click();
   release(y.v);
@@ -520,8 +552,48 @@ test('a later pick the same day says an ordinary line, and a friend taken away l
   assert.equal(y.saved().out.length, 1, 'still there');
   y.click();
   y.arrive();
-  ctx.mock.timers.tick(1950);
+  ctx.mock.timers.tick(FRUIT_LIFT_MS);
   assert.ok(list('moment.chestnut_pick').includes(y.v.bubble.textContent), y.v.bubble.textContent);
+});
+
+test('whatever takes the friend while the fruit rises leaves the fruit lying where it was', async ctx => {
+  for (const [name, take] of [
+    ['a press or a drag', ({ v }) => release(v)],
+    ['a new size or land', () => cancelFruitPicks()],
+    [
+      'a game',
+      ({ v }) => {
+        state.setGame({ kind: 'tag' });
+        release(v);
+      },
+    ],
+  ])
+    await ctx.test(name, async s => {
+      const y = await pickYard(s);
+      s.after(() => state.setGame(null));
+      y.click();
+      y.arrive();
+      assert.ok(y.button.classList.contains('lifting'));
+      take(y);
+      assert.ok(!y.button.classList.contains('lifting'), 'it settles back');
+      assert.ok(!y.button.classList.contains('picking'));
+      assert.equal(y.v.doing, null);
+      s.mock.timers.tick(2000);
+      assert.equal(y.saved().out.length, 1, 'still there');
+      assert.equal(y.v.bubble.textContent ?? '', '', 'nothing said');
+      assert.equal(fruitPicking(), false);
+    });
+});
+
+test('a tree pulled up while its fruit rises takes the fruit, and nothing is said', async ctx => {
+  const y = await pickYard(ctx);
+  y.click();
+  y.arrive();
+  state.data.garden.trees = [];
+  ctx.mock.timers.tick(FRUIT_LIFT_MS);
+  assert.equal(y.v.bubble.textContent ?? '', '');
+  assert.equal(y.v.doing, null, 'the friend is let go');
+  assert.equal(fruitPicking(), false);
 });
 
 test('with no friend in the yard a click says who could pick it up', async ctx => {
@@ -589,4 +661,29 @@ test('fruit falls from the crown, bounces once and settles, stays still for redu
     /@media \(prefers-reduced-motion: reduce\) \{[^@]*\.fallen-fruit\.dropped svg, \.fallen-fruit\.dropped::before \{ animation: none; \}/,
   );
   assert.match(css, /\.yard\.aiming \.fallen-fruit, \.yard\.playing \.fallen-fruit \{ pointer-events: none; \}/);
+});
+
+test('picked fruit rises gently toward the paws and fades, with no bounce, and is simply gone for reduced motion', async () => {
+  const css = (await readFile('src/styles/garden.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ');
+  const [, ms] = css.match(
+    /\.fallen-fruit\.lifting svg \{ animation: fruit-lift (\d+)ms cubic-bezier\([^)]*\) forwards; \}/,
+  );
+  assert.equal(Number(ms), FRUIT_LIFT_MS);
+  assert.ok(FRUIT_LIFT_MS >= 500 && FRUIT_LIFT_MS <= 700);
+  const frames = css.match(/@keyframes fruit-lift \{(.*?\}) \}/)?.[1] || '';
+  // From where it lies straight to the paws in one move, so nothing overshoots; it fades at the end.
+  const steps = [...frames.matchAll(/(from|to|[\d.]+%) \{([^}]*)\}/g)];
+  assert.deepEqual(
+    steps.filter(([, , body]) => body.includes('transform')).map(([, at]) => at),
+    ['to'],
+  );
+  assert.match(steps.at(-1)[2], /transform: translate\(var\(--lift-x\), var\(--lift-y\)\)/);
+  assert.match(steps.at(-1)[2], /opacity: 0/);
+  assert.match(
+    css,
+    /@media \(prefers-reduced-motion: reduce\) \{[^@]*\.fallen-fruit\.lifting svg \{ animation: none; \}/,
+  );
+  // Nothing of a dig is drawn for fruit.
+  const code = await readFile('src/yard/fallen-fruit.js', 'utf8');
+  assert.doesNotMatch(code, /sendToDig|startDig|doneDigging|'dig'/);
 });

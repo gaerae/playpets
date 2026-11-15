@@ -11,15 +11,19 @@
 //   `art`, `size`, `title` and `lines`.
 // - It falls from the lower edge of the tree's crown, faster as it goes, bounces once a little and
 //   settles (garden.css); with reduced motion it is simply there, and can be picked all the same.
-// - A click on one sends a friend to pick it up, with the walk and the stroke of a spring shoot's
-//   gathering (work.js); the friend says a happy line, the day's first pick of that fruit a line of
-//   its own, and the fruit leaves the yard.
+// - A click on one sends a friend to pick it up, with no digging: it walks to stand beside the fruit,
+//   which rises toward its paws and fades while the friend shows its "found it" pose (or a little
+//   jump); then it says a happy line, the day's first pick of that fruit a line of its own. With
+//   reduced motion the fruit simply goes.
+import { animationSpec } from '../core/animation.js';
+import { playCompanionAction, prepareCompanionAction } from '../core/companion-actions.js';
 import { list, t } from '../core/i18n.js';
 import { pick } from '../core/math.js';
+import { reduced } from '../core/sprites.js';
 import { aiming, data, game, recall, remember, selected, toast, views } from '../core/state.js';
 import { artHref } from './art.js';
 import { treeSize } from './catalog.js';
-import { depthAt, depthScaleAt, fieldToYard } from './field.js';
+import { depthAt, depthScaleAt, fieldToYard, footOf, footTarget, petHeight, sizeOf } from './field.js';
 import { groundProfile } from './ground.js';
 import { localDay } from './growth.js';
 import { propButton, propScale, reconcile, setDown } from './props.js';
@@ -34,10 +38,10 @@ import {
   momentTrees,
   pickLine,
 } from './tree-moment-rules.js';
-import { forPerson, release } from './trips.js';
+import { forPerson, release, rest, sendTo } from './trips.js';
 import { thingGone } from './veil.js';
-import { bubble } from './views.js';
-import { doneDigging, sendToDig, startDig, stopWork } from './work.js';
+import { bubble, pose } from './views.js';
+import { holdAtWork, stopWork } from './work.js';
 import { scene } from './world.js';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -53,6 +57,15 @@ const made = new Set();
 const shown = new Map();
 // The fruit friends are on their way to or picking up: fruit id → the task ({ v, end }).
 const picks = new Map();
+/** How long picked fruit takes to rise toward the friend's paws and fade (garden.css fruit-lift). */
+export const FRUIT_LIFT_MS = 600;
+// A friend picking fruit up stands this share of its width beside it; the fruit rises this share of
+// the way across to the friend's middle and up to its paws, this share of its height above its feet.
+const BESIDE = 0.55;
+const TOWARD = 0.45;
+const PAWS = 0.42;
+// The little jump of a friend with no "found it" pose of its own.
+const JUMP_MS = Math.round(animationSpec('jump').seconds * 1000);
 
 /** Whether a friend is going for fallen fruit or picking it up (a flower viewing or a visit waits). */
 export const fruitPicking = () => picks.size > 0;
@@ -170,19 +183,17 @@ export function pickFruit(id) {
     toast(t('catch.busy'));
     return false;
   }
-  const world = scene.world;
-  let dig = null,
-    timer = null;
-  const task = { v, end: null };
-  // The task's one end, however it comes (taken away, another place, a game, done): the stroke and
-  // its timer stop, and the fruit is free to be clicked again.
+  const world = scene.world,
+    task = { v, end: null };
+  let timers = [];
+  const later = (ms, fn) => timers.push(setTimeout(fn, ms));
+  // The task's one end, however it comes (taken away, another place, a game, done): its timers and
+  // pose stop, fruit still rising settles back, and fruit still lying is free to be clicked again.
   const end = () => {
-    clearTimeout(timer);
-    if (dig) {
-      dig.stop();
-      stopWork(v);
-      dig = null;
-    }
+    for (const timer of timers) clearTimeout(timer);
+    timers = [];
+    stopWork(v);
+    shown.get(id)?.button.classList.remove('lifting');
     if (picks.get(id) === task) {
       picks.delete(id);
       mark(id, false);
@@ -190,20 +201,39 @@ export function pickFruit(id) {
   };
   task.end = end;
   const ours = () => picks.get(id) === task && views.get(v.pet.id) === v;
-  sendToDig(v, fruit, 'dig', {
+  prepareCompanionAction(v.asset, 'discover');
+  // Beside the fruit, on the side it comes from, so the fruit is at its paws and not under it.
+  const side = footOf(v).x < spot.x ? -1 : 1;
+  sendTo(v, footTarget(v, spot.x + side * sizeOf(v.pet) * BESIDE, spot.y), {
     cancel: end,
     arrive: () => {
       if (!ours() || !stillOut(id, world)) return end();
-      dig = startDig(v, fruit, 'dig', end);
-      timer = setTimeout(() => {
+      holdAtWork(v, end);
+      // Its own "found it" pose (as after a treasure or a catch), else a little jump every pet has.
+      const authored = playCompanionAction(v, 'discover');
+      if (!authored) pose(v, 'jump', JUMP_MS);
+      const lift = reduced.matches ? 0 : FRUIT_LIFT_MS,
+        button = shown.get(id)?.button;
+      if (lift && button) {
+        const feet = footOf(v),
+          tall = Number.parseFloat(button.style.height) || 0;
+        button.style.setProperty('--lift-x', `${Math.round((feet.x - spot.x) * TOWARD)}px`);
+        button.style.setProperty('--lift-y', `${Math.min(-4, Math.round(tall / 2 - petHeight(v.pet) * PAWS))}px`);
+        button.classList.add('lifting');
+      }
+      later(lift, () => {
         if (!ours() || !stillOut(id, world)) return release(v);
         const said = pickLine(kept, kindUnder(fruit), localDay(new Date()));
         kept = { ...said.kept, out: said.kept.out.filter(f => f.id !== id) };
         save(kept);
-        doneDigging(v, true);
-        bubble(v, pick(list(said.key)), 2600);
+        picks.delete(id);
         renderFruit();
-      }, dig.duration);
+        bubble(v, pick(list(said.key)), 2600);
+        later(Math.max(0, (authored?.duration ?? JUMP_MS) - lift), () => {
+          release(v);
+          rest(v);
+        });
+      });
     },
   });
   picks.set(id, task);
