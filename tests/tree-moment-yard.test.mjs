@@ -246,6 +246,10 @@ test('a garden change that leaves the plum where it stands lets the visit go on'
   syncTreeMoments();
   assert.ok(v.button.classList.contains('looking-up'));
   assert.equal(visiting(v), true);
+  // A position saved back with float noise is the same place (tree-moment-rules.js treeStands).
+  state.data.garden.trees = [{ ...plum, x: plum.x + 1e-9 }];
+  syncTreeMoments();
+  assert.equal(visiting(v), true, 'float noise is no move');
 });
 
 test('a visit under way when its hour or weather ends finishes gently, and no new one starts', t => {

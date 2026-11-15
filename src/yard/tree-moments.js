@@ -15,7 +15,7 @@ import { data, game } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
 import { fieldToYard, footOf, footTarget, petHeight, sizeOf } from './field.js';
 import { treeBox } from './planted-trees.js';
-import { momentTrees, visitX } from './tree-moment-rules.js';
+import { momentTrees, treeStands, visitX } from './tree-moment-rules.js';
 import { release, rest, sendTo, setDoing } from './trips.js';
 import { freeFriends, viewing, yardBusy } from './viewing.js';
 import { bubble, gaze } from './views.js';
@@ -62,7 +62,7 @@ export function syncTreeMoments() {
   live = momentTrees(data.garden?.trees, scene, Date.now(), data.limits).filter(tree => tree.moment.kind === 'visit');
   if (!visitor) return;
   const { v, tree } = visitor;
-  if (!data.garden?.trees?.some(each => each.id === tree.id && each.x === tree.x && each.y === tree.y)) release(v);
+  if (!data.garden?.trees?.some(each => each.id === tree.id && treeStands(each, tree))) release(v);
 }
 
 /** Ends a visit on its way or at the tree (a new window size or land): its walk and look were worked

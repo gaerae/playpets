@@ -26,6 +26,7 @@ import {
   momentTime,
   momentTrees,
   pickLine,
+  treeStands,
   visitX,
 } from '../src/yard/tree-moment-rules.js';
 
@@ -212,6 +213,14 @@ test('fruit lies six hours under its own grown tree, in its own place, while its
   assert.deepEqual(fruitStays([b], look({ now: b.at + FRUIT_STAYS_MS })), [], 'six hours on it is gone');
   assert.deepEqual(freshFruit([b], b.at + FRUIT_STAYS_MS - 1), [b]);
   assert.deepEqual(freshFruit([b], b.at - 1), [], 'one from a clock set back is not trusted');
+});
+
+test('a tree stands where it stood unless it moved by more than float noise', () => {
+  const tree = grown('a', 'chestnut', 0.5, 0.3);
+  assert.equal(treeStands(tree, { x: 0.5, y: 0.3 }), true);
+  assert.equal(treeStands(tree, { x: 0.5 + 1e-9, y: 0.3 - 1e-9 }), true, 'float noise is no move');
+  assert.equal(treeStands(tree, { x: 0.51, y: 0.3 }), false, 'moved a little to the side');
+  assert.equal(treeStands(tree, { x: 0.5, y: 0.29 }), false, 'or a little back');
 });
 
 test('the stored fruit is read back, keeping only what makes sense', () => {

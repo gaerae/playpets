@@ -110,9 +110,13 @@ export const fruitHere = (out, world) => out.filter(f => f.world === world);
 export const freshFruit = (out, now) =>
   out.filter(f => !!f && typeof f.at === 'number' && now - f.at >= 0 && now - f.at < FRUIT_STAYS_MS);
 
-// A tree whose field x or y differs from where it stood when its fruit dropped (`treeX`, `treeY`) by
-// more than this has been moved; anything less is float noise.
+// A tree whose field x or y differs from where it stood by more than this has been moved; anything
+// less is float noise.
 const STOOD = 1e-6;
+/** Whether `tree` still stands at `at` (field x and y), where it stood when its fruit dropped or a
+ * visit to it began: any move is one, since fruit and a visiting friend are only a little from its
+ * trunk. */
+export const treeStands = (tree, at) => Math.abs(at.x - tree.x) <= STOOD && Math.abs(at.y - tree.y) <= STOOD;
 
 /** The fallen fruit that stays, in every place: fresh, under its own tree still grown in the fruit's
  * place and standing where it stood when the fruit dropped, while `season` (the yard's, scene.season)
@@ -128,8 +132,7 @@ export function fruitStays(out, { trees, season, now, limits }) {
       treeStage(tree, now, limits) >= 2 &&
       harvestOf(tree.kind)?.season === season &&
       // Fruit lies a few hundredths from its trunk, so even a short move takes it along.
-      Math.abs(f.treeX - tree.x) <= STOOD &&
-      Math.abs(f.treeY - tree.y) <= STOOD
+      treeStands(tree, { x: f.treeX, y: f.treeY })
     );
   });
 }
