@@ -20,27 +20,30 @@ export const momentsOf = kind => treeKind(kind)?.moments ?? [];
 /** A kind of tree's harvest moment, or null: what it drops, and when. */
 export const harvestOf = kind => momentsOf(kind).find(moment => moment.kind === 'harvest') ?? null;
 
+// Whether `moment` is on in `scene` with the yard showing `season` (yardSeason, worked out once by
+// the caller).
+const momentOn = (scene, season, moment) =>
+  !!moment &&
+  season === moment.season &&
+  FAIR.includes(scene.period) &&
+  (moment.weather ?? CLEAR).includes(scene.weather);
+
 /** Whether `moment` is on in `scene` (world.js): the yard shows its season (decor-shown.js
  * yardSeason, so never in a place without seasons), morning to evening, in its weather (clear unless
  * it names more). */
-export function momentTime(scene, moment) {
-  return (
-    !!moment &&
-    yardSeason(scene) === moment.season &&
-    FAIR.includes(scene.period) &&
-    (moment.weather ?? CLEAR).includes(scene.weather)
-  );
-}
+export const momentTime = (scene, moment) => momentOn(scene, yardSeason(scene), moment);
 
 /** The grown trees in this place with a moment on now, each with that moment, in garden order. */
 export function momentTrees(trees, scene, now, limits) {
-  return (trees || [])
-    .filter(tree => tree.world === scene.world && treeStage(tree, now, limits) >= 2)
-    .flatMap(tree =>
-      momentsOf(tree.kind)
-        .filter(moment => momentTime(scene, moment))
-        .map(moment => ({ id: tree.id, kind: tree.kind, x: tree.x, y: tree.y, moment })),
-    );
+  const season = yardSeason(scene);
+  return (trees || []).flatMap(tree => {
+    // Most kinds name no moment: those are passed over before their growth is worked out.
+    const moments = tree.world === scene.world ? momentsOf(tree.kind) : [];
+    if (!moments.length || treeStage(tree, now, limits) < 2) return [];
+    return moments
+      .filter(moment => momentOn(scene, season, moment))
+      .map(moment => ({ id: tree.id, kind: tree.kind, x: tree.x, y: tree.y, moment }));
+  });
 }
 
 /** A grown tree's crown, as shares of the tree as planted-trees.js treeBox draws it: no kind says
