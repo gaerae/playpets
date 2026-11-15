@@ -16,6 +16,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- The red plum is drawn fuller, with crimson blossom along every branch in winter and green plums in summer.
 - Friends out on the desktop use less CPU while they stand about: the desktop is drawn only when a friend's picture changes, not ten times a second, and with reduced motion not at all until something happens; the app also checks where the pointer is less often while it is far from them.
 
 ### Website and docs
