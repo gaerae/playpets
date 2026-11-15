@@ -1,6 +1,5 @@
 // Tree moments, as pure rules: a grown tree whose kind names moments in the catalogue
-// (catalog.json trees[].moments) has each in its own season, in fair hours, outdoors. A
-// `head-petal` moment now and then lets a petal land on a friend standing under the crown; a `visit`
+// (catalog.json trees[].moments) has each in its own season, in fair hours, outdoors. A `visit`
 // moment draws a friend to the tree to look up at it; a `harvest` moment drops the tree's fruit at
 // its foot (a chestnut's burr, a persimmon, a fig). The page runs them (tree-moments.js,
 // fallen-fruit.js); what is decided here takes the time, the random draws and the ground as
@@ -12,7 +11,7 @@ import { behind, freeSpot, treeStage } from './discovery-rules.js';
 import { underBody } from './shoot-rules.js';
 
 /** What a moment may be, and the weather it keeps when it names none. */
-export const MOMENT_KINDS = Object.freeze(['head-petal', 'visit', 'harvest']);
+export const MOMENT_KINDS = Object.freeze(['visit', 'harvest']);
 const FAIR = ['morning', 'day', 'evening'];
 const CLEAR = ['clear'];
 
@@ -43,19 +42,6 @@ export function momentTrees(trees, scene, now, limits) {
         .map(moment => ({ id: tree.id, kind: tree.kind, x: tree.x, y: tree.y, moment })),
     );
 }
-
-// ---- head-petal: a petal on a friend under the crown ----
-
-/** The wait between two petals landing on heads under a tree, as for the cherry's petals on heads
- * (petals.js): seldom enough to stay a small thing. */
-export const HEAD_PETAL_EVERY = [25_000, 60_000];
-
-/** Whether a friend's feet at `foot` stand under `crown` ({ x, width, foot, zoom }, in yard pixels):
- * within the crown's width, from a little behind the trunk to a little in front of it. */
-export const underCrown = (foot, crown) =>
-  Math.abs(foot.x - crown.x) <= crown.width / 2 &&
-  foot.y >= crown.foot - 30 * crown.zoom &&
-  foot.y <= crown.foot + 60 * crown.zoom;
 
 // ---- harvest: fruit at the foot ----
 

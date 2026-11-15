@@ -1,7 +1,6 @@
 // Petals on heads: during the blossom festival a falling petal now and then lands on a friend that
 // stands still, and stays there until the friend moves or blossom time is over; now and then the
-// friend notices it. A grown fringe tree (tree-moments.js) lands one too, in its own colours,
-// kept while that tree's moment is on.
+// friend notices it.
 //
 // - The petal sits in the friend's label, the layer above the field, at the top of its head
 //   (--head, core/sprites.js crown); friends.css draws it.
@@ -48,11 +47,8 @@ export function setupPetals() {
   falling = cadence(wait);
 }
 
-/** A petal lands on `v`'s head and stays until the friend moves; false when one is already there.
- * By default it is a cherry petal of blossom time; a tree's moment gives its own `colors` ([main,
- * light, shade]), the list the friend may notice it with (`notice`), and `keep`, whether it may
- * still rest there (petalTick asks it each frame). */
-export function landPetal(v, { colors = null, notice = 'viewing.petal_notice', keep = () => viewingTime(scene) } = {}) {
+/** A petal lands on `v`'s head and stays until the friend moves; false when one is already there. */
+export function landPetal(v) {
   if (v.petal) return false;
   const petal = document.createElement('i');
   petal.className = 'head-petal';
@@ -60,24 +56,16 @@ export function landPetal(v, { colors = null, notice = 'viewing.petal_notice', k
   const offset = (Math.random() * 2 - 1) * SPREAD * sizeOf(v.pet);
   petal.style.setProperty('--petal-x', `${Math.round(offset)}px`);
   petal.style.setProperty('--petal-turn', `${Math.round((Math.random() * 2 - 1) * TURN)}deg`);
-  if (colors) {
-    petal.classList.add('tinted');
-    const [main, light = main, shade = main] = colors;
-    petal.style.setProperty('--petal', main);
-    petal.style.setProperty('--petal-hi', light);
-    petal.style.setProperty('--petal-lo', shade);
-  }
   if (!reduced.matches) petal.classList.add('landing');
   v.label.append(petal);
   v.petal = petal;
-  v.petalKeep = keep;
   worn = true;
   if (Math.random() < NOTICE_CHANCE)
     v.petalTimer = setTimeout(
       () => {
         v.petalTimer = null;
         // Only while it still wears this one, and never over its own words.
-        if (v.petal === petal && v.bubble.hidden) bubble(v, pick(list(notice)), NOTICE_MS);
+        if (v.petal === petal && v.bubble.hidden) bubble(v, pick(list('viewing.petal_notice')), NOTICE_MS);
       },
       between(Math.random, NOTICE_AFTER),
     );
@@ -85,9 +73,9 @@ export function landPetal(v, { colors = null, notice = 'viewing.petal_notice', k
 }
 
 /** Called by the frame loop beside the other yard life: in blossom time a petal now and then lands
- * on a friend standing still, or standing to view the blossom. When its time is over (night, rain,
- * the festival's end, or its tree's moment's end) a petal comes off, so a friend that never moves
- * (reduced motion) does not wear one into the night or the summer. */
+ * on a friend standing still, or standing to view the blossom. When blossom time is over (night,
+ * rain, the festival's end) every petal comes off, so a friend that never moves (reduced motion)
+ * does not wear one into the night or the summer. */
 export function petalTick(now) {
   // A gathering starting or ending draws the next wait anew, so petals come thicker as soon as
   // friends gather rather than after the slower wait already drawn.
@@ -95,13 +83,9 @@ export function petalTick(now) {
     gathered = !gathered;
     falling.after(now, wait());
   }
-  // A petal whose time is over comes off (blossom time's, or its tree's moment's), though nothing
-  // moved the friend.
-  if (worn) {
+  if (worn && !viewingTime(scene)) {
+    for (const v of views.values()) brushPetal(v);
     worn = false;
-    for (const v of views.values())
-      if (v.petal && !v.petalKeep?.()) brushPetal(v);
-      else if (v.petal) worn = true;
   }
   if (!falling.due(now) || !viewingTime(scene)) return;
   const standing = [...views.values()].filter(v => (isFree(v) || v.viewing) && !v.drag && !v.petal);

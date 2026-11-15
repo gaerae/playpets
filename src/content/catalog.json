@@ -2038,15 +2038,7 @@
         "seasons": ["spring"],
         "weather": ["clear"],
         "places": ["woodland"]
-      },
-      "moments": [
-        {
-          "season": "spring",
-          "kind": "head-petal",
-          "colors": ["#fffdf5", "#f3efdf", "#ffffff"],
-          "lines": { "notice": "moment.fringe_head" }
-        }
-      ]
+      }
     },
     {
       "id": "fig",

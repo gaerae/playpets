@@ -67,10 +67,10 @@
 
 ## Follow-up: fallen fruit, several moments a tree, and quieter blossom (2026-11-16)
 
-- Nothing falls from a crown any more: the yard's own spring petals already fall, and a second fall from one tree was easy to stop noticing. The `drift` kind, its timing and the scenery's part are gone; what stays are two quiet details.
-- `head-petal` (the fringe tree in spring): now and then a white petal lands on a friend standing under the grown tree, as seldom as the cherry's petals on heads (one every 25–60 s at most, `HEAD_PETAL_EVERY`). It stays until the friend moves or the moment ends, and the friend may say a `lines.notice` line. The wait starts over each time the moment comes back.
+- Nothing falls from a crown any more: the yard's own spring petals already fall, and a second fall from one tree was easy to stop noticing. The `drift` kind, its timing and the scenery's part are gone.
+- The fringe tree has no moment. A petal landing on a friend under it was kept for a while, but it came only to a friend standing still under the tree and was a few white pixels against white blossom, so it was close to invisible.
 - `visit` (the red plum in winter): now and then a free friend walks over, looks up at the blossom and says a `lines.say` line. Nothing else marks the moment.
-- A head-petal moment names only `colors` (main, light, shade) and `lines.notice`; a visit names `lines.say`; `petals`, `pace` and `petal` are gone.
+- The kinds are `visit` and `harvest`. A visit names only `lines.say`; `colors`, `petals`, `pace` and `petal` are gone.
 - A tree names a `moments` list instead of one `moment`: at most one moment a season and one of each kind, so the red plum can flower in winter and drop fruit in summer.
 - The chestnut's burr is one kind of fallen fruit: `src/yard/fallen-fruit.js` drops, draws and picks up what a tree's harvest moment names (`art`, `size`, a `title` key for the button, and `lines`). The rules use fruit names (`fruitDue`, `FRUIT_OUT`).
 - The day's first pick is counted per kind of tree, so the first chestnut and the first persimmon of a day each have their line. `first` lists have two or three lines.

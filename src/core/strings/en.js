@@ -1089,11 +1089,6 @@ export const strings = {
   'viewing.wish': ['You caught a petal! Your wish will come true.', 'Make a wish. It’ll come true, I just know it!'],
   'moment.chestnut_title': 'A chestnut burr. Click to send a friend to pick it up',
   'moment.fruit_no_friend': 'Invite a friend to pick it up',
-  'moment.fringe_head': [
-    'Oh! A little white petal landed on me.',
-    'The fringe tree gave me a petal!',
-    'Look, I’ve got a white flower in my hair.',
-  ],
   'moment.plum_smell': [
     'Mmm, the plum blossom smells so sweet.',
     'Blooming in the cold. How brave!',

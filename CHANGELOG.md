@@ -12,7 +12,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
-- Grown trees have a moment in their season: in spring a Korean fringe tree's white petal now and then lands on the head of a friend standing under it; in winter friends sometimes walk over to a red plum in bloom to smell the blossom; fruit trees drop their fruit in the season it shows (a chestnut's burrs, acorns and persimmons in autumn, figs and the red plum's green plums in summer, yuzu in winter), and a friend picks it up when you click it, with a special line for the day's first of each.
+- Grown trees have a moment in their season: in winter friends sometimes walk over to a red plum in bloom to smell the blossom; fruit trees drop their fruit in the season it shows (a chestnut's burrs, acorns and persimmons in autumn, figs and the red plum's green plums in summer, yuzu in winter), and a friend picks it up when you click it, with a special line for the day's first of each.
 
 ### Changed
 
@@ -20,7 +20,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Website and docs
 
-- The guide's trees section describes the fringe tree's petals, the red plum's visits and the fruit that fruit trees drop.
+- The guide's trees section describes the red plum's visits and the fruit that fruit trees drop.
 
 ## [1.7.2] - 2026-11-14
 

@@ -45,14 +45,13 @@ test('the spring shoots are eight spring kinds with their drawings', () => {
 });
 
 // A tree names its moments (tree-moment-rules.js) as data: a new tree gets one by naming it.
-test("every tree's moments are kinds the yard knows, with their colours, drawings and lines in every language", () => {
+test("every tree's moments are kinds the yard knows, with their drawings and lines in every language", () => {
   const named = catalog.trees.filter(tree => tree.moments);
   assert.deepEqual(
     named.map(tree => [tree.id, tree.moments.map(m => `${m.kind} ${m.season}`)]),
     [
       ['oak', ['harvest autumn']],
       ['persimmon', ['harvest autumn']],
-      ['fringe_tree', ['head-petal spring']],
       ['fig', ['harvest summer']],
       ['chestnut', ['harvest autumn']],
       ['red_plum', ['visit winter', 'harvest summer']],
@@ -64,8 +63,7 @@ test("every tree's moments are kinds the yard knows, with their colours, drawing
     catalog.trees.every(tree => !('moment' in tree)),
     'a tree names a list of moments, not one',
   );
-  const seasons = ['spring', 'summer', 'autumn', 'winter'],
-    hex = /^#[0-9a-f]{6}$/;
+  const seasons = ['spring', 'summer', 'autumn', 'winter'];
   // A list of three or four lines a friend says (two or three for a day's first pick).
   const said = (key, least, most) => {
     for (const lang of LANGUAGES) {
@@ -84,14 +82,10 @@ test("every tree's moments are kinds the yard knows, with their colours, drawing
       assert.ok(seasons.includes(moment.season), `${id}: a season`);
       assert.ok(MOMENT_KINDS.includes(moment.kind), `${id}: a kind of moment`);
       for (const weather of moment.weather ?? []) assert.ok(['clear', 'snow'].includes(weather), `${id}: ${weather}`);
-      // Nothing falls from the crown: a petal lands on a head, or a friend comes to the tree.
-      for (const gone of ['petals', 'pace', 'petal']) assert.equal(moment[gone], undefined, `${id}: no ${gone}`);
-      if (moment.kind === 'head-petal') {
-        assert.ok(moment.colors.length === 3 && moment.colors.every(c => hex.test(c)), `${id}: petal colours`);
-        assert.deepEqual(Object.keys(moment.lines), ['notice'], `${id}: a line to notice it with`);
-        said(moment.lines.notice, 3, 4);
-      } else if (moment.kind === 'visit') {
-        assert.equal(moment.colors, undefined, `${id}: no petals to colour`);
+      // Nothing falls from the crown and nothing lands on a head: no petals to colour.
+      for (const gone of ['petals', 'pace', 'petal', 'colors'])
+        assert.equal(moment[gone], undefined, `${id}: no ${gone}`);
+      if (moment.kind === 'visit') {
         assert.deepEqual(Object.keys(moment.lines), ['say'], `${id}: a line to say at the tree`);
         said(moment.lines.say, 3, 4);
       } else {

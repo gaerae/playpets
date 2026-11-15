@@ -1,8 +1,7 @@
 // Tree moments (src/yard/tree-moment-rules.js): a grown tree whose kind names a moment has it in its
-// own season, in fair hours, outdoors. A head-petal moment lets a petal land on a friend standing
-// under the crown now and then; a visit moment draws a friend to the tree; a harvest moment drops the
-// tree's fruit at the foot, kept in the webview's storage. The clock, the random draws and the ground
-// are the test's.
+// own season, in fair hours, outdoors. A visit moment draws a friend to the tree; a harvest moment
+// drops the tree's fruit at the foot, kept in the webview's storage. The clock, the random draws and
+// the ground are the test's.
 import './support/content.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -19,7 +18,6 @@ import {
   fruitSpot,
   fruitStays,
   freshFruit,
-  HEAD_PETAL_EVERY,
   keptFruit,
   harvestOf,
   MOMENT_KINDS,
@@ -27,7 +25,6 @@ import {
   momentTime,
   momentTrees,
   pickLine,
-  underCrown,
   visitX,
 } from '../src/yard/tree-moment-rules.js';
 
@@ -42,12 +39,8 @@ const fair = season => ({ world: 'woodland', season, period: 'day', weather: 'cl
 // A kind's moment of one kind, for these tests.
 const momentOf = (kind, what) => momentsOf(kind).find(moment => moment.kind === what);
 
-test('the fringe tree, the red plum and the fruit trees each name their moments', () => {
-  assert.deepEqual(MOMENT_KINDS, ['head-petal', 'visit', 'harvest']);
-  assert.deepEqual(
-    momentsOf('fringe_tree').map(m => [m.kind, m.season]),
-    [['head-petal', 'spring']],
-  );
+test('the red plum and the fruit trees each name their moments', () => {
+  assert.deepEqual(MOMENT_KINDS, ['visit', 'harvest']);
   assert.deepEqual(
     momentsOf('red_plum').map(m => [m.kind, m.season]),
     [
@@ -64,21 +57,22 @@ test('the fringe tree, the red plum and the fruit trees each name their moments'
     ['chestnut', 'autumn'],
   ])
     assert.equal(harvestOf(kind).season, season, kind);
+  assert.deepEqual(momentsOf('fringe_tree'), [], 'the fringe tree has no moment');
   assert.equal(harvestOf('fringe_tree'), null, 'a tree with no harvest has none');
   assert.deepEqual(momentsOf('cherry'), [], 'a tree with no moment has none');
   assert.deepEqual(momentsOf('nothing'), []);
 });
 
 test('a moment is on in its season, morning to evening, in its weather, outdoors', () => {
-  const fringe = momentOf('fringe_tree', 'head-petal'),
-    plum = momentOf('red_plum', 'visit');
-  assert.equal(momentTime(fair('spring'), fringe), true);
-  for (const period of ['morning', 'evening']) assert.equal(momentTime({ ...fair('spring'), period }, fringe), true);
-  assert.equal(momentTime({ ...fair('spring'), period: 'night' }, fringe), false, 'not at night');
-  assert.equal(momentTime({ ...fair('spring'), weather: 'rain' }, fringe), false, 'not in rain');
-  assert.equal(momentTime({ ...fair('spring'), weather: 'snow' }, fringe), false, 'the fringe tree wants a clear sky');
-  assert.equal(momentTime(fair('summer'), fringe), false, 'not in another season');
-  assert.equal(momentTime({ ...fair('spring'), world: 'workshop' }, fringe), false, 'not where no season shows');
+  const plum = momentOf('red_plum', 'visit'),
+    chestnut = harvestOf('chestnut');
+  assert.equal(momentTime(fair('autumn'), chestnut), true);
+  for (const period of ['morning', 'evening']) assert.equal(momentTime({ ...fair('autumn'), period }, chestnut), true);
+  assert.equal(momentTime({ ...fair('autumn'), period: 'night' }, chestnut), false, 'not at night');
+  assert.equal(momentTime({ ...fair('autumn'), weather: 'rain' }, chestnut), false, 'not in rain');
+  assert.equal(momentTime({ ...fair('autumn'), weather: 'snow' }, chestnut), false, 'a clear sky unless it names more');
+  assert.equal(momentTime(fair('summer'), chestnut), false, 'not in another season');
+  assert.equal(momentTime({ ...fair('autumn'), world: 'workshop' }, chestnut), false, 'not where no season shows');
   assert.equal(momentTime(fair('winter'), plum), true);
   assert.equal(momentTime({ ...fair('winter'), weather: 'snow' }, plum), true, 'the plum blooms in snow too');
   assert.equal(momentTime({ ...fair('winter'), weather: 'rain' }, plum), false);
@@ -88,22 +82,22 @@ test('a moment is on in its season, morning to evening, in its weather, outdoors
 test('only grown trees in this place with their moment on count', () => {
   const now = T,
     trees = [
-      grown('a', 'fringe_tree'),
-      grown('b', 'fringe_tree', 0.2, 0.3, { planted: now - 1000 }),
-      grown('c', 'fringe_tree', 0.8, 0.3, { world: 'lakeside' }),
+      grown('a', 'chestnut'),
+      grown('b', 'chestnut', 0.2, 0.3, { planted: now - 1000 }),
+      grown('c', 'chestnut', 0.8, 0.3, { world: 'lakeside' }),
       grown('d', 'cherry'),
-      grown('e', 'chestnut'),
-      grown('f', 'fringe_tree', 0.1, 0.5, { planted: now, stage: 2 }),
+      grown('e', 'fig'),
+      grown('f', 'chestnut', 0.1, 0.5, { planted: now, stage: 2 }),
     ];
   assert.deepEqual(
-    momentTrees(trees, fair('spring'), now, LIMITS).map(t => t.id),
+    momentTrees(trees, fair('autumn'), now, LIMITS).map(t => t.id),
     ['a', 'f'],
     'a seedling, another place, a tree with no moment and another season are left out',
   );
-  const [a] = momentTrees(trees, fair('spring'), now, LIMITS);
-  assert.deepEqual(a, { id: 'a', kind: 'fringe_tree', x: 0.5, y: 0.3, moment: momentOf('fringe_tree', 'head-petal') });
+  const [a] = momentTrees(trees, fair('autumn'), now, LIMITS);
+  assert.deepEqual(a, { id: 'a', kind: 'chestnut', x: 0.5, y: 0.3, moment: harvestOf('chestnut') });
   assert.deepEqual(
-    momentTrees(trees, fair('autumn'), now, LIMITS).map(t => t.id),
+    momentTrees(trees, fair('summer'), now, LIMITS).map(t => t.id),
     ['e'],
   );
   // A tree with two moments has the one of the season.
@@ -112,17 +106,6 @@ test('only grown trees in this place with their moment on count', () => {
   assert.equal(momentTrees(plum, fair('summer'), now, LIMITS)[0].moment.kind, 'harvest');
   assert.deepEqual(momentTrees(plum, fair('autumn'), now, LIMITS), []);
   assert.deepEqual(momentTrees(undefined, fair('spring'), now, LIMITS), []);
-});
-
-test('a head petal comes as seldom as a cherry petal on a head, and only to a friend under the crown', () => {
-  assert.deepEqual(HEAD_PETAL_EVERY, [25_000, 60_000], 'every 25 to 60 seconds at most');
-  const crown = { x: 400, width: 200, foot: 500, zoom: 1 };
-  assert.equal(underCrown({ x: 400, y: 500 }, crown), true, 'at the trunk');
-  assert.equal(underCrown({ x: 499, y: 520 }, crown), true, 'under the crown’s edge, a little in front');
-  assert.equal(underCrown({ x: 501, y: 500 }, crown), false, 'past the edge');
-  assert.equal(underCrown({ x: 400, y: 469 }, crown), false, 'too far behind the trunk');
-  assert.equal(underCrown({ x: 400, y: 561 }, crown), false, 'too far in front');
-  assert.equal(underCrown({ x: 400, y: 590 }, { ...crown, zoom: 1.5 }), true, 'the reach grows with the tree');
 });
 
 // ---- fallen fruit ----

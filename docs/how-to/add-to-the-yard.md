@@ -329,11 +329,10 @@ Trees:
 
 Tree moments:
 - A tree names its grown moments with an optional `moments` list, at most one per season and one of each kind; the fields are listed in the [tree moments design](../design/2026-11-15-tree-moments.md#data).
-- `kind` is `head-petal` (a petal on a friend's head under the crown), `visit` (a friend walks over to look up at the tree), both in `src/yard/tree-moments.js`, or `harvest` (fallen fruit, `src/yard/fallen-fruit.js`); `MOMENT_KINDS` in `tree-moment-rules.js` lists them.
-- A head-petal moment gives `colors`: the petal's main, light and shade colours.
+- `kind` is `visit` (a friend walks over to look up at the tree, `src/yard/tree-moments.js`) or `harvest` (fallen fruit, `src/yard/fallen-fruit.js`); `MOMENT_KINDS` in `tree-moment-rules.js` lists them.
 - A harvest moment gives `art` and `size` (the fallen fruit, packed like other discovery art) and `title`, a string key for its button's title.
-- `lines` names string keys of friend lines in every language: `notice` for a head petal and `say` for a visit (three or four lines each), `pick` (three or four) and `first` (two or three) for a harvest.
-- `tests/content.test.mjs` checks the kinds, seasons, colours and sizes, the drawing, the title and the lines; the backend ignores the field.
+- `lines` names string keys of friend lines in every language: `say` for a visit (three or four lines), `pick` (three or four) and `first` (two or three) for a harvest.
+- `tests/content.test.mjs` checks the kinds, seasons and sizes, the drawing, the title and the lines; the backend ignores the field.
 
 Keepsakes:
 - Keepsakes use the `treasures` list, an art path and `rarity` (`common` or `uncommon`), plus `treasure.<id>` in every language.
