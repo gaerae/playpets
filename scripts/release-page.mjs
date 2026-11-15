@@ -24,6 +24,8 @@ export const LINE_LIMIT = Object.freeze({ en: 100, ko: 60, ja: 60, 'zh-hans': 60
 export const INTRO_LIMIT = Object.freeze({ en: 200, ko: 100, ja: 100, 'zh-hans': 100 });
 
 const ONLY = /^<Only os="([^"]*)" \/>\s*/;
+// The middle dots visible-notation.test.mjs keeps off the site.
+const MIDDLE_DOT = /[·・‧∙]/u;
 
 // Plain text: links keep their words, bold and code marks go.
 export const plain = line =>
@@ -88,6 +90,9 @@ export function pageProblems(page, lang) {
   const problems = [];
   const { front, intro, sections } = parse(page);
   if (!front || !/^version: /m.test(front)) problems.push('Start the page with front matter that has its version.');
+  // The site never separates with a middle dot (tests/visible-notation.test.mjs); found here, it stops
+  // the release before the tag rather than in the release build.
+  if (MIDDLE_DOT.test(page)) problems.push('Use a comma or "and" instead of a middle dot.');
   if (!intro) problems.push(`Start with an opening sentence before "${HEADINGS[lang][0]}".`);
   else if ([...plain(intro)].length > INTRO_LIMIT[lang])
     problems.push(`The opening sentence is longer than ${INTRO_LIMIT[lang]} characters.`);
