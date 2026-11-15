@@ -217,11 +217,11 @@ test('a friend at the plum, or on its way, gives way to what the person asks', t
   assert.equal(v.visiting, false);
 });
 
-// ---- burrs ----
+// ---- fallen fruit ----
 
 const AUTUMN = new Date(2027, 9, 5, 11).getTime();
 const chestnut = grown('c', 'chestnut', 0.5, 0.3);
-async function burrYard(ctx, { stored = null, values = {}, rng = [], tree = chestnut, now = AUTUMN } = {}) {
+async function fruitYard(ctx, { stored = null, values = {}, rng = [], tree = chestnut, now = AUTUMN } = {}) {
   ctx.mock.method(Math, 'random', () => (rng.length ? rng.shift() : 0.5));
   const y = await drawYard(ctx, {
     now,
@@ -237,19 +237,21 @@ async function burrYard(ctx, { stored = null, values = {}, rng = [], tree = ches
   const saved = () => JSON.parse(state.recall('fallen-fruit'));
   return { ...y, live, saved };
 }
-const lyingBurr = (id, x = 0.52, y = 0.33, extra = {}) => ({
+const lyingFruit = (id, x = 0.52, y = 0.33, extra = {}) => ({
   id,
   tree: 'c',
   world: 'woodland',
   x,
   y,
+  treeX: 0.5,
+  treeY: 0.3,
   at: AUTUMN - 1000,
   ...extra,
 });
-const record = (out, extra = {}) => JSON.stringify({ next: AUTUMN + 3_600_000, picked: '', out, ...extra });
+const record = (out, extra = {}) => JSON.stringify({ next: AUTUMN + 3_600_000, picked: {}, out, ...extra });
 
 test('a grown chestnut in autumn drops a burr at its foot now and then, drawn as it falls', async ctx => {
-  const y = await burrYard(ctx);
+  const y = await fruitYard(ctx);
   fruitMinute();
   assert.equal(y.live().length, 0, 'the first look only sets the wait');
   // 0.5 of the way through the first wait.
@@ -264,6 +266,7 @@ test('a grown chestnut in autumn drops a burr at its foot now and then, drawn as
   assert.equal(burr.tree, 'c');
   assert.equal(burr.world, 'woodland');
   assert.ok(burr.y > chestnut.y && Math.abs(burr.x - chestnut.x) < 0.1, 'at the foot, in front of the trunk');
+  assert.deepEqual([burr.treeX, burr.treeY], [chestnut.x, chestnut.y], 'noting where its tree stands');
   assert.equal(button.dataset.kind, 'chestnut');
   assert.equal(button.title, translate('moment.chestnut_title'));
   assert.equal(button.getAttribute('aria-label'), translate('moment.chestnut_title'));
@@ -286,7 +289,7 @@ test('a grown chestnut in autumn drops a burr at its foot now and then, drawn as
 });
 
 test('the first wait comes again each time the harvest comes back, and at each start', async ctx => {
-  const y = await burrYard(ctx, { stored: record([], { next: AUTUMN - 1 }) });
+  const y = await fruitYard(ctx, { stored: record([], { next: AUTUMN - 1 }) });
   fruitMinute();
   assert.equal(y.live().length, 0, 'a start waits first, whatever was stored');
   ctx.mock.timers.tick(FRUIT_FIRST[0] - 1000);
@@ -307,7 +310,7 @@ const SUMMER = new Date(2027, 6, 5, 11).getTime();
 const plumTree = grown('c', 'red_plum', 0.5, 0.3);
 
 test('a grown red plum in summer drops green plums, with their own drawing and title', async ctx => {
-  const y = await burrYard(ctx, { tree: plumTree, now: SUMMER, values: { season: 'summer' } });
+  const y = await fruitYard(ctx, { tree: plumTree, now: SUMMER, values: { season: 'summer' } });
   fruitMinute();
   ctx.mock.timers.tick(FRUIT_FIRST[1]);
   fruitMinute();
@@ -327,7 +330,7 @@ test('a friend picking up green plums says the plum’s own lines', async ctx =>
     tree: plumTree,
     now: SUMMER,
     values: { season: 'summer' },
-    stored: record([lyingBurr('1', 0.52, 0.33, { at: SUMMER - 1000 })], {
+    stored: record([lyingFruit('1', 0.52, 0.33, { at: SUMMER - 1000 })], {
       picked: { chestnut: '2027-07-05' },
     }),
   });
@@ -339,7 +342,7 @@ test('a friend picking up green plums says the plum’s own lines', async ctx =>
 });
 
 test('fruit stays with its place: another place does not show it, and coming back shows it again', async ctx => {
-  const y = await burrYard(ctx, { stored: record([lyingBurr('1')]) });
+  const y = await fruitYard(ctx, { stored: record([lyingFruit('1')]) });
   fruitMinute();
   assert.equal(y.live().length, 1);
   scene.world = 'lakeside';
@@ -365,8 +368,18 @@ test('fruit stays with its place: another place does not show it, and coming bac
   assert.ok(!again.classList.contains('dropped'), 'without falling a second time');
 });
 
-test('at most two burrs lie under a tree, and none drop at night, but those there stay', async ctx => {
-  const y = await burrYard(ctx, { stored: record([lyingBurr('1'), lyingBurr('2', 0.46, 0.34)], { next: AUTUMN - 1 }) });
+test('a tree moved even a little takes its fallen fruit along', async ctx => {
+  const y = await fruitYard(ctx, { stored: record([lyingFruit('1')]) });
+  fruitMinute();
+  assert.equal(y.live().length, 1);
+  state.data.garden.trees = [{ ...chestnut, x: chestnut.x + 0.1 }];
+  fruitMinute();
+  assert.equal(y.live().length, 0, 'no fruit left on the grass where it stood');
+  assert.deepEqual(y.saved().out, []);
+});
+
+test('at most two fruit lie under a tree, and none drop at night, but those there stay', async ctx => {
+  const y = await fruitYard(ctx, { stored: record([lyingFruit('1'), lyingFruit('2', 0.46, 0.34)], { next: AUTUMN - 1 }) });
   fruitMinute();
   assert.equal(y.live().length, 2, 'a third waits for room');
   assert.equal(y.saved().out.length, 2);
@@ -383,7 +396,7 @@ test('at most two burrs lie under a tree, and none drop at night, but those ther
 // A friend picking fruit up (fallen-fruit.js pickFruit): it walks to stand beside the fruit and picks
 // it up, with no digging.
 async function pickYard(ctx, options = {}) {
-  const y = await burrYard(ctx, { stored: record([lyingBurr('1')]), ...options });
+  const y = await fruitYard(ctx, { stored: record([lyingFruit('1')]), ...options });
   fruitMinute();
   const pet = { id: 'clover', size: 112, name: 'Clover' },
     v = { pet, px: 120, py: 300, x: 0.1, y: 0.5, pose: 'idle', bubble: element('span') };
@@ -420,9 +433,9 @@ test('clicking fruit sends a friend to pick it up; the day’s first pick has it
   assert.ok(y.button.classList.contains('picking'));
   assert.equal(fruitPicking(), true);
   y.click();
-  assert.equal(pickFruit('1'), false, 'one friend for one burr');
+  assert.equal(pickFruit('1'), false, 'one friend for one fruit');
   // It stands beside the fruit, not on it, at the fruit's depth.
-  const spot = fieldToYard(lyingBurr('1')),
+  const spot = fieldToYard(lyingFruit('1')),
     stand = fieldToYard(y.v.target);
   assert.ok(Math.abs(stand.x - spot.x) > 10, 'beside it');
   y.arrive();
@@ -458,7 +471,7 @@ test('with reduced motion the fruit does not rise: it goes as the friend shows i
 });
 
 test('a later pick the same day says an ordinary line, and a friend taken away leaves the fruit', async ctx => {
-  const y = await pickYard(ctx, { stored: record([lyingBurr('1')], { picked: { chestnut: '2027-10-05' } }) });
+  const y = await pickYard(ctx, { stored: record([lyingFruit('1')], { picked: { chestnut: '2027-10-05' } }) });
   y.click();
   release(y.v);
   assert.equal(fruitPicking(), false);
@@ -511,7 +524,7 @@ test('a tree pulled up while its fruit rises takes the fruit, and nothing is sai
 });
 
 test('with no friend in the yard a click says who could pick it up', async ctx => {
-  const y = await burrYard(ctx, { stored: record([lyingBurr('1')]) });
+  const y = await fruitYard(ctx, { stored: record([lyingFruit('1')]) });
   fruitMinute();
   y.live()[0].dispatch('click', {});
   assert.deepEqual(

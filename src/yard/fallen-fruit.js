@@ -109,7 +109,17 @@ export function fruitMinute(now = new Date()) {
     const ground = groundProfile(),
       spot = fruitSpot(Math.random, ground, due.tree, fruitHere(next.out, scene.world), due.tree.moment.size[0]);
     if (spot) {
-      const fruit = { id: String(ms), tree: due.tree.id, world: scene.world, x: spot.x, y: spot.y, at: ms };
+      // Where the tree stands, so moving it takes its fruit along (fruitStays).
+      const fruit = {
+        id: String(ms),
+        tree: due.tree.id,
+        world: scene.world,
+        x: spot.x,
+        y: spot.y,
+        treeX: due.tree.x,
+        treeY: due.tree.y,
+        at: ms,
+      };
       next = { ...next, out: [...next.out, fruit] };
       made.add(fruit.id);
     }

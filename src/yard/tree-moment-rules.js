@@ -45,7 +45,7 @@ export function momentTrees(trees, scene, now, limits) {
 
 // ---- harvest: fruit at the foot ----
 
-/** At most this much fallen fruit under one tree, and in the yard. */
+/** At most this much fallen fruit under one tree, and in one place. */
 export const FRUIT_PER_TREE = 2;
 export const FRUIT_OUT = 3;
 /** Fallen fruit stays this long unless it is picked or its season or place goes first. */
@@ -113,10 +113,15 @@ export const fruitHere = (out, world) => out.filter(f => f.world === world);
 export const freshFruit = (out, now) =>
   out.filter(f => !!f && typeof f.at === 'number' && now - f.at >= 0 && now - f.at < FRUIT_STAYS_MS);
 
+// A tree whose field x or y differs from where it stood when its fruit dropped (`treeX`, `treeY`) by
+// more than this has been moved; anything less is float noise.
+const STOOD = 1e-6;
+
 /** The fallen fruit that stays, in every place: fresh, under its own tree still grown in the fruit's
- * place, while `season` (the yard's, scene.season) is the tree's harvest season. Only the season
- * counts, not the hour, the weather or the place shown: fruit that dropped in the afternoon still lies
- * there at night, in rain, and while the person is in another place, and is there on coming back. */
+ * place and standing where it stood when the fruit dropped, while `season` (the yard's, scene.season)
+ * is the tree's harvest season. Only the season counts, not the hour, the weather or the place shown:
+ * fruit that dropped in the afternoon still lies there at night, in rain, and while the person is in
+ * another place, and is there on coming back. */
 export function fruitStays(out, { trees, season, now, limits }) {
   return freshFruit(out, now).filter(f => {
     const tree = (trees || []).find(t => t.id === f.tree);
@@ -125,10 +130,9 @@ export function fruitStays(out, { trees, season, now, limits }) {
       tree.world === f.world &&
       treeStage(tree, now, limits) >= 2 &&
       harvestOf(tree.kind)?.season === season &&
-      // a tree moved away takes its fruit with it
-      Math.abs(f.x - tree.x) <= 0.25 &&
-      f.y >= tree.y &&
-      f.y - tree.y <= 0.2
+      // Fruit lies a few hundredths from its trunk, so even a short move takes it along.
+      Math.abs(f.treeX - tree.x) <= STOOD &&
+      Math.abs(f.treeY - tree.y) <= STOOD
     );
   });
 }
@@ -136,15 +140,17 @@ export function fruitStays(out, { trees, season, now, limits }) {
 const unit = n => Number.isFinite(n) && n >= 0 && n <= 1;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 
-/** Reads the webview's stored record back ({ picked, out }), keeping only what makes sense. The wait
- * for the next fruit is not kept: a start waits the first wait again. */
+/** Reads the webview's stored record back ({ picked, out }), keeping only what makes sense, and no
+ * more than FRUIT_OUT fruit in each place. The wait for the next fruit is not kept: a start waits the
+ * first wait again. */
 export function keptFruit(text, now) {
   let saved = null;
   try {
     saved = JSON.parse(text);
   } catch {}
   if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return { next: 0, picked: {}, out: [] };
-  const ids = new Set();
+  const ids = new Set(),
+    places = new Map();
   const good = freshFruit(Array.isArray(saved.out) ? saved.out : [], now).filter(f => {
     const ok =
       typeof f === 'object' &&
@@ -156,8 +162,14 @@ export function keptFruit(text, now) {
       !!f.world &&
       unit(f.x) &&
       unit(f.y) &&
-      !ids.has(f.id);
-    if (ok) ids.add(f.id);
+      unit(f.treeX) &&
+      unit(f.treeY) &&
+      !ids.has(f.id) &&
+      (places.get(f.world) ?? 0) < FRUIT_OUT;
+    if (ok) {
+      ids.add(f.id);
+      places.set(f.world, (places.get(f.world) ?? 0) + 1);
+    }
     return ok;
   });
   const picked =
@@ -171,7 +183,7 @@ export function keptFruit(text, now) {
   return {
     next: 0,
     picked,
-    out: good.slice(0, FRUIT_OUT).map(({ id, tree, world, x, y, at }) => ({ id, tree, world, x, y, at })),
+    out: good.map(({ id, tree, world, x, y, treeX, treeY, at }) => ({ id, tree, world, x, y, treeX, treeY, at })),
   };
 }
 

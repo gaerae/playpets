@@ -112,9 +112,20 @@ test('only grown trees in this place with their moment on count', () => {
 // ---- fallen fruit ----
 
 const kept0 = { next: 0, picked: {}, out: [] };
-const burr = (id, tree, x, y, extra = {}) => ({ id, tree, world: 'woodland', x, y, at: T - 1000, ...extra });
+// Fruit lying at (x, y), dropped by `tree` standing at (treeX, treeY): the tree's own spot by default.
+const fallen = (id, tree, x, y, extra = {}) => ({
+  id,
+  tree,
+  world: 'woodland',
+  x,
+  y,
+  treeX: 0.5,
+  treeY: 0.3,
+  at: T - 1000,
+  ...extra,
+});
 
-test('the first look only sets when a burr drops; then one drops now and then under a tree with room', () => {
+test('the first look only sets when fruit drops; then one drops now and then under a tree with room', () => {
   const trees = [grown('a', 'chestnut'), grown('b', 'chestnut', 0.2, 0.4)];
   assert.deepEqual(fruitDue(kept0, [], T, seq(0), 'woodland'), { kept: kept0, tree: null }, 'no harvest tree, nothing');
   const first = fruitDue(kept0, trees, T, seq(0), 'woodland');
@@ -125,15 +136,15 @@ test('the first look only sets when a burr drops; then one drops now and then un
   assert.equal(due.tree.id, 'b');
   assert.equal(due.kept.next, T + FRUIT_FIRST[0] + FRUIT_EVERY[0] + 0.99 * (FRUIT_EVERY[1] - FRUIT_EVERY[0]));
   // A tree with two under it gets no third; a yard with three gets no fourth, but the wait goes on.
-  const full = { ...first.kept, out: [burr('1', 'a', 0.5, 0.35), burr('2', 'a', 0.55, 0.35)] };
+  const full = { ...first.kept, out: [fallen('1', 'a', 0.5, 0.35), fallen('2', 'a', 0.55, 0.35)] };
   assert.equal(fruitDue(full, trees, T + FRUIT_FIRST[0], seq(0), 'woodland').tree.id, 'b');
   assert.equal(fruitDue(full, [trees[0]], T + FRUIT_FIRST[0], seq(0), 'woodland').tree, null);
-  const yard = { ...full, out: [...full.out, burr('3', 'b', 0.2, 0.45)] };
+  const yard = { ...full, out: [...full.out, fallen('3', 'b', 0.2, 0.45)] };
   const none = fruitDue(yard, trees, T + FRUIT_FIRST[0], seq(0), 'woodland');
   assert.equal(none.tree, null);
   assert.equal(none.kept.next, T + FRUIT_FIRST[0] + FRUIT_EVERY[0]);
   // Fruit lying in another place takes no room here.
-  const elsewhere = { ...first.kept, out: ['1', '2', '3'].map(id => burr(id, 'c', 0.5, 0.35, { world: 'lakeside' })) };
+  const elsewhere = { ...first.kept, out: ['1', '2', '3'].map(id => fallen(id, 'c', 0.5, 0.35, { world: 'lakeside' })) };
   assert.equal(fruitDue(elsewhere, trees, T + FRUIT_FIRST[0], seq(0), 'woodland').tree.id, 'a');
   // Night, rain or another season forgets the wait, so the first wait comes again.
   assert.deepEqual(fruitDue(none.kept, [], T + FRUIT_FIRST[0] + 1, seq(0), 'woodland').kept, { ...none.kept, next: 0 });
@@ -158,7 +169,7 @@ test("fruit falls from the crown's lower edge to where it lies", () => {
   assert.equal(fruitFall(400, 500, 200), 0, 'never upward');
 });
 
-test('a burr lands at the foot, in front of the trunk, apart from the others', () => {
+test('fruit lands at the foot, in front of the trunk, apart from the others', () => {
   const tree = { x: 0.5, y: 0.3 };
   for (const v of [0, 0.5, 0.99]) {
     const spot = fruitSpot(seq(v), open, tree, []);
@@ -167,7 +178,7 @@ test('a burr lands at the foot, in front of the trunk, apart from the others', (
   }
   const taken = fruitSpot(seq(0.5), open, tree, []);
   const other = fruitSpot(seq(0.5, 0.5, 0, 0), open, tree, [taken]);
-  assert.ok(Math.hypot(other.x - taken.x, other.y - taken.y) >= FRUIT_APART, 'not on another burr');
+  assert.ok(Math.hypot(other.x - taken.x, other.y - taken.y) >= FRUIT_APART, 'not on other fruit');
   // The tree's own roots (its footprint on the ground) take the middle.
   const roots = { ...open, obstacles: [{ x: 0.5, y: 0.3, rx: 0.2, ry: 0.2 }] };
   assert.equal(fruitSpot(seq(0.5), roots, tree, []), null);
@@ -176,8 +187,8 @@ test('a burr lands at the foot, in front of the trunk, apart from the others', (
 
 test('fruit lies six hours under its own grown tree, in its own place, while its season lasts', () => {
   const trees = [grown('a', 'chestnut', 0.5, 0.3), grown('l', 'chestnut', 0.5, 0.3, { world: 'lakeside' })],
-    b = burr('1', 'a', 0.52, 0.33),
-    there = burr('2', 'l', 0.52, 0.33, { world: 'lakeside' }),
+    b = fallen('1', 'a', 0.52, 0.33),
+    there = fallen('2', 'l', 0.52, 0.33, { world: 'lakeside' }),
     look = (extra = {}) => ({ trees, season: 'autumn', now: T, limits: LIMITS, ...extra });
   assert.deepEqual(fruitStays([b], look()), [b]);
   assert.deepEqual(fruitStays([b], look({ season: 'winter' })), [], 'another season takes it');
@@ -188,15 +199,20 @@ test('fruit lies six hours under its own grown tree, in its own place, while its
   assert.deepEqual(fruitHere([b, there], 'lakeside'), [there]);
   assert.deepEqual(fruitHere([b, there], 'workshop'), []);
   assert.deepEqual(fruitStays([{ ...b, world: 'lakeside' }], look()), [], 'never under a tree of another place');
-  assert.deepEqual(fruitStays([b], look({ trees: [] })), [], 'a tree pulled up takes its burrs');
+  assert.deepEqual(fruitStays([b], look({ trees: [] })), [], 'a tree pulled up takes its fruit');
   assert.deepEqual(fruitStays([b], look({ trees: [{ ...trees[0], x: 0.9 }] })), [], 'a tree moved away too');
+  // Fruit lies only a few hundredths from its trunk, so a short move takes it too: it stays only
+  // under the tree where it stood when the fruit dropped.
+  assert.deepEqual(fruitStays([b], look({ trees: [{ ...trees[0], x: 0.6 }] })), [], 'moved a little to the side');
+  assert.deepEqual(fruitStays([b], look({ trees: [{ ...trees[0], y: 0.25 }] })), [], 'or a little back');
+  assert.deepEqual(fruitStays([b], look({ trees: [{ ...trees[0], x: 0.5 + 1e-9 }] })), [b], 'float noise is no move');
   assert.deepEqual(fruitStays([b], look({ now: b.at + FRUIT_STAYS_MS })), [], 'six hours on it is gone');
   assert.deepEqual(freshFruit([b], b.at + FRUIT_STAYS_MS - 1), [b]);
   assert.deepEqual(freshFruit([b], b.at - 1), [], 'one from a clock set back is not trusted');
 });
 
-test('the stored burrs are read back, keeping only what makes sense', () => {
-  const good = burr('1', 'a', 0.5, 0.35);
+test('the stored fruit is read back, keeping only what makes sense', () => {
+  const good = fallen('1', 'a', 0.5, 0.35);
   assert.deepEqual(keptFruit(null, T), kept0);
   assert.deepEqual(keptFruit('not json', T), kept0);
   assert.deepEqual(keptFruit('[1]', T), kept0);
@@ -212,8 +228,8 @@ test('the stored burrs are read back, keeping only what makes sense', () => {
         { ...good, id: '4', at: T - FRUIT_STAYS_MS },
         null,
         { ...good, id: '5', extra: 'kept out' },
-        burr('6', 'a', 0.4, 0.35),
-        burr('7', 'a', 0.6, 0.35),
+        { ...good, id: '6', treeX: undefined },
+        { ...good, id: '7', treeY: -1 },
       ],
     }),
     T,
@@ -221,14 +237,26 @@ test('the stored burrs are read back, keeping only what makes sense', () => {
   assert.equal(read.next, 0, 'the wait is not kept: a start waits the first wait again');
   assert.deepEqual(read.picked, { chestnut: '2027-10-05' }, 'a day for each fruit tree, no other');
   assert.deepEqual(
-    read.out.map(b => b.id),
-    ['1', '5', '6'],
-    'bad, doubled and stale burrs go, and no more than three are kept',
+    read.out.map(f => f.id),
+    ['1', '5'],
+    'bad, doubled and stale fruit goes, and so does fruit that does not say where its tree stood',
   );
-  assert.equal('extra' in read.out[1], false);
+  assert.deepEqual(read.out[1], { ...good, id: '5' }, 'with nothing else kept');
   assert.deepEqual(keptFruit(JSON.stringify({ next: -1, picked: 'yesterday', out: 'x' }), T), kept0);
-  // The chestnut-only record's `picked` was one day: it reads back as none.
-  assert.deepEqual(keptFruit(JSON.stringify({ picked: '2027-10-05', out: [good] }), T).picked, {});
+});
+
+test('each place keeps its own three fallen fruit across a start', () => {
+  const at = (world, n) =>
+    Array.from({ length: n }, (_, i) => fallen(`${world}${i}`, `${world}-tree`, 0.4 + i * 0.05, 0.35, { world }));
+  const read = keptFruit(
+    JSON.stringify({ out: [...at('woodland', 4), ...at('lakeside', 3), ...at('courtyard', 2)] }),
+    T,
+  );
+  assert.deepEqual(
+    read.out.map(f => f.id),
+    ['woodland0', 'woodland1', 'woodland2', 'lakeside0', 'lakeside1', 'lakeside2', 'courtyard0', 'courtyard1'],
+    'up to three in each place, the first stored kept',
+  );
 });
 
 test("each fruit's first pick of the day has its own line, and the day's later picks the usual one", () => {
