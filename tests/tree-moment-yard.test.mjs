@@ -525,7 +525,7 @@ test('the yard wires the moments in with the sky, the garden and the frame loop'
     render = await readFile('src/render.js', 'utf8');
   const sky = app.search(/^setupSky\(/m);
   for (const setup of ['setupFruit();', 'setupTreeMoments();']) {
-    const at = app.search(new RegExp(`^${setup.replace(/[()]/g, '\\$&')}`, 'm'));
+    const at = app.indexOf(`\n${setup}`);
     assert.ok(at >= 0 && at < sky, `${setup} runs before the sky first paints`);
   }
   const minute = app.indexOf('fruitMinute();');
