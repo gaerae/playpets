@@ -15,7 +15,7 @@ import { data, game } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
 import { fieldToYard, footOf, footTarget, petHeight, sizeOf } from './field.js';
 import { treeBox } from './planted-trees.js';
-import { momentTrees, treeStands, visitX } from './tree-moment-rules.js';
+import { CROWN, momentTrees, treeStands, visitX } from './tree-moment-rules.js';
 import { release, rest, sendTo, setDoing } from './trips.js';
 import { freeFriends, viewing, yardBusy } from './viewing.js';
 import { bubble, gaze } from './views.js';
@@ -47,12 +47,12 @@ export function setupTreeMoments() {
   visitor = null;
 }
 
-// A grown tree's crown (its middle and width), foot and size in yard pixels, as planted-trees.js
-// draws it.
+// A grown tree's crown (its middle and width; tree-moment-rules.js CROWN), foot and size in yard
+// pixels, as planted-trees.js draws it.
 function crownOf(tree) {
   const foot = fieldToYard(tree),
     { width, zoom } = treeBox(tree.kind, foot);
-  return { x: foot.x, width: width * 0.8, foot: foot.y, zoom };
+  return { x: foot.x, width: width * CROWN.wide, foot: foot.y, zoom };
 }
 
 /** Looks up the trees whose visit moment is on, with the scene's repaint and a garden change. A

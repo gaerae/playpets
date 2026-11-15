@@ -43,6 +43,12 @@ export function momentTrees(trees, scene, now, limits) {
     );
 }
 
+/** A grown tree's crown, as shares of the tree as planted-trees.js treeBox draws it: no kind says
+ * its own, and these fit the trees' art well enough. Its leaves end `low` of its height above its foot
+ * and it is `wide` of its width; a friend visiting it stands `edge` of the crown's width from the
+ * middle, under its edge, and at least `clear` of its own width, clear of the trunk. */
+export const CROWN = Object.freeze({ low: 0.25, wide: 0.8, edge: 0.4, clear: 0.8 });
+
 // ---- harvest: fruit at the foot ----
 
 /** At most this much fallen fruit under one tree, and in one place. */
@@ -97,11 +103,9 @@ export function fruitSpot(rng, ground, tree, near, width = 0) {
   );
 }
 
-// A grown tree's leaves end about this share of its drawn height above its foot (the trees' art).
-const CROWN_LOW = 0.25;
 /** How far fruit lying with its bottom at `y` falls, in yard pixels: from the lower edge of the crown
  * of a tree `height` px tall standing at `footY`, in whole pixels, never upward. */
-export const fruitFall = (y, footY, height) => Math.max(0, Math.round(y - (footY - height * CROWN_LOW)));
+export const fruitFall = (y, footY, height) => Math.max(0, Math.round(y - (footY - height * CROWN.low)));
 
 /** The fallen fruit of one place, the one drawn while it is shown. */
 export const fruitHere = (out, world) => out.filter(f => f.world === world);
@@ -185,7 +189,8 @@ export function keptFruit(text, now) {
 /** Where a friend `width` px wide stands to visit a tree whose crown is `crownWidth` px wide at
  * `crownX`, on `side` (-1 left, 1 right): beside the trunk, never in front of it, under the crown's
  * edge when the crown is wide. */
-export const visitX = (crownX, crownWidth, width, side) => crownX + side * Math.max(width * 0.8, crownWidth * 0.4);
+export const visitX = (crownX, crownWidth, width, side) =>
+  crownX + side * Math.max(width * CROWN.clear, crownWidth * CROWN.edge);
 
 /** The list a friend picking up fruit fallen from a `kind` of tree says a line from: its harvest's
  * `first` on the first pick of that fruit on the local day `today`, else its `pick`; and the record
