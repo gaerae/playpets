@@ -55,7 +55,7 @@ const KEY = 'fallen-fruit';
 // The record: { next, picked, out }; null until setupFruit has read it, so a look at the yard before
 // that (the sky's first paint) cannot write over the stored one.
 let kept = null;
-// The fruit dropped in this run and not drawn yet: only these fall as they come.
+// The fruit just dropped, until the look that dropped it draws it: only these fall as they come.
 const made = new Set();
 // The buttons on the yard, by fruit id.
 const shown = new Map();
@@ -87,9 +87,9 @@ export function setupFruit() {
 
 // The record as stored.
 const save = ({ picked, out }) => remember(KEY, JSON.stringify({ picked, out }));
-// The kind of tree fruit lies under, and its harvest.
-const kindUnder = fruit => data.garden?.trees?.find(tree => tree.id === fruit.tree)?.kind;
-const harvestUnder = fruit => harvestOf(kindUnder(fruit));
+// The tree fruit lies under, its kind and that kind's harvest.
+const treeOf = fruit => data.garden?.trees?.find(tree => tree.id === fruit.tree);
+const kindUnder = fruit => treeOf(fruit)?.kind;
 // The fruit lying in every place as it is now, and in the place shown.
 const lying = now =>
   kept ? fruitStays(kept.out, { trees: data.garden?.trees, season: scene.season, now, limits: data.limits }) : [];
@@ -126,13 +126,13 @@ export function fruitMinute(now = new Date()) {
   }
   if (next.out !== kept.out) save(next);
   kept = next;
-  for (const id of made) if (!kept.out.some(f => f.id === id)) made.delete(id);
   renderFruit();
 }
 
 function create(fruit) {
-  const harvest = harvestUnder(fruit),
-    button = propButton('fallen-fruit', kindUnder(fruit)),
+  const kind = kindUnder(fruit),
+    harvest = harvestOf(kind),
+    button = propButton('fallen-fruit', kind),
     svg = document.createElementNS(NS, 'svg'),
     use = document.createElementNS(NS, 'use');
   svg.setAttribute('aria-hidden', 'true');
@@ -161,14 +161,14 @@ function create(fruit) {
 }
 
 function update(v, fruit) {
-  const [w, h] = harvestUnder(fruit).size,
+  const tree = treeOf(fruit),
+    [w, h] = harvestOf(tree?.kind).size,
     { x, y } = fieldToYard(fruit),
     // Smaller farther back, as a friend there is, and no smaller than a spring shoot in a small yard.
     scale = shootScale(propScale()) * depthScaleAt(x, y);
   setDown(v.button, x, y, w * scale, h * scale, depthAt(y));
   // Fruit still falling falls from where the tree's leaves end, as planted-trees.js draws the tree.
-  const tree = v.button.classList.contains('dropped') && data.garden?.trees?.find(each => each.id === fruit.tree);
-  if (tree) {
+  if (tree && v.button.classList.contains('dropped')) {
     const foot = fieldToYard(tree);
     v.button.style.setProperty('--fall', `${fruitFall(y, foot.y, treeBox(tree.kind, foot).height)}px`);
   }
@@ -190,8 +190,6 @@ function letGo({ v, end }) {
   else end();
 }
 
-// Whether fruit still lies where it was.
-const stillOut = (id, world) => scene.world === world && here(Date.now()).some(f => f.id === id);
 // The button of fallen fruit, marked while a friend goes for it.
 const mark = (id, on) => shown.get(id)?.button.classList.toggle('picking', on);
 
@@ -234,14 +232,19 @@ export function pickFruit(id) {
     }
   };
   task.end = end;
-  const ours = () => picks.get(id) === task && views.get(v.pet.id) === v;
+  // Still this pick, by this friend, and the fruit still lying where it was.
+  const live = () =>
+    picks.get(id) === task &&
+    views.get(v.pet.id) === v &&
+    scene.world === world &&
+    here(Date.now()).some(f => f.id === id);
   prepareCompanionAction(v.asset, 'discover');
   // Beside the fruit, on the side it comes from, so the fruit is at its paws and not under it.
   const side = footOf(v).x < spot.x ? -1 : 1;
   sendTo(v, footTarget(v, spot.x + side * sizeOf(v.pet) * BESIDE, spot.y), {
     cancel: end,
     arrive: () => {
-      if (!ours() || !stillOut(id, world)) return end();
+      if (!live()) return end();
       holdAtWork(v, end);
       // Its own "found it" pose (as after a treasure or a catch), else a little jump every pet has.
       const authored = playCompanionAction(v, 'discover');
@@ -259,7 +262,7 @@ export function pickFruit(id) {
         button.classList.add('lifting');
       }
       later(lift, () => {
-        if (!ours() || !stillOut(id, world)) return release(v);
+        if (!live()) return release(v);
         const said = pickLine(kept, kindUnder(fruit), localDay(new Date()));
         kept = { ...said.kept, out: said.kept.out.filter(f => f.id !== id) };
         save(kept);

@@ -135,6 +135,20 @@ export function fruitStays(out, { trees, season, now, limits }) {
 }
 
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
+// The record with nothing in it: no wait, no picks, no fruit.
+const EMPTY = () => ({ next: 0, picked: {}, out: [] });
+// A string with something in it.
+const named = value => typeof value === 'string' && !!value;
+// A stored fruit's own fields, or null when one is missing or out of range.
+const clean = f =>
+  !!f &&
+  typeof f === 'object' &&
+  named(f.id) &&
+  named(f.tree) &&
+  named(f.world) &&
+  [f.x, f.y, f.treeX, f.treeY].every(unit)
+    ? { id: f.id, tree: f.tree, world: f.world, x: f.x, y: f.y, treeX: f.treeX, treeY: f.treeY, at: f.at }
+    : null;
 
 /** Reads the webview's stored record back ({ picked, out }), keeping only what makes sense, and no
  * more than FRUIT_OUT fruit in each place. The wait for the next fruit is not kept: a start waits the
@@ -144,30 +158,16 @@ export function keptFruit(text, now) {
   try {
     saved = JSON.parse(text);
   } catch {}
-  if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return { next: 0, picked: {}, out: [] };
-  const ids = new Set(),
+  if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return EMPTY();
+  const out = [],
     places = new Map();
-  const good = freshFruit(Array.isArray(saved.out) ? saved.out : [], now).filter(f => {
-    const ok =
-      typeof f === 'object' &&
-      typeof f.id === 'string' &&
-      !!f.id &&
-      typeof f.tree === 'string' &&
-      !!f.tree &&
-      typeof f.world === 'string' &&
-      !!f.world &&
-      unit(f.x) &&
-      unit(f.y) &&
-      unit(f.treeX) &&
-      unit(f.treeY) &&
-      !ids.has(f.id) &&
-      (places.get(f.world) ?? 0) < FRUIT_OUT;
-    if (ok) {
-      ids.add(f.id);
-      places.set(f.world, (places.get(f.world) ?? 0) + 1);
-    }
-    return ok;
-  });
+  for (const stored of freshFruit(Array.isArray(saved.out) ? saved.out : [], now)) {
+    const f = clean(stored),
+      count = places.get(f?.world) ?? 0;
+    if (!f || count >= FRUIT_OUT || out.some(o => o.id === f.id)) continue;
+    out.push(f);
+    places.set(f.world, count + 1);
+  }
   const picked =
     saved.picked && typeof saved.picked === 'object' && !Array.isArray(saved.picked)
       ? Object.fromEntries(
@@ -176,11 +176,7 @@ export function keptFruit(text, now) {
           ),
         )
       : {};
-  return {
-    next: 0,
-    picked,
-    out: good.map(({ id, tree, world, x, y, treeX, treeY, at }) => ({ id, tree, world, x, y, treeX, treeY, at })),
-  };
+  return { ...EMPTY(), picked, out };
 }
 
 /** Where a friend `width` px wide stands to visit a tree whose crown is `crownWidth` px wide at
