@@ -19,6 +19,7 @@ import { useCatalog } from '../yard/catalog.js';
 import { dressDecor, drawDecor, holdDecor, settleDecor } from './decor-view.js';
 import { glideMs } from './glide.js';
 import { visitKey } from './growing.js';
+import { nextDraw } from './pace.js';
 
 setupInteractions();
 document.documentElement.lang = language();
@@ -42,9 +43,12 @@ const NAME_LINGER_MS = 600;
 const FOOT = 28;
 let data = { pets: [], assets: [], statuses: {} },
   layout = [];
-// Runs the next frame now (core/ticker.js every): a friend just come out is drawn at once, also
-// after the loop rested with nobody on this screen.
+// Runs the next frame now (core/ticker.js every): the loop waits for the cell a friend shows to end
+// (pace.js), so whatever changes a drawing in between (a friend come out, a pose, a status, the
+// season) draws it at once.
 let drawNow = () => {};
+// What a friend's drawing shows, apart from where: when it changes, the friend is drawn now.
+const drawing = v => `${v.asset?.id}|${v.asset?.spriteUrl}|${v.status}|${performance.now() < v.until ? v.pose : ''}`;
 const nameOf = v => displayName(v.pet, v.asset, t('friend.default'));
 const south = systemSouth();
 // The season the yard shows, which a grown tree wears here too.
@@ -55,7 +59,10 @@ const seasonChanged = setupSeason({
   apply: next => {
     const turned = next !== season;
     season = next;
-    if (setSpriteSeason(next) || turned) render();
+    if (setSpriteSeason(next) || turned) {
+      render();
+      drawNow();
+    }
     if (turned) redress();
   },
   minute: everyMinute,
@@ -105,6 +112,7 @@ function create(pet) {
     halt(wrap);
     wrap.classList.remove('named');
     button.setPointerCapture(e.pointerId);
+    drawNow();
     await api.dragStart(pet.id);
   };
   button.onpointermove = e => {
@@ -119,8 +127,11 @@ function create(pet) {
     // As in the yard: a resting friend follows the pointer with its eyes (v2 sheets have the
     // frames). The window stops getting events once the pointer leaves the friend, so the look
     // also expires on its own (see animate).
+    const now = performance.now(),
+      began = !view.look || now - view.lookedAt >= LOOK_MS;
     view.look = lookAt(button.getBoundingClientRect(), e.clientX, e.clientY);
-    view.lookedAt = performance.now();
+    view.lookedAt = now;
+    if (began) drawNow();
   };
   button.onpointerleave = () => {
     view.look = null;
@@ -264,16 +275,14 @@ function render() {
       v = create(pet);
       views.set(pet.id, v);
     }
+    const was = drawing(v);
     v.pet = pet;
     v.asset = styledAsset(
       data.assets.find(a => a.id === pet.assetId),
       pet.visualStyle,
     );
-    // Drawn now, and again the moment its sheet is in rather than at the next frame.
-    if (arrived && v.asset) {
-      drawNow();
-      sheetReady(v.asset).then(() => drawNow());
-    }
+    // Drawn now (below), and again the moment its sheet is in rather than at the next frame.
+    if (arrived && v.asset) sheetReady(v.asset).then(() => drawNow());
     v.status = stateOf(data, pet.id);
     v.wrap.style.visibility = 'visible';
     // A stroll glides from step to step (glide.js); a held friend follows the pointer on whichever
@@ -290,6 +299,7 @@ function render() {
       v.until = performance.now() + 220;
     }
     v.lastX = position.x;
+    if (drawing(v) !== was) drawNow();
     const height = (pet.size * 208) / 192;
     // How much screen there is above the sprite: near the top edge the bubble slides down over
     // the sprite rather than off the screen.
@@ -375,6 +385,7 @@ api.onEvent(event => {
     if (event.type === 'status') {
       v.status = stateOf(data, id);
       say(v, event.message);
+      drawNow();
     }
     if (event.type === 'say') say(v, event.message);
     if (event.type === 'play') {
@@ -382,6 +393,7 @@ api.onEvent(event => {
       v.until = performance.now() + 1400;
       v.since = performance.now();
       if (event.action === 'pet') hearts(v);
+      drawNow();
       say(v, event.action === 'treat' ? t('care.yum') : event.action === 'wave' ? t('care.hello') : t('care.happy'));
     }
   }
@@ -400,6 +412,7 @@ function animate(now) {
     drawSprite(v.sprite, v.asset, state, clock, look);
     crown(v.button, v.asset, (v.pet.size * 208) / 192); // the cell is 192×208
   }
+  return nextDraw(views.values(), now, { reduced: reduced.matches, lookMs: LOOK_MS });
 }
 const result = await api.bootstrap();
 if (result.ok) {
@@ -407,8 +420,10 @@ if (result.ok) {
   // A language chosen in the yard reaches this window too (the page starts over in it).
   follow(data.language);
   layout = data.desktopLayout;
-  // Standing cells last 110-320 ms, so ten frames a second show every one of them.
+  // A frame comes when a cell ends (pace.js), or at once when a drawing changes (drawNow).
   drawNow = every(100, animate);
+  // Motion turned back on: the friends move again now, not at the next change.
+  reduced.addEventListener?.('change', () => drawNow());
   seasonChanged();
   render();
   // A finished agent's state fades after a while, as in the yard; nothing else here may draw the

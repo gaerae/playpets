@@ -31,8 +31,14 @@ const LINGER: Duration = Duration::from_secs(60);
 const CALM_TICK: Duration = Duration::from_millis(120);
 /// How close (logical px) the pointer may come to a friend's box before the loop speeds up, so
 /// its window takes the click by the time the pointer is on the friend: a pointer crossing it in
-/// less than one calm tick moves faster than 2500 px/s.
+/// less than one calm tick moves faster than POINTER_SPEED.
 const NEAR: f64 = 300.0;
+/// The pointer speed (logical px/s) the calm loop keeps up with: NEAR in one CALM_TICK. Farther
+/// away it looks less often, as late as a pointer this fast could still not have reached a friend.
+const POINTER_SPEED: f64 = 2500.0;
+/// The longest the calm loop waits: each look asks the main thread where the pointer is, and a
+/// friend reached faster than POINTER_SPEED takes the click at most this late.
+const CALM_MAX: Duration = Duration::from_millis(500);
 /// Monitors are asked for again this often (a display plugged in or rearranged). Asking goes
 /// through the main thread, so it is kept out of every tick and out of any lock.
 const MONITOR_REFRESH: Duration = Duration::from_secs(2);
@@ -195,11 +201,10 @@ impl Overlay {
                 let dt = last.elapsed().min(MAX_STEP);
                 last = Instant::now();
                 let (out, open) = activity(&crate::app::hold(&looping));
-                let busy = (out || open) && tick(&app, &looping, &on_position, dt.as_secs_f64() * 1000.0);
+                let pace = (out || open).then(|| tick(&app, &looping, &on_position, dt.as_secs_f64() * 1000.0));
                 let (out, open) = activity(&crate::app::hold(&looping));
                 wait = match (out, open) {
-                    (true, _) if busy => TICK,
-                    (true, _) => CALM_TICK,
+                    (true, _) => pace.unwrap_or(TICK),
                     (false, true) => IDLE_TICK,
                     (false, false) => REST,
                 };
@@ -258,6 +263,8 @@ impl Overlay {
             pets: old, positions, ..
         } = &mut *d;
         let grown = keep_feet(old, &pets, positions);
+        // A calm loop may look in only every CALM_MAX: a thing that grew is placed now.
+        d.news |= !grown.is_empty();
         d.resized.extend(grown);
         d.roams.retain(|k, _| ids.contains(k));
         if d.drag.as_ref().map(|g| !ids.contains(&g.id)).unwrap_or(false) {
@@ -347,9 +354,9 @@ fn keep_feet(old: &[Item], new: &[Item], positions: &mut HashMap<String, (f64, f
     moved
 }
 
-/// One step. Returns whether the next should come soon: something moves, a friend is being
-/// dragged, or the pointer is near one.
-fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt_ms: f64) -> bool {
+/// One step. Returns how long until the next: TICK while something moves, a friend is being
+/// dragged or the pointer is near one; otherwise as long as calm_wait allows.
+fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt_ms: f64) -> Duration {
     let (mons, primary) = current_monitors(app, inner);
     let cursor = cursor_in(app, &mons, primary);
     let mut arrivals: Vec<(String, i64, i64)> = Vec::new();
@@ -372,7 +379,15 @@ fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt
         let strolled = stroll(&mut d, &mons, cursor, dt_ms, &mut arrivals, &mut visits);
         let moved = placed || dragged || strolled || std::mem::take(&mut d.dropped) || std::mem::take(&mut d.resend);
         let walking = d.roams.values().any(|r| r.target.is_some());
-        (moved, moved || walking || d.drag.is_some() || pointer_near(&d, cursor))
+        let busy = moved || walking || d.drag.is_some() || pointer_near(&d, cursor);
+        (
+            moved,
+            if busy {
+                TICK
+            } else {
+                calm_wait(&d, cursor, Instant::now())
+            },
+        )
     };
     // Saving happens outside the lock: it reaches back into the app state.
     for (id, x, y) in &arrivals {
@@ -384,6 +399,33 @@ fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt
     }
     sync_windows(app, inner, &mons, cursor, moved || !arrivals.is_empty());
     busy
+}
+
+/// With nothing moving: how long the loop may wait before it looks again. The pointer cannot reach
+/// any box at POINTER_SPEED before then (the straight line to its nearest point), and a friend's
+/// next stroll starts on time. Between CALM_TICK and CALM_MAX.
+fn calm_wait(d: &Inner, cursor: Option<(f64, f64)>, now: Instant) -> Duration {
+    let reach = cursor.map_or(CALM_MAX, |(cx, cy)| {
+        let gap = d
+            .pets
+            .iter()
+            .filter_map(|p| {
+                let &(x, y) = d.positions.get(&p.id)?;
+                let (w, h) = dims(p);
+                let (dx, dy) = ((x - cx).max(cx - x - w).max(0.0), (y - cy).max(cy - y - h).max(0.0));
+                Some(dx.hypot(dy))
+            })
+            .fold(f64::INFINITY, f64::min);
+        Duration::from_secs_f64((gap / POINTER_SPEED).min(CALM_MAX.as_secs_f64()))
+    });
+    let stroll = d
+        .roams
+        .values()
+        .filter(|r| d.wander && r.target.is_none())
+        .map(|r| r.next_at.saturating_duration_since(now))
+        .min()
+        .unwrap_or(CALM_MAX);
+    reach.min(stroll).clamp(CALM_TICK, CALM_MAX)
 }
 
 /// Whether the pointer is on or near any friend's box.
@@ -873,6 +915,47 @@ mod tests {
         overlay.sync(vec![], false, false);
         overlay.wake();
         assert!(crate::app::hold(&overlay.inner).resend, "brought in is news too");
+    }
+
+    // With nothing moving, the loop looks at the pointer again only as soon as it could reach a
+    // friend at POINTER_SPEED, and in time for the next stroll.
+    #[test]
+    fn a_calm_loop_looks_again_as_soon_as_the_pointer_could_reach_a_friend() {
+        let now = Instant::now();
+        let mut d = Inner {
+            pets: vec![out("pip", None, None)],
+            ..Inner::default()
+        };
+        // Its box: 200 x 216 at (100, 600).
+        d.positions.insert("pip".into(), (100.0, 600.0));
+        let ms = |d: &Inner, cursor| calm_wait(d, cursor, now).as_millis();
+        // At NEAR, as before: the calm tick.
+        assert_eq!(ms(&d, Some((200.0, 300.0))), CALM_TICK.as_millis());
+        // 1000px above it: 2500 px/s takes 400ms to come that far.
+        assert_eq!(ms(&d, Some((200.0, -400.0))), 400);
+        // Across the screen: never longer than CALM_MAX.
+        assert_eq!(ms(&d, Some((3000.0, -400.0))), CALM_MAX.as_millis());
+        // The distance to the box's nearest point, not to its corner on one axis.
+        assert_eq!(ms(&d, Some((300.0 + 600.0, 600.0 - 800.0))), 400);
+        assert_eq!(ms(&d, None), CALM_MAX.as_millis(), "a pointer that cannot be read");
+        // A stroll due in 200ms starts on time, though the pointer is far; with wandering off, none does.
+        d.roams.insert(
+            "pip".into(),
+            Roam {
+                target: None,
+                next_at: now + Duration::from_millis(200),
+                visiting: None,
+            },
+        );
+        assert_eq!(ms(&d, Some((3000.0, -400.0))), CALM_MAX.as_millis());
+        d.wander = true;
+        assert_eq!(ms(&d, Some((3000.0, -400.0))), 200);
+        d.roams.get_mut("pip").unwrap().next_at = now;
+        assert_eq!(
+            ms(&d, Some((3000.0, -400.0))),
+            CALM_TICK.as_millis(),
+            "never sooner than the calm tick"
+        );
     }
 
     #[test]

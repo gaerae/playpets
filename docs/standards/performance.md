@@ -22,7 +22,9 @@
 | Yard, in snow | 80ms |
 | Yard, otherwise | 100ms |
 | Yard, while it cannot be seen (nothing is drawn) | 1000ms |
-| Overlay | 100ms |
+| Overlay | when the first cell a friend shows ends (`nextDraw` in `src/overlay/pace.js`), never sooner than 8ms |
+| Overlay, while a friend is held or looks at the pointer | 100ms |
+| Overlay, with reduced motion | none: each friend shows one cell, and the loop rests until something changes |
 | Overlay, with no friend on its monitor | none: the loop rests until one comes |
 
 - New movement adds a condition to `pace()` in `app.js`.
@@ -38,6 +40,21 @@
   - Not on a friend's first placing, not while it is held, not with reduced motion.
   - Use it, not a CSS transition: WebKit starts a transition that replaces another a frame late, so the friend stops once every step.
 - Something that cycles on a canvas (a wing beat) spans at least six frames at the interval it is drawn at. A faster cycle is drawn at scattered points and flickers.
+- The overlay stays open all day, so its loop wakes only for a cell that ends, not on a fixed interval.
+  - Standing friends share one clock: one wake serves them all, about five a second for the idle row.
+  - A pose wakes it once its cells have played, when the pose ends: a jump holds its last cell until then.
+  - Whatever changes a drawing in between wakes it at once (`drawNow`): a friend come out, a status, a pat, a walk's first step or a turn, a drag, a look, the season, reduced motion turned off.
+  - A new thing the overlay draws calls `drawNow` where it changes, or the friend shows it only at its next cell.
+- Measured 2026-11-15, Apple M2 Pro, e2e build, three friends standing on the desktop, the yard hidden, the pointer about 450px from them, 30 s per run, alternating runs (app, GPU and both pages):
+
+| Overlay | CPU |
+|---|---|
+| Before: a frame every 100ms, the thread looking every 120ms | 4.0–4.3% |
+| After: a frame when a cell ends, the thread looking by the pointer's distance | 3.7% |
+| The friends' idle cycle stopped (a trial, not shipped) | 0.8% |
+
+- What is left is the idle cycle itself: about 0.6% for each redraw a second (see Rationale), and the idle row changes cells about five times a second.
+- Strolling friends cost the same before and after (8.6–10.1% against 8.7–9.3%): walking wakes the loop for each step anyway.
 - Do not draw when the window is not visible.
   - Loops return right away when `document.hidden` is set or when the backend reports the window hidden (the `window` event, `<html data-unseen>`).
   - The yard's page listens for the `window` event before its first question, so a window shown or closed while the page loads is heard.
@@ -111,7 +128,13 @@
 
 ### Backend, sound and memory
 - The overlay thread does not ask the runtime for monitors on every tick (it uses the cache).
-- With nobody walking, nothing dragged and the cursor not within 300px of a friend, it rests at 120ms intervals.
+- While something moves, something is dragged or the pointer is within 300px of a box, it ticks every 40ms.
+- Otherwise it waits until a pointer moving at 2500 px/s (300px in 120ms) could reach the nearest box (`calm_wait`):
+  - at least 120ms, at most 500ms;
+  - never past the start of the next stroll.
+  - Each look asks the main thread where the pointer is: a far pointer costs two looks a second, not eight.
+  - A pointer faster than that reaches a friend before its window takes clicks, by up to 500ms.
+- A thing that grew (a tree, a flower in bloom) wakes the thread: it is placed now, not at the next look.
 - With nothing out and no window open, it waits to be woken: a change to what is out wakes it at once. It looks in every 2 seconds only as a safety net.
 - A monitor's window stays 60 seconds after the last thing on it leaves, or after the yard opens the menu of something not out yet; then it closes.
   - Building a window and loading its page takes most of a second, and something sent out again soon then shows at once.
@@ -190,6 +213,7 @@
   - In Chrome with 12 friends, after a collection, the JS heap went from 3.5 to 4.1 MB in 10 minutes while 17,000 glides ran.
 - Turned off in turn, these cost nothing measurable here (within 2 points): the garden's light filter (evening rain), the glass blur behind the dock over the rain, a desktop window cut to the friends' width instead of the screen.
   - The cut window saved 0.8 points and 18 MB, but would have to move and resize with every stroll: the window stays the size of the screen.
+  - Also kept on 2026-11-15, when the overlay's loop was paced by its cells: a window cut to the friends would move and resize from the overlay thread through the main thread on every 40ms step of a stroll and a drag, and a friend carried to another screen needs that screen's window whole. Resting the loop was the safer of the two.
 
 ## Recommendations
 Follow these when you can. When you cannot, say why in the PR.
@@ -236,3 +260,4 @@ Follow these when you can. When you cannot, say why in the PR.
 - 2026-11-15 A state travels as JSON text; a desktop window is sent only its part, only when it changed, and only the events it acts on
 - 2026-11-15 A window loads only the string table it speaks and English; the first render does not wait for the companions' authored actions
 - 2026-11-15 A page started in a hidden window knows it from `bootstrap`, and the backend's word starts a rest too; the window shows once the yard is drawn; WebView2 is told when the window is hidden; in WebView2 the clouds move in pixel steps
+- 2026-11-15 The overlay's loop wakes when a friend's cell ends and rests with reduced motion; the overlay thread looks at the pointer by its distance from the friends, up to 500ms apart

@@ -1,0 +1,36 @@
+// When the desktop's frame loop (overlay.js animate) wakes next. It stays open all day, so it wakes
+// when the cell a friend shows ends rather than ten times a second: a standing friend changes cells
+// about five times a second, and the wakes in between drew nothing.
+
+import { cellLeft, poseClock } from '../core/animation.js';
+
+/** A friend held, or looking at the pointer, is drawn this often: it follows the pointer. */
+export const FOLLOW_MS = 100;
+// A cell that ends a moment after a frame is drawn by the next one, a few ms on.
+const SOONEST = 8;
+
+/** How long the loop may wait after drawing `views` at `now` (ms), or Infinity to rest until woken:
+ * until the first of their cells ends, a pose ends or a look at the pointer runs out. `views` are
+ * overlay.js's, with the same pose, look and drag fields. With reduced motion a friend shows one
+ * still cell, so nothing ends. */
+export function nextDraw(views, now, { reduced = false, lookMs = 400 } = {}) {
+  let wait = Infinity;
+  for (const v of views) {
+    if (!v.asset || reduced) continue;
+    if (v.drag) {
+      wait = Math.min(wait, FOLLOW_MS);
+      continue;
+    }
+    const posing = now < v.until;
+    const state = posing ? v.pose : v.status;
+    if (posing) wait = Math.min(wait, v.until - now);
+    if (state === 'idle' && v.look && now - v.lookedAt < lookMs) {
+      wait = Math.min(wait, FOLLOW_MS, v.lookedAt + lookMs - now);
+      continue;
+    }
+    // A gesture that played through holds its last cell until the pose ends.
+    const elapsed = posing ? now - v.since : now;
+    if (!posing || poseClock(state, elapsed) === elapsed) wait = Math.min(wait, cellLeft(state, elapsed));
+  }
+  return wait === Infinity ? wait : Math.max(SOONEST, Math.ceil(wait));
+}
