@@ -520,6 +520,37 @@ test("a tree's gust lets most of its petals go early, the rest over its time; th
   assert.equal(scene.busy(), false);
 });
 
+// A petal lying at full strength looks the same from one frame to the next: the canvas rests until
+// it starts to fade. The calm pace still looks every CALM_MS (app.js), so the fade starts on time.
+test("petals lying at a tree's foot repaint nothing until they fade, and the yard keeps its calm pace", t => {
+  const { scene, draws } = yard(t, false);
+  scene.set('day', 'clear', 'winter', null);
+  run(scene, 0, 30000);
+  t.mock.method(performance, 'now', () => 30000);
+  // Close above the foot, all let go at once: they lie at 31.1 s and fade after 34.1 s.
+  scene.drift({ ...GUST, top: 410, bottom: 412, ms: 100 });
+  let now = 30100;
+  for (; now <= 31000; now += 100) scene.frame(now, 100);
+  assert.equal(scene.lively(), true, 'falling');
+  for (; now <= 31200; now += 100) scene.frame(now, 100);
+  for (; now <= 34100; now += 100) {
+    const before = draws.paints;
+    scene.frame(now, 100);
+    assert.equal(draws.paints, before, `nothing repainted at ${now} ms`);
+    assert.equal(scene.lively(), false, `the calm pace at ${now} ms`);
+  }
+  for (; now <= 34400; now += 100) {
+    assert.equal(gustPetalsAt(scene, draws, now), 6, `fading at ${now} ms`);
+    assert.equal(scene.lively(), true);
+  }
+  for (; now <= 37400; now += 100) scene.frame(now, 100);
+  assert.equal(gustPetalsAt(scene, draws, now), 0, 'gone');
+  assert.equal(scene.lively(), false);
+  const before = draws.paints;
+  scene.frame(now + 100, 100);
+  assert.equal(draws.paints, before, 'and the canvas rests');
+});
+
 test('nothing drifts with reduced motion, nor where no season shows, and a new scene takes the petals', t => {
   const still = yard(t, true);
   assert.equal(still.scene.drift(GUST), false);

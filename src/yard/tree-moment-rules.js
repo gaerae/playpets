@@ -141,6 +141,10 @@ export function stepDrift(petals, dt, now) {
 /** How much of a lying petal shows, `age` ms after it came to rest: all of it, then fading out. */
 export const lyingAlpha = age => Math.max(0, Math.min(1, (LIE_MS - age) / (LIE_MS / 2)));
 
+/** Whether any of `petals` looks different from one frame to the next at `now`: one still falling,
+ * or one lying in its fade. Petals lying at full strength do not, and the canvas may rest. */
+export const driftMoving = (petals, now) => petals.some(p => p.lay === null || now - p.lay > LIE_MS / 2);
+
 // ---- harvest: burrs at the foot ----
 
 /** At most this many burrs under one tree, and in the yard. */

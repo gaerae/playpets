@@ -16,6 +16,7 @@ import {
   burrDue,
   burrSpot,
   burrsStay,
+  driftMoving,
   driftPetal,
   freshBurrs,
   GUST_EVERY,
@@ -158,6 +159,9 @@ test('a petal falls, lies on its spot, fades and is gone', () => {
   assert.equal(lyingAlpha(LIE_MS / 2), 1);
   assert.ok(lyingAlpha(LIE_MS * 0.75) > 0 && lyingAlpha(LIE_MS * 0.75) < 1, 'it fades over the second half');
   assert.equal(lyingAlpha(LIE_MS), 0);
+  assert.equal(driftMoving([driftPetal(crown, seq(0.5))], now), true, 'one falling changes the picture');
+  assert.equal(driftMoving(petals, now + LIE_MS / 2), false, 'lying whole, it does not');
+  assert.equal(driftMoving(petals, now + LIE_MS / 2 + 1), true, 'fading, it does again');
   assert.equal(stepDrift(petals, 50, now + LIE_MS - 1).length, 1);
   assert.equal(stepDrift(petals, 50, now + LIE_MS).length, 0, 'gone');
 });
