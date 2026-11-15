@@ -73,6 +73,20 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.8.1" date="2026-11-15">
+      <description>
+        <p>Grown fruit trees drop their fruit in its season, and a friend picks it up when you click it. In winter friends walk over to a red plum to smell its blossom.</p>
+        <ul>
+          <li>Chestnuts, persimmons and oaks drop fruit in autumn, figs and red plums in summer, yuzu in winter.</li>
+          <li>Click a fallen fruit and a friend picks it up, with a special line for the day's first one.</li>
+          <li>Fallen fruit stays where it fell for a while, also when you visit another place and come back.</li>
+          <li>In winter a friend sometimes stands under a red plum in bloom and smells the blossom.</li>
+          <li>The red plum is drawn fuller, with crimson blossom along every branch.</li>
+          <li>Friends out on the desktop use less CPU while they stand about.</li>
+        </ul>
+      </description>
+      <url type="details">https://playpets.gaerae.com/releases/1.8.1</url>
+    </release>
     <release version="1.7.2" date="2026-11-14">
       <description>
         <p>Eight new trees and eight new flowers grow in the yard. Show on desktop answers right away, and the yard stays smooth while friends talk, coding agents work and things are saved.</p>
