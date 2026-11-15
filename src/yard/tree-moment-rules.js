@@ -257,6 +257,11 @@ export function keptBurrs(text, now) {
   };
 }
 
+/** Where a friend `width` px wide stands to visit a tree whose crown is `crownWidth` px wide at
+ * `crownX`, on `side` (-1 left, 1 right): beside the trunk, never in front of it, under the crown's
+ * edge when the crown is wide. */
+export const visitX = (crownX, crownWidth, width, side) => crownX + side * Math.max(width * 0.8, crownWidth * 0.4);
+
 /** The list a friend picking up a burr says a line from: the moment's `first` on the first pick of
  * the local day `today`, else its `pick`; and the record after it. */
 export function pickLine(kept, moment, today) {

@@ -32,6 +32,7 @@ import {
   pickLine,
   stepDrift,
   stepGusts,
+  visitX,
 } from '../src/yard/tree-moment-rules.js';
 
 const T = Date.UTC(2027, 9, 5, 9);
@@ -271,4 +272,18 @@ test("the first pick of the day has its own line, and the day's later picks the 
   assert.equal(kept0.picked, '', 'the old record is left alone');
   assert.equal(pickLine(first.kept, moment, '2027-10-05').key, moment.lines.pick);
   assert.equal(pickLine(first.kept, moment, '2027-10-06').key, moment.lines.first, 'and a new day starts again');
+});
+
+test('a friend visiting a tree stands beside its trunk, not in front of it', () => {
+  // Pixels: the crown 120 wide at x 400; a friend 100 wide.
+  for (const side of [-1, 1]) {
+    const x = visitX(400, 120, 100, side),
+      near = side < 0 ? x + 50 : x - 50;
+    // The friend's near edge stays clear of the trunk, which stands about 20 px either side of the middle.
+    assert.ok(side < 0 ? near <= 380 : near >= 420, `side ${side}: ${x}`);
+    // Close enough to smell the blossom: within the crown's reach.
+    assert.ok(Math.abs(x - 400) <= 120, `side ${side}: ${x}`);
+  }
+  // A wide crown: the friend stands under its edge, not farther out.
+  assert.equal(visitX(400, 300, 100, 1), 400 + 300 * 0.4);
 });

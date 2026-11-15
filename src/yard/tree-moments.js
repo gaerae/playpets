@@ -26,7 +26,7 @@ import { fieldToYard, footOf, footTarget, petHeight, sizeOf } from './field.js';
 import { landPetal } from './petals.js';
 import { propScale } from './props.js';
 import { shootDigging } from './shoots.js';
-import { gustPetals, momentTrees, stepGusts } from './tree-moment-rules.js';
+import { gustPetals, momentTrees, stepGusts, visitX } from './tree-moment-rules.js';
 import { isFree, release, rest, sendTo, setDoing, strolling } from './trips.js';
 import { viewing } from './viewing.js';
 import { bubble, gaze } from './views.js';
@@ -172,7 +172,7 @@ function visit() {
     v = pick(free),
     { crown } = tree,
     side = footOf(v).x < crown.x ? -1 : 1,
-    x = crown.x + side * Math.max(sizeOf(v.pet) * 0.6, crown.width * 0.25);
+    x = visitX(crown.x, crown.width, sizeOf(v.pet), side);
   sendTo(v, footTarget(v, x, crown.foot + 6 * crown.zoom), {
     slow: true,
     own: true,
