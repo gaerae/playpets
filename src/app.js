@@ -192,9 +192,10 @@ setupTrails({
   visible: () => shown && !document.hidden,
 });
 // The spring shoots out, read back before the sky too: its first paint looks at them, and would
-// otherwise sprout over the stored ones; and the same for the fruit under a grown fruit tree.
+// otherwise sprout over the stored ones; and the same for the fruit under a grown fruit tree, which
+// drops only while the yard is seen.
 setupShoots();
-setupFruit();
+setupFruit({ visible: () => shown && !document.hidden });
 setupTreeMoments();
 // A new window size or land: the work friends were sent to do (a dig, a spring shoot, fallen fruit, a
 // visit to a tree) was worked out in yard pixels, so it ends, and each friend is let go where it is.

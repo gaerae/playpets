@@ -22,7 +22,7 @@ const { forPerson, release, sendTo } = await import('../src/yard/trips.js');
 const { bubble, place, syncViews } = await import('../src/yard/views.js');
 const { cancelTreeVisit, setupTreeMoments, syncTreeMoments, treeMomentTick } =
   await import('../src/yard/tree-moments.js');
-const { FRUIT_FIRST, fruitFall, harvestOf } = await import('../src/yard/tree-moment-rules.js');
+const { FRUIT_FIRST, FRUIT_STAYS_MS, fruitFall, harvestOf } = await import('../src/yard/tree-moment-rules.js');
 const { treeBox } = await import('../src/yard/planted-trees.js');
 const { drawYard } = await import('./support/yard.mjs');
 const { FRUIT_LIFT_MS, cancelFruitPicks, fruitPicking, fruitMinute, pickFruit, renderFruit, setupFruit } =
@@ -304,7 +304,7 @@ test('a friend at the plum, or on its way, gives way to what the person asks', t
 
 const AUTUMN = new Date(2027, 9, 5, 11).getTime();
 const chestnut = grown('c', 'chestnut', 0.5, 0.3);
-async function fruitYard(ctx, { stored = null, values = {}, rng = [], tree = chestnut, now = AUTUMN } = {}) {
+async function fruitYard(ctx, { stored = null, values = {}, rng = [], tree = chestnut, now = AUTUMN, visible } = {}) {
   ctx.mock.method(Math, 'random', () => (rng.length ? rng.shift() : 0.5));
   const y = await drawYard(ctx, {
     now,
@@ -315,7 +315,7 @@ async function fruitYard(ctx, { stored = null, values = {}, rng = [], tree = che
       if (stored) storage.setItem('fallen-fruit', stored);
     },
   });
-  setupFruit();
+  setupFruit({ visible });
   const live = () => y.shown().filter(b => b.classList.contains('fallen-fruit'));
   const saved = () => JSON.parse(state.recall('fallen-fruit'));
   return { ...y, live, saved };
@@ -397,6 +397,28 @@ test('the first wait comes again each time the harvest comes back, and at each s
   ctx.mock.timers.tick(FRUIT_FIRST[1]);
   fruitMinute();
   assert.equal(y.live().length, 1, 'and then one drops');
+});
+
+test('while the yard is not seen no fruit drops, but fruit whose time is over still goes', async ctx => {
+  let seen = false;
+  const y = await fruitYard(ctx, {
+    stored: record([lyingFruit('1', 0.52, 0.33, { at: AUTUMN - FRUIT_STAYS_MS + 60_000 })]),
+    visible: () => seen,
+  });
+  fruitMinute();
+  assert.equal(y.live().length, 1, 'what lies there is kept');
+  ctx.mock.timers.tick(FRUIT_FIRST[1] + 60_000);
+  fruitMinute();
+  assert.equal(y.live().length, 0, 'none falls unseen, and the old one is gone');
+  assert.deepEqual(y.saved().out, []);
+  // Seen again, the harvest starts with its first wait, and the fruit falls where the eye can see it.
+  seen = true;
+  fruitMinute();
+  assert.equal(y.live().length, 0, 'the first look only sets the wait');
+  ctx.mock.timers.tick(FRUIT_FIRST[1]);
+  fruitMinute();
+  const [button] = y.live();
+  assert.ok(button?.classList.contains('dropped'), 'and then one drops as it comes');
 });
 
 // The red plum flowers in winter and drops green plums in summer: the same code, its own fruit.
@@ -686,10 +708,12 @@ test('the yard wires the moments in with the sky, the garden and the frame loop'
   const app = await readFile('src/app.js', 'utf8'),
     render = await readFile('src/render.js', 'utf8');
   const sky = app.search(/^setupSky\(/m);
-  for (const setup of ['setupFruit();', 'setupTreeMoments();']) {
+  for (const setup of ['setupFruit(', 'setupTreeMoments();']) {
     const at = app.indexOf(`\n${setup}`);
     assert.ok(at >= 0 && at < sky, `${setup} runs before the sky first paints`);
   }
+  // Fruit drops only while the yard is seen, as the winter question and the year-end letter wait.
+  assert.match(app, /\nsetupFruit\(\{ visible: \(\) => shown && !document\.hidden \}\);/);
   const minute = app.indexOf('fruitMinute();');
   assert.ok(minute > app.indexOf('shootsMinute();') && minute < app.indexOf('seasonPicked'), 'each repaint looks');
   assert.ok(app.indexOf('syncTreeMoments();') < app.indexOf('seasonPicked'));

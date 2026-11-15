@@ -8,6 +8,8 @@
 //
 // - Checked with the scene, once a minute (app.js seasonChanged), and drawn again with the garden
 //   (render.js, and the yard's resize, land and place changes). Nothing runs in the frame loop.
+// - Fruit drops only while the yard is seen (app.js `visible`), so its fall is seen; unseen, fruit
+//   whose time is over still goes.
 // - Kept in the webview's storage, not in state.json, as the spring shoots are: a few short-lived
 //   things, and the day's first pick of each fruit. Nothing is counted and nothing is rewarded.
 // - What falls, its title and the friend's lines are the tree's harvest moment's (catalog.json):
@@ -61,6 +63,8 @@ const made = new Set();
 const shown = new Map();
 // The fruit friends are on their way to or picking up: fruit id → the task ({ v, end }).
 const picks = new Map();
+// Whether the yard is seen (setupFruit).
+let seen = () => true;
 /** How long picked fruit takes to rise toward the friend's paws and fade (garden.css fruit-lift). */
 export const FRUIT_LIFT_MS = 600;
 // A friend picking fruit up stands this share of its width beside it; the fruit rises this share of
@@ -74,8 +78,10 @@ const JUMP_MS = Math.round(animationSpec('jump').seconds * 1000);
 /** Whether a friend is going for fallen fruit or picking it up (a flower viewing or a visit waits). */
 export const fruitPicking = () => picks.size > 0;
 
-/** Reads the fallen fruit back from the webview's storage (app.js, before the sky first paints). */
-export function setupFruit() {
+/** Reads the fallen fruit back from the webview's storage (app.js, before the sky first paints).
+ * `visible` says whether the yard is seen: the window shown and not minimized. */
+export function setupFruit({ visible = () => true } = {}) {
+  seen = visible;
   for (const v of shown.values()) {
     v.button.remove();
     thingGone(v.button);
@@ -96,37 +102,46 @@ const lying = now =>
 const here = now => fruitHere(lying(now), scene.world);
 
 /** One look at the yard, at each repaint of the scene: fruit whose time, season or tree is gone
- * goes, and fruit that is due drops in the place shown. */
+ * goes, and, while the yard is seen, fruit that is due drops in the place shown. */
 export function fruitMinute(now = new Date()) {
   if (!kept) return;
   const ms = now.getTime(),
     still = lying(ms);
   let next = { ...kept, out: still.length === kept.out.length ? kept.out : still };
-  const trees = momentTrees(data.garden?.trees, scene, ms, data.limits).filter(tree => tree.moment.kind === 'harvest'),
-    due = fruitDue(next, trees, ms, Math.random, scene.world);
-  next = due.kept;
-  if (due.tree) {
-    const ground = groundProfile(),
-      spot = fruitSpot(Math.random, ground, due.tree, fruitHere(next.out, scene.world), due.tree.moment.size[0]);
-    if (spot) {
-      // Where the tree stands, so moving it takes its fruit along (fruitStays).
-      const fruit = {
-        id: String(ms),
-        tree: due.tree.id,
-        world: scene.world,
-        x: spot.x,
-        y: spot.y,
-        treeX: due.tree.x,
-        treeY: due.tree.y,
-        at: ms,
-      };
-      next = { ...next, out: [...next.out, fruit] };
-      made.add(fruit.id);
-    }
-  }
+  // Unseen, nothing drops: no fall goes unwatched, and the wait and the room are left for when the
+  // yard is seen again.
+  if (seen()) next = drop(next, ms);
   if (next.out !== kept.out) save(next);
   kept = next;
   renderFruit();
+}
+
+// The record after fruit that is due drops under a harvest tree in the place shown, if any is.
+function drop(record, ms) {
+  const trees = momentTrees(data.garden?.trees, scene, ms, data.limits).filter(tree => tree.moment.kind === 'harvest'),
+    due = fruitDue(record, trees, ms, Math.random, scene.world);
+  if (!due.tree) return due.kept;
+  const spot = fruitSpot(
+    Math.random,
+    groundProfile(),
+    due.tree,
+    fruitHere(due.kept.out, scene.world),
+    due.tree.moment.size[0],
+  );
+  if (!spot) return due.kept;
+  // Where the tree stands, so moving it takes its fruit along (fruitStays).
+  const fruit = {
+    id: String(ms),
+    tree: due.tree.id,
+    world: scene.world,
+    x: spot.x,
+    y: spot.y,
+    treeX: due.tree.x,
+    treeY: due.tree.y,
+    at: ms,
+  };
+  made.add(fruit.id);
+  return { ...due.kept, out: [...due.kept.out, fruit] };
 }
 
 function create(fruit) {
