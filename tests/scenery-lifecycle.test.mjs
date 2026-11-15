@@ -476,3 +476,58 @@ test('petals cannot be caught with reduced motion', t => {
   assert.equal(scene.catchPetal(500, 0.5 * groundFor(0.5, 600)), null);
   assert.equal(scene.nearPetal(500, 0.5 * groundFor(0.5, 600)), false);
 });
+
+// A grown tree's gust (tree-moments.js): a few petals in its own colour come off its crown over the
+// gust's time, fall to its foot, lie there a few seconds and go; then the canvas rests again.
+const GUST = {
+  x: 500,
+  top: 250,
+  bottom: 330,
+  width: 160,
+  foot: 420,
+  colors: ['#123456'],
+  petals: 6,
+  ms: 9000,
+  wind: 0,
+};
+const gustPetalsAt = (scene, draws, now, dt = 100) => {
+  draws.fills.length = 0;
+  scene.frame(now, dt);
+  return draws.fills.filter(fill => fill === '#123456').length;
+};
+
+test("a tree's gust lets its petals go over its time; they lie at the foot and go, and the canvas rests", t => {
+  const { scene, draws } = yard(t, false);
+  // Winter has no petals of its own, so only the gust's fall.
+  scene.set('day', 'clear', 'winter', null);
+  run(scene, 0, 30000);
+  assert.equal(scene.lively(), false, 'nothing is out');
+  t.mock.method(performance, 'now', () => 30000);
+  assert.equal(scene.drift(GUST), true);
+  assert.equal(scene.lively(), true, 'the yard runs at its busy pace while it blows');
+  let most = 0,
+    now = 30100;
+  for (; now <= 34600; now += 100) most = Math.max(most, gustPetalsAt(scene, draws, now));
+  assert.ok(most >= 2 && most <= 4, `half way through, about half of them (${most})`);
+  for (; now <= 40000; now += 100) most = Math.max(most, gustPetalsAt(scene, draws, now));
+  assert.equal(most, 6, 'all of them by its end');
+  // Each falls at most 170 px at 0.017 px/ms (10 s), then lies 4 s.
+  for (; now <= 56000; now += 100) scene.frame(now, 100);
+  assert.equal(gustPetalsAt(scene, draws, now), 0, 'every one is gone');
+  assert.equal(scene.lively(), false, 'and the canvas may rest');
+  assert.equal(scene.busy(), false);
+});
+
+test('nothing drifts with reduced motion, nor where no season shows, and a new scene takes the petals', t => {
+  const still = yard(t, true);
+  assert.equal(still.scene.drift(GUST), false);
+  const { scene, draws } = yard(t, false);
+  scene.set('day', 'clear', 'winter', null, 'workshop');
+  assert.equal(scene.drift(GUST), false, 'not in the workshop');
+  scene.set('day', 'clear', 'winter', null);
+  assert.equal(scene.drift(GUST), true);
+  run(scene, 0, 5000, 100);
+  assert.ok(gustPetalsAt(scene, draws, 5100) > 0);
+  scene.set('day', 'rain', 'winter', null);
+  assert.equal(gustPetalsAt(scene, draws, 5200), 0, 'rain takes them away');
+});

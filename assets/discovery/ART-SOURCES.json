@@ -502,6 +502,25 @@
         }
       ],
       "notes": "Generated 2026-11-15. Replaces the mature pine, a spruce-like cone close to the Christmas tree gift that did not match its own long-needle young tree, with a Korean red pine: a curving red scaly trunk under layered pads of long needles. Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged) to remove the generator's soft halo; the raw generation (sha256 ed50b1a94c23229eff42fe1e83454a2ea3d468202da793ba0f6eccbffcd27dee) is not kept."
+    },
+    {
+      "id": "chestnut-burr",
+      "file": "chestnut-burr-source.png",
+      "atlas": "discovery/chestnut-burr.png",
+      "size": [1254, 1254],
+      "sha256": "721007ba00ff5dfd197ed918819d93a02dbe867c13ef86a9b16b63230c3c29a8",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy game ground prop sprite. The first reference (a chestnut tree sheet) and the second reference (a keepsake coin) are STYLE REFERENCES ONLY: match their warm sculpted hand-painted illustrated look, soft painterly detail, crisp edges, warm saturated colours and soft top-left key light; the burr must look like the open burrs in the chestnut tree's autumn crown. Create a genuine transparent RGBA sprite of exactly ONE isolated object, centered, filling about 70% of the image width, slightly top-front three-quarter view, readable at 40 CSS pixels: one fallen chestnut burr lying on its side, split open into four spiky husk lobes curling outward, the spines a soft green-gold with sunlit yellow tips, the inside of the husk pale cream-tan, holding THREE glossy rich red-brown chestnuts with pale matte bases and small highlight gleams, nestled together and peeking out. Square 1024x1024 canvas. No grass, no ground, no leaves, no background, no checkerboard ink, no cast shadow, no text, labels or extra objects. Preserve genuine alpha.",
+      "references": [
+        {
+          "path": "assets/discovery/chestnut-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "assets/discovery/old-coin-source.png",
+          "role": "Style reference only"
+        }
+      ],
+      "notes": "Generated 2026-11-15 through the Codex CLI built-in image tool. The burr a grown chestnut drops at its foot in autumn (tree moments). Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged); the raw generation is not kept, sha256 7885a79ad1bffb8b654bfb88c4d2100207e39c7acb48998b4f158e4b79321204."
     }
   ],
   "assets": [
@@ -1183,6 +1202,14 @@
       "size": [40, 40],
       "crop": [201, 196, 833, 840],
       "anchor": [0.5, 0.5]
+    },
+    {
+      "id": "chestnut_burr",
+      "source": "chestnut-burr",
+      "art": "discovery/chestnut_burr.svg",
+      "size": [40, 36],
+      "crop": [87, 153, 1069, 964],
+      "anchor": [0.5, 1]
     },
     {
       "id": "blue_feather",

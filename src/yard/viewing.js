@@ -22,6 +22,7 @@ import { $, aiming, call, data, game, toast, views } from '../core/state.js';
 import { stateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
 import { cadence } from '../core/ticker.js';
+import { burrPicking } from './burrs.js';
 import { treeSize } from './catalog.js';
 import { fishingNow } from './catch.js';
 import { yardSeason } from './decor-shown.js';
@@ -112,7 +113,7 @@ function callFriends() {
 export const viewing = () => !!gathering;
 
 // Nothing the person started that a gathering would call friends away from.
-const busy = () => !!game || !!aiming || fishingNow() || digging() || shootDigging();
+const busy = () => !!game || !!aiming || fishingNow() || digging() || shootDigging() || burrPicking();
 // Friends free to come, a stroll let go of; when the friends start it, only those not busy with an
 // agent or a chat.
 const freeFriends = idle =>

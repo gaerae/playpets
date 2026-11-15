@@ -1087,4 +1087,22 @@ export const strings = {
   'viewing.mat_lines': ['A picnic under the blossom is the best!'],
   'viewing.petal_notice': ['Huh? Is there a petal on my head?', 'I’m wearing a petal!'],
   'viewing.wish': ['You caught a petal! Your wish will come true.', 'Make a wish. It’ll come true, I just know it!'],
+  'moment.burr_title': 'A chestnut burr. Click to send a friend to pick it up',
+  'moment.burr_no_friend': 'Invite a friend to pick it up',
+  'moment.fringe_head': [
+    'Oh! A little white petal landed on me.',
+    'It’s snowing flowers!',
+    'Look, I’ve got a white flower in my hair.',
+  ],
+  'moment.plum_smell': [
+    'Mmm, the plum blossom smells so sweet.',
+    'Blooming in the cold. How brave!',
+    'Smells a little like spring.',
+  ],
+  'moment.chestnut_pick': ['Got a chestnut!', 'So shiny and round!', 'Careful, it’s prickly. Three inside!'],
+  'moment.chestnut_first': [
+    'The first chestnut today!',
+    'I found today’s first one!',
+    'The chestnuts are ripe this fall.',
+  ],
 };

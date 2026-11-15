@@ -41,6 +41,7 @@ import { render } from './render.js';
 import { setupWindow } from './window.js';
 import { setupBackgrounds } from './yard/background-ui.js';
 import { befriend, bondTick, seen, setupBond } from './yard/bond.js';
+import { burrsMinute, cancelBurrPicks, renderBurrs, setupBurrs } from './yard/burrs.js';
 import { setupCard } from './yard/card.js';
 import { react, setupCare, startChatter } from './yard/care.js';
 import { endFishing, refitFishing, setupCatch, soloFishing } from './yard/catch.js';
@@ -89,6 +90,7 @@ import { resizeSnowman, setupSnowman, showsWinter, snowmanTick } from './yard/sn
 import { cue, setupSound, soundSeen } from './yard/sound.js';
 import { setupTouches } from './yard/touches.js';
 import { resizeTrails, setupTrails, trailsCheck, trailsSeen } from './yard/trails.js';
+import { setupTreeMoments, syncTreeMoments, treeMomentTick } from './yard/tree-moments.js';
 import { release } from './yard/trips.js';
 import { setupViewing, viewing, viewingTick } from './yard/viewing.js';
 import { bubble, place, setupViews, syncView, syncViews } from './yard/views.js';
@@ -190,8 +192,10 @@ setupTrails({
   visible: () => shown && !document.hidden,
 });
 // The spring shoots out, read back before the sky too: its first paint looks at them, and would
-// otherwise sprout over the stored ones.
+// otherwise sprout over the stored ones; and the same for the burrs under a grown chestnut.
 setupShoots();
+setupBurrs();
+setupTreeMoments();
 // December's question about the winter yard, checked at each repaint of the scene.
 const winterCheck = setupWinter({ choice: chosenSeason, show: showSeason, visible: () => shown && !document.hidden });
 // The year-end letter, written and brought while the yard is seen (letter.js).
@@ -202,6 +206,10 @@ setupSky({
     refreshShownDecor();
     // Spring shoots come up after rain and on fair mornings, and go after a few hours.
     shootsMinute();
+    // A grown tree's moment comes and goes with the season, the hour and the weather: its gusts of
+    // petals, and the burrs a chestnut drops.
+    syncTreeMoments();
+    burrsMinute();
     winterCheck();
     letterCheck();
     // The winter yard's footprint trails come, soften and go under new snow.
@@ -234,6 +242,8 @@ setupSky({
     renderDecor();
     renderShoots();
     renderTrees();
+    renderBurrs();
+    syncTreeMoments();
     syncDiscovery();
     hint();
   },
@@ -243,6 +253,7 @@ setupSky({
   landChanged: () => {
     cancelDiscoveryWork();
     cancelShootDigs();
+    cancelBurrPicks();
     endFishing();
     for (const v of views.values()) place(v);
     resizeTrails();
@@ -250,6 +261,8 @@ setupSky({
     renderDecor();
     renderShoots();
     renderTrees();
+    renderBurrs();
+    syncTreeMoments();
   },
 });
 // Hidden for a while, the yard lets go of its paintings and is not drawn; seen again, it is painted
@@ -279,6 +292,7 @@ setupViews({
   resized: () => {
     cancelDiscoveryWork();
     cancelShootDigs();
+    cancelBurrPicks();
     refitFishing();
     scenery.resize();
     resizeTrail();
@@ -288,6 +302,8 @@ setupViews({
     renderDecor();
     renderShoots();
     renderTrees();
+    renderBurrs();
+    syncTreeMoments();
   },
 });
 setupPlay();
@@ -482,6 +498,7 @@ const YARD_LIFE = [
   snowmanTick,
   viewingTick,
   petalTick,
+  treeMomentTick,
 ];
 let last = 0,
   // The weather canvas moves at the yard's pace, not on a wake only for a sprite cell: when it last

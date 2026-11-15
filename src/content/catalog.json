@@ -2018,6 +2018,14 @@
         "seasons": ["spring"],
         "weather": ["clear"],
         "places": ["woodland"]
+      },
+      "moment": {
+        "season": "spring",
+        "kind": "drift",
+        "colors": ["#fffdf5", "#f3efdf", "#ffffff"],
+        "petals": 14,
+        "petal": [3.4, 1.2],
+        "lines": { "head": "moment.fringe_head" }
       }
     },
     {
@@ -2102,6 +2110,13 @@
         "seasons": ["autumn"],
         "weather": ["clear"],
         "places": ["lakeside"]
+      },
+      "moment": {
+        "season": "autumn",
+        "kind": "harvest",
+        "art": "discovery/chestnut_burr.svg",
+        "size": [40, 36],
+        "lines": { "pick": "moment.chestnut_pick", "first": "moment.chestnut_first" }
       }
     },
     {
@@ -2130,6 +2145,16 @@
         "seasons": ["winter"],
         "weather": ["snow"],
         "places": ["courtyard"]
+      },
+      "moment": {
+        "season": "winter",
+        "kind": "drift",
+        "weather": ["clear", "snow"],
+        "colors": ["#c8304b", "#e0516a", "#a8253d"],
+        "petals": 6,
+        "pace": 0.7,
+        "petal": [2.8, 2.3],
+        "lines": { "visit": "moment.plum_smell" }
       }
     },
     {

@@ -11,6 +11,7 @@ import { artOf, eventGifts, giftKind, SHOOTS, shootKind, TRACKS, trailArt } from
 import { SHOWN } from '../src/yard/decor-shown.js';
 import { EFFECT_NAMES } from '../src/yard/effects.js';
 import { readPalette } from '../src/yard/palette.js';
+import { MOMENT_KINDS } from '../src/yard/tree-moment-rules.js';
 import { catalog, events, yard } from './support/content.mjs';
 
 const LANGUAGES = Object.keys(STRINGS);
@@ -41,6 +42,49 @@ test('the spring shoots are eight spring kinds with their drawings', () => {
   assert.equal(SHOOTS.length, 8);
   assert.equal(shootKind('morel').art, 'shoots/morel.svg');
   assert.equal(shootKind('carp'), null);
+});
+
+// A tree names its moment (tree-moment-rules.js) as data: a new tree gets one by naming it.
+test("every tree's moment is a kind the yard knows, with its colours, its drawing and its lines in every language", () => {
+  const named = catalog.trees.filter(tree => tree.moment);
+  assert.deepEqual(
+    named.map(tree => tree.id),
+    ['fringe_tree', 'chestnut', 'red_plum'],
+  );
+  const seasons = ['spring', 'summer', 'autumn', 'winter'],
+    hex = /^#[0-9a-f]{6}$/;
+  for (const { id, moment } of named) {
+    assert.ok(seasons.includes(moment.season), `${id}: a season`);
+    assert.ok(MOMENT_KINDS.includes(moment.kind), `${id}: a kind of moment`);
+    for (const weather of moment.weather ?? []) assert.ok(['clear', 'snow'].includes(weather), `${id}: ${weather}`);
+    const lines = Object.entries(moment.lines ?? {});
+    for (const [use, key] of lines) {
+      assert.ok(['head', 'visit', 'pick', 'first'].includes(use), `${id}: lines.${use}`);
+      for (const lang of LANGUAGES) {
+        const said = STRINGS[lang][key];
+        assert.ok(
+          Array.isArray(said) && said.length >= 3 && said.length <= 4,
+          `${lang}: ${key} has three or four lines`,
+        );
+      }
+    }
+    if (moment.kind === 'drift') {
+      assert.ok(moment.colors.length >= 1 && moment.colors.every(c => hex.test(c)), `${id}: petal colours`);
+      assert.ok(Number.isInteger(moment.petals) && moment.petals > 0 && moment.petals <= 16, `${id}: a few petals`);
+      assert.ok((moment.pace ?? 1) > 0 && (moment.pace ?? 1) <= 1, `${id}: no faster than a petal falls`);
+      assert.ok(moment.petal.length === 2 && moment.petal.every(n => n > 0 && n <= 5), `${id}: a small petal`);
+      assert.equal(moment.art, undefined);
+    } else {
+      assert.deepEqual(Object.keys(moment.lines).sort(), ['first', 'pick'], `${id}: a pick line and a first one`);
+      const text = readFileSync(new URL(`../src/art/${moment.art}`, import.meta.url), 'utf8');
+      assert.equal(
+        text.match(/viewBox="0 0 ([\d.]+ [\d.]+)"/)?.[1],
+        moment.size.join(' '),
+        `${id}: its size is its drawing's`,
+      );
+      assert.ok(artOf(catalog, events).includes(moment.art), `${id}: its drawing is loaded`);
+    }
+  }
 });
 
 test('every drawing the catalogue names is an SVG file with a view box, and nothing in it runs', () => {

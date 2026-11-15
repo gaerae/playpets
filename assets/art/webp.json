@@ -1188,6 +1188,10 @@
     "png": "54c472e449d6192a5bbb6055f390a9a58ed5cd64a14b69d17e768ba04a4e77fd",
     "webp": "f3cf9d436424192ab9bc257e57b89a9c00de670fa0372cfa5299228060bd8541"
   },
+  "discovery/chestnut-burr.png": {
+    "png": "721007ba00ff5dfd197ed918819d93a02dbe867c13ef86a9b16b63230c3c29a8",
+    "webp": "9743afe173b336279f6a34577b68baaa24d70ca9f0061586f070e2a74159d6fb"
+  },
   "discovery/dug-soil-winter.png": {
     "png": "9a93ea9f2ec9a7b7fa26c30fd5346beceff20ef0ff04dd08f32d98cf9c014ca5",
     "webp": "f103dad7d473e0e3fc30919430d7daaf4113d928ccb8123538a6bfeaacc75399"

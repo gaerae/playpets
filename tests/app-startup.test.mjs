@@ -189,6 +189,7 @@ async function frameLoop({
     'viewingTick',
     'viewing',
     'petalTick',
+    'treeMomentTick',
     'judge',
     'moveFriends',
     'bondTick',

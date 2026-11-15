@@ -70,7 +70,7 @@
 /* A friend standing mostly behind a flower, a shoot, a gift or a tree drawn in front of it would
    show only its hat: the thing fades while the friend is there (yard/veil.js), and the friend and
    its name read through it. */
-:is(.plant, .shoot, .decor, .planted-tree).veiled {
+:is(.plant, .shoot, .burr, .decor, .planted-tree).veiled {
   opacity: 0.45;
 }
 /* Outdoors a flower stands on a small soft shade where its stem or its soil ends (--foot, the share
@@ -206,6 +206,83 @@
 /* With a tool in hand or in a game, a press on a shoot is the yard's: a dig or a tree goes there. */
 .yard.aiming .shoot,
 .yard.playing .shoot {
+  pointer-events: none;
+}
+/* A burr a grown chestnut dropped at its foot (yard/burrs.js), set down at its depth like a shoot,
+   on a small soft shade. As it comes it drops a short way and bounces once; only the drawing inside
+   moves, as the button's transform is its place. */
+.burr {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: opacity 0.25s ease;
+}
+.burr::before {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: -6%;
+  height: 22%;
+  z-index: -1;
+  background: radial-gradient(closest-side, #2a1c0c70, #2a1c0c30 55%, transparent);
+  pointer-events: none;
+}
+.burr svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0.8px 1.2px 0.8px #2a1c0c80) var(--prop-light,);
+}
+.burr.dropped svg {
+  animation: burr-drop 750ms both;
+}
+@keyframes burr-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-40%);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
+  }
+  12% {
+    opacity: 1;
+  }
+  55% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
+  }
+  72% {
+    transform: translateY(-9%) rotate(-6deg);
+    animation-timing-function: cubic-bezier(0.6, 0, 0.8, 0.5);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* While a friend goes to pick it up, a burr fades a little and takes no second press. */
+.burr.picking {
+  cursor: default;
+}
+.burr.picking svg {
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .burr.dropped svg {
+    animation: none;
+  }
+  .burr.picking svg {
+    transition: none;
+  }
+}
+.yard.aiming .burr,
+.yard.playing .burr {
   pointer-events: none;
 }
 /* Decorations friends bring (yard/decor.js): wood and iron in the yard's light, dragged to move. */

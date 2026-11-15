@@ -125,6 +125,13 @@ Eight more trees and redrawn seasons (2026-11-15):
   redrawn tree is scaled to its species' mature crown.
 - Alpha below 50 is cleared as before; raw hashes are in `ART-SOURCES.json`.
 
+The chestnut burr (2026-11-15):
+- `chestnut-burr-source.png` holds one split burr with three chestnuts, the
+  thing a grown chestnut drops in autumn (a tree moment, not a keepsake).
+- It was drawn with the chestnut tree's sheet and the old coin as references,
+  so it matches the tree and the other small finds.
+- Alpha below 50 is cleared as before; the raw hash is in `ART-SOURCES.json`.
+
 More finds (2026-11-03):
 - `more-finds-source.png` holds the cicada shell, blue feather, pinecone, old
   key, paper boat, spinning top, freshwater pearl and four-leaf clover in
