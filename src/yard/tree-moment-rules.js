@@ -115,6 +115,12 @@ export function fruitSpot(rng, ground, tree, near, width = 0) {
   );
 }
 
+// A grown tree's leaves end about this share of its drawn height above its foot (the trees' art).
+const CROWN_LOW = 0.25;
+/** How far fruit lying with its bottom at `y` falls, in yard pixels: from the lower edge of the crown
+ * of a tree `height` px tall standing at `footY`, in whole pixels, never upward. */
+export const fruitFall = (y, footY, height) => Math.max(0, Math.round(y - (footY - height * CROWN_LOW)));
+
 /** The fallen fruit still lying at `now`. */
 export const freshFruit = (out, now) =>
   out.filter(f => !!f && typeof f.at === 'number' && now - f.at >= 0 && now - f.at < FRUIT_STAYS_MS);

@@ -89,3 +89,4 @@
   | `yuzu` | winter | a yuzu with a leaf | `discovery/yuzu_fruit.svg` |
 - The oak joins the list because its summer and autumn art carries acorns. The persimmon's winter art keeps a few fruit too; it drops only in autumn, one harvest a tree.
 - No basket, no count, no reward: as for the burr, picking up fruit is a gesture and a line.
+- Fruit falls from the lower edge of its tree's crown (a quarter of the drawn tree's height above its foot, `fruitFall`, set as `--fall`) in 1 s: faster as it goes, turning upright, then one small lift (a tenth of its own height), a slight rock and rest, while its shade gathers under it. No squash, no stretch, nothing below the ground; with reduced motion it is simply there.

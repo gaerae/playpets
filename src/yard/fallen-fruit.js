@@ -9,8 +9,8 @@
 //   things, and the day's first pick of each fruit. Nothing is counted and nothing is rewarded.
 // - What falls, its title and the friend's lines are the tree's harvest moment's (catalog.json):
 //   `art`, `size`, `title` and `lines`.
-// - It drops with a short fall and one bounce (garden.css); with reduced motion it is simply there,
-//   and can be picked all the same.
+// - It falls from the lower edge of the tree's crown, faster as it goes, bounces once a little and
+//   settles (garden.css); with reduced motion it is simply there, and can be picked all the same.
 // - A click on one sends a friend to pick it up, with the walk and the stroke of a spring shoot's
 //   gathering (work.js); the friend says a happy line, the day's first pick of that fruit a line of
 //   its own, and the fruit leaves the yard.
@@ -18,12 +18,22 @@ import { list, t } from '../core/i18n.js';
 import { pick } from '../core/math.js';
 import { aiming, data, game, recall, remember, selected, toast, views } from '../core/state.js';
 import { artHref } from './art.js';
+import { treeSize } from './catalog.js';
 import { depthAt, depthScaleAt, fieldToYard } from './field.js';
 import { groundProfile } from './ground.js';
 import { localDay } from './growth.js';
 import { propButton, propScale, reconcile, setDown } from './props.js';
 import { shootScale } from './shoot-rules.js';
-import { fruitDue, fruitSpot, fruitStays, harvestOf, keptFruit, momentTrees, pickLine } from './tree-moment-rules.js';
+import {
+  fruitDue,
+  fruitFall,
+  fruitSpot,
+  fruitStays,
+  harvestOf,
+  keptFruit,
+  momentTrees,
+  pickLine,
+} from './tree-moment-rules.js';
 import { forPerson, release } from './trips.js';
 import { thingGone } from './veil.js';
 import { bubble } from './views.js';
@@ -119,6 +129,12 @@ function update(v, fruit) {
     // Smaller farther back, as a friend there is, and no smaller than a spring shoot in a small yard.
     scale = shootScale(propScale()) * depthScaleAt(x, y);
   setDown(v.button, x, y, w * scale, h * scale, depthAt(y));
+  // Fruit coming now falls from where the tree's leaves end, as planted-trees.js draws the tree.
+  const tree = data.garden?.trees?.find(each => each.id === fruit.tree);
+  if (tree && v.button.classList.contains('dropped')) {
+    const foot = fieldToYard(tree);
+    v.button.style.setProperty('--fall', `${fruitFall(y, foot.y, treeSize(tree.kind, 2)[1] * propScale(foot))}px`);
+  }
   v.button.classList.toggle('picking', picks.has(fruit.id));
 }
 

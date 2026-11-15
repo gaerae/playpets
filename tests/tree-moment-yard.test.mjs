@@ -23,7 +23,10 @@ const { forPerson, release, sendTo } = await import('../src/yard/trips.js');
 const { bubble, place, syncViews } = await import('../src/yard/views.js');
 const { petalTick, setupPetals } = await import('../src/yard/petals.js');
 const { setupTreeMoments, syncTreeMoments, treeMomentTick } = await import('../src/yard/tree-moments.js');
-const { FRUIT_FIRST, HEAD_PETAL_EVERY, harvestOf, momentsOf } = await import('../src/yard/tree-moment-rules.js');
+const { FRUIT_FIRST, HEAD_PETAL_EVERY, fruitFall, harvestOf, momentsOf } =
+  await import('../src/yard/tree-moment-rules.js');
+const { treeSize } = await import('../src/yard/catalog.js');
+const { propScale } = await import('../src/yard/props.js');
 const { drawYard } = await import('./support/yard.mjs');
 const { fruitPicking, fruitMinute, pickFruit, renderFruit, setupFruit } = await import('../src/yard/fallen-fruit.js');
 
@@ -380,6 +383,12 @@ test('a grown chestnut in autumn drops a burr at its foot now and then, drawn as
   assert.equal(svg.getAttribute('aria-hidden'), 'true');
   assert.equal(svg.children[0].getAttribute('href'), artHref(harvestOf('chestnut').art));
   assert.ok(button.classList.contains('dropped'), 'it drops as it comes');
+  // From the crown's lower edge: the tree's foot and height as planted-trees.js draws it.
+  const foot = fieldToYard(chestnut),
+    spot = fieldToYard(burr),
+    tall = treeSize('chestnut', 2)[1] * propScale(foot);
+  assert.equal(button.style['--fall'], `${fruitFall(spot.y, foot.y, tall)}px`);
+  assert.ok(fruitFall(spot.y, foot.y, tall) > 40, 'a fall the eye can follow');
   // Drawn again (a state change), it stays where it lies and does not drop a second time.
   renderFruit();
   setupFruit();
@@ -548,15 +557,36 @@ test('the yard wires the moments in with the sky, the garden and the frame loop'
   assert.ok(render.indexOf('syncTreeMoments();') > render.indexOf('renderTrees();'));
 });
 
-test('a burr drops and bounces once, stays still for reduced motion, and lets a tool or a game through', async () => {
+test('fruit falls from the crown, bounces once and settles, stays still for reduced motion, and lets a tool or a game through', async () => {
   const css = (await readFile('src/styles/garden.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ');
-  assert.match(css, /\.fallen-fruit\.dropped svg \{ animation: fruit-drop /);
+  assert.match(css, /\.fallen-fruit\.dropped svg \{ animation: fruit-drop [\d.]+m?s both; \}/);
   const frames = css.match(/@keyframes fruit-drop \{(.*?\}) \}/)?.[1] || '';
   for (const [, property] of frames.matchAll(/([a-z-]+):/g))
     assert.ok(['transform', 'opacity', 'animation-timing-function'].includes(property), property);
+  const steps = [...frames.matchAll(/(from|to|[\d.]+%) \{([^}]*)\}/g)].map(([, at, body]) => ({
+    at: at === 'from' ? 0 : at === 'to' ? 100 : Number.parseFloat(at),
+    body,
+  }));
+  // It starts at the crown's lower edge (--fall above where it lies) and falls faster as it goes.
+  assert.match(steps[0].body, /translateY\(calc\(-1 \* var\(--fall\)\)\)/);
+  const [x1, y1, x2, y2] = steps[0].body
+    .match(/animation-timing-function: cubic-bezier\(([^)]*)\)/)[1]
+    .split(',')
+    .map(Number);
+  assert.ok(x1 >= 0.4 && y1 === 0 && x2 > y2, 'speeding up');
+  // It reaches the ground, lifts once a little (a share of its own height, never back up to the
+  // crown) and settles; it never sinks below the ground or stretches.
+  const lifts = steps.filter(s => /translateY\(-[\d.]+%\)/.test(s.body));
+  assert.equal(lifts.length, 1, 'one bounce');
+  assert.ok(Number.parseFloat(lifts[0].body.match(/translateY\(-([\d.]+)%\)/)[1]) <= 15, 'a small one');
+  assert.doesNotMatch(frames, /translateY\((?!-|calc)/, 'never below where it lies');
+  assert.doesNotMatch(frames, /scale/, 'no squash or stretch');
+  assert.match(steps.at(-1).body, /transform: none/);
+  // Its shade under it grows as it nears the ground.
+  assert.match(css, /\.fallen-fruit\.dropped::before \{ animation: fruit-shade [\d.]+m?s both; \}/);
   assert.match(
     css,
-    /@media \(prefers-reduced-motion: reduce\) \{[^@]*\.fallen-fruit\.dropped svg \{ animation: none; \}/,
+    /@media \(prefers-reduced-motion: reduce\) \{[^@]*\.fallen-fruit\.dropped svg, \.fallen-fruit\.dropped::before \{ animation: none; \}/,
   );
   assert.match(css, /\.yard\.aiming \.fallen-fruit, \.yard\.playing \.fallen-fruit \{ pointer-events: none; \}/);
 });

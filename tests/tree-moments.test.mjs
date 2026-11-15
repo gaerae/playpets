@@ -15,6 +15,7 @@ import {
   FRUIT_OUT,
   FRUIT_PER_TREE,
   fruitDue,
+  fruitFall,
   fruitSpot,
   fruitStays,
   freshFruit,
@@ -161,6 +162,14 @@ const open = {
   bodies: [],
   unit: { x: 0.001, y: 0.002 },
 };
+
+test("fruit falls from the crown's lower edge to where it lies", () => {
+  // A tree 200 px tall standing at y 500: its leaves end a quarter of the way up, at y 450.
+  assert.equal(fruitFall(510, 500, 200), 60);
+  assert.equal(fruitFall(500, 500, 100), 25);
+  assert.equal(fruitFall(510.6, 500, 200), 61, 'whole pixels');
+  assert.equal(fruitFall(400, 500, 200), 0, 'never upward');
+});
 
 test('a burr lands at the foot, in front of the trunk, apart from the others', () => {
   const tree = { x: 0.5, y: 0.3 };
