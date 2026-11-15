@@ -340,13 +340,13 @@ test('a friend at the plum, or on its way, gives way to what the person asks', t
 
 const AUTUMN = new Date(2027, 9, 5, 11).getTime();
 const chestnut = grown('c', 'chestnut', 0.5, 0.3);
-async function burrYard(ctx, { stored = null, values = {}, rng = [] } = {}) {
+async function burrYard(ctx, { stored = null, values = {}, rng = [], tree = chestnut, now = AUTUMN } = {}) {
   ctx.mock.method(Math, 'random', () => (rng.length ? rng.shift() : 0.5));
   const y = await drawYard(ctx, {
-    now: AUTUMN,
+    now,
     scene: { season: 'autumn', world: 'woodland', weather: 'clear', period: 'day', ...values },
-    garden: { trees: [chestnut] },
-    art: [harvestOf('chestnut').art],
+    garden: { trees: [tree] },
+    art: [harvestOf(tree.kind).art],
     before: ({ storage }) => {
       if (stored) storage.setItem('fallen-fruit', stored);
     },
@@ -413,6 +413,42 @@ test('the first wait comes again each time the harvest comes back, and at each s
   ctx.mock.timers.tick(FRUIT_FIRST[1]);
   fruitMinute();
   assert.equal(y.live().length, 1, 'and then one drops');
+});
+
+// The red plum flowers in winter and drops green plums in summer: the same code, its own fruit.
+const SUMMER = new Date(2027, 6, 5, 11).getTime();
+const plumTree = grown('c', 'red_plum', 0.5, 0.3);
+
+test('a grown red plum in summer drops green plums, with their own drawing and title', async ctx => {
+  const y = await burrYard(ctx, { tree: plumTree, now: SUMMER, values: { season: 'summer' } });
+  fruitMinute();
+  ctx.mock.timers.tick(FRUIT_FIRST[1]);
+  fruitMinute();
+  const [button, ...more] = y.live();
+  assert.equal(more.length, 0);
+  assert.equal(button.dataset.kind, 'red_plum');
+  assert.equal(button.title, translate('moment.plum_title'));
+  assert.equal(button.children[0].children[0].getAttribute('href'), artHref(harvestOf('red_plum').art));
+  assert.notEqual(harvestOf('red_plum').art, harvestOf('chestnut').art);
+  scene.season = 'autumn';
+  fruitMinute();
+  assert.equal(y.live().length, 0, 'the summer takes its plums along');
+});
+
+test('a friend picking up green plums says the plum’s own lines', async ctx => {
+  const y = await pickYard(ctx, {
+    tree: plumTree,
+    now: SUMMER,
+    values: { season: 'summer' },
+    stored: record([lyingBurr('1', 0.52, 0.33, { at: SUMMER - 1000 })], {
+      picked: { chestnut: '2027-07-05' },
+    }),
+  });
+  y.click();
+  y.arrive();
+  ctx.mock.timers.tick(1950);
+  assert.ok(list('moment.plum_first').includes(y.v.bubble.textContent), 'a chestnut picked today does not count');
+  assert.deepEqual(y.saved().picked, { chestnut: '2027-07-05', red_plum: '2027-07-05' });
 });
 
 test('at most two burrs lie under a tree, and none drop at night, but those there stay', async ctx => {

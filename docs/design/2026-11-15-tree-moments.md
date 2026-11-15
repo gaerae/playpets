@@ -74,3 +74,15 @@
 - The wait for the next fruit is not stored. A start, and every return of a harvest's time (a new morning, the end of rain), waits the first wait again; a drift tree whose moment went, or a yard not run for more than five seconds (hidden, a game), waits its first gust again.
 - Petals lying at full strength no longer repaint the canvas; it repaints while a petal falls or fades, and the calm pace (100 ms) starts the fade on time.
 - A friend walking to the plum already counts as the visit, so no second friend is sent; a visiting friend, walking or there, gives way to the person's errands like a friend viewing the blossom.
+- Every tree whose art shows fruit drops it, in the season the art shows it:
+
+  | Tree | Season | What falls | Drawing |
+  |---|---|---|---|
+  | `chestnut` | autumn | a split burr with three chestnuts | `discovery/chestnut_burr.svg` |
+  | `persimmon` | autumn | an orange persimmon with its calyx | `discovery/persimmon_fruit.svg` |
+  | `oak` | autumn | two acorns, one in its cap | `discovery/acorns.svg` |
+  | `fig` | summer | a ripe purple fig | `discovery/fig_fruit.svg` |
+  | `red_plum` | summer | three green plums (maesil) | `discovery/green_plums.svg` |
+  | `yuzu` | winter | a yuzu with a leaf | `discovery/yuzu_fruit.svg` |
+- The oak joins the list because its summer and autumn art carries acorns. The persimmon's winter art keeps a few fruit too; it drops only in autumn, one harvest a tree.
+- No basket, no count, no reward: as for the burr, picking up fruit is a gesture and a line.

@@ -521,6 +521,101 @@
         }
       ],
       "notes": "Generated 2026-11-15 through the Codex CLI built-in image tool. The burr a grown chestnut drops at its foot in autumn (tree moments). Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged); the raw generation is not kept, sha256 7885a79ad1bffb8b654bfb88c4d2100207e39c7acb48998b4f158e4b79321204."
+    },
+    {
+      "id": "persimmon-fruit",
+      "file": "persimmon-fruit-source.png",
+      "atlas": "discovery/persimmon-fruit.png",
+      "size": [463, 441],
+      "sha256": "d54da2fc529948051968c28a4773459917a20a4090593e98b456fb656aed207b",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy game ground prop sprite. The first reference (a fallen chestnut burr sprite) sets the style and the scale: match its warm sculpted hand-painted illustrated look, soft painterly detail, crisp clean edges, warm saturated colours and soft top-left key light, and draw the new object at about the same size in the frame. The second reference is the tree it falls from: the fruit must look exactly like the fruit drawn in that tree's crown (same colour, shape and stem). Create a genuine transparent RGBA sprite of exactly ONE isolated subject, centered, filling about 60% of the image width, slightly top-front three-quarter view, readable at 32 CSS pixels: one ripe Korean persimmon fallen on its side, a squat rounded fruit with glossy deep orange skin and a soft highlight, its four-lobed green-brown calyx and short woody stem on top. Square 1024x1024 canvas. The background must be fully transparent: no backdrop colour, no white or coloured glow, no halo, no rim light around the outline, no grass, no ground, no shadow, no checkerboard, no text, labels or extra objects. Preserve genuine alpha.",
+      "references": [
+        {
+          "path": "assets/discovery/chestnut-burr-source.png",
+          "role": "Style and scale reference"
+        },
+        {
+          "path": "assets/discovery/persimmon-source.png",
+          "role": "The tree whose fruit it is"
+        }
+      ],
+      "notes": "Generated 2026-11-16 through the Codex CLI built-in image tool. The persimmon a grown persimmon tree drops at its foot in autumn (tree moments). Cropped to the drawing with a 24-pixel margin, halved with premultiplied averaging, and alpha below 50 cleared to 0,0,0,0; the raw 1254x1254 generation is not kept, sha256 ea2c9395c8b58ee47fc92decc029e02d483904704a921bc293ac6af3bc87fe5c."
+    },
+    {
+      "id": "fig-fruit",
+      "file": "fig-fruit-source.png",
+      "atlas": "discovery/fig-fruit.png",
+      "size": [546, 437],
+      "sha256": "c8780e1c2a71d068687ff3f7a4c69175fb06a8f239a46e2af951a2ea4404c5f4",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy game ground prop sprite. The first reference (a fallen chestnut burr sprite) sets the style and the scale: match its warm sculpted hand-painted illustrated look, soft painterly detail, crisp clean edges, warm saturated colours and soft top-left key light, and draw the new object at about the same size in the frame. The second reference is the tree it falls from: the fruit must look exactly like the fruit drawn in that tree's crown (same colour, shape and stem). Create a genuine transparent RGBA sprite of exactly ONE isolated subject, centered, filling about 60% of the image width, slightly top-front three-quarter view, readable at 32 CSS pixels: one ripe fig lying on its side, a plump teardrop shape with deep purple-plum skin fading to a little green-bronze at the short stem, faint pale speckles and a soft highlight. Square 1024x1024 canvas. The background must be fully transparent: no backdrop colour, no white or coloured glow, no halo, no rim light around the outline, no grass, no ground, no shadow, no checkerboard, no text, labels or extra objects. Preserve genuine alpha.",
+      "references": [
+        {
+          "path": "assets/discovery/chestnut-burr-source.png",
+          "role": "Style and scale reference"
+        },
+        {
+          "path": "assets/discovery/fig-source.png",
+          "role": "The tree whose fruit it is"
+        }
+      ],
+      "notes": "Generated 2026-11-16 through the Codex CLI built-in image tool. The fig a grown fig tree drops at its foot in summer (tree moments). Cropped to the drawing with a 24-pixel margin, halved with premultiplied averaging, and alpha below 50 cleared to 0,0,0,0; the raw 1254x1254 generation is not kept, sha256 a8615ad8b4bc0fea3d919a425855c14eda28b82bc53299034ca2e308007c322d."
+    },
+    {
+      "id": "yuzu-fruit",
+      "file": "yuzu-fruit-source.png",
+      "atlas": "discovery/yuzu-fruit.png",
+      "size": [453, 438],
+      "sha256": "cb547741e9ec09d618ac72201cf422481eff9e483930a7ef465b6ae9502ec595",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy game ground prop sprite. The first reference (a fallen chestnut burr sprite) sets the style and the scale: match its warm sculpted hand-painted illustrated look, soft painterly detail, crisp clean edges, warm saturated colours and soft top-left key light, and draw the new object at about the same size in the frame. The second reference is the tree it falls from: the fruit must look exactly like the fruit drawn in that tree's crown (same colour, shape and stem). Create a genuine transparent RGBA sprite of exactly ONE isolated subject, centered, filling about 60% of the image width, slightly top-front three-quarter view, readable at 32 CSS pixels: one ripe yuzu, a slightly flattened round citrus with bumpy dimpled golden-yellow rind and a soft highlight, a short stem on top with one small glossy dark-green leaf attached. Square 1024x1024 canvas. The background must be fully transparent: no backdrop colour, no white or coloured glow, no halo, no rim light around the outline, no grass, no ground, no shadow, no checkerboard, no text, labels or extra objects. Preserve genuine alpha.",
+      "references": [
+        {
+          "path": "assets/discovery/chestnut-burr-source.png",
+          "role": "Style and scale reference"
+        },
+        {
+          "path": "assets/discovery/yuzu-source.png",
+          "role": "The tree whose fruit it is"
+        }
+      ],
+      "notes": "Generated 2026-11-16 through the Codex CLI built-in image tool. The yuzu a grown yuzu tree drops at its foot in winter (tree moments). Cropped to the drawing with a 24-pixel margin, halved with premultiplied averaging, and alpha below 50 cleared to 0,0,0,0; the raw 1254x1254 generation is not kept, sha256 9f2e06b173e15e449877ad3f6e0fb0538ff8421ffe46e9eec44e67cb01d95eee."
+    },
+    {
+      "id": "green-plums",
+      "file": "green-plums-source.png",
+      "atlas": "discovery/green-plums.png",
+      "size": [447, 410],
+      "sha256": "283fbc7066479192a429b118e9d1663f057e05182cb31730b3436a53f855bca6",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy game ground prop sprite. The first reference (a fallen chestnut burr sprite) sets the style and the scale: match its warm sculpted hand-painted illustrated look, soft painterly detail, crisp clean edges, warm saturated colours and soft top-left key light, and draw the new object at about the same size in the frame. The second reference is the tree it falls from: the fruit must look exactly like the fruit drawn in that tree's crown (same colour, shape and stem). Create a genuine transparent RGBA sprite of exactly ONE isolated subject, centered, filling about 60% of the image width, slightly top-front three-quarter view, readable at 32 CSS pixels: three small fallen Korean green plums (maesil) touching in a little cluster, each round with a faint seam line, fresh yellow-green skin with a soft yellow blush and a small highlight, one tiny stem. Square 1024x1024 canvas. The background must be fully transparent: no backdrop colour, no white or coloured glow, no halo, no rim light around the outline, no grass, no ground, no shadow, no checkerboard, no text, labels or extra objects. Preserve genuine alpha.",
+      "references": [
+        {
+          "path": "assets/discovery/chestnut-burr-source.png",
+          "role": "Style and scale reference"
+        },
+        {
+          "path": "assets/discovery/red_plum-source.png",
+          "role": "The tree whose fruit it is"
+        }
+      ],
+      "notes": "Generated 2026-11-16 through the Codex CLI built-in image tool. The green plums (maesil) a grown red plum drops at its foot in summer; drawn with the red plum's redrawn sheet as the second reference (tree moments). Cropped to the drawing with a 24-pixel margin, halved with premultiplied averaging, and alpha below 50 cleared to 0,0,0,0; the raw 1254x1254 generation is not kept, sha256 d1f9aa94a190fef781bc509ed0e5dff365d78962eee021bcb6a4632f6dc7f116."
+    },
+    {
+      "id": "acorns",
+      "file": "acorns-source.png",
+      "atlas": "discovery/acorns.png",
+      "size": [476, 381],
+      "sha256": "a6f4efc48ecbe23cee7db2bfac80ad0a28cc0d25703b44a96d5856d2268789e2",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy game ground prop sprite. The first reference (a fallen chestnut burr sprite) sets the style and the scale: match its warm sculpted hand-painted illustrated look, soft painterly detail, crisp clean edges, warm saturated colours and soft top-left key light, and draw the new object at about the same size in the frame. The second reference is the tree it falls from: the fruit must look exactly like the fruit drawn in that tree's crown (same colour, shape and stem). Create a genuine transparent RGBA sprite of exactly ONE isolated subject, centered, filling about 60% of the image width, slightly top-front three-quarter view, readable at 32 CSS pixels: two fallen acorns side by side, glossy warm-brown nuts with pale tips, one wearing its scaly textured cap and one with the cap lying tipped beside it. Square 1024x1024 canvas. The background must be fully transparent: no backdrop colour, no white or coloured glow, no halo, no rim light around the outline, no grass, no ground, no shadow, no checkerboard, no text, labels or extra objects. Preserve genuine alpha.",
+      "references": [
+        {
+          "path": "assets/discovery/chestnut-burr-source.png",
+          "role": "Style and scale reference"
+        },
+        {
+          "path": "assets/discovery/oak-source.png",
+          "role": "The tree whose fruit it is"
+        }
+      ],
+      "notes": "Generated 2026-11-16 through the Codex CLI built-in image tool. The acorns a grown oak drops at its foot in autumn (tree moments). Cropped to the drawing with a 24-pixel margin, halved with premultiplied averaging, and alpha below 50 cleared to 0,0,0,0; the raw 1254x1254 generation is not kept, sha256 5d8ed80d62e9d7f105ea5b0ee510fddfc895af95ad6b548501a192c6524a0e6b."
     }
   ],
   "assets": [
@@ -1209,6 +1304,46 @@
       "art": "discovery/chestnut_burr.svg",
       "size": [40, 36],
       "crop": [87, 153, 1069, 964],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "persimmon_fruit",
+      "source": "persimmon-fruit",
+      "art": "discovery/persimmon_fruit.svg",
+      "size": [26, 25],
+      "crop": [12, 12, 439, 418],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "fig_fruit",
+      "source": "fig-fruit",
+      "art": "discovery/fig_fruit.svg",
+      "size": [28, 22],
+      "crop": [12, 12, 522, 413],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "yuzu_fruit",
+      "source": "yuzu-fruit",
+      "art": "discovery/yuzu_fruit.svg",
+      "size": [26, 25],
+      "crop": [12, 12, 429, 415],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "green_plums",
+      "source": "green-plums",
+      "art": "discovery/green_plums.svg",
+      "size": [26, 24],
+      "crop": [12, 12, 424, 386],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "acorns",
+      "source": "acorns",
+      "art": "discovery/acorns.svg",
+      "size": [26, 21],
+      "crop": [12, 12, 452, 357],
       "anchor": [0.5, 1]
     },
     {

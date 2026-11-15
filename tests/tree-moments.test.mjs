@@ -54,6 +54,14 @@ test('the fringe tree, the red plum and the chestnut each name their moments', (
     [['drift', 'spring']],
   );
   assert.deepEqual(drift('red_plum').season, 'winter');
+  assert.equal(harvestOf('red_plum').season, 'summer', 'the red plum drops its plums in summer');
+  for (const [kind, season] of [
+    ['persimmon', 'autumn'],
+    ['fig', 'summer'],
+    ['yuzu', 'winter'],
+    ['oak', 'autumn'],
+  ])
+    assert.equal(harvestOf(kind).season, season, kind);
   assert.equal(harvestOf('chestnut').season, 'autumn');
   assert.equal(harvestOf('fringe_tree'), null, 'a tree with no harvest has none');
   assert.deepEqual(momentsOf('cherry'), [], 'a tree with no moment has none');
@@ -100,6 +108,11 @@ test('only grown trees in this place with their moment on count', () => {
     momentTrees(trees, fair('autumn'), now, LIMITS).map(t => t.id),
     ['e'],
   );
+  // A tree with two moments has the one of the season.
+  const plum = [grown('p', 'red_plum')];
+  assert.equal(momentTrees(plum, fair('winter'), now, LIMITS)[0].moment.kind, 'drift');
+  assert.equal(momentTrees(plum, fair('summer'), now, LIMITS)[0].moment.kind, 'harvest');
+  assert.deepEqual(momentTrees(plum, fair('autumn'), now, LIMITS), []);
   assert.deepEqual(momentTrees(undefined, fair('spring'), now, LIMITS), []);
 });
 

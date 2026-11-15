@@ -1743,7 +1743,17 @@
         "seasons": ["autumn"],
         "weather": ["rain"],
         "places": ["woodland"]
-      }
+      },
+      "moments": [
+        {
+          "season": "autumn",
+          "kind": "harvest",
+          "art": "discovery/acorns.svg",
+          "size": [26, 21],
+          "title": "moment.acorn_title",
+          "lines": { "pick": "moment.acorn_pick", "first": "moment.acorn_first" }
+        }
+      ]
     },
     {
       "id": "birch",
@@ -1855,7 +1865,17 @@
         "seasons": ["autumn"],
         "weather": ["rain"],
         "places": ["courtyard"]
-      }
+      },
+      "moments": [
+        {
+          "season": "autumn",
+          "kind": "harvest",
+          "art": "discovery/persimmon_fruit.svg",
+          "size": [26, 25],
+          "title": "moment.persimmon_title",
+          "lines": { "pick": "moment.persimmon_pick", "first": "moment.persimmon_first" }
+        }
+      ]
     },
     {
       "id": "bamboo",
@@ -2056,7 +2076,17 @@
         "seasons": ["summer"],
         "weather": ["rain"],
         "places": ["courtyard"]
-      }
+      },
+      "moments": [
+        {
+          "season": "summer",
+          "kind": "harvest",
+          "art": "discovery/fig_fruit.svg",
+          "size": [28, 22],
+          "title": "moment.fig_title",
+          "lines": { "pick": "moment.fig_pick", "first": "moment.fig_first" }
+        }
+      ]
     },
     {
       "id": "golden_rain_tree",
@@ -2161,6 +2191,14 @@
           "pace": 0.7,
           "petal": [3.4, 2.8],
           "lines": { "visit": "moment.plum_smell" }
+        },
+        {
+          "season": "summer",
+          "kind": "harvest",
+          "art": "discovery/green_plums.svg",
+          "size": [26, 24],
+          "title": "moment.plum_title",
+          "lines": { "pick": "moment.plum_pick", "first": "moment.plum_first" }
         }
       ]
     },
@@ -2190,7 +2228,17 @@
         "seasons": ["winter"],
         "weather": ["clear"],
         "places": ["lakeside"]
-      }
+      },
+      "moments": [
+        {
+          "season": "winter",
+          "kind": "harvest",
+          "art": "discovery/yuzu_fruit.svg",
+          "size": [26, 25],
+          "title": "moment.yuzu_title",
+          "lines": { "pick": "moment.yuzu_pick", "first": "moment.yuzu_first" }
+        }
+      ]
     },
     {
       "id": "juniper",

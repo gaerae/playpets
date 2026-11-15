@@ -50,10 +50,15 @@ test("every tree's moments are kinds the yard knows, with their colours, drawing
   assert.deepEqual(
     named.map(tree => [tree.id, tree.moments.map(m => `${m.kind} ${m.season}`)]),
     [
+      ['oak', ['harvest autumn']],
+      ['persimmon', ['harvest autumn']],
       ['fringe_tree', ['drift spring']],
+      ['fig', ['harvest summer']],
       ['chestnut', ['harvest autumn']],
-      ['red_plum', ['drift winter']],
+      ['red_plum', ['drift winter', 'harvest summer']],
+      ['yuzu', ['harvest winter']],
     ],
+    'every tree whose art shows fruit drops it in the season the art shows it',
   );
   assert.ok(
     catalog.trees.every(tree => !('moment' in tree)),

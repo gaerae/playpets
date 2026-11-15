@@ -132,6 +132,16 @@ The chestnut burr (2026-11-15):
   so it matches the tree and the other small finds.
 - Alpha below 50 is cleared as before; the raw hash is in `ART-SOURCES.json`.
 
+Fallen fruit (2026-11-16):
+- `persimmon-fruit-source.png`, `fig-fruit-source.png`, `yuzu-fruit-source.png`,
+  `green-plums-source.png` and `acorns-source.png` hold what a grown persimmon,
+  fig, yuzu, red plum and oak drop in the season their art shows the fruit.
+- Each was drawn with the chestnut burr (style and scale) and its own tree's
+  sheet as references, so the fruit matches the fruit on the branches.
+- Each raw 1254 px generation was cropped to the drawing with a 24 px margin
+  and halved with premultiplied averaging, so the WebP stays near 100 KB.
+- Alpha below 50 is cleared as before; raw hashes are in `ART-SOURCES.json`.
+
 More finds (2026-11-03):
 - `more-finds-source.png` holds the cicada shell, blue feather, pinecone, old
   key, paper boat, spinning top, freshwater pearl and four-leaf clover in
