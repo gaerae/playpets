@@ -44,45 +44,66 @@ test('the spring shoots are eight spring kinds with their drawings', () => {
   assert.equal(shootKind('carp'), null);
 });
 
-// A tree names its moment (tree-moment-rules.js) as data: a new tree gets one by naming it.
-test("every tree's moment is a kind the yard knows, with its colours, its drawing and its lines in every language", () => {
-  const named = catalog.trees.filter(tree => tree.moment);
+// A tree names its moments (tree-moment-rules.js) as data: a new tree gets one by naming it.
+test("every tree's moments are kinds the yard knows, with their colours, drawings and lines in every language", () => {
+  const named = catalog.trees.filter(tree => tree.moments);
   assert.deepEqual(
-    named.map(tree => tree.id),
-    ['fringe_tree', 'chestnut', 'red_plum'],
+    named.map(tree => [tree.id, tree.moments.map(m => `${m.kind} ${m.season}`)]),
+    [
+      ['fringe_tree', ['drift spring']],
+      ['chestnut', ['harvest autumn']],
+      ['red_plum', ['drift winter']],
+    ],
+  );
+  assert.ok(
+    catalog.trees.every(tree => !('moment' in tree)),
+    'a tree names a list of moments, not one',
   );
   const seasons = ['spring', 'summer', 'autumn', 'winter'],
     hex = /^#[0-9a-f]{6}$/;
-  for (const { id, moment } of named) {
-    assert.ok(seasons.includes(moment.season), `${id}: a season`);
-    assert.ok(MOMENT_KINDS.includes(moment.kind), `${id}: a kind of moment`);
-    for (const weather of moment.weather ?? []) assert.ok(['clear', 'snow'].includes(weather), `${id}: ${weather}`);
-    const lines = Object.entries(moment.lines ?? {});
-    for (const [use, key] of lines) {
-      assert.ok(['head', 'visit', 'pick', 'first'].includes(use), `${id}: lines.${use}`);
-      for (const lang of LANGUAGES) {
-        const said = STRINGS[lang][key];
-        assert.ok(
-          Array.isArray(said) && said.length >= 3 && said.length <= 4,
-          `${lang}: ${key} has three or four lines`,
-        );
-      }
-    }
-    if (moment.kind === 'drift') {
-      assert.ok(moment.colors.length >= 1 && moment.colors.every(c => hex.test(c)), `${id}: petal colours`);
-      assert.ok(Number.isInteger(moment.petals) && moment.petals > 0 && moment.petals <= 16, `${id}: a few petals`);
-      assert.ok((moment.pace ?? 1) > 0 && (moment.pace ?? 1) <= 1, `${id}: no faster than a petal falls`);
-      assert.ok(moment.petal.length === 2 && moment.petal.every(n => n > 0 && n <= 5), `${id}: a small petal`);
-      assert.equal(moment.art, undefined);
-    } else {
-      assert.deepEqual(Object.keys(moment.lines).sort(), ['first', 'pick'], `${id}: a pick line and a first one`);
-      const text = readFileSync(new URL(`../src/art/${moment.art}`, import.meta.url), 'utf8');
-      assert.equal(
-        text.match(/viewBox="0 0 ([\d.]+ [\d.]+)"/)?.[1],
-        moment.size.join(' '),
-        `${id}: its size is its drawing's`,
+  // A list of three or four lines a friend says (two or three for a day's first pick).
+  const said = (key, least, most) => {
+    for (const lang of LANGUAGES) {
+      const lines = STRINGS[lang][key];
+      assert.ok(
+        Array.isArray(lines) && lines.length >= least && lines.length <= most,
+        `${lang}: ${key} has ${least} to ${most} lines`,
       );
-      assert.ok(artOf(catalog, events).includes(moment.art), `${id}: its drawing is loaded`);
+    }
+  };
+  for (const { id, moments } of named) {
+    assert.ok(Array.isArray(moments) && moments.length > 0, `${id}: a list`);
+    assert.equal(new Set(moments.map(m => m.season)).size, moments.length, `${id}: one moment a season`);
+    assert.equal(new Set(moments.map(m => m.kind)).size, moments.length, `${id}: one moment of each kind`);
+    for (const moment of moments) {
+      assert.ok(seasons.includes(moment.season), `${id}: a season`);
+      assert.ok(MOMENT_KINDS.includes(moment.kind), `${id}: a kind of moment`);
+      for (const weather of moment.weather ?? []) assert.ok(['clear', 'snow'].includes(weather), `${id}: ${weather}`);
+      if (moment.kind === 'drift') {
+        assert.ok(moment.colors.length >= 1 && moment.colors.every(c => hex.test(c)), `${id}: petal colours`);
+        assert.ok(Number.isInteger(moment.petals) && moment.petals > 0 && moment.petals <= 16, `${id}: a few petals`);
+        assert.ok((moment.pace ?? 1) > 0 && (moment.pace ?? 1) <= 1, `${id}: no faster than a petal falls`);
+        assert.ok(moment.petal.length === 2 && moment.petal.every(n => n > 0 && n <= 5), `${id}: a small petal`);
+        assert.equal(moment.art, undefined);
+        assert.ok(moment.lines.head || moment.lines.visit, `${id}: a head or a visit line`);
+        for (const [use, key] of Object.entries(moment.lines)) {
+          assert.ok(['head', 'visit'].includes(use), `${id}: lines.${use}`);
+          said(key, 3, 4);
+        }
+      } else {
+        assert.deepEqual(Object.keys(moment.lines).sort(), ['first', 'pick'], `${id}: a pick line and a first one`);
+        said(moment.lines.pick, 3, 4);
+        said(moment.lines.first, 2, 3);
+        for (const lang of LANGUAGES)
+          assert.ok(typeof STRINGS[lang][moment.title] === 'string', `${lang}: ${id}'s fruit has a title`);
+        const text = readFileSync(new URL(`../src/art/${moment.art}`, import.meta.url), 'utf8');
+        assert.equal(
+          text.match(/viewBox="0 0 ([\d.]+ [\d.]+)"/)?.[1],
+          moment.size.join(' '),
+          `${id}: its size is its drawing's`,
+        );
+        assert.ok(artOf(catalog, events).includes(moment.art), `${id}: its drawing is loaded`);
+      }
     }
   }
 });

@@ -64,3 +64,13 @@
 - `src/yard/tree-moments.js`: gusts, head petals and visits; its tick returns at once while no drift tree is on.
 - `src/yard/burrs.js`: the burrs, checked with the scene's minute repaint, never in the frame loop.
 - `src/yard/scenery.js` `drift(gust)`: paints a gust's petals and keeps drawing only while they move or lie.
+
+## Follow-up: fallen fruit, several moments a tree, and the first waits (2026-11-16)
+
+- A tree names a `moments` list instead of one `moment`: at most one moment a season and one of each kind, so the red plum can flower in winter and drop fruit in summer.
+- The chestnut's burr is one kind of fallen fruit: `src/yard/fallen-fruit.js` drops, draws and picks up what a tree's harvest moment names (`art`, `size`, a `title` key for the button, and `lines`). The rules use fruit names (`fruitDue`, `FRUIT_OUT`).
+- The day's first pick is counted per kind of tree, so the first chestnut and the first persimmon of a day each have their line. `first` lists have two or three lines.
+- The webview's key is now `fallen-fruit`: `{ picked, out }`, with `picked` a map from tree kind to its last local day of a first pick. The chestnut-only `burrs` key was never released and is not read.
+- The wait for the next fruit is not stored. A start, and every return of a harvest's time (a new morning, the end of rain), waits the first wait again; a drift tree whose moment went, or a yard not run for more than five seconds (hidden, a game), waits its first gust again.
+- Petals lying at full strength no longer repaint the canvas; it repaints while a petal falls or fades, and the calm pace (100 ms) starts the fade on time.
+- A friend walking to the plum already counts as the visit, so no second friend is sent; a visiting friend, walking or there, gives way to the person's errands like a friend viewing the blossom.

@@ -1,6 +1,6 @@
 // Tree moments in the yard: a grown fringe tree's gusts and the petals they leave on heads, a red
 // plum's visits (src/yard/tree-moments.js), and the burrs a chestnut drops and friends pick up
-// (src/yard/burrs.js). The rules are tested in tree-moments.test.mjs; here the page runs them with
+// (src/yard/fallen-fruit.js). The rules are tested in tree-moments.test.mjs; here the page runs them with
 // the clock, the random draws and the scene the test holds.
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -23,9 +23,9 @@ const { forPerson, release, sendTo } = await import('../src/yard/trips.js');
 const { bubble, place, syncViews } = await import('../src/yard/views.js');
 const { petalTick, setupPetals } = await import('../src/yard/petals.js');
 const { setupTreeMoments, syncTreeMoments, treeMomentTick } = await import('../src/yard/tree-moments.js');
-const { BURR_FIRST, GUST_FIRST, momentOf } = await import('../src/yard/tree-moment-rules.js');
+const { FRUIT_FIRST, GUST_FIRST, harvestOf, momentsOf } = await import('../src/yard/tree-moment-rules.js');
 const { drawYard } = await import('./support/yard.mjs');
-const { burrPicking, burrsMinute, pickBurr, renderBurrs, setupBurrs } = await import('../src/yard/burrs.js');
+const { fruitPicking, fruitMinute, pickFruit, renderFruit, setupFruit } = await import('../src/yard/fallen-fruit.js');
 
 const spring = { world: 'woodland', season: 'spring', period: 'day', weather: 'clear', event: null };
 const grown = (id, kind, x, y) => ({ id, kind, world: 'woodland', x, y, planted: 0, stage: 2 });
@@ -114,7 +114,7 @@ test('a grown fringe tree in spring now and then sends a gust of its own white p
   assert.equal(y.gusts.length, 1);
   const [gust] = y.gusts,
     foot = fieldToYard(fringe),
-    moment = momentOf('fringe_tree');
+    moment = momentsOf('fringe_tree')[0];
   assert.deepEqual(gust.colors, moment.colors);
   assert.equal(gust.petals, moment.petals);
   assert.equal(gust.x, foot.x);
@@ -178,7 +178,7 @@ test('a friend under the crown may get a white petal, kept while the moment last
   y.run(GUST_FIRST[0] + 6000);
   assert.ok(v.petal, 'a petal of the gust landed on it');
   assert.ok(v.petal.classList.contains('tinted'), 'in the tree’s colours');
-  assert.equal(v.petal.style['--petal'], momentOf('fringe_tree').colors[0]);
+  assert.equal(v.petal.style['--petal'], momentsOf('fringe_tree')[0].colors[0]);
   assert.equal(far.petal ?? null, null, 'not on a friend away from the tree');
   // Not blossom time (no festival), and still it stays while the fringe tree's moment lasts.
   y.run(20_000);
@@ -346,14 +346,14 @@ async function burrYard(ctx, { stored = null, values = {}, rng = [] } = {}) {
     now: AUTUMN,
     scene: { season: 'autumn', world: 'woodland', weather: 'clear', period: 'day', ...values },
     garden: { trees: [chestnut] },
-    art: [momentOf('chestnut').art],
+    art: [harvestOf('chestnut').art],
     before: ({ storage }) => {
-      if (stored) storage.setItem('burrs', stored);
+      if (stored) storage.setItem('fallen-fruit', stored);
     },
   });
-  setupBurrs();
-  const live = () => y.shown().filter(b => b.classList.contains('burr'));
-  const saved = () => JSON.parse(state.recall('burrs'));
+  setupFruit();
+  const live = () => y.shown().filter(b => b.classList.contains('fallen-fruit'));
+  const saved = () => JSON.parse(state.recall('fallen-fruit'));
   return { ...y, live, saved };
 }
 const lyingBurr = (id, x = 0.52, y = 0.33, extra = {}) => ({
@@ -369,14 +369,14 @@ const record = (out, extra = {}) => JSON.stringify({ next: AUTUMN + 3_600_000, p
 
 test('a grown chestnut in autumn drops a burr at its foot now and then, drawn as it falls', async ctx => {
   const y = await burrYard(ctx);
-  burrsMinute();
+  fruitMinute();
   assert.equal(y.live().length, 0, 'the first look only sets the wait');
   // 0.5 of the way through the first wait.
-  ctx.mock.timers.tick((BURR_FIRST[0] + BURR_FIRST[1]) / 2 - 1);
-  burrsMinute();
+  ctx.mock.timers.tick((FRUIT_FIRST[0] + FRUIT_FIRST[1]) / 2 - 1);
+  fruitMinute();
   assert.equal(y.live().length, 0, 'not before it is due');
   ctx.mock.timers.tick(1);
-  burrsMinute();
+  fruitMinute();
   const [button, ...more] = y.live();
   assert.equal(more.length, 0);
   const [burr] = y.saved().out;
@@ -384,56 +384,56 @@ test('a grown chestnut in autumn drops a burr at its foot now and then, drawn as
   assert.equal(burr.world, 'woodland');
   assert.ok(burr.y > chestnut.y && Math.abs(burr.x - chestnut.x) < 0.1, 'at the foot, in front of the trunk');
   assert.equal(button.dataset.kind, 'chestnut');
-  assert.equal(button.title, translate('moment.burr_title'));
-  assert.equal(button.getAttribute('aria-label'), translate('moment.burr_title'));
+  assert.equal(button.title, translate('moment.chestnut_title'));
+  assert.equal(button.getAttribute('aria-label'), translate('moment.chestnut_title'));
   const [svg] = button.children;
   assert.equal(svg.getAttribute('aria-hidden'), 'true');
-  assert.equal(svg.children[0].getAttribute('href'), artHref(momentOf('chestnut').art));
+  assert.equal(svg.children[0].getAttribute('href'), artHref(harvestOf('chestnut').art));
   assert.ok(button.classList.contains('dropped'), 'it drops as it comes');
   // Drawn again (a state change), it stays where it lies and does not drop a second time.
-  renderBurrs();
-  setupBurrs();
-  renderBurrs();
+  renderFruit();
+  setupFruit();
+  renderFruit();
   const [again] = y.live();
   assert.ok(!again.classList.contains('dropped'));
 });
 
 test('the first wait comes again each time the harvest comes back, and at each start', async ctx => {
   const y = await burrYard(ctx, { stored: record([], { next: AUTUMN - 1 }) });
-  burrsMinute();
+  fruitMinute();
   assert.equal(y.live().length, 0, 'a start waits first, whatever was stored');
-  ctx.mock.timers.tick(BURR_FIRST[0] - 1000);
+  ctx.mock.timers.tick(FRUIT_FIRST[0] - 1000);
   scene.period = 'night';
-  burrsMinute();
+  fruitMinute();
   ctx.mock.timers.tick(10 * 60_000);
-  burrsMinute();
+  fruitMinute();
   scene.period = 'day';
-  burrsMinute();
+  fruitMinute();
   assert.equal(y.live().length, 0, 'a new morning waits first too');
-  ctx.mock.timers.tick(BURR_FIRST[1]);
-  burrsMinute();
+  ctx.mock.timers.tick(FRUIT_FIRST[1]);
+  fruitMinute();
   assert.equal(y.live().length, 1, 'and then one drops');
 });
 
 test('at most two burrs lie under a tree, and none drop at night, but those there stay', async ctx => {
   const y = await burrYard(ctx, { stored: record([lyingBurr('1'), lyingBurr('2', 0.46, 0.34)], { next: AUTUMN - 1 }) });
-  burrsMinute();
+  fruitMinute();
   assert.equal(y.live().length, 2, 'a third waits for room');
   assert.equal(y.saved().out.length, 2);
   scene.period = 'night';
-  setupBurrs();
-  burrsMinute();
+  setupFruit();
+  fruitMinute();
   assert.equal(y.live().length, 2, 'at night they lie on');
   scene.season = 'winter';
-  burrsMinute();
+  fruitMinute();
   assert.equal(y.live().length, 0, 'another season takes them');
   assert.deepEqual(y.saved().out, []);
 });
 
-// A friend picking a burr up (burrs.js pickBurr): the walk and stroke of a shoot's gathering.
+// A friend picking a burr up (fallen-fruit.js pickFruit): the walk and stroke of a shoot's gathering.
 async function pickYard(ctx, options = {}) {
   const y = await burrYard(ctx, { stored: record([lyingBurr('1')]), ...options });
-  burrsMinute();
+  fruitMinute();
   const pet = { id: 'clover', size: 112, name: 'Clover' },
     v = { pet, px: 120, py: 300, x: 0.1, y: 0.5, pose: 'idle', bubble: element('span') };
   state.views.set(pet.id, v);
@@ -463,24 +463,24 @@ test('clicking a burr sends a friend to pick it up; the day’s first pick has i
   y.click();
   assert.ok(y.v.target, 'the friend sets off');
   assert.ok(y.button.classList.contains('picking'));
-  assert.equal(burrPicking(), true);
+  assert.equal(fruitPicking(), true);
   y.click();
-  assert.equal(pickBurr('1'), false, 'one friend for one burr');
+  assert.equal(pickFruit('1'), false, 'one friend for one burr');
   y.arrive();
   ctx.mock.timers.tick(1950);
   assert.equal(y.live().length, 0, 'the burr leaves the yard');
   assert.deepEqual(y.saved().out, []);
-  assert.equal(y.saved().picked, '2027-10-05');
+  assert.deepEqual(y.saved().picked, { chestnut: '2027-10-05' });
   assert.ok(list('moment.chestnut_first').includes(y.v.bubble.textContent), y.v.bubble.textContent);
   assert.equal(y.v.doing, null);
-  assert.equal(burrPicking(), false);
+  assert.equal(fruitPicking(), false);
 });
 
 test('a later pick the same day says an ordinary line, and a friend taken away leaves the burr', async ctx => {
-  const y = await pickYard(ctx, { stored: record([lyingBurr('1')], { picked: '2027-10-05' }) });
+  const y = await pickYard(ctx, { stored: record([lyingBurr('1')], { picked: { chestnut: '2027-10-05' } }) });
   y.click();
   release(y.v);
-  assert.equal(burrPicking(), false);
+  assert.equal(fruitPicking(), false);
   assert.ok(!y.button.classList.contains('picking'));
   assert.equal(y.saved().out.length, 1, 'still there');
   y.click();
@@ -491,11 +491,11 @@ test('a later pick the same day says an ordinary line, and a friend taken away l
 
 test('with no friend in the yard a click says who could pick it up', async ctx => {
   const y = await burrYard(ctx, { stored: record([lyingBurr('1')]) });
-  burrsMinute();
+  fruitMinute();
   y.live()[0].dispatch('click', {});
   assert.deepEqual(
     y.document.getElementById('toast').children.map(line => line.textContent),
-    [translate('moment.burr_no_friend')],
+    [translate('moment.fruit_no_friend')],
   );
 });
 
@@ -503,31 +503,34 @@ test('the yard wires the moments in with the sky, the garden and the frame loop'
   const app = await readFile('src/app.js', 'utf8'),
     render = await readFile('src/render.js', 'utf8');
   const sky = app.search(/^setupSky\(/m);
-  for (const setup of ['setupBurrs();', 'setupTreeMoments();']) {
+  for (const setup of ['setupFruit();', 'setupTreeMoments();']) {
     const at = app.search(new RegExp(`^${setup.replace(/[()]/g, '\\$&')}`, 'm'));
     assert.ok(at >= 0 && at < sky, `${setup} runs before the sky first paints`);
   }
-  const minute = app.indexOf('burrsMinute();');
+  const minute = app.indexOf('fruitMinute();');
   assert.ok(minute > app.indexOf('shootsMinute();') && minute < app.indexOf('seasonPicked'), 'each repaint looks');
   assert.ok(app.indexOf('syncTreeMoments();') < app.indexOf('seasonPicked'));
   for (const hook of ['worldChanged', 'landChanged', 'resized']) {
     const from = app.indexOf(`${hook}:`),
       body = app.slice(from, app.indexOf('},', app.indexOf('renderTrees();', from)) + 2);
-    assert.ok(body.indexOf('renderBurrs();') > body.indexOf('renderTrees();'), hook);
+    assert.ok(body.indexOf('renderFruit();') > body.indexOf('renderTrees();'), hook);
     assert.ok(body.includes('syncTreeMoments();'), hook);
-    if (hook !== 'worldChanged') assert.ok(body.includes('cancelBurrPicks();'), hook);
+    if (hook !== 'worldChanged') assert.ok(body.includes('cancelFruitPicks();'), hook);
   }
   assert.match(app, /const YARD_LIFE = \[[^\]]*treeMomentTick,/);
-  assert.ok(render.indexOf('renderBurrs();') > render.indexOf('renderTrees();'), 'a state change redraws them');
+  assert.ok(render.indexOf('renderFruit();') > render.indexOf('renderTrees();'), 'a state change redraws them');
   assert.ok(render.indexOf('syncTreeMoments();') > render.indexOf('renderTrees();'));
 });
 
 test('a burr drops and bounces once, stays still for reduced motion, and lets a tool or a game through', async () => {
   const css = (await readFile('src/styles/garden.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ');
-  assert.match(css, /\.burr\.dropped svg \{ animation: burr-drop /);
-  const frames = css.match(/@keyframes burr-drop \{(.*?\}) \}/)?.[1] || '';
+  assert.match(css, /\.fallen-fruit\.dropped svg \{ animation: fruit-drop /);
+  const frames = css.match(/@keyframes fruit-drop \{(.*?\}) \}/)?.[1] || '';
   for (const [, property] of frames.matchAll(/([a-z-]+):/g))
     assert.ok(['transform', 'opacity', 'animation-timing-function'].includes(property), property);
-  assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{[^@]*\.burr\.dropped svg \{ animation: none; \}/);
-  assert.match(css, /\.yard\.aiming \.burr, \.yard\.playing \.burr \{ pointer-events: none; \}/);
+  assert.match(
+    css,
+    /@media \(prefers-reduced-motion: reduce\) \{[^@]*\.fallen-fruit\.dropped svg \{ animation: none; \}/,
+  );
+  assert.match(css, /\.yard\.aiming \.fallen-fruit, \.yard\.playing \.fallen-fruit \{ pointer-events: none; \}/);
 });

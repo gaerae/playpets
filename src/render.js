@@ -11,11 +11,11 @@ import { renderAgentPets, renderConnections, renderDesktopSwitches } from './pan
 import { renderUpdate, versionLabel } from './panel/update.js';
 import { renderWindow } from './window.js';
 import { renderBonds } from './yard/bond.js';
-import { renderBurrs } from './yard/burrs.js';
 import { syncChatter } from './yard/care.js';
 import { renderDecor } from './yard/decor.js';
 import { renderDecorating } from './yard/decorating.js';
 import { syncDiscovery } from './yard/discovery.js';
+import { renderFruit } from './yard/fallen-fruit.js';
 import { renderGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { renderTrees } from './yard/planted-trees.js';
@@ -71,8 +71,9 @@ export function render() {
   // After what stands on the ground: a shoot where a gift, a plant or a tree now stands is
   // not drawn.
   renderShoots();
-  // A grown tree's burrs and gusts follow the garden: a tree pulled up or moved takes them along.
-  renderBurrs();
+  // A grown tree's fallen fruit and gusts follow the garden: a tree pulled up or moved takes them
+  // along.
+  renderFruit();
   syncTreeMoments();
   syncDiscovery();
   renderAlbum();

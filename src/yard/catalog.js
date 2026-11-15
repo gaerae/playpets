@@ -69,8 +69,8 @@ export function artOf(catalog, events = { events: [] }) {
     ...(catalog.trees || []).flatMap(tree => [
       ...tree.stages,
       ...Object.values(tree.seasonArt || {}).map(art => ({ art })),
-      // What a grown tree's moment leaves at its foot (a chestnut's burr; tree-moment-rules.js).
-      ...(tree.moment?.art ? [{ art: tree.moment.art }] : []),
+      // What a grown tree's moments leave at its foot (its fallen fruit; tree-moment-rules.js).
+      ...(tree.moments || []).filter(moment => moment.art).map(moment => ({ art: moment.art })),
     ]),
     ...catalog.fish,
     ...catalog.bugs,

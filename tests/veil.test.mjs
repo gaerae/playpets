@@ -107,10 +107,16 @@ test('a thing in front of a friend fades to about half, eased unless motion is r
   const read = async name =>
     (await readFile(`src/styles/${name}`, 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ');
   const garden = await read('garden.css');
-  assert.match(garden, /:is\(\.plant, \.shoot, \.burr, \.decor, \.planted-tree\)\.veiled \{ opacity: 0\.45; \}/);
-  for (const kind of ['plant', 'shoot', 'burr', 'decor', 'planted-tree'])
+  assert.match(
+    garden,
+    /:is\(\.plant, \.shoot, \.fallen-fruit, \.decor, \.planted-tree\)\.veiled \{ opacity: 0\.45; \}/,
+  );
+  for (const kind of ['plant', 'shoot', 'fallen-fruit', 'decor', 'planted-tree'])
     assert.match(garden, new RegExp(`(^| )\\.${kind} \\{[^}]*transition: opacity 0\\.25s ease;`), kind);
-  assert.doesNotMatch(garden, /\{ :is\(\.plant, \.shoot, \.burr, \.decor, \.planted-tree\) \{ transition: none; \} \}/);
+  assert.doesNotMatch(
+    garden,
+    /\{ :is\(\.plant, \.shoot, \.fallen-fruit, \.decor, \.planted-tree\) \{ transition: none; \} \}/,
+  );
   assert.match(
     await read('base.css'),
     /@media \(prefers-reduced-motion: reduce\) \{ \* \{ animation: none !important; transition: none !important;/,
@@ -118,11 +124,11 @@ test('a thing in front of a friend fades to about half, eased unless motion is r
 });
 
 // The snowman game's balls and its preview are set down too, but nothing about them fades.
-test('only a tree, a shoot, a burr, a flower or a gift fades', t => {
+test('only a tree, a shoot, fallen fruit, a flower or a gift fades', t => {
   yardIn(t);
   const v = friend(t, 0.5, 0.4);
   place(v);
-  for (const kind of ['plant', 'shoot', 'burr', 'decor', 'planted-tree'])
+  for (const kind of ['plant', 'shoot', 'fallen-fruit', 'decor', 'planted-tree'])
     assert.equal(thingOver(v, 1.2, v.z + 1, 0, kind).classList.contains('veiled'), true, kind);
   for (const kind of ['snowball', 'snowman-preview'])
     assert.equal(thingOver(v, 1.2, v.z + 1, 0, kind).classList.contains('veiled'), false, kind);

@@ -41,7 +41,6 @@ import { render } from './render.js';
 import { setupWindow } from './window.js';
 import { setupBackgrounds } from './yard/background-ui.js';
 import { befriend, bondTick, seen, setupBond } from './yard/bond.js';
-import { burrsMinute, cancelBurrPicks, renderBurrs, setupBurrs } from './yard/burrs.js';
 import { setupCard } from './yard/card.js';
 import { react, setupCare, startChatter } from './yard/care.js';
 import { endFishing, refitFishing, setupCatch, soloFishing } from './yard/catch.js';
@@ -71,6 +70,7 @@ import {
   syncDiscovery,
 } from './yard/discovery.js';
 import { dutyAfresh } from './yard/duty.js';
+import { cancelFruitPicks, fruitMinute, renderFruit, setupFruit } from './yard/fallen-fruit.js';
 import { pullPlant, renderGarden, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { setupLetterCard } from './yard/letter-card.js';
@@ -192,9 +192,9 @@ setupTrails({
   visible: () => shown && !document.hidden,
 });
 // The spring shoots out, read back before the sky too: its first paint looks at them, and would
-// otherwise sprout over the stored ones; and the same for the burrs under a grown chestnut.
+// otherwise sprout over the stored ones; and the same for the fruit under a grown fruit tree.
 setupShoots();
-setupBurrs();
+setupFruit();
 setupTreeMoments();
 // December's question about the winter yard, checked at each repaint of the scene.
 const winterCheck = setupWinter({ choice: chosenSeason, show: showSeason, visible: () => shown && !document.hidden });
@@ -207,9 +207,9 @@ setupSky({
     // Spring shoots come up after rain and on fair mornings, and go after a few hours.
     shootsMinute();
     // A grown tree's moment comes and goes with the season, the hour and the weather: its gusts of
-    // petals, and the burrs a chestnut drops.
+    // petals, and the fruit a fruit tree drops.
     syncTreeMoments();
-    burrsMinute();
+    fruitMinute();
     winterCheck();
     letterCheck();
     // The winter yard's footprint trails come, soften and go under new snow.
@@ -242,7 +242,7 @@ setupSky({
     renderDecor();
     renderShoots();
     renderTrees();
-    renderBurrs();
+    renderFruit();
     syncTreeMoments();
     syncDiscovery();
     hint();
@@ -253,7 +253,7 @@ setupSky({
   landChanged: () => {
     cancelDiscoveryWork();
     cancelShootDigs();
-    cancelBurrPicks();
+    cancelFruitPicks();
     endFishing();
     for (const v of views.values()) place(v);
     resizeTrails();
@@ -261,7 +261,7 @@ setupSky({
     renderDecor();
     renderShoots();
     renderTrees();
-    renderBurrs();
+    renderFruit();
     syncTreeMoments();
   },
 });
@@ -292,7 +292,7 @@ setupViews({
   resized: () => {
     cancelDiscoveryWork();
     cancelShootDigs();
-    cancelBurrPicks();
+    cancelFruitPicks();
     refitFishing();
     scenery.resize();
     resizeTrail();
@@ -302,7 +302,7 @@ setupViews({
     renderDecor();
     renderShoots();
     renderTrees();
-    renderBurrs();
+    renderFruit();
     syncTreeMoments();
   },
 });

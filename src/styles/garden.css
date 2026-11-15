@@ -70,7 +70,7 @@
 /* A friend standing mostly behind a flower, a shoot, a gift or a tree drawn in front of it would
    show only its hat: the thing fades while the friend is there (yard/veil.js), and the friend and
    its name read through it. */
-:is(.plant, .shoot, .burr, .decor, .planted-tree).veiled {
+:is(.plant, .shoot, .fallen-fruit, .decor, .planted-tree).veiled {
   opacity: 0.45;
 }
 /* Outdoors a flower stands on a small soft shade where its stem or its soil ends (--foot, the share
@@ -208,10 +208,10 @@
 .yard.playing .shoot {
   pointer-events: none;
 }
-/* A burr a grown chestnut dropped at its foot (yard/burrs.js), set down at its depth like a shoot,
-   on a small soft shade. As it comes it drops a short way and bounces once; only the drawing inside
+/* Fruit a grown fruit tree dropped at its foot (yard/fallen-fruit.js), set down at its depth like a
+   shoot, on a small soft shade. As it comes it drops a short way and bounces once; only the drawing inside
    moves, as the button's transform is its place. */
-.burr {
+.fallen-fruit {
   position: absolute;
   left: 0;
   top: 0;
@@ -222,7 +222,7 @@
   pointer-events: auto;
   transition: opacity 0.25s ease;
 }
-.burr::before {
+.fallen-fruit::before {
   content: "";
   position: absolute;
   left: 10%;
@@ -233,17 +233,17 @@
   background: radial-gradient(closest-side, #2a1c0c70, #2a1c0c30 55%, transparent);
   pointer-events: none;
 }
-.burr svg {
+.fallen-fruit svg {
   display: block;
   width: 100%;
   height: 100%;
   transform-origin: 50% 100%;
   filter: drop-shadow(0.8px 1.2px 0.8px #2a1c0c80) var(--prop-light,);
 }
-.burr.dropped svg {
-  animation: burr-drop 750ms both;
+.fallen-fruit.dropped svg {
+  animation: fruit-drop 750ms both;
 }
-@keyframes burr-drop {
+@keyframes fruit-drop {
   from {
     opacity: 0;
     transform: translateY(-40%);
@@ -265,24 +265,24 @@
     transform: none;
   }
 }
-/* While a friend goes to pick it up, a burr fades a little and takes no second press. */
-.burr.picking {
+/* While a friend goes to pick it up, the fruit fades a little and takes no second press. */
+.fallen-fruit.picking {
   cursor: default;
 }
-.burr.picking svg {
+.fallen-fruit.picking svg {
   opacity: 0.7;
   transition: opacity 0.3s;
 }
 @media (prefers-reduced-motion: reduce) {
-  .burr.dropped svg {
+  .fallen-fruit.dropped svg {
     animation: none;
   }
-  .burr.picking svg {
+  .fallen-fruit.picking svg {
     transition: none;
   }
 }
-.yard.aiming .burr,
-.yard.playing .burr {
+.yard.aiming .fallen-fruit,
+.yard.playing .fallen-fruit {
   pointer-events: none;
 }
 /* Decorations friends bring (yard/decor.js): wood and iron in the yard's light, dragged to move. */

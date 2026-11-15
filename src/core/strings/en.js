@@ -1087,8 +1087,8 @@ export const strings = {
   'viewing.mat_lines': ['A picnic under the blossom is the best!'],
   'viewing.petal_notice': ['Huh? Is there a petal on my head?', 'I’m wearing a petal!'],
   'viewing.wish': ['You caught a petal! Your wish will come true.', 'Make a wish. It’ll come true, I just know it!'],
-  'moment.burr_title': 'A chestnut burr. Click to send a friend to pick it up',
-  'moment.burr_no_friend': 'Invite a friend to pick it up',
+  'moment.chestnut_title': 'A chestnut burr. Click to send a friend to pick it up',
+  'moment.fruit_no_friend': 'Invite a friend to pick it up',
   'moment.fringe_head': [
     'Oh! A little white petal landed on me.',
     'It’s snowing flowers!',

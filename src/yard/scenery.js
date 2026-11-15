@@ -778,10 +778,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       sparks.length > 0);
   // Whether creatures or falling petals and leaves are out, moving every frame: app.js runs the
   // yard at its busy pace then, as at its calm pace they crossed in visible hops.
-  const lively = () =>
-    enabled() &&
-    !reduced.matches &&
-    (critters.length > 0 || fallers.length > 0 || drifts);
+  const lively = () => enabled() && !reduced.matches && (critters.length > 0 || fallers.length > 0 || drifts);
   // The sky layer's extras; each says whether it could be shown here and now.
   const showers = on => {
     soon = on && !shower;

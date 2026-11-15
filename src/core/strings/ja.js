@@ -1072,8 +1072,8 @@ export const strings = {
   'viewing.mat_lines': ['桜の下でピクニック、さいこう！'],
   'viewing.petal_notice': ['あれ？頭に花びらついてる？', '花びらの髪かざりだ！'],
   'viewing.wish': ['花びらつかまえたね！願いごと、きっとかなうよ。', 'お願いしてみて。ぜったいかなうよ！'],
-  'moment.burr_title': '栗のイガです。クリックすると友だちが拾いに行きます',
-  'moment.burr_no_friend': '友だちを招くと拾ってくれます',
+  'moment.chestnut_title': '栗のイガです。クリックすると友だちが拾いに行きます',
+  'moment.fruit_no_friend': '友だちを招くと拾ってくれます',
   'moment.fringe_head': [
     'あれ、白い花びらがのっかった？',
     '花が雪みたいに降ってくる！',

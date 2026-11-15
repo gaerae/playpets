@@ -1,6 +1,6 @@
 // Tree moments in the yard (the rules are tree-moment-rules.js's): a grown tree whose kind names a
-// drift moment has it in its own season, morning to evening, outdoors. A chestnut's harvest is
-// burrs.js's.
+// drift moment has it in its own season, morning to evening, outdoors. A fruit tree's harvest is
+// fallen-fruit.js's.
 //
 // - Now and then a breeze lifts a gust of petals off the crown (stepGusts): the scenery paints them
 //   falling to the foot, lying there and fading (scenery.drift). At most two trees gust at once,
@@ -18,10 +18,10 @@ import { between, pick } from '../core/math.js';
 import { aiming, data, game, views } from '../core/state.js';
 import { stateOf } from '../core/status.js';
 import { cadence } from '../core/ticker.js';
-import { burrPicking } from './burrs.js';
 import { treeSize } from './catalog.js';
 import { fishingNow } from './catch.js';
 import { digging } from './discovery.js';
+import { fruitPicking } from './fallen-fruit.js';
 import { fieldToYard, footOf, footTarget, petHeight, sizeOf } from './field.js';
 import { landPetal } from './petals.js';
 import { propScale } from './props.js';
@@ -168,7 +168,7 @@ function headPetal(tree) {
 
 // Nothing the person started that a visit would get in the way of.
 const busy = () =>
-  !!game || !!aiming || fishingNow() || digging() || shootDigging() || burrPicking() || viewing() || !!visitor;
+  !!game || !!aiming || fishingNow() || digging() || shootDigging() || fruitPicking() || viewing() || !!visitor;
 
 // A free friend with nothing on walks to a tree with a visit line, to the side nearer it. One only
 // strolling counts as free, as for flower viewing: friends stroll most of the time, and the visit
