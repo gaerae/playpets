@@ -42,7 +42,7 @@ import {
   momentTrees,
   pickLine,
 } from './tree-moment-rules.js';
-import { forPerson, release, rest, sendTo } from './trips.js';
+import { forPerson, ownedBy, release, rest, sendTo } from './trips.js';
 import { thingGone } from './veil.js';
 import { bubble, pose } from './views.js';
 import { holdAtWork, stopWork } from './work.js';
@@ -186,7 +186,7 @@ export function renderFruit() {
 // Ends a pick: the friend is let go while the pick is still what it is doing, else (something else
 // took it over) only the pick ends.
 function letGo({ v, end }) {
-  if (v.doing?.end === end || v.trip?.cancel === end) release(v);
+  if (ownedBy(v, end)) release(v);
   else end();
 }
 

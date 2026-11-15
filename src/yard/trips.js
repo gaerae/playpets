@@ -93,6 +93,9 @@ export function setDoing(v, doing, own = v.own) {
   v.doing = doing;
   v.own = own;
 }
+/** Whether what a friend is on its way to or doing is still the task whose one end is `end` (its
+ * trip's cancel and its doing's end alike): something else may have taken the friend over since. */
+export const ownedBy = (v, end) => v.doing?.end === end || v.trip?.cancel === end;
 /** Takes the petal off a friend's head (petals.js), and with it the notice the friend might have
  * given of it. */
 export function brushPetal(v) {
