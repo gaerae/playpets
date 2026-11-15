@@ -10,19 +10,24 @@ export const rest = v => {
   v.nextWander = performance.now() + between(Math.random, WANDER_DELAY);
 };
 // A friend's trip: where it is headed (`v.target`, its place 0 to 1 each way) and `v.trip`, what
-// happens there: { arrive(v, now), cancel(v), save, slow }. While it does something where it stands
-// (fishing), `v.doing` is { end(v) }. Whatever takes a friend (a press, a game, another trip, the
+// happens there: { arrive(v, now), cancel(v), save, slow, yields }. While it does something where it
+// stands (fishing), `v.doing` is { end(v), yields }. Whatever takes a friend (a press, a game, another trip, the
 // friend leaving) lets go of both first, so the owner of a trip or a task always hears it ended.
 /** Sends a friend to `target`: `arrive(v, now)` runs when it gets there and `cancel(v)` if something
  * else takes it first; the place it ends at is kept unless `save` is false; `slow` strolls, and a
  * game gives its own `speed`. `own` marks a trip the friend set off on by itself, which its agent's
- * state may cut short (duty.js); what it then does where it arrives is its own too. */
-export function sendTo(v, target, { arrive, cancel, save = true, slow = false, speed = 0, own = false } = {}) {
+ * state may cut short (duty.js); what it then does where it arrives is its own too. `yields` marks a
+ * trip of the friends' own that what the person asks may take it from (forPerson). */
+export function sendTo(
+  v,
+  target,
+  { arrive, cancel, save = true, slow = false, speed = 0, own = false, yields = false } = {},
+) {
   // When it sets off (motion.js measures its first step from it); one already walking goes on.
   if (!v.target) v.leftAt = performance.now();
   release(v);
   v.target = target;
-  v.trip = { arrive, cancel, save, slow };
+  v.trip = { arrive, cancel, save, slow, yields };
   v.speed = speed;
   v.own = own;
 }
@@ -49,10 +54,11 @@ export const strolling = v => !v.drag && !v.away && !v.doing && !!v.trip?.slow &
 // Only sitting somewhere in a workspace on its own (lounge.js), or on its way there: busy for what
 // friends start on their own, but the person's errand may take it.
 const lounging = v => !v.drag && !v.away && !!v.spot?.idle;
-// Standing with friends viewing the blossom (viewing.js marks it `gathered`), or visiting a tree in
-// its moment, on the way or there (tree-moments.js marks it `visiting`): busy for what friends start
-// on their own, but what the person starts may take it, and the gathering or the visit lets it go.
-const yields = v => !v.drag && (!!v.gathered || !!v.visiting);
+// Standing with friends viewing the blossom (viewing.js marks it `gathered`), or on a trip or a doing
+// that yields (a visit to a tree in its moment, on the way or there; tree-moments.js): busy for what
+// friends start on their own, but what the person starts may take it, and the gathering or the visit
+// lets it go. The visit's marker is on its trip and its doing, so whatever takes either takes it.
+const yields = v => !v.drag && (!!v.gathered || !!v.trip?.yields || !!v.doing?.yields);
 // The friend nearest a point in the yard, by its feet, among those `ok` allows.
 function nearest(px, py, ok) {
   let best = null,

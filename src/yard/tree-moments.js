@@ -37,7 +37,8 @@ let visiting = cadence(() => between(Math.random, VISIT_EVERY));
 // The friend visiting a tree, on its way or there, and the tree as it stood when the visit began:
 // { v, timers, tree }, or null.
 let visitor = null;
-const VISIT = { end: v => leave(v) };
+// Standing at the tree; what the person asks may take it (trips.js forPerson), as on its way there.
+const VISIT = { end: v => leave(v), yields: true };
 
 /** Wiring: a fresh wait. Called once, by app.js. */
 export function setupTreeMoments() {
@@ -100,18 +101,17 @@ function visit() {
     own: true,
     arrive: () => smell(v, tree, side),
     cancel: () => leave(v),
+    // What the person asks of it comes first (trips.js forPerson).
+    yields: true,
   });
   visitor = { v, timers: new Set(), tree };
-  // What the person asks of it comes first (trips.js forPerson).
-  v.visiting = true;
 }
 
 // At the tree: it faces the blossom and looks up, says a line, and after a while goes on its way.
 function smell(v, tree, side) {
   // Its hour or weather ended on the way, or a game began: nothing to look up at.
   if (visitor?.v !== v || !on(tree.id) || game) return leave(v);
-  // The walk is over (motion.js lets go of the trip before it calls arrive), so setDoing ends nothing
-  // and the friend is still `visiting`.
+  // The walk is over (motion.js lets go of the trip before it calls arrive), so setDoing ends nothing.
   setDoing(v, VISIT, true);
   const look = { x: crownOf(tree).x - footOf(v).x, y: -petHeight(v.pet) * 1.2 },
     { timers } = visitor;
@@ -143,7 +143,6 @@ function smell(v, tree, side) {
 // errand): the friend's look up goes, whoever the visit is now, and the visit is over if it was this
 // friend's.
 function leave(v) {
-  v.visiting = false;
   v.button.classList.remove('looking-up');
   delete v.button.dataset.tilt;
   if (visitor?.v !== v) return;

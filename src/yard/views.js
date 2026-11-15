@@ -417,8 +417,7 @@ function createView(p) {
     // Set by the features that use them: a game (away, speed, frozen, frozenUntil; play.js), flower
     // viewing (away too, seat, the place it walks to, and viewing, { side, look } while it stands
     // there; viewing.js), a petal on its head (petal, the node, and petalTimer, its notice; petals.js,
-    // taken off by trips.js brushPetal), a visit to a tree in its moment (visiting; tree-moments.js)
-    // and closeness (bondLevel, the hearts last drawn; bond.js).
+    // taken off by trips.js brushPetal) and closeness (bondLevel, the hearts last drawn; bond.js).
     away: false,
     speed: 0,
     frozen: false,
@@ -427,7 +426,6 @@ function createView(p) {
     viewing: null,
     petal: null,
     petalTimer: null,
-    visiting: false,
     bondLevel: 0,
   };
   rest(v);

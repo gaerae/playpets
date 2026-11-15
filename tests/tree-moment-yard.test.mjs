@@ -163,6 +163,10 @@ test('a visit ends whenever the friend is taken, and none starts in a game', t =
   assert.equal(v.bubble.hidden, true, 'and nothing is said afterwards');
 });
 
+// Whether a friend is on a visit, walking there or standing at the tree: its trip or its doing yields
+// to what the person asks (trips.js forPerson).
+const visiting = v => !!v.trip?.yields || !!v.doing?.yields;
+
 // Brings a friend on its way to the tree there, as moveFriends does.
 function arrive(v) {
   const { trip } = v;
@@ -197,7 +201,7 @@ test('a friend taken on its way to the plum frees the visit for another time', t
   y.run(3 * 60_000 + 2000);
   assert.ok(v.trip?.arrive);
   release(v);
-  assert.equal(v.visiting, false, 'no longer on a visit');
+  assert.equal(visiting(v), false, 'no longer on a visit');
   y.run(8 * 60_000);
   assert.ok(v.trip?.arrive, 'a later visit goes ahead');
   arrive(v);
@@ -222,7 +226,7 @@ test('a plum moved or pulled up while a friend walks to it or looks up at it let
       }
       state.data.garden.trees = change.trees(plum);
       syncTreeMoments();
-      assert.equal(v.visiting, false, 'no longer on a visit');
+      assert.equal(visiting(v), false, 'no longer on a visit');
       assert.equal(v.target, null, 'not walking to where the tree stood');
       assert.equal(v.doing, null);
       assert.equal(v.button.classList.contains('looking-up'), false);
@@ -241,7 +245,7 @@ test('a garden change that leaves the plum where it stands lets the visit go on'
   state.data.garden.trees = [{ ...plum }, grown('o', 'oak', 0.8, 0.4)];
   syncTreeMoments();
   assert.ok(v.button.classList.contains('looking-up'));
-  assert.equal(v.visiting, true);
+  assert.equal(visiting(v), true);
 });
 
 test('a visit under way when its hour or weather ends finishes gently, and no new one starts', t => {
@@ -253,12 +257,12 @@ test('a visit under way when its hour or weather ends finishes gently, and no ne
   scene.period = 'night';
   syncTreeMoments();
   assert.ok(v.button.classList.contains('looking-up'), 'it keeps looking up');
-  assert.equal(v.visiting, true);
+  assert.equal(visiting(v), true);
   y.run(6000);
   assert.equal(v.button.classList.contains('looking-up'), false, 'then goes on its way');
-  assert.equal(v.visiting, false);
+  assert.equal(visiting(v), false);
   y.run(10 * 60_000);
-  assert.equal(v.visiting, false, 'no visit at night');
+  assert.equal(visiting(v), false, 'no visit at night');
 });
 
 test('a new window size or land ends a visit, on the way or at the tree', async t => {
@@ -270,7 +274,7 @@ test('a new window size or land ends a visit, on the way or at the tree', async 
       y.run(3 * 60_000 + 2000);
       if (arrived) arrive(v);
       cancelTreeVisit();
-      assert.equal(v.visiting, false);
+      assert.equal(visiting(v), false);
       assert.equal(v.target, null, 'not walking to where the tree was drawn');
       assert.equal(v.button.classList.contains('looking-up'), false);
       assert.equal(v.button.dataset.tilt, undefined);
@@ -282,12 +286,14 @@ test('a friend at the plum, or on its way, gives way to what the person asks', t
     y = yard(t, { garden: { trees: [plum] }, pets: 1, values: { ...spring, season: 'winter' } }),
     [v] = y.views();
   y.run(3 * 60_000 + 2000);
+  assert.equal(v.trip?.yields, true, 'its walk there yields');
   assert.equal(forPerson(0, 0), v, 'on its way');
   arrive(v);
+  assert.equal(v.doing?.yields, true, 'and so does its standing there');
   assert.equal(forPerson(0, 0), v, 'and standing there');
   sendTo(v, { x: 0.9, y: 0.9 }, { arrive: () => {} });
   assert.equal(v.button.classList.contains('looking-up'), false, 'the errand takes it from the tree');
-  assert.equal(v.visiting, false);
+  assert.equal(visiting(v), false);
 });
 
 // ---- fallen fruit ----
