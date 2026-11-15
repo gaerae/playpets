@@ -131,6 +131,8 @@ The chestnut burr (2026-11-15):
 - It was drawn with the chestnut tree's sheet and the old coin as references,
   so it matches the tree and the other small finds.
 - Alpha below 50 is cleared as before; the raw hash is in `ART-SOURCES.json`.
+- On 2026-11-16 it was cropped and halved like the fallen fruit below, so its
+  WebP went from 575 KB to 164 KB.
 
 Fallen fruit (2026-11-16):
 - `persimmon-fruit-source.png`, `fig-fruit-source.png`, `yuzu-fruit-source.png`,

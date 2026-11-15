@@ -507,8 +507,8 @@
       "id": "chestnut-burr",
       "file": "chestnut-burr-source.png",
       "atlas": "discovery/chestnut-burr.png",
-      "size": [1254, 1254],
-      "sha256": "721007ba00ff5dfd197ed918819d93a02dbe867c13ef86a9b16b63230c3c29a8",
+      "size": [559, 506],
+      "sha256": "5fb032085a216d2821b7ae078b4beffab9c8d7cd3f4012e229952a663988682c",
       "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy game ground prop sprite. The first reference (a chestnut tree sheet) and the second reference (a keepsake coin) are STYLE REFERENCES ONLY: match their warm sculpted hand-painted illustrated look, soft painterly detail, crisp edges, warm saturated colours and soft top-left key light; the burr must look like the open burrs in the chestnut tree's autumn crown. Create a genuine transparent RGBA sprite of exactly ONE isolated object, centered, filling about 70% of the image width, slightly top-front three-quarter view, readable at 40 CSS pixels: one fallen chestnut burr lying on its side, split open into four spiky husk lobes curling outward, the spines a soft green-gold with sunlit yellow tips, the inside of the husk pale cream-tan, holding THREE glossy rich red-brown chestnuts with pale matte bases and small highlight gleams, nestled together and peeking out. Square 1024x1024 canvas. No grass, no ground, no leaves, no background, no checkerboard ink, no cast shadow, no text, labels or extra objects. Preserve genuine alpha.",
       "references": [
         {
@@ -520,7 +520,7 @@
           "role": "Style reference only"
         }
       ],
-      "notes": "Generated 2026-11-15 through the Codex CLI built-in image tool. The burr a grown chestnut drops at its foot in autumn (tree moments). Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged); the raw generation is not kept, sha256 7885a79ad1bffb8b654bfb88c4d2100207e39c7acb48998b4f158e4b79321204."
+      "notes": "Generated 2026-11-15 through the Codex CLI built-in image tool. The burr a grown chestnut drops at its foot in autumn (tree moments). Alpha below 50 cleared to 0,0,0,0 (all other samples unchanged); the raw generation is not kept, sha256 7885a79ad1bffb8b654bfb88c4d2100207e39c7acb48998b4f158e4b79321204. On 2026-11-16 that 1254x1254 export (sha256 721007ba00ff5dfd197ed918819d93a02dbe867c13ef86a9b16b63230c3c29a8, the fruit's style reference) was cropped to the drawing with a 24-pixel margin, halved with premultiplied averaging, and alpha below 50 cleared again, as the other fallen fruit."
     },
     {
       "id": "persimmon-fruit",
@@ -1303,7 +1303,7 @@
       "source": "chestnut-burr",
       "art": "discovery/chestnut_burr.svg",
       "size": [40, 36],
-      "crop": [87, 153, 1069, 964],
+      "crop": [12, 12, 534, 482],
       "anchor": [0.5, 1]
     },
     {
