@@ -338,6 +338,33 @@ test('a friend picking up green plums says the plum’s own lines', async ctx =>
   assert.deepEqual(y.saved().picked, { chestnut: '2027-07-05', red_plum: '2027-07-05' });
 });
 
+test('fruit stays with its place: another place does not show it, and coming back shows it again', async ctx => {
+  const y = await burrYard(ctx, { stored: record([lyingBurr('1')]) });
+  fruitMinute();
+  assert.equal(y.live().length, 1);
+  scene.world = 'lakeside';
+  fruitMinute();
+  renderFruit();
+  assert.equal(y.live().length, 0, 'not drawn by the lake');
+  assert.deepEqual(
+    y.saved().out.map(f => f.id),
+    ['1'],
+    'but still kept',
+  );
+  scene.world = 'workshop';
+  fruitMinute();
+  assert.deepEqual(
+    y.saved().out.map(f => f.id),
+    ['1'],
+    'even where no season shows',
+  );
+  scene.world = 'woodland';
+  fruitMinute();
+  const [again] = y.live();
+  assert.ok(again, 'back again, it lies where it was');
+  assert.ok(!again.classList.contains('dropped'), 'without falling a second time');
+});
+
 test('at most two burrs lie under a tree, and none drop at night, but those there stay', async ctx => {
   const y = await burrYard(ctx, { stored: record([lyingBurr('1'), lyingBurr('2', 0.46, 0.34)], { next: AUTUMN - 1 }) });
   fruitMinute();

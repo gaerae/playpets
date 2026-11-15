@@ -1,7 +1,10 @@
 // Fruit under a grown fruit tree in its harvest season (the rules are tree-moment-rules.js's): now
 // and then, in fair hours, a tree with a harvest moment drops its fruit at its foot: a chestnut its
-// burr, a persimmon or a fig its fruit. At most two lie under a tree and three in the yard, each for
-// six hours, until it is picked, or the season or the place changes.
+// burr, a persimmon or a fig its fruit. At most two lie under a tree and three in a place, each for
+// six hours, until it is picked, its tree is pulled up or moved, or the season changes.
+//
+// - Each fruit keeps its place: only the shown place's fruit is drawn, and the others wait, so
+//   going away and coming back finds the same fruit where it was.
 //
 // - Checked with the scene, once a minute (app.js seasonChanged), and drawn again with the garden
 //   (render.js, and the yard's resize, land and place changes). Nothing runs in the frame loop.
@@ -31,6 +34,7 @@ import { shootScale } from './shoot-rules.js';
 import {
   fruitDue,
   fruitFall,
+  fruitHere,
   fruitSpot,
   fruitStays,
   harvestOf,
@@ -86,22 +90,24 @@ const save = ({ picked, out }) => remember(KEY, JSON.stringify({ picked, out }))
 // The kind of tree fruit lies under, and its harvest.
 const kindUnder = fruit => data.garden?.trees?.find(tree => tree.id === fruit.tree)?.kind;
 const harvestUnder = fruit => harvestOf(kindUnder(fruit));
-// The fruit lying in the yard as it is now.
-const lying = now => (kept ? fruitStays(kept.out, { trees: data.garden?.trees, scene, now, limits: data.limits }) : []);
+// The fruit lying in every place as it is now, and in the place shown.
+const lying = now =>
+  kept ? fruitStays(kept.out, { trees: data.garden?.trees, season: scene.season, now, limits: data.limits }) : [];
+const here = now => fruitHere(lying(now), scene.world);
 
-/** One look at the yard, at each repaint of the scene: fruit whose time, season, place or tree is
- * gone goes, and fruit that is due drops. */
+/** One look at the yard, at each repaint of the scene: fruit whose time, season or tree is gone
+ * goes, and fruit that is due drops in the place shown. */
 export function fruitMinute(now = new Date()) {
   if (!kept) return;
   const ms = now.getTime(),
     still = lying(ms);
   let next = { ...kept, out: still.length === kept.out.length ? kept.out : still };
   const trees = momentTrees(data.garden?.trees, scene, ms, data.limits).filter(tree => tree.moment.kind === 'harvest'),
-    due = fruitDue(next, trees, ms, Math.random);
+    due = fruitDue(next, trees, ms, Math.random, scene.world);
   next = due.kept;
   if (due.tree) {
     const ground = groundProfile(),
-      spot = fruitSpot(Math.random, ground, due.tree, next.out, due.tree.moment.size[0]);
+      spot = fruitSpot(Math.random, ground, due.tree, fruitHere(next.out, scene.world), due.tree.moment.size[0]);
     if (spot) {
       const fruit = { id: String(ms), tree: due.tree.id, world: scene.world, x: spot.x, y: spot.y, at: ms };
       next = { ...next, out: [...next.out, fruit] };
@@ -153,11 +159,11 @@ function update(v, fruit) {
 
 /** Draws the fallen fruit lying in this place. */
 export function renderFruit() {
-  reconcile(shown, lying(Date.now()), create, update);
+  reconcile(shown, here(Date.now()), create, update);
 }
 
 // Whether fruit still lies where it was.
-const stillOut = (id, world) => scene.world === world && lying(Date.now()).some(f => f.id === id);
+const stillOut = (id, world) => scene.world === world && here(Date.now()).some(f => f.id === id);
 // The button of fallen fruit, marked while a friend goes for it.
 const mark = (id, on) => shown.get(id)?.button.classList.toggle('picking', on);
 

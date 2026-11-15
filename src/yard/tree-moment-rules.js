@@ -65,18 +65,17 @@ const FRUIT_FRONT = [5, 26];
  * Whether fruit drops at this look at the yard, and under which tree. `kept` is the record
  * ({ next, picked, out }); `trees` the harvest trees whose moment is on. The first look with such a
  * tree only sets when the first fruit is due; then a due drop goes under a tree with room (fewer than
- * FRUIT_PER_TREE under it, fewer than FRUIT_OUT in the yard), and the next is set either way. A look
- * with none (night, rain, another season) forgets the wait, so the first wait comes again each time
- * the harvest does. Returns a new record and the tree (null for none).
+ * FRUIT_PER_TREE under it, fewer than FRUIT_OUT in `world`, the place shown), and the next is set
+ * either way. A look with none (night, rain, another season) forgets the wait, so the first wait comes
+ * again each time the harvest does. Returns a new record and the tree (null for none).
  */
-export function fruitDue(kept, trees, now, rng) {
+export function fruitDue(kept, trees, now, rng, world) {
   if (!trees.length) return { kept: kept.next ? { ...kept, next: 0 } : kept, tree: null };
   if (!kept.next) return { kept: { ...kept, next: now + between(rng, FRUIT_FIRST) }, tree: null };
   if (now < kept.next) return { kept, tree: null };
-  const room =
-      kept.out.length < FRUIT_OUT
-        ? trees.filter(tree => kept.out.filter(f => f.tree === tree.id).length < FRUIT_PER_TREE)
-        : [],
+  const here = fruitHere(kept.out, world),
+    room =
+      here.length < FRUIT_OUT ? trees.filter(tree => here.filter(f => f.tree === tree.id).length < FRUIT_PER_TREE) : [],
     next = { ...kept, next: now + between(rng, FRUIT_EVERY) };
   return { kept: next, tree: room.length ? room[Math.min(room.length - 1, Math.floor(rng() * room.length))] : null };
 }
@@ -107,19 +106,21 @@ const CROWN_LOW = 0.25;
  * of a tree `height` px tall standing at `footY`, in whole pixels, never upward. */
 export const fruitFall = (y, footY, height) => Math.max(0, Math.round(y - (footY - height * CROWN_LOW)));
 
+/** The fallen fruit of one place, the one drawn while it is shown. */
+export const fruitHere = (out, world) => out.filter(f => f.world === world);
+
 /** The fallen fruit still lying at `now`. */
 export const freshFruit = (out, now) =>
   out.filter(f => !!f && typeof f.at === 'number' && now - f.at >= 0 && now - f.at < FRUIT_STAYS_MS);
 
-/** The fallen fruit that stays at a look at the yard: fresh, in this place, under its own tree still
- * grown there, with the yard showing the season of the tree's harvest. Only the season counts, not
- * the hour: fruit that dropped in the afternoon still lies there at night or in rain. */
-export function fruitStays(out, { trees, scene, now, limits }) {
-  const season = yardSeason(scene);
+/** The fallen fruit that stays, in every place: fresh, under its own tree still grown in the fruit's
+ * place, while `season` (the yard's, scene.season) is the tree's harvest season. Only the season
+ * counts, not the hour, the weather or the place shown: fruit that dropped in the afternoon still lies
+ * there at night, in rain, and while the person is in another place, and is there on coming back. */
+export function fruitStays(out, { trees, season, now, limits }) {
   return freshFruit(out, now).filter(f => {
     const tree = (trees || []).find(t => t.id === f.tree);
     return (
-      f.world === scene.world &&
       !!tree &&
       tree.world === f.world &&
       treeStage(tree, now, limits) >= 2 &&

@@ -14,6 +14,7 @@ import {
   FRUIT_OUT,
   FRUIT_PER_TREE,
   fruitDue,
+  fruitHere,
   fruitFall,
   fruitSpot,
   fruitStays,
@@ -115,24 +116,27 @@ const burr = (id, tree, x, y, extra = {}) => ({ id, tree, world: 'woodland', x, 
 
 test('the first look only sets when a burr drops; then one drops now and then under a tree with room', () => {
   const trees = [grown('a', 'chestnut'), grown('b', 'chestnut', 0.2, 0.4)];
-  assert.deepEqual(fruitDue(kept0, [], T, seq(0)), { kept: kept0, tree: null }, 'no harvest tree, nothing');
-  const first = fruitDue(kept0, trees, T, seq(0));
+  assert.deepEqual(fruitDue(kept0, [], T, seq(0), 'woodland'), { kept: kept0, tree: null }, 'no harvest tree, nothing');
+  const first = fruitDue(kept0, trees, T, seq(0), 'woodland');
   assert.equal(first.tree, null);
   assert.equal(first.kept.next, T + FRUIT_FIRST[0]);
-  assert.equal(fruitDue(first.kept, trees, T + FRUIT_FIRST[0] - 1, seq(0)).tree, null);
-  const due = fruitDue(first.kept, trees, T + FRUIT_FIRST[0], seq(0.99));
+  assert.equal(fruitDue(first.kept, trees, T + FRUIT_FIRST[0] - 1, seq(0), 'woodland').tree, null);
+  const due = fruitDue(first.kept, trees, T + FRUIT_FIRST[0], seq(0.99), 'woodland');
   assert.equal(due.tree.id, 'b');
   assert.equal(due.kept.next, T + FRUIT_FIRST[0] + FRUIT_EVERY[0] + 0.99 * (FRUIT_EVERY[1] - FRUIT_EVERY[0]));
   // A tree with two under it gets no third; a yard with three gets no fourth, but the wait goes on.
   const full = { ...first.kept, out: [burr('1', 'a', 0.5, 0.35), burr('2', 'a', 0.55, 0.35)] };
-  assert.equal(fruitDue(full, trees, T + FRUIT_FIRST[0], seq(0)).tree.id, 'b');
-  assert.equal(fruitDue(full, [trees[0]], T + FRUIT_FIRST[0], seq(0)).tree, null);
+  assert.equal(fruitDue(full, trees, T + FRUIT_FIRST[0], seq(0), 'woodland').tree.id, 'b');
+  assert.equal(fruitDue(full, [trees[0]], T + FRUIT_FIRST[0], seq(0), 'woodland').tree, null);
   const yard = { ...full, out: [...full.out, burr('3', 'b', 0.2, 0.45)] };
-  const none = fruitDue(yard, trees, T + FRUIT_FIRST[0], seq(0));
+  const none = fruitDue(yard, trees, T + FRUIT_FIRST[0], seq(0), 'woodland');
   assert.equal(none.tree, null);
   assert.equal(none.kept.next, T + FRUIT_FIRST[0] + FRUIT_EVERY[0]);
+  // Fruit lying in another place takes no room here.
+  const elsewhere = { ...first.kept, out: ['1', '2', '3'].map(id => burr(id, 'c', 0.5, 0.35, { world: 'lakeside' })) };
+  assert.equal(fruitDue(elsewhere, trees, T + FRUIT_FIRST[0], seq(0), 'woodland').tree.id, 'a');
   // Night, rain or another season forgets the wait, so the first wait comes again.
-  assert.deepEqual(fruitDue(none.kept, [], T + FRUIT_FIRST[0] + 1, seq(0)).kept, { ...none.kept, next: 0 });
+  assert.deepEqual(fruitDue(none.kept, [], T + FRUIT_FIRST[0] + 1, seq(0), 'woodland').kept, { ...none.kept, next: 0 });
   assert.equal(FRUIT_PER_TREE, 2);
   assert.equal(FRUIT_OUT, 3);
 });
@@ -170,19 +174,20 @@ test('a burr lands at the foot, in front of the trunk, apart from the others', (
   assert.equal(fruitSpot(seq(0.5), { ...open, soil: false }, tree, []), null);
 });
 
-test('a burr lies six hours, under its own grown tree, while the yard shows its season here', () => {
-  const trees = [grown('a', 'chestnut', 0.5, 0.3)],
+test('fruit lies six hours under its own grown tree, in its own place, while its season lasts', () => {
+  const trees = [grown('a', 'chestnut', 0.5, 0.3), grown('l', 'chestnut', 0.5, 0.3, { world: 'lakeside' })],
     b = burr('1', 'a', 0.52, 0.33),
-    look = (extra = {}) => ({ trees, scene: fair('autumn'), now: T, limits: LIMITS, ...extra });
+    there = burr('2', 'l', 0.52, 0.33, { world: 'lakeside' }),
+    look = (extra = {}) => ({ trees, season: 'autumn', now: T, limits: LIMITS, ...extra });
   assert.deepEqual(fruitStays([b], look()), [b]);
-  assert.deepEqual(
-    fruitStays([b], look({ scene: { ...fair('autumn'), period: 'night' } })),
-    [b],
-    'it lies on at night',
-  );
-  assert.deepEqual(fruitStays([b], look({ scene: { ...fair('autumn'), weather: 'rain' } })), [b], 'and in rain');
-  assert.deepEqual(fruitStays([b], look({ scene: fair('winter') })), [], 'another season takes it');
-  assert.deepEqual(fruitStays([b], look({ scene: { ...fair('autumn'), world: 'lakeside' } })), [], 'another place too');
+  assert.deepEqual(fruitStays([b], look({ season: 'winter' })), [], 'another season takes it');
+  // Only the season counts, not the hour, the weather or the place shown: it lies on at night, in
+  // rain, and while the person is somewhere else, even a place that shows no season.
+  assert.deepEqual(fruitStays([b, there], look()), [b, there], 'each place keeps its own');
+  assert.deepEqual(fruitHere([b, there], 'woodland'), [b], 'and shows only its own');
+  assert.deepEqual(fruitHere([b, there], 'lakeside'), [there]);
+  assert.deepEqual(fruitHere([b, there], 'workshop'), []);
+  assert.deepEqual(fruitStays([{ ...b, world: 'lakeside' }], look()), [], 'never under a tree of another place');
   assert.deepEqual(fruitStays([b], look({ trees: [] })), [], 'a tree pulled up takes its burrs');
   assert.deepEqual(fruitStays([b], look({ trees: [{ ...trees[0], x: 0.9 }] })), [], 'a tree moved away too');
   assert.deepEqual(fruitStays([b], look({ now: b.at + FRUIT_STAYS_MS })), [], 'six hours on it is gone');

@@ -76,6 +76,7 @@
 - The day's first pick is counted per kind of tree, so the first chestnut and the first persimmon of a day each have their line. `first` lists have two or three lines.
 - The webview's key is now `fallen-fruit`: `{ picked, out }`, with `picked` a map from tree kind to its last local day of a first pick. The chestnut-only `burrs` key was never released and is not read.
 - The wait for the next fruit is not stored. A start, and every return of a harvest's time (a new morning, the end of rain), waits the first wait again.
+- Fruit keeps its place: each stored fruit names its `world`, only the shown place's fruit is drawn, and going to another place no longer takes it. It goes when it is picked, after six hours, when its tree is pulled up or moved, or when the yard's season (`scene.season`, even in a place that shows none) is no longer its tree's harvest season. At most three lie in each place (`FRUIT_OUT`). The stored record is unchanged.
 - A friend walking to the plum already counts as the visit, so no second friend is sent; a visiting friend, walking or there, gives way to the person's errands like a friend viewing the blossom.
 - Every tree whose art shows fruit drops it, in the season the art shows it:
 
