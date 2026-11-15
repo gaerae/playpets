@@ -125,6 +125,35 @@ Eight more trees and redrawn seasons (2026-11-15):
   redrawn tree is scaled to its species' mature crown.
 - Alpha below 50 is cleared as before; raw hashes are in `ART-SOURCES.json`.
 
+The chestnut burr (2026-11-15):
+- `chestnut-burr-source.png` holds one split burr with three chestnuts, the
+  thing a grown chestnut drops in autumn (a tree moment, not a keepsake).
+- It was drawn with the chestnut tree's sheet and the old coin as references,
+  so it matches the tree and the other small finds.
+- Alpha below 50 is cleared as before; the raw hash is in `ART-SOURCES.json`.
+- On 2026-11-16 it was cropped and halved like the fallen fruit below, so its
+  WebP went from 575 KB to 164 KB.
+
+Fallen fruit (2026-11-16):
+- `persimmon-fruit-source.png`, `fig-fruit-source.png`, `yuzu-fruit-source.png`,
+  `green-plums-source.png` and `acorns-source.png` hold what a grown persimmon,
+  fig, yuzu, red plum and oak drop in the season their art shows the fruit.
+- Each was drawn with the chestnut burr (style and scale) and its own tree's
+  sheet as references, so the fruit matches the fruit on the branches.
+- Each raw 1254 px generation was cropped to the drawing with a 24 px margin
+  and halved with premultiplied averaging, so the WebP stays near 100 KB.
+- Alpha below 50 is cleared as before; raw hashes are in `ART-SOURCES.json`.
+
+The red plum redrawn (2026-11-16):
+- `red_plum-source.png` replaces the 2026-11-15 red plum with a fuller crown,
+  crimson blossom clusters along every branch and an S-curved trunk; the layout
+  is the six-tree sheet as before.
+- The summer tree's green plums match `green-plums-source.png`.
+- The generator left coloured RGB under transparent pixels; clearing alpha
+  below 50 to 0,0,0,0 removes it with the halo. The raw hash is in
+  `ART-SOURCES.json`.
+- The four mature frames share one scale and the trunk's centerline.
+
 More finds (2026-11-03):
 - `more-finds-source.png` holds the cicada shell, blue feather, pinecone, old
   key, paper boat, spinning top, freshwater pearl and four-leaf clover in

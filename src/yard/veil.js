@@ -1,5 +1,5 @@
-// A friend standing behind a planted tree, a shoot, a flower or a gift drawn in front of it is
-// rightly hidden by it, but a person sees the friend vanish with only a hat showing and its name
+// A friend standing behind a planted tree, a shoot, fallen fruit, a flower or a gift drawn in front
+// of it is rightly hidden by it, but a person sees the friend vanish with only a hat showing and its name
 // tag pinned to the trunk. While a thing covers most of a friend, it fades (garden.css .veiled),
 // and comes back when the friend steps out.
 //
@@ -13,7 +13,7 @@ import { drawnBox } from './field.js';
 /** How much of a friend's body a thing in front must cover for the thing to fade. */
 const VEIL_COVER = 0.6;
 // What fades (garden.css); the snowman game's balls are set down too, and do not.
-const FADES = ['plant', 'shoot', 'decor', 'planted-tree'];
+const FADES = ['plant', 'shoot', 'fallen-fruit', 'decor', 'planted-tree'];
 // The yard is cut into strips this many pixels wide, and each thing is kept under every strip
 // its drawing spans.
 const COLUMN = 96;

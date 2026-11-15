@@ -11,6 +11,7 @@ import { artOf, eventGifts, giftKind, SHOOTS, shootKind, TRACKS, trailArt } from
 import { SHOWN } from '../src/yard/decor-shown.js';
 import { EFFECT_NAMES } from '../src/yard/effects.js';
 import { readPalette } from '../src/yard/palette.js';
+import { MOMENT_KINDS } from '../src/yard/tree-moment-rules.js';
 import { catalog, events, yard } from './support/content.mjs';
 
 const LANGUAGES = Object.keys(STRINGS);
@@ -41,6 +42,61 @@ test('the spring shoots are eight spring kinds with their drawings', () => {
   assert.equal(SHOOTS.length, 8);
   assert.equal(shootKind('morel').art, 'shoots/morel.svg');
   assert.equal(shootKind('carp'), null);
+});
+
+// A tree names its moments (tree-moment-rules.js) as data: a new tree gets one by naming it.
+test("every tree's moments are kinds the yard knows, with their drawings and lines in every language", () => {
+  const named = catalog.trees.filter(tree => tree.moments);
+  assert.deepEqual(
+    named.map(tree => [tree.id, tree.moments.map(m => `${m.kind} ${m.season}`)]),
+    [
+      ['oak', ['harvest autumn']],
+      ['persimmon', ['harvest autumn']],
+      ['fig', ['harvest summer']],
+      ['chestnut', ['harvest autumn']],
+      ['red_plum', ['visit winter', 'harvest summer']],
+      ['yuzu', ['harvest winter']],
+    ],
+    'every tree whose art shows fruit drops it in the season the art shows it',
+  );
+  const seasons = ['spring', 'summer', 'autumn', 'winter'];
+  // A list of three or four lines a friend says (two or three for a day's first pick).
+  const said = (key, least, most) => {
+    for (const lang of LANGUAGES) {
+      const lines = STRINGS[lang][key];
+      assert.ok(
+        Array.isArray(lines) && lines.length >= least && lines.length <= most,
+        `${lang}: ${key} has ${least} to ${most} lines`,
+      );
+    }
+  };
+  for (const { id, moments } of named) {
+    assert.ok(Array.isArray(moments) && moments.length > 0, `${id}: a list`);
+    assert.equal(new Set(moments.map(m => m.season)).size, moments.length, `${id}: one moment a season`);
+    assert.equal(new Set(moments.map(m => m.kind)).size, moments.length, `${id}: one moment of each kind`);
+    for (const moment of moments) {
+      assert.ok(seasons.includes(moment.season), `${id}: a season`);
+      assert.ok(MOMENT_KINDS.includes(moment.kind), `${id}: a kind of moment`);
+      for (const weather of moment.weather ?? []) assert.ok(['clear', 'snow'].includes(weather), `${id}: ${weather}`);
+      if (moment.kind === 'visit') {
+        assert.deepEqual(Object.keys(moment.lines), ['say'], `${id}: a line to say at the tree`);
+        said(moment.lines.say, 3, 4);
+      } else {
+        assert.deepEqual(Object.keys(moment.lines).sort(), ['first', 'pick'], `${id}: a pick line and a first one`);
+        said(moment.lines.pick, 3, 4);
+        said(moment.lines.first, 2, 3);
+        for (const lang of LANGUAGES)
+          assert.ok(typeof STRINGS[lang][moment.title] === 'string', `${lang}: ${id}'s fruit has a title`);
+        const text = readFileSync(new URL(`../src/art/${moment.art}`, import.meta.url), 'utf8');
+        assert.equal(
+          text.match(/viewBox="0 0 ([\d.]+ [\d.]+)"/)?.[1],
+          moment.size.join(' '),
+          `${id}: its size is its drawing's`,
+        );
+        assert.ok(artOf(catalog, events).includes(moment.art), `${id}: its drawing is loaded`);
+      }
+    }
+  }
 });
 
 test('every drawing the catalogue names is an SVG file with a view box, and nothing in it runs', () => {

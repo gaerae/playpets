@@ -68,7 +68,8 @@ export const shootSpot = (rng, ground, near, width = 0) =>
 export const freshShoots = (out, now) =>
   out.filter(s => !!s && typeof s.at === 'number' && now - s.at >= 0 && now - s.at < SHOOT_STAYS_MS);
 
-const unit = n => Number.isFinite(n) && n >= 0 && n <= 1;
+/** Whether `n` is a field coordinate (0 to 1), as stored records keep them. */
+export const unit = n => Number.isFinite(n) && n >= 0 && n <= 1;
 
 /** Reads the webview's stored record back, keeping only what makes sense. */
 export function keptShoots(text, now) {

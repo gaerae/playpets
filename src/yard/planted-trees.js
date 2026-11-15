@@ -19,6 +19,15 @@ const shown = new Map();
 const stageKeys = ['tree.growth', 'tree.young', 'tree.mature'];
 const current = id => data.garden?.trees?.find(tree => tree.id === id && tree.world === scene.world);
 
+/** How big a `kind` of tree at `stage` (grown by default) is drawn with its foot at `foot` (yard
+ * pixels): its width and height, and the zoom of that depth. Smaller farther back, as a friend at its
+ * foot is. Fallen fruit and visits to a tree measure it the same way. */
+export function treeBox(kind, foot, stage = 2) {
+  const [width, height] = treeSize(kind, stage),
+    zoom = propScale(foot);
+  return { width: width * zoom, height: height * zoom, zoom };
+}
+
 function position(view, tree, point = tree) {
   const stage = Math.min(2, treeStage(tree, Date.now(), data.limits)),
     kind = treeKind(tree.kind),
@@ -30,11 +39,9 @@ function position(view, tree, point = tree) {
     view.art = art;
     shapeHits(view.button, art);
   }
-  const [width, height] = treeSize(tree.kind, stage),
-    foot = fieldToYard(point),
-    // Smaller farther back, as a friend at its foot is.
-    zoom = propScale(foot);
-  setDown(view.button, foot.x, foot.y, width * zoom, height * zoom, depthAt(foot.y));
+  const foot = fieldToYard(point),
+    { width, height } = treeBox(tree.kind, foot, stage);
+  setDown(view.button, foot.x, foot.y, width, height, depthAt(foot.y));
   put(view.button, 'title', t('tree.drag', { kind: t(`tree.${tree.kind}`) }));
   putAttribute(view.button, 'aria-label', joinList([view.button.title, t(stageKeys[stage])]));
 }

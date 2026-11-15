@@ -70,6 +70,7 @@ import {
   syncDiscovery,
 } from './yard/discovery.js';
 import { dutyAfresh } from './yard/duty.js';
+import { cancelFruitPicks, fruitMinute, renderFruit, setupFruit } from './yard/fallen-fruit.js';
 import { pullPlant, renderGarden, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { setupLetterCard } from './yard/letter-card.js';
@@ -89,6 +90,7 @@ import { resizeSnowman, setupSnowman, showsWinter, snowmanTick } from './yard/sn
 import { cue, setupSound, soundSeen } from './yard/sound.js';
 import { setupTouches } from './yard/touches.js';
 import { resizeTrails, setupTrails, trailsCheck, trailsSeen } from './yard/trails.js';
+import { cancelTreeVisit, setupTreeMoments, syncTreeMoments, treeMomentTick } from './yard/tree-moments.js';
 import { release } from './yard/trips.js';
 import { setupViewing, viewing, viewingTick } from './yard/viewing.js';
 import { bubble, place, setupViews, syncView, syncViews } from './yard/views.js';
@@ -190,8 +192,28 @@ setupTrails({
   visible: () => shown && !document.hidden,
 });
 // The spring shoots out, read back before the sky too: its first paint looks at them, and would
-// otherwise sprout over the stored ones.
+// otherwise sprout over the stored ones; and the same for the fruit under a grown fruit tree, which
+// drops only while the yard is seen.
 setupShoots();
+setupFruit({ visible: () => shown && !document.hidden });
+setupTreeMoments();
+// A new window size or land: the work friends were sent to do (a dig, a spring shoot, fallen fruit, a
+// visit to a tree) was worked out in yard pixels, so it ends, and each friend is let go where it is.
+function cancelYardWork() {
+  cancelDiscoveryWork();
+  cancelShootDigs();
+  cancelFruitPicks();
+  cancelTreeVisit();
+}
+// What stands on the ground, drawn again where the yard now puts it: the garden, the gifts, the spring
+// shoots, the trees, and the fruit after the trees it lies under.
+function redrawGround() {
+  renderGarden();
+  renderDecor();
+  renderShoots();
+  renderTrees();
+  renderFruit();
+}
 // December's question about the winter yard, checked at each repaint of the scene.
 const winterCheck = setupWinter({ choice: chosenSeason, show: showSeason, visible: () => shown && !document.hidden });
 // The year-end letter, written and brought while the yard is seen (letter.js).
@@ -202,6 +224,10 @@ setupSky({
     refreshShownDecor();
     // Spring shoots come up after rain and on fair mornings, and go after a few hours.
     shootsMinute();
+    // A grown tree's moment comes and goes with the season, the hour and the weather: the red
+    // plum's visits, and the fruit a fruit tree drops.
+    syncTreeMoments();
+    fruitMinute();
     winterCheck();
     letterCheck();
     // The winter yard's footprint trails come, soften and go under new snow.
@@ -230,10 +256,8 @@ setupSky({
     }
     enter();
     syncViews();
-    renderGarden();
-    renderDecor();
-    renderShoots();
-    renderTrees();
+    redrawGround();
+    syncTreeMoments();
     syncDiscovery();
     hint();
   },
@@ -241,15 +265,11 @@ setupSky({
   // be loaded): the field may begin at another height (field.js fieldTop), so the fishing ends and
   // the friends, the garden and the gifts stand again on the land that shows.
   landChanged: () => {
-    cancelDiscoveryWork();
-    cancelShootDigs();
+    cancelYardWork();
     endFishing();
     for (const v of views.values()) place(v);
     resizeTrails();
-    renderGarden();
-    renderDecor();
-    renderShoots();
-    renderTrees();
+    redrawGround();
   },
 });
 // Hidden for a while, the yard lets go of its paintings and is not drawn; seen again, it is painted
@@ -277,17 +297,13 @@ setupViews({
   openChat,
   friendMenu: openFriendMenu,
   resized: () => {
-    cancelDiscoveryWork();
-    cancelShootDigs();
+    cancelYardWork();
     refitFishing();
     scenery.resize();
     resizeTrail();
     resizeSnowman();
     resizeTrails();
-    renderGarden();
-    renderDecor();
-    renderShoots();
-    renderTrees();
+    redrawGround();
   },
 });
 setupPlay();
@@ -482,6 +498,7 @@ const YARD_LIFE = [
   snowmanTick,
   viewingTick,
   petalTick,
+  treeMomentTick,
 ];
 let last = 0,
   // The weather canvas moves at the yard's pace, not on a wake only for a sprite cell: when it last

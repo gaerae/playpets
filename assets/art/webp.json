@@ -865,9 +865,9 @@
     "webp": "a70e8ca3f27f8e179ecc3138d38efb7ab033f1334fdada875bf6be090841f0f9"
   },
   "album/trees/red_plum-mature.webp": {
-    "png": "e3e9f182c374c6cbebea00551f6f032e41180a7dd60a181e3bd4bcc913711d9f",
-    "svg": "981100d2fddad9b5ba1049b42803c5a9f92a70440c5dddd52687a9ddb5d53a42",
-    "webp": "0785abc9d974cece28cfdd9edbb1982ec190f80cc07279f835137baa3be6e780"
+    "png": "49724ead351cce40028c7990ccfcaab3b5b54e4ac804777f19493d7bf6931129",
+    "svg": "61738ea2cec30b236b8713b6f7f707365360a8e3be687ee9a0d012bbe5913381",
+    "webp": "ddec639aacd1223454f575e66c50ea2354a93455050a9cdda94ec9bf4df148a8"
   },
   "album/trees/willow-mature.webp": {
     "png": "0da261196f35dd1d68e88749e608c9f46c86f3ed9ea693dae0c9546aefd73924",
@@ -1188,6 +1188,14 @@
     "png": "54c472e449d6192a5bbb6055f390a9a58ed5cd64a14b69d17e768ba04a4e77fd",
     "webp": "f3cf9d436424192ab9bc257e57b89a9c00de670fa0372cfa5299228060bd8541"
   },
+  "discovery/acorns.png": {
+    "png": "a6f4efc48ecbe23cee7db2bfac80ad0a28cc0d25703b44a96d5856d2268789e2",
+    "webp": "27b5132a1bea48fd6f4b64c32204d9e0462f049dc18c5001f04c90a0f304272d"
+  },
+  "discovery/chestnut-burr.png": {
+    "png": "5fb032085a216d2821b7ae078b4beffab9c8d7cd3f4012e229952a663988682c",
+    "webp": "7de6063dce01d160d9eebdc19d35cf5380b76389bf65dab903f7f2d67d56294d"
+  },
   "discovery/dug-soil-winter.png": {
     "png": "9a93ea9f2ec9a7b7fa26c30fd5346beceff20ef0ff04dd08f32d98cf9c014ca5",
     "webp": "f103dad7d473e0e3fc30919430d7daaf4113d928ccb8123538a6bfeaacc75399"
@@ -1196,9 +1204,17 @@
     "png": "f3860159202a8efc44a064389fdf9c64a1f01c7c9334390a414ccf618836ed48",
     "webp": "b720a0d30b1acc64da739cae3205b1cd20707afb658b35523f8c5b28aac995aa"
   },
+  "discovery/fig-fruit.png": {
+    "png": "c8780e1c2a71d068687ff3f7a4c69175fb06a8f239a46e2af951a2ea4404c5f4",
+    "webp": "b3362296e3f3eca71d27d1bbcfc0786683372fe46fee275925b1fc613cf13c92"
+  },
   "discovery/finds.png": {
     "png": "eb5063f1d17313205e38d8e8c3caffe2d0a9b05ff5fdbf5622d4a25018dcd0fb",
     "webp": "f45123894fe96a06666bd300d4f8c7520c3a327441ada1f8eeaba0c3035a808e"
+  },
+  "discovery/green-plums.png": {
+    "png": "283fbc7066479192a429b118e9d1663f057e05182cb31730b3436a53f855bca6",
+    "webp": "0dee4a3de203158f63b414b459e1820dba2891a739ea316e0d7ad8971ee0dd25"
   },
   "discovery/more-finds.png": {
     "png": "e22916992c750a280e2957024256027991b764ab4fd25bdafe6c14580298581f",
@@ -1208,9 +1224,17 @@
     "png": "9e52faf5c2f388031a184f7c0f80353f3613486a0bcb69ae07cb8e0f55c825cc",
     "webp": "ba88eb22f3cdf2b96bd42b04055ed977b79c935440821e98161eda38c93891c4"
   },
+  "discovery/persimmon-fruit.png": {
+    "png": "d54da2fc529948051968c28a4773459917a20a4090593e98b456fb656aed207b",
+    "webp": "6e7335faa52ed2488fda980cd521aaa9992a06bd73041e91bdc766d23cd78ad4"
+  },
   "discovery/whimsical-finds.png": {
     "png": "dfe7469fd947a890adcd637fcaf56b6dd75d9e719e5d2f18814e21f8e879af81",
     "webp": "5b57566cefa165b6a7b5b19101e3ce024dd3eb3ae66b16d8bea63bb2d76df328"
+  },
+  "discovery/yuzu-fruit.png": {
+    "png": "cb547741e9ec09d618ac72201cf422481eff9e483930a7ef465b6ae9502ec595",
+    "webp": "68c4fbf6b4acd10d3ffcff37b889fcd916dbf73ac5bfc184fb9e34b36f636e02"
   },
   "environments/autumn.png": {
     "png": "e6ab0d7bb5dfb1681a131fc7546c474de6326cece4394833a5f116b38bff84c8",
@@ -1405,8 +1429,8 @@
     "webp": "4fa24941f0f92f060fd0698711fe12d2a4eaf80a90b72017f6819a6fdb73c731"
   },
   "trees/red_plum.png": {
-    "png": "e3e9f182c374c6cbebea00551f6f032e41180a7dd60a181e3bd4bcc913711d9f",
-    "webp": "41e170a320b8b4868b9f04a3a75cd177aae5d4c61d8eac2f470f3650863abe81"
+    "png": "49724ead351cce40028c7990ccfcaab3b5b54e4ac804777f19493d7bf6931129",
+    "webp": "92f0a3d3bf8308573ce8db21c9ac503e06d9056e2fb1bcaba6ba3542c593d6ef"
   },
   "trees/seasons.png": {
     "png": "b553c5caca07c86ff1ead83eb8cb6bab10c2d4d295bb92a3cf1298664083fa7e",

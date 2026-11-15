@@ -352,6 +352,8 @@ Hearts on a friend's name tag show how close it is to you. The Friend panel show
 - Drag a tree to move it. Right-click → **Remove**, or **Delete**: gone at once, with **Undo** for about six seconds. Its album entry stays; the sapling doesn't come back.
 - Imported backgrounds can allow or turn off soil.
 
+A few grown trees have a moment of their own in their season, from morning to evening. In winter a friend sometimes wanders over to a red plum in bloom to smell the blossom, whether the day is clear or snowy. Fruit trees drop their fruit at their foot on clear days, in the season the fruit shows on the branches: chestnut burrs, acorns and persimmons in autumn, figs and the red plum's green plums in summer, yuzu in winter. Fallen fruit stays for a few hours, through rain and nightfall. Click one, and a friend picks it up, pleased, with something special to say about the first of each fruit that day.
+
 ### Footprints in the snow
 
 In a winter yard, faint animal footprints cross the snow: one trail a day, plus another on a morning after a snowy night (only one a day from December 26 to January 7).

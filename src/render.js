@@ -15,12 +15,14 @@ import { syncChatter } from './yard/care.js';
 import { renderDecor } from './yard/decor.js';
 import { renderDecorating } from './yard/decorating.js';
 import { syncDiscovery } from './yard/discovery.js';
+import { renderFruit } from './yard/fallen-fruit.js';
 import { renderGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { renderTrees } from './yard/planted-trees.js';
 import { endGameIfSomeoneLeft, syncGameUi } from './yard/play.js';
 import { renderShoots } from './yard/shoots.js';
 import { renderSound } from './yard/sound.js';
+import { syncTreeMoments } from './yard/tree-moments.js';
 import { syncViews } from './yard/views.js';
 import { onboardingSteps, renderWelcome } from './yard/welcome.js';
 import { scene } from './yard/world.js';
@@ -64,8 +66,14 @@ export function render() {
   const garden = JSON.stringify(data.garden ?? null);
   if (changed('garden', `${scene.world}|${garden}`)) renderGarden();
   renderDecor();
-  if (changed('trees', `${scene.world}|${scene.season}|${JSON.stringify(data.limits ?? null)}|${garden}`))
+  if (changed('trees', `${scene.world}|${scene.season}|${JSON.stringify(data.limits ?? null)}|${garden}`)) {
     renderTrees();
+    // A grown tree's fallen fruit and moments follow it: a tree pulled up or moved takes them along.
+    // The clock, the hour and the weather reach them with each repaint of the scene (app.js
+    // seasonChanged), and a drop or a pick redraws the fruit itself.
+    renderFruit();
+    syncTreeMoments();
+  }
   // After what stands on the ground: a shoot where a gift, a plant or a tree now stands is
   // not drawn.
   renderShoots();

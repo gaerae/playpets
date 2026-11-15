@@ -10,19 +10,24 @@ export const rest = v => {
   v.nextWander = performance.now() + between(Math.random, WANDER_DELAY);
 };
 // A friend's trip: where it is headed (`v.target`, its place 0 to 1 each way) and `v.trip`, what
-// happens there: { arrive(v, now), cancel(v), save, slow }. While it does something where it stands
-// (fishing), `v.doing` is { end(v) }. Whatever takes a friend (a press, a game, another trip, the
+// happens there: { arrive(v, now), cancel(v), save, slow, yields }. While it does something where it
+// stands (fishing), `v.doing` is { end(v), yields }. Whatever takes a friend (a press, a game, another trip, the
 // friend leaving) lets go of both first, so the owner of a trip or a task always hears it ended.
 /** Sends a friend to `target`: `arrive(v, now)` runs when it gets there and `cancel(v)` if something
  * else takes it first; the place it ends at is kept unless `save` is false; `slow` strolls, and a
  * game gives its own `speed`. `own` marks a trip the friend set off on by itself, which its agent's
- * state may cut short (duty.js); what it then does where it arrives is its own too. */
-export function sendTo(v, target, { arrive, cancel, save = true, slow = false, speed = 0, own = false } = {}) {
+ * state may cut short (duty.js); what it then does where it arrives is its own too. `yields` marks a
+ * trip of the friends' own that what the person asks may take it from (forPerson). */
+export function sendTo(
+  v,
+  target,
+  { arrive, cancel, save = true, slow = false, speed = 0, own = false, yields = false } = {},
+) {
   // When it sets off (motion.js measures its first step from it); one already walking goes on.
   if (!v.target) v.leftAt = performance.now();
   release(v);
   v.target = target;
-  v.trip = { arrive, cancel, save, slow };
+  v.trip = { arrive, cancel, save, slow, yields };
   v.speed = speed;
   v.own = own;
 }
@@ -49,9 +54,11 @@ export const strolling = v => !v.drag && !v.away && !v.doing && !!v.trip?.slow &
 // Only sitting somewhere in a workspace on its own (lounge.js), or on its way there: busy for what
 // friends start on their own, but the person's errand may take it.
 const lounging = v => !v.drag && !v.away && !!v.spot?.idle;
-// Standing with friends viewing the blossom (viewing.js marks it `gathered`): busy for what friends
-// start on their own, but what the person starts may take it, and the gathering lets it go.
-const yields = v => !v.drag && !!v.gathered;
+// Standing with friends viewing the blossom (viewing.js marks it `gathered`), or on a trip or a doing
+// that yields (a visit to a tree in its moment, on the way or there; tree-moments.js): busy for what
+// friends start on their own, but what the person starts may take it, and the gathering or the visit
+// lets it go. The visit's marker is on its trip and its doing, so whatever takes either takes it.
+const yields = v => !v.drag && (!!v.gathered || !!v.trip?.yields || !!v.doing?.yields);
 // The friend nearest a point in the yard, by its feet, among those `ok` allows.
 function nearest(px, py, ok) {
   let best = null,
@@ -68,8 +75,8 @@ function nearest(px, py, ok) {
 export const nearestFree = (px, py) => nearest(px, py, isFree);
 /** Who goes for what the person starts near a point (fishing, a dig, a seed, watering, a visit):
  * `chosen` when it is free, else the nearest free friend; then one only sitting in a workspace;
- * then one seeing to its agent; when none is, `chosen` or the nearest friend viewing the blossom,
- * which leaves the gathering for it. `fits` is the picker's own test. */
+ * then one seeing to its agent; when none is, `chosen` or the nearest friend viewing the blossom or
+ * visiting a tree, which leaves it for this. `fits` is the picker's own test. */
 export function forPerson(px, py, chosen = null, fits = () => true) {
   for (const ok of [isFree, lounging, unoccupied, yields]) {
     const fit = v => ok(v) && fits(v);
@@ -86,6 +93,9 @@ export function setDoing(v, doing, own = v.own) {
   v.doing = doing;
   v.own = own;
 }
+/** Whether what a friend is on its way to or doing is still the task whose one end is `end` (its
+ * trip's cancel and its doing's end alike): something else may have taken the friend over since. */
+export const ownedBy = (v, end) => v.doing?.end === end || v.trip?.cancel === end;
 /** Takes the petal off a friend's head (petals.js), and with it the notice the friend might have
  * given of it. */
 export function brushPetal(v) {

@@ -36,7 +36,7 @@ import {
   sprouting,
   underBody,
 } from './shoot-rules.js';
-import { forPerson, release } from './trips.js';
+import { forPerson, ownedBy, release } from './trips.js';
 import { thingGone } from './veil.js';
 import { bubble } from './views.js';
 import { doneDigging, sendToDig, startDig, stopWork } from './work.js';
@@ -199,7 +199,7 @@ const mark = (id, on) => shown.get(id)?.button.classList.toggle('picking', on);
 /** Ends every shoot dig a friend is on its way to or at (a new window size or land): the friend is
  * let go and the shoot stays, as when the friend is taken away. */
 export function cancelShootDigs() {
-  for (const { v, end } of digs.values()) if (v.doing?.end === end || v.trip?.cancel === end) release(v);
+  for (const { v, end } of digs.values()) if (ownedBy(v, end)) release(v);
 }
 
 /** Sends a friend to dig up the shoot `id` for the album: the selected friend when it is free, else
