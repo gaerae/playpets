@@ -55,7 +55,8 @@ let plan = {};
 let checkAt = 0;
 // When a friend next thinks of visiting a tree.
 let visiting = cadence(() => between(Math.random, VISIT_EVERY));
-// The friend at a tree now: { v, timers }, or null; and its waiting petal timer.
+// The friend visiting a tree, on its way or there: { v, timers }, or null; and the waiting petal
+// timer.
 let visitor = null;
 let falling = null;
 const VISIT = { end: v => leave(v) };
@@ -68,6 +69,7 @@ export function setupTreeMoments() {
   visiting = cadence(() => between(Math.random, VISIT_EVERY));
   clearTimeout(falling);
   falling = null;
+  visitor = null;
 }
 
 // A grown tree's crown, foot and size in yard pixels, as planted-trees.js draws it.
@@ -162,7 +164,8 @@ const busy = () =>
 
 // A free friend with nothing on walks to a tree with a visit line, to the side nearer it. One only
 // strolling counts as free, as for flower viewing: friends stroll most of the time, and the visit
-// takes the place of the stroll.
+// takes the place of the stroll. The walk is the visit already: no second friend is sent while it
+// is on its way, and whatever takes it there ends the visit (leave).
 function visit() {
   const trees = live.filter(tree => tree.moment.lines?.visit);
   if (!trees.length || busy()) return;
@@ -177,16 +180,21 @@ function visit() {
     slow: true,
     own: true,
     arrive: () => smell(v, tree, side),
+    cancel: () => leave(v),
   });
+  visitor = { v, timers: new Set() };
+  // What the person asks of it comes first (trips.js forPerson).
+  v.visiting = true;
 }
 
 // At the tree: it faces the blossom and looks up, says a line, and after a while goes on its way.
 function smell(v, tree, side) {
-  if (!on(tree.id) || game) return;
+  if (visitor?.v !== v || !on(tree.id) || game) return leave(v);
   setDoing(v, VISIT, true);
+  // setDoing lets go of the walk without a word to it, so the visit is still this friend's.
+  v.visiting = true;
   const look = { x: tree.crown.x - footOf(v).x, y: -petHeight(v.pet) * 1.2 },
-    timers = new Set();
-  visitor = { v, timers };
+    { timers } = visitor;
   // The blossom is on the other side from where it stands.
   v.button.dataset.tilt = side < 0 ? 'right' : 'left';
   v.button.classList.add('looking-up');
@@ -211,11 +219,14 @@ function smell(v, tree, side) {
   });
 }
 
-// Whatever ends the visit (its time, a press, a game, its agent): the look up goes.
+// Whatever ends the visit or the walk to it (its time, a press, a game, its agent, the person's
+// errand): the friend's look up goes, whoever the visit is now, and the visit is over if it was this
+// friend's.
 function leave(v) {
+  v.visiting = false;
+  v.button.classList.remove('looking-up');
+  delete v.button.dataset.tilt;
   if (visitor?.v !== v) return;
   for (const timer of visitor.timers) clearTimeout(timer);
   visitor = null;
-  v.button.classList.remove('looking-up');
-  delete v.button.dataset.tilt;
 }

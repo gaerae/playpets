@@ -19,7 +19,7 @@ const { element, installDom, keepGlobals } = await import('./support/dom.mjs');
 const { artHref } = await import('../src/yard/art.js');
 const { fieldToYard, footOf, measureYard } = await import('../src/yard/field.js');
 const { scene, setScenery } = await import('../src/yard/world.js');
-const { release, sendTo } = await import('../src/yard/trips.js');
+const { forPerson, release, sendTo } = await import('../src/yard/trips.js');
 const { bubble, place, syncViews } = await import('../src/yard/views.js');
 const { petalTick, setupPetals } = await import('../src/yard/petals.js');
 const { setupTreeMoments, syncTreeMoments, treeMomentTick } = await import('../src/yard/tree-moments.js');
@@ -249,6 +249,60 @@ test('a visit ends whenever the friend is taken, and none starts in a game', t =
   assert.equal(v.button.classList.contains('looking-up'), false, 'a press or a call takes the look away');
   y.run(10_000);
   assert.equal(v.bubble.hidden, true, 'and nothing is said afterwards');
+});
+
+// Brings a friend on its way to the tree there, as moveFriends does.
+function arrive(v) {
+  const { trip } = v;
+  v.target = null;
+  v.trip = null;
+  trip.arrive(v, performance.now());
+}
+
+test('while one friend walks to the plum no other is sent, and none is left looking up', t => {
+  const plum = grown('r', 'red_plum', 0.5, 0.3),
+    y = yard(t, { garden: { trees: [plum] }, values: { ...spring, season: 'winter' } }),
+    [a, b] = y.views();
+  y.run(3 * 60_000 + 2000);
+  assert.ok(a.trip?.arrive, 'one sets off');
+  // It is still walking when the next visit comes due (the window hidden on the way, say).
+  y.run(8 * 60_000);
+  assert.equal(b.target, null, 'the walk is the visit: no second friend is sent');
+  arrive(a);
+  assert.ok(a.button.classList.contains('looking-up'));
+  y.run(6000);
+  for (const v of [a, b]) {
+    assert.equal(v.doing, null);
+    assert.equal(v.button.classList.contains('looking-up'), false);
+    assert.equal(v.button.dataset.tilt, undefined);
+  }
+});
+
+test('a friend taken on its way to the plum frees the visit for another time', t => {
+  const plum = grown('r', 'red_plum', 0.5, 0.3),
+    y = yard(t, { garden: { trees: [plum] }, pets: 1, values: { ...spring, season: 'winter' } }),
+    [v] = y.views();
+  y.run(3 * 60_000 + 2000);
+  assert.ok(v.trip?.arrive);
+  release(v);
+  assert.equal(v.visiting, false, 'no longer on a visit');
+  y.run(8 * 60_000);
+  assert.ok(v.trip?.arrive, 'a later visit goes ahead');
+  arrive(v);
+  assert.ok(v.button.classList.contains('looking-up'));
+});
+
+test('a friend at the plum, or on its way, gives way to what the person asks', t => {
+  const plum = grown('r', 'red_plum', 0.5, 0.3),
+    y = yard(t, { garden: { trees: [plum] }, pets: 1, values: { ...spring, season: 'winter' } }),
+    [v] = y.views();
+  y.run(3 * 60_000 + 2000);
+  assert.equal(forPerson(0, 0), v, 'on its way');
+  arrive(v);
+  assert.equal(forPerson(0, 0), v, 'and standing there');
+  sendTo(v, { x: 0.9, y: 0.9 }, { arrive: () => {} });
+  assert.equal(v.button.classList.contains('looking-up'), false, 'the errand takes it from the tree');
+  assert.equal(v.visiting, false);
 });
 
 // ---- burrs ----

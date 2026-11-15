@@ -49,9 +49,10 @@ export const strolling = v => !v.drag && !v.away && !v.doing && !!v.trip?.slow &
 // Only sitting somewhere in a workspace on its own (lounge.js), or on its way there: busy for what
 // friends start on their own, but the person's errand may take it.
 const lounging = v => !v.drag && !v.away && !!v.spot?.idle;
-// Standing with friends viewing the blossom (viewing.js marks it `gathered`): busy for what friends
-// start on their own, but what the person starts may take it, and the gathering lets it go.
-const yields = v => !v.drag && !!v.gathered;
+// Standing with friends viewing the blossom (viewing.js marks it `gathered`), or visiting a tree in
+// its moment, on the way or there (tree-moments.js marks it `visiting`): busy for what friends start
+// on their own, but what the person starts may take it, and the gathering or the visit lets it go.
+const yields = v => !v.drag && (!!v.gathered || !!v.visiting);
 // The friend nearest a point in the yard, by its feet, among those `ok` allows.
 function nearest(px, py, ok) {
   let best = null,
@@ -68,8 +69,8 @@ function nearest(px, py, ok) {
 export const nearestFree = (px, py) => nearest(px, py, isFree);
 /** Who goes for what the person starts near a point (fishing, a dig, a seed, watering, a visit):
  * `chosen` when it is free, else the nearest free friend; then one only sitting in a workspace;
- * then one seeing to its agent; when none is, `chosen` or the nearest friend viewing the blossom,
- * which leaves the gathering for it. `fits` is the picker's own test. */
+ * then one seeing to its agent; when none is, `chosen` or the nearest friend viewing the blossom or
+ * visiting a tree, which leaves it for this. `fits` is the picker's own test. */
 export function forPerson(px, py, chosen = null, fits = () => true) {
   for (const ok of [isFree, lounging, unoccupied, yields]) {
     const fit = v => ok(v) && fits(v);
