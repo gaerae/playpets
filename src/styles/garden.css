@@ -63,15 +63,32 @@
   background: none;
   cursor: pointer;
   pointer-events: auto;
-  /* Its transform places it (props.js setDown); eased, it would trail the pointer in a drag. Only
-     its fade in front of a friend eases (.veiled, below). */
-  transition: opacity 0.25s ease;
 }
 /* A friend standing mostly behind a flower, a shoot, a gift or a tree drawn in front of it would
-   show only its hat: the thing fades while the friend is there (yard/veil.js), and the friend and
-   its name read through it. */
+   show only its hat: the thing opens a soft window where the friend stands (yard/veil.js), and the
+   friend reads through it. The thing stays whole around it; faded whole, a tree where friends
+   gather read as gone. Only the window's see-through eases in (--veil-see): the thing's transform
+   places it (props.js setDown), and eased, it would trail the pointer in a drag. */
+@property --veil-see {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}
+:is(.plant, .shoot, .fallen-fruit, .decor, .planted-tree) {
+  transition: --veil-see 0.25s ease;
+}
 :is(.plant, .shoot, .fallen-fruit, .decor, .planted-tree).veiled {
-  opacity: 0.45;
+  --veil-see: 0.3;
+  -webkit-mask-image: radial-gradient(
+    ellipse var(--veil-rx) var(--veil-ry) at var(--veil-x) var(--veil-y),
+    rgb(0 0 0 / var(--veil-see)) 60%,
+    #000 100%
+  );
+  mask-image: radial-gradient(
+    ellipse var(--veil-rx) var(--veil-ry) at var(--veil-x) var(--veil-y),
+    rgb(0 0 0 / var(--veil-see)) 60%,
+    #000 100%
+  );
 }
 /* Outdoors a flower stands on a small soft shade where its stem or its soil ends (--foot, the share
    of its box at which its drawing ends, garden.js), under the drawing, as a gift does. */
@@ -154,7 +171,6 @@
   background: none;
   cursor: pointer;
   pointer-events: auto;
-  transition: opacity 0.25s ease;
 }
 .shoot::before {
   content: "";
@@ -222,7 +238,6 @@
   background: none;
   cursor: pointer;
   pointer-events: auto;
-  transition: opacity 0.25s ease;
 }
 .fallen-fruit::before {
   content: "";
@@ -348,7 +363,6 @@
   cursor: grab;
   pointer-events: auto;
   touch-action: none;
-  transition: opacity 0.25s ease;
   user-select: none;
 }
 .decor.dragging {
@@ -982,7 +996,6 @@
   pointer-events: auto;
   touch-action: none;
   cursor: grab;
-  transition: opacity 0.25s ease;
   user-select: none;
 }
 .planted-tree svg {

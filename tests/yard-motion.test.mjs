@@ -187,20 +187,26 @@ test('trees and flowers sway outdoors on the compositor, and not with reduced mo
 });
 
 // props.js setDown places these by their transform. The base button rule eases a transform, which
-// would trail each drag step behind the pointer and catch up only after the drop. A fade in front of
-// a friend (veil.js) eases its opacity alone.
+// would trail each drag step behind the pointer and catch up only after the drop. The window a thing
+// opens in front of a friend (veil.js) eases its own --veil-see alone, in one rule for every kind
+// that opens one.
 test('what stands on the field follows the pointer: no easing on the transform that places it', async () => {
   const css = uncommented(
     (await Promise.all(['garden.css', 'play.css'].map(f => readFile(`src/styles/${f}`, 'utf8')))).join('\n'),
   );
+  const shared = blocks(css, /(^|\})\s*:is\(\.plant, \.shoot, \.fallen-fruit, \.decor, \.planted-tree\)\s*(?=\{)/g);
+  assert.equal(shared.length, 1, 'one rule for the things that open a window');
+  assert.match(shared[0].body, /(^|;)\s*transition:\s*--veil-see [^;,]+\s*(;|$)/);
   for (const name of ['plant', 'shoot', 'decor', 'planted-tree', 'snowball']) {
     const base = blocks(css, new RegExp(`(^|\\})\\s*\\.${name}\\s*(?=\\{)`, 'g'));
     assert.equal(base.length, 1, `.${name} has one base rule`);
-    assert.match(
-      base[0].body,
-      /(^|;)\s*transition:\s*(none|opacity [^;,]+)\s*(;|$)/,
-      `.${name} is not eased into place`,
-    );
+    if (name === 'snowball')
+      assert.match(
+        base[0].body,
+        /(^|;)\s*transition:\s*(none|opacity [^;,]+)\s*(;|$)/,
+        '.snowball is not eased into place',
+      );
+    else assert.doesNotMatch(base[0].body, /(^|;)\s*transition:/, `.${name} keeps the shared rule's easing`);
   }
 });
 

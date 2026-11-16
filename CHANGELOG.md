@@ -19,6 +19,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Flowers and trees in the yard can be planted and moved as low as gifts go, just above the dock, instead of stopping higher up than friends walk.
 - A tree or a flower at either side of the yard shows whole instead of half off the window, as gifts already did; its fruit and the friends who visit it stay under it.
 - A flower or a tree placed low in a small window no longer stands below the floor of a larger one or of another place.
+- A tree, a flower or a gift with a friend behind it stays in sight and shows the friend through a soft window, instead of fading almost away; a tree left of the middle, where friends gather, often looked gone.
 
 ### Website and docs
 
