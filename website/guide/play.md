@@ -106,7 +106,7 @@ You can pet friends, chat, grow flowers, decorate the Christmas tree and play th
 |---|---|---|
 | Flowers | In the ground | In small pots |
 | Digging, fishing | Yes | No |
-| Trees | Yes, six per place | No |
+| Trees | Yes, the same six in each | No |
 | Bugs | In clear weather | No |
 | Seasonal landscapes and effects | Follow the season | No |
 | Snowman, footprints in the snow | In winter | No |
@@ -348,7 +348,7 @@ Hearts on a friend's name tag show how close it is to you. The Friend panel show
 3. Pick a kind you have and click clear ground. It uses one sapling.
 
 - Growth counts time with the app closed: young after two hours, mature after twelve. A mature tree is recorded once in **Album → Trees**.
-- Six trees per place, 24 in all. A tree stays in the place where it was planted.
+- Up to six trees. Like flowers and gifts, they stand in every outdoor place, wherever you planted them.
 - Drag a tree to move it. Right-click → **Remove**, or **Delete**: gone at once, with **Undo** for about six seconds. Its album entry stays; the sapling doesn't come back.
 - Imported backgrounds can allow or turn off soil.
 

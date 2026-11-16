@@ -1,11 +1,19 @@
 // Ground and growth rules shared by placement previews and saved discoveries.
 import { LIMITS } from '../core/limits.js';
 import { EDGE } from './field.js';
+import { worldHasSoil } from './worlds.js';
 
-export function groundAllows(point, profile) {
+/** The planted trees `world` shows: all of them where the land has soil, as flowers and gifts show
+ * in every place; none on a floor. A tree's own `world` only says where it was planted. */
+export const treesIn = (trees, world) => (worldHasSoil(world) ? trees || [] : []);
+/** Whether `point` (a place on the field) is free ground in `profile` (ground.js): a dig's, or with
+ * `planting` a flower's or a tree's, which may stand below the field down to its floor as a gift
+ * may (discovery.rs validate_planting). */
+export function groundAllows(point, profile, { planting = false } = {}) {
   if (!profile?.soil || !Number.isFinite(point.x) || !Number.isFinite(point.y)) return false;
-  const b = profile.bounds;
-  if (!b || point.x < b.left || point.x > b.right || point.y < b.top || point.y > b.bottom) return false;
+  const b = profile.bounds,
+    bottom = planting && b?.bottom >= 1 ? Math.max(1, profile.floor ?? 1) : b?.bottom;
+  if (!b || point.x < b.left || point.x > b.right || point.y < b.top || point.y > bottom) return false;
   return ![...(profile.water || []), ...(profile.obstacles || [])].some(
     e => ((point.x - e.x) / e.rx) ** 2 + ((point.y - e.y) / e.ry) ** 2 <= 1,
   );
@@ -45,12 +53,12 @@ export const dugSpots = (digs, world, now) =>
     .map(d => ({ x: (d.tileX + 0.5) / TILES, y: (d.tileY + 0.5) / TILES }));
 
 /** A free spot for something set on the field: the first of twenty draws, `x` and `y` within the
- * ranges (field units), that the ground allows and `ok` accepts; null when none does. The draws
- * are taken x then y. */
-export function freeSpot(rng, ground, { x, y }, ok = () => true) {
+ * ranges (field units), that the ground allows (as groundAllows with `reach`) and `ok` accepts;
+ * null when none does. The draws are taken x then y. */
+export function freeSpot(rng, ground, { x, y }, ok = () => true, reach = {}) {
   for (let tries = 0; tries < 20; tries++) {
     const point = { x: x[0] + rng() * (x[1] - x[0]), y: y[0] + rng() * (y[1] - y[0]) };
-    if (groundAllows(point, ground) && ok(point)) return point;
+    if (groundAllows(point, ground, reach) && ok(point)) return point;
   }
   return null;
 }

@@ -20,6 +20,28 @@ test('ground rejects floors, water, roots, non-finite and outside targets before
     assert.equal(groundAllows(p, ground), false);
   assert.equal(groundAllows({ x: 0.3, y: 0.5 }, { ...ground, soil: false }), false);
 });
+test('a tree may take root below the field down to its floor; a dig stays on the field', () => {
+  const low = { ...ground, floor: 1.4, obstacles: [{ x: 0.3, y: 1.2, rx: 0.1, ry: 0.05 }] };
+  assert.equal(groundAllows({ x: 0.3, y: 1.3 }, low, { planting: true }), true);
+  assert.equal(groundAllows({ x: 0.3, y: 1.5 }, low, { planting: true }), false);
+  assert.equal(groundAllows({ x: 0.3, y: 1.2 }, low, { planting: true }), false, 'a gift there takes it');
+  assert.equal(groundAllows({ x: 0.3, y: 1.3 }, low), false);
+  assert.equal(groundAllows({ x: 0.5, y: 1.1 }, ground, { planting: true }), false, 'no floor: the edge');
+});
+test('a spot for fruit may lie below the field, as the tree it falls from may stand', () => {
+  const low = { ...ground, water: [], obstacles: [], floor: 1.4 };
+  assert.equal(
+    freeSpot(() => 0.5, low, { x: [0.3, 0.3], y: [1.2, 1.2] }),
+    null,
+  );
+  assert.deepEqual(
+    freeSpot(() => 0.5, low, { x: [0.3, 0.3], y: [1.2, 1.2] }, undefined, { planting: true }),
+    {
+      x: 0.3,
+      y: 1.2,
+    },
+  );
+});
 test('tree stages include closed-app time but never regress when the clock moves backwards', () => {
   const tree = { planted: 1000, stage: 0 };
   assert.equal(treeStage(tree, 1000), 0);

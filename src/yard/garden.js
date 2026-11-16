@@ -9,7 +9,7 @@ import { openPlantMenu } from '../core/controls.js';
 import { put, putAttribute } from '../core/dom.js';
 import { joinList, list, t } from '../core/i18n.js';
 import { onEscape } from '../core/keys.js';
-import { pick } from '../core/math.js';
+import { clamp, pick } from '../core/math.js';
 import { $, aiming, call, data, game, guard, selected, toast, views } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { everyMinute } from '../core/ticker.js';
@@ -19,7 +19,7 @@ import { showCard } from './card.js';
 import { setAimingMode } from './care.js';
 import { flowerKind } from './catalog.js';
 import { flowerSvg } from './creatures.js';
-import { depthAt, field, fieldToYard, footTarget, petHeight, sizeOf, topAt, yardToField } from './field.js';
+import { depthAt, field, fieldToYard, footTarget, petHeight, sizeOf, standAt, topAt, yardToDecor } from './field.js';
 import { flowerFor, hoursMinutes, plantArt, plantStature, stageOf, untilBloom } from './growth.js';
 import { shapeHits } from './hit-shape.js';
 import { movable, moveSaved, propButton, propScale, reconcile, removeWithUndo, setDown } from './props.js';
@@ -65,7 +65,7 @@ function position(v, plant, now = Date.now(), point = plant) {
   // Some flowers stand taller than others once grown (catalog.json "stature"), and all smaller
   // farther back, as a friend there is.
   const [aw, ah] = artSize(art),
-    at = fieldToYard(point),
+    at = standAt(point),
     scale = propScale(at),
     tall = plantStature(plant, stage),
     w = aw * UNIT * scale * tall,
@@ -74,8 +74,11 @@ function position(v, plant, now = Date.now(), point = plant) {
     // it ends; indoors it stands in its pot, which ends at the box (garden.css).
     foot = stage === 'bloom' && worldHasSoil(scene.world) ? (flowerKind(plant.kind)?.foot ?? 1) : 1;
   v.button.style.setProperty('--foot', String(foot));
+  // Whole inside the yard at either side, as a gift is (decor.js placement).
+  at.x = clamp(at.x, w / 2 + 4, field().width - w / 2 - 4);
   // Nearer the front, drawn over the ones behind it.
   setDown(v.button, at.x, at.y, w, h, depthAt(at.y), foot);
+  v.at = { x: at.x, y: at.y };
 }
 // Moved at once and saved after, as a tree is (props.js moveSaved); refused, it goes back.
 const save = guard(async (v, point) => {
@@ -164,14 +167,14 @@ function syncTool() {
 
 // Sends a friend to stand just beside a plant (left or right of it, whichever is nearer).
 function walkTo(v, plant, trip) {
-  const { x, y } = fieldToYard(plant),
+  const { x, y } = standAt(plant),
     side = v.px + sizeOf(v.pet) / 2 < x ? -1 : 1;
   sendTo(v, footTarget(v, x + side * sizeOf(v.pet) * 0.55, y), trip);
 }
 function water(id) {
   const plant = data.garden?.plants.find(p => p.id === id);
   if (!plant || game) return;
-  const { x, y } = fieldToYard(plant);
+  const { x, y } = standAt(plant);
   const v = forPerson(x, y);
   if (v) walkTo(v, plant, { arrive: watered });
 }
@@ -256,7 +259,8 @@ function sendPlanting(v, point, kind, clip) {
 function plantAt(cx, cy) {
   if (cy < topAt(cx) - 10) return toast(t('garden.on_field'));
   if (!spareSeeds()) return;
-  const point = yardToField(cx, cy);
+  // As low as a gift may stand, below the friends' field.
+  const point = yardToDecor(cx, cy);
   const kind = flowerFor(scene.season);
   const v = forPerson(cx, cy, views.get(selected));
   const clip = v ? prepareCompanionAction(v.asset, 'plant') : null;

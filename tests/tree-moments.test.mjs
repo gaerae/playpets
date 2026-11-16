@@ -81,7 +81,7 @@ test('a moment is on in its season, morning to evening, in its weather, outdoors
   assert.equal(momentTime(fair('spring'), null), false);
 });
 
-test('only grown trees in this place with their moment on count', () => {
+test('only grown trees with their moment on count, wherever they were planted, where the land has soil', () => {
   const now = T,
     trees = [
       grown('a', 'chestnut'),
@@ -93,9 +93,10 @@ test('only grown trees in this place with their moment on count', () => {
     ];
   assert.deepEqual(
     momentTrees(trees, fair('autumn'), now, LIMITS).map(t => t.id),
-    ['a', 'f'],
-    'a seedling, another place, a tree with no moment and another season are left out',
+    ['a', 'c', 'f'],
+    'a seedling, a tree with no moment and another season are left out; one planted elsewhere stands here too',
   );
+  assert.deepEqual(momentTrees(trees, { ...fair('autumn'), world: 'workshop' }, now, LIMITS), [], 'no trees indoors');
   const [a] = momentTrees(trees, fair('autumn'), now, LIMITS);
   assert.deepEqual(a, { id: 'a', kind: 'chestnut', x: 0.5, y: 0.3, moment: harvestOf('chestnut') });
   assert.deepEqual(
@@ -202,7 +203,8 @@ test('fruit lies six hours under its own grown tree, in its own place, while its
   assert.deepEqual(fruitHere([b, there], 'woodland'), [b], 'and shows only its own');
   assert.deepEqual(fruitHere([b, there], 'lakeside'), [there]);
   assert.deepEqual(fruitHere([b, there], 'workshop'), []);
-  assert.deepEqual(fruitStays([{ ...b, world: 'lakeside' }], look()), [], 'never under a tree of another place');
+  // Every tree stands in every place, so fruit that dropped by the lake lies under that same tree.
+  assert.deepEqual(fruitStays([{ ...b, world: 'lakeside' }], look()), [{ ...b, world: 'lakeside' }]);
   assert.deepEqual(fruitStays([b], look({ trees: [] })), [], 'a tree pulled up takes its fruit');
   assert.deepEqual(fruitStays([b], look({ trees: [{ ...trees[0], x: 0.9 }] })), [], 'a tree moved away too');
   // Fruit lies only a few hundredths from its trunk, so a short move takes it too: it stays only

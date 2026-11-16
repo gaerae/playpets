@@ -24,7 +24,18 @@ import { decorShown, hiddenKinds, yardSeason } from './decor-shown.js';
 import { dressLayers } from './dress-layers.js';
 import { effectLayers, effectsVisited } from './effects.js';
 import { giftEvent } from './events.js';
-import { decorFloor, depthAt, EDGE, field, fieldToYard, footTarget, petHeight, sizeOf, yardToDecor } from './field.js';
+import {
+  decorFloor,
+  depthAt,
+  EDGE,
+  field,
+  fieldToYard,
+  footTarget,
+  petHeight,
+  sizeOf,
+  standAt,
+  yardToDecor,
+} from './field.js';
 import { FIRST_GIFT, GIFT_WAIT, giftDue, giftWait, localDay } from './growth.js';
 import {
   beginDrag,
@@ -88,8 +99,7 @@ let heartsFade = null;
 function placement(kind, point) {
   // A gift friends stand on stays where they can reach it (footTarget keeps them on their field);
   // others go down to just above the dock.
-  const across = fieldToYard({ x: point.x, y: 0 }).x,
-    at = fieldToYard({ x: point.x, y: Math.min(point.y, standOn(kind) ? 1 : decorFloor(across)) }),
+  const at = standOn(kind) ? fieldToYard({ x: point.x, y: Math.min(point.y, 1) }) : standAt(point),
     { w, h, foot } = size(kind, at);
   // Saved coordinates locate the foot; wide furniture still needs room at either edge.
   at.x = clamp(at.x, w / 2 + 4, field().width - w / 2 - 4);

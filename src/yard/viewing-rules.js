@@ -3,7 +3,7 @@
 
 import { clamp } from '../core/math.js';
 import { decorShown, yardSeason } from './decor-shown.js';
-import { treeStage } from './discovery-rules.js';
+import { treesIn, treeStage } from './discovery-rules.js';
 import { EDGE } from './field.js';
 
 /** How long a gathering lasts, in ms (from, to). */
@@ -37,8 +37,8 @@ export function mayCall(now, last) {
  * else the first picnic blanket shown, else the middle. `season` is the yard's shown season. */
 export function viewingSpot({ trees = [], decor = [], world, now, limits, season }) {
   let best = null;
-  for (const tree of trees) {
-    if (tree.kind !== 'cherry' || tree.world !== world || treeStage(tree, now, limits) < 2) continue;
+  for (const tree of treesIn(trees, world)) {
+    if (tree.kind !== 'cherry' || treeStage(tree, now, limits) < 2) continue;
     if (!best || Math.abs(tree.x - 0.5) < Math.abs(best.x - 0.5)) best = tree;
   }
   if (best) return { kind: 'tree', id: best.id, x: best.x, y: best.y };

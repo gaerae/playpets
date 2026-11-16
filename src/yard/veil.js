@@ -1,7 +1,8 @@
 // A friend standing behind a planted tree, a shoot, fallen fruit, a flower or a gift drawn in front
 // of it is rightly hidden by it, but a person sees the friend vanish with only a hat showing and its name
-// tag pinned to the trunk. While a thing covers most of a friend, it fades (garden.css .veiled),
-// and comes back when the friend steps out.
+// tag pinned to the trunk. While a thing covers most of a friend, it opens a soft window where the
+// friend stands (garden.css .veiled, from --veil-x/-y/-rx/-ry), which follows the friend and closes
+// when it steps out. The thing itself stays: faded whole, a tree where friends gather read as gone.
 //
 // Worked out from boxes kept when they are placed, never by measuring the page: a thing's as it is
 // set down (props.js setDown), a friend's as it is placed (views.js place), which during a walk is
@@ -24,8 +25,11 @@ const COLUMN = 96;
 // friend and a tree just behind one faded too.
 const body = ({ x, y, width, height }, z) => ({ x: x + width / 4, y, width: width / 2, height: height * 0.85, z });
 const inner = ({ x, y, width, height, z }) => ({ x: x + width * 0.15, y, width: width * 0.7, height, z });
+// The window is this much bigger than the bodies it shows, so its soft edge falls outside them.
+const WINDOW_ROOM = 1.3;
 
-// Each thing on the field (its button) → the middle of its drawing, its depth, and whom it covers.
+// Each thing on the field (its button) → the middle of its drawing, its depth, its top left corner
+// (where its window is measured from), whom it covers, and the window written last.
 const things = new Map();
 // Each friend that can be covered → its body's box and depth, and the things it stands behind.
 const friends = new Map();
@@ -68,9 +72,40 @@ export function thingsNear(box) {
 // The class is written only when whether it covers anyone changes.
 function show(button, entry) {
   const veiled = entry.covering.size > 0;
+  if (veiled) open(button, entry);
   if (entry.veiled === veiled) return;
   entry.veiled = veiled;
   button.classList.toggle('veiled', veiled);
+}
+// The window around every friend the thing covers, in whole pixels from the thing's corner; a
+// property is written only when it changed.
+function open(button, entry) {
+  let left = Infinity,
+    top = Infinity,
+    right = -Infinity,
+    bottom = -Infinity;
+  for (const id of entry.covering) {
+    const box = friends.get(id)?.box;
+    if (!box) continue;
+    left = Math.min(left, box.x);
+    top = Math.min(top, box.y);
+    right = Math.max(right, box.x + box.width);
+    bottom = Math.max(bottom, box.y + box.height);
+  }
+  if (left === Infinity) return;
+  const at = {
+    x: Math.round((left + right) / 2 - entry.corner.x),
+    y: Math.round((top + bottom) / 2 - entry.corner.y),
+    rx: Math.ceil(((right - left) / 2) * WINDOW_ROOM),
+    ry: Math.ceil(((bottom - top) / 2) * WINDOW_ROOM),
+  };
+  const was = entry.window || {},
+    { style } = button;
+  if (was.x !== at.x) style.setProperty('--veil-x', `${at.x}px`);
+  if (was.y !== at.y) style.setProperty('--veil-y', `${at.y}px`);
+  if (was.rx !== at.rx) style.setProperty('--veil-rx', `${at.rx}px`);
+  if (was.ry !== at.ry) style.setProperty('--veil-ry', `${at.ry}px`);
+  entry.window = at;
 }
 // Whether the thing covers the friend, kept on both sides.
 function mark(button, entry, id, friend, covered) {
@@ -90,10 +125,13 @@ export function thingAt(button, box) {
   if (!FADES.some(kind => button.classList.contains(kind))) return;
   let entry = things.get(button);
   if (entry) unfile(button, entry.box);
-  else things.set(button, (entry = { box: null, covering: new Set(), veiled: false }));
+  else things.set(button, (entry = { box: null, corner: null, covering: new Set(), veiled: false, window: null }));
   entry.box = inner(box);
+  entry.corner = { x: box.x, y: box.y };
   file(button, entry.box);
   for (const [id, friend] of friends) mark(button, entry, id, friend, covers(entry.box, friend.box));
+  // Moved with the same friends behind it, the window moves with it.
+  show(button, entry);
 }
 
 /** A thing taken off the field (props.js reconcile): it covers no one, and is forgotten. */
@@ -120,7 +158,11 @@ export function friendAt(v) {
   friends.set(id, now);
   for (const button of new Set([...now.behind, ...thingsNear(box)])) {
     const entry = things.get(button);
-    if (entry) mark(button, entry, id, now, covers(entry.box, box));
+    if (!entry) continue;
+    const covered = covers(entry.box, box);
+    // A step still behind it moves the window with the friend.
+    if (covered && entry.covering.has(id)) show(button, entry);
+    else mark(button, entry, id, now, covered);
   }
 }
 

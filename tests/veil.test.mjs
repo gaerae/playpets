@@ -101,22 +101,94 @@ test('a step that does not move the friend works nothing out again', t => {
   assert.equal(writes, 0);
 });
 
-// The fade is to about half, eased a quarter of a second. With reduced motion it is not eased:
+const px = value => Number(String(value).replace(/px$/, ''));
+// The window a thing in front opens, in its own pixels from its top left corner.
+const windowOf = button => ({
+  x: px(button.style['--veil-x']),
+  y: px(button.style['--veil-y']),
+  rx: px(button.style['--veil-rx']),
+  ry: px(button.style['--veil-ry']),
+});
+// Where the friend's body is drawn (veil.js body), from `thing`'s top left corner as setDown placed it.
+function bodyFrom(v, thing) {
+  const box = drawnBox(v),
+    [, left, top] = thing.style.transform.match(/translate\(([-\d.]+)px,([-\d.]+)px\)/).map(Number);
+  return {
+    x: box.x + box.width / 2 - left,
+    y: box.y + box.height * 0.425 - top,
+    rx: box.width / 4,
+    ry: box.height * 0.425,
+  };
+}
+
+// A tree faded whole in front of a friend read as gone: friends gather left of the middle of a small
+// window, and a tree planted there was faded more often than not. It stays as it is and opens a soft
+// window only where the friend stands, so both are seen.
+test('a thing in front of a friend opens a window where the friend stands, and it follows the friend', t => {
+  yardIn(t);
+  const v = friend(t, 0.5, 0.4);
+  place(v);
+  const tree = thingOver(v, 1.6, v.z + 1, 0, 'planted-tree');
+  assert.equal(tree.classList.contains('veiled'), true);
+  const check = what => {
+    const at = windowOf(tree),
+      body = bodyFrom(v, tree);
+    assert.ok(Math.abs(at.x - body.x) <= 1 && Math.abs(at.y - body.y) <= 1, `${what}: centred on the friend`);
+    assert.ok(at.rx >= body.rx && at.ry >= body.ry, `${what}: as big as the friend's body`);
+  };
+  check('set down in front of it');
+  v.x += 0.01;
+  place(v);
+  assert.equal(tree.classList.contains('veiled'), true, 'a step still behind it');
+  check('after a step');
+});
+
+test('two friends behind one thing are both seen through it', t => {
+  yardIn(t);
+  const a = friend(t, 0.5, 0.4);
+  place(a);
+  const tree = thingOver(a, 3, a.z + 1, 0, 'planted-tree');
+  const b = friend(t, 0.5, 0.4);
+  b.x = 0.52;
+  place(b);
+  const at = windowOf(tree),
+    one = bodyFrom(a, tree),
+    two = bodyFrom(b, tree);
+  for (const body of [one, two]) {
+    assert.ok(at.x - at.rx <= body.x - body.rx && body.x + body.rx <= at.x + at.rx, 'across');
+    assert.ok(at.y - at.ry <= body.y - body.ry && body.y + body.ry <= at.y + at.ry, 'up and down');
+  }
+});
+
+// The thing itself never fades: only the window shows the friend, eased in a quarter of a second
+// (a registered --veil-see, so the mask's alpha can ease). With reduced motion it is not eased:
 // base.css stops every transition then, so garden.css keeps no rule of its own that never applies.
-test('a thing in front of a friend fades to about half, eased unless motion is reduced', async () => {
+test('a thing in front of a friend stays whole but for a soft window, eased unless motion is reduced', async () => {
   const read = async name =>
-    (await readFile(`src/styles/${name}`, 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ');
+    (await readFile(`src/styles/${name}`, 'utf8'))
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\s+/g, ' ')
+      .replace(/\( /g, '(')
+      .replace(/ \)/g, ')');
   const garden = await read('garden.css');
+  const veiled = garden.match(/:is\(\.plant, \.shoot, \.fallen-fruit, \.decor, \.planted-tree\)\.veiled \{([^}]*)\}/);
+  assert.ok(veiled, 'one rule for every kind');
+  assert.doesNotMatch(veiled[1], /opacity/, 'nothing fades whole');
+  assert.match(veiled[1], /--veil-see: 0\.3;/);
+  for (const property of ['-webkit-mask-image', 'mask-image'])
+    assert.match(
+      veiled[1],
+      new RegExp(
+        `(^| |;)${property}: radial-gradient\\(ellipse var\\(--veil-rx\\) var\\(--veil-ry\\) at var\\(--veil-x\\) var\\(--veil-y\\), rgb\\(0 0 0 / var\\(--veil-see\\)\\) 60%, #000 100%\\);`,
+      ),
+      property,
+    );
+  assert.match(garden, /@property --veil-see \{ syntax: "<number>"; inherits: false; initial-value: 1; \}/);
   assert.match(
     garden,
-    /:is\(\.plant, \.shoot, \.fallen-fruit, \.decor, \.planted-tree\)\.veiled \{ opacity: 0\.45; \}/,
+    /(^| ):is\(\.plant, \.shoot, \.fallen-fruit, \.decor, \.planted-tree\) \{ transition: --veil-see 0\.25s ease; \}/,
   );
-  for (const kind of ['plant', 'shoot', 'fallen-fruit', 'decor', 'planted-tree'])
-    assert.match(garden, new RegExp(`(^| )\\.${kind} \\{[^}]*transition: opacity 0\\.25s ease;`), kind);
-  assert.doesNotMatch(
-    garden,
-    /\{ :is\(\.plant, \.shoot, \.fallen-fruit, \.decor, \.planted-tree\) \{ transition: none; \} \}/,
-  );
+  assert.doesNotMatch(garden, /transition: opacity 0\.25s ease;/, 'no fade of the whole thing is left');
   assert.match(
     await read('base.css'),
     /@media \(prefers-reduced-motion: reduce\) \{ \* \{ animation: none !important; transition: none !important;/,

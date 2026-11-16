@@ -639,6 +639,10 @@ const SET_FROM_CODE = {
   '--fall': 'src/yard/fallen-fruit.js',
   '--lift-x': 'src/yard/fallen-fruit.js',
   '--lift-y': 'src/yard/fallen-fruit.js',
+  '--veil-x': 'src/yard/veil.js',
+  '--veil-y': 'src/yard/veil.js',
+  '--veil-rx': 'src/yard/veil.js',
+  '--veil-ry': 'src/yard/veil.js',
 };
 // A misspelt or removed token silently falls back to the property's initial value (no colour, no
 // size), so every one a stylesheet reads has to come from somewhere.

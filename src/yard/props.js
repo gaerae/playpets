@@ -9,7 +9,7 @@ import { $, aiming, dropLine, game, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { artSize } from './art.js';
 import { giftKind } from './catalog.js';
-import { depthScaleAt, EDGE, field, fieldToYard, propZoom, yardToField } from './field.js';
+import { decorFloor, depthScaleAt, EDGE, field, fieldToYard, propZoom, yardToDecor } from './field.js';
 import { thingAt, thingGone } from './veil.js';
 import { scene } from './world.js';
 
@@ -142,7 +142,8 @@ const FIELD_STEPS = Object.freeze({
   ArrowUp: [0, -0.05],
   ArrowDown: [0, 0.05],
 });
-/** Lets a saved thing on the field (a flower, a planted tree; `view` is { id, button, drag, busy })
+/** Lets a saved thing on the field (a flower, a planted tree; `view` is { id, button, drag, busy },
+ * and `at`, where its foot is drawn in yard pixels, once it is)
  * be dragged or moved with the arrow keys, its menu be opened by a right click, the menu key or
  * Shift+F10, and Delete take it away. `current()` is the saved thing now, or null once it is gone;
  * `show(point)` draws it at a field point while it is dragged; `save(point)` keeps a new spot;
@@ -163,14 +164,15 @@ export function movable(view, { current, show, save, menu, remove, settle, allow
       width: Math.max(1, f.width - EDGE * 2),
       height: Math.max(1, f.bottom - f.top),
       world: scene.world,
-      foot: fieldToYard(current()),
-      toField: yardToField,
+      foot: view.at ?? fieldToYard(current()),
+      // Down to where a gift may stand: no name tag hangs below a flower or a tree.
+      toField: yardToDecor,
     });
   });
   button.addEventListener('pointermove', event => {
     const drag = view.drag;
     if (!drag || !current() || drag.world !== scene.world) return;
-    const at = dragPoint(drag, event, drag.width, drag.height);
+    const at = dragPoint(drag, event, drag.width, drag.height, Infinity);
     if (!at) return;
     drag.at = at;
     button.classList.add('dragging');
@@ -208,7 +210,10 @@ export function movable(view, { current, show, save, menu, remove, settle, allow
     const step = FIELD_STEPS[event.key];
     if (step) {
       event.preventDefault();
-      return save({ x: clamp(item.x + step[0]), y: clamp(item.y + step[1]) });
+      // From where it is drawn: one kept whole at the yard's side moves at the first press.
+      const from = view.at ? yardToDecor(view.at.x, view.at.y) : item,
+        x = clamp(from.x + step[0]);
+      return save({ x, y: clamp(from.y + step[1], 0, decorFloor(fieldToYard({ x, y: 0 }).x)) });
     }
     if (event.key === 'ContextMenu' || (event.key === 'F10' && event.shiftKey)) {
       event.preventDefault();

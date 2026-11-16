@@ -13,7 +13,7 @@ import { showCard } from './card.js';
 import { onAimingChange, setAimingMode } from './care.js';
 import { TREES, treasureKind } from './catalog.js';
 import { groundAllows } from './discovery-rules.js';
-import { field, fieldToYard, petHeight, sizeOf, topAt, yardToField } from './field.js';
+import { field, fieldToYard, petHeight, sizeOf, topAt, yardToDecor, yardToField } from './field.js';
 import { groundProfile } from './ground.js';
 import { atRainbowEnd, clearRainbowEnd } from './rainbow-end.js';
 import { atTrailEnd, reservedForTrail } from './trails.js';
@@ -105,17 +105,11 @@ const planting = () =>
   [...tasks.values()].filter(
     task => task.action === 'tree' && !data.garden?.trees?.some(tree => tree.id === task.saved),
   );
-// Why no other tree fits, counting those on their way; nothing when one does.
+// Why no other tree fits, counting those on their way; nothing when one does. One yard of trees
+// stands in every place, so wherever they were planted counts.
 function noRoomForTree() {
-  const trees = data.garden?.trees || [],
-    coming = planting(),
-    here =
-      trees.filter(tree => tree.world === scene.world).length +
-      coming.filter(task => task.world === scene.world).length;
-  if (trees.length + coming.length >= limit(data, 'trees'))
-    return t('discovery.tree_total', { limit: limit(data, 'trees') });
-  if (here >= limit(data, 'treesPerWorld')) return t('discovery.tree_full', { limit: limit(data, 'treesPerWorld') });
-  return '';
+  const count = (data.garden?.trees || []).length + planting().length;
+  return count >= limit(data, 'trees') ? t('discovery.tree_total', { limit: limit(data, 'trees') }) : '';
 }
 
 export function beginDiscovery(action) {
@@ -138,15 +132,21 @@ export function beginDiscovery(action) {
   $('yard').focus();
 }
 
+// A sapling may be planted as low as a gift may stand, below the friends' field; a dig stays on it.
+const reach = action => ({ planting: action === 'tree' });
 function positionAt(event) {
-  if (intent?.action === 'tree' && !stock(intent.kind)) return null;
+  const tree = intent?.action === 'tree';
+  if (tree && !stock(intent.kind)) return null;
   const r = $('yard').getBoundingClientRect(),
     x = event.clientX - r.left,
     y = event.clientY - r.top,
     f = field();
-  if (x < 14 || x > f.width - 14 || y < topAt(x) || y > f.bottom) return null;
-  const point = yardToField(x, y);
-  return groundAllows(point, groundProfile()) ? point : null;
+  if (x < 14 || x > f.width - 14 || y < topAt(x)) return null;
+  if (!tree && y > f.bottom) return null;
+  const point = tree ? yardToDecor(x, y) : yardToField(x, y);
+  // Below the floor, the click is not on the ground at all.
+  if (tree && fieldToYard(point).y < y - 1) return null;
+  return groundAllows(point, groundProfile(), reach(intent?.action)) ? point : null;
 }
 
 function showMarker(event) {
@@ -195,7 +195,7 @@ export function sendDiscovery(v, point, action, kind, own = false) {
     arrive: guard(async () => {
       if (task.cancelled || scene.world !== world || !views.has(v.pet.id)) return cleanup();
       let ground = groundProfile();
-      if (!groundAllows(point, ground)) return cleanup();
+      if (!groundAllows(point, ground, reach(action))) return cleanup();
       const context = {
         season: scene.season,
         weather: scene.weather,
@@ -253,7 +253,7 @@ export function sendDiscovery(v, point, action, kind, own = false) {
         if (action === 'tree') {
           // The planting stroke waits before contact; another prop may now occupy its target.
           ground = groundProfile();
-          if (!groundAllows(point, ground)) {
+          if (!groundAllows(point, ground, reach(action))) {
             release(v);
             return;
           }
@@ -437,7 +437,7 @@ export function setupDiscovery() {
     const v = views.get(intent.petId);
     if (!v) return;
     const point = yardToField(v.px + sizeOf(v.pet) / 2, v.py + petHeight(v.pet));
-    if (!groundAllows(point, groundProfile())) return toast(t('discovery.invalid'));
+    if (!groundAllows(point, groundProfile(), reach(intent.action))) return toast(t('discovery.invalid'));
     order(point, actorFor(point));
   });
   onEscape(event => {

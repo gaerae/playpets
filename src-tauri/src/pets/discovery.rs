@@ -1,16 +1,18 @@
-//! Ground snapshots, one-time discoveries and scene-owned trees.
+//! Ground snapshots, one-time discoveries and planted trees.
 use super::{
     album::{Album, Entry, KINDS_MAX},
     content::{DiscoveryContext, catalog},
-    garden::{Garden, SAPLING_MAX, SEED_MAX},
+    garden::{DECOR_FLOOR_MAX, Garden, SAPLING_MAX, SEED_MAX},
 };
 use crate::i18n;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
+/// How many trees a saved yard keeps: one saved when each place had its own six keeps them all.
 pub const TREE_MAX: usize = 24;
-pub const TREE_WORLD_MAX: usize = 6;
+/// How many trees may be planted: one yard of them, standing in every place with soil.
+pub const TREE_YARD_MAX: usize = 6;
 pub const TREE_YOUNG_MS: u64 = 2 * 60 * 60 * 1000;
 pub const TREE_MATURE_MS: u64 = 12 * 60 * 60 * 1000;
 pub const DIG_COOLDOWN_MS: u64 = 8000;
@@ -24,6 +26,13 @@ pub struct GroundProfile {
     pub bounds: Bounds,
     pub water: Vec<Ellipse>,
     pub obstacles: Vec<Ellipse>,
+    /// How far below the friends' field a tree may stand, as a gift may (src/yard/field.js
+    /// decorFloor): 1 or more. A page that says nothing keeps trees on the field.
+    #[serde(default = "field_edge")]
+    pub floor: f64,
+}
+fn field_edge() -> f64 {
+    1.0
 }
 #[derive(Deserialize, Clone)]
 pub struct Bounds {
@@ -53,19 +62,33 @@ fn bad_request() -> String {
 }
 
 impl GroundProfile {
+    /// Whether a friend may dig at (x, y): on the field, clear of water and of what stands there.
     pub fn validate(&self, x: f64, y: f64) -> Result<(), String> {
+        self.check(x, y, 1.0)
+    }
+    /// Whether a tree may be planted or set down at (x, y): as a dig, or below the field down to
+    /// its floor, where gifts may stand too.
+    pub fn validate_planting(&self, x: f64, y: f64) -> Result<(), String> {
+        if !(self.floor.is_finite() && (1.0..=DECOR_FLOOR_MAX).contains(&self.floor)) {
+            return Err(bad_request());
+        }
+        self.check(x, y, self.floor)
+    }
+    fn check(&self, x: f64, y: f64, lowest: f64) -> Result<(), String> {
         let b = &self.bounds;
         let exclusions = self.water.iter().chain(&self.obstacles);
+        // Bounds at the field's edge reach on down to `lowest`; ones above it keep their own.
+        let bottom = if b.bottom >= 1.0 { lowest } else { b.bottom };
         let valid = self.soil
             && coordinate(x)
-            && coordinate(y)
+            && y.is_finite()
             && [b.left, b.top, b.right, b.bottom].into_iter().all(coordinate)
             && b.left < b.right
             && b.top < b.bottom
             && x >= b.left
             && x <= b.right
             && y >= b.top
-            && y <= b.bottom
+            && y <= bottom
             && self.water.len() + self.obstacles.len() <= 64
             && exclusions.clone().all(|e| {
                 [e.x, e.y]
@@ -144,7 +167,8 @@ pub fn restore_trees(raw: Option<&Value>) -> Vec<Tree> {
                 && identifier(&t.world)
                 && kind_id(&t.kind)
                 && coordinate(t.x)
-                && coordinate(t.y)
+                && t.y.is_finite()
+                && (0.0..=DECOR_FLOOR_MAX).contains(&t.y)
                 && t.stage <= 2
         })
         .take(TREE_MAX)
@@ -350,11 +374,11 @@ pub fn plant_tree(
     ground: &GroundProfile,
     now: u64,
 ) -> Result<Tree, String> {
-    ground.validate(x, y)?;
+    ground.validate_planting(x, y)?;
     if !identifier(world) || !catalog().is_tree(kind) {
         return Err(bad_request());
     }
-    if garden.trees.len() >= TREE_MAX || garden.trees.iter().filter(|t| t.world == world).count() >= TREE_WORLD_MAX {
+    if garden.trees.len() >= TREE_YARD_MAX {
         return Err(i18n::t("error.tree_full"));
     }
     let stock = garden
@@ -379,7 +403,7 @@ pub fn plant_tree(
     Ok(tree)
 }
 pub fn move_tree(garden: &mut Garden, id: &str, x: f64, y: f64, ground: &GroundProfile) -> Result<(), String> {
-    ground.validate(x, y)?;
+    ground.validate_planting(x, y)?;
     let tree = garden
         .trees
         .iter_mut()
@@ -757,6 +781,38 @@ mod tests {
         assert!(g.validate(0.5, 0.0).is_err());
         g.water[0].y = -4.1;
         assert!(g.validate(0.8, 0.8).is_err());
+    }
+
+    #[test]
+    fn a_tree_may_stand_below_the_field_down_to_the_floor_but_a_dig_may_not() {
+        let mut g = ground();
+        assert!(
+            g.validate_planting(0.5, 1.1).is_err(),
+            "no floor given: the field's edge"
+        );
+        g.floor = 1.5;
+        assert!(g.validate_planting(0.5, 1.4).is_ok());
+        assert!(g.validate_planting(0.5, 1.6).is_err());
+        assert!(g.validate(0.5, 1.4).is_err(), "digging stays on the field");
+        g.obstacles.push(Ellipse {
+            x: 0.5,
+            y: 1.3,
+            rx: 0.1,
+            ry: 0.1,
+        });
+        assert!(
+            g.validate_planting(0.5, 1.3).is_err(),
+            "a gift down there takes its ground"
+        );
+        for floor in [0.5, f64::NAN, 5.0] {
+            g.floor = floor;
+            assert!(g.validate_planting(0.5, 0.5).is_err(), "{floor}");
+        }
+        let trees = restore_trees(Some(&json!([
+            {"id": "low", "world": "meadow", "kind": "cherry", "x": 0.5, "y": 1.5, "planted": 1, "stage": 0},
+            {"id": "gone", "world": "meadow", "kind": "cherry", "x": 0.5, "y": 4.5, "planted": 1, "stage": 0}
+        ])));
+        assert_eq!(trees.iter().map(|t| t.id.as_str()).collect::<Vec<_>>(), ["low"]);
     }
 
     #[test]
@@ -1213,7 +1269,7 @@ mod tests {
     }
 
     #[test]
-    fn trees_are_scene_owned_limited_and_grow_once_without_regression() {
+    fn trees_keep_where_they_were_planted_are_limited_and_grow_once_without_regression() {
         let mut g = Garden::restore(Some(&json!({"saplings": {"cherry":20,"pine":20,"maple":20}})), 0);
         let mut a = Album::default();
         let tree = plant_tree(&mut g, "meadow", "cherry", 0.5, 0.5, &ground(), 10000).unwrap();
@@ -1227,25 +1283,16 @@ mod tests {
         assert!(grow_trees(&mut g, &mut a, 10000 + TREE_MATURE_MS));
         assert_eq!(a.trees["cherry"].count, 1);
         assert!(!grow_trees(&mut g, &mut a, u64::MAX));
-        for _ in 1..TREE_WORLD_MAX {
-            plant_tree(&mut g, "meadow", "pine", 0.8, 0.8, &ground(), 1).unwrap();
+        // One yard of trees, shown in every place: planting in another place counts the same.
+        for i in 1..TREE_YARD_MAX {
+            plant_tree(&mut g, &format!("world{i}"), "pine", 0.8, 0.8, &ground(), 1).unwrap();
         }
         assert!(plant_tree(&mut g, "meadow", "maple", 0.5, 0.5, &ground(), 1).is_err());
-        for i in 1..4 {
-            g = Garden::restore(
-                Some(&{
-                    let mut saved = serde_json::to_value(&g).unwrap();
-                    saved["saplings"]["pine"] = json!(20);
-                    saved
-                }),
-                0,
-            );
-            for _ in 0..TREE_WORLD_MAX {
-                plant_tree(&mut g, &format!("world{i}"), "pine", 0.8, 0.8, &ground(), 1).unwrap();
-            }
-        }
-        assert_eq!(g.trees.len(), 24);
         assert!(plant_tree(&mut g, "extra", "pine", 0.5, 0.5, &ground(), 1).is_err());
+        // A yard saved when each place kept its own keeps every tree, up to TREE_MAX.
+        let mut saved = serde_json::to_value(&g).unwrap();
+        saved["trees"] = json!((0..30).map(|i| json!({"id": format!("t{i}"), "world": "meadow", "kind": "pine", "x": 0.5, "y": 0.5, "planted": 1, "stage": 0})).collect::<Vec<_>>());
+        assert_eq!(Garden::restore(Some(&saved), 0).trees.len(), TREE_MAX);
         move_tree(&mut g, &tree.id, 0.2, 0.2, &ground()).unwrap();
         assert_eq!(g.trees[0].x, 0.2);
         remove_tree(&mut g, &tree.id).unwrap();

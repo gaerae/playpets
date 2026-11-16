@@ -22,7 +22,7 @@ const state = await import('../src/core/state.js');
 const { renderDecor } = await import('../src/yard/decor.js');
 const { renderGarden } = await import('../src/yard/garden.js');
 const { renderTrees } = await import('../src/yard/planted-trees.js');
-const { depthScale, field, fieldToYard, footTarget, measureYard, propZoom, yardZoom } =
+const { decorFloor, depthScale, field, fieldToYard, footTarget, measureYard, propZoom, yardZoom } =
   await import('../src/yard/field.js');
 const { giftKind, treeSize } = await import('../src/yard/catalog.js');
 const { buildGroundProfile } = await import('../src/yard/ground.js');
@@ -94,6 +94,38 @@ test('a gift farther back is drawn smaller about its foot, as a friend standing 
   assert.ok(back.w < front.w * 0.9, `${back.w} at the back, ${front.w} at the front`);
 });
 
+test('a flower, a tree and a gift stand whole inside the yard and no lower than its floor', t => {
+  // Placed lower in a smaller window, or in another place, than this one lets them stand.
+  const plants = [
+      { id: 'p-left', kind: 'daisy', planted: Date.now() - DAY, bloomed: true, x: 0, y: 3 },
+      { id: 'p-right', kind: 'daisy', planted: Date.now() - DAY, bloomed: true, x: 1, y: 0.5 },
+    ],
+    trees = [{ id: 't-low', kind: 'cherry', world: 'woodland', planted: Date.now() - 400 * DAY, x: 0.5, y: 3 }],
+    decor = [{ id: 'd-low', kind: 'lantern', x: 0.3, y: 3 }];
+  const nodes = yardOf(t, { garden: { plants, trees, decor } }),
+    { width } = field(),
+    lowest = x => fieldToYard({ x, y: decorFloor(fieldToYard({ x, y: 0 }).x) }).y;
+  const [left, right] = buttons(nodes, 'plant')
+    .sort((a, b) => box(a).x - box(b).x)
+    .map(box);
+  assert.ok(left.x >= 4 - 1e-6, `a flower at the left side is whole: ${left.x}`);
+  assert.ok(right.x + right.w <= width - 4 + 1e-6, `and at the right: ${right.x + right.w}`);
+  for (const [cls, x] of [
+    ['plant', 0],
+    ['planted-tree', 0.5],
+    ['decor', 0.3],
+  ]) {
+    // A gift's drawing may end above its box (catalog.json "foot").
+    const share = cls === 'decor' ? (giftKind('lantern').foot ?? 1) : 1,
+      bottom = Math.max(
+        ...buttons(nodes, cls)
+          .map(box)
+          .map(b => b.y + b.h * share),
+      );
+    assert.ok(bottom <= lowest(x) + 1, `${cls} stands no lower than the floor: ${bottom} > ${lowest(x)}`);
+  }
+});
+
 test('a flower and a planted tree farther back are drawn smaller about their foot too', t => {
   const plants = [
       { id: 'p-back', kind: 'daisy', planted: Date.now() - DAY, bloomed: true, x: 0.2, y: 0 },
@@ -123,7 +155,6 @@ test('what friends walk around is the size drawn: a gift and a tree at the back 
   const bounds = { width: 1000, height: 700, top: 350, bottom: 650 };
   const profile = buildGroundProfile({
     world: { id: 'meadow', capabilities: { sky: true } },
-    worldId: 'meadow',
     bounds,
     scale: 1,
     // Half size at the field's top, whole at its foot: 0.55 a tenth of the way down.

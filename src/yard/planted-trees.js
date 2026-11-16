@@ -1,23 +1,26 @@
-// Planted trees belong to their saved world. Their roots stay at the saved field coordinate;
-// growing or resizing changes only the drawing above that foot. Dragged to move; its menu sends it
-// out to the desktop or removes it.
+// Planted trees stand in every place with soil, wherever they were planted, as flowers and gifts
+// do. Their roots stay at the saved field coordinate; growing or resizing changes only the drawing
+// above that foot. Dragged to move; its menu sends it out to the desktop or removes it.
 
 import { openTreeMenu } from '../core/controls.js';
 import { put, putAttribute } from '../core/dom.js';
 import { joinList, t } from '../core/i18n.js';
+import { clamp } from '../core/math.js';
 import { call, data, guard } from '../core/state.js';
 import { artSvg } from './art.js';
 import { treeArt, treeKind, treeSize } from './catalog.js';
-import { groundAllows, treeStage } from './discovery-rules.js';
-import { depthAt, fieldToYard, measureYard } from './field.js';
+import { groundAllows, treesIn, treeStage } from './discovery-rules.js';
+import { depthAt, field, measureYard, standAt } from './field.js';
 import { groundProfile } from './ground.js';
 import { shapeHits } from './hit-shape.js';
 import { movable, moveSaved, propButton, propScale, reconcile, removeWithUndo, setDown } from './props.js';
 import { scene } from './world.js';
 
 const shown = new Map();
+// A tree stands as low as a gift may, below the friends' field (groundAllows).
+const PLANTING = { planting: true };
 const stageKeys = ['tree.growth', 'tree.young', 'tree.mature'];
-const current = id => data.garden?.trees?.find(tree => tree.id === id && tree.world === scene.world);
+const current = id => treesIn(data.garden?.trees, scene.world).find(tree => tree.id === id);
 
 /** How big a `kind` of tree at `stage` (grown by default) is drawn with its foot at `foot` (yard
  * pixels): its width and height, and the zoom of that depth. Smaller farther back, as a friend at its
@@ -26,6 +29,20 @@ export function treeBox(kind, foot, stage = 2) {
   const [width, height] = treeSize(kind, stage),
     zoom = propScale(foot);
   return { width: width * zoom, height: height * zoom, zoom };
+}
+
+/** Where a tree whose place is `point` (its own by default) is drawn at `stage`, in yard pixels: its
+ * foot, no lower than a gift may stand and far enough from the yard's sides that the whole tree
+ * shows, as a wide gift is (decor.js placement). Its ground (ground.js), fruit and visits are
+ * measured from here. */
+export function treeFoot(tree, stage = 2, point = tree) {
+  const foot = standAt(point);
+  // Smaller farther back, so its width is measured again where it is moved in to.
+  for (let pass = 0; pass < 2; pass++) {
+    const { width } = treeBox(tree.kind, foot, stage);
+    foot.x = clamp(foot.x, width / 2 + 4, field().width - width / 2 - 4);
+  }
+  return foot;
 }
 
 function position(view, tree, point = tree) {
@@ -39,9 +56,10 @@ function position(view, tree, point = tree) {
     view.art = art;
     shapeHits(view.button, art);
   }
-  const foot = fieldToYard(point),
+  const foot = treeFoot(tree, stage, point),
     { width, height } = treeBox(tree.kind, foot, stage);
   setDown(view.button, foot.x, foot.y, width, height, depthAt(foot.y));
+  view.at = foot;
   put(view.button, 'title', t('tree.drag', { kind: t(`tree.${tree.kind}`) }));
   putAttribute(view.button, 'aria-label', joinList([view.button.title, t(stageKeys[stage])]));
 }
@@ -50,7 +68,7 @@ const save = guard(async (view, point) => {
   const tree = current(view.id);
   if (!tree || view.busy) return;
   const ground = groundProfile({ skipTreeId: tree.id });
-  if (!groundAllows(point, ground)) return renderTrees();
+  if (!groundAllows(point, ground, PLANTING)) return renderTrees();
   view.button.disabled = true;
   try {
     await moveSaved(view, tree, point, {
@@ -99,14 +117,14 @@ function create(tree) {
     remove: () => remove(view),
     settle: renderTrees,
     // The ground does not change under one drag: measured at its first move, not at every one.
-    allowed: (at, drag) => groundAllows(at, (drag.ground ??= groundProfile({ skipTreeId: view.id }))),
+    allowed: (at, drag) => groundAllows(at, (drag.ground ??= groundProfile({ skipTreeId: view.id })), PLANTING),
   });
   return view;
 }
 
 /** Draws only saved trees in the current place; no animation or frame-loop work. */
 export function renderTrees() {
-  const trees = (data.garden?.trees || []).filter(tree => tree.world === scene.world && treeKind(tree.kind));
+  const trees = treesIn(data.garden?.trees, scene.world).filter(tree => treeKind(tree.kind));
   reconcile(shown, trees, create, (view, tree) => {
     if (!view.drag?.moved) position(view, tree);
   });

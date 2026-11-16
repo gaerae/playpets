@@ -227,18 +227,25 @@ export function yardToField(px, py) {
     y: clamp((py - top) / Math.max(1, f.bottom - top)),
   };
 }
-// Gifts have no name tag, so they stand lower than friends can: down to just above the dock
-// (42px tall, 12px from the foot, shell.css .yard-dock), or nearly to the foot in a small window,
-// where the dock is hidden. Their place stays on the friends' field, going past 1 below it, so a
-// gift placed before keeps its place (garden.rs DECOR_FLOOR_MAX holds the same bound).
+// Gifts, flowers and trees have no name tag, so they stand lower than friends' field: down to just
+// above the dock (42px tall, 12px from the foot, shell.css .yard-dock), or nearly to the foot in a
+// small window, where the dock is hidden. Their place stays on the friends' field, going past 1
+// below it, so a thing placed before keeps its place (garden.rs DECOR_FLOOR_MAX holds the same bound).
 const decorRoom = () => (document.body.classList.contains('compact') ? 8 : 58);
 const DECOR_FLOOR_MAX = 4;
-/** The lowest a gift's place goes (1 or more): just above the dock, in the friends' field (at
- * `px` across the yard, where the field may begin higher). */
+/** The lowest a gift's, a flower's or a tree's place goes (1 or more): just above the dock, in the
+ * friends' field (at `px` across the yard, where the field may begin higher). */
 export function decorFloor(px) {
   const f = field(),
     top = px === undefined ? f.top : topAt(px);
   return clamp((f.height - decorRoom() - top) / Math.max(1, f.bottom - top), 1, DECOR_FLOOR_MAX);
+}
+/** Where a gift, a flower or a tree whose place is `point` stands, in yard pixels: as fieldToYard,
+ * no lower than decorFloor there. A place kept in a smaller window, or in another place, may be
+ * lower than this one lets it stand. */
+export function standAt(point) {
+  const across = fieldToYard({ x: point.x, y: 0 }).x;
+  return fieldToYard({ x: point.x, y: Math.min(point.y, decorFloor(across)) });
 }
 /** A point in the yard, in pixels, as a gift's place: as yardToField, reaching down to decorFloor. */
 export function yardToDecor(px, py) {
