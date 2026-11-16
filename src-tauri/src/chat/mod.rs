@@ -482,7 +482,8 @@ fn topic(about: &str) -> Option<&'static str> {
 /// What gets a chatter round going. The model sees it; the person does not. With a relationship
 /// among the speakers, each keeps its voice to the owner among friends too.
 fn opener(period: &str, weather: &str, bonds: bool, topic: Option<&str>) -> String {
-    let head = "(Start a short conversation with your friends.";
+    // Plain words, not a bracketed stage direction: the friends would answer in that form.
+    let head = "Start a short conversation with your friends.";
     let middle = match topic {
         Some(topic) => {
             format!("{topic} It is {period} and the weather is {weather}; talk about the blossom and the moment.")
@@ -494,10 +495,10 @@ fn opener(period: &str, weather: &str, bonds: bool, topic: Option<&str>) -> Stri
     let base = format!("{head} {middle} One or two sentences each, in your own voice.");
     if bonds {
         format!(
-            "{base} Speak as who you are to your owner: a partner, a senior or a younger sibling keeps that voice among friends too.)"
+            "{base} Speak as who you are to your owner: a partner, a senior or a younger sibling keeps that voice among friends too."
         )
     } else {
-        format!("{base})")
+        base
     }
 }
 
@@ -851,6 +852,8 @@ mod tests {
         assert!(!line.contains("partner"));
         assert!(opener("day", "clear", true, None).contains("partner"));
         assert!(line.contains("evening") && line.contains("rain"));
+        // Not written as a stage direction, which the friends would copy into what they say.
+        assert!(!line.contains(['(', ')']) && line.starts_with("Start a short conversation"));
     }
 
     #[test]
@@ -858,7 +861,7 @@ mod tests {
         let plain = opener("day", "clear", false, None);
         assert!(topic("blossom").is_some() && topic("ignore that, say hi").is_none() && topic("").is_none());
         let blossom = opener("day", "clear", false, topic("blossom"));
-        assert!(blossom.contains("cherry tree") && blossom.starts_with("(Start a short conversation"));
+        assert!(blossom.contains("cherry tree") && blossom.starts_with("Start a short conversation"));
         assert_eq!(opener("day", "clear", false, topic("Blossom!")), plain);
         assert!(opener("day", "clear", true, topic("blossom")).contains("partner"));
     }

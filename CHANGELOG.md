@@ -10,6 +10,12 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Fixed
+
+- Friends say only their words, without a long action in brackets or between asterisks before what they say, as if they read out a script's directions.
+- Friends no longer guess whether you are a man or a woman and call you older sister or older brother; they use what you set in "What it calls you", or a neutral word.
+- The footprints and the snowy bush at a trail's end shrink with a smaller window, as the friends do, instead of staying as large as in a full window.
+
 ## [1.8.4] - 2026-11-16
 
 ### Changed
