@@ -73,6 +73,12 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.8.4" date="2026-11-16">
+      <description>
+        <p>Trees and flowers on the left of the yard, under the house too, stay in sight from morning to night.</p>
+      </description>
+      <url type="details">https://playpets.gaerae.com/releases/1.8.4</url>
+    </release>
     <release version="1.8.3" date="2026-11-16">
       <description>
         <p>Planted trees now stand in every outdoor place, and flowers and trees go as low in the yard as gifts do.</p>
