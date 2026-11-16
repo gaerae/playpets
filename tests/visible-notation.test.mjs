@@ -11,7 +11,7 @@ async function files(directory, skip = () => false) {
     const file = `${directory}/${entry.name}`;
     if (skip(file)) continue;
     if (entry.isDirectory()) output.push(...(await files(file, skip)));
-    else if (/\.(md|vue|[jt]s|rs)$/.test(file)) output.push(file);
+    else if (/\.(md|vue|m?[jt]s|rs)$/.test(file)) output.push(file);
   }
   return output;
 }

@@ -140,7 +140,7 @@ export default defineConfig({
         footer: {
           message:
             'Free and open source under the MIT license. Not affiliated with OpenAI; ChatGPT and Codex are trademarks of OpenAI.',
-          copyright: `© 2026 gaerae · <a href="${base}THIRD-PARTY-NOTICES.txt">Third-party notices</a> · <a href="${base}privacy">Privacy</a>`,
+          copyright: `© 2026 gaerae, <a href="${base}THIRD-PARTY-NOTICES.txt">Third-party notices</a>, <a href="${base}privacy">Privacy</a>`,
         },
       },
     },
@@ -189,7 +189,7 @@ export default defineConfig({
         editLink: editLink('이 페이지 고치기'),
         footer: {
           message: 'MIT 라이선스로 공개된 오픈소스예요. OpenAI와 관계가 없고, ChatGPT와 Codex는 OpenAI의 상표예요.',
-          copyright: `© 2026 gaerae · <a href="${base}THIRD-PARTY-NOTICES.txt">타사 라이선스</a> · <a href="${base}ko/privacy">개인정보처리방침</a>`,
+          copyright: `© 2026 gaerae, <a href="${base}THIRD-PARTY-NOTICES.txt">타사 라이선스</a>, <a href="${base}ko/privacy">개인정보처리방침</a>`,
         },
         notFound: {
           title: '이런 페이지는 없어요',
@@ -247,7 +247,7 @@ export default defineConfig({
         footer: {
           message:
             'MITライセンスの無料オープンソースです。OpenAIとは関係がありません。ChatGPTとCodexはOpenAIの商標です。',
-          copyright: `© 2026 gaerae · <a href="${base}THIRD-PARTY-NOTICES.txt">第三者ライセンス</a> · <a href="${base}ja/privacy">プライバシー</a>`,
+          copyright: `© 2026 gaerae、<a href="${base}THIRD-PARTY-NOTICES.txt">第三者ライセンス</a>、<a href="${base}ja/privacy">プライバシー</a>`,
         },
         notFound: {
           title: 'ページが見つかりません',
@@ -306,7 +306,7 @@ export default defineConfig({
         editLink: editLink('修改这一页'),
         footer: {
           message: '以 MIT 许可证开源。与 OpenAI 无关，ChatGPT 和 Codex 是 OpenAI 的商标。',
-          copyright: `© 2026 gaerae · <a href="${base}THIRD-PARTY-NOTICES.txt">第三方许可</a> · <a href="${base}zh-hans/privacy">隐私政策</a>`,
+          copyright: `© 2026 gaerae、<a href="${base}THIRD-PARTY-NOTICES.txt">第三方许可</a>、<a href="${base}zh-hans/privacy">隐私政策</a>`,
         },
         notFound: {
           title: '没有这一页',

@@ -153,6 +153,12 @@ html:lang(zh-Hans) .landing .eyebrow {
 .hero-agents:hover span {
   text-decoration: underline;
 }
+.hero-agents i {
+  align-self: center;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 600;
+}
 .hero-agents b {
   font-size: 13px;
   font-weight: 600;
@@ -1293,6 +1299,7 @@ html:lang(zh-Hans) .landing .eyebrow {
 }
 .feature h2 {
   margin: 0 0 24px;
+  overflow-wrap: anywhere;
 }
 .feature p {
   font-size: 16px;
@@ -1633,7 +1640,8 @@ html:lang(zh-Hans) .landing .eyebrow {
   .connection-layout,
   .creator-story,
   .quiet-details {
-    grid-template-columns: 1fr;
+    /* minmax: a long unbroken heading (Japanese phrases kept whole) must not widen the column. */
+    grid-template-columns: minmax(0, 1fr);
   }
   .pet-detail {
     border-radius: 24px;

@@ -15,6 +15,13 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Gifts, flowers and trees out on the desktop stay where you put them, as friends do, instead of always dropping to the bottom of the screen. The first time out, they still start along the bottom.
 - Friends, gifts, flowers and trees out on the desktop come back onto a screen when one is unplugged or its size or Dock changes, instead of staying out of sight until the app restarts; a tree that grows near the edge of the screen stays on it.
 
+### Website and docs
+
+- The landing's tree card says grown fruit trees drop fruit for a friend to pick up, and the coding tools on the first screen end with "and more".
+- On phones, the Japanese landing's coding agents section fits the screen instead of running off its right edge.
+- The site's footer separates its links with commas instead of middle dots, and the Chinese and Japanese landings use one word each for friends, the yard and digging.
+- The desktop guide says friends and things on an unplugged or resized screen come back onto one that is still there.
+
 ## [1.8.1] - 2026-11-15
 
 ### Added
