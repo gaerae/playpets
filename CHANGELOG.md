@@ -10,6 +10,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.8.5] - 2026-11-16
+
 ### Fixed
 
 - Friends say only their words, without a long action in brackets or between asterisks before what they say, as if they read out a script's directions.

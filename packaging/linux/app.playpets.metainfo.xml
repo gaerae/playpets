@@ -73,6 +73,17 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.8.5" date="2026-11-16">
+      <description>
+        <p>Friends talk like friends again: only their own words, and no guessing who you are.</p>
+        <ul>
+          <li>Friends say only their words, without a long action in brackets before what they say.</li>
+          <li>Friends no longer guess whether you are a man or a woman when they call you.</li>
+          <li>Footprints in the snow and the bush at their end shrink with a smaller window.</li>
+        </ul>
+      </description>
+      <url type="details">https://playpets.gaerae.com/releases/1.8.5</url>
+    </release>
     <release version="1.8.4" date="2026-11-16">
       <description>
         <p>Planted trees now stand in every outdoor place, flowers and trees go as low as gifts do, and those on the left stay in sight.</p>
