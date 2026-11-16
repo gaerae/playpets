@@ -300,17 +300,17 @@ test('the window hidden before the tail shows calls the follow off; after, the r
   assert.deepEqual(y.saved().followed, [0]);
 });
 
-test('in a small window the bush keeps three quarters of its size and the friend stops clear of it', async t => {
-  const y = yard(t, { zoom: 0.5 });
+test('in a small window the bush shrinks with the yard to its floor and the friend stops clear of it', async t => {
+  const y = yard(t, { zoom: 0.3 });
   trailsCheck();
   const end = y.live('.trail-end')[0];
-  assert.equal(end.style['--u'], '0.75px');
+  assert.equal(end.style['--u'], '0.45px');
   followTrail(0);
   walk(y.v);
   const side = /tail-peek[^"]*mirror/.test(end.innerHTML) ? 1 : -1,
     beside = footTarget(
       y.v,
-      parseFloat(end.style.left) + side * (26 * 0.75 + sizeOf(y.v.pet) / 2),
+      parseFloat(end.style.left) + side * (26 * 0.45 + sizeOf(y.v.pet) / 2),
       parseFloat(end.style.top),
     );
   assert.ok(Math.abs(walk.last.x - beside.x) < 1e-3, 'beside the bush as it is drawn');

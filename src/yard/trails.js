@@ -34,6 +34,7 @@ import {
   coveredAt,
   endZoom,
   laidAt,
+  printZoom,
   seedOf,
   stamps,
   trailAnimal,
@@ -49,8 +50,6 @@ import { scene } from './world.js';
 const NS = 'http://www.w3.org/2000/svg';
 // How long a covered trail takes to fade before it leaves (garden.css .trail transition).
 const FADE_MS = 3000;
-// Prints shrink with the yard only this far: smaller, they are specks in the snow's grain.
-const PRINT_ZOOM_MIN = 0.7;
 // A follow: the sniffing walk takes 6 to 8 s at a friend's stroll; the tail shows for a second,
 // whisks away, and the dig starts a moment later. The first dig within a minute of that, near the
 // end, finds the trail's.
@@ -222,7 +221,7 @@ function draw(n, track, path, followed) {
     width = yardWidth(),
     points = path.points.map(toYard),
     [w, h] = artSize(track.print),
-    marks = stamps(points, track.gait, Math.max(zoom(), PRINT_ZOOM_MIN)).filter(s => s.x >= 0 && s.x <= width);
+    marks = stamps(points, track.gait, printZoom(zoom())).filter(s => s.x >= 0 && s.x <= width);
   const svg = el('svg', { 'aria-hidden': 'true' });
   svg.classList.add('trail');
   svg.dataset.trail = String(n);

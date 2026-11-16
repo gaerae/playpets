@@ -10,11 +10,14 @@ import { groundAllows, tileOf } from './discovery-rules.js';
 // One weather block, as `autoWeather` draws it from epoch 0.
 export const BLOCK_MS = 1200000;
 const HOUR_MS = 3600000;
-// The bush at a trail's end shrinks with the yard only this far: smaller, in the mini window, the
-// tail peeking from it is a speck.
-const END_ZOOM_MIN = 0.75;
+// A trail's prints and the bush at its end shrink with the yard nearly as far as the friends do
+// (field.js zoomFor, 0.35): any smaller, in the mini window, the prints are specks in the snow's
+// grain and the tail peeking from the bush is lost. Held higher, they stood twice a friend's size.
+const TRAIL_ZOOM_MIN = 0.45;
 /** The scale of a trail end's bush and tail in a yard drawn at `zoom`. */
-export const endZoom = zoom => Math.max(zoom, END_ZOOM_MIN);
+export const endZoom = zoom => Math.max(zoom, TRAIL_ZOOM_MIN);
+/** The scale of a trail's prints in a yard drawn at `zoom`. */
+export const printZoom = zoom => Math.max(zoom, TRAIL_ZOOM_MIN);
 
 /** Start of the first snowfall that begins in [fromMs, toMs): three snow blocks after a block that is not snow. */
 function snowfallStart(fromMs, toMs, weatherAt) {

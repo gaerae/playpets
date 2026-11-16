@@ -1301,7 +1301,9 @@
   pointer-events: none;
   transition: opacity 3s;
 }
+/* In the trail end's units (trails.js endZoom), so the bush shrinks with the window. */
 .trail-end > .tail-peek {
+  --u: inherit;
   display: block;
 }
 /* The tail shows only once the trail is followed. */

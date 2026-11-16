@@ -751,6 +751,14 @@ test('indoor planters take the light their flowers take', async () => {
   assert.match(css, /\.yard\[data-soil="false"\] \.plant::after\{[^}]*filter:var\(--prop-light,none\);/);
 });
 
+// A tail behind its bush keeps one pixel per unit of its own (the album sets its own size), and the
+// trail end's units (trails.js endZoom) would never reach the drawing: in every window it stood at
+// the size of the largest one.
+test("the bush at a trail's end takes the trail end's scale, so a smaller window shrinks it", async () => {
+  const css = await styles();
+  assert.match(css, /(^|\})\.trail-end>\.tail-peek\{[^}]*--u:inherit;/);
+});
+
 // A grey dimming left the gifts, the bush and the plants a neutral grey against the night's blue
 // snow and grass; one tint (index.html #night-tint) darkens them toward that blue instead.
 test('at night the drawings in the yard darken toward the blue of the night, all with one tint', async () => {

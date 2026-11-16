@@ -6,6 +6,7 @@ import {
   coveredAt,
   endZoom,
   laidAt,
+  printZoom,
   seedOf,
   stamps,
   trailAnimal,
@@ -172,9 +173,14 @@ test('prints fade over the day', () => {
   assert.equal(trailOpacity(0, 24 * h), 0.35);
 });
 
-test("a trail's bush shrinks with the yard down to three quarters, so the tail still reads", () => {
-  assert.equal(endZoom(1), 1);
-  assert.equal(endZoom(1.25), 1.25);
-  assert.equal(endZoom(0.57), 0.75);
-  assert.equal(endZoom(0.2), 0.75);
+test("a trail's prints and bush shrink with the yard about as far as the friends, so a small window keeps them in scale", () => {
+  for (const scale of [endZoom, printZoom]) {
+    assert.equal(scale(1), 1);
+    assert.equal(scale(1.25), 1.25);
+    assert.equal(scale(0.57), 0.57);
+    // The mini window's yard (friends at about 0.375): a little above a friend, so the tail and the
+    // prints still read, never the three quarters that left them twice a friend's size.
+    assert.equal(scale(0.375), 0.45);
+    assert.equal(scale(0.2), 0.45);
+  }
 });
