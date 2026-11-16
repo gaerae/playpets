@@ -10,6 +10,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Fixed
+
+- A tree or a flower on the left of the yard, under the house for one, no longer disappears in the morning, the evening, the rain or at night on macOS; it was still there to drag, only not drawn.
+
 ## [1.8.3] - 2026-11-16
 
 ### Changed

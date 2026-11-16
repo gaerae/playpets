@@ -227,9 +227,9 @@ test('a swaying tree or flower carries its light inside, not on the drawing the 
   const css = uncommented(await readFile('src/styles/garden.css', 'utf8'));
   for (const name of ['plant', 'planted-tree']) {
     for (const { head, body } of blocks(css, new RegExp(`[^{}]*\\.${name}[^{},]*\\ssvg\\s*(?=\\{)`, 'g')))
-      assert.doesNotMatch(body, /var\(--prop-light/, `${head} takes no light`);
+      assert.doesNotMatch(body, /var\(--(prop|drawing)-light/, `${head} takes no light`);
     const inside = blocks(css, new RegExp(`(^|\\})\\s*\\.${name} svg > use\\s*(?=\\{)`, 'g'));
-    assert.match(inside[0]?.body || '', /filter:\s*var\(--prop-light, none\)/, `.${name}'s drawing takes the light`);
+    assert.match(inside[0]?.body || '', /filter:\s*var\(--drawing-light, none\)/, `.${name}'s drawing takes the light`);
   }
 });
 

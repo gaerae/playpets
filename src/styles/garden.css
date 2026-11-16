@@ -19,24 +19,31 @@
    dug soil take the morning, the evening and the rain as the picture is graded (yard/environment.js
    environmentLook, one colour matrix each in index.html), and at night lose their daylight toward
    the night's blue (#night-tint), so they sit in the blue snow and grass instead of turning grey.
-   Night comes last, so rain at night is night. */
+   A drawing inside its box (a tree's or a flower's <use>) takes the same light bounded by that box
+   (--drawing-light). Night comes last, so rain at night is night. */
 .yard.period-morning {
   --prop-light: url(#morning-light);
+  --drawing-light: url(#morning-light-drawing);
 }
 .yard.period-evening {
   --prop-light: url(#evening-light);
+  --drawing-light: url(#evening-light-drawing);
 }
 .yard.weather-rain {
   --prop-light: url(#rain-light);
+  --drawing-light: url(#rain-light-drawing);
 }
 .yard.period-morning.weather-rain {
   --prop-light: url(#morning-rain-light);
+  --drawing-light: url(#morning-rain-light-drawing);
 }
 .yard.period-evening.weather-rain {
   --prop-light: url(#evening-rain-light);
+  --drawing-light: url(#evening-rain-light-drawing);
 }
 .yard.period-night {
   --prop-light: url(#night-tint);
+  --drawing-light: url(#night-tint-drawing);
 }
 /* ---- the garden: plants and gifts drawn from symbols, at the friends' depth ---- */
 /* Inside the friends' layer and no layer of its own, so a plant or a gift stands in front of a
@@ -140,7 +147,7 @@
 /* The light is on the drawing inside, not on the svg the breeze moves: a filter on a moving layer can
    be drawn again at each step of the sway, one inside it is drawn once and moves with it. */
 .plant svg > use {
-  filter: var(--prop-light, none);
+  filter: var(--drawing-light, none);
 }
 .plant:hover svg,
 .plant:focus-visible svg {
@@ -1006,7 +1013,7 @@
 }
 /* Its light inside the drawing the breeze moves, as a flower's. */
 .planted-tree svg > use {
-  filter: var(--prop-light, none);
+  filter: var(--drawing-light, none);
 }
 /* The breeze: outdoors, trees and flowers past the seed lean a little one way and back about their
    foot, on the compositor; a flower, lighter, more and sooner. Each keeps its own beat (--sway,
