@@ -10,6 +10,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Fixed
+
+- Gifts, flowers and trees out on the desktop stay where you put them, as friends do, instead of always dropping to the bottom of the screen. The first time out, they still start along the bottom.
+
 ## [1.8.1] - 2026-11-15
 
 ### Added
