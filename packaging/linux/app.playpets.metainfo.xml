@@ -75,13 +75,7 @@
   <releases>
     <release version="1.8.4" date="2026-11-16">
       <description>
-        <p>Trees and flowers on the left of the yard, under the house too, stay in sight from morning to night.</p>
-      </description>
-      <url type="details">https://playpets.gaerae.com/releases/1.8.4</url>
-    </release>
-    <release version="1.8.3" date="2026-11-16">
-      <description>
-        <p>Planted trees now stand in every outdoor place, and flowers and trees go as low in the yard as gifts do.</p>
+        <p>Planted trees now stand in every outdoor place, flowers and trees go as low as gifts do, and those on the left stay in sight.</p>
         <ul>
           <li>Planted trees stand in every outdoor place, as flowers and gifts do. The yard holds up to six.</li>
           <li>Flowers and trees can be planted and moved as low as gifts go, just above the dock.</li>
@@ -89,7 +83,7 @@
           <li>A tree, a flower or a gift with a friend behind it stays in sight, and the friend shows through.</li>
         </ul>
       </description>
-      <url type="details">https://playpets.gaerae.com/releases/1.8.3</url>
+      <url type="details">https://playpets.gaerae.com/releases/1.8.4</url>
     </release>
     <release version="1.8.2" date="2026-11-16">
       <description>

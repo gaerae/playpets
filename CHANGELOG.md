@@ -12,12 +12,6 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [1.8.4] - 2026-11-16
 
-### Fixed
-
-- A tree or a flower on the left of the yard, under the house for one, no longer disappears in the morning, the evening, the rain or at night on macOS; it was still there to drag, only not drawn.
-
-## [1.8.3] - 2026-11-16
-
 ### Changed
 
 - Planted trees stand in every outdoor place, as flowers and gifts do, instead of only in the place where they were planted. The yard holds up to six; trees planted before in several places all stay.
@@ -27,7 +21,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Flowers and trees in the yard can be planted and moved as low as gifts go, just above the dock, instead of stopping higher up than friends walk.
 - A tree or a flower at either side of the yard shows whole instead of half off the window, as gifts already did; its fruit and the friends who visit it stay under it.
 - A flower or a tree placed low in a small window no longer stands below the floor of a larger one or of another place.
-- A tree, a flower or a gift with a friend behind it stays in sight and shows the friend through a soft window, instead of fading almost away; a tree left of the middle, where friends gather, often looked gone.
+- A tree, a flower or a gift with a friend behind it stays in sight and shows the friend through a soft window, instead of fading almost away.
+- A tree or a flower on the left of the yard, under the house for one, no longer disappears in the morning, the evening, the rain or at night on macOS; it was still there to drag, only not drawn.
 
 ### Website and docs
 
