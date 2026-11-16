@@ -80,6 +80,7 @@ Right-click a flower or a tree you planted and choose **Show on desktop**. It st
 
 - With several monitors, a friend can be on any of them: drag it there and it stays.
 - With different scaling per monitor, the mouse position is matched to each monitor's scale.
+- Unplug a monitor or change its size, and friends and things on it come back onto a screen that is still there.
 
 ## On top of other apps' full screen <Since v="0.1.0" />
 

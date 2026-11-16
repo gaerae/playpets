@@ -58,7 +58,7 @@ const sceneWhen = (scene: { before?: string; weather: string; periods: string[];
       <p class="lead">{{ t.lead }}</p>
       <div class="hero-actions"><a class="world-button" href="#download">{{ t.download }} <span aria-hidden="true">↓</span></a><a href="#play">{{ t.meet }} <span aria-hidden="true">↓</span></a></div>
       <ul class="hero-facts"><li v-for="fact in t.heroFacts" :key="fact">{{ fact }}</li></ul>
-      <a class="hero-agents" :href="path('/guide/agents')"><span>{{ t.heroAgents }} →</span><b v-for="tool in AGENT_TOOLS" :key="tool">{{ tool }}</b></a>
+      <a class="hero-agents" :href="path('/guide/agents')"><span>{{ t.heroAgents }} →</span><b v-for="tool in AGENT_TOOLS" :key="tool">{{ tool }}</b><i>{{ t.heroAgentsMore }}</i></a>
       </div>
       <HeroDesk :words="t" :paused="paused" />
     </section>

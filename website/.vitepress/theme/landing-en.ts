@@ -109,7 +109,7 @@ export const sections = {
       gifts:
         'A friend you played with brings one now and then. A few come only during an event, and the snowman you build together.',
       trees:
-        'Dig up a sapling and plant it with Play → Plant a tree. It is kept here once it has grown, after twelve hours.',
+        'Dig up a sapling and plant it with Play → Plant a tree. It is kept here once it has grown, after twelve hours, and a grown fruit tree drops its fruit in season for a friend to pick up.',
       treasures: 'Choose Play → Find → Dig and click open ground. A friend may turn up a little treasure.',
       tracks:
         'In a winter yard, click the footprints in the snow and a friend follows them to the animal that left them.',
@@ -254,6 +254,7 @@ export const sections = {
     'Local Ollama is free and works offline. A signed-in Claude Code or Codex CLI runs within your subscription’s limits. OpenAI, xAI and OpenAI-compatible servers charge their own API prices.',
   heroFacts: ['Free and open source (MIT)', 'Play needs no AI account', 'English, 한국어, 日本語, 简体中文'],
   heroAgents: 'Reacts to',
+  heroAgentsMore: 'and more',
   miniDesktop: 'Desktop mode',
   togetherTitle: 'Friends talk to each other too',
   togetherBody:
