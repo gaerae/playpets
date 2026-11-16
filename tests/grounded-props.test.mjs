@@ -296,18 +296,49 @@ test('gifts, flowers and trees take the morning, the evening and the rain as the
     css = await readFile('src/styles/garden.css', 'utf8');
   for (const [id, period, weather, selector] of LIGHTS) {
     const { filter, tint } = environmentLook({ world: 'woodland', season: 'summer', period, weather });
-    const values = html
-      .match(new RegExp(`<filter id="${id}"[^>]*><feColorMatrix type="matrix" values="([^"]+)"`))?.[1]
-      ?.trim()
-      .split(/\s+/)
-      .map(Number);
-    assert.ok(values?.length === 20, `index.html has #${id}`);
     const expected = [...lightMatrix(filter, tint).flat(), 0, 0, 0, 1, 0];
-    for (const [i, v] of expected.entries())
-      assert.ok(Math.abs(values[i] - v) < 0.002, `#${id}[${i}]: ${values[i]} is ${v.toFixed(4)}`);
-    assert.match(css, new RegExp(`${selector.replaceAll('.', '\\.')} \\{\\s*--prop-light: url\\(#${id}\\);`));
+    for (const light of [id, `${id}-drawing`]) {
+      const values = html
+        .match(new RegExp(`<filter id="${light}"[^>]*><feColorMatrix type="matrix" values="([^"]+)"`))?.[1]
+        ?.trim()
+        .split(/\s+/)
+        .map(Number);
+      assert.ok(values?.length === 20, `index.html has #${light}`);
+      for (const [i, v] of expected.entries())
+        assert.ok(Math.abs(values[i] - v) < 0.002, `#${light}[${i}]: ${values[i]} is ${v.toFixed(4)}`);
+    }
+    assert.match(
+      css,
+      new RegExp(
+        `${selector.replaceAll('.', '\\.')} \\{\\s*--prop-light: url\\(#${id}\\);\\s*--drawing-light: url\\(#${id}-drawing\\);`,
+      ),
+    );
   }
-  assert.match(css, /\.yard\.period-night \{\s*--prop-light: url\(#night-tint\);/);
-  for (const thing of ['.decor svg', '.plant svg > use', '.planted-tree svg > use'])
-    assert.match(css, new RegExp(`${thing.replace('.', '\\.')} \\{[^}]*filter: var\\(--prop-light, none\\)`), thing);
+  assert.match(
+    css,
+    /\.yard\.period-night \{\s*--prop-light: url\(#night-tint\);\s*--drawing-light: url\(#night-tint-drawing\);/,
+  );
+  assert.match(css, /\.decor svg \{[^}]*filter: var\(--prop-light, none\)/);
+  for (const thing of ['.plant svg > use', '.planted-tree svg > use'])
+    assert.match(css, new RegExp(`${thing.replace('.', '\\.')} \\{[^}]*filter: var\\(--drawing-light, none\\)`), thing);
+});
+
+// A drawing's <use> measures as the whole painted atlas it is cut from, so a filter region taken from
+// that box reaches far past the tree; WebKit (macOS) then left a tree left of the middle undrawn.
+// The light on a drawing inside its box is bounded by that box instead.
+test('the light on a drawing inside its box stays within that box', async () => {
+  const html = await readFile('src/index.html', 'utf8');
+  for (const id of [...LIGHTS.map(([id]) => id), 'night-tint']) {
+    const head = html.match(new RegExp(`<filter id="${id}-drawing"[^>]*>`))?.[0] || '';
+    assert.match(head, /filterUnits="userSpaceOnUse"/, id);
+    for (const [name, value] of [
+      ['x', '0'],
+      ['y', '0'],
+      ['width', '100%'],
+      ['height', '100%'],
+    ])
+      assert.match(head, new RegExp(` ${name}="${value}"`), `${id} ${name}`);
+    // A box's own filter (a gift's svg) keeps the default region: the box is its own size.
+    assert.doesNotMatch(html.match(new RegExp(`<filter id="${id}"[^>]*>`))?.[0] || '', /filterUnits/, id);
+  }
 });

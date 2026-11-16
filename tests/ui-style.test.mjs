@@ -757,14 +757,21 @@ test('at night the drawings in the yard darken toward the blue of the night, all
   const css = await styles();
   assert.doesNotMatch(css, /brightness\(0\.6[0-9]*\)saturate/, 'no grey night dimming is left');
   // The yard's light at night is the tint (garden.css --prop-light), and every drawing takes it.
-  assert.match(css, /\.yard\.period-night\{--prop-light:url\(#night-tint\);\}/);
+  assert.match(
+    css,
+    /\.yard\.period-night\{--prop-light:url\(#night-tint\);--drawing-light:url\(#night-tint-drawing\);\}/,
+  );
   const escape = selector => selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  for (const selector of ['.decor svg', '.decor>.ornaments', '.plant svg>use', '.planted-tree svg>use'])
+  for (const selector of ['.decor svg', '.decor>.ornaments'])
     assert.match(css, new RegExp(`(^|\\})${escape(selector)}\\{[^}]*filter:var\\(--prop-light,none\\);`), selector);
+  for (const selector of ['.plant svg>use', '.planted-tree svg>use'])
+    assert.match(css, new RegExp(`(^|\\})${escape(selector)}\\{[^}]*filter:var\\(--drawing-light,none\\);`), selector);
   assert.match(css, /\.period-night \.trail-end svg\{filter:url\(#night-tint\);\}/);
   const page = await readFile('src/index.html', 'utf8');
   const matrix = page.match(/<filter id="night-tint"[^>]*>\s*<feColorMatrix type="matrix" values="([^"]+)"/);
   assert.ok(matrix, 'the tint is in the page');
+  const inside = page.match(/<filter id="night-tint-drawing"[^>]*>\s*<feColorMatrix type="matrix" values="([^"]+)"/);
+  assert.equal(inside?.[1], matrix[1], 'a drawing inside its box takes the same tint');
   const m = matrix[1].trim().split(/\s+/).map(Number);
   const gain = row => m.slice(row * 5, row * 5 + 3).reduce((a, b) => a + b, 0);
   assert.ok(gain(2) > gain(1) && gain(1) > gain(0), 'blue kept most, red least');
