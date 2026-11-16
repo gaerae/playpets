@@ -47,16 +47,24 @@ test('the spot is a grown cherry tree here, else a blanket, else the middle', ()
   const trees = [
     { id: 'y', kind: 'cherry', world: 'woodland', x: 0.2, y: 0.2, planted: 95, stage: 0 },
     { id: 'o', kind: 'cherry', world: 'lakeside', x: 0.5, y: 0.2, planted: 0, stage: 2 },
+    { id: 'p', kind: 'cherry', world: 'woodland', x: 0.1, y: 0.2, planted: 0, stage: 2 },
     { id: 'm', kind: 'maple', world: 'woodland', x: 0.5, y: 0.2, planted: 0, stage: 2 },
   ];
   const decor = [{ id: 'p', kind: 'picnic', x: 0.4, y: 0.5 }];
-  assert.deepEqual(viewingSpot({ ...base, trees, decor }), { kind: 'mat', id: 'p', x: 0.4, y: 0.5 });
+  // A grown cherry planted by the lake stands here too; nearer the middle, it is the spot.
+  assert.deepEqual(viewingSpot({ ...base, trees, decor }), { kind: 'tree', id: 'o', x: 0.5, y: 0.2 });
+  assert.deepEqual(viewingSpot({ ...base, world: 'workshop', trees, decor }), { kind: 'mat', id: 'p', x: 0.4, y: 0.5 });
   const more = [
     ...trees,
     { id: 'c', kind: 'cherry', world: 'woodland', x: 0.8, y: 0.3, planted: 0, stage: 0 },
     { id: 'd', kind: 'cherry', world: 'woodland', x: 0.55, y: 0.25, planted: 0, stage: 2 },
   ];
-  assert.deepEqual(viewingSpot({ ...base, trees: more, decor }), { kind: 'tree', id: 'd', x: 0.55, y: 0.25 });
+  assert.deepEqual(viewingSpot({ ...base, trees: more.filter(t => t.id !== 'o'), decor }), {
+    kind: 'tree',
+    id: 'd',
+    x: 0.55,
+    y: 0.25,
+  });
   assert.deepEqual(viewingSpot({ ...base, trees: [], decor: [{ id: 'b', kind: 'bench', x: 0.5, y: 0.5 }] }), {
     kind: 'middle',
     id: null,

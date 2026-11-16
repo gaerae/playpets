@@ -1,6 +1,6 @@
-// Planted trees belong to their saved world. Their roots stay at the saved field coordinate;
-// growing or resizing changes only the drawing above that foot. Dragged to move; its menu sends it
-// out to the desktop or removes it.
+// Planted trees stand in every place with soil, wherever they were planted, as flowers and gifts
+// do. Their roots stay at the saved field coordinate; growing or resizing changes only the drawing
+// above that foot. Dragged to move; its menu sends it out to the desktop or removes it.
 
 import { openTreeMenu } from '../core/controls.js';
 import { put, putAttribute } from '../core/dom.js';
@@ -9,7 +9,7 @@ import { clamp } from '../core/math.js';
 import { call, data, guard } from '../core/state.js';
 import { artSvg } from './art.js';
 import { treeArt, treeKind, treeSize } from './catalog.js';
-import { groundAllows, treeStage } from './discovery-rules.js';
+import { groundAllows, treesIn, treeStage } from './discovery-rules.js';
 import { depthAt, field, measureYard, standAt } from './field.js';
 import { groundProfile } from './ground.js';
 import { shapeHits } from './hit-shape.js';
@@ -20,7 +20,7 @@ const shown = new Map();
 // A tree stands as low as a gift may, below the friends' field (groundAllows).
 const PLANTING = { planting: true };
 const stageKeys = ['tree.growth', 'tree.young', 'tree.mature'];
-const current = id => data.garden?.trees?.find(tree => tree.id === id && tree.world === scene.world);
+const current = id => treesIn(data.garden?.trees, scene.world).find(tree => tree.id === id);
 
 /** How big a `kind` of tree at `stage` (grown by default) is drawn with its foot at `foot` (yard
  * pixels): its width and height, and the zoom of that depth. Smaller farther back, as a friend at its
@@ -124,7 +124,7 @@ function create(tree) {
 
 /** Draws only saved trees in the current place; no animation or frame-loop work. */
 export function renderTrees() {
-  const trees = (data.garden?.trees || []).filter(tree => tree.world === scene.world && treeKind(tree.kind));
+  const trees = treesIn(data.garden?.trees, scene.world).filter(tree => treeKind(tree.kind));
   reconcile(shown, trees, create, (view, tree) => {
     if (!view.drag?.moved) position(view, tree);
   });

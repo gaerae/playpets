@@ -43,7 +43,6 @@ export const strings = {
   'discovery.dig_hint': '友だちが空いた地面を掘ります。AI接続は不要です。',
   'discovery.tree_hint': '苗木を植えます。アプリを閉じている間も育ちます。',
   'discovery.indoors': '穴掘りや植樹は屋外の場所でできます。',
-  'discovery.tree_full': 'この場所には木が{limit}本あります。先に1本片づけてください。',
   'discovery.choose_dig': '空いた地面を選ぶと手の空いた友だちが掘ります。続けて選べて、Escで終了',
   'discovery.choose_tree': '木と植える地面を選んでください。苗木がある分だけ植えられます',
   'discovery.planted': '元気に育ってね！',

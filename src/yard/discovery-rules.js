@@ -1,7 +1,11 @@
 // Ground and growth rules shared by placement previews and saved discoveries.
 import { LIMITS } from '../core/limits.js';
 import { EDGE } from './field.js';
+import { worldHasSoil } from './worlds.js';
 
+/** The planted trees `world` shows: all of them where the land has soil, as flowers and gifts show
+ * in every place; none on a floor. A tree's own `world` only says where it was planted. */
+export const treesIn = (trees, world) => (worldHasSoil(world) ? trees || [] : []);
 /** Whether `point` (a place on the field) is free ground in `profile` (ground.js): a dig's, or with
  * `planting` a flower's or a tree's, which may stand below the field down to its floor as a gift
  * may (discovery.rs validate_planting). */

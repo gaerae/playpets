@@ -40,7 +40,6 @@ export const strings = {
   'discovery.dig_hint': '친구가 빈 땅을 파봐요. AI 연결은 필요하지 않아요.',
   'discovery.tree_hint': '묘목을 심어요. 앱을 꺼둔 동안에도 자라요.',
   'discovery.indoors': '땅파기와 나무 심기는 바깥 장소에서 할 수 있어요.',
-  'discovery.tree_full': '이 장소에는 나무 {limit}그루가 있어요. 먼저 한 그루를 정리해 주세요.',
   'discovery.choose_dig': '빈 땅을 고르면 쉬는 친구가 파요. 계속 고를 수 있고, Esc로 끝내요',
   'discovery.choose_tree': '나무와 심을 땅을 골라 주세요. 묘목이 있는 만큼 심을 수 있어요',
   'discovery.planted': '잘 자라, 작은 나무야!',

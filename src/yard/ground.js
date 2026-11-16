@@ -25,7 +25,6 @@ function intersectsField(e, floor) {
 /** Builds a normalized snapshot from measured pixel geometry; injectable sizes keep layout tests deterministic. */
 export function buildGroundProfile({
   world,
-  worldId = world?.id,
   bounds,
   // How far below the field a gift, a flower or a tree may stand (field.js decorFloor); 1 keeps
   // them on it.
@@ -110,7 +109,8 @@ export function buildGroundProfile({
     add(profile.water, { x, y: (shore + ridge) / 2, rx: (lake.x1 - lake.x0) / 2, ry: (ridge - shore) / 2 });
   }
   for (const tree of garden.trees || []) {
-    if (tree.world !== worldId || tree.id === skipTreeId) continue;
+    // Every tree stands in every place with soil (discovery-rules.js treesIn).
+    if (tree.id === skipTreeId) continue;
     const [rx, ry] = treeKind(tree.kind)?.footprint || [22, 9],
       stage = treeStage({ ...tree, planted: tree.planted ?? now }, now),
       at = foot({ x: tree.x, y: Math.min(tree.y, floorAt(tree.x)) }),
@@ -163,7 +163,6 @@ export function groundProfile({ skipTreeId = null, garden = data.garden, now = D
   const bounds = field();
   return buildGroundProfile({
     world: worldFor(scene.world),
-    worldId: scene.world,
     bounds,
     giftFloor: decorFloor(),
     garden,

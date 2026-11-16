@@ -42,7 +42,6 @@ export const strings = {
   'discovery.dig_hint': '让伙伴挖一块空地，无需连接AI。',
   'discovery.tree_hint': '种下树苗，关闭应用后也会生长。',
   'discovery.indoors': '请到室外场景挖土或种树。',
-  'discovery.tree_full': '此场景已有{limit}棵树，请先移除一棵。',
   'discovery.choose_dig': '选择空地，空闲的伙伴就会去挖。可以接着选，按 Esc 结束',
   'discovery.choose_tree': '选择树种和空地，有多少树苗就能种多少',
   'discovery.planted': '小树，好好长大吧！',

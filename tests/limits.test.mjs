@@ -45,8 +45,7 @@ test('time together is offered more often than the backend counts it, so no tick
 test('discovery limits and the public probability guide use the same backend rules', () => {
   const source = read('src-tauri/src/pets/discovery.rs');
   for (const [key, name] of Object.entries({
-    trees: 'TREE_MAX',
-    treesPerWorld: 'TREE_WORLD_MAX',
+    trees: 'TREE_YARD_MAX',
     digCooldownMs: 'DIG_COOLDOWN_MS',
     digHistory: 'DIG_HISTORY',
   }))

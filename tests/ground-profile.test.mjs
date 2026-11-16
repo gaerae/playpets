@@ -93,7 +93,7 @@ test('decor roots go below the field as far as gifts may, and gifts friends stan
   assert.equal(base({ giftFloor: Number.NaN }).soil, false);
 });
 
-test('flower and tree roots exclude only current-world trees and skip the tree being moved', () => {
+test('flower and tree roots take every tree, wherever planted, and skip the tree being moved', () => {
   const garden = {
     plants: [{ x: 0.2, y: 0.7, kind: 'tulip' }],
     trees: [
@@ -103,11 +103,11 @@ test('flower and tree roots exclude only current-world trees and skip the tree b
     ],
   };
   const profile = base({ garden, skipTreeId: 'moving' });
-  assert.equal(profile.obstacles.length, 2);
+  assert.equal(profile.obstacles.length, 3);
   assert.equal(groundAllows({ x: 0.5, y: 0.5 }, profile), false);
   assert.equal(groundAllows({ x: 0.2, y: 0.7 }, profile), false);
   assert.equal(groundAllows({ x: 0.7, y: 0.5 }, profile), true);
-  assert.equal(groundAllows({ x: 0.9, y: 0.5 }, profile), true);
+  assert.equal(groundAllows({ x: 0.9, y: 0.5 }, profile), false, 'a tree planted in the workshop stands here too');
 });
 
 test('a tree planted at the edge takes the ground where it is drawn, whole inside the yard', () => {

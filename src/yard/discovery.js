@@ -105,17 +105,11 @@ const planting = () =>
   [...tasks.values()].filter(
     task => task.action === 'tree' && !data.garden?.trees?.some(tree => tree.id === task.saved),
   );
-// Why no other tree fits, counting those on their way; nothing when one does.
+// Why no other tree fits, counting those on their way; nothing when one does. One yard of trees
+// stands in every place, so wherever they were planted counts.
 function noRoomForTree() {
-  const trees = data.garden?.trees || [],
-    coming = planting(),
-    here =
-      trees.filter(tree => tree.world === scene.world).length +
-      coming.filter(task => task.world === scene.world).length;
-  if (trees.length + coming.length >= limit(data, 'trees'))
-    return t('discovery.tree_total', { limit: limit(data, 'trees') });
-  if (here >= limit(data, 'treesPerWorld')) return t('discovery.tree_full', { limit: limit(data, 'treesPerWorld') });
-  return '';
+  const count = (data.garden?.trees || []).length + planting().length;
+  return count >= limit(data, 'trees') ? t('discovery.tree_total', { limit: limit(data, 'trees') }) : '';
 }
 
 export function beginDiscovery(action) {

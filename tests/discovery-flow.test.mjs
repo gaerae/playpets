@@ -540,7 +540,7 @@ test('the dig tool stays in hand: each spot sends the next free friend until Esc
   assert.equal(state.aiming, false);
 });
 
-test('the tree tool stops at a full place, counting the trees friends are on their way to plant', async t => {
+test('the tree tool stops at a full yard, wherever its trees were planted, counting those on their way', async t => {
   const { v } = fixture(t);
   t.mock.method(performance, 'now', () => 1e9);
   const other = {
@@ -556,7 +556,10 @@ test('the tree tool stops at a full place, counting the trees friends are on the
   state.data.pets.push(other.pet);
   t.after(() => release(other));
   const tree = (id, x) => ({ id, kind: 'maple', world: 'woodland', planted: 0, x, y: 0.9 });
-  state.data.garden.trees = [0.05, 0.15, 0.25, 0.35, 0.45].map((x, i) => tree(`t${i}`, x));
+  state.data.garden.trees = [0.05, 0.15, 0.25, 0.35, 0.45].map((x, i) => ({
+    ...tree(`t${i}`, x),
+    world: i ? 'woodland' : 'lakeside',
+  }));
   state.data.garden.saplings = { maple: 3 };
   setupDiscovery();
   beginDiscovery('tree');
@@ -566,7 +569,7 @@ test('the tree tool stops at a full place, counting the trees friends are on the
   assert.equal(other.trip, undefined, 'no friend walks off to plant a seventh');
   assert.equal(
     document.getElementById('toast').textContent,
-    'This place has 6 trees. Remove one before planting another.',
+    'You have 6 planted trees. Remove one before planting another.',
   );
 });
 
@@ -586,7 +589,10 @@ test('a tree just saved counts until the state the page is sent shows it', async
   state.data.pets.push(other.pet);
   t.after(() => release(other));
   const tree = (id, x) => ({ id, kind: 'maple', world: 'woodland', planted: 0, x, y: 0.9 });
-  state.data.garden.trees = [0.05, 0.15, 0.25, 0.35, 0.45].map((x, i) => tree(`t${i}`, x));
+  state.data.garden.trees = [0.05, 0.15, 0.25, 0.35, 0.45].map((x, i) => ({
+    ...tree(`t${i}`, x),
+    world: i ? 'woodland' : 'lakeside',
+  }));
   state.data.garden.saplings = { maple: 3 };
   const previous = state.api.plantTree;
   state.api.plantTree = async () => ({ ok: true, data: tree('sixth', 0.5) });
@@ -606,7 +612,7 @@ test('a tree just saved counts until the state the page is sent shows it', async
   assert.equal(other.trip, undefined, 'no friend walks off to plant a seventh');
   assert.equal(
     document.getElementById('toast').textContent,
-    'This place has 6 trees. Remove one before planting another.',
+    'You have 6 planted trees. Remove one before planting another.',
   );
 });
 

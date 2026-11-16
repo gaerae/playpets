@@ -1,4 +1,4 @@
-//! Ground snapshots, one-time discoveries and scene-owned trees.
+//! Ground snapshots, one-time discoveries and planted trees.
 use super::{
     album::{Album, Entry, KINDS_MAX},
     content::{DiscoveryContext, catalog},
@@ -9,8 +9,10 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
+/// How many trees a saved yard keeps: one saved when each place had its own six keeps them all.
 pub const TREE_MAX: usize = 24;
-pub const TREE_WORLD_MAX: usize = 6;
+/// How many trees may be planted: one yard of them, standing in every place with soil.
+pub const TREE_YARD_MAX: usize = 6;
 pub const TREE_YOUNG_MS: u64 = 2 * 60 * 60 * 1000;
 pub const TREE_MATURE_MS: u64 = 12 * 60 * 60 * 1000;
 pub const DIG_COOLDOWN_MS: u64 = 8000;
@@ -376,7 +378,7 @@ pub fn plant_tree(
     if !identifier(world) || !catalog().is_tree(kind) {
         return Err(bad_request());
     }
-    if garden.trees.len() >= TREE_MAX || garden.trees.iter().filter(|t| t.world == world).count() >= TREE_WORLD_MAX {
+    if garden.trees.len() >= TREE_YARD_MAX {
         return Err(i18n::t("error.tree_full"));
     }
     let stock = garden
@@ -1267,7 +1269,7 @@ mod tests {
     }
 
     #[test]
-    fn trees_are_scene_owned_limited_and_grow_once_without_regression() {
+    fn trees_keep_where_they_were_planted_are_limited_and_grow_once_without_regression() {
         let mut g = Garden::restore(Some(&json!({"saplings": {"cherry":20,"pine":20,"maple":20}})), 0);
         let mut a = Album::default();
         let tree = plant_tree(&mut g, "meadow", "cherry", 0.5, 0.5, &ground(), 10000).unwrap();
@@ -1281,25 +1283,16 @@ mod tests {
         assert!(grow_trees(&mut g, &mut a, 10000 + TREE_MATURE_MS));
         assert_eq!(a.trees["cherry"].count, 1);
         assert!(!grow_trees(&mut g, &mut a, u64::MAX));
-        for _ in 1..TREE_WORLD_MAX {
-            plant_tree(&mut g, "meadow", "pine", 0.8, 0.8, &ground(), 1).unwrap();
+        // One yard of trees, shown in every place: planting in another place counts the same.
+        for i in 1..TREE_YARD_MAX {
+            plant_tree(&mut g, &format!("world{i}"), "pine", 0.8, 0.8, &ground(), 1).unwrap();
         }
         assert!(plant_tree(&mut g, "meadow", "maple", 0.5, 0.5, &ground(), 1).is_err());
-        for i in 1..4 {
-            g = Garden::restore(
-                Some(&{
-                    let mut saved = serde_json::to_value(&g).unwrap();
-                    saved["saplings"]["pine"] = json!(20);
-                    saved
-                }),
-                0,
-            );
-            for _ in 0..TREE_WORLD_MAX {
-                plant_tree(&mut g, &format!("world{i}"), "pine", 0.8, 0.8, &ground(), 1).unwrap();
-            }
-        }
-        assert_eq!(g.trees.len(), 24);
         assert!(plant_tree(&mut g, "extra", "pine", 0.5, 0.5, &ground(), 1).is_err());
+        // A yard saved when each place kept its own keeps every tree, up to TREE_MAX.
+        let mut saved = serde_json::to_value(&g).unwrap();
+        saved["trees"] = json!((0..30).map(|i| json!({"id": format!("t{i}"), "world": "meadow", "kind": "pine", "x": 0.5, "y": 0.5, "planted": 1, "stage": 0})).collect::<Vec<_>>());
+        assert_eq!(Garden::restore(Some(&saved), 0).trees.len(), TREE_MAX);
         move_tree(&mut g, &tree.id, 0.2, 0.2, &ground()).unwrap();
         assert_eq!(g.trees[0].x, 0.2);
         remove_tree(&mut g, &tree.id).unwrap();

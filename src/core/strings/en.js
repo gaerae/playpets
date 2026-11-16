@@ -39,7 +39,6 @@ export const strings = {
   'discovery.dig_hint': 'Choose a friend and some clear ground to dig. No AI connection needed.',
   'discovery.tree_hint': 'Plant a sapling here. It grows while the app is closed too.',
   'discovery.indoors': 'Choose an outdoor place to dig or plant trees.',
-  'discovery.tree_full': 'This place has {limit} trees. Remove one before planting another.',
   'discovery.choose_dig': 'Choose clear ground. Each spot sends a free friend, Esc to stop',
   'discovery.choose_tree': 'Choose a tree and clear ground, as many as you have',
   'discovery.planted': 'Grow well, little tree!',

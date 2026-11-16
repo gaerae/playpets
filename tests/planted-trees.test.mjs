@@ -73,10 +73,14 @@ test('trees retain scene ownership and their foot anchor while scaling with the 
   assert.match(button.innerHTML, /cherry-mature/);
   resize(300, 210);
   assert.equal(button.style.width, `${160 * zoomAt(tree)}px`);
-  scene.world = 'room';
+  // The same tree stands in every place with soil, as flowers and gifts do.
+  scene.world = 'lakeside';
   renderTrees();
-  assert.equal(button.removed, true);
-  assert.equal(state.data.garden.trees.length, 1, 'switching worlds never deletes a saved tree');
+  assert.equal(button.removed, undefined, 'still drawn by the lake');
+  scene.world = 'workshop';
+  renderTrees();
+  assert.equal(button.removed, true, 'not on a floor without soil');
+  assert.equal(state.data.garden.trees.length, 1, 'switching places never deletes a saved tree');
   scene.world = 'woodland';
   renderTrees();
   assert.notEqual(nodes.get('garden-layer').children.at(-1), button);
@@ -104,9 +108,9 @@ test('drag cancellation and invalid ground never save, while keyboard moves use 
     requests[0].args[3].obstacles.every(o => Math.abs(o.x - 0.25) > 0.00001 || Math.abs(o.y - 0.7) > 0.00001),
     'the tree does not collide with itself',
   );
-  scene.world = 'room';
+  scene.world = 'workshop';
   await button.dispatch('keydown', { key: 'ArrowRight' });
-  assert.equal(requests.length, 1, 'stale scene buttons cannot move another world tree');
+  assert.equal(requests.length, 1, 'a tree not drawn in this place is not moved from a stale button');
 });
 
 test('pulling a tree up asks nothing, offers Undo, and removes it only when Undo is not taken', async t => {

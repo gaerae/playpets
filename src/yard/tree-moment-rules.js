@@ -7,7 +7,7 @@
 import { between, distance, pick } from '../core/math.js';
 import { treeKind } from './catalog.js';
 import { yardSeason } from './decor-shown.js';
-import { behind, freeSpot, treeStage } from './discovery-rules.js';
+import { behind, freeSpot, treesIn, treeStage } from './discovery-rules.js';
 import { underBody, unit } from './shoot-rules.js';
 
 /** What a moment may be, and the weather it keeps when it names none. */
@@ -33,12 +33,12 @@ const momentOn = (scene, season, moment) =>
  * it names more). */
 export const momentTime = (scene, moment) => momentOn(scene, yardSeason(scene), moment);
 
-/** The grown trees in this place with a moment on now, each with that moment, in garden order. */
+/** The grown trees this place shows with a moment on now, each with that moment, in garden order. */
 export function momentTrees(trees, scene, now, limits) {
   const season = yardSeason(scene);
-  return (trees || []).flatMap(tree => {
+  return treesIn(trees, scene.world).flatMap(tree => {
     // Most kinds name no moment: those are passed over before their growth is worked out.
-    const moments = tree.world === scene.world ? momentsOf(tree.kind) : [];
+    const moments = momentsOf(tree.kind);
     if (!moments.length || treeStage(tree, now, limits) < 2) return [];
     return moments
       .filter(moment => momentOn(scene, season, moment))
@@ -137,7 +137,6 @@ export function fruitStays(out, { trees, season, now, limits }) {
     const tree = (trees || []).find(t => t.id === f.tree);
     return (
       !!tree &&
-      tree.world === f.world &&
       treeStage(tree, now, limits) >= 2 &&
       harvestOf(tree.kind)?.season === season &&
       // Fruit lies a few hundredths from its trunk, so even a short move takes it along.

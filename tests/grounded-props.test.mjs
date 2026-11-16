@@ -155,7 +155,6 @@ test('what friends walk around is the size drawn: a gift and a tree at the back 
   const bounds = { width: 1000, height: 700, top: 350, bottom: 650 };
   const profile = buildGroundProfile({
     world: { id: 'meadow', capabilities: { sky: true } },
-    worldId: 'meadow',
     bounds,
     scale: 1,
     // Half size at the field's top, whole at its foot: 0.55 a tenth of the way down.
