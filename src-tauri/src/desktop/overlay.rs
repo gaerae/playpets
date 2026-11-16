@@ -91,6 +91,8 @@ struct Inner {
     /// The monitors as last asked for, when, and the primary one's scale.
     mons: Vec<Mon>,
     mons_at: Option<Instant>,
+    /// The screens' work areas changed since things were placed (keep_on_screens).
+    rescreen: bool,
     primary_scale: f64,
     /// Things whose box changed size since it was last kept (a tree grew): kept again on the next
     /// step, where the new place is saved.
@@ -169,10 +171,19 @@ fn current_monitors(app: &AppHandle, inner: &Mutex<Inner>) -> (Vec<Mon>, f64) {
         .map(|m| m.scale_factor())
         .unwrap_or(1.0);
     let mut d = crate::app::hold(inner);
+    d.rescreen |= !d.mons.is_empty() && !same_areas(&d.mons, &mons);
     d.mons = mons.clone();
     d.mons_at = Some(Instant::now());
     d.primary_scale = primary;
     (mons, primary)
+}
+
+/// Whether two looks at the monitors found the same screens with the same work areas.
+fn same_areas(a: &[Mon], b: &[Mon]) -> bool {
+    a.len() == b.len()
+        && a.iter().zip(b).all(|(m, n)| {
+            m.id == n.id && (m.area.x, m.area.y, m.area.w, m.area.h) == (n.area.x, n.area.y, n.area.w, n.area.h)
+        })
 }
 
 fn cursor_in(app: &AppHandle, mons: &[Mon], primary_scale: f64) -> Option<(f64, f64)> {
@@ -369,15 +380,16 @@ fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt
             d.warm.insert(mon.id.clone(), Instant::now() + LINGER);
         }
         let placed = place_newcomers(&mut d, &mons);
-        // Saved as a drop is, on the screen it is on now.
-        for id in std::mem::take(&mut d.resized) {
-            if let Some(&(x, y)) = d.positions.get(&id) {
-                arrivals.push((id, x.round() as i64, y.round() as i64));
-            }
-        }
+        place_resized(&mut d, &mons, &mut arrivals);
+        let rescreened = std::mem::take(&mut d.rescreen) && keep_on_screens(&mut d, &mons, &mut arrivals);
         let dragged = follow_drag(&mut d, &mons, cursor, &mut arrivals);
         let strolled = stroll(&mut d, &mons, cursor, dt_ms, &mut arrivals, &mut visits);
-        let moved = placed || dragged || strolled || std::mem::take(&mut d.dropped) || std::mem::take(&mut d.resend);
+        let moved = placed
+            || rescreened
+            || dragged
+            || strolled
+            || std::mem::take(&mut d.dropped)
+            || std::mem::take(&mut d.resend);
         let walking = d.roams.values().any(|r| r.target.is_some());
         let busy = moved || walking || d.drag.is_some() || pointer_near(&d, cursor);
         (
@@ -765,23 +777,72 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
 /// is saved.
 fn finish_drag(d: &mut Inner, mons: &[Mon], arrivals: &mut Vec<(String, i64, i64)>) {
     let Some(drag) = d.drag.take() else { return };
-    let Some(pet) = d.pets.iter().find(|p| p.id == drag.id) else {
-        return;
-    };
-    let Some(&(x, y)) = d.positions.get(&drag.id) else {
-        return;
-    };
-    let (w, h) = dims(pet);
-    let area = monitor_of_box(mons, x, y, (w, h)).map(|m| m.area).unwrap_or(Bounds {
-        x: 0.0,
-        y: 0.0,
-        w: 10_000.0,
-        h: 10_000.0,
-    });
-    let (cx, cy) = set_down(pet, &area, (x, y));
-    d.positions.insert(drag.id.clone(), (cx, cy));
-    d.dropped = true;
-    arrivals.push((drag.id, cx.round() as i64, cy.round() as i64));
+    if let Some((_, at)) = set_down_here(d, mons, &drag.id) {
+        d.dropped = true;
+        arrivals.push(arrival(drag.id, at));
+    }
+}
+
+/// Things that grew (keep_feet) are set down again, so one put near a screen's edge does not
+/// spread past it, and saved as a drop is, on the screen they are on now.
+fn place_resized(d: &mut Inner, mons: &[Mon], arrivals: &mut Vec<(String, i64, i64)>) {
+    for id in std::mem::take(&mut d.resized) {
+        if let Some((_, at)) = set_down_here(d, mons, &id) {
+            arrivals.push(arrival(id, at));
+        }
+    }
+}
+
+/// The screens changed (one unplugged, a resolution or the Dock changed): everything out but the
+/// one held is set down again, so none is left past every work area. What moved is saved. Every
+/// friend's walk is called off, its target being on the old screens (past an edge or under a Dock
+/// that grew); the next stroll picks one on the new. Whether anything moved.
+fn keep_on_screens(d: &mut Inner, mons: &[Mon], arrivals: &mut Vec<(String, i64, i64)>) -> bool {
+    for roam in d.roams.values_mut() {
+        roam.target = None;
+        roam.visiting = None;
+    }
+    let held = d.drag.as_ref().map(|g| g.id.clone());
+    let ids: Vec<String> = d
+        .pets
+        .iter()
+        .map(|p| p.id.clone())
+        .filter(|id| Some(id) != held.as_ref())
+        .collect();
+    let mut moved = false;
+    for id in ids {
+        let Some((from, at)) = set_down_here(d, mons, &id) else {
+            continue;
+        };
+        if from == at {
+            continue;
+        }
+        arrivals.push(arrival(id, at));
+        moved = true;
+    }
+    moved
+}
+
+/// Sets `id` down where it is, on the work area nearest its box (set_down). Where it was and where
+/// it is now; None when it is not out.
+fn set_down_here(d: &mut Inner, mons: &[Mon], id: &str) -> Option<((f64, f64), (f64, f64))> {
+    let (item, &from) = (d.pets.iter().find(|p| p.id == id)?, d.positions.get(id)?);
+    let area = monitor_of_box(mons, from.0, from.1, dims(item))
+        .map(|m| m.area)
+        .unwrap_or(Bounds {
+            x: 0.0,
+            y: 0.0,
+            w: 10_000.0,
+            h: 10_000.0,
+        });
+    let at = set_down(item, &area, from);
+    d.positions.insert(id.to_string(), at);
+    Some((from, at))
+}
+
+/// A place to save, in whole pixels.
+fn arrival(id: String, (x, y): (f64, f64)) -> (String, i64, i64) {
+    (id, x.round() as i64, y.round() as i64)
 }
 
 pub fn stop_drag_and_save(overlay: &Overlay, app: &AppHandle, on_position: &PositionFn) {
@@ -980,6 +1041,68 @@ mod tests {
         };
         assert_eq!(keep_feet(&[tree(71.0, 95.0)], &[bloom], &mut positions), ["cherry"]);
         assert!((positions["cherry"].1 + 95.0 * 0.9 - 640.0).abs() < 1e-9);
+    }
+
+    // Put near a screen's top left corner, a sapling that grows into a tree spreads past its edges
+    // (keep_feet keeps its foot); it stays on the screen, and that place is saved.
+    #[test]
+    fn a_tree_that_grows_near_the_screen_edge_stays_on_it() {
+        let mut d = Inner {
+            pets: vec![out("cherry", None, Some((160.0, 170.0)))],
+            ..Inner::default()
+        };
+        d.positions.insert("cherry".into(), (-57.5, -100.0));
+        d.resized.push("cherry".into());
+        let mut arrivals = Vec::new();
+        place_resized(&mut d, &screen(), &mut arrivals);
+        assert_eq!(d.positions["cherry"], (0.0, 25.0));
+        assert_eq!(arrivals, [("cherry".to_string(), 0, 25)]);
+        assert!(d.resized.is_empty());
+    }
+
+    // A second screen unplugged, or the Dock grown, while things are out: what is now past every
+    // work area comes back onto the nearest one, a walk there is called off, and what still fits
+    // stays (and is not saved again).
+    #[test]
+    fn things_left_off_the_screens_come_back_when_the_screens_change() {
+        let mut d = Inner {
+            pets: vec![
+                out("pip", None, None),
+                out("cherry", None, Some((160.0, 170.0))),
+                out("tulip", None, Some((50.0, 75.0))),
+            ],
+            ..Inner::default()
+        };
+        d.positions.insert("pip".into(), (2000.0, 300.0));
+        d.positions.insert("cherry".into(), (100.0, 900.0));
+        d.positions.insert("tulip".into(), (500.0, 300.0));
+        d.positions.insert("miso".into(), (700.0, 300.0));
+        d.pets.push(out("miso", None, None));
+        // pip walks on past the old right edge; miso, still on the screen, under the grown Dock.
+        for (id, target) in [("pip", (2200.0, 300.0)), ("miso", (700.0, 860.0))] {
+            d.roams.insert(
+                id.into(),
+                Roam {
+                    target: Some(target),
+                    next_at: Instant::now(),
+                    visiting: None,
+                },
+            );
+        }
+        let mut arrivals = Vec::new();
+        keep_on_screens(&mut d, &screen(), &mut arrivals);
+        let (pip_w, _) = dims(&d.pets[0]);
+        assert_eq!(d.positions["pip"], (1440.0 - pip_w, 300.0));
+        assert_eq!(d.positions["cherry"], (100.0, 825.0 - 170.0));
+        assert_eq!(d.positions["tulip"], (500.0, 300.0));
+        assert_eq!(d.positions["miso"], (700.0, 300.0));
+        assert!(
+            d.roams.values().all(|r| r.target.is_none()),
+            "every walk, aimed at the old screens, is called off"
+        );
+        let mut saved: Vec<_> = arrivals.iter().map(|a| a.0.as_str()).collect();
+        saved.sort();
+        assert_eq!(saved, ["cherry", "pip"]);
     }
 
     fn screen() -> Vec<Mon> {
