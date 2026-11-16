@@ -27,10 +27,10 @@ import { pick } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { aiming, data, game, recall, remember, selected, toast, views } from '../core/state.js';
 import { artHref } from './art.js';
-import { depthAt, depthScaleAt, fieldToYard, footOf, footTarget, petHeight, sizeOf } from './field.js';
+import { depthAt, depthScaleAt, fieldToYard, footOf, footTarget, petHeight, sizeOf, yardToDecor } from './field.js';
 import { groundProfile } from './ground.js';
 import { localDay } from './growth.js';
-import { treeBox } from './planted-trees.js';
+import { treeBox, treeFoot } from './planted-trees.js';
 import { propButton, propScale, reconcile, setDown } from './props.js';
 import { shootScale } from './shoot-rules.js';
 import {
@@ -121,13 +121,15 @@ function drop(record, ms) {
   const trees = momentTrees(data.garden?.trees, scene, ms, data.limits).filter(tree => tree.moment.kind === 'harvest'),
     due = fruitDue(record, trees, ms, Math.random, scene.world);
   if (!due.tree) return due.kept;
-  const spot = fruitSpot(
-    Math.random,
-    groundProfile(),
-    due.tree,
-    fruitHere(due.kept.out, scene.world),
-    due.tree.moment.size[0],
-  );
+  // Under the tree as it is drawn, which stays whole at the yard's sides.
+  const drawn = treeFoot(due.tree),
+    spot = fruitSpot(
+      Math.random,
+      groundProfile(),
+      { ...due.tree, ...yardToDecor(drawn.x, drawn.y) },
+      fruitHere(due.kept.out, scene.world),
+      due.tree.moment.size[0],
+    );
   if (!spot) return due.kept;
   // Where the tree stands, so moving it takes its fruit along (fruitStays).
   const fruit = {
@@ -184,7 +186,7 @@ function update(v, fruit) {
   setDown(v.button, x, y, w * scale, h * scale, depthAt(y));
   // Fruit still falling falls from where the tree's leaves end, as planted-trees.js draws the tree.
   if (tree && v.button.classList.contains('dropped')) {
-    const foot = fieldToYard(tree);
+    const foot = treeFoot(tree);
     v.button.style.setProperty('--fall', `${fruitFall(y, foot.y, treeBox(tree.kind, foot).height)}px`);
   }
   v.button.classList.toggle('picking', picks.has(fruit.id));

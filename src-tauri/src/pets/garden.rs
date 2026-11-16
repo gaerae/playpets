@@ -264,12 +264,13 @@ fn place(v: f64) -> Option<f64> {
     v.is_finite().then(|| v.clamp(0.0, 1.0))
 }
 
-/// How far below the friends' field (y over 1) a gift may stand: gifts have no name tag, so the
-/// page lets them down to just above the dock, a distance it measures in the friends' field
-/// (src/yard/field.js decorFloor). Kept in those units, a gift placed before keeps its place.
+/// How far below the friends' field (y over 1) a gift, a flower or a tree may stand: they have no
+/// name tag, so the page lets them down to just above the dock, a distance it measures in the
+/// friends' field (src/yard/field.js decorFloor). Kept in those units, a thing placed before keeps
+/// its place.
 pub const DECOR_FLOOR_MAX: f64 = 4.0;
 
-/// A gift's place: across like any other, down to DECOR_FLOOR_MAX.
+/// A gift's or a flower's place: across like any other, down to DECOR_FLOOR_MAX.
 fn decor_place(x: f64, y: f64) -> Option<(f64, f64)> {
     Some((place(x)?, y.is_finite().then(|| y.clamp(0.0, DECOR_FLOOR_MAX))?))
 }
@@ -346,7 +347,7 @@ impl Garden {
             PLANT_MAX,
             |p: &Plant| catalog().is_flower(&p.kind),
             |p| (&mut p.x, &mut p.y),
-            1.0,
+            DECOR_FLOOR_MAX,
         );
         let mut decor = placed(
             raw.get("decor"),
@@ -519,7 +520,7 @@ impl Garden {
         if self.plants.len() >= PLANT_MAX {
             return Err(i18n::tr("error.garden_full", &[("limit", &PLANT_MAX.to_string())]));
         }
-        let (Some(x), Some(y), true) = (place(x), place(y), catalog().is_flower(kind)) else {
+        let (Some((x, y)), true) = (decor_place(x, y), catalog().is_flower(kind)) else {
             return Err(i18n::t("error.bad_request"));
         };
         let plant = Plant {
@@ -549,7 +550,7 @@ impl Garden {
 
     /// Moves a plant to another spot on the field; it keeps growing as it was.
     pub fn move_plant(&mut self, id: &str, x: f64, y: f64) -> Result<(), String> {
-        let (Some(x), Some(y)) = (place(x), place(y)) else {
+        let Some((x, y)) = decor_place(x, y) else {
             return Err(i18n::t("error.bad_request"));
         };
         let plant = self
@@ -1013,16 +1014,17 @@ mod tests {
     }
 
     #[test]
-    fn a_gift_may_stand_below_the_friends_field_and_a_plant_may_not() {
+    fn a_gift_and_a_plant_may_stand_below_the_friends_field() {
         let mut g = Garden::restore(
             Some(&json!({
                 "decor": [{"id": "a", "kind": "bench", "x": 0.5, "y": 1.5}],
-                "plants": [{"id": "p", "kind": "tulip", "x": 0.5, "y": 1.5}]
+                "plants": [{"id": "p", "kind": "tulip", "x": 0.5, "y": 1.5, "planted": 1}, {"id": "q", "kind": "tulip", "x": 0.5, "y": 9.0, "planted": 1}]
             })),
             0,
         );
         assert_eq!(g.decor[0].y, 1.5);
-        assert!(g.plants.iter().all(|p| p.y <= 1.0));
+        assert_eq!(g.plants[0].y, 1.5);
+        assert_eq!(g.plants[1].y, DECOR_FLOOR_MAX);
         g.move_decor("a", 0.5, 9.0).unwrap();
         assert_eq!(g.decor[0].y, DECOR_FLOOR_MAX);
         assert!(g.move_decor("a", 0.5, f64::NAN).is_err());
@@ -1145,9 +1147,11 @@ mod tests {
             (1.0, 0.0, 7, SEED_MAX - 1),
             "kept on the field"
         );
+        // As low as a gift goes, below the friends' field.
+        assert_eq!(g.plant("cosmos", 0.5, 1.3, 7).unwrap().y, 1.3);
         assert!(g.plant("cactus", 0.5, 0.5, 1).is_err(), "only the season flowers grow");
         assert!(g.plant("tulip", f64::NAN, 0.5, 1).is_err());
-        assert_eq!(g.seeds, SEED_MAX - 1, "a refused planting costs no seed");
+        assert_eq!(g.seeds, SEED_MAX - 2, "a refused planting costs no seed");
     }
 
     #[test]
@@ -1180,9 +1184,11 @@ mod tests {
         assert_eq!(g.move_plant(&id, 0.2, 0.9), Ok(()));
         let p = &g.plants[0];
         assert_eq!((p.x, p.y, p.planted), (0.2, 0.9, 7));
-        // Kept on the field, as planting is.
-        assert_eq!(g.move_plant(&id, -1.0, 3.0), Ok(()));
-        assert_eq!((g.plants[0].x, g.plants[0].y), (0.0, 1.0));
+        // Down to where a gift may stand, and no farther, as planting is.
+        assert_eq!(g.move_plant(&id, 0.2, 1.4), Ok(()));
+        assert_eq!(g.plants[0].y, 1.4);
+        assert_eq!(g.move_plant(&id, -1.0, 9.0), Ok(()));
+        assert_eq!((g.plants[0].x, g.plants[0].y), (0.0, DECOR_FLOOR_MAX));
         assert!(g.move_plant(&id, f64::NAN, 0.5).is_err());
         assert!(g.move_plant("gone", 0.5, 0.5).is_err());
     }

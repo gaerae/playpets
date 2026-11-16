@@ -5,7 +5,7 @@ import { data, setData } from '../src/core/state.js';
 import { treeSize } from '../src/yard/catalog.js';
 import { groundAllows, projectFootprint } from '../src/yard/discovery-rules.js';
 import { environmentLake } from '../src/yard/environment.js';
-import { field, measureYard } from '../src/yard/field.js';
+import { decorFloor, field, measureYard } from '../src/yard/field.js';
 import { buildGroundProfile, groundProfile } from '../src/yard/ground.js';
 import { scene } from '../src/yard/world.js';
 import { worldFor } from '../src/yard/worlds.js';
@@ -75,11 +75,16 @@ test('decor roots follow edge-clamped rendered placement and flat props occupy t
 
 test('decor roots go below the field as far as gifts may, and gifts friends stand on stay on it', () => {
   const lantern = y => ({ kind: 'lantern', x: 0.5, y });
-  // Well below the field it takes no root from plants there; a bench stays on the field's edge.
-  const [bench] = base({
+  // Well below the field it still takes the ground a flower or a tree could stand on there; a bench
+  // stays on the field's edge.
+  const profile = base({
     giftFloor: 1.2,
     garden: { decor: [lantern(1.15), { kind: 'bench', x: 0.5, y: 1.15 }] },
-  }).obstacles;
+  });
+  assert.equal(profile.floor, 1.2, 'flowers and trees go as low as gifts');
+  const [low, bench] = profile.obstacles;
+  assert.ok(Math.abs(low.y - 1.15) < 1e-9);
+  assert.equal(groundAllows({ x: 0.5, y: 1.15 }, profile, { planting: true }), false);
   assert.equal(bench.y, 1, 'a bench stays where friends can sit on it');
   const [near] = base({ giftFloor: 1.2, garden: { decor: [lantern(1.02)] } }).obstacles;
   assert.ok(Math.abs(near.y - 1.02) < 1e-9, 'just below, its footprint still reaches the field');
@@ -103,6 +108,19 @@ test('flower and tree roots exclude only current-world trees and skip the tree b
   assert.equal(groundAllows({ x: 0.2, y: 0.7 }, profile), false);
   assert.equal(groundAllows({ x: 0.7, y: 0.5 }, profile), true);
   assert.equal(groundAllows({ x: 0.9, y: 0.5 }, profile), true);
+});
+
+test('a tree planted at the edge takes the ground where it is drawn, whole inside the yard', () => {
+  const [w] = treeSize('cherry', 2),
+    width = bounds.width - 28;
+  const profile = base({
+    now: 43_200_000,
+    garden: { trees: [{ id: 'edge', world: 'meadow', kind: 'cherry', x: 0, y: 0.8, planted: 0 }] },
+  });
+  const [root] = profile.obstacles,
+    [box] = profile.bodies;
+  assert.ok(Math.abs(box.left - (4 - 14) / width) < 1e-9, `${box.left}`);
+  assert.ok(Math.abs(root.x - (w / 2 + 4 - 14) / width) < 1e-9, `${root.x}`);
 });
 
 test('trees and standing gifts keep the box they are drawn in; flat gifts lie under everything', () => {
@@ -162,6 +180,7 @@ test('live snapshot reads the measured field, current world and saved garden', t
   const live = groundProfile();
   assert.equal(live.soil, true);
   assert.deepEqual(live.bounds, { left: 0, top: 0, right: 1, bottom: 1 });
+  assert.equal(live.floor, decorFloor());
   assert.equal(groundAllows({ x: 0.2, y: 0.8 }, live), false);
   assert.ok(worldFor(scene.world));
   assert.ok(field().height > 0);

@@ -13,11 +13,12 @@ import { worldFor } from './worlds.js';
 const MAX_EXCLUSIONS = 64;
 const treeScale = [0.4, 0.65, 1];
 
-function intersectsField(e) {
+// Whether an ellipse reaches the ground things stand on: the field, and below it down to `floor`.
+function intersectsField(e, floor) {
   return (
     [e.x, e.y].every(v => Number.isFinite(v) && v >= -4 && v <= 4) &&
     [e.rx, e.ry].every(v => Number.isFinite(v) && v > 0 && v <= 4) &&
-    ((clamp(e.x) - e.x) / e.rx) ** 2 + ((clamp(e.y) - e.y) / e.ry) ** 2 <= 1
+    ((clamp(e.x) - e.x) / e.rx) ** 2 + ((clamp(e.y, 0, floor) - e.y) / e.ry) ** 2 <= 1
   );
 }
 
@@ -26,7 +27,8 @@ export function buildGroundProfile({
   world,
   worldId = world?.id,
   bounds,
-  // How far below the field a gift may stand (field.js decorFloor); 1 keeps gifts on it.
+  // How far below the field a gift, a flower or a tree may stand (field.js decorFloor); 1 keeps
+  // them on it.
   giftFloor = 1,
   garden = {},
   lake = null,
@@ -55,6 +57,8 @@ export function buildGroundProfile({
     bodies: [],
     // One pixel of a drawing at the yard's zoom, in field units each way.
     unit: { x: 0, y: 0 },
+    // The lowest a flower or a tree stands, as a gift (discovery-rules.js groundAllows `planting`).
+    floor: 1,
   };
   const validField =
     bounds &&
@@ -64,6 +68,7 @@ export function buildGroundProfile({
     scale > 0;
   if (!validField) profile.soil = false;
   if (!profile.soil) return profile;
+  profile.floor = Math.max(1, giftFloor);
 
   const width = bounds.width - EDGE * 2,
     height = bounds.bottom - bounds.top;
@@ -93,7 +98,7 @@ export function buildGroundProfile({
   const add = (book, ellipse) => {
     if (profile.water.length + profile.obstacles.length >= MAX_EXCLUSIONS) return;
     const projected = projectFootprint(ellipse, bounds, top(ellipse.x));
-    if (intersectsField(projected)) book.push(projected);
+    if (intersectsField(projected, profile.floor)) book.push(projected);
   };
   // The field never begins over the water (field.js topAt), so the lake is one ellipse placed on the
   // field from where it begins at its middle: it stays out of the field unless a place's own line
@@ -108,10 +113,16 @@ export function buildGroundProfile({
     if (tree.world !== worldId || tree.id === skipTreeId) continue;
     const [rx, ry] = treeKind(tree.kind)?.footprint || [22, 9],
       stage = treeStage({ ...tree, planted: tree.planted ?? now }, now),
-      at = foot(tree),
-      depth = depthScaleAt(at.x, at.y),
-      zoom = scale * depth * (treeScale[stage] ?? treeScale[0]),
+      at = foot({ x: tree.x, y: Math.min(tree.y, floorAt(tree.x)) }),
       [w, h] = treeSize(tree.kind, Math.min(2, stage));
+    // Drawn whole inside the yard, as planted-trees.js treeFoot keeps it: its width there decides
+    // how far in it stands, so it is measured again where it is moved to.
+    let depth = depthScaleAt(at.x, at.y);
+    for (let pass = 0; pass < 2; pass++) {
+      at.x = clamp(at.x, (w * scale * depth) / 2 + 4, bounds.width - (w * scale * depth) / 2 - 4);
+      depth = depthScaleAt(at.x, at.y);
+    }
+    const zoom = scale * depth * (treeScale[stage] ?? treeScale[0]);
     add(profile.obstacles, { ...at, rx: rx * zoom, ry: ry * zoom });
     body(at, w * scale * depth, h * scale * depth);
   }
@@ -138,7 +149,8 @@ export function buildGroundProfile({
     if (!flat) body(at, w, h, size.foot);
   }
   for (const plant of garden.plants || []) {
-    const at = foot(plant),
+    // Drawn as garden.js places it, no lower than the floor.
+    const at = foot({ x: plant.x, y: Math.min(plant.y, floorAt(plant.x)) }),
       zoom = scale * depthScaleAt(at.x, at.y);
     add(profile.obstacles, { ...at, rx: 10 * zoom, ry: 5 * zoom });
   }

@@ -17,7 +17,7 @@ globalThis.playPets = Object.fromEntries(
 const state = await import('../src/core/state.js');
 const { setData } = state;
 const { renderTrees, setupTrees } = await import('../src/yard/planted-trees.js');
-const { depthAt, fieldToYard, measureYard } = await import('../src/yard/field.js');
+const { decorFloor, depthAt, fieldToYard, measureYard } = await import('../src/yard/field.js');
 const { propScale } = await import('../src/yard/props.js');
 // A tree is drawn with the yard and smaller farther back, as a friend standing at its foot is.
 const zoomAt = tree => propScale(fieldToYard(tree));
@@ -164,8 +164,42 @@ test('accepted pointer moves keep their foot offset and failed saves restore the
   assert.equal(document.getElementById('toast').textContent, 'The tree could not be moved.');
   moveResult = { ok: true };
   tree.x = 0.99;
-  await button.dispatch('keydown', { key: 'ArrowRight' });
-  assert.equal(requests.at(-1).args[1], 1, 'keyboard placement clamps the normalized foot, not the canopy');
+  renderTrees();
+  const drawnRight = () =>
+    Number(button.style.transform.match(/translate\(([-\d.]+)px/)[1]) + Number.parseFloat(button.style.width);
+  assert.ok(drawnRight() <= 800 - 4 + 0.01, 'drawn whole at the right side');
+  const before = requests.length;
+  await button.dispatch('keydown', { key: 'ArrowLeft' });
+  assert.equal(requests.length, before + 1);
+  assert.ok(requests.at(-1).args[1] < 0.99 - 0.03, 'a press moves it from where it is drawn, at once');
+});
+
+test('a tree at either side of the yard is drawn whole, as a wide gift is', t => {
+  const { tree, button } = fixture(t);
+  for (const [x, inside] of [
+    [0, left => left >= 4 - 0.01],
+    [1, left => left + Number.parseFloat(button.style.width) <= 800 - 4 + 0.01],
+  ]) {
+    tree.x = x;
+    renderTrees();
+    const left = Number(button.style.transform.match(/translate\(([-\d.]+)px/)[1]);
+    assert.ok(inside(left), `x=${x}: ${left}`);
+  }
+});
+
+test('a tree goes as low as a gift does, just above the dock, and the backend is told that floor', async t => {
+  const { button } = fixture(t);
+  await button.dispatch('pointerdown', { button: 0, clientX: 200, clientY: 400, pointerId: 2 });
+  await button.dispatch('pointermove', { clientX: 200, clientY: 10000, pointerId: 2 });
+  await button.dispatch('pointerup', { pointerId: 2 });
+  const [, x, y, ground] = requests.at(-1).args,
+    // Where a path raises the field, its floor at the tree's x is a little higher.
+    floor = decorFloor(fieldToYard({ x, y: 0 }).x);
+  assert.ok(floor > 1);
+  assert.ok(Math.abs(y - floor) < 1e-9, `${y}`);
+  assert.ok(Math.abs(ground.floor - decorFloor()) < 1e-9, 'the lowest floor goes with the ground');
+  await button.dispatch('keydown', { key: 'ArrowDown' });
+  assert.ok(requests.at(-1).args[2] <= floor + 1e-9, 'the keyboard stops there too');
 });
 
 test('growth keeps the root fixed and seasonal art applies only to mature trees', t => {

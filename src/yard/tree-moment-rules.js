@@ -103,6 +103,8 @@ export function fruitSpot(rng, ground, tree, near, width = 0) {
       y: [tree.y + FRUIT_FRONT[0] * uy, tree.y + FRUIT_FRONT[1] * uy],
     },
     p => !behind(p, ground) && !underBody(p, width, ground) && near.every(n => distance(p, n) >= FRUIT_APART),
+    // Fruit lies where its tree may stand, below the friends' field too.
+    { planting: true },
   );
 }
 

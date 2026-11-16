@@ -13,8 +13,8 @@ import { list } from '../core/i18n.js';
 import { between, pick } from '../core/math.js';
 import { data, game } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
-import { fieldToYard, footOf, footTarget, petHeight, sizeOf } from './field.js';
-import { treeBox } from './planted-trees.js';
+import { footOf, footTarget, petHeight, sizeOf } from './field.js';
+import { treeBox, treeFoot } from './planted-trees.js';
 import { CROWN, momentTrees, treeStands, visitX } from './tree-moment-rules.js';
 import { release, rest, sendTo, setDoing } from './trips.js';
 import { freeFriends, viewing, yardBusy } from './viewing.js';
@@ -50,7 +50,7 @@ export function setupTreeMoments() {
 // A grown tree's crown (its middle and width; tree-moment-rules.js CROWN), foot and size in yard
 // pixels, as planted-trees.js draws it.
 function crownOf(tree) {
-  const foot = fieldToYard(tree),
+  const foot = treeFoot(tree),
     { width, zoom } = treeBox(tree.kind, foot);
   return { x: foot.x, width: width * CROWN.wide, foot: foot.y, zoom };
 }
