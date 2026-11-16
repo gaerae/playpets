@@ -794,9 +794,14 @@ fn place_resized(d: &mut Inner, mons: &[Mon], arrivals: &mut Vec<(String, i64, i
 }
 
 /// The screens changed (one unplugged, a resolution or the Dock changed): everything out but the
-/// one held is set down again, so none is left past every work area. What moved is saved, and a
-/// friend's walk is called off, its target being on the old screens. Whether anything moved.
+/// one held is set down again, so none is left past every work area. What moved is saved. Every
+/// friend's walk is called off, its target being on the old screens (past an edge or under a Dock
+/// that grew); the next stroll picks one on the new. Whether anything moved.
 fn keep_on_screens(d: &mut Inner, mons: &[Mon], arrivals: &mut Vec<(String, i64, i64)>) -> bool {
+    for roam in d.roams.values_mut() {
+        roam.target = None;
+        roam.visiting = None;
+    }
     let held = d.drag.as_ref().map(|g| g.id.clone());
     let ids: Vec<String> = d
         .pets
@@ -811,10 +816,6 @@ fn keep_on_screens(d: &mut Inner, mons: &[Mon], arrivals: &mut Vec<(String, i64,
         };
         if from == at {
             continue;
-        }
-        if let Some(roam) = d.roams.get_mut(&id) {
-            roam.target = None;
-            roam.visiting = None;
         }
         arrivals.push(arrival(id, at));
         moved = true;
@@ -1075,23 +1076,29 @@ mod tests {
         d.positions.insert("pip".into(), (2000.0, 300.0));
         d.positions.insert("cherry".into(), (100.0, 900.0));
         d.positions.insert("tulip".into(), (500.0, 300.0));
-        d.roams.insert(
-            "pip".into(),
-            Roam {
-                target: Some((2200.0, 300.0)),
-                next_at: Instant::now(),
-                visiting: None,
-            },
-        );
+        d.positions.insert("miso".into(), (700.0, 300.0));
+        d.pets.push(out("miso", None, None));
+        // pip walks on past the old right edge; miso, still on the screen, under the grown Dock.
+        for (id, target) in [("pip", (2200.0, 300.0)), ("miso", (700.0, 860.0))] {
+            d.roams.insert(
+                id.into(),
+                Roam {
+                    target: Some(target),
+                    next_at: Instant::now(),
+                    visiting: None,
+                },
+            );
+        }
         let mut arrivals = Vec::new();
         keep_on_screens(&mut d, &screen(), &mut arrivals);
         let (pip_w, _) = dims(&d.pets[0]);
         assert_eq!(d.positions["pip"], (1440.0 - pip_w, 300.0));
         assert_eq!(d.positions["cherry"], (100.0, 825.0 - 170.0));
         assert_eq!(d.positions["tulip"], (500.0, 300.0));
+        assert_eq!(d.positions["miso"], (700.0, 300.0));
         assert!(
-            d.roams["pip"].target.is_none(),
-            "a walk to the old screen is called off"
+            d.roams.values().all(|r| r.target.is_none()),
+            "every walk, aimed at the old screens, is called off"
         );
         let mut saved: Vec<_> = arrivals.iter().map(|a| a.0.as_str()).collect();
         saved.sort();
