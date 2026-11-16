@@ -73,6 +73,18 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.8.3" date="2026-11-16">
+      <description>
+        <p>Planted trees now stand in every outdoor place, and flowers and trees go as low in the yard as gifts do.</p>
+        <ul>
+          <li>Planted trees stand in every outdoor place, as flowers and gifts do. The yard holds up to six.</li>
+          <li>Flowers and trees can be planted and moved as low as gifts go, just above the dock.</li>
+          <li>A tree or a flower at either side of the yard shows whole.</li>
+          <li>A tree, a flower or a gift with a friend behind it stays in sight, and the friend shows through.</li>
+        </ul>
+      </description>
+      <url type="details">https://playpets.gaerae.com/releases/1.8.3</url>
+    </release>
     <release version="1.8.2" date="2026-11-16">
       <description>
         <p>Gifts, flowers and trees on the desktop stay right where you set them down, high or low, just as friends do.</p>

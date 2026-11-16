@@ -10,6 +10,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.8.3] - 2026-11-16
+
 ### Changed
 
 - Planted trees stand in every outdoor place, as flowers and gifts do, instead of only in the place where they were planted. The yard holds up to six; trees planted before in several places all stay.
