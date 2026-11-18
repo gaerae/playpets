@@ -4,7 +4,7 @@
 // The ones found show how many (and the biggest fish); the others are silhouettes with when and
 // where to look, so there is always a next one. What there is to find is the catalogue's.
 import { closeOnBackdrop } from '../core/confirm.js';
-import { joinList, language, t } from '../core/i18n.js';
+import { joinList, joinSentences, language, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { systemSouth } from '../core/season.js';
 import { $, call, data, toast } from '../core/state.js';
@@ -15,7 +15,7 @@ import { BUGS, FISH, FLOWERS, GIFTS, giftKind, grownArt, SHOOTS, TRACKS, TREASUR
 import { bugSvg, fishSvg } from '../yard/creatures.js';
 import { decorShown, yardSeason } from '../yard/decor-shown.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
-import { eventDates, eventScene } from '../yard/events.js';
+import { eventDates, eventScene, giftSeason } from '../yard/events.js';
 import { SECRETS } from '../yard/secrets.js';
 import { printSpecimen, tailPeek } from '../yard/trail-art.js';
 import { scene } from '../yard/world.js';
@@ -29,12 +29,16 @@ function when(kind, where) {
   return joinList([seasons, periods, t(where)]);
 }
 // A kind that comes only during a seasonal event says when, by the dates of the system's hemisphere;
-// a fish or a bug also by the scene that calls the event up by hand (a gift keeps to the dates).
-const eventHint = k =>
-  t('catch.event_hint', {
-    event: t(`event.${k.event}.name`),
-    dates: eventDates(k.event, systemSouth()),
-  });
+// a fish or a bug also by the scene that calls the event up by hand. A gift keeps to the dates, and
+// one of an event not fixed to the calendar also to the yard showing that event's season.
+const eventHint = k => {
+  const season = giftSeason(k.event),
+    event = t(`event.${k.event}.name`),
+    dates = eventDates(k.event, systemSouth());
+  return season
+    ? t('catch.event_season_hint', { event, dates, season: t(`catch.season_${season}`) })
+    : t('catch.event_hint', { event, dates });
+};
 const eventSceneHint = k =>
   t('catch.event_scene_hint', {
     event: t(`event.${k.event}.name`),
@@ -43,14 +47,18 @@ const eventSceneHint = k =>
   });
 // What comes only on certain dates is rare, whatever its weight.
 const rare = k => k.rarity === 'rare' || !!k.event;
-const favored = kind =>
-  t('album.favored', {
-    conditions: joinList([
-      ...(kind.affinity?.seasons || []).map(value => t(`catch.season_${value}`)),
-      ...(kind.affinity?.weather || []).map(value => t(`weather.${value}`)),
-      ...(kind.affinity?.places || []).map(value => t(`world.${value}`)),
-    ]),
-  });
+// A tree or a keepsake: how it is found (`how`), then what makes it likelier, each on its own.
+const favored = how => kind => {
+  const conditions = [
+    ...(kind.affinity?.seasons || []).map(value => t(`catch.season_${value}`)),
+    ...(kind.affinity?.weather || []).map(value => t(`weather.${value}`)),
+    ...(kind.affinity?.places || []).map(value => t(`world.${value}`)),
+  ];
+  return joinSentences([
+    t(how),
+    ...(conditions.length ? [t('album.favored', { conditions: joinList(conditions) })] : []),
+  ]);
+};
 // A card draws its kind from a small preview (src/art/album/), not from the painted sheet the yard
 // uses: decoding a book's 1536 x 1024 sheets for 112-pixel cards held up its first open.
 const specimen = (art, unknown) => previewSvg(art, unknown ? 'class="unknown-art"' : '');
@@ -124,7 +132,7 @@ const BOOKS = {
     found: () => data.album?.trees || {},
     draw: (k, unknown) => specimen(grownArt(k), unknown),
     name: k => t(`tree.${k.id}`),
-    hint: favored,
+    hint: favored('album.tree_how'),
     record: entry => t('catch.trees_grown', { count: entry.count }),
   },
   treasure: {
@@ -133,7 +141,7 @@ const BOOKS = {
     found: () => data.album?.treasures || {},
     draw: (k, unknown) => specimen(k.art, unknown),
     name: k => t(`treasure.${k.id}`),
-    hint: favored,
+    hint: favored('album.treasure_how'),
     record: entry => caughtLine(entry, false),
     rare: k => k.rarity === 'uncommon',
   },
