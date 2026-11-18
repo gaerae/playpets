@@ -42,7 +42,7 @@ import { setupWindow } from './window.js';
 import { setupBackgrounds } from './yard/background-ui.js';
 import { befriend, bondTick, seen, setupBond } from './yard/bond.js';
 import { setupCard } from './yard/card.js';
-import { react, setupCare, startChatter } from './yard/care.js';
+import { react, resizePicnic, setupCare, startChatter } from './yard/care.js';
 import { endFishing, refitFishing, setupCatch, soloFishing } from './yard/catch.js';
 import { christmasNightCheck, setupChristmasNight } from './yard/christmas-night.js';
 import { loadContent } from './yard/content.js';
@@ -269,6 +269,7 @@ setupSky({
     endFishing();
     for (const v of views.values()) place(v);
     resizeTrails();
+    resizePicnic();
     redrawGround();
   },
 });
@@ -303,6 +304,7 @@ setupViews({
     resizeTrail();
     resizeSnowman();
     resizeTrails();
+    resizePicnic();
     redrawGround();
   },
 });

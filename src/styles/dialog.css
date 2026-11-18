@@ -1403,8 +1403,7 @@ body.compact .update-compact {
 
 /* A compact collection uses one familiar chooser instead of two rows of tabs. */
 @media (max-width: 640px), (max-height: 480px) {
-  .album-tabs,
-  .album-dialog > .dialog-description {
+  .album-tabs {
     display: none;
   }
   .album-picker {

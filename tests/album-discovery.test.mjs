@@ -112,3 +112,41 @@ test('tree and keepsake books use saved counts, mature artwork and explicit keep
     }
   }
 });
+
+// A hint names what finding a kind takes, not only where it is likelier: a dig for seeds, saplings
+// and keepsakes, how long a flower or a tree takes, a winter yard and once a day for a snowman, the
+// yard's own season for a dated gift, new prints and new snow for a trail, how long a shoot stays.
+test('each book says what finding a kind takes', t => {
+  const before = data;
+  t.after(() => setData(before));
+  installDom(t, { anyId: true });
+  document.querySelectorAll = () => document.getElementById('album-tabs').children;
+  setupAlbum();
+  const tabs = document.getElementById('album-tabs').children;
+  document.getElementById('album-dialog').open = true;
+  document.querySelector = selector => {
+    const id = selector.match(/data-count="(.*?)"/)?.[1];
+    return tabs.find(tab => tab.dataset.book === id)?.children[1];
+  };
+  document.querySelectorAll = () => tabs;
+  setData({ ...before, album: {} });
+  const hints = book => {
+    tabs.find(tab => tab.dataset.book === book).onclick();
+    return document.getElementById('album-grid').children.map(card => card.children[2].textContent);
+  };
+  for (const hint of hints('flower')) assert.match(hint, /Dig.*4 hours/, hint);
+  for (const hint of hints('tree')) assert.match(hint, /digging.*12 hours.*Each of these helps: \S/, hint);
+  for (const hint of hints('treasure')) assert.match(hint, /digging.*Each of these helps: \S/, hint);
+  for (const hint of hints('track')) assert.match(hint, /winter yard.*every day.*snow covers/, hint);
+  for (const hint of hints('shoot')) assert.match(hint, /about 6 hours/, hint);
+  const gifts = hints('gift');
+  for (const [index, kind] of GIFTS.entries()) {
+    const hint = gifts[index];
+    if (kind.built) assert.match(hint, /winter yard, once a day/, hint);
+    // blossom, fireflies and the harvest moon also need the yard to show their season; the
+    // winter lights and the new year come on their dates wherever the yard is (events.js giftEvent)
+    else if (['blossom', 'fireflies', 'harvest'].includes(kind.event))
+      assert.match(hint, /while the yard shows (Spring|Summer|Autumn)/, hint);
+    else if (kind.event) assert.doesNotMatch(hint, /while the yard shows/, hint);
+  }
+});

@@ -15,7 +15,7 @@ export const rest = v => {
 // friend leaving) lets go of both first, so the owner of a trip or a task always hears it ended.
 /** Sends a friend to `target`: `arrive(v, now)` runs when it gets there and `cancel(v)` if something
  * else takes it first; the place it ends at is kept unless `save` is false; `slow` strolls, and a
- * game gives its own `speed`. `own` marks a trip the friend set off on by itself, which its agent's
+ * game gives its own `speed`, a pace in body lengths a millisecond (motion.js WALK). `own` marks a trip the friend set off on by itself, which its agent's
  * state may cut short (duty.js); what it then does where it arrives is its own too. `yields` marks a
  * trip of the friends' own that what the person asks may take it from (forPerson). */
 export function sendTo(

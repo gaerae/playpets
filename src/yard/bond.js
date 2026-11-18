@@ -1,7 +1,7 @@
 // Friendship: each friend grows closer to the person through time together in the yard and what
 // they do together. The backend keeps the points and decides what each thing is worth and how much
 // a day can bring (src-tauri/src/pets/bond.rs); this tells it what happened, shows how close each
-// friend is (hearts on the name tag, a bar in the Friend panel), celebrates a new level, and holds
+// friend is (a bar in the Friend panel), celebrates a new level, and holds
 // what the levels open: a welcome back (2), fishing alone (3, catch.js), a memento (4, decor.js),
 // a flower on the tag and words of its own (5, remarks.js).
 // Design: docs/design/2026-10-09-a-yard-that-grows.md.
@@ -112,16 +112,10 @@ export function seen(visible) {
   hiddenAt = 0;
 }
 
-/** Hearts on each friend's name tag as the bonds are now (the Friend panel says it in words, friend.js). */
+/** The flower the dearest friends wear on their name tag. How close each friend is shows in the
+ * Friend panel only (friend.js): hearts on every tag made the names long and busy. */
 export function renderBonds() {
-  for (const [id, v] of views) {
-    const level = levelOf(id);
-    if (v.bondLevel === level) continue;
-    v.bondLevel = level;
-    v.tagBond.textContent = level > 1 ? '♥'.repeat(level - 1) : '';
-    v.tagBond.title = t('bond.hearts', { level: t(`bond.level_${level}`) });
-    v.button.classList.toggle('dear', level >= 5);
-  }
+  for (const [id, v] of views) v.button.classList.toggle('dear', levelOf(id) >= 5);
 }
 /** Starts the welcome after the app opens. Called once, by app.js, once the friends are drawn. */
 export function setupBond() {

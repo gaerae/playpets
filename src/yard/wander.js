@@ -21,22 +21,32 @@ export function strollClear(from, to, ground) {
   }
   return true;
 }
+// How far a stroll goes, in the friend's own body lengths: the pace is in them too (motion.js
+// STROLL), so a stroll takes two to four seconds in any window. As a share of the yard, a full
+// screen's strolls were three times as long as a small window's, and the yard drew all the while.
+const STROLL_BODIES = [1.2, 3];
+// One body length across and down in field units, at 112 px in a 1180 x 850 yard, for a caller
+// that does not say (field.js sizeOf and yardSize give the real one).
+const BODY = { x: 0.095, y: 0.13 };
 /** Where a friend at `position` strolls next: a visible stroll that `clear(from, to)` allows, or
- * null when none of the tries is (the friend then stays and does something else). */
-export function wanderTarget(position, rng, clear = () => true) {
+ * null when none of the tries is (the friend then stays and does something else). `body` is one
+ * of the friend's body lengths across and down, in field units. */
+export function wanderTarget(position, rng, clear = () => true, body = BODY) {
+  const bodies = (a, b) => Math.hypot((b.x - a.x) / body.x, (b.y - a.y) / body.y);
   for (let attempt = 0; attempt < 8; attempt++) {
     const angle = rng() * Math.PI * 2,
-      distance = 0.14 + rng() * 0.22;
+      distance = STROLL_BODIES[0] + rng() * (STROLL_BODIES[1] - STROLL_BODIES[0]);
+    // a little less up and down than across, as the field is seen from above at a slant
     const target = {
-      x: clamp(position.x + Math.cos(angle) * distance),
-      y: clamp(position.y + Math.sin(angle) * distance * 0.7),
+      x: clamp(position.x + Math.cos(angle) * distance * body.x),
+      y: clamp(position.y + Math.sin(angle) * distance * body.y * 0.7),
     };
-    if (Math.hypot(target.x - position.x, target.y - position.y) > 0.08 && clear(position, target)) return target;
+    if (bodies(position, target) >= 1 && clear(position, target)) return target;
   }
   // Cornered pets head back toward the middle of the yard.
   const middle = {
-    x: clamp(position.x + (position.x < 0.5 ? 0.2 : -0.2)),
-    y: clamp(position.y + (position.y < 0.5 ? 0.15 : -0.15)),
+    x: clamp(position.x + (position.x < 0.5 ? 2 : -2) * body.x),
+    y: clamp(position.y + (position.y < 0.5 ? 1.2 : -1.2) * body.y),
   };
   return clear(position, middle) ? middle : null;
 }

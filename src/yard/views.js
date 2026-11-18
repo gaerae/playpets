@@ -248,7 +248,7 @@ function fit(v, box, resized = false) {
   if (sized) keepInside(v);
 }
 /** How far a friend reaches each side of its feet: its own half width, or its name tag's when that
- * is wider (a long name, hearts, an agent). Read off the page, so not in the frame loop. */
+ * is wider (a long name, an agent). Read off the page, so not in the frame loop. */
 export const reachOf = v => Math.max(sizeOf(v.pet), v.tag?.offsetWidth || 0) / 2;
 /** Lifts a friend standing behind the dock to stand just above it, with its name tag, in view: one
  * saved at the front edge before friends walked past the field's foot, one dropped there, or one the
@@ -361,17 +361,13 @@ function createView(p) {
   tag.className = 'pet-tag';
   const talkMark = document.createElement('span'),
     tagName = document.createElement('span'),
-    tagBond = document.createElement('span'),
     agents = document.createElement('small');
   talkMark.className = 'tag-talk';
   talkMark.innerHTML = '<span data-icon="spark"></span>';
   icons(talkMark);
   tagName.className = 'tag-name';
-  // Hearts for how close this friend is (yard/bond.js fills them in; the Friend panel says it in words).
-  tagBond.className = 'tag-bond';
-  tagBond.setAttribute('aria-hidden', 'true');
   agents.hidden = true;
-  tag.append(talkMark, tagName, dot, tagBond, agents);
+  tag.append(talkMark, tagName, dot, agents);
   dot.className = 'pet-state-dot';
   bubble.className = 'yard-bubble';
   bubble.hidden = true;
@@ -395,7 +391,6 @@ function createView(p) {
     canvas: c,
     tag,
     tagName,
-    tagBond,
     agents,
     dot,
     bubble,
@@ -417,7 +412,7 @@ function createView(p) {
     // Set by the features that use them: a game (away, speed, frozen, frozenUntil; play.js), flower
     // viewing (away too, seat, the place it walks to, and viewing, { side, look } while it stands
     // there; viewing.js), a petal on its head (petal, the node, and petalTimer, its notice; petals.js,
-    // taken off by trips.js brushPetal) and closeness (bondLevel, the hearts last drawn; bond.js).
+    // taken off by trips.js brushPetal).
     away: false,
     speed: 0,
     frozen: false,
@@ -426,7 +421,6 @@ function createView(p) {
     viewing: null,
     petal: null,
     petalTimer: null,
-    bondLevel: 0,
   };
   rest(v);
   v.mirror = new MutationObserver(() => mirror(v));

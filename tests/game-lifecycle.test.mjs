@@ -140,7 +140,7 @@ test('tag and parade finish and can be replayed without a lingering tagger', t =
   for (const v of views.values()) assert.equal(v.button.classList.contains('tagger'), false);
   start('parade');
   for (const v of views.values()) v.target = null;
-  playGame(0, PARADE_MS);
+  playGame(0, PARADE_MS[1]);
   assert.equal(game, null);
   start('tag');
   assert.equal(game.kind, 'tag');
@@ -171,7 +171,9 @@ test('parade waits for formation and retains its lap under reduced motion', t =>
   for (const v of views.values()) v.target = null;
   playGame(2000, 1000);
   assert.equal(game.walking, true);
-  assert.equal(game.progress, 1000 / PARADE_MS);
-  playGame(27000, PARADE_MS - 1000);
+  const lap = game.lap.ms;
+  assert.ok(lap >= PARADE_MS[0] && lap <= PARADE_MS[1], 'the lap takes as long as its length at a stroll');
+  assert.equal(game.progress, 1000 / lap);
+  playGame(3000 + lap, lap - 1000);
   assert.equal(game, null);
 });

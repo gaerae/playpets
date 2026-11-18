@@ -12,14 +12,16 @@ import { reduced } from '../core/sprites.js';
 import { $, aiming, data, game, name, selected, setGame, toast, views } from '../core/state.js';
 import { setAimingMode } from './care.js';
 import { syncFishingAction } from './catch.js';
-import { petHeight, sizeOf } from './field.js';
+import { bodiesApart, petHeight, sizeOf } from './field.js';
 import {
   chaseTarget,
   fleeTarget,
+  GAME_PACE,
   GAMES,
   hidingSpots,
-  PARADE_MS,
   paradeDone,
+  paradeLap,
+  paradePlan,
   paradePositions,
   pickTarget,
   seek,
@@ -27,6 +29,7 @@ import {
   touching,
 } from './games.js';
 import { hint } from './hint.js';
+import { STROLL } from './motion.js';
 import { snowmanGame } from './snowman.js';
 import { release, rest, sendTo } from './trips.js';
 import { friendAt } from './veil.js';
@@ -117,7 +120,7 @@ const hide = {
     game.hidden = new Set(game.ids);
     const spots = shuffle(hidingSpots(game.ids.length, Math.random));
     party().forEach((v, i) => {
-      send(v, spots[i], 0.0006);
+      send(v, spots[i], GAME_PACE.dash);
     });
     // The name to find is up from the first moment; a friend can be pressed once it has hidden.
     game.hideBy = now + HIDE_WAIT_MS;
@@ -158,7 +161,7 @@ const hide = {
     pose(v, 'jump', 1200);
     effect(v, '!');
     bubble(v, t('hide.found_bubble'), 2500);
-    after(900, () => send(v, { x: v.x, y: 0.35 + Math.random() * 0.55 }, 0.0005));
+    after(900, () => send(v, { x: v.x, y: 0.35 + Math.random() * 0.55 }, GAME_PACE.run));
     if (game.hidden.size) ask(t('hide.found', { name: called(id) }));
     else {
       game.target = null;
@@ -174,9 +177,17 @@ const parade = {
   start(_now, lead) {
     game.progress = 0;
     game.walking = false;
-    const at = paradePositions(game.ids.length, 0);
+    // The lap measured on the field as it is drawn, in the biggest friend's body lengths, so no two
+    // friends walk into each other.
+    const big = party().reduce((a, v) => (sizeOf(v.pet) > sizeOf(a.pet) ? v : a)).pet;
+    game.lap = paradePlan(
+      game.ids.length,
+      paradeLap((a, b) => bodiesApart(big, a, b)),
+      STROLL,
+    );
+    const at = paradePositions(game.ids.length, 0, game.lap.gap);
     party().forEach((v, i) => {
-      send(v, at[i], 0.0005);
+      send(v, at[i], GAME_PACE.dash);
     });
     say(t('parade.follow', { name: called(lead) }));
   },
@@ -186,8 +197,8 @@ const parade = {
       game.walking = true;
       say(t('parade.walking'));
     }
-    game.progress += dt / PARADE_MS;
-    const at = paradePositions(game.ids.length, Math.min(1, game.progress));
+    game.progress += dt / game.lap.ms;
+    const at = paradePositions(game.ids.length, Math.min(1, game.progress), game.lap.gap);
     players.forEach((v, i) => {
       if (!reduced.matches) pose(v, at[i].x >= v.x ? 'right' : 'left', 150);
       v.x = at[i].x;
@@ -259,10 +270,10 @@ const tag = {
       players.filter(v => v !== it).map(v => ({ id: v.pet.id, x: v.x, y: v.y })),
       now < game.safeUntil ? game.safe : null,
     );
-    if (prey && !it.frozen) send(it, { x: prey.x, y: prey.y }, 0.00046);
+    if (prey && !it.frozen) send(it, { x: prey.x, y: prey.y }, GAME_PACE.chase);
     for (const v of players)
       if (v !== it && (!v.target || Math.hypot(v.x - it.x, v.y - it.y) < 0.3))
-        send(v, fleeTarget(v, it, Math.random), 0.0003);
+        send(v, fleeTarget(v, it, Math.random), GAME_PACE.run);
   },
 };
 

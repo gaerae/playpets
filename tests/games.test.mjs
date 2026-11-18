@@ -5,13 +5,19 @@ import test from 'node:test';
 import {
   chaseTarget,
   fleeTarget,
+  GAME_PACE,
   GAMES,
   hidingSpots,
+  PARADE_GAP,
+  PARADE_MS,
   paradeDone,
+  paradeLap,
+  paradePlan,
   paradePoint,
   paradePositions,
   touching,
 } from '../src/yard/games.js';
+import { STROLL, WALK } from '../src/yard/motion.js';
 
 const inside = p => p.x >= 0 && p.x <= 1 && p.y >= 0 && p.y <= 1;
 
@@ -49,16 +55,41 @@ test('the parade is one closed lap around the yard', () => {
 });
 
 test('followers trail the leader in an even line and everyone walks one full lap', () => {
-  const at = paradePositions(3, 0.5);
+  const at = paradePositions(3, 0.5, 0.07);
   assert.deepEqual(at[0], paradePoint(0.5));
   const gap = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
   assert.ok(gap(at[0], at[1]) > 0.1, 'there is room between friends');
   assert.ok(Math.abs(gap(at[0], at[1]) - gap(at[1], at[2])) < 0.03, 'gaps are even');
-  const start = paradePositions(3, 0),
-    end = paradePositions(3, 1);
+  const start = paradePositions(3, 0, 0.07),
+    end = paradePositions(3, 1, 0.07);
   for (let i = 0; i < 3; i++) assert.ok(gap(start[i], end[i]) < 1e-9, 'each friend ends where it started');
   assert.equal(paradeDone(0.99), false);
   assert.equal(paradeDone(1), true);
+});
+
+// The lap is measured in body lengths on the field as drawn (play.js), so a small window's parade
+// keeps friends as far apart as a full screen's and walks as fast; only the lap is shorter.
+test('a parade keeps friends a body and a half apart and goes at a stroll, in any window', () => {
+  const circle = paradeLap((a, b) => Math.hypot(b.x - a.x, b.y - a.y) * 10);
+  assert.ok(circle > 20 && circle < 30, 'the lap is summed along its way');
+  for (const lap of [12, 18, 30]) {
+    const plan = paradePlan(3, lap, STROLL);
+    assert.ok(Math.abs(plan.gap * lap - PARADE_GAP) < 1e-9, `${lap}: friends a gap apart`);
+    assert.ok(PARADE_GAP >= 1.5, 'room between bodies');
+    assert.ok(plan.ms >= PARADE_MS[0] && plan.ms <= PARADE_MS[1]);
+    if (plan.ms > PARADE_MS[0] && plan.ms < PARADE_MS[1])
+      assert.ok(Math.abs(lap / plan.ms - STROLL) < 1e-12, 'at a stroll');
+  }
+  assert.ok(paradePlan(3, 30, STROLL).ms > paradePlan(3, 18, STROLL).ms, 'a longer lap takes longer');
+  assert.equal(paradePlan(8, 10, STROLL).gap, 1 / 8, 'friends that would not fit spread round the whole lap');
+});
+
+test('a game is livelier than an errand but never a sprint, and the tagger outpaces its runners', () => {
+  for (const [name, pace] of Object.entries(GAME_PACE)) {
+    assert.ok(pace > WALK, `${name}: quicker than an errand`);
+    assert.ok(pace <= WALK * 1.7, `${name}: no more than ${WALK * 1.7 * 1000} body lengths a second`);
+  }
+  assert.ok(GAME_PACE.chase > GAME_PACE.run * 1.3, 'the tagger catches up');
 });
 
 test('the tagger chases the nearest friend that is not immune', () => {

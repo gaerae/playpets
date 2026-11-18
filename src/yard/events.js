@@ -115,5 +115,11 @@ export function giftEvent(date, south, shown) {
 }
 /** An event by its id. */
 const eventById = id => EVENTS.find(e => e.id === id) || null;
+/** The season the yard has to show for an event's gifts to come (giftEvent): its scene's, or null
+ * for an event fixed to the calendar, whose gifts come wherever the yard is. */
+export function giftSeason(id) {
+  const event = eventById(id);
+  return event && !event.fixed ? event.scene?.seasons?.[0] || null : null;
+}
 /** How much an event adds to a kind of small life (1 when it adds nothing). */
 export const boostOf = (id, what) => eventById(id)?.boost?.[what] ?? 1;

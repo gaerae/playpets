@@ -682,11 +682,11 @@ const scenario = `(async()=>{
     const extensionRecords=await fetch('art/collection.json').then(r=>r.json()),extensionAtlases=[...new Set(extensionRecords.filter(r=>r.atlas.startsWith('collection-extension/')).map(r=>r.atlas))];
     const extensionDecoded=await Promise.all(extensionAtlases.map(atlas=>new Promise(resolve=>{const image=new Image();image.onload=()=>resolve(image.naturalWidth>0);image.onerror=()=>resolve(false);image.src='art/'+atlas;})));
     await L('collectionExtension='+(extensionAccepted&&extensionDecoded.every(Boolean)?'aquatic-ground-bugs-gifts-saved-atlases-decoded':'err'));
-    // Friendship: the backend decides what a thing is worth and caps a day; hearts show on the name tag.
+    // Friendship: the backend decides what a thing is worth and caps a day; the name tag stays the name alone.
     const fid=(await playPets.bootstrap()).data.pets[0].id,p0=(await playPets.bootstrap()).data.bonds?.[fid]?.points||0,bribe=await playPets.befriend(fid,'bribe','2026-01-02');
     let rose=0;for(const day of ['2026-01-02','2026-01-03'])for(let k=0;k<12;k++)rose+=(await playPets.befriend(fid,'gift',day)).data.up?1:0;
-    const hearts=await until(()=>document.querySelector('.tag-bond')?.textContent==='♥');
-    await L('friendship='+((await playPets.bootstrap()).data.bonds[fid].points-p0)+'/'+rose+'/'+(hearts?'hearts':'none')+'/'+(bribe.ok===false?'refused':'taken'));
+    const plain=!document.querySelector('.pet-tag')?.textContent.includes('♥');
+    await L('friendship='+((await playPets.bootstrap()).data.bonds[fid].points-p0)+'/'+rose+'/'+(plain?'plain-tag':'hearts')+'/'+(bribe.ok===false?'refused':'taken'));
     // A friend that grew closer brings one gift for the level it reached, on a day the person did something with it
     // (the last befriend day above; the yard may bring it first on its own).
     const apart=await playPets.thanksGift(fid,2,0.5,0.6,'2026-01-02'),thanks=await playPets.thanksGift(fid,2,0.5,0.6,'2026-01-03'),thanksAgain=await playPets.thanksGift(fid,2,0.5,0.6,'2026-01-03'),tooHigh=await playPets.thanksGift(fid,3,0.5,0.6,'2026-01-03');
@@ -824,7 +824,8 @@ const scenario = `(async()=>{
     const fishFor=async()=>{const go=()=>until(()=>{if(!toLake())clickLake();return toLake();},8000);return (await go())||(await inView('fishing'),await go());};
     const first=await fishFor();
     document.querySelector('[data-game=tag]').click();await wait(200);const during=toLake();playing().click();
-    await until(()=>[...st.views.values()].every(v=>!v.away),8000);const again=await fishFor();
+    // Friends walk home at their own pace, longer in a wide window (motion.js WALK).
+    await until(()=>[...st.views.values()].every(v=>!v.away),15000);const again=await fishFor();
     await L('lakeAgain='+first+'/'+during+'/'+again);
     const catchModule=await import('./yard/catch.js');
     const cast=await until(()=>document.querySelector('.bobber'),10000);
@@ -1906,8 +1907,8 @@ const expect = [
   ],
   [/^shoots=kept$/, 'a gathered spring shoot is kept in the album and anything else is refused'],
   [
-    /^friendship=80\/1\/hearts\/refused$/,
-    'friendship: a day brings so much and no more, a level up shows hearts, nonsense is refused',
+    /^friendship=80\/1\/plain-tag\/refused$/,
+    'friendship: a day brings so much and no more, the name tag stays plain, nonsense is refused',
   ],
   [
     /^sound=off-on-held$/,

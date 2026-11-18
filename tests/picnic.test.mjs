@@ -32,3 +32,44 @@ test('one friend sits beside the shared food, and an empty yard has no seats', (
   assert.ok(Math.abs(one.seats[0].x - one.x) >= one.width / 2);
   assert.deepEqual(picnicLayout({ ...base, count: 0 }).seats, []);
 });
+
+// A new window size lays the meal again where it was, as a share of the yard, and the friends still
+// on their way head for their seats around it, as they see it now (care.js resizePicnic).
+test('a picnic set out before the window changes size is laid again with its seats', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { installDom } = await import('./support/dom.mjs');
+  const { element } = installDom(t, { anyId: true, props: { rect: { width: 1000, height: 700 } } });
+  const state = await import('../src/core/state.js');
+  const field = await import('../src/yard/field.js');
+  const { resizePicnic, setupCare } = await import('../src/yard/care.js');
+  state.views.clear();
+  t.after(() => state.views.clear());
+  const pets = ['a', 'b'].map(id => ({ id, name: id, size: 112, x: 0.2, y: 0.5 }));
+  state.setData({ pets, statuses: {}, busy: [], garden: { plants: [], decor: [], trees: [] } });
+  for (const pet of pets)
+    state.views.set(pet.id, { pet, x: pet.x, y: pet.y, button: element(), label: element(), canvas: { animate() {} } });
+  field.measureYard();
+  setupCare();
+  state.setAiming('treat');
+  await document.getElementById('yard').dispatch('click', { clientX: 500, clientY: 560 });
+  const cloth = document.getElementById('treat');
+  assert.equal(cloth.hidden, false);
+  document.getElementById('yard').getBoundingClientRect = () => ({ width: 1600, height: 1000, left: 0, top: 0 });
+  field.measureYard();
+  resizePicnic();
+  const now = picnicLayout({
+    x: 800,
+    y: 800,
+    width: 1600,
+    height: 1000,
+    top: 1000 * field.fieldTop(),
+    zoom: field.yardZoom(),
+    count: 2,
+  });
+  assert.equal(cloth.style.left, `${now.x - now.width / 2}px`, 'the cloth is where the meal now lies');
+  assert.equal(cloth.style.width, `${now.width}px`);
+  [...state.views.values()].forEach((v, i) => {
+    const seat = field.footTarget(v, now.seats[i].x, now.seats[i].y, 0);
+    assert.ok(Math.hypot(v.target.x - seat.x, v.target.y - seat.y) < 1e-9, `${v.pet.id} heads for its seat`);
+  });
+});

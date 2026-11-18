@@ -270,7 +270,9 @@ test('a done or failed friend leaves its station when the state fades, without a
   moveFriends(1000, 50);
   assert.deepEqual(a.target, at(a, 0.15, 0.6), 'done, it rests in the corner');
   assert.deepEqual(b.target, at(b, 0.3, 0.55), 'failed, it stays at a desk');
+  // Each has reached its station, away from its own place.
   for (const v of [a, b]) {
+    Object.assign(v, v.target);
     v.target = null;
     v.trip = null;
   }
