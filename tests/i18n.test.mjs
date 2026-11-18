@@ -179,9 +179,7 @@ test('every key in the table is one the page names', async () => {
 // whether to eat it, in any language.
 test('spring shoots never say how to pick or eat them', () => {
   for (const lang of Object.keys(STRINGS)) {
-    const keys = Object.keys(STRINGS[lang]).filter(
-      key => key.startsWith('shoot.') || key === 'album.shoots',
-    );
+    const keys = Object.keys(STRINGS[lang]).filter(key => key.startsWith('shoot.') || key === 'album.shoots');
     assert.ok(
       keys.some(key => key.startsWith('shoot.')),
       `${lang}: has shoot names`,

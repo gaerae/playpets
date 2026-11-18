@@ -158,18 +158,20 @@ export function measureYard() {
   zoomWorld = scene.world;
   zoom = zoomFor(r.width, r.height, zoomWorld);
 }
-/** How far apart two places (0 to 1 each way) are in the yard as last measured, in body lengths
- * of the friend `pet` at its size there (motion.js paces a walk by it). */
-export function bodiesApart(pet, a, b) {
-  if (!yardSize.width) measureYard();
-  const body = sizeOf(pet) || 1;
-  return Math.hypot((b.x - a.x) * yardSize.width, (b.y - a.y) * yardSize.height) / body;
+/** One body length of `pet`, across and down, in field units where it stands at `x` (wander.js
+ * measures a stroll by it). A place is drawn across the field's width and down its height
+ * (geometry, views.js place), not the yard's: the field is the yard's lower band, so a step down is
+ * a far larger share of it than a step across. */
+export function bodyInField(pet, x = 0.5) {
+  const body = sizeOf(pet) || 1,
+    { w, h } = geometry(pet, x);
+  return { x: body / w, y: body / h };
 }
-/** One body length of `pet`, across and down, in field units (wander.js measures a stroll by it). */
-export function bodyInField(pet) {
-  if (!yardSize.width) measureYard();
-  const body = sizeOf(pet) || 1;
-  return { x: body / (yardSize.width || 1), y: body / (yardSize.height || 1) };
+/** How far apart two places (0 to 1 each way) are on the screen, in body lengths of the friend
+ * `pet` at its size there (motion.js paces a walk by it). */
+export function bodiesApart(pet, a, b) {
+  const body = bodyInField(pet, (a.x + b.x) / 2);
+  return Math.hypot((b.x - a.x) / body.x, (b.y - a.y) / body.y);
 }
 /** Where a pointer event `e` is in the yard, in pixels, from the yard's box as last measured: read
  * on every pointer move, the box would lay the page out each time. The yard fills its window, so it

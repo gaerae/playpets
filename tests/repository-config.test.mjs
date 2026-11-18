@@ -275,7 +275,11 @@ test('every npm advisory pnpm audit leaves out is one GHSA that SECURITY.md expl
     security = read('SECURITY.md');
   assert.doesNotMatch(settings, /^\s+(ignoreCves|ignorePackages|ignoreUnfixed):/m);
   const block = settings.match(/^auditConfig:\n {2}ignoreGhsas:\n((?: {4}- .+\n)+)/m)?.[1] || '';
-  for (const id of block.trimEnd().split('\n').filter(Boolean).map(line => line.replace(/^ {4}- /, ''))) {
+  for (const id of block
+    .trimEnd()
+    .split('\n')
+    .filter(Boolean)
+    .map(line => line.replace(/^ {4}- /, ''))) {
     assert.match(id, /^GHSA(-[23456789cfghjmpqrvwx]{4}){3}$/, id);
     const section = security.slice(security.indexOf(id));
     assert.ok(security.includes(id), `${id} is in SECURITY.md`);

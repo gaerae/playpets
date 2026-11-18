@@ -272,8 +272,8 @@ test('the first step of a walk counts from when the friend set off', t => {
     views.clear();
     views.set('friend', friend);
     measureYard();
-    // WALK is in body lengths: 112 px a body in an 800 px wide yard.
-    const perMs = (WALK * 112) / 800;
+    // WALK is in body lengths, across the field (the yard less a body and its edges).
+    const perMs = (WALK * sizeOf(friend.pet)) / geometry(friend.pet).w;
     sendTo(friend, { x: 0.8, y: 0.5 }, { save: false });
     clock = 1010;
     moveFriends(1010, 120);
@@ -290,19 +290,20 @@ test('the first step of a walk counts from when the friend set off', t => {
 
 // A pace in the yard's width made friends race across a wide window: on a full screen a stroll
 // covered three body lengths a second. In body lengths, a friend steps the same in any window.
-test('a friend keeps its pace in body lengths, whatever the window’s size', t => {
+test('a friend keeps its pace in body lengths, whatever the window’s size and the way it goes', t => {
   const previousReduced = reduced.matches;
   reduced.matches = false;
   let clock = 1000;
   t.mock.method(performance, 'now', () => clock);
-  const walked = (width, height, slow) => {
+  // How far the friend moved on the screen (views.js place: x across the field's width, y down its
+  // height), in its body lengths, a second, from the first fifth of a second of a walk from `from` to `to` (before it arrives, in the smallest window too).
+  const walked = (width, height, slow, from, to) => {
     installDom(t, { anyId: true, props: { rect: { width, height } } });
     setData({ statuses: {} });
     measureYard();
     const friend = {
       pet: { id: 'friend', size: 112 },
-      x: 0.1,
-      y: 0.5,
+      ...from,
       button: element(),
       label: element(),
       canvas: { animate() {} },
@@ -310,23 +311,34 @@ test('a friend keeps its pace in body lengths, whatever the window’s size', t 
     views.clear();
     views.set('friend', friend);
     clock = 1000;
-    sendTo(friend, { x: 0.9, y: 0.5 }, { save: false, slow });
-    clock = 2000;
-    moveFriends(2000, 1000);
-    return { px: (friend.x - 0.1) * width, body: sizeOf(friend.pet) };
+    sendTo(friend, to, { save: false, slow });
+    clock = 1200;
+    moveFriends(1200, 200);
+    const { w, h } = geometry(friend.pet, from.x);
+    return { px: Math.hypot((friend.x - from.x) * w, (friend.y - from.y) * h) * 5, body: sizeOf(friend.pet) };
   };
+  const across = [
+      { x: 0.1, y: 0.5 },
+      { x: 0.9, y: 0.5 },
+    ],
+    down = [
+      { x: 0.5, y: 0.05 },
+      { x: 0.5, y: 0.95 },
+    ];
   try {
     for (const slow of [true, false]) {
-      const pace = slow ? STROLL : WALK,
-        wide = walked(1728, 1080, slow),
-        middle = walked(1180, 850, slow),
-        small = walked(320, 280, slow);
-      for (const [name, walk] of Object.entries({ wide, middle, small }))
-        assert.ok(
-          Math.abs(walk.px / walk.body - pace * 1000) < 1e-6,
-          `${name}: ${slow ? 'a stroll' : 'an errand'} covers ${pace * 1000} body lengths a second (${walk.px / walk.body})`,
-        );
-      assert.ok(small.px < middle.px, 'a smaller friend covers fewer pixels');
+      const pace = slow ? STROLL : WALK;
+      for (const [way, [from, to]] of Object.entries({ across, down })) {
+        const wide = walked(1728, 1080, slow, from, to),
+          middle = walked(1180, 850, slow, from, to),
+          small = walked(320, 280, slow, from, to);
+        for (const [name, walk] of Object.entries({ wide, middle, small }))
+          assert.ok(
+            Math.abs(walk.px / walk.body - pace * 1000) < 0.02,
+            `${name}, ${way}: ${slow ? 'a stroll' : 'an errand'} covers ${pace * 1000} body lengths a second (${walk.px / walk.body})`,
+          );
+        assert.ok(small.px < middle.px, 'a smaller friend covers fewer pixels');
+      }
     }
     assert.ok(STROLL * 1000 <= 1, 'a stroll is no more than a body length a second');
     assert.ok(WALK > STROLL, 'an errand is quicker than a stroll');

@@ -127,7 +127,7 @@ export function moveFriends(now, dt) {
       const action = idleAction(Math.random, quiet);
       if (action.type === 'pose') pose(v, action.pose, 1200);
       else if (!loungeTarget(v, now) && !visitTarget(v) && !decorTarget(v)) {
-        const target = wanderTarget({ x: v.x, y: v.y }, Math.random, dryStroll(v), bodyInField(v.pet));
+        const target = wanderTarget({ x: v.x, y: v.y }, Math.random, dryStroll(v), bodyInField(v.pet, v.x));
         if (target) sendTo(v, target, { slow: true, own: true });
       }
       v.nextWander = now + between(Math.random, WANDER_DELAY) * (quiet ? 1.8 : 1);
