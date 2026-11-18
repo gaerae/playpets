@@ -305,7 +305,7 @@ On the first day you open PlayPets from December 26 to 31, the friend you're clo
 
 ## Closeness <Since v="0.1.0" /> {#closeness}
 
-Hearts on a friend's name tag show how close it is to you. The Friend panel shows its level, how far it is to the next one and what that brings.
+The Friend panel shows how close a friend is to you: its level, how far it is to the next one and what that brings.
 
 | Level | What it brings |
 |---|---|

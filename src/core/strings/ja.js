@@ -482,7 +482,6 @@ export const strings = {
   ],
   'bond.dear_senior': ['きみがうまくいくのが一番うれしい。', 'つらいときはいつでも頼って。', 'いつも応援してるよ。'],
   'bond.dear_junior': ['きみのこと、だーいすき！', 'ずっと一緒に遊ぼうね、約束！', 'きみが一番！'],
-  'bond.hearts': 'なかよし度: {level}',
   'catch.action': '釣り',
   'catch.action_title': '友だちを水辺へ送り、釣りをします',
   'catch.see_album': '図鑑で見る',

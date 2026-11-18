@@ -195,7 +195,9 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     // Something changed that the canvas does not show yet.
     dirty = true,
     // The yard rests (rest.js): both canvases are let go until it wakes.
-    resting = false;
+    resting = false,
+    // Whether the yard has had a size: the first one lays the scene out, later ones carry it over.
+    measured = false;
   const art = createWeatherArt(() => {
     if (!reduced.matches && worldAllows(world, 'seasonalEffects') && fallers.length) dirty = true;
   }, artOptions);
@@ -232,38 +234,89 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     arriving = arriving && !reduced.matches;
     const { glow, count } = lifeCount();
     const population = bugChances(season, period, weather, event);
-    critters = Array.from({ length: count }, () => {
-      const side = Math.random() < 0.5,
-        bug = weighted(population, candidate => candidate.chance, Math.random),
-        kind = bug?.kind || (glow ? 'firefly' : 'butterfly'),
-        ground = grounded(kind) ? groundBounds() : null,
-        y = ground ? ground.top + (ground.bottom - ground.top) * Math.random() : h * (0.5 + Math.random() * 0.4);
-      return {
-        kind,
-        species: bug?.id || null,
-        look: bug?.look || { wing: '#f6f4ea', edge: '#4a4a44' },
-        x: arriving && !glow ? (side ? -15 : w + 15) : Math.random() * w,
-        y,
-        ...(ground ? { groundY: y } : {}),
-        heading: arriving && !glow ? (side ? 0 : Math.PI) + (Math.random() - 0.5) : Math.random() * TAU,
-        phase: Math.random() * TAU,
-        beat: Math.random(),
-        light: arriving && glow ? 0 : 1,
-      };
-    });
-    // A spell's start keeps the band's petals in the air; a scene change or resize starts them again.
+    critters = Array.from({ length: count }, () => critter(population, glow, arriving));
+    // A spell's start keeps the band's petals in the air; a scene change starts them again.
     const kept = fallers.filter(f => f.band && f.band === band && !f.band.done);
-    fallers =
-      reduced.matches || !worldAllows(world, 'seasonalEffects')
-        ? []
-        : Array.from({ length: Math.round(fallerCount(season, period, weather, w) * boostOf(event, 'petals')) }, () => {
-            const f = spawnFaller(w, h, Math.random);
-            if (arriving) f.y = -10 - Math.random() * h * 0.3;
-            return f;
-          });
+    fallers = Array.from({ length: petalCount() }, () => {
+      const f = spawnFaller(w, h, Math.random);
+      if (arriving) f.y = -10 - Math.random() * h * 0.3;
+      return f;
+    });
     if (bandAllowed()) fallers.push(...(kept.length ? kept : bandFallers()));
     art.use(season, precipitation() ? weather : 'clear', !reduced.matches && worldAllows(world, 'seasonalEffects'));
     ambient.use(worldAllows(world, 'wildlife'), worldAllows(world, 'sky'), critters);
+  }
+  // One of the small life, of a kind drawn from `population`; arriving, it comes in from a side.
+  function critter(population, glow, arriving) {
+    const side = Math.random() < 0.5,
+      bug = weighted(population, candidate => candidate.chance, Math.random),
+      kind = bug?.kind || (glow ? 'firefly' : 'butterfly'),
+      ground = grounded(kind) ? groundBounds() : null,
+      y = ground ? ground.top + (ground.bottom - ground.top) * Math.random() : h * (0.5 + Math.random() * 0.4);
+    return {
+      kind,
+      species: bug?.id || null,
+      look: bug?.look || { wing: '#f6f4ea', edge: '#4a4a44' },
+      x: arriving && !glow ? (side ? -15 : w + 15) : Math.random() * w,
+      y,
+      ...(ground ? { groundY: y } : {}),
+      heading: arriving && !glow ? (side ? 0 : Math.PI) + (Math.random() - 0.5) : Math.random() * TAU,
+      phase: Math.random() * TAU,
+      beat: Math.random(),
+      light: arriving && glow ? 0 : 1,
+    };
+  }
+  // How many petals or leaves fall at once in a yard this wide (a gathering's band adds its own).
+  const petalCount = () =>
+    reduced.matches || !worldAllows(world, 'seasonalEffects')
+      ? 0
+      : Math.round(fallerCount(season, period, weather, w) * boostOf(event, 'petals'));
+  const star = () => ({
+    x: Math.random() * w,
+    y: Math.random() * h * 0.5,
+    r: 0.5 + Math.random() * 1.1,
+    alpha: 0.4 + Math.random() * 0.55,
+  });
+  // `list` kept to `count`: the first ones stay, and new ones from `make` fill what is missing.
+  const sized = (list, count, make) => [
+    ...list.slice(0, count),
+    ...Array.from({ length: Math.max(0, count - list.length) }, make),
+  ];
+  // A new size (the panel opening, a drag at the window's edge) moves what is about to where it now
+  // lies, each the same one as before: a mantis about to be caught, or a leaf someone was watching
+  // fall, does not turn into another somewhere else. Only how many there are follows the size.
+  function carry(fromW, fromH) {
+    const sx = w / fromW,
+      sy = h / fromH,
+      move = p => {
+        p.x *= sx;
+        p.y *= sy;
+        if (p.groundY !== undefined) p.groundY *= sy;
+      };
+    for (const list of [critters, fallers, drops, stars, splashes, twirls]) for (const p of list) move(p);
+    if (flock) move(flock);
+    panes = weatherPanes(w, h, environmentFrame(w, h, { world }), worldFor(world).windowPanes);
+    drops = sized(drops, precipitation() ? dropCount(weather, w, h) : 0, () => spawnDrop(weather, w, h, Math.random));
+    if (stars.length) stars = sized(stars, Math.round(Math.min(90, w / 9)), star);
+    // Between spells nothing is added: what comes next comes with the next spell.
+    if (spell) {
+      const banded = fallers.filter(f => f.band);
+      fallers = [
+        ...sized(
+          fallers.filter(f => !f.band),
+          petalCount(),
+          () => spawnFaller(w, h, Math.random),
+        ),
+        ...banded,
+      ];
+      const { glow, count } = lifeCount();
+      if (glow && critters.length) {
+        const population = bugChances(season, period, weather, event);
+        critters = sized(critters, count, () => critter(population, glow, false));
+        ambient.use(worldAllows(world, 'wildlife'), worldAllows(world, 'sky'), critters);
+      }
+    }
+    dirty = true;
   }
   // The band's petals fall where petals do: by day in clear spring or autumn weather, with motion.
   const bandAllowed = () =>
@@ -296,12 +349,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     splashes = [];
     stars =
       worldAllows(world, 'sky') && period === 'night' && clear()
-        ? Array.from({ length: Math.round(Math.min(90, w / 9)) }, () => ({
-            x: Math.random() * w,
-            y: Math.random() * h * 0.5,
-            r: 0.5 + Math.random() * 1.1,
-            alpha: 0.4 + Math.random() * 0.55,
-          }))
+        ? Array.from({ length: Math.round(Math.min(90, w / 9)) }, star)
         : [];
     spell = true;
     spellTurn = 0;
@@ -323,11 +371,14 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
   function resize() {
     const r = canvas.getBoundingClientRect();
     if (resting || !r.width || !r.height) return;
+    const [fromW, fromH] = [w, h];
     w = r.width;
     h = r.height;
     scale = Math.max(0.5, Math.min(1, h / 560));
     fit();
-    populate();
+    if (measured) carry(fromW, fromH);
+    else populate();
+    measured = true;
     paint(performance.now());
     paintStars(performance.now());
   }

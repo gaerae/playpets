@@ -459,7 +459,6 @@ export const strings = {
   'bond.dear_partner': ['有你在，每天都很温暖。', '谢谢你今天也在我身边。', '我永远站在你这边。'],
   'bond.dear_senior': ['看到你顺利，我最开心。', '累了随时可以靠着我。', '我一直都在为你加油。'],
   'bond.dear_junior': ['我超级超级喜欢你！', '我们要一直一起玩，说好了！', '你是最棒的！'],
-  'bond.hearts': '亲密度：{level}',
   'catch.action': '钓鱼',
   'catch.action_title': '让伙伴去水边钓鱼',
   'catch.see_album': '在图鉴中查看',

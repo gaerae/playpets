@@ -463,7 +463,6 @@ export const strings = {
   'bond.dear_partner': ['네가 있어서 하루가 따뜻해.', '오늘도 곁에 있어 줘서 고마워.', '언제나 네 편이야.'],
   'bond.dear_senior': ['네가 잘되는 게 제일 기뻐.', '힘들 땐 언제든 기대.', '늘 응원하고 있어.'],
   'bond.dear_junior': ['나 너 진짜 좋아해!', '오래오래 같이 놀자, 약속!', '너랑 노는 게 제일 재밌어!'],
-  'bond.hearts': '친밀도: {level}',
   'catch.action': '낚시',
   'catch.action_title': '친구를 물가로 보내 낚시해요',
   'catch.see_album': '도감에서 보기',

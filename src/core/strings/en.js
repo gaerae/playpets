@@ -485,7 +485,6 @@ export const strings = {
     'Let’s play together forever, promise!',
     'Playing with you is the best!',
   ],
-  'bond.hearts': 'Closeness: {level}',
   'catch.action': 'Fish',
   'catch.action_title': 'Send a friend to fish at the water',
   'catch.see_album': 'See in album',

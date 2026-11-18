@@ -34,9 +34,14 @@ test('a butterfly or a dragonfly beats its wings over six frames or more, open a
 });
 
 function yard(t, reduce = true, random = 0.5) {
-  t.mock.method(Math, 'random', () => random);
+  const dice = { value: random };
+  t.mock.method(Math, 'random', () => dice.value);
   t.mock.method(performance, 'now', () => 0);
   globalThis.window = { devicePixelRatio: 1 };
+  return { ...sceneryAt({ width: 1000, height: 600 }, { matches: reduce }), dice };
+}
+// A scenery on a canvas of `size` (which a test may change before scene.resize()).
+function sceneryAt(size, reduced) {
   const draws = { paints: 0, rotations: 0, fills: [] };
   const target = {
     clearRect() {
@@ -51,17 +56,44 @@ function yard(t, reduce = true, random = 0.5) {
     createLinearGradient: () => ({ addColorStop() {} }),
   };
   const context = new Proxy(target, { get: (object, key) => object[key] ?? (() => {}) });
-  const reduced = { matches: reduce };
   const scene = createScenery(
     {
       getContext: () => context,
-      getBoundingClientRect: () => ({ width: 1000, height: 600 }),
+      getBoundingClientRect: () => size,
     },
     reduced,
   );
   scene.resize();
-  return { scene, reduced, draws };
+  return { scene, reduced, draws, size };
 }
+
+// A window resized (the panel opening, a drag at its edge) started the scene again: a mantis about
+// to be caught turned into a butterfly somewhere else, and the leaves in the air into others. Each
+// now stays the one it was, moved to where it lies in the new size.
+test('a resized window keeps each creature and falling petal, where it now lies', t => {
+  for (const [season, event] of [
+    ['autumn', null],
+    ['spring', 'blossom'],
+  ]) {
+    const { scene, size, dice, reduced } = yard(t, false),
+      twin = sceneryAt({ width: 1000, height: 600 }, reduced).scene;
+    for (const s of [scene, twin]) s.set('day', 'clear', season, event);
+    const before = twin.catchAt(500, 0, 2000);
+    assert.ok(before, `${season}: something flies or crawls`);
+    // Anything drawn again would now come out elsewhere, and as another kind.
+    dice.value = 0.05;
+    size.width = 500;
+    size.height = 300;
+    scene.resize();
+    const after = scene.catchAt(before.x / 2, before.y / 2, 2);
+    assert.ok(after, `${season}: it is where it was, at half the size`);
+    assert.equal(after.species, before.species, `${season}: and it is the same one`);
+    // A petal was laid at half the width and half its depth's fall (scene.js spawnFaller).
+    if (event === 'blossom')
+      assert.ok(scene.nearPetal(250, (0.5 * groundFor(0.5, 600)) / 2), 'the petals in the air stay as they were');
+    t.mock.restoreAll();
+  }
+});
 
 test('reduced motion keeps butterflies and fireflies catchable without animating or drawing falling petals', t => {
   const { scene, draws } = yard(t);

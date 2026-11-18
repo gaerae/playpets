@@ -3,8 +3,8 @@ import test from 'node:test';
 import './support/content.mjs';
 import { reduced } from '../src/core/sprites.js';
 import { setData, views } from '../src/core/state.js';
-import { geometry } from '../src/yard/field.js';
-import { moveFriends, WALK } from '../src/yard/motion.js';
+import { geometry, measureYard, sizeOf } from '../src/yard/field.js';
+import { moveFriends, STROLL, WALK } from '../src/yard/motion.js';
 import { sendTo } from '../src/yard/trips.js';
 import { GLIDE_MS, place } from '../src/yard/views.js';
 import { element, installDom } from './support/dom.mjs';
@@ -271,14 +271,65 @@ test('the first step of a walk counts from when the friend set off', t => {
     };
     views.clear();
     views.set('friend', friend);
+    measureYard();
+    // WALK is in body lengths: 112 px a body in an 800 px wide yard.
+    const perMs = (WALK * 112) / 800;
     sendTo(friend, { x: 0.8, y: 0.5 }, { save: false });
     clock = 1010;
     moveFriends(1010, 120);
     const first = friend.x - 0.2;
-    assert.ok(Math.abs(first - 10 * WALK) < 1e-9, `it walked for 10 ms, not 120 (${first})`);
+    assert.ok(Math.abs(first - 10 * perMs) < 1e-9, `it walked for 10 ms, not 120 (${first})`);
     clock = 1060;
     moveFriends(1060, 50);
-    assert.ok(Math.abs(friend.x - 0.2 - first - 50 * WALK) < 1e-9, 'then a whole frame each');
+    assert.ok(Math.abs(friend.x - 0.2 - first - 50 * perMs) < 1e-9, 'then a whole frame each');
+  } finally {
+    views.clear();
+    reduced.matches = previousReduced;
+  }
+});
+
+// A pace in the yard's width made friends race across a wide window: on a full screen a stroll
+// covered three body lengths a second. In body lengths, a friend steps the same in any window.
+test('a friend keeps its pace in body lengths, whatever the window’s size', t => {
+  const previousReduced = reduced.matches;
+  reduced.matches = false;
+  let clock = 1000;
+  t.mock.method(performance, 'now', () => clock);
+  const walked = (width, height, slow) => {
+    installDom(t, { anyId: true, props: { rect: { width, height } } });
+    setData({ statuses: {} });
+    measureYard();
+    const friend = {
+      pet: { id: 'friend', size: 112 },
+      x: 0.1,
+      y: 0.5,
+      button: element(),
+      label: element(),
+      canvas: { animate() {} },
+    };
+    views.clear();
+    views.set('friend', friend);
+    clock = 1000;
+    sendTo(friend, { x: 0.9, y: 0.5 }, { save: false, slow });
+    clock = 2000;
+    moveFriends(2000, 1000);
+    return { px: (friend.x - 0.1) * width, body: sizeOf(friend.pet) };
+  };
+  try {
+    for (const slow of [true, false]) {
+      const pace = slow ? STROLL : WALK,
+        wide = walked(1728, 1080, slow),
+        middle = walked(1180, 850, slow),
+        small = walked(320, 280, slow);
+      for (const [name, walk] of Object.entries({ wide, middle, small }))
+        assert.ok(
+          Math.abs(walk.px / walk.body - pace * 1000) < 1e-6,
+          `${name}: ${slow ? 'a stroll' : 'an errand'} covers ${pace * 1000} body lengths a second (${walk.px / walk.body})`,
+        );
+      assert.ok(small.px < middle.px, 'a smaller friend covers fewer pixels');
+    }
+    assert.ok(STROLL * 1000 <= 1, 'a stroll is no more than a body length a second');
+    assert.ok(WALK > STROLL, 'an errand is quicker than a stroll');
   } finally {
     views.clear();
     reduced.matches = previousReduced;

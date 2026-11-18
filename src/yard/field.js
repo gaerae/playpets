@@ -158,6 +158,13 @@ export function measureYard() {
   zoomWorld = scene.world;
   zoom = zoomFor(r.width, r.height, zoomWorld);
 }
+/** How far apart two places (0 to 1 each way) are in the yard as last measured, in body lengths
+ * of the friend `pet` at its size there (motion.js paces a walk by it). */
+export function bodiesApart(pet, a, b) {
+  if (!yardSize.width) measureYard();
+  const body = sizeOf(pet) || 1;
+  return Math.hypot((b.x - a.x) * yardSize.width, (b.y - a.y) * yardSize.height) / body;
+}
 /** Where a pointer event `e` is in the yard, in pixels, from the yard's box as last measured: read
  * on every pointer move, the box would lay the page out each time. The yard fills its window, so it
  * moves only as it changes size, when it is measured again. */

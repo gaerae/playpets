@@ -11,7 +11,7 @@ import { stateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
 import { decorTarget } from './decor.js';
 import { keepDuty } from './duty.js';
-import { dockBox, EDGE, geometry, petHeight, sizeOf, underDock, yardToField } from './field.js';
+import { bodiesApart, dockBox, EDGE, geometry, petHeight, sizeOf, underDock, yardToField } from './field.js';
 import { visitTarget } from './garden.js';
 import { groundProfile } from './ground.js';
 import { loungeTarget, sitOut } from './lounge.js';
@@ -20,9 +20,11 @@ import { followPointer, place, pose, reachOf } from './views.js';
 import { idleAction, strollClear, WANDER_DELAY, wanderTarget } from './wander.js';
 import { blocked } from './workspace.js';
 
-// How far a friend walks in a millisecond, in field units: strolling, and going somewhere.
-export const STROLL = 0.00022;
-export const WALK = 0.0005;
+// How far a friend walks in a millisecond, in its own body lengths: strolling, and going somewhere.
+// In the yard's width instead, friends raced across a wide window (three bodies a second on a full
+// screen); in body lengths they step the same in any window.
+export const STROLL = 0.0008;
+export const WALK = 0.002;
 // Where a friend's feet are when it stands at a place (0 to 1 each way), as the ground measures
 // the water and what stands on the field.
 function feetAt(v, at) {
@@ -88,7 +90,14 @@ export function moveFriends(now, dt) {
         // The first step counts from when the friend set off (trips.js sendTo), not from the frame
         // before, which may be long ago in a calm yard.
         const span = Math.min(dt, Math.max(0, now - (v.leftAt ?? -Infinity)));
-        const step = Math.min(1, (span * (v.speed || (v.trip?.slow ? STROLL : WALK))) / distance);
+        // A game's or a trail's own speed (`v.speed`) is in field units; a friend's own pace is in
+        // its body lengths.
+        const step = Math.min(
+          1,
+          v.speed
+            ? (span * v.speed) / distance
+            : (span * (v.trip?.slow ? STROLL : WALK)) / bodiesApart(v.pet, v, v.target),
+        );
         v.x += dx * step;
         v.y += dy * step;
         pose(v, dx >= 0 ? 'right' : 'left', 150);

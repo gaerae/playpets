@@ -332,17 +332,7 @@
 .pet-label.hiding .pet-tag {
   visibility: hidden;
 }
-/* hearts on a friend's tag for how close it is; the dearest wears a flower */
-.tag-bond {
-  color: var(--heart);
-  font-size: var(--font-xs);
-  letter-spacing: -1px;
-  line-height: 1;
-  margin-left: 3px;
-}
-.tag-bond:empty {
-  display: none;
-}
+/* the dearest friend wears a flower on its tag (yard/bond.js) */
 .pet-label.dear .pet-tag::before {
   content: "✿";
   margin-right: 3px;

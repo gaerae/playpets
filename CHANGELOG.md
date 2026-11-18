@@ -10,6 +10,19 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Changed
+
+- Friends walk at an easy pace measured in their own steps, the same in a small window and on a full screen, instead of hurrying across a wide window.
+- A friend's name tag shows its name without hearts; how close it is shows in the Friend panel.
+
+### Fixed
+
+- Resizing the window keeps the bugs, falling leaves, petals, rain and stars that are out, moved to where they now lie, instead of putting different ones in their place.
+
+### Website and docs
+
+- The guide's Closeness section says the Friend panel shows how close a friend is, since name tags no longer carry hearts.
+
 ## [1.8.5] - 2026-11-16
 
 ### Fixed

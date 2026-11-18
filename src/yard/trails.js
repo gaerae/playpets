@@ -23,7 +23,7 @@ import { showCard } from './card.js';
 import { TRACKS, trackKind, trailArt } from './catalog.js';
 import { yardSeason } from './decor-shown.js';
 import { behind, dugSpots, tileOf } from './discovery-rules.js';
-import { depthAt, fieldToYard, footTarget, petHeight, sizeOf, yardZoom } from './field.js';
+import { bodiesApart, depthAt, fieldToYard, footTarget, petHeight, sizeOf, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
 import { localDay } from './growth.js';
 import { STROLL } from './motion.js';
@@ -422,9 +422,14 @@ export function followTrail(n) {
       return [...along.map(i => drawnAt[i]), standAt()].map(p => footTarget(v, p.x, p.y));
     };
   let stops = stopsNow();
-  let length = 0;
-  for (let i = 1; i < stops.length; i++) length += Math.hypot(stops[i].x - stops[i - 1].x, stops[i].y - stops[i - 1].y);
-  const speed = length / clamp(length / STROLL, ...WALK_MS);
+  let length = 0,
+    bodies = 0;
+  for (let i = 1; i < stops.length; i++) {
+    length += Math.hypot(stops[i].x - stops[i - 1].x, stops[i].y - stops[i - 1].y);
+    bodies += bodiesApart(v.pet, stops[i - 1], stops[i]);
+  }
+  // As long as the friend's own stroll takes (STROLL is in body lengths), kept to WALK_MS.
+  const speed = length / clamp(bodies / STROLL, ...WALK_MS);
   const follow = { v, seen: false, lost: false, timers: [], cancel: null, end: null, retarget: null };
   follow.cancel = () => {
     if (trail.follow === follow && !follow.seen) stopFollow(trail);
