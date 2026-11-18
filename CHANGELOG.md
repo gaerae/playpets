@@ -10,6 +10,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.8.6] - 2026-11-18
+
 ### Changed
 
 - Friends walk at an easy pace measured in their own steps, and stroll a few steps at a time, the same in a small window and on a full screen, instead of hurrying across a wide window.

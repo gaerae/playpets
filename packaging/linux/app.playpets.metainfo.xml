@@ -73,6 +73,20 @@
   </supports>
   <content_rating type="oars-1.1"/>
   <releases>
+    <release version="1.8.6" date="2026-11-18">
+      <description>
+        <p>Friends take their time now: they walk at an easy pace in their own steps, in a small window and on a full screen alike.</p>
+        <ul>
+          <li>Friends walk at an easy pace and stroll a few steps at a time, the same in any window.</li>
+          <li>Games keep that pace too: no racing in hide-and-seek, and room between friends in a parade.</li>
+          <li>Name tags show only the name; how close a friend is shows in the Friend panel.</li>
+          <li>The album opens on its books, and each hint says what finding that kind takes.</li>
+          <li>Resizing the window keeps the bugs, leaves, petals, rain and stars that are out.</li>
+          <li>Resizing the window mid-dig still tells the find, and a picnic's cloth moves with the yard.</li>
+        </ul>
+      </description>
+      <url type="details">https://playpets.gaerae.com/releases/1.8.6</url>
+    </release>
     <release version="1.8.5" date="2026-11-16">
       <description>
         <p>Friends talk like friends again: only their own words, and no guessing who you are.</p>
