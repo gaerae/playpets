@@ -268,6 +268,21 @@ test('pnpm never runs dependency install scripts and stops on an unreviewed one'
   assert.equal(existsSync('.npmrc'), false, 'pnpm reads only registry and auth settings from .npmrc');
 });
 
+// An advisory left out of pnpm audit stays visible: each one is named in SECURITY.md with why it
+// cannot be reached and when the exception goes, and nothing broader than one advisory is ignored.
+test('every npm advisory pnpm audit leaves out is one GHSA that SECURITY.md explains', () => {
+  const settings = read('pnpm-workspace.yaml'),
+    security = read('SECURITY.md');
+  assert.doesNotMatch(settings, /^\s+(ignoreCves|ignorePackages|ignoreUnfixed):/m);
+  const block = settings.match(/^auditConfig:\n {2}ignoreGhsas:\n((?: {4}- .+\n)+)/m)?.[1] || '';
+  for (const id of block.trimEnd().split('\n').filter(Boolean).map(line => line.replace(/^ {4}- /, ''))) {
+    assert.match(id, /^GHSA(-[23456789cfghjmpqrvwx]{4}){3}$/, id);
+    const section = security.slice(security.indexOf(id));
+    assert.ok(security.includes(id), `${id} is in SECURITY.md`);
+    assert.match(section.slice(0, 1500), /Remove the exception/, `${id} says when the exception goes`);
+  }
+});
+
 // One pnpm for everyone: CI and the containers install the version package.json names, and the
 // lockfile is pnpm's own.
 test('pnpm is the package manager, at an exact version', () => {

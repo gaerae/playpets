@@ -112,6 +112,22 @@ Official upstream references for the remaining work:
 - Building packages, merging a PR and deploying the website are separate from
   that publication decision.
 
+### picomatch in the website's build tools (2026-11-18)
+
+- Public advisory:
+  [GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf), ReDoS
+  through repeated extglobs, high.
+- Affected: picomatch 4.0.7 and earlier. No fixed version was published on
+  2026-11-18; 4.0.7 is the latest.
+- Path: VitePress → Vite and tinyglobby → fdir → picomatch, a development
+  dependency of the website build only. The app and its packages do not contain it.
+- Not reachable: the patterns it matches come from this repository's own build
+  configuration, never from a visitor or a downloaded file.
+- `pnpm audit` leaves out this one advisory (`auditConfig.ignoreGhsas` in
+  `pnpm-workspace.yaml`). No package or severity is ignored as a whole.
+- Remove the exception in the change that takes a fixed picomatch, or as soon as
+  Vite or VitePress stop pulling in an affected version.
+
 ## Automated security checks
 
 - The `security` workflow runs `pnpm run security:check` on pull requests, main

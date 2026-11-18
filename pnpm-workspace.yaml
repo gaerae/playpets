@@ -30,3 +30,9 @@ overrides:
   vite: ^6.4.5
   # Pulled in by mermaid.
   katex: ^0.19.0
+
+# Advisories `pnpm audit` leaves out, one by one, each explained in SECURITY.md (Dependency
+# advisories) with when it goes. Dependabot still proposes the fixed version once there is one.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-fc5q-39xc-vjpf
