@@ -632,7 +632,7 @@ function watch(ids) {
     if (!v) return;
     const x = foot.x + side * (baseWidth() * 0.6 + sizeOf(v.pet) * (0.55 + 0.7 * (k % 3))),
       y = foot.y - 14 * Math.floor(k / 3);
-    sendTo(v, footTarget(v, x, y), { save: false, speed: 0.0004 });
+    sendTo(v, footTarget(v, x, y), { save: false });
   });
 }
 

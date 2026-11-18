@@ -186,6 +186,7 @@ export function sendDiscovery(v, point, action, kind, own = false) {
     task.dig?.stop();
     stopWork(v);
     if (tasks.get(v) === task) tasks.delete(v);
+    task.reveal?.();
   };
   release(v);
   tasks.set(v, task);
@@ -206,11 +207,22 @@ export function sendDiscovery(v, point, action, kind, own = false) {
       const { authored, duration } = task.dig;
       const before = new Set(Object.keys(data.album?.treasures || {}));
       let result,
-        finished = false;
+        finished = false,
+        told = false;
+      // What was found, said once: as the stroke ends, or at once when it was cut short after the
+      // backend kept the find (a new window size cancels the yard's work), so a find is never
+      // silent. Nothing found, or a patch dug before, is not worth a word then.
       const reveal = () => {
-        if (!finished || !result || task.cancelled) return;
-        if (task.cancelled || scene.world !== world || !views.has(v.pet.id)) return cleanup();
-        doneDigging(v, action === 'tree' || (!!result.outcome && result.outcome !== 'empty'));
+        if (!result || told) return;
+        if (task.cancelled) {
+          const found = action === 'tree' || (!result.repeated && !!result.outcome && result.outcome !== 'empty');
+          if (!found || !views.has(v.pet.id)) return;
+        } else {
+          if (!finished) return;
+          if (scene.world !== world || !views.has(v.pet.id)) return cleanup();
+          doneDigging(v, action === 'tree' || (!!result.outcome && result.outcome !== 'empty'));
+        }
+        told = true;
         if (action === 'tree') return bubble(v, t('discovery.planted'), 2600);
         if (result.repeated) return bubble(v, t('discovery.repeated'), 2600);
         if (result.outcome === 'keepsake') {
@@ -230,6 +242,7 @@ export function sendDiscovery(v, point, action, kind, own = false) {
           bubble(v, t('discovery.sapling_full', { kind: t(`tree.${result.kind}`) }), 3000);
         } else bubble(v, t(`discovery.${result.outcome}`), 2600);
       };
+      task.reveal = reveal;
       // Body/tool effects and the request start together; reveal waits for both, once.
       task.timer = setTimeout(() => {
         finished = true;

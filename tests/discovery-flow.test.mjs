@@ -112,6 +112,36 @@ test('arrival commits once and cancellation during the backend wait removes pres
   assert.equal(v.bubble.textContent, '');
 });
 
+// The find is kept once the backend answers, so a dig cut short then (a new window size cancels the
+// yard's work, app.js) still says what it found; nothing found goes unsaid then.
+test('a find the backend kept is still told when the dig is cut short, before or after it answers', async t => {
+  const { t: say } = await import('../src/core/i18n.js');
+  const { v, timers } = fixture(t);
+  const dig = () => {
+    sendDiscovery(v, { x: 0.5, y: 0.5 }, 'dig');
+    const arrive = v.trip.arrive;
+    v.trip = null;
+    v.target = null;
+    return arrive();
+  };
+  let pending = dig();
+  release(v);
+  resolveDig({ ok: true, data: { outcome: 'seed', attemptId: 'waiting' } });
+  await pending;
+  assert.equal(v.bubble.textContent, say('discovery.seed'), 'cut short while the backend answered');
+  assert.equal(v.doing, null, 'the stroke itself is over');
+
+  v.bubble.textContent = '';
+  pending = dig();
+  resolveDig({ ok: true, data: { outcome: 'seed', attemptId: 'answered' } });
+  await pending;
+  assert.equal(v.bubble.textContent, '', 'it waits for the stroke to end');
+  release(v);
+  assert.equal(v.bubble.textContent, say('discovery.seed'), 'cut short in the stroke');
+  timers.at(-1)();
+  assert.equal(v.bubble.textContent, say('discovery.seed'), 'told once');
+});
+
 test('a dig at the rainbow’s end puts out its glimmer, even when the friend is called away meanwhile', async t => {
   const { v } = fixture(t);
   const { placeRainbowEnd, rainbowEnd, clearRainbowEnd } = await import('../src/yard/rainbow-end.js');

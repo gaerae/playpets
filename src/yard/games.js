@@ -9,8 +9,15 @@ export const GAMES = {
   snowman: t('game.snowman'),
 };
 export const TAG_MS = 40000;
-export const PARADE_MS = 26000;
-const PARADE_GAP = 0.07;
+// How fast friends go in a game, in body lengths a millisecond as motion.js counts a walk (an
+// errand, WALK, is 0.002): a dash to a hiding spot or into line, the tagger a good step quicker
+// than the friends it chases. In the field's width instead, a full screen's game ran at four times
+// an errand, and a small window's at half its own.
+export const GAME_PACE = { dash: 0.003, chase: 0.0032, run: 0.0022 };
+// A parade keeps friends this many body lengths apart along its lap, and a lap takes as long as its
+// length at the pace it is walked, kept to PARADE_MS: a small window's is short, not crowded.
+export const PARADE_GAP = 1.6;
+export const PARADE_MS = [14000, 32000];
 // One slot per friend along the ridge, so nobody hides on top of somebody else.
 export function hidingSpots(count, rng) {
   return Array.from({ length: count }, (_, i) => ({ x: clamp((i + 0.3 + rng() * 0.4) / count), y: rng() * 0.18 }));
@@ -19,9 +26,20 @@ export function paradePoint(t) {
   const angle = Math.PI / 2 + t * Math.PI * 2;
   return { x: 0.5 + Math.cos(angle) * 0.42, y: 0.55 + Math.sin(angle) * 0.4 };
 }
-// Everyone walks exactly one lap, each starting a step behind the friend in front.
-export function paradePositions(count, progress) {
-  return Array.from({ length: count }, (_, i) => paradePoint(progress - i * PARADE_GAP));
+/** The lap's length, by `apart` (how far two places on the field are, in body lengths). */
+export function paradeLap(apart, steps = 64) {
+  let length = 0;
+  for (let i = 0; i < steps; i++) length += apart(paradePoint(i / steps), paradePoint((i + 1) / steps));
+  return length;
+}
+/** The parade of `count` friends on a lap `lap` body lengths long, walked at `pace`: how long the
+ * lap takes, and the share of it between two friends, spread evenly round it when they would not fit. */
+export function paradePlan(count, lap, pace) {
+  return { ms: clamp(lap / pace, ...PARADE_MS), gap: Math.min(PARADE_GAP / lap, 1 / Math.max(1, count)) };
+}
+// Everyone walks exactly one lap, each starting `gap` (a share of the lap) behind the friend in front.
+export function paradePositions(count, progress, gap) {
+  return Array.from({ length: count }, (_, i) => paradePoint(progress - i * gap));
 }
 export const paradeDone = progress => progress >= 1;
 export function chaseTarget(it, others, immuneId) {

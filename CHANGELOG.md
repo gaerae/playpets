@@ -16,10 +16,13 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A friend's name tag shows its name without hearts; how close it is shows in the Friend panel.
 - Album hints say what finding a kind takes: seeds, saplings and keepsakes come from digging, a flower blooms 4 hours after planting and a tree grows up in 12, a snowman is built once a day in a winter yard, a blossom, firefly or harvest gift also needs the yard to show that season, new prints come every day and new snow covers them, and a spring shoot stays about 6 hours. Each condition listed for a tree or keepsake helps on its own.
 - The album opens on its books, without the introduction above them; each card says how to find its kind.
+- Games keep the same pace in any window: hide-and-seek and tag go a little quicker than an errand instead of racing across a full screen, friends watching a snowman walk over like on an errand, and a parade walks at a stroll with friends a body and a half apart, so they no longer bump into each other in a small window.
 
 ### Fixed
 
 - Resizing the window keeps the bugs, falling leaves, petals, rain and stars that are out, moved to where they now lie, instead of putting different ones in their place.
+- A dig cut short by resizing the window still says what was found; before, the find went into the album without a word.
+- Resizing the window during a picnic moves the cloth with the yard, and friends still on their way head for their seats around it.
 
 ### Website and docs
 

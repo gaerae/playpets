@@ -100,13 +100,11 @@ export function moveFriends(now, dt) {
         // The first step counts from when the friend set off (trips.js sendTo), not from the frame
         // before, which may be long ago in a calm yard.
         const span = Math.min(dt, Math.max(0, now - (v.leftAt ?? -Infinity)));
-        // A game's or a trail's own speed (`v.speed`) is in field units; a friend's own pace is in
-        // its body lengths.
+        // A pace is in body lengths, a friend's own and a game's or a trail's (`v.speed`) alike, so
+        // a walk looks as quick in any window and any way it goes.
         const step = Math.min(
           1,
-          v.speed
-            ? (span * v.speed) / distance
-            : (span * (v.trip?.slow ? STROLL : WALK)) / bodiesApart(v.pet, v, v.target),
+          (span * (v.speed || (v.trip?.slow ? STROLL : WALK))) / bodiesApart(v.pet, v, v.target),
         );
         v.x += dx * step;
         v.y += dy * step;

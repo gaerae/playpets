@@ -17,7 +17,9 @@ import { SCATTER_DELAY } from './wander.js';
 import { scene } from './world.js';
 
 let treatTimer,
-  treatEaters = 0;
+  treatEaters = 0,
+  // Where the meal was put, as shares of the yard, so a new size lays it again in the same place.
+  treatAt = null;
 // Called when a friend reaches the treat.
 function ate(v, now) {
   befriend(v.pet.id, 'treat');
@@ -133,22 +135,40 @@ export function picnicLayout({ x, y, width, height, top, zoom, count }) {
     }),
   };
 }
-function dropTreat(x, y) {
+// Lays the cloth at `treatAt` in the yard as it is now, and gives each friend's seat around it.
+function layPicnic() {
   const r = $('yard').getBoundingClientRect();
   const picnic = picnicLayout({
-    x,
-    y,
+    x: treatAt.x * r.width,
+    y: treatAt.y * r.height,
     width: r.width,
     height: r.height,
     top: r.height * fieldTop(),
     zoom: yardZoom(),
     count: views.size,
   });
-  $('treat').hidden = false;
   $('treat').style.left = `${picnic.x - picnic.width / 2}px`;
   $('treat').style.top = `${picnic.y - picnic.height / 2}px`;
   $('treat').style.width = `${picnic.width}px`;
   $('treat').style.height = `${picnic.height}px`;
+  return picnic;
+}
+/** The window changed size: the meal is laid again where it was, and friends still on their way
+ * head for their seats around it. */
+export function resizePicnic() {
+  if (!treatAt || $('treat').hidden) return;
+  const picnic = layPicnic();
+  let i = 0;
+  for (const v of views.values()) {
+    const seat = picnic.seats[i++];
+    if (seat && v.target && v.trip?.arrive === ate) v.target = footTarget(v, seat.x, seat.y, 0);
+  }
+}
+function dropTreat(x, y) {
+  const r = $('yard').getBoundingClientRect();
+  treatAt = { x: x / r.width, y: y / r.height };
+  const picnic = layPicnic();
+  $('treat').hidden = false;
   clearTimeout(treatTimer);
   treatTimer = setTimeout(() => ($('treat').hidden = true), 15000);
   treatEaters = 0;
