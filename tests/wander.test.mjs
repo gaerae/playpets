@@ -30,6 +30,24 @@ test('wander targets always stay inside the yard and actually move the pet', () 
     }
 });
 
+// A stroll is a few of the friend's own steps whatever the window, as its pace is (motion.js): a
+// share of the yard made a full screen's strolls three times as long, and the yard drew all the while.
+test('a stroll is a few body lengths in any window', () => {
+  for (const [width, height, size] of [
+    [1728, 1080, 112],
+    [1180, 850, 112],
+    [560, 400, 56],
+  ]) {
+    const body = { x: size / width, y: size / height };
+    for (let i = 0; i < 300; i++) {
+      const from = { x: 0.5, y: 0.6 },
+        to = wander.wanderTarget(from, Math.random, () => true, body);
+      const bodies = Math.hypot((to.x - from.x) * width, (to.y - from.y) * height) / size;
+      assert.ok(bodies >= 1 && bodies <= 3, `${width}x${height}: ${bodies.toFixed(2)} body lengths`);
+    }
+  }
+});
+
 test('idle delays fall inside the configured window and scatter is quicker than wander', () => {
   const [wanderMin, wanderMax] = wander.WANDER_DELAY,
     [scatterMin, scatterMax] = wander.SCATTER_DELAY;

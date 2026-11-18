@@ -12,9 +12,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
-- Friends walk at an easy pace measured in their own steps, the same in a small window and on a full screen, instead of hurrying across a wide window.
+- Friends walk at an easy pace measured in their own steps, and stroll a few steps at a time, the same in a small window and on a full screen, instead of hurrying across a wide window.
 - A friend's name tag shows its name without hearts; how close it is shows in the Friend panel.
 - Album hints say what finding a kind takes: seeds, saplings and keepsakes come from digging, a flower blooms 4 hours after planting and a tree grows up in 12, a snowman is built once a day in a winter yard, a blossom, firefly or harvest gift also needs the yard to show that season, new prints come every day and new snow covers them, and a spring shoot stays about 6 hours. Each condition listed for a tree or keepsake helps on its own.
+- The album opens on its books, without the introduction above them; each card says how to find its kind.
 
 ### Fixed
 

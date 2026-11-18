@@ -180,7 +180,7 @@ test('every key in the table is one the page names', async () => {
 test('spring shoots never say how to pick or eat them', () => {
   for (const lang of Object.keys(STRINGS)) {
     const keys = Object.keys(STRINGS[lang]).filter(
-      key => key.startsWith('shoot.') || key === 'album.shoots' || key === 'catch.album_lead',
+      key => key.startsWith('shoot.') || key === 'album.shoots',
     );
     assert.ok(
       keys.some(key => key.startsWith('shoot.')),

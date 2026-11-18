@@ -824,7 +824,8 @@ const scenario = `(async()=>{
     const fishFor=async()=>{const go=()=>until(()=>{if(!toLake())clickLake();return toLake();},8000);return (await go())||(await inView('fishing'),await go());};
     const first=await fishFor();
     document.querySelector('[data-game=tag]').click();await wait(200);const during=toLake();playing().click();
-    await until(()=>[...st.views.values()].every(v=>!v.away),8000);const again=await fishFor();
+    // Friends walk home at their own pace, longer in a wide window (motion.js WALK).
+    await until(()=>[...st.views.values()].every(v=>!v.away),15000);const again=await fishFor();
     await L('lakeAgain='+first+'/'+during+'/'+again);
     const catchModule=await import('./yard/catch.js');
     const cast=await until(()=>document.querySelector('.bobber'),10000);

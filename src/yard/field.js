@@ -165,6 +165,12 @@ export function bodiesApart(pet, a, b) {
   const body = sizeOf(pet) || 1;
   return Math.hypot((b.x - a.x) * yardSize.width, (b.y - a.y) * yardSize.height) / body;
 }
+/** One body length of `pet`, across and down, in field units (wander.js measures a stroll by it). */
+export function bodyInField(pet) {
+  if (!yardSize.width) measureYard();
+  const body = sizeOf(pet) || 1;
+  return { x: body / (yardSize.width || 1), y: body / (yardSize.height || 1) };
+}
 /** Where a pointer event `e` is in the yard, in pixels, from the yard's box as last measured: read
  * on every pointer move, the box would lay the page out each time. The yard fills its window, so it
  * moves only as it changes size, when it is measured again. */

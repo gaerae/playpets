@@ -11,7 +11,17 @@ import { stateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
 import { decorTarget } from './decor.js';
 import { keepDuty } from './duty.js';
-import { bodiesApart, dockBox, EDGE, geometry, petHeight, sizeOf, underDock, yardToField } from './field.js';
+import {
+  bodiesApart,
+  bodyInField,
+  dockBox,
+  EDGE,
+  geometry,
+  petHeight,
+  sizeOf,
+  underDock,
+  yardToField,
+} from './field.js';
 import { visitTarget } from './garden.js';
 import { groundProfile } from './ground.js';
 import { loungeTarget, sitOut } from './lounge.js';
@@ -117,7 +127,7 @@ export function moveFriends(now, dt) {
       const action = idleAction(Math.random, quiet);
       if (action.type === 'pose') pose(v, action.pose, 1200);
       else if (!loungeTarget(v, now) && !visitTarget(v) && !decorTarget(v)) {
-        const target = wanderTarget({ x: v.x, y: v.y }, Math.random, dryStroll(v));
+        const target = wanderTarget({ x: v.x, y: v.y }, Math.random, dryStroll(v), bodyInField(v.pet));
         if (target) sendTo(v, target, { slow: true, own: true });
       }
       v.nextWander = now + between(Math.random, WANDER_DELAY) * (quiet ? 1.8 : 1);
