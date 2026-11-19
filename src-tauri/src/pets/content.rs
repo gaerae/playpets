@@ -51,15 +51,9 @@ struct Kind {
     /// "on": friends stand on it (a bench, a swing), rather than beside it.
     #[serde(default)]
     stand: Option<String>,
-    /// A display's album book ("fish", "bug", "treasure", "flower"): what it holds.
+    /// A find out's album book ("fish", "bug", "treasure"): what it holds, one at a time.
     #[serde(default)]
     holds: Option<String>,
-    /// How many a display holds.
-    #[serde(default = "one_held")]
-    room: usize,
-}
-fn one_held() -> usize {
-    1
 }
 #[derive(Deserialize)]
 struct SizedStage {
@@ -193,8 +187,8 @@ pub struct Catalog {
     garden: Garden,
     flowers: Vec<Kind>,
     gifts: Vec<Kind>,
-    /// What holds a find from the album (a fishbowl, a specimen case): set out as a gift is, but
-    /// made from an album card, never brought (docs/design/2026-11-19-album-on-display.md).
+    /// A find from the album out on its own (a fish, a bug, a treasure): set out as a gift is, but
+    /// made from an album card, never brought (docs/design/2026-11-19-album-finds-out.md).
     #[serde(default)]
     displays: Vec<Kind>,
     fish: Vec<Fish>,
@@ -391,15 +385,14 @@ impl Catalog {
     pub fn is_decor(&self, id: &str) -> bool {
         self.decor_kind(id).is_some()
     }
-    /// The display that holds a find from this album book, and how many it holds.
-    pub fn display_for(&self, book: &str) -> Option<(&str, usize)> {
+    /// The kind a find from this album book comes out as.
+    pub fn display_for(&self, book: &str) -> Option<&str> {
         let k = self.displays.iter().find(|k| k.holds.as_deref() == Some(book))?;
-        Some((k.id.as_str(), k.room))
+        Some(k.id.as_str())
     }
-    /// The album book a display holds finds from, and how many it holds; None for a gift.
-    pub fn display_of(&self, id: &str) -> Option<(&str, usize)> {
-        let k = self.displays.iter().find(|k| k.id == id)?;
-        Some((k.holds.as_deref()?, k.room))
+    /// The album book a find out holds from; None for a gift.
+    pub fn display_of(&self, id: &str) -> Option<&str> {
+        self.displays.iter().find(|k| k.id == id)?.holds.as_deref()
     }
     /// Whether this album book has this kind, as a display can hold it.
     pub fn holds(&self, book: &str, id: &str) -> bool {
@@ -475,18 +468,14 @@ mod tests {
     #[test]
     fn each_album_book_has_one_display_and_displays_are_not_gifts() {
         let c = catalog();
-        for (book, kind, room) in [
-            ("fish", "fishbowl", 1),
-            ("bug", "bug_jar", 1),
-            ("treasure", "specimen_case", 5),
-            ("flower", "pressed_frame", 1),
-        ] {
-            assert_eq!(c.display_for(book), Some((kind, room)), "{book}");
-            assert_eq!(c.display_of(kind), Some((book, room)), "{kind}");
+        for (book, kind) in [("fish", "fish_out"), ("bug", "bug_out"), ("treasure", "treasure_out")] {
+            assert_eq!(c.display_for(book), Some(kind), "{book}");
+            assert_eq!(c.display_of(kind), Some(book), "{kind}");
             assert!(c.is_decor(kind) && !c.is_gift(kind), "{kind}");
             assert!(!c.gifts().contains(&kind), "{kind} is not brought");
             assert!(c.gift_size(kind).is_some(), "{kind} has a size");
         }
+        assert_eq!(c.display_for("flower"), None, "a flower comes out of its own card");
         assert_eq!(c.display_for("gift"), None);
         assert_eq!(c.display_of("bench"), None);
         assert!(c.is_decor("bench"));
@@ -501,7 +490,7 @@ mod tests {
             assert!(catalog().hangs(kind), "{kind}");
             assert!(catalog().is_gift(kind), "{kind} is brought");
         }
-        for other in ["lantern", "pinwheel", "bench", "fishbowl", "missing"] {
+        for other in ["lantern", "pinwheel", "bench", "fish_out", "missing"] {
             assert!(!catalog().hangs(other), "{other}");
         }
     }

@@ -255,19 +255,6 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
 - Accepted source, prompt, hashes and measured boxes:
   `assets/sources/more-kinds-2026-11-15/accepted-art.json`.
 
-## Displays (2026-11-19)
-
-- `collection-extension/display-cases` holds four empty containers in reading
-  order: a fishbowl, a bug jar, a specimen case with five compartments and a
-  pressed-flower frame on an easel.
-- They are drawn empty: each holds a find's album drawing in a measured slot
-  (`displays` in `catalog.json`, `src/yard/display.js`).
-- Crops follow measured silhouettes with a 4-pixel margin; reproduce the
-  wrappers with `node scripts/pack-collection.mjs`. They have no album card.
-- Alpha below 50 is cleared to fully transparent.
-- Accepted source, prompt, hashes and measured boxes:
-  `assets/sources/display-2026-11-19/accepted-art.json`.
-
 ## Hanging gifts (2026-11-19)
 
 - `collection-extension/hanging-gifts` holds two gifts on the wind chime's kind

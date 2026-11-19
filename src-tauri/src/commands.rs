@@ -537,19 +537,13 @@ static COMMANDS: &[Command] = &[
                 .map(|p| json!(p))
         })
     }),
-    // (book, item, x, y): a find from the album on display (docs/design/2026-11-19-album-on-display.md).
+    // (book, item, x, y): a find from the album out on its own (docs/design/2026-11-19-album-finds-out.md).
     main("display", |c| {
         let (x, y, now) = (c.float(2), c.float(3), now_ms());
         commit(c.app, &c.state, |d| {
             d.garden
                 .display(&d.album, c.text(0), c.text(1), x, y, now)
                 .map(|decor| json!(decor))
-        })
-    }),
-    // (id, item): a find taken out of its display again; null when the display went with it.
-    main("undisplay", |c| {
-        commit(c.app, &c.state, |d| {
-            d.garden.undisplay(c.text(0), c.text(1)).map(|decor| json!(decor))
         })
     }),
     // (world, kind, x, y, ground): a tree the album has, mature on free soil.
@@ -903,7 +897,6 @@ mod tests {
             "takeOutFlower",
             "takeOutTree",
             "display",
-            "undisplay",
             "hangOrnament",
             "takeDownOrnament",
             "buildSnowman",

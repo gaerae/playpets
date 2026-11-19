@@ -797,47 +797,25 @@
   ],
   "displays": [
     {
-      "id": "fishbowl",
-      "art": "decor/display/fishbowl.svg",
-      "size": [50, 49.6],
-      "foot": 0.99,
-      "shade": [0.8, 0.07, 0.99],
+      "id": "fish_out",
+      "size": [84, 54],
+      "foot": 1,
       "holds": "fish",
-      "slots": [[0.17, 0.36, 0.62, 0.32]]
+      "slots": [[0, 0, 1, 0.72]]
     },
     {
-      "id": "bug_jar",
-      "art": "decor/display/bug_jar.svg",
-      "size": [32, 54.4],
-      "foot": 0.989,
-      "shade": [0.85, 0.06, 0.99],
+      "id": "bug_out",
+      "size": [52, 46],
+      "foot": 0.98,
       "holds": "bug",
-      "slots": [[0.16, 0.42, 0.68, 0.42]]
+      "slots": [[0, 0, 1, 1]]
     },
     {
-      "id": "specimen_case",
-      "art": "decor/display/specimen_case.svg",
-      "size": [76, 66.4],
-      "foot": 0.987,
-      "shade": [0.95, 0.06, 0.99],
+      "id": "treasure_out",
+      "size": [44, 44],
+      "foot": 0.98,
       "holds": "treasure",
-      "room": 5,
-      "slots": [
-        [0.102, 0.195, 0.252, 0.315],
-        [0.386, 0.195, 0.246, 0.315],
-        [0.665, 0.195, 0.242, 0.315],
-        [0.153, 0.553, 0.341, 0.315],
-        [0.525, 0.553, 0.335, 0.315]
-      ]
-    },
-    {
-      "id": "pressed_frame",
-      "art": "decor/display/pressed_frame.svg",
-      "size": [46, 61.7],
-      "foot": 0.992,
-      "shade": [0.85, 0.06, 0.99],
-      "holds": "flower",
-      "slots": [[0.188, 0.204, 0.591, 0.501]]
+      "slots": [[0, 0, 1, 1]]
     }
   ],
   "fish": [

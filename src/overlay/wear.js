@@ -1,8 +1,8 @@
 // What a gift out on the desktop wears, as the yard draws it: a snowman's dress over its drawing
 // and the Christmas tree's ornaments on it, from the garden the overlay is sent, and the grand tree
 // while the yard has its Christmas night. The yard's own modules draw all three (dress-layers.js,
-// ornaments.js, grand-tree.js); this only keeps a desktop gift in step. A display's finds are drawn
-// the same way (display.js), and follow the garden when one goes into or out of a case.
+// ornaments.js, grand-tree.js); this only keeps a desktop gift in step. A find out is drawn
+// the same way (display.js).
 
 import { t } from '../core/i18n.js';
 import { reduced } from '../core/sprites.js';
@@ -18,10 +18,13 @@ import { drawTreeOrnaments } from '../yard/ornaments.js';
 export function wearArt(kind) {
   const gift = giftKind(kind);
   if (!gift) return [];
-  return [gift.art, ...(gift.dress || []).map(part => part.art), ...(gift.night ? [gift.night.art] : [])];
+  // A find out has no drawing of its own (display.js heldArt loads the find's).
+  return [gift.art, ...(gift.dress || []).map(part => part.art), ...(gift.night ? [gift.night.art] : [])].filter(
+    Boolean,
+  );
 }
 
-// What the display `view` holds, drawn again only when that changed, once the finds' drawings are
+// The find the kind out `view` holds, drawn again only when that changed, once its drawing is
 // in; its name says what it holds.
 async function showHeld(view, holds) {
   const key = holds.join();

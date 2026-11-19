@@ -1280,41 +1280,5 @@
     "crop": [1155, 574, 366, 404],
     "size": [40, 54],
     "art": "flowers/winter_heath.svg"
-  },
-  {
-    "id": "fishbowl",
-    "kind": "displays",
-    "atlas": "collection-extension/display-cases.webp",
-    "atlasSize": [1536, 1024],
-    "crop": [207, 83, 411, 408],
-    "size": [50, 49.6],
-    "art": "decor/display/fishbowl.svg"
-  },
-  {
-    "id": "bug_jar",
-    "kind": "displays",
-    "atlas": "collection-extension/display-cases.webp",
-    "atlasSize": [1536, 1024],
-    "crop": [967, 18, 276, 469],
-    "size": [32, 54.4],
-    "art": "decor/display/bug_jar.svg"
-  },
-  {
-    "id": "specimen_case",
-    "kind": "displays",
-    "atlas": "collection-extension/display-cases.webp",
-    "atlasSize": [1536, 1024],
-    "crop": [151, 535, 528, 461],
-    "size": [76, 66.4],
-    "art": "decor/display/specimen_case.svg"
-  },
-  {
-    "id": "pressed_frame",
-    "kind": "displays",
-    "atlas": "collection-extension/display-cases.webp",
-    "atlasSize": [1536, 1024],
-    "crop": [925, 508, 372, 499],
-    "size": [46, 61.7],
-    "art": "decor/display/pressed_frame.svg"
   }
 ]

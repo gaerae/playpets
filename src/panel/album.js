@@ -23,7 +23,7 @@ import { SECRETS } from '../yard/secrets.js';
 import { printSpecimen, tailPeek } from '../yard/trail-art.js';
 import { scene } from '../yard/world.js';
 import { worldFor, worldHasSoil } from '../yard/worlds.js';
-import { displayButtons, pressButton } from './album-display.js';
+import { displayButtons } from './album-display.js';
 
 // When and where a fish or a bug is found: "Summer, Evening, Night, at the lake".
 function when(kind, where) {
@@ -86,11 +86,7 @@ const BOOKS = {
     unknown: 'catch.unknown_flower',
     hint: k => t('catch.flower_hint', { season: t(`catch.season_${k.season}`) }),
     record: entry => t('catch.grown', { count: entry.count }),
-    action: k => {
-      const row = growingButtons('flower', k.id);
-      row.append(pressButton(k.id, row));
-      return row;
-    },
+    action: k => growingButtons('flower', k.id),
   },
   fish: {
     tab: 'catch.tab_fish',

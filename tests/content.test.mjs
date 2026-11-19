@@ -20,6 +20,8 @@ test('every kind has its name, and every gift its lines, in every language', () 
   const keys = [
     ...catalog.flowers.map(f => `garden.kind_${f.id}`),
     ...catalog.gifts.flatMap(g => [`decor.kind_${g.id}`, `decor.visit_${g.id}`]),
+    // A find out is named for the find; its visit lines are its own.
+    ...catalog.displays.map(d => `decor.visit_${d.id}`),
     ...catalog.fish.map(f => `catch.fish_${f.id}`),
     ...catalog.bugs.map(b => `catch.bug_${b.id}`),
     ...catalog.garden.stages.map(s => `garden.stage_${s.name}`),

@@ -3,9 +3,9 @@
 // (catalog.json "part": points and pivot as shares of its box, and "spin" or "sway"): the drawing
 // is laid twice, once without the part and once with only the part, which turns. Each motion is
 // one animation that ends by itself (overlay.css). A lamp ("poke": "switch") goes off or on until
-// the hour next changes, and a fishbowl's fish swims across and back (display.js). A gift that hangs
+// the hour next changes, and a fish out swims across and back (display.js). A gift that hangs
 // draws its cord too, for when it hangs from a screen's top. Design:
-// docs/design/2026-11-19-desktop-items-that-answer.md, docs/design/2026-11-19-album-on-display.md,
+// docs/design/2026-11-19-desktop-items-that-answer.md, docs/design/2026-11-19-album-finds-out.md,
 // docs/design/2026-11-19-desktop-edges.md.
 
 import { artSvg } from '../yard/art.js';
@@ -15,13 +15,15 @@ import { effectLayers } from '../yard/effects.js';
 
 const share = ([x, y]) => `${x * 100}% ${y * 100}%`;
 /** A gift's drawing as the desktop lays it: its effects' layers (a lit gift's halo and pool, a
- * firefly jar's, by what a display `holds`) under its drawing, and a moving part as a second copy
+ * firefly's, by what a find out `holds`) under its drawing, and a moving part as a second copy
  * of the drawing over the rest. */
 export function giftLayers(kind, holds = []) {
   const gift = giftKind(kind);
-  if (!gift?.art) return '';
-  const drawing = artSvg(gift.art),
-    under = effectLayers([...(gift.effects || []), ...displayEffects(kind, holds)]);
+  if (!gift) return '';
+  const under = effectLayers([...(gift.effects || []), ...displayEffects(kind, holds)]);
+  // A find out has no drawing of its own: only its effects (a firefly's glow) under the find.
+  if (!gift.art) return under;
+  const drawing = artSvg(gift.art);
   const part = gift.part;
   if (!part?.points?.length) return under + drawing;
   const points = part.points.map(share).join(','),
@@ -58,7 +60,7 @@ export function poke(view, { period, reduced, ring }) {
     view.lamp = { period, on: !lit };
     showLamp(view, period);
   }
-  // A fishbowl's fish is its moving part.
+  // A fish out is its own moving part.
   const part =
     (gift.part && (view.part ??= view.button.querySelector('.part'))) ||
     (displayKind(view.kind)?.holds === 'fish' && view.button.querySelector('.held'));

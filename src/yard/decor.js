@@ -126,10 +126,10 @@ function position(v, x, y) {
 function create(d) {
   const button = propButton('decor', d.kind),
     gift = giftKind(d.kind),
-    // A jar holding a firefly glows as a lit gift does (display.js).
+    // A firefly out glows as a lit gift does (display.js).
     effects = [...(gift?.effects || []), ...displayEffects(d.kind, d.holds)];
   if (effects.length) button.dataset.effects = effects.join(' ');
-  button.innerHTML = `${effectLayers(effects)}${gift ? artSvg(gift.art) : ''}`;
+  button.innerHTML = `${effectLayers(effects)}${gift?.art ? artSvg(gift.art) : ''}`;
   // A drawing with no ground of its own stands on a contact shade, under it (garden.css); one on
   // spread feet has a small dark one under each foot, over a wide soft one under it all.
   if (gift?.shade) {
@@ -153,7 +153,7 @@ function create(d) {
     for (const node of [shade, ...feet]) button.insertBefore(node, first);
   }
   const v = { id: d.id, kind: d.kind, button, drag: null, busy: false, dressLayer: null, worn: null, heldLayer: null };
-  // What a display holds, over its drawing (display.js); the update fills it.
+  // The find a kind out holds (display.js); the update fills it.
   if (displayKind(d.kind)) {
     v.heldLayer = document.createElement('span');
     v.heldLayer.className = 'held-layer';
