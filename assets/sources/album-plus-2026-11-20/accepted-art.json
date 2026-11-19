@@ -12,25 +12,35 @@
       "runtimeAtlas": "collection-extension/flowers-4.png",
       "runtimeSha256": "1c0ea164325276923e64bab7d43a511dadf192558425b01e9a555add9d47a977",
       "processing": "Alpha below 50 cleared to 0,0,0,0 in the runtime atlas; all other samples unchanged.",
-      "acceptedIds": [
-        "lily_of_the_valley",
-        "peony",
-        "rose",
-        "lily",
-        "marigold",
-        "japanese_anemone",
-        "poinsettia",
-        "amaryllis"
-      ],
+      "acceptedIds": ["lily_of_the_valley", "peony", "lily", "poinsettia", "amaryllis"],
       "boxes": {
         "lily_of_the_valley": [81, 89, 249, 353],
         "peony": [417, 93, 319, 348],
-        "rose": [809, 105, 290, 336],
         "lily": [1201, 70, 272, 371],
-        "marigold": [51, 569, 301, 351],
-        "japanese_anemone": [433, 560, 272, 359],
         "poinsettia": [788, 571, 318, 348],
         "amaryllis": [1181, 545, 299, 375]
+      },
+      "replaced": {
+        "japanese_anemone": "redrawn in flowers-redo (looked like an older flower: the anemone like the cosmos, the marigold like the chrysanthemum, the rose bush like the peony); its cell here is no longer used",
+        "marigold": "redrawn in flowers-redo (looked like an older flower: the anemone like the cosmos, the marigold like the chrysanthemum, the rose bush like the peony); its cell here is no longer used",
+        "rose": "redrawn in flowers-redo (looked like an older flower: the anemone like the cosmos, the marigold like the chrysanthemum, the rose bush like the peony); its cell here is no longer used"
+      }
+    },
+    {
+      "name": "flowers-redo",
+      "prompt": "Use case: stylized-concept. Production transparent game sprite atlas, exactly 3 botanical flower specimens in strict THREE equal columns, ONE row, landscape 1536x1024, each plant centred in its column at the same baseline across the middle of the canvas. Style matches the attached reference sheet exactly: soft sculpted painted miniature detail, rich restrained colours, gentle material shading, the same scale and plant size as those flowers (each plant about the same height as the reference plants); new drawings, not copies. Each one charming and lovable, the kind of flower a young woman would love to grow, with one clear signature feature that still reads at 50 pixels, never dull, muddy or cluttered. (1) WHITE JAPANESE ANEMONE: two or three tall slender wiry branching stems rising high over a low clump of dark green three-lobed toothed leaves, carrying open PURE WHITE saucer flowers with five or six broad rounded slightly cupped petals, each with a bright LIME-GREEN round button centre ringed by a fringe of golden stamens, plus a few small round green buds on their own thin stems; airy and graceful, clearly white, NO pink. (2) FRENCH MARIGOLD: a low compact mounded clump of fine ferny dark-green leaves covered in many small flat-topped flowers, each one BICOLOUR: deep MAHOGANY-RED petals edged and tipped with bright GOLD, a gold centre, like little red-and-gold rosettes; NOT a single big orange pompom, NOT plain orange. (3) LONG-STEMMED RED ROSES: three long straight thorny stems standing upright and slightly fanned, each topped by one elegant high-centred classic CRIMSON RED rose bloom with spiralled petals, at different heights, a few dark green toothed leaves along the stems, one tight bud; slender and tall like a small bouquet growing from the ground, NOT a bush, no ribbon, no vase. Entire plant including all stem bases and leaf tips inside the central 80% of its column, wide transparent gutters, nothing touches another plant. Deliberate clean silhouettes, subtle material shading. ACTUAL fully transparent RGBA background, no painted haze, no floor, no pot, no soil, no text, labels or gridlines. IMPORTANT: the background must be truly transparent alpha everywhere outside each plant, no paper, cream, white or grey background, no haze, no glow.",
+      "references": ["assets/art/collection-extension/flowers-4.png"],
+      "file": "flowers-redo.png",
+      "sha256": "3f43d6a9e8b4da33d94910be4219acfe4b694682a5fee880dacefd6746a7bd2d",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/flowers-5.png",
+      "runtimeSha256": "962786a986396b0442414e08d4a402b4fea1d65862170232fc2bbcaa88fdbd85",
+      "processing": "Alpha below 50 cleared to 0,0,0,0 in the runtime atlas; all other samples unchanged. The anemone and the marigold share three columns, so their crops stop at the shared edge.",
+      "acceptedIds": ["japanese_anemone", "marigold", "rose"],
+      "boxes": {
+        "japanese_anemone": [29, 167, 452, 731],
+        "marigold": [478, 336, 528, 560],
+        "rose": [1013, 135, 499, 758]
       }
     },
     {

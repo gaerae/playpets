@@ -282,5 +282,12 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
 - Alpha below 50 is cleared to fully transparent; crops follow measured
   silhouettes with a 14-pixel margin. Reproduce the wrappers with
   `node scripts/pack-collection.mjs`.
+- Three were redrawn the same day in `collection-extension/flowers-5`, because
+  they looked like older flowers: the Japanese anemone is white (it had been
+  pink like the cosmos), the marigold is a red-and-gold French marigold (it had
+  been orange like the chrysanthemum), and the rose is three long stems (it had
+  been a bush like the peony). Their cells in `flowers-4` are no longer used.
+  The anemone and the marigold share three columns, so their crops stop at the
+  shared edge instead of taking the margin.
 - Accepted sources, prompts, hashes and measured boxes:
   `assets/sources/album-plus-2026-11-20/accepted-art.json`.

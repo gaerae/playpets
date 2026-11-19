@@ -1302,9 +1302,9 @@
   {
     "id": "rose",
     "kind": "flower",
-    "atlas": "collection-extension/flowers-4.webp",
+    "atlas": "collection-extension/flowers-5.webp",
     "atlasSize": [1536, 1024],
-    "crop": [795, 91, 318, 364],
+    "crop": [1006, 121, 520, 786],
     "size": [40, 54],
     "art": "flowers/rose.svg"
   },
@@ -1320,18 +1320,18 @@
   {
     "id": "marigold",
     "kind": "flower",
-    "atlas": "collection-extension/flowers-4.webp",
+    "atlas": "collection-extension/flowers-5.webp",
     "atlasSize": [1536, 1024],
-    "crop": [37, 555, 329, 379],
+    "crop": [481, 322, 532, 588],
     "size": [40, 54],
     "art": "flowers/marigold.svg"
   },
   {
     "id": "japanese_anemone",
     "kind": "flower",
-    "atlas": "collection-extension/flowers-4.webp",
+    "atlas": "collection-extension/flowers-5.webp",
     "atlasSize": [1536, 1024],
-    "crop": [419, 546, 300, 387],
+    "crop": [15, 153, 463, 759],
     "size": [40, 54],
     "art": "flowers/japanese_anemone.svg"
   },

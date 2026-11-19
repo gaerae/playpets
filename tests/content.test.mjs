@@ -133,7 +133,7 @@ test('flower raster specimens resolve locally with transparent isolated atlas cr
     const svg = readFileSync(new URL(`../src/art/${flower.art}`, import.meta.url), 'utf8');
     assert.match(
       svg,
-      /<image[^>]+href="art\/(?:flowers\/(?:specimens|seasonal-extension)|collection-extension\/flowers(?:-[234])?)\.webp"/,
+      /<image[^>]+href="art\/(?:flowers\/(?:specimens|seasonal-extension)|collection-extension\/flowers(?:-[2-5])?)\.webp"/,
     );
     assert.match(svg, /overflow="hidden"/, 'a specimen cannot show its neighboring cell');
   }

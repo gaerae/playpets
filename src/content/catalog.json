@@ -439,12 +439,12 @@
       "id": "rose",
       "season": "summer",
       "art": "flowers/rose.svg",
-      "foot": 0.891,
+      "foot": 0.982,
       "colors": {
-        "petal": "#e8454a",
-        "petal-hi": "#f6847c",
-        "petal-lo": "#b42834",
-        "heart": "#9e1e2c"
+        "petal": "#d61e2e",
+        "petal-hi": "#f0525a",
+        "petal-lo": "#9a1022",
+        "heart": "#8a0f1e"
       }
     },
     {
@@ -464,24 +464,24 @@
       "id": "marigold",
       "season": "autumn",
       "art": "flowers/marigold.svg",
-      "foot": 0.895,
+      "foot": 0.89,
       "colors": {
-        "petal": "#f38c1c",
-        "petal-hi": "#ffc04a",
-        "petal-lo": "#cc5c18",
-        "heart": "#e6a01a"
+        "petal": "#a8221c",
+        "petal-hi": "#f2b41c",
+        "petal-lo": "#7a1614",
+        "heart": "#f0a818"
       }
     },
     {
       "id": "japanese_anemone",
       "season": "autumn",
       "art": "flowers/japanese_anemone.svg",
-      "foot": 0.943,
+      "foot": 0.982,
       "colors": {
-        "petal": "#f398be",
-        "petal-hi": "#fbc6dc",
-        "petal-lo": "#d46896",
-        "heart": "#f0c21a"
+        "petal": "#f8f7f1",
+        "petal-hi": "#ffffff",
+        "petal-lo": "#d5d8ca",
+        "heart": "#9ccc3c"
       }
     },
     {

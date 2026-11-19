@@ -735,9 +735,9 @@
     "webp": "ff79883bc2d7fa25a6cb57a8291a4982bfd8d6b29df915cf627a9ee388753776"
   },
   "album/flowers/japanese_anemone.webp": {
-    "png": "1c0ea164325276923e64bab7d43a511dadf192558425b01e9a555add9d47a977",
-    "svg": "b4e7779da5fa5b346fff2b307b7d27674790fa4ce0bd9ec1afa2546525376e14",
-    "webp": "9d940bf3aacbdb59daffc6328a1a8cfe5f867a5c445bdb2cc7c7fbed5af0309c"
+    "png": "962786a986396b0442414e08d4a402b4fea1d65862170232fc2bbcaa88fdbd85",
+    "svg": "e653f3b518a309e2b977041953b15657bf9df7cbb065c5c2385fd7d402b78e9c",
+    "webp": "9214d8ef97ec0a3cb8eb321adb22ec631794b7b778f8ec0f6424041a5ea9f4dd"
   },
   "album/flowers/lavender.webp": {
     "png": "525bf43f34374639e89425c40038d93d6b957d2fd92852dd8fc8419cef56b93c",
@@ -755,9 +755,9 @@
     "webp": "af8e8569e7d697ee8a0d7890a0d7b76debdb9575230e2099902b95649d264877"
   },
   "album/flowers/marigold.webp": {
-    "png": "1c0ea164325276923e64bab7d43a511dadf192558425b01e9a555add9d47a977",
-    "svg": "378a13e9dd425cde6d0c6985b3d2b79a049f6f2eae5e1f446e2ed396bd704660",
-    "webp": "5b35ac37dcd22194033324fa73eb80b37436e440dabd22d1dad6c6ba4692905e"
+    "png": "962786a986396b0442414e08d4a402b4fea1d65862170232fc2bbcaa88fdbd85",
+    "svg": "a3ff4b1a66b5dc326e163225332f946dac7f4044bd69063b1f90e0e87541be08",
+    "webp": "9dbded319f62e038399c8ccd9f554bc316a34d2a18c51c7529a251444f1ba408"
   },
   "album/flowers/morning_glory.webp": {
     "png": "92f6cbbeaa23e09c007b9c93e0ba2414afc59e8f04759c33e3827769c381651e",
@@ -785,9 +785,9 @@
     "webp": "aa5c7706f8f86301ab01364f93e4027b8d39c5e753847d8d19c99a620421aee9"
   },
   "album/flowers/rose.webp": {
-    "png": "1c0ea164325276923e64bab7d43a511dadf192558425b01e9a555add9d47a977",
-    "svg": "976e07c7c6efa20769b6a527266ee5fb49e14dc1a2a7bd7417fd74df2c1c087a",
-    "webp": "f82a9aed7932a339ad238c87c565f845cd2d7b27e0a285dfce824d3ce2fdd5aa"
+    "png": "962786a986396b0442414e08d4a402b4fea1d65862170232fc2bbcaa88fdbd85",
+    "svg": "dc3e067afe18c60c948cd7a77b452308e62ebe774a2a13ebe5ab168638595c7e",
+    "webp": "be510dc904890a2a6bc9a2507698b18d284117a82c1aee8b60ec71410ec71318"
   },
   "album/flowers/snowdrop.webp": {
     "png": "4facb70ea74cd5db0592bc7cd68d02d3067a183c3f1bbd26070c7fabab284194",
@@ -1029,6 +1029,10 @@
   "collection-extension/flowers-4.png": {
     "png": "1c0ea164325276923e64bab7d43a511dadf192558425b01e9a555add9d47a977",
     "webp": "19970a513ffa289e9ce1f6636b1bd09c942fbb29f77583b83a0fb362dda5c042"
+  },
+  "collection-extension/flowers-5.png": {
+    "png": "962786a986396b0442414e08d4a402b4fea1d65862170232fc2bbcaa88fdbd85",
+    "webp": "a2093b7c261cc2e9b4a059ac270001274558caab88e1fcfbe91e4dd7036f8fa5"
   },
   "collection-extension/flowers.png": {
     "png": "525bf43f34374639e89425c40038d93d6b957d2fd92852dd8fc8419cef56b93c",

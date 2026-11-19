@@ -69,3 +69,4 @@ Follows [album finds out on their own](2026-11-19-album-finds-out.md): a find ou
 - The perfume bottle is the one rare keepsake, so rare ones stay under a quarter of the book (7 of 29).
 - The lily and the amaryllis stand a little taller than the other flowers (`stature` 1.2 and 1.15).
 - The trail test's common-find share goes from over 40% to over 35%: three new common keepsakes widen the pool.
+- Every new entry was compared with the older entries most like it. Three flowers were redrawn so they stand apart: a white Japanese anemone (not the cosmos's pink), a red-and-gold French marigold (not the chrysanthemum's orange) and long-stemmed roses (not a bush like the peony).
