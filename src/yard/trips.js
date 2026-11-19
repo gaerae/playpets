@@ -17,17 +17,23 @@ export const rest = v => {
  * else takes it first; the place it ends at is kept unless `save` is false; `slow` strolls, and a
  * game gives its own `speed`, a pace in body lengths a millisecond (motion.js WALK). `own` marks a trip the friend set off on by itself, which its agent's
  * state may cut short (duty.js); what it then does where it arrives is its own too. `yields` marks a
- * trip of the friends' own that what the person asks may take it from (forPerson). */
+ * trip of the friends' own that what the person asks may take it from (forPerson). `through` passes
+ * the target on the way to the next one its `arrive` sends it to (a trail's prints): the walk keeps
+ * its pace there instead of slowing to a stop (motion.js). */
 export function sendTo(
   v,
   target,
-  { arrive, cancel, save = true, slow = false, speed = 0, own = false, yields = false } = {},
+  { arrive, cancel, save = true, slow = false, speed = 0, own = false, yields = false, through = false } = {},
 ) {
-  // When it sets off (motion.js measures its first step from it); one already walking goes on.
-  if (!v.target) v.leftAt = performance.now();
+  // When it sets off (motion.js measures its first step from it, and its pace ramps up from a
+  // stand); one already walking, or passing through a stop (`v.passing`), goes on at its pace.
+  if (!v.target) {
+    v.leftAt = performance.now();
+    if (!v.passing) v.vel = 0;
+  }
   release(v);
   v.target = target;
-  v.trip = { arrive, cancel, save, slow, yields };
+  v.trip = { arrive, cancel, save, slow, yields, through };
   v.speed = speed;
   v.own = own;
 }

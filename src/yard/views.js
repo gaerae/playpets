@@ -7,6 +7,7 @@ import { put, putAttribute } from '../core/dom.js';
 import { joinList, list, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { clamp, pick } from '../core/math.js';
+import { fallMs } from '../core/physics.js';
 import { canvas, reduced } from '../core/sprites.js';
 import {
   $,
@@ -77,6 +78,27 @@ export function effect(view, text) {
   }
 }
 // Renewing the pose a friend is already in (every step of a walk) must not restart its animation.
+// The body settles as a friend stops or lands: a short squash on the compositor, by scale alone, so
+// what the canvas's transform shows (a press, a tilt, a spin) goes on through it.
+const SETTLE = [{ scale: '1.05 0.95' }, { scale: '1' }];
+/** Squashes the friend's body as it comes to a stop (motion.js) or lands, after `delay` ms. */
+export function settle(v, delay = 0) {
+  if (!reduced.matches) v.canvas?.animate?.(SETTLE, { duration: 260, delay, easing: 'ease-out' });
+}
+// A carried friend is lifted this share of its height off its feet (friends.css .held); let go,
+// it falls that far under gravity (core/physics.js), faster as it goes, and lands.
+const LIFT = 0.1;
+function fall(v) {
+  v.button.classList.remove('held');
+  if (reduced.matches || !v.canvas?.animate) return;
+  const ms = fallMs((LIFT * petHeight(v.pet)) / sizeOf(v.pet));
+  // Gravity: the height falls with the square of the time, which this curve follows closely.
+  v.canvas.animate([{ translate: `0 ${-LIFT * 100}%` }, { translate: '0 0' }], {
+    duration: ms,
+    easing: 'cubic-bezier(0.33, 0, 0.67, 0.33)',
+  });
+  settle(v, ms);
+}
 export function pose(view, state, duration = 1200) {
   const now = performance.now();
   if (renewsClock(view.pose, state, view.until, now)) view.since = now;
@@ -467,6 +489,7 @@ function createView(p) {
         v.y = at.y;
         pose(v, e.clientX >= v.drag.startX ? 'right' : 'left', 200);
         place(v);
+        button.classList.add('held');
       }
     } else v.pointer = { x: e.clientX, y: e.clientY };
   });
@@ -487,6 +510,7 @@ function createView(p) {
   const end = guard(async e => {
     if (!v.drag) return;
     const { moved, talk, x, y } = endDrag(v, e.currentTarget, e);
+    if (moved) fall(v);
     if (e.type === 'pointercancel') {
       v.x = x;
       v.y = y;

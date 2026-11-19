@@ -70,9 +70,17 @@ test('idle actions are mostly strolls with occasional small poses', () => {
   assert.deepEqual(wander.idleAction(rngOf([0.9])), { type: 'move' });
   assert.deepEqual(wander.idleAction(rngOf([0.1, 0.2])), { type: 'pose', pose: 'wave' });
   assert.deepEqual(wander.idleAction(rngOf([0.1, 0.8])), { type: 'pose', pose: 'jump' });
-  let moves = 0;
-  for (let i = 0; i < 1000; i++) if (wander.idleAction(Math.random).type === 'move') moves++;
-  assert.ok(moves > 600, 'strolling dominates so pets feel alive, not twitchy');
+  assert.deepEqual(wander.idleAction(rngOf([0.1, 0.6])), { type: 'pose', pose: 'wave' }, 'a jump is the rarer pose');
+  assert.deepEqual(wander.idleAction(rngOf([0.2])), { type: 'move' });
+  let moves = 0,
+    jumps = 0;
+  for (let i = 0; i < 4000; i++) {
+    const action = wander.idleAction(Math.random);
+    if (action.type === 'move') moves++;
+    if (action.pose === 'jump') jumps++;
+  }
+  assert.ok(moves > 3400, 'strolling dominates so pets feel alive, not twitchy');
+  assert.ok(jumps < 220, 'a jump on its own is rare');
 });
 
 test('quiet companions greet without spontaneous jumping', () => {

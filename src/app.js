@@ -509,7 +509,10 @@ let last = 0,
   sceneryDue = 0;
 function pace(now) {
   if (game || aiming) return BUSY_MS;
-  for (const v of views.values()) if (v.target || v.drag || now < v.until) return BUSY_MS;
+  // A friend turning to look, or one whose lean is still moving (motion.js), moves too; one held
+  // leaning toward the pointer does not.
+  for (const v of views.values())
+    if (v.target || v.drag || now < v.until || v.canvas?._turning || v.leaning) return BUSY_MS;
   if (scenery.lively()) return BUSY_MS;
   // Weather sets the pace only where it falls (not in a room without windows, nor with reduced motion).
   if (scenery.busy()) return scene.weather === 'snow' ? SNOW_MS : RAIN_MS;

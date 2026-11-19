@@ -65,6 +65,7 @@
   transition:
     transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
     rotate 0.2s ease-out,
+    translate 0.12s ease-out,
     opacity 0.4s;
 }
 /* A friend viewing the blossom looks up at it now and then, tilted toward the tree (viewing.js);
@@ -165,18 +166,37 @@
     animation: none;
   }
 }
+/* A soft shade on the ground under the feet, which shrinks with the friend by its depth (views.js
+   place). It stays on the ground while the friend is carried and lifted, smaller and fainter. */
 .yard-pet:before {
   content: "";
   position: absolute;
+  width: 62%;
+  height: 16%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(46 32 18 / 0.42), rgb(46 32 18 / 0.2) 60%, rgb(46 32 18 / 0));
+  bottom: 0;
+  left: 19%;
+  transform: scaleY(0.5);
+  transition:
+    scale 0.15s ease-out,
+    opacity 0.15s ease-out;
+}
+.yard-pet.held:before {
+  scale: 0.75;
+  opacity: 0.55;
+}
+/* Carried, the body is lifted a tenth of its height off the ground (views.js LIFT); let go, it
+   falls back under gravity (views.js fall). */
+.yard-pet.held > canvas {
+  translate: 0 -10%;
+}
+/* Selected, the shade becomes the ring it has always been. */
+.yard-pet.selected:before {
   width: 54%;
   height: 11%;
-  border-radius: 50%;
-  background: #68865120;
   bottom: 4px;
   left: 23%;
-  transform: scaleY(0.5);
-}
-.yard-pet.selected:before {
   background: #668c632f;
   outline: 2px solid #79976870;
   outline-offset: 5px;
@@ -513,6 +533,9 @@
   .yard-pet.pressed > canvas,
   .yard-pet.looking-up:not(.pressed)[data-tilt] > canvas {
     transform: none;
+  }
+  .yard-pet.held > canvas {
+    translate: none;
   }
   .particle {
     display: none;

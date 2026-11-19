@@ -296,6 +296,9 @@ test('an error stays at the desk; waiting goes to the approval spot; done rests 
   agent({ a: 'done' });
   moveFriends(1100, 50);
   assert.deepEqual(a.target, at(a, 0.15, 0.6));
+  // It has reached the corner: a walk sets off slowly (core/physics.js), so three frames leave it
+  // all but at home.
+  Object.assign(a, a.target);
   a.target = null;
   a.trip = null;
   a.nextWander = 0;
