@@ -1,6 +1,6 @@
 //! The year-end letters: the closest friend writes one each year in late December, and the person
 //! may answer it in a line. Kept in state.json, on this computer only. A letter's text is kept
-//! until January 7 (the New Year card reads it) and then cleared, leaving the answer; deleting
+//! until January 15 (the New Year card reads it) and then cleared, leaving the answer; deleting
 //! clears everything but the year, so the year is not written again.
 use crate::chat::prompt::one_line;
 use crate::i18n;
@@ -35,14 +35,14 @@ pub struct Letter {
 #[serde(transparent)]
 pub struct Letters(pub Vec<Letter>);
 
-/// The first day after which a year's letter text goes: every time zone has passed January 7.
+/// The first day after which a year's letter text goes: every time zone has passed January 15.
 fn expires_after(year: u32) -> String {
-    format!("{:04}-01-09", year.saturating_add(1))
+    format!("{:04}-01-17", year.saturating_add(1))
 }
 
-/// The last day of a year's letter on the page's own calendar: January 7.
+/// The last day of a year's letter on the page's own calendar: January 15.
 fn season_end(year: u32) -> String {
-    format!("{:04}-01-07", year.saturating_add(1))
+    format!("{:04}-01-15", year.saturating_add(1))
 }
 
 fn bad() -> String {
@@ -78,13 +78,13 @@ impl Letters {
         letters
     }
 
-    /// Clears the text of letters past January 7 (`latest` is the latest date anywhere on Earth);
+    /// Clears the text of letters past January 15 (`latest` is the latest date anywhere on Earth);
     /// the answer stays. Run at restore; true when one was cleared.
     pub fn clear_expired(&mut self, latest: &str) -> bool {
         self.clear_after(latest, expires_after)
     }
 
-    /// The same once the page's own date (`today`) is past January 7, asked at its minute check
+    /// The same once the page's own date (`today`) is past January 15, asked at its minute check
     /// (`clearLetters`); true when one was cleared, so nothing is saved otherwise.
     pub fn clear_ended(&mut self, today: &str) -> bool {
         self.clear_after(today, season_end)
@@ -226,11 +226,11 @@ mod tests {
     }
 
     #[test]
-    fn after_january_7_only_the_answer_is_kept() {
+    fn after_january_15_only_the_answer_is_kept() {
         let list = json!([raw(json!(2026), "a", "hi", json!("hike"), 1)]);
-        let kept = Letters::restore(Some(&list), "2027-01-09");
+        let kept = Letters::restore(Some(&list), "2027-01-17");
         assert_eq!(kept.of(2026).unwrap().text, "hi");
-        let late = Letters::restore(Some(&list), "2027-01-10");
+        let late = Letters::restore(Some(&list), "2027-01-18");
         let l = late.of(2026).unwrap();
         assert_eq!(
             (l.text.as_str(), l.answer.as_deref(), l.friend.as_str()),
@@ -242,44 +242,44 @@ mod tests {
     fn clear_expired_can_run_again_later() {
         let mut l = Letters::default();
         l.write(2026, "a", "hi", 1).unwrap();
-        l.clear_expired("2027-01-09");
+        l.clear_expired("2027-01-17");
         assert_eq!(l.of(2026).unwrap().text, "hi");
-        l.clear_expired("2027-01-10");
+        l.clear_expired("2027-01-18");
         assert_eq!(l.of(2026).unwrap().text, "");
         assert!(l.answer(2026, "x").is_err());
     }
 
     #[test]
-    fn the_page_clears_a_letter_after_january_7_by_its_own_date() {
+    fn the_page_clears_a_letter_after_january_15_by_its_own_date() {
         let mut l = Letters::default();
         l.write(2026, "a", "hi", 1).unwrap();
         l.answer(2026, "hike").unwrap();
-        assert!(!l.clear_ended("2027-01-07"));
+        assert!(!l.clear_ended("2027-01-15"));
         assert_eq!(l.of(2026).unwrap().text, "hi");
-        assert!(l.clear_ended("2027-01-08"));
+        assert!(l.clear_ended("2027-01-16"));
         let kept = l.of(2026).unwrap();
         assert_eq!((kept.text.as_str(), kept.answer.as_deref()), ("", Some("hike")));
-        assert!(!l.clear_ended("2027-01-09"), "nothing left to clear: no save");
+        assert!(!l.clear_ended("2027-01-17"), "nothing left to clear: no save");
     }
 
     #[test]
     fn the_page_date_must_be_a_day_not_past_the_latest_on_earth_and_saves_only_on_a_change() {
         let mut l = Letters::default();
         l.write(2026, "a", "hi", 1).unwrap();
-        assert!(l.clear_for_page("2027-1-8", "2027-01-08").is_err(), "not a day");
+        assert!(l.clear_for_page("2027-1-8", "2027-01-16").is_err(), "not a day");
         assert!(
-            l.clear_for_page("2027-01-09", "2027-01-08").is_err(),
+            l.clear_for_page("2027-01-17", "2027-01-16").is_err(),
             "a clock set ahead"
         );
         assert_eq!(l.of(2026).unwrap().text, "hi", "refused: nothing cleared");
         assert_eq!(
-            l.clear_for_page("2027-01-07", "2027-01-08"),
+            l.clear_for_page("2027-01-15", "2027-01-16"),
             Ok(false),
             "still its season"
         );
-        assert_eq!(l.clear_for_page("2027-01-08", "2027-01-08"), Ok(true));
+        assert_eq!(l.clear_for_page("2027-01-16", "2027-01-16"), Ok(true));
         assert_eq!(
-            l.clear_for_page("2027-01-08", "2027-01-08"),
+            l.clear_for_page("2027-01-16", "2027-01-16"),
             Ok(false),
             "nothing left: no save"
         );
@@ -348,7 +348,7 @@ mod tests {
         assert!(l.of(2026).unwrap().back);
         assert!(l.bring_back(2026).is_ok(), "again: still brought back, no error");
         assert!(l.bring_back(2025).is_err(), "no such year");
-        l.clear_ended("2027-01-08");
+        l.clear_ended("2027-01-16");
         assert!(l.of(2026).unwrap().back, "kept when the text goes");
     }
 
@@ -389,6 +389,6 @@ mod tests {
 
     #[test]
     fn the_last_year_there_is_does_not_overflow() {
-        assert_eq!(expires_after(u32::MAX), format!("{}-01-09", u32::MAX));
+        assert_eq!(expires_after(u32::MAX), format!("{}-01-17", u32::MAX));
     }
 }

@@ -125,7 +125,7 @@ export const YEAR = Object.freeze([
           ['tracks', 'raccoon_dog'],
         ],
       },
-      { id: 'letter', from: '12-26', to: '12-31', art: [['gifts', 'mailbox']] },
+      { id: 'letter', from: '12-15', to: '12-31', art: [['gifts', 'mailbox']] },
       { id: 'newyear', event: true, art: [['gifts', 'kite']] },
     ],
   },

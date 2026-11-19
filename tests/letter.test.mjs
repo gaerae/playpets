@@ -1,5 +1,5 @@
 // The year-end letter (src/yard/letter.js): when it is written and read, who writes it, the true
-// things it says, and how it comes on the first day open from December 26. Dates are built locally
+// things it says, and how it comes on the first day open from December 15. Dates are built locally
 // and the clock is the test's, so no test reads the real one.
 
 import assert from 'node:assert/strict';
@@ -20,11 +20,11 @@ globalThis.playPets = {
     writes.push(args);
     return writing(...args);
   },
-  // The backend's rule (pets/letters.rs clear_ended): text goes after January 7 by the page's date.
+  // The backend's rule (pets/letters.rs clear_ended): text goes after January 15 by the page's date.
   clearLetters: async today => {
     clears.push(today);
     const letters = state.data.letters.map(letter =>
-      today > `${letter.year + 1}-01-07` ? { ...letter, text: '' } : letter,
+      today > `${letter.year + 1}-01-15` ? { ...letter, text: '' } : letter,
     );
     return { ok: true, data: letters };
   },
@@ -60,20 +60,20 @@ const { drawYard } = await import('./support/yard.mjs');
 
 const d = (y, m, day, h = 12) => new Date(y, m - 1, day, h);
 
-test('the letter comes from December 26 and comes back from January 1 to 7', () => {
-  assert.equal(letterTime(d(2026, 12, 25)), null);
-  assert.equal(letterTime(d(2026, 12, 26, 0)), 'write');
+test('the letter comes from December 15 and comes back from January 1 to 15', () => {
+  assert.equal(letterTime(d(2026, 12, 14, 23)), null);
+  assert.equal(letterTime(d(2026, 12, 15, 0)), 'write');
   assert.equal(letterTime(d(2026, 12, 31, 23)), 'write');
   assert.equal(letterTime(d(2027, 1, 1, 0)), 'back');
-  assert.equal(letterTime(d(2027, 1, 7, 23)), 'back');
-  assert.equal(letterTime(d(2027, 1, 8, 0)), null);
+  assert.equal(letterTime(d(2027, 1, 15, 23)), 'back');
+  assert.equal(letterTime(d(2027, 1, 16, 0)), null);
   assert.equal(letterYear(d(2027, 1, 3)), 2026);
   assert.equal(letterYear(d(2026, 12, 30)), 2026);
   const letters = [{ year: 2026, friend: 'a', text: 'hi', answer: null, at: 1 }];
   assert.equal(readableLetter(letters, d(2026, 12, 27))?.year, 2026);
-  assert.equal(readableLetter(letters, d(2027, 1, 7))?.year, 2026);
-  assert.equal(readableLetter(letters, d(2027, 1, 8)), null);
-  assert.equal(readableLetter(letters, d(2026, 12, 25)), null, 'not yet');
+  assert.equal(readableLetter(letters, d(2027, 1, 15))?.year, 2026);
+  assert.equal(readableLetter(letters, d(2027, 1, 16)), null);
+  assert.equal(readableLetter(letters, d(2026, 12, 14)), null, 'not yet');
   assert.equal(readableLetter([{ ...letters[0], text: '' }], d(2026, 12, 27)), null, 'deleted');
 });
 
@@ -337,8 +337,8 @@ test('the letter is delivered by the friend the backend kept it from, and only w
   assert.equal($('letter-chip').hidden, true);
 });
 
-test('not before December 26, and once a year', async ctx => {
-  let { check } = page(ctx, { now: d(2026, 12, 25, 10) });
+test('not before December 15, and once a year', async ctx => {
+  let { check } = page(ctx, { now: d(2026, 12, 14, 10) });
   check();
   check();
   await flush();
@@ -352,7 +352,7 @@ test('not before December 26, and once a year', async ctx => {
   await flush();
   assert.equal(writes.length, 0, 'this year has its letter');
   ({ check } = page(ctx, {
-    now: d(2027, 12, 26, 10),
+    now: d(2027, 12, 15, 10),
     letters: [{ year: 2026, friend: 'b', text: '', answer: 'more hikes', at: 1 }],
   }));
   check();
@@ -388,12 +388,12 @@ test('the first check shows a letter already there at once, and writes nothing',
   assert.equal(writes.length, 0);
 });
 
-test('the chip opens the letter until January 7', async ctx => {
+test('the chip opens the letter until January 15', async ctx => {
   const letters = [{ year: 2026, friend: 'b', text: 'Hi', answer: null, at: 1 }];
-  const { check, $ } = page(ctx, { now: d(2027, 1, 7, 23), letters });
+  const { check, $ } = page(ctx, { now: d(2027, 1, 15, 23), letters });
   check();
   assert.equal($('letter-chip').hidden, false);
-  ctx.mock.timers.setTime(new Date(2027, 0, 8, 0, 1).getTime());
+  ctx.mock.timers.setTime(new Date(2027, 0, 16, 0, 1).getTime());
   check();
   assert.equal($('letter-chip').hidden, true);
   assert.equal(letterReadable(), false);
@@ -494,26 +494,26 @@ test('the yard menu offers the letter while one is there to read', async ctx => 
   assert.deepEqual(opened, ['open']);
 });
 
-test('a letter past January 7 has its text cleared by the backend once, and kept after', async ctx => {
+test('a letter past January 15 has its text cleared by the backend once, and kept after', async ctx => {
   const letters = [
     { year: 2025, friend: 'b', text: '', answer: 'more hikes', at: 1 },
     { year: 2026, friend: 'b', text: 'Hi', answer: 'camping', at: 2 },
   ];
-  const { check } = page(ctx, { now: d(2027, 1, 7, 23), letters });
+  const { check } = page(ctx, { now: d(2027, 1, 15, 23), letters });
   check();
   check();
   await flush();
   assert.deepEqual(clears, [], 'still its season');
-  ctx.mock.timers.setTime(new Date(2027, 0, 8, 0, 1).getTime());
+  ctx.mock.timers.setTime(new Date(2027, 0, 16, 0, 1).getTime());
   check();
   check();
   await flush();
-  assert.deepEqual(clears, ['2027-01-08']);
+  assert.deepEqual(clears, ['2027-01-16']);
   assert.equal(state.data.letters.find(letter => letter.year === 2026).text, '', 'the page holds the answer');
   assert.equal(state.data.letters.find(letter => letter.year === 2026).answer, 'camping');
   check();
   await flush();
-  assert.deepEqual(clears, ['2027-01-08'], 'nothing left to clear: not asked every minute');
+  assert.deepEqual(clears, ['2027-01-16'], 'nothing left to clear: not asked every minute');
 });
 
 test('the text is cleared while the window is hidden too, and nothing else happens', async ctx => {
@@ -625,7 +625,7 @@ test('a friend that left: the closest one brings it back', async ctx => {
   assert.ok(list('letter.back_bubble').includes(bubbleOf('b').textContent));
 });
 
-test('no answer, no cheer, and the letter still opens until January 7', async ctx => {
+test('no answer, no cheer, and the letter still opens until January 15', async ctx => {
   const { check, card, $ } = newYear(ctx, { now: d(2027, 1, 1, 0), answer: null });
   check();
   check();
@@ -633,7 +633,7 @@ test('no answer, no cheer, and the letter still opens until January 7', async ct
   assert.equal(card.hidden, true);
   assert.equal($('letter-chip').hidden, false);
   assert.deepEqual(backs, []);
-  ctx.mock.timers.setTime(new Date(2027, 0, 8, 0, 1).getTime());
+  ctx.mock.timers.setTime(new Date(2027, 0, 16, 0, 1).getTime());
   check();
   check();
   await flush();

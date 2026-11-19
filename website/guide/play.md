@@ -295,11 +295,11 @@ While the cherry blossom festival is on, friends gather under a cherry tree you 
 
 ### The year-end letter
 
-On the first day you open PlayPets from December 26 to 31, the friend you're closest to writes you a letter about your year together: what you found for the album, a tree you grew, how close you've become and how long you've known each other. It asks how your year went and what you'd like to do next year.
+On the first day you open PlayPets from December 15 to 31, the friend you're closest to writes you a letter about your year together: what you found for the album, a tree you grew, how close you've become and how long you've known each other. It asks how your year went and what you'd like to do next year.
 
-- With a mailbox in the yard, the letter waits there; otherwise the friend tells you. The **Letter** chip beside the scene label and the yard menu open it until January 7.
+- With a mailbox in the yard, the letter waits there; otherwise the friend tells you. The **Letter** chip beside the scene label and the yard menu open it until January 15.
 - Write back in up to 200 characters, or skip it.
-- On the first day you open PlayPets from January 1 to 7, a friend brings your answer back and cheers you on, and next December's letter looks back on it.
+- On the first day you open PlayPets from January 1 to 15, a friend brings your answer back and cheers you on, and next December's letter looks back on it.
 - A friend with an AI connection writes in its own words, and that AI reads your answer when it writes next year's letter.
 - Letters and answers are kept on this computer; the letter card can delete them.
 

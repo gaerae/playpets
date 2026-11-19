@@ -24,11 +24,12 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Changed
 
 - The winter lights start on November 15 instead of December 1, as people start decorating early: the lights on the trees, the gifts friends bring (the Christmas tree, then the baby reindeer, then Santa) and the question about showing a winter yard all come from then. The three gifts show in the yard and on the desktop from November 15 to January 7. Ornaments hung from November 15 stay up through December, and the next tree starts bare on the next November 15.
+- The year-end letter has a longer season: your closest friend writes it on the first day you open PlayPets from December 15 to 31 (was December 26), and brings your answer back on the first day from January 1 to 15 (was January 7). The letter can be read again until January 15.
 
 ### Website and docs
 
 - The README and the guide count the album's 203 entries, and the guide says how finds on the desktop answer a click.
-- The guide gives the winter lights' new dates, November 15 to December 31.
+- The guide gives the winter lights' new dates, November 15 to December 31, and the year-end letter's, December 15 to January 15.
 
 ## [1.8.7] - 2026-11-19
 

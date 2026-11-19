@@ -124,6 +124,8 @@ Follow-up (2026-11-20, [Christmas from mid-November](2026-11-20-christmas-from-m
 | Next December | The next year's letter recalls last year's answer to look back on |
 | A friend that left | Its letters stay; the closest friend now brings the answer back |
 
+Follow-up (2026-11-20): the letter's season is longer. It is written on the first day open from 12-15 to 12-31, read again until 01-15, and the answer comes back on the first day open from 01-01 to 01-15; the backend clears the text after 01-15 by the page's date, or 01-17 by the latest date on Earth. The footprints' one-a-day stretch (12-26 to 01-07) is unchanged.
+
 Follow-up (2026-11-10): the letter has its own chip (`#letter-chip`) beside the event chip and a row in the yard menu, so it no longer shares the event chip. The New Year cheer is its own card, and the answer counts as brought back only after the card shows. The friend's AI writes only while the yard is seen and never without a connection; without one the letter is made on the device from the app's own lines. The letter's text is cleared after January 7 by the minute check, and the answer stays.
 
 ## Constraints

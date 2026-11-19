@@ -192,7 +192,7 @@ const scenario = `(async()=>{
     await L('intro='+p1.data.persona);
     await must('rename',playPets.updatePet(p1.data.id,{name:'타우리',size:160,persona:'반말로 짧게 대답해요.'}));
     // The year-end letter: both years follow the backend's rule (the latest date on Earth, UTC+14, or the year before),
-    // not the page's calendar alone. The page's own check (December 26 to 31) writes only its local year, and from
+    // not the page's calendar alone. The page's own check (December 15 to 31) writes only its local year, and from
     // the lines. The friend has no connection yet, so whichever of the scenario and the page writes that year first
     // sends nothing and takes the year; the checks accept the page's lines as well as this call's.
     const earthYear=new Date(Date.now()+14*3600e3).getUTCFullYear(),pageYear=new Date().getFullYear(),otherYear=pageYear===earthYear?pageYear-1:pageYear+1;
