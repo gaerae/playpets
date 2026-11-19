@@ -18,6 +18,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A carried friend is lifted off the ground and swings with the pull, its feet trailing; let go, it drops the last bit and lands with a small squash. A jump lands the same way. A drag the system cancels sets the friend back down without the drop.
 - Friends in the yard have a soft shade on the ground under their feet, which shrinks while they are lifted and stays level while they lean.
 
+### Website and docs
+
+- Friends standing in the website's yard and desktop previews do their idle gesture now and then, each at its own moment, instead of fidgeting nonstop.
+
 ## [1.8.6] - 2026-11-18
 
 ### Changed

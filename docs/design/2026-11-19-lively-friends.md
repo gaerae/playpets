@@ -61,4 +61,4 @@
 - A carried friend swings with the pull instead of against it: held up top, its feet trail and its top leads, up to 8°. Leaning against the pull read as the friend pulling away from the hand.
 - The lean is the `--lean` custom property on the friend's button (`rotate: var(--lean)`), and the shade turns back by the same angle, so it stays level on the ground while the body leans.
 - A drag the system cancels (`pointercancel`) sets the friend back where it started, with no fall from the lift and no squash: it was never let go over the yard.
-- The site's yard preview (`website/.vitepress/theme/WorldPreview.vue`) follows the idle rhythm in CSS: a standing friend plays its idle row in the first 1.1 s of a 6 s cycle and holds the first cell for the rest, each friend at its own offset.
+- The site's yard and desktop previews (`WorldPreview.vue`, `HeroDesk.vue`) follow the idle rhythm in CSS (`landing.css` `sprite-rest`): a standing friend plays its idle row in the first 1.1 s of a 6 s cycle and holds the first cell for the rest, each friend from its own point in the cycle. Every gesture plays, not 60% of them: a fixed cycle needs no script.

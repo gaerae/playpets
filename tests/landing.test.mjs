@@ -522,6 +522,38 @@ test('the moving scenes wait until they are seen and stop for paused or reduced 
   assert.match(preview, /strollTimer/);
 });
 
+// The app's idle rhythm (docs/design/2026-11-19-lively-friends.md): a standing friend plays its idle
+// row once now and then and otherwise stands, and friends do not move together.
+test('friends standing in the previews rest between idle gestures, each at its own moment', async () => {
+  const css = read('website/.vitepress/theme/landing.css');
+  const { animationSpec } = await import('../src/core/animation.js');
+  const rest = css.match(/animation-name: sprite-rest;\n {4}animation-duration: (\d+(?:\.\d+)?)s;/);
+  assert.ok(rest, 'idle sprites in the previews play the resting cycle');
+  const gesture = css.match(
+    /@keyframes sprite-rest \{[\s\S]*?\n {2}([\d.]+)% \{\n {4}background-position-x: calc\(var\(--frames\) \* -192px\);\n {4}animation-timing-function: step-start;/,
+  );
+  assert.ok(gesture, 'the gesture ends at once on the first cell');
+  const seconds = (Number(gesture[1]) / 100) * Number(rest[1]);
+  assert.ok(
+    Math.abs(seconds - animationSpec('idle').seconds) < 0.01,
+    `the gesture takes the idle row's ${animationSpec('idle').seconds} s`,
+  );
+  assert.ok(Number(rest[1]) >= 4 * animationSpec('idle').seconds, 'and the friend mostly stands');
+  // Paused previews, still sprites and reduced motion keep their own rules.
+  assert.match(
+    css,
+    /@media \(prefers-reduced-motion: no-preference\) \{\n {2}:is\(\.living-friend, \.desk-friend\) \.sprite\[data-state="idle"\]:not\(\.sprite-still, \.preview-paused \*\) i \{/,
+  );
+  const delays = [1, 2, 3].map(
+    i =>
+      css.match(
+        new RegExp(`:is\\(\\.friend-${i}, \\.desk-friend-${i}\\) \\.sprite i \\{\\n {2}animation-delay: (-[\\d.]+)s;`),
+      )?.[1],
+  );
+  assert.ok(delays.every(Boolean), 'friends after the first start from their own point');
+  assert.equal(new Set(delays).size, delays.length);
+});
+
 // The app string keys a recipe's chips are named with (SceneChips.vue).
 const chipKeys = tokens =>
   tokens.flatMap(token => {
