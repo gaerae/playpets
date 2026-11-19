@@ -44,6 +44,9 @@ struct Kind {
     /// Where a gift's drawing, or a flower's in bloom, ends, as a share of its height from the top.
     #[serde(default)]
     foot: Option<f64>,
+    /// "on": friends stand on it (a bench, a swing), rather than beside it.
+    #[serde(default)]
+    stand: Option<String>,
 }
 #[derive(Deserialize)]
 struct SizedStage {
@@ -385,6 +388,12 @@ impl Catalog {
             .and_then(|k| k.foot)
             .unwrap_or(1.0)
     }
+    /// Whether friends stand on this gift (a bench, a swing, a blanket) rather than beside it.
+    pub fn stood_on(&self, id: &str) -> bool {
+        self.gifts
+            .iter()
+            .any(|k| k.id == id && k.stand.as_deref() == Some("on"))
+    }
     /// Whether this gift is built in the yard, not brought by a friend (the snowman).
     pub fn is_built(&self, id: &str) -> bool {
         self.gifts.iter().any(|k| k.id == id && k.built)
@@ -418,6 +427,16 @@ impl Catalog {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn friends_stand_on_the_seats_and_beside_the_rest() {
+        for seat in ["bench", "swing", "hammock", "stump", "picnic"] {
+            assert!(catalog().stood_on(seat), "{seat}");
+        }
+        for other in ["lantern", "pinwheel", "missing"] {
+            assert!(!catalog().stood_on(other), "{other}");
+        }
+    }
 
     #[test]
     fn affinity_places_are_the_shipped_places_with_soil() {

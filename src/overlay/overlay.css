@@ -27,6 +27,10 @@ body {
   top: 0;
   pointer-events: none;
 }
+/* A friend is in front of the gifts, also one sent out after it and one standing on a bench. */
+.friend-wrap {
+  z-index: 1;
+}
 /* A gift out on the desktop: its drawing fills the box the backend gave it (desktop/items.rs). */
 .decor {
   position: absolute;
@@ -49,6 +53,46 @@ body {
   display: block;
   width: 100%;
   height: 100%;
+}
+/* A gift with a moving part is laid twice (poke.js): the rest of it, and the part alone over it,
+   which a poke turns once about its pivot. */
+.decor .part-still,
+.decor .part {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.decor .part.moving[data-motion="spin"] {
+  animation: part-spin 1.6s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.decor .part.moving[data-motion="sway"] {
+  animation: part-sway 1.4s ease-out;
+}
+@keyframes part-spin {
+  to {
+    rotate: 1080deg;
+  }
+}
+@keyframes part-sway {
+  15% {
+    rotate: 10deg;
+  }
+  38% {
+    rotate: -7deg;
+  }
+  60% {
+    rotate: 4deg;
+  }
+  80% {
+    rotate: -1.5deg;
+  }
+}
+/* A lamp switched by a poke (poke.js showLamp) holds its light against the hour's (worn.css). */
+.decor-wrap .decor.lamp-on :is(.fx-glow, .fx-pool) {
+  opacity: 1;
+}
+.decor-wrap .decor.lamp-off :is(.fx-glow, .fx-pool) {
+  opacity: 0;
 }
 /* A flower or a planted tree stands on the bottom middle of its box, at the size the yard draws it
    (growing.js sets the size): a young plant is smaller than the box its bloom will fill. */

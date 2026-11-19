@@ -3,6 +3,7 @@
 use super::macos::{float_over_fullscreen, restore_window_class};
 use super::roam::{self, Bounds};
 use super::screens::{Mon, clamp_to, cursor_to_logical, monitor_of_box, monitors};
+use crate::pets::content::catalog;
 use serde_json::{Value, json};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -560,14 +561,14 @@ fn stroll(
     let now = Instant::now();
     let rest = || now + Duration::from_millis(roam::delay(rand01(), roam::ROAM_DELAY) as u64);
     let mut moved = false;
-    // The decorations out, where they stand: a stroll may go to one.
-    let decorations: Vec<(String, String, Bounds)> = d
+    // The decorations out, where they stand and where their drawing ends: a stroll may go to one.
+    let decorations: Vec<(String, String, Bounds, f64)> = d
         .pets
         .iter()
         .filter_map(|item| {
             let (kind, w, h) = item.decor.clone()?;
             let &(x, y) = d.positions.get(&item.id)?;
-            Some((item.id.clone(), kind, Bounds { x, y, w, h }))
+            Some((item.id.clone(), kind, Bounds { x, y, w, h }, item.foot))
         })
         .collect();
     for p in d.pets.iter().filter(|p| p.decor.is_none()) {
@@ -600,13 +601,20 @@ fn stroll(
                 // Only one on the same screen: a walk never crosses from one monitor to another.
                 let near: Vec<_> = decorations
                     .iter()
-                    .filter(|(_, _, b)| monitor_of_box(mons, b.x, b.y, (b.w, b.h)).map(|m| &m.id) == mon.map(|m| &m.id))
+                    .filter(|(_, _, b, _)| {
+                        monitor_of_box(mons, b.x, b.y, (b.w, b.h)).map(|m| &m.id) == mon.map(|m| &m.id)
+                    })
                     .collect();
                 roaming.visiting = None;
                 roaming.target = Some(if !near.is_empty() && rand01() < VISIT_CHANCE {
-                    let (id, kind, b) = near[((rand01() * near.len() as f64) as usize).min(near.len() - 1)];
+                    let (id, kind, b, foot) = near[((rand01() * near.len() as f64) as usize).min(near.len() - 1)];
                     roaming.visiting = Some((id.clone(), kind.clone()));
-                    roam::beside(&here, p.size, SPRITE_FOOT, b, &area, rand01() < 0.5)
+                    // Onto a bench or a swing, as in the yard; beside anything else.
+                    if catalog().stood_on(kind) {
+                        roam::onto(&here, SPRITE_FOOT, b, *foot, &area, rand01())
+                    } else {
+                        roam::beside(&here, p.size, SPRITE_FOOT, b, &area, rand01() < 0.5)
+                    }
                 } else {
                     roam::roam_target(&here, &area, rand01(), rand01(), rand01())
                 });

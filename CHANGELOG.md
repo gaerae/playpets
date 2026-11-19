@@ -13,6 +13,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Added
 
 - A flower or tree you have found can come out of its album card again, fully grown and free, as many as the yard has room for (24 flowers, 6 trees): Set out puts it in the yard, and the small screen beside it puts it on the desktop too. It works in any season, and a tree shows its season's leaves.
+- Gifts on the desktop answer: the lantern and the campfire light up from evening by the computer's clock, a friend that strolls to a bench, swing, hammock, stump or picnic blanket stands on it, and a click spins the pinwheel, swings and rings the wind chime, or switches the lantern off and on until the time of day changes. With reduced motion nothing turns, but the light still switches and the chime still rings.
 
 ## [1.8.7] - 2026-11-19
 

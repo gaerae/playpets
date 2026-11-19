@@ -16,10 +16,13 @@ import { applyStatus, fadedBetween, stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { every, everyMinute, halt, moveTo } from '../core/ticker.js';
 import { useCatalog } from '../yard/catalog.js';
+import { periodFor } from '../yard/scene.js';
+import { ring } from './chime.js';
 import { dressDecor, drawDecor } from './decor-view.js';
 import { glideMs } from './glide.js';
 import { visitKey } from './growing.js';
 import { nextDraw } from './pace.js';
+import { poke, showLamp } from './poke.js';
 
 setupInteractions();
 document.documentElement.lang = language();
@@ -42,7 +45,9 @@ const NAME_LINGER_MS = 600;
 // Under the sprite, room for the name button (FOOT in overlay.rs, plus the sprite's own 4px).
 const FOOT = 28;
 let data = { pets: [], assets: [], statuses: {} },
-  layout = [];
+  layout = [],
+  // The sound setting a wind chime rings by (chime.js).
+  sound = null;
 // Runs the next frame now (core/ticker.js every): the loop waits for the cell a friend shows to end
 // (pace.js), so whatever changes a drawing in between (a friend come out, a pose, a status, the
 // season) draws it at once.
@@ -160,14 +165,26 @@ function create(pet) {
   };
   return view;
 }
+// The part of the day on the computer's clock, which lights the lamps out here from evening on
+// (worn.css): the desk is real, so the yard's own choice of time is the yard's.
+let period = null;
+function keepPeriod(now = new Date()) {
+  const next = periodFor(now.getHours());
+  if (next === period) return;
+  document.documentElement.classList.remove(`period-${period}`);
+  document.documentElement.classList.add(`period-${next}`);
+  period = next;
+  for (const v of decorations.values()) showLamp(v, period);
+}
+keepPeriod();
 // Gifts, flowers and trees out here, brought in line with the garden, the season, the yard's night
 // and the clock (decor-view.js): when one of those changed, never for a friend's step.
 const night = () => data.nightDecor || [];
 function redress() {
   for (const v of decorations.values()) dressDecor(v, data.garden, season, new Date(), night());
 }
-// A gift, a flower or a planted tree out on the desktop: dragged to move, and its menu takes it off
-// the desktop.
+// A gift, a flower or a planted tree out on the desktop: dragged to move, poked to answer (poke.js:
+// a press let go where it started, as a friend's pat), and its menu takes it off the desktop.
 function createDecor(id, kind) {
   const wrap = document.createElement('div'),
     button = document.createElement('button');
@@ -189,13 +206,18 @@ function createDecor(id, kind) {
   };
   button.onpointerdown = async e => {
     if (e.button !== 0) return;
-    view.drag = true;
+    view.drag = { x: e.screenX, y: e.screenY, moved: false };
     button.setPointerCapture(e.pointerId);
     await api.dragStart(id);
   };
+  button.onpointermove = e => {
+    if (view.drag && Math.hypot(e.screenX - view.drag.x, e.screenY - view.drag.y) > 5) view.drag.moved = true;
+  };
   button.onpointerup = async e => {
     if (!view.drag) return;
+    const moved = view.drag.moved;
     view.drag = null;
+    if (!moved) poke(view, { period, reduced: reduced.matches, ring: () => ring(sound) });
     await api.dragStop();
     if (button.hasPointerCapture(e.pointerId)) button.releasePointerCapture(e.pointerId);
   };
@@ -354,6 +376,7 @@ function say(v, message) {
 api.onChange(next => {
   data = next;
   layout = next.desktopLayout;
+  sound = next.sound;
   seasonChanged();
   render();
   redress();
@@ -410,6 +433,7 @@ function animate(now) {
 const result = await api.bootstrap();
 if (result.ok) {
   data = result.data;
+  sound = data.sound;
   // A language chosen in the yard reaches this window too (the page starts over in it).
   follow(data.language);
   layout = data.desktopLayout;
@@ -422,7 +446,8 @@ if (result.ok) {
   // A finished agent's state fades after a while, as in the yard; nothing else here may draw the
   // friends again for hours, so the page looks each minute. A flower out here grows by the clock.
   let looked = Date.now();
-  everyMinute(() => {
+  everyMinute(at => {
+    keepPeriod(at);
     redress();
     const now = Date.now();
     if (fadedBetween(data, looked, now)) render();
