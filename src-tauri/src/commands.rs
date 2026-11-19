@@ -528,6 +528,34 @@ static COMMANDS: &[Command] = &[
             d.garden.take_out(c.text(0), x, y, now).map(|d| json!(d))
         })
     }),
+    // (kind, x, y): a flower the album has, in bloom in the field (docs/design/2026-11-19-album-take-out.md).
+    main("takeOutFlower", |c| {
+        let (x, y, now) = (c.float(1), c.float(2), now_ms());
+        commit(c.app, &c.state, |d| {
+            d.garden
+                .take_out_flower(&d.album, c.text(0), x, y, now)
+                .map(|p| json!(p))
+        })
+    }),
+    // (world, kind, x, y, ground): a tree the album has, mature on free soil.
+    main("takeOutTree", |c| {
+        let ground: discovery::GroundProfile = c.parse(4)?;
+        let now = now_ms();
+        commit(c.app, &c.state, |d| {
+            let AppData { garden, album, .. } = d;
+            discovery::take_out_tree(
+                garden,
+                album,
+                c.text(0),
+                c.text(1),
+                c.float(2),
+                c.float(3),
+                &ground,
+                now,
+            )
+            .map(|t| json!(t))
+        })
+    }),
     // (book, id, hook, local day): an ornament on the Christmas tree, three a day.
     main("hangOrnament", hang_ornament),
     // (book, id, local day): an ornament taken down, its hook free for another.
@@ -857,6 +885,8 @@ mod tests {
             "hideDecor",
             "decorNight",
             "takeOut",
+            "takeOutFlower",
+            "takeOutTree",
             "hangOrnament",
             "takeDownOrnament",
             "buildSnowman",

@@ -9,7 +9,7 @@ import { clamp } from '../core/math.js';
 import { call, data, guard } from '../core/state.js';
 import { artSvg } from './art.js';
 import { treeArt, treeKind, treeSize } from './catalog.js';
-import { groundAllows, treesIn, treeStage } from './discovery-rules.js';
+import { freeSpot, groundAllows, treesIn, treeStage } from './discovery-rules.js';
 import { depthAt, field, measureYard, standAt } from './field.js';
 import { groundProfile } from './ground.js';
 import { shapeHits } from './hit-shape.js';
@@ -21,6 +21,15 @@ const shown = new Map();
 const PLANTING = { planting: true };
 const stageKeys = ['tree.growth', 'tree.young', 'tree.mature'];
 const current = id => treesIn(data.garden?.trees, scene.world).find(tree => tree.id === id);
+
+/** Free soil in the current place for a tree out of the album (album.js): a spot on the field the
+ * ground allows for planting, and that ground for the backend to check again, or null when twenty
+ * draws find none. */
+export function treeSpot(rng = Math.random) {
+  const ground = groundProfile(),
+    point = freeSpot(rng, ground, { x: [0.15, 0.85], y: [0.3, 0.9] }, undefined, PLANTING);
+  return point && { point, ground };
+}
 
 /** How big a `kind` of tree at `stage` (grown by default) is drawn with its foot at `foot` (yard
  * pixels): its width and height, and the zoom of that depth. Smaller farther back, as a friend at its

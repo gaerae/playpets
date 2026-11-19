@@ -538,6 +538,34 @@ impl Garden {
         Ok(plant)
     }
 
+    /// Sets a flower of a kind the album has into the field at (x, y), in bloom and free: its
+    /// planting is put back by the bloom time, and it counts as flowered already, so the album gains
+    /// nothing from it. Any number of a kind, as long as the field has room.
+    /// Design: docs/design/2026-11-19-album-take-out.md.
+    pub fn take_out_flower(&mut self, album: &Album, kind: &str, x: f64, y: f64, now: u64) -> Result<Plant, String> {
+        if !album.flowers.contains_key(kind) {
+            return Err(i18n::t("error.bad_request"));
+        }
+        if self.plants.len() >= PLANT_MAX {
+            return Err(i18n::tr("error.garden_full", &[("limit", &PLANT_MAX.to_string())]));
+        }
+        let (Some((x, y)), true) = (decor_place(x, y), catalog().is_flower(kind)) else {
+            return Err(i18n::t("error.bad_request"));
+        };
+        let plant = Plant {
+            id: Uuid::new_v4().to_string(),
+            kind: kind.into(),
+            x,
+            y,
+            planted: now.saturating_sub(catalog().bloom_after_ms()),
+            bloomed: true,
+            on_desktop: false,
+            desktop_position: None,
+        };
+        self.plants.push(plant.clone());
+        Ok(plant)
+    }
+
     /// Pulls a plant out of the ground.
     pub fn pull(&mut self, id: &str) -> Result<(), String> {
         let before = self.plants.len();
@@ -1232,6 +1260,37 @@ mod tests {
         );
         assert_eq!(g.bloom(&id, 9_999_999_999), Ok(None), "counted already");
         assert!(g.bloom("nope", 1).is_err());
+    }
+
+    #[test]
+    fn a_flower_the_album_has_comes_out_in_bloom_free_and_as_often_as_the_field_has_room() {
+        let mut g = Garden::default();
+        let mut album = Album::default();
+        let now = 5_000_000_000;
+        assert!(
+            g.take_out_flower(&album, "cosmos", 0.5, 0.8, now).is_err(),
+            "not found yet"
+        );
+        album.flowered("cosmos", 1);
+        let p = g.take_out_flower(&album, "cosmos", 0.5, 0.8, now).unwrap();
+        assert_eq!((p.kind.as_str(), p.x, p.y), ("cosmos", 0.5, 0.8));
+        assert!(p.bloomed, "already counted, so it adds nothing to the album");
+        assert_eq!(p.planted, now - catalog().bloom_after_ms(), "grown from the start");
+        assert_eq!(g.bloom(&p.id, now), Ok(None));
+        assert_eq!(g.seeds, 0, "no seed spent");
+        // Any number of one kind, up to the field's limit.
+        for _ in 1..PLANT_MAX {
+            g.take_out_flower(&album, "cosmos", 0.4, 0.8, now).unwrap();
+        }
+        assert!(
+            g.take_out_flower(&album, "cosmos", 0.4, 0.8, now).is_err(),
+            "the field is full"
+        );
+        assert_eq!(g.plants.len(), PLANT_MAX);
+        g.plants.clear();
+        assert!(g.take_out_flower(&album, "cosmos", f64::NAN, 0.8, now).is_err());
+        // A clock before the bloom time still gives a grown flower.
+        assert_eq!(g.take_out_flower(&album, "cosmos", 0.5, 0.8, 3).unwrap().planted, 0);
     }
 
     /// The `n`th day a gift may come, GIFT_EVERY_DAYS apart from 2026-11-01.

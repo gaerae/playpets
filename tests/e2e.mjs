@@ -56,7 +56,12 @@ await writeFile(
         },
       ],
     },
-    album: { treasures: { quartz: { count: 1, best: 0, first: rareLedgerAt } } },
+    // A flower and a tree found before, to take out of the album again.
+    album: {
+      treasures: { quartz: { count: 1, best: 0, first: rareLedgerAt } },
+      flowers: { tulip: { count: 1, best: 0, first: rareLedgerAt } },
+      trees: { cherry: { count: 1, best: 0, first: rareLedgerAt } },
+    },
     // December's winter question already answered for this year: in the south "auto" is summer
     // then, and the question would otherwise cover the yard the scenario clicks.
     winterAsked: { year: new Date().getFullYear(), previous: null },
@@ -1364,6 +1369,21 @@ const scenario = `(async()=>{
     await must('plantIn',playPets.setOnDesktop(outPlant?.id,false));
     const plantBack=await until(async()=>!(await playPets.bootstrap()).data.desktopLayout.some(i=>i.id===outPlant.id),8000);
     await L('desktopPlant='+(withPlant&&plantBack?'out-and-in':'err:'+JSON.stringify({outPlant,withPlant,plantBack})));
+    // A flower and a tree the album has come out of their cards again, grown and free: the flower
+    // onto the desktop too, the tree onto free soil of the place shown.
+    const grownBefore=(await playPets.bootstrap()).data.garden,isNew=(list,old)=>list.find(x=>!old.some(o=>o.id===x.id));
+    $('album-button').click();await until(()=>document.querySelectorAll('.album-card').length>0);
+    document.querySelector('.album-tabs [data-book=flower]').click();
+    (await until(()=>document.querySelector('.album-card:not(.unknown) .album-actions')))?.children[1].click();
+    const grownFlower=await until(async()=>{const d=(await playPets.bootstrap()).data,p=isNew(d.garden.plants,grownBefore.plants);return p?.bloomed&&p.kind==='tulip'&&d.desktopLayout.some(i=>i.id===p.id)&&p;},8000);
+    document.querySelector('.album-tabs [data-book=tree]').click();
+    (await until(()=>document.querySelector('.album-card:not(.unknown) .album-actions')))?.children[0].click();
+    const grownTree=await until(async()=>{const tr=isNew((await playPets.bootstrap()).data.garden.trees,grownBefore.trees);return tr?.stage===2&&tr.matured&&tr.kind==='cherry'&&tr;},8000);
+    const grownToast=document.querySelector('.toast')?.textContent;
+    $('close-album').click();
+    await L('albumTakeOut='+(grownFlower&&grownTree?'grown-out':'err:'+JSON.stringify({grownFlower,grownTree,grownToast,world:(await playPets.bootstrap()).data.world})));
+    if(grownFlower){await playPets.setOnDesktop(grownFlower.id,false);await playPets.pullPlant(grownFlower.id);}
+    if(grownTree)await playPets.removeTree(grownTree.id);
     // Back out again, so the switch below brings everything in rather than sending everyone out.
     await must('friendOut',playPets.setOnDesktop(p1.data.id,true));
     await playPets.putAway(outGift.id);
@@ -1984,6 +2004,7 @@ const expect = [
   [/^overlayLayout=[1-9]/, 'overlay layout created'],
   [/^wanderOn=ok/, 'roaming toggle'],
   [/^desktopPlant=out-and-in$/, 'a flower goes out on the desktop from its menu and comes back in'],
+  [/^albumTakeOut=grown-out$/, 'a flower and a tree come out of the album grown, the flower onto the desktop too'],
   [
     /^desktopItems=one-at-a-time$/,
     'a gift taken out of the album goes out on the desktop, and a friend comes in, each on its own',

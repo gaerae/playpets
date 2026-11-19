@@ -4,7 +4,9 @@
 // The ones found show how many (and the biggest fish); the others are silhouettes with when and
 // where to look, so there is always a next one. What there is to find is the catalogue's.
 import { closeOnBackdrop } from '../core/confirm.js';
+import { desktopTip } from '../core/controls.js';
 import { joinList, joinSentences, language, t } from '../core/i18n.js';
+import { icons } from '../core/icons.js';
 import { limit } from '../core/limits.js';
 import { systemSouth } from '../core/season.js';
 import { $, call, data, toast } from '../core/state.js';
@@ -16,10 +18,11 @@ import { bugSvg, fishSvg } from '../yard/creatures.js';
 import { decorShown, yardSeason } from '../yard/decor-shown.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
 import { eventDates, eventScene, giftSeason } from '../yard/events.js';
+import { treeSpot } from '../yard/planted-trees.js';
 import { SECRETS } from '../yard/secrets.js';
 import { printSpecimen, tailPeek } from '../yard/trail-art.js';
 import { scene } from '../yard/world.js';
-import { worldFor } from '../yard/worlds.js';
+import { worldFor, worldHasSoil } from '../yard/worlds.js';
 
 // When and where a fish or a bug is found: "Summer, Evening, Night, at the lake".
 function when(kind, where) {
@@ -82,6 +85,7 @@ const BOOKS = {
     unknown: 'catch.unknown_flower',
     hint: k => t('catch.flower_hint', { season: t(`catch.season_${k.season}`) }),
     record: entry => t('catch.grown', { count: entry.count }),
+    action: k => growingButtons('flower', k.id),
   },
   fish: {
     tab: 'catch.tab_fish',
@@ -134,6 +138,7 @@ const BOOKS = {
     name: k => t(`tree.${k.id}`),
     hint: favored('album.tree_how'),
     record: entry => t('catch.trees_grown', { count: entry.count }),
+    action: k => growingButtons('tree', k.id),
   },
   treasure: {
     tab: 'album.treasures',
@@ -259,6 +264,60 @@ function takeOutButton(kind) {
     });
   };
   return button;
+}
+// A flower or a tree the album has comes out again, grown and free, as often as there is room
+// (garden.rs take_out_flower, discovery.rs take_out_tree): into the yard, or into the yard and out
+// on the desktop. A flower goes near the front of the field, as a gift does; a tree onto free soil
+// of the place shown. Design: docs/design/2026-11-19-album-take-out.md.
+function growingButtons(book, kind) {
+  const garden = data.garden || {},
+    tree = book === 'tree',
+    name = t(tree ? `tree.${kind}` : `garden.kind_${kind}`),
+    most = limit(data, tree ? 'trees' : 'plants'),
+    full = ((tree ? garden.trees : garden.plants)?.length ?? 0) >= most,
+    why =
+      tree && !worldHasSoil(scene.world)
+        ? t('album.tree_soil')
+        : full
+          ? t(tree ? 'album.trees_full' : 'album.flowers_full', { limit: most })
+          : '',
+    row = document.createElement('div');
+  row.className = 'album-actions';
+  for (const desktop of [false, true]) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    // The desktop one is a small screen beside Set out: two words each would not fit a card's width.
+    button.className = desktop ? 'album-take-out album-to-desktop' : 'album-take-out';
+    if (desktop) {
+      button.innerHTML = '<span data-icon="monitor"></span>';
+      icons(button);
+    } else button.textContent = t('album.take_out');
+    button.disabled = !!why;
+    button.title = why || t(desktop ? 'album.set_out_desktop' : 'album.set_out', { kind: name });
+    button.setAttribute('aria-label', button.title);
+    button.onclick = () => {
+      // Taken out once a click: a second before the album redraws would take out another.
+      const both = row.children;
+      for (const b of both) b.disabled = true;
+      takeOutGrowing(tree, kind, desktop).catch(error => {
+        for (const b of both) b.disabled = false;
+        toast(spoken(error, t('error.generic')), { error: true });
+      });
+    };
+    row.append(button);
+  }
+  return row;
+}
+async function takeOutGrowing(tree, kind, desktop) {
+  let item;
+  if (tree) {
+    const spot = treeSpot();
+    if (!spot) throw Object.assign(new Error(t('album.tree_no_room')), { spoken: true });
+    item = await call('takeOutTree', scene.world, kind, spot.point.x, spot.point.y, spot.ground);
+  } else item = await call('takeOutFlower', kind, 0.3 + Math.random() * 0.4, 0.8);
+  if (!desktop || !item?.id) return;
+  await call('setOnDesktop', item.id, true);
+  desktopTip();
 }
 // The gift box, in the gift book: gifts that came while the yard was full, and mementos put away.
 // Each is set out near the front of the yard, from where the person drags it on.

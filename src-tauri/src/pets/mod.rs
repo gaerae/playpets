@@ -97,6 +97,7 @@ pub fn limits() -> serde_json::Value {
         "persona": model::PERSONA_MAX,
         "seeds": garden::SEED_MAX,
         "saplings": garden::SAPLING_MAX,
+        "plants": garden::PLANT_MAX,
         "decor": garden::DECOR_MAX,
         "giftBox": garden::BOX_MAX,
         "giftEveryDays": garden::GIFT_EVERY_DAYS,
