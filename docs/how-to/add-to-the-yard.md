@@ -117,6 +117,19 @@
    - Furniture and friends share the same yard zoom, independent of display density. Do not multiply layout sizes by `devicePixelRatio`.
 3. Add `decor.kind_<id>` (its name) and `decor.visit_<id>` (a list of things friends say when they visit it) to every string table.
 
+### Add a display
+A display holds finds from one album book; it is set out as a gift is, but made from an album card ([design](../design/2026-11-19-album-on-display.md)).
+1. Add an entry to `displays` in `src/content/catalog.json`, with a gift's `art`, `size`, `foot` and `shade`, and:
+
+   | Key | Meaning |
+   |---|---|
+   | `holds` | The album book it holds from: `fish`, `bug`, `treasure` or `flower`. One display per book (`display_for` in `pets/content.rs`) |
+   | `room` | How many it holds; 1 if left out. A display with more takes each new find until it is full (`Garden::display`) |
+   | `slots` | Where each find is drawn, `[x, y, width, height]` as shares of its box, one per `room` (`src/yard/display.js`) |
+
+2. Draw it empty: the finds are their album drawings.
+3. Add `decor.kind_<id>` and `decor.visit_<id>` to every string table, and the album button's words to `src/panel/album-display.js`.
+
 ### Drawings
 Collection art:
 - Current collection art uses generated transparent atlases and SVG crop wrappers.

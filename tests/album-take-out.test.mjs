@@ -93,12 +93,12 @@ test('a flower the album has comes out in bloom, into the yard or onto the deskt
   again[0].onclick();
   await flush();
   assert.ok(!again[0].disabled && !again[1].disabled);
-  // A full field says so, on both.
+  // A full field says so, on both (the frame beside them is the yard's gifts', album-display.test.mjs).
   nodes = album(ctx, 'flower', {
     album: { flowers: { [kind]: { count: 1, best: 0, first: 1 } } },
     garden: { plants: many(24, { kind }) },
   });
-  for (const button of buttonsOf(nodes, 0)) {
+  for (const button of [...buttonsOf(nodes, 0)].slice(0, 2)) {
     assert.equal(button.disabled, true);
     assert.equal(button.title, t('album.flowers_full', { limit: 24 }));
   }

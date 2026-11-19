@@ -182,6 +182,13 @@ pub struct Decor {
         skip_serializing_if = "Vec::is_empty"
     )]
     pub dress: Vec<String>,
+    /// What a display holds, by the album's ids in slot order (catalog.json displays).
+    #[serde(
+        default,
+        deserialize_with = "super::or_default",
+        skip_serializing_if = "Vec::is_empty"
+    )]
+    pub holds: Vec<String>,
 }
 
 fn is_zero(n: &u64) -> bool {
@@ -283,6 +290,15 @@ fn tidy(d: &mut Decor) {
         .filter(|part| d.dress.iter().any(|w| w == part))
         .map(String::from)
         .collect();
+    // A display keeps what its book has, once each, as many as it holds; a gift holds nothing.
+    let (book, room) = catalog().display_of(&d.kind).unwrap_or_default();
+    let mut kept: Vec<String> = Vec::new();
+    for id in d.holds.drain(..) {
+        if kept.len() < room && catalog().holds(book, &id) && !kept.contains(&id) {
+            kept.push(id);
+        }
+    }
+    d.holds = kept;
 }
 
 /// Ornaments as state.json has them: a book of the four, an id shaped like a kind (not the tree
@@ -352,11 +368,13 @@ impl Garden {
         let mut decor = placed(
             raw.get("decor"),
             DECOR_MAX,
-            |d: &Decor| catalog().is_gift(&d.kind),
+            |d: &Decor| catalog().is_decor(&d.kind),
             |d| (&mut d.x, &mut d.y),
             DECOR_FLOOR_MAX,
         );
         decor.iter_mut().for_each(tidy);
+        // A display left holding nothing has nothing to show.
+        decor.retain(|d| catalog().display_of(&d.kind).is_none() || !d.holds.is_empty());
         let mut received: Vec<String> = Vec::new();
         for kind in raw.get("received").and_then(Value::as_array).into_iter().flatten() {
             if let Some(kind) = kind.as_str()
@@ -805,7 +823,7 @@ impl Garden {
         let Some((x, y)) = decor_place(x, y) else {
             return Err(i18n::t("error.bad_request"));
         };
-        if !self.received.iter().any(|k| k == kind) {
+        if !self.received.iter().any(|k| k == kind) || !catalog().is_gift(kind) {
             return Err(i18n::t("error.decor_missing"));
         }
         // A built kind is built again, never set out; its put-away is a melt.
@@ -825,6 +843,75 @@ impl Garden {
         };
         self.decor.push(decor.clone());
         Ok(decor)
+    }
+
+    /// Puts a find from the album (`book`: fish, bug, treasure or flower; `item`, one the album
+    /// has) on display at (x, y): a new display holding it, except a treasure, which goes into the
+    /// newest case with room. A display is one of the yard's gifts and nothing is spent.
+    /// Design: docs/design/2026-11-19-album-on-display.md.
+    pub fn display(
+        &mut self,
+        album: &Album,
+        book: &str,
+        item: &str,
+        x: f64,
+        y: f64,
+        now: u64,
+    ) -> Result<Decor, String> {
+        let found = match book {
+            "fish" => album.fish.contains_key(item),
+            "bug" => album.bugs.contains_key(item),
+            "treasure" => album.treasures.contains_key(item),
+            "flower" => album.flowers.contains_key(item),
+            _ => false,
+        };
+        let (Some((kind, room)), Some((x, y)), true) = (catalog().display_for(book), decor_place(x, y), found) else {
+            return Err(i18n::t("error.bad_request"));
+        };
+        let same = |d: &&mut Decor| d.kind == kind;
+        if room > 1 {
+            if self
+                .decor
+                .iter()
+                .any(|d| d.kind == kind && d.holds.iter().any(|h| h == item))
+            {
+                return Err(i18n::t("error.bad_request"));
+            }
+            if let Some(case) = self.decor.iter_mut().filter(same).rev().find(|d| d.holds.len() < room) {
+                case.holds.push(item.into());
+                return Ok(case.clone());
+            }
+        }
+        if self.decor.len() >= DECOR_MAX {
+            return Err(i18n::tr("error.decor_full", &[("limit", &DECOR_MAX.to_string())]));
+        }
+        let decor = Decor {
+            id: Uuid::new_v4().to_string(),
+            kind: kind.into(),
+            x,
+            y,
+            came_at: now,
+            holds: vec![item.into()],
+            ..Decor::default()
+        };
+        self.decor.push(decor.clone());
+        Ok(decor)
+    }
+
+    /// Takes `item` out of the display `id` (a treasure out of its case): the display as it is
+    /// left, or None when it held nothing else and went.
+    pub fn undisplay(&mut self, id: &str, item: &str) -> Result<Option<Decor>, String> {
+        let at = self
+            .decor
+            .iter()
+            .position(|d| d.id == id && d.holds.iter().any(|h| h == item))
+            .ok_or_else(|| i18n::t("error.decor_missing"))?;
+        self.decor[at].holds.retain(|h| h != item);
+        if self.decor[at].holds.is_empty() {
+            self.decor.remove(at);
+            return Ok(None);
+        }
+        Ok(Some(self.decor[at].clone()))
     }
 
     /// Remembers when the next everyday gift may come; a wait for an earlier gift is not kept.
@@ -1291,6 +1378,118 @@ mod tests {
         assert!(g.take_out_flower(&album, "cosmos", f64::NAN, 0.8, now).is_err());
         // A clock before the bloom time still gives a grown flower.
         assert_eq!(g.take_out_flower(&album, "cosmos", 0.5, 0.8, 3).unwrap().planted, 0);
+    }
+
+    #[test]
+    fn a_find_from_the_album_goes_on_display_and_a_case_fills_one_treasure_at_a_time() {
+        let mut g = Garden::default();
+        let mut album = Album::default();
+        let now = 5_000_000_000;
+        assert!(
+            g.display(&album, "fish", "crucian", 0.5, 0.8, now).is_err(),
+            "not caught yet"
+        );
+        album.catch("fish", "crucian", 20.0, 1).unwrap();
+        let bowl = g.display(&album, "fish", "crucian", 0.5, 0.8, now).unwrap();
+        assert_eq!(
+            (bowl.kind.as_str(), bowl.holds.clone()),
+            ("fishbowl", vec!["crucian".to_string()])
+        );
+        assert_eq!(bowl.came_at, now);
+        assert!(g.received.is_empty(), "a display is not a gift that came");
+        // Two bowls of one fish are fine.
+        assert_eq!(
+            g.display(&album, "fish", "crucian", 0.4, 0.8, now).unwrap().kind,
+            "fishbowl"
+        );
+        assert!(g.display(&album, "nothing", "crucian", 0.5, 0.8, now).is_err());
+        assert!(g.display(&album, "fish", "crucian", f64::NAN, 0.8, now).is_err());
+        // Treasures fill the newest case with room, five to a case, each once.
+        for (i, id) in ["quartz", "amber", "old_key", "pinecone", "old_coin", "tiny_shell"]
+            .iter()
+            .enumerate()
+        {
+            album.treasures.insert(
+                id.to_string(),
+                super::super::album::Entry {
+                    count: 1,
+                    best: 0.0,
+                    first: 1,
+                },
+            );
+            let case = g.display(&album, "treasure", id, 0.5, 0.8, now).unwrap();
+            assert_eq!(case.kind, "specimen_case");
+            assert_eq!(case.holds.len(), i % 5 + 1, "{id}");
+        }
+        let cases = |g: &Garden| g.decor.iter().filter(|d| d.kind == "specimen_case").count();
+        assert_eq!(cases(&g), 2);
+        assert!(
+            g.display(&album, "treasure", "amber", 0.5, 0.8, now).is_err(),
+            "in a case already"
+        );
+        // Out of the case again; a case left empty goes.
+        let first = g
+            .decor
+            .iter()
+            .find(|d| d.holds.contains(&"amber".to_string()))
+            .unwrap()
+            .id
+            .clone();
+        assert_eq!(g.undisplay(&first, "amber").unwrap().map(|d| d.holds.len()), Some(4));
+        assert!(g.undisplay(&first, "amber").is_err(), "not in it any more");
+        let second = g.decor.iter().find(|d| d.holds == ["tiny_shell"]).unwrap().id.clone();
+        assert_eq!(g.undisplay(&second, "tiny_shell").unwrap(), None);
+        assert_eq!(cases(&g), 1);
+        // The amber goes back into the case with room.
+        assert_eq!(g.display(&album, "treasure", "amber", 0.5, 0.8, now).unwrap().id, first);
+        // A display counts as one of the yard's gifts and is not kept in the box.
+        while g.decor.len() < DECOR_MAX {
+            g.display(&album, "fish", "crucian", 0.5, 0.8, now).unwrap();
+        }
+        assert!(
+            g.display(&album, "fish", "crucian", 0.5, 0.8, now).is_err(),
+            "the yard is full"
+        );
+        let bowl = g.decor.iter().find(|d| d.kind == "fishbowl").unwrap().id.clone();
+        g.put_away(&bowl).unwrap();
+        assert!(g.boxed.is_empty());
+        // Flowers are pressed and bugs go in jars; a gift is never set out as a display.
+        g.decor.clear();
+        album.flowered("tulip", 1);
+        album.catch("bug", "firefly", 0.0, 1).unwrap();
+        assert_eq!(
+            g.display(&album, "flower", "tulip", 0.5, 0.8, now).unwrap().kind,
+            "pressed_frame"
+        );
+        assert_eq!(
+            g.display(&album, "bug", "firefly", 0.5, 0.8, now).unwrap().kind,
+            "bug_jar"
+        );
+        g.received.push("fishbowl".into());
+        assert!(g.take_out("fishbowl", 0.5, 0.8, now).is_err());
+    }
+
+    #[test]
+    fn a_saved_display_keeps_only_what_its_book_has_and_one_holding_nothing_goes() {
+        let raw = json!({
+            "decor": [
+                { "id": "a", "kind": "specimen_case", "x": 0.5, "y": 0.8,
+                  "holds": ["quartz", "quartz", "no_such", "amber", "old_key", "pinecone", "old_coin", "tiny_shell"] },
+                { "id": "b", "kind": "fishbowl", "x": 0.5, "y": 0.8, "holds": ["crucian", "carp"] },
+                { "id": "c", "kind": "bug_jar", "x": 0.5, "y": 0.8, "holds": ["crucian"] },
+                { "id": "d", "kind": "bench", "x": 0.5, "y": 0.8, "holds": ["quartz"] },
+            ]
+        });
+        let g = Garden::restore(Some(&raw), 1);
+        let holds = |id: &str| g.decor.iter().find(|d| d.id == id).map(|d| d.holds.clone());
+        assert_eq!(
+            holds("a").unwrap(),
+            ["quartz", "amber", "old_key", "pinecone", "old_coin"],
+            "no repeats, no unknown ids, five at most"
+        );
+        assert_eq!(holds("b").unwrap(), ["crucian"], "a bowl holds one");
+        assert_eq!(holds("c"), None, "a jar holding no bug goes");
+        assert_eq!(holds("d").unwrap(), Vec::<String>::new(), "a gift holds nothing");
     }
 
     /// The `n`th day a gift may come, GIFT_EVERY_DAYS apart from 2026-11-01.

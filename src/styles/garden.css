@@ -639,10 +639,11 @@
 .decor.xmas-grand:not(.xmas-rise) .xmas-hit {
   pointer-events: auto;
 }
-/* What a snowman wears (worn.css) scales with it as one when it is pointed at, chosen or dragged. */
-.decor:hover > .dress-layers,
-.decor:focus-visible > .dress-layers,
-.decor.dragging > .dress-layers {
+/* What a snowman wears and what a display holds (worn.css) scale with it as one when it is pointed
+   at, chosen or dragged. */
+.decor:hover > :is(.dress-layers, .held-layer),
+.decor:focus-visible > :is(.dress-layers, .held-layer),
+.decor.dragging > :is(.dress-layers, .held-layer) {
   transform: scale(1.06);
 }
 /* The old snowman melts down into the snow as a new one is finished (snowman.js finish): its

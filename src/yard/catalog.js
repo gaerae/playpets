@@ -11,6 +11,8 @@ export const FISH = [];
 export const BUGS = [];
 export const FLOWERS = [];
 export const GIFTS = [];
+/** What holds a find from the album (display.js): set out as a gift is, never brought. */
+export const DISPLAYS = [];
 export const TREES = [];
 export const TREASURES = [];
 /** The winter animals that leave prints, each with its print, tail, gait and the finds it leans to. */
@@ -39,6 +41,7 @@ export function useCatalog(catalog) {
   fill(BUGS, catalog.bugs);
   fill(FLOWERS, catalog.flowers);
   fill(GIFTS, catalog.gifts);
+  fill(DISPLAYS, catalog.displays);
   fill(TREES, catalog.trees);
   fill(TREASURES, catalog.treasures);
   fill(TRACKS, catalog.tracks);
@@ -57,6 +60,7 @@ export function artOf(catalog, events = { events: [] }) {
     ...catalog.garden.stages,
     ...catalog.flowers,
     ...catalog.gifts,
+    ...(catalog.displays || []),
     // A gift's Christmas night is a second look (the grand tree) and the sleigh that comes only with it.
     ...catalog.gifts.flatMap(g => (g.night ? [{ art: g.night.art }, { art: g.night.sleigh }] : [])),
     // A built snowman's ball while it is rolled, and the things the person puts on it.
@@ -97,7 +101,8 @@ export function albumArt(catalog) {
 }
 /** A flower or a gift by its id. */
 export const flowerKind = id => FLOWERS.find(f => f.id === id) || null;
-export const giftKind = id => GIFTS.find(g => g.id === id) || null;
+/** A gift or a display (what the yard sets out) by its id. */
+export const giftKind = id => GIFTS.find(g => g.id === id) || DISPLAYS.find(g => g.id === id) || null;
 /** The gifts an event brings, in catalogue order (the kinds marked with it; a built kind is not brought). */
 export const eventGifts = id => GIFTS.filter(g => g.event === id && !g.built).map(g => g.id);
 export const treeKind = id => TREES.find(tree => tree.id === id) || null;

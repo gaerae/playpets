@@ -8,6 +8,8 @@ import { drawGrowing, growing, growingArt } from './growing.js';
 import { giftLayers } from './poke.js';
 import { wear, wearArt } from './wear.js';
 
+const holdsOf = (garden, id) => garden?.decor?.find(d => d.id === id)?.holds || [];
+
 /** Draws the desktop thing `view` ({ id, kind, button }) once its drawings are in: as a flower or a
  * tree when `garden` lists it so, else as a gift. A flower placed on the screen before the garden
  * that names it has arrived is left for a later call, so it is never drawn as a gift. Then brought
@@ -15,7 +17,8 @@ import { wear, wearArt } from './wear.js';
  * while loading. */
 export async function drawDecor(view, garden, season, night = () => []) {
   if (view.drawn || view.loading) return;
-  const thing = growing(garden(), view.id),
+  const known = garden(),
+    thing = growing(known, view.id),
     art = thing ? growingArt(view.kind) : wearArt(view.kind);
   if (!art.length) return;
   view.loading = true;
@@ -30,7 +33,7 @@ export async function drawDecor(view, garden, season, night = () => []) {
   if (!thing) {
     // Under what it wears, which wear.js adds after it; a lit gift's light and a moving part with it
     // (poke.js).
-    view.button.insertAdjacentHTML('afterbegin', giftLayers(view.kind));
+    view.button.insertAdjacentHTML('afterbegin', giftLayers(view.kind, holdsOf(known, view.id)));
     view.button.title = t(`decor.kind_${view.kind}`);
     view.button.setAttribute('aria-label', view.button.title);
   }

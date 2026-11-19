@@ -4,6 +4,9 @@ const paths = {
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><circle cx="12" cy="7" r=".8" fill="currentColor" stroke="none"/>',
   fish: '<path d="M4 12c3-6 10-6 13 0-3 6-10 6-13 0Zm13 0 4-4v8l-4-4Z"/><circle cx="8" cy="11" r=".8" fill="currentColor" stroke="none"/>',
+  // A small picture frame on its easel: a pressed flower on display.
+  frame:
+    '<rect x="5" y="3" width="14" height="15" rx="1"/><rect x="8" y="6" width="8" height="8" rx=".5"/><path d="m8 18-2 3m10-3 2 3"/>',
   monitor: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   close: '<path d="m6 6 12 12M18 6 6 18"/>',

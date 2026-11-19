@@ -87,6 +87,29 @@ body {
     rotate: -1.5deg;
   }
 }
+/* A fishbowl's fish (yard/display.js) swims ahead, turns, swims back past the middle and turns to
+   face ahead again. The album's fish face right. */
+.decor .held.moving[data-motion="swim"] {
+  animation: held-swim 2s ease-in-out;
+}
+@keyframes held-swim {
+  25% {
+    translate: 16% 0;
+    scale: 1 1;
+  }
+  32% {
+    translate: 16% 0;
+    scale: -1 1;
+  }
+  68% {
+    translate: -16% 0;
+    scale: -1 1;
+  }
+  75% {
+    translate: -16% 0;
+    scale: 1 1;
+  }
+}
 /* A lamp switched by a poke (poke.js showLamp) holds its light against the hour's (worn.css). */
 .decor-wrap .decor.lamp-on :is(.fx-glow, .fx-pool) {
   opacity: 1;

@@ -23,6 +23,7 @@ import { SECRETS } from '../yard/secrets.js';
 import { printSpecimen, tailPeek } from '../yard/trail-art.js';
 import { scene } from '../yard/world.js';
 import { worldFor, worldHasSoil } from '../yard/worlds.js';
+import { displayButtons, pressButton } from './album-display.js';
 
 // When and where a fish or a bug is found: "Summer, Evening, Night, at the lake".
 function when(kind, where) {
@@ -85,7 +86,11 @@ const BOOKS = {
     unknown: 'catch.unknown_flower',
     hint: k => t('catch.flower_hint', { season: t(`catch.season_${k.season}`) }),
     record: entry => t('catch.grown', { count: entry.count }),
-    action: k => growingButtons('flower', k.id),
+    action: k => {
+      const row = growingButtons('flower', k.id);
+      row.append(pressButton(k.id, row));
+      return row;
+    },
   },
   fish: {
     tab: 'catch.tab_fish',
@@ -101,6 +106,7 @@ const BOOKS = {
       ]),
     record: entry => caughtLine(entry, true),
     rare,
+    action: k => displayButtons('fish', k.id),
   },
   bug: {
     tab: 'catch.tab_bugs',
@@ -116,6 +122,7 @@ const BOOKS = {
       ]),
     record: entry => caughtLine(entry, false),
     rare,
+    action: k => displayButtons('bug', k.id),
   },
   gift: {
     tab: 'catch.tab_gifts',
@@ -149,6 +156,7 @@ const BOOKS = {
     hint: favored('album.treasure_how'),
     record: entry => caughtLine(entry, false),
     rare: k => k.rarity === 'uncommon',
+    action: k => displayButtons('treasure', k.id),
   },
   // Winter animals whose prints a friend followed: the print is the clue, the tail what was seen.
   track: {

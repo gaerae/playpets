@@ -21,6 +21,7 @@ import { showCard } from './card.js';
 import { giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
 import { decorShown, hiddenKinds, yardSeason } from './decor-shown.js';
+import { displayEffects, displayKind, displayName, heldLayers } from './display.js';
 import { dressLayers } from './dress-layers.js';
 import { effectLayers, effectsVisited } from './effects.js';
 import { giftEvent } from './events.js';
@@ -125,7 +126,8 @@ function position(v, x, y) {
 function create(d) {
   const button = propButton('decor', d.kind),
     gift = giftKind(d.kind),
-    effects = gift?.effects || [];
+    // A jar holding a firefly glows as a lit gift does (display.js).
+    effects = [...(gift?.effects || []), ...displayEffects(d.kind, d.holds)];
   if (effects.length) button.dataset.effects = effects.join(' ');
   button.innerHTML = `${effectLayers(effects)}${gift ? artSvg(gift.art) : ''}`;
   // A drawing with no ground of its own stands on a contact shade, under it (garden.css); one on
@@ -150,7 +152,13 @@ function create(d) {
     const first = button.firstChild;
     for (const node of [shade, ...feet]) button.insertBefore(node, first);
   }
-  const v = { id: d.id, kind: d.kind, button, drag: null, busy: false, dressLayer: null, worn: null };
+  const v = { id: d.id, kind: d.kind, button, drag: null, busy: false, dressLayer: null, worn: null, heldLayer: null };
+  // What a display holds, over its drawing (display.js); the update fills it.
+  if (displayKind(d.kind)) {
+    v.heldLayer = document.createElement('span');
+    v.heldLayer.className = 'held-layer';
+    button.append(v.heldLayer);
+  }
   // What a snowman wears, over its drawing (snowman-dress.js); the update fills it.
   if (gift?.dress) {
     v.dressLayer = document.createElement('span');
@@ -283,7 +291,7 @@ export function renderDecor() {
     if (until > now) fadeAt = Math.min(fadeAt, until);
     v.button.classList.toggle('memento-new', until > now);
     const from = d.memento && data.pets.find(p => p.id === d.from);
-    const kind = shownName(d.kind, v.button);
+    const kind = v.heldLayer ? displayName(d.kind, d.holds) : shownName(d.kind, v.button);
     const label = from
       ? t('decor.memento_title', { name: name(from), kind })
       : t(opensView(d.kind) ? 'decor.title_decorate' : 'decor.title', { kind });
@@ -295,6 +303,11 @@ export function renderDecor() {
     if (worn && worn.join() !== v.worn) {
       v.worn = worn.join();
       v.dressLayer.innerHTML = dressLayers(d.kind, worn);
+    }
+    const held = (d.holds || []).join();
+    if (v.heldLayer && held !== v.held) {
+      v.held = held;
+      v.heldLayer.innerHTML = heldLayers(d.kind, d.holds);
     }
   });
   // One timer for the next heart to fade, not a check every frame.

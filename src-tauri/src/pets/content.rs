@@ -47,6 +47,15 @@ struct Kind {
     /// "on": friends stand on it (a bench, a swing), rather than beside it.
     #[serde(default)]
     stand: Option<String>,
+    /// A display's album book ("fish", "bug", "treasure", "flower"): what it holds.
+    #[serde(default)]
+    holds: Option<String>,
+    /// How many a display holds.
+    #[serde(default = "one_held")]
+    room: usize,
+}
+fn one_held() -> usize {
+    1
 }
 #[derive(Deserialize)]
 struct SizedStage {
@@ -180,6 +189,10 @@ pub struct Catalog {
     garden: Garden,
     flowers: Vec<Kind>,
     gifts: Vec<Kind>,
+    /// What holds a find from the album (a fishbowl, a specimen case): set out as a gift is, but
+    /// made from an album card, never brought (docs/design/2026-11-19-album-on-display.md).
+    #[serde(default)]
+    displays: Vec<Kind>,
     fish: Vec<Fish>,
     bugs: Vec<Kind>,
     #[serde(default)]
@@ -363,22 +376,45 @@ impl Catalog {
     /// Whether this gift is drawn only part of the year (a time of year or a season): the desktop
     /// leaves these out until the yard says which are hidden (desktop/items.rs).
     pub fn comes_and_goes(&self, id: &str) -> bool {
-        self.gifts
-            .iter()
-            .any(|k| k.id == id && (k.shown.is_some() || !k.seasons.is_empty()))
+        self.decor_kind(id)
+            .is_some_and(|k| k.shown.is_some() || !k.seasons.is_empty())
+    }
+    /// A gift or a display, as the yard sets either out.
+    fn decor_kind(&self, id: &str) -> Option<&Kind> {
+        self.gifts.iter().chain(&self.displays).find(|k| k.id == id)
+    }
+    /// Whether the yard can hold this: a gift or a display.
+    pub fn is_decor(&self, id: &str) -> bool {
+        self.decor_kind(id).is_some()
+    }
+    /// The display that holds a find from this album book, and how many it holds.
+    pub fn display_for(&self, book: &str) -> Option<(&str, usize)> {
+        let k = self.displays.iter().find(|k| k.holds.as_deref() == Some(book))?;
+        Some((k.id.as_str(), k.room))
+    }
+    /// The album book a display holds finds from, and how many it holds; None for a gift.
+    pub fn display_of(&self, id: &str) -> Option<(&str, usize)> {
+        let k = self.displays.iter().find(|k| k.id == id)?;
+        Some((k.holds.as_deref()?, k.room))
+    }
+    /// Whether this album book has this kind, as a display can hold it.
+    pub fn holds(&self, book: &str, id: &str) -> bool {
+        match book {
+            "fish" => self.fish_max(id).is_some(),
+            "bug" => self.is_bug(id),
+            "treasure" => self.treasures.iter().any(|t| t.id == id),
+            "flower" => self.is_flower(id),
+            _ => false,
+        }
     }
     /// A gift's footprint, [width, height] in catalogue units (the yard's, before its zoom).
     pub fn gift_size(&self, id: &str) -> Option<(f64, f64)> {
-        let [w, h] = self.gifts.iter().find(|k| k.id == id)?.size?;
+        let [w, h] = self.decor_kind(id)?.size?;
         Some((w, h))
     }
     /// Where a gift's drawing ends, as a share of its box's height from the top (1 at its edge).
     pub fn gift_foot(&self, id: &str) -> f64 {
-        self.gifts
-            .iter()
-            .find(|k| k.id == id)
-            .and_then(|k| k.foot)
-            .unwrap_or(1.0)
+        self.decor_kind(id).and_then(|k| k.foot).unwrap_or(1.0)
     }
     /// Where a flower's stem ends in its bloom's drawing, as a share of its height from the top.
     pub fn bloom_foot(&self, id: &str) -> f64 {
@@ -427,6 +463,29 @@ impl Catalog {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn each_album_book_has_one_display_and_displays_are_not_gifts() {
+        let c = catalog();
+        for (book, kind, room) in [
+            ("fish", "fishbowl", 1),
+            ("bug", "bug_jar", 1),
+            ("treasure", "specimen_case", 5),
+            ("flower", "pressed_frame", 1),
+        ] {
+            assert_eq!(c.display_for(book), Some((kind, room)), "{book}");
+            assert_eq!(c.display_of(kind), Some((book, room)), "{kind}");
+            assert!(c.is_decor(kind) && !c.is_gift(kind), "{kind}");
+            assert!(!c.gifts().contains(&kind), "{kind} is not brought");
+            assert!(c.gift_size(kind).is_some(), "{kind} has a size");
+        }
+        assert_eq!(c.display_for("gift"), None);
+        assert_eq!(c.display_of("bench"), None);
+        assert!(c.is_decor("bench"));
+        assert!(c.holds("fish", "crucian") && c.holds("bug", "firefly"));
+        assert!(c.holds("treasure", "quartz") && c.holds("flower", "tulip"));
+        assert!(!c.holds("fish", "firefly") && !c.holds("gift", "bench") && !c.holds("flower", "nothing"));
+    }
 
     #[test]
     fn friends_stand_on_the_seats_and_beside_the_rest() {
