@@ -38,9 +38,9 @@ pub fn scene_choice(key: &str, value: &str) -> Option<Value> {
     (SCENE_KEYS.contains(&key) && fits).then(|| json!(value))
 }
 
-/// The answer to December's question ("show the winter yard until January 7?"). The page decides
+/// The answer to the winter lights' question ("show the winter yard until January 7?"). The page decides
 /// when to ask, since it knows the local date; this only keeps what was said.
-/// - `year`: the December it was answered in, so the question comes once a year.
+/// - `year`: the year of the lights it was answered in, so the question comes once a year.
 /// - `previous`: the season to bring back when winter ends, set only when winter was shown on
 ///   request (None when the person kept their season, or once it has been brought back).
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug, PartialEq)]
@@ -86,7 +86,7 @@ pub struct Prefs {
     pub always_on_top: bool,
     /// The place and the weather picked for the yard (`scene_choice`).
     pub scene: Map<String, Value>,
-    /// December's question and what the person answered (`WinterAsked`).
+    /// The winter lights' question and what the person answered (`WinterAsked`).
     pub winter_asked: Option<WinterAsked>,
 }
 
@@ -155,7 +155,7 @@ impl Prefs {
         m
     }
 
-    /// The person answered December's question. With `previous` they want winter shown: it is
+    /// The person answered the winter lights' question. With `previous` they want winter shown: it is
     /// chosen now and that season kept to come back to; without, their season stays.
     pub fn answer_winter(&mut self, year: u32, previous: Option<&str>) -> Result<(), String> {
         let bad = || i18n::t("error.bad_request");

@@ -985,7 +985,7 @@ export const strings = {
   'event.lights.name': '겨울 별빛',
   'event.lights.about': '큰 나무에 꼬마전구가 걸리고 저녁부터 반짝여요.',
   'event.lights.gift': '친구들이 크리스마스 선물을 가져올지도 몰라요.',
-  'event.lights.lines': ['불빛이 정말 예쁘다!', '따뜻한 코코아 한잔하고 싶다.', '올해도 거의 다 갔네.'],
+  'event.lights.lines': ['불빛이 정말 예쁘다!', '따뜻한 코코아 한잔하고 싶다.', '크리스마스가 다가온다!'],
   'event.newyear.name': '새해',
   'event.newyear.about': '놀이터의 새해예요. 친구들이 함께 새해 인사를 해요.',
   'event.newyear.gift': '친구가 연을 가져올지도 몰라요.',

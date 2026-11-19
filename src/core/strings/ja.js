@@ -1012,7 +1012,7 @@ export const strings = {
   'event.lights.name': '冬のイルミネーション',
   'event.lights.about': '大きな木に小さなライトが飾られ、夕方から光ります。',
   'event.lights.gift': '友だちがクリスマスのプレゼントを持ってくるかもしれません。',
-  'event.lights.lines': ['ライトがとってもきれい！', 'あったかいココアが飲みたいな。', '今年ももうすぐおしまいだね。'],
+  'event.lights.lines': ['ライトがとってもきれい！', 'あったかいココアが飲みたいな。', 'もうすぐクリスマスだね！'],
   'event.newyear.name': 'お正月',
   'event.newyear.about': '庭のお正月です。友だちが一緒に新年のあいさつをします。',
   'event.newyear.gift': '友だちが凧を持ってくるかもしれません。',

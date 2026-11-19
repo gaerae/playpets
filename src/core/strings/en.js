@@ -1027,7 +1027,7 @@ export const strings = {
   'event.lights.name': 'Winter lights',
   'event.lights.about': 'Little lights hang on the big tree and glow from evening on.',
   'event.lights.gift': 'Friends may bring Christmas gifts.',
-  'event.lights.lines': ['The lights are so pretty!', 'Warm cocoa would be perfect now.', 'The year is almost over.'],
+  'event.lights.lines': ['The lights are so pretty!', 'Warm cocoa would be perfect now.', 'Christmas is coming!'],
   'event.newyear.name': 'New Year',
   'event.newyear.about': 'A new year in the yard. Friends greet the year together.',
   'event.newyear.gift': 'A friend may bring a kite.',

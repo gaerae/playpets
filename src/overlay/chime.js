@@ -24,8 +24,9 @@ export function ring(sound, cue = 'chime') {
   ctx.resume().catch(() => {});
   scape.setVolume(sound?.volume ?? 40, ctx.currentTime, 0.02);
   scape.cue(cue);
+  // Both steps of the rest share one timer, so a ring during the fade cancels the suspend too.
   resting = setTimeout(() => {
     scape.setVolume(0, ctx.currentTime, 0.12);
-    setTimeout(() => ctx.suspend().catch(() => {}), 600);
+    resting = setTimeout(() => ctx.suspend().catch(() => {}), 600);
   }, REST_MS);
 }

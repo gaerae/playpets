@@ -209,7 +209,7 @@ static COMMANDS: &[Command] = &[
             Ok(Value::Null)
         })
     }),
-    // (year, previous|null): the answer to December's question; with a season, winter is shown now.
+    // (year, previous|null): the answer to the winter lights' question; with a season, winter is shown now.
     main("answerWinter", |c| {
         let year = u32::try_from(c.arg(0).as_u64().ok_or_else(|| i18n::t("error.bad_request"))?)
             .map_err(|_| i18n::t("error.bad_request"))?;

@@ -974,7 +974,7 @@ export const strings = {
   'event.lights.name': '冬日灯光',
   'event.lights.about': '大树上挂起小彩灯，傍晚开始闪闪发光。',
   'event.lights.gift': '伙伴们可能会带来圣诞礼物。',
-  'event.lights.lines': ['灯光好漂亮！', '好想喝杯热可可。', '今年快要结束了。'],
+  'event.lights.lines': ['灯光好漂亮！', '好想喝杯热可可。', '圣诞节快到了！'],
   'event.newyear.name': '新年',
   'event.newyear.about': '乐园迎来了新年。伙伴们会一起向你拜年。',
   'event.newyear.gift': '伙伴可能会带来一只风筝。',

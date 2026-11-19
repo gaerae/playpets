@@ -1,5 +1,5 @@
 // Asking before something that cannot be taken back, or once about a change the app would make
-// on its own (December's winter yard, yard/winter.js). The question names what it acts on, the
+// on its own (the winter lights' winter yard, yard/winter.js). The question names what it acts on, the
 // button says what will happen, and focus starts on the other button so Enter never acts by itself.
 // The action is calm unless `danger` says something that cannot come back is lost (a saved key, a
 // friend's closeness, a background's files, a conversation); what can be undone is not asked at all (yard/props.js).

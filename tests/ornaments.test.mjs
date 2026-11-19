@@ -58,8 +58,8 @@ async function decorated(ctx, { now, scene = DAY, garden = {}, before } = {}) {
   return { ...parts, tree };
 }
 
-// A tree's Christmas starts on November 15, when the tree comes out (decor-shown.js advent), so
-// what hangs in late November is still up in December.
+// A tree's Christmas starts on November 15, when the winter lights bring the tree, so what hangs in
+// late November is still up in December.
 test("a Christmas's ornaments belong to it until the next one starts on November 15", () => {
   assert.equal(ornamentSeason(new Date(2026, 10, 15)), 2026);
   assert.equal(ornamentSeason(new Date(2026, 11, 1)), 2026);
@@ -70,6 +70,18 @@ test("a Christmas's ornaments belong to it until the next one starts on November
   assert.deepEqual(treeOrnaments({ ornamentYear: 2026, ornaments: [o] }, new Date(2027, 0, 5)), [o]);
   assert.deepEqual(treeOrnaments({ ornamentYear: 2026, ornaments: [o] }, new Date(2027, 11, 1)), []);
   assert.deepEqual(treeOrnaments({}, new Date(2026, 11, 20)), [], 'an older save has none');
+});
+
+// One first day for the whole Christmas: the lights, the window the gifts show in and the tree's
+// season all start together, so moving one in events.json alone shows here.
+test('the lights, the Christmas window and the ornament season start on the same day', async () => {
+  const { events } = await import('./support/content.mjs');
+  const { SHOWN } = await import('../src/yard/decor-shown.js');
+  const lights = events.events.find(e => e.id === 'lights');
+  assert.equal(SHOWN.christmas.from, lights.from);
+  const [month, day] = lights.from.split('-').map(Number);
+  assert.equal(ornamentSeason(new Date(2026, month - 1, day, 0, 0)), 2026);
+  assert.equal(ornamentSeason(new Date(2026, month - 1, day - 1, 23, 59)), 2025);
 });
 
 test('three a day, counted from today only', () => {

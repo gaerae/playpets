@@ -418,6 +418,17 @@ impl Garden {
                 restore_ornament_day(raw.get("ornamentDay")),
             )
         };
+        // A Christmas once started on December 1, so a hang from November 15 to 30 was saved as the
+        // year before's. It moves to the Christmas its day belongs to now, so nothing that was up
+        // goes on the update.
+        let ornament_year = match ornament_day.day.get(5..10) {
+            Some(md)
+                if ("11-15"..="11-30").contains(&md) && ornament_season(&ornament_day.day) == ornament_year + 1 =>
+            {
+                ornament_year + 1
+            }
+            _ => ornament_year,
+        };
         Garden {
             trees: super::discovery::restore_trees(raw.get("trees")),
             digs: super::discovery::restore_digs(raw.get("digs"), now),
@@ -854,12 +865,14 @@ impl Garden {
         y: f64,
         now: u64,
     ) -> Result<Decor, String> {
-        let found = match book {
-            "fish" => album.fish.contains_key(item),
-            "bug" => album.bugs.contains_key(item),
-            "treasure" => album.treasures.contains_key(item),
-            _ => false,
-        };
+        // Found, and a kind this catalogue still draws: the album keeps kinds from a newer build.
+        let found = catalog().holds(book, item)
+            && match book {
+                "fish" => album.fish.contains_key(item),
+                "bug" => album.bugs.contains_key(item),
+                "treasure" => album.treasures.contains_key(item),
+                _ => false,
+            };
         let (Some(kind), Some((x, y)), true) = (catalog().display_for(book), decor_place(x, y), found) else {
             return Err(i18n::t("error.bad_request"));
         };
@@ -1367,6 +1380,11 @@ mod tests {
         assert_ne!(again.id, fish.id);
         assert!(g.display(&album, "nothing", "crucian", 0.5, 0.8, now).is_err());
         assert!(g.display(&album, "fish", "crucian", f64::NAN, 0.8, now).is_err());
+        // A find the album keeps but this catalogue no longer has would take a place with nothing to draw.
+        let newer = Album::restore(Some(
+            &json!({"treasures": {"future_stone": {"count": 1, "best": 0.0, "first": 7}}}),
+        ));
+        assert!(g.display(&newer, "treasure", "future_stone", 0.5, 0.8, now).is_err());
         // A treasure and a bug come out on their own too, one each time.
         album.treasures.insert(
             "quartz".to_string(),
@@ -1968,6 +1986,45 @@ mod tests {
         );
         assert_eq!((g.ornament_year, g.ornament_day.count), (2027, 1));
         assert_eq!(g.ornaments, [ornament("flower", "camellia", 0)]);
+    }
+
+    #[test]
+    fn the_ornament_season_starts_with_the_winter_lights() {
+        let events: Value = serde_json::from_str(include_str!("../../../src/content/events.json")).unwrap();
+        let from = events["events"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|e| e["id"] == "lights")
+            .and_then(|e| e["from"].as_str())
+            .unwrap();
+        assert_eq!(ornament_season(&format!("2026-{from}")), 2026);
+        let (month, day) = from.split_once('-').unwrap();
+        let before = format!("2026-{month}-{:02}", day.parse::<u32>().unwrap() - 1);
+        assert_eq!(ornament_season(&before), 2025, "{before}");
+    }
+
+    #[test]
+    fn a_hang_saved_when_christmas_started_on_december_1_moves_to_its_christmas_now() {
+        // Hung on November 18 under the old rule, it was saved as the year before's Christmas;
+        // what the person saw stays up instead of going on the update.
+        let saved = |day: &str| {
+            json!({
+                "decor": [{"id": "t", "kind": "xmas_tree", "x": 0.5, "y": 0.5}],
+                "ornaments": [{"book": "flower", "id": "camellia", "hook": 0}],
+                "ornamentDay": {"day": day, "count": 1},
+                "ornamentYear": 2025
+            })
+        };
+        let g = Garden::restore(Some(&saved("2026-11-18")), 0);
+        assert_eq!((g.ornament_year, g.ornaments.len(), g.ornament_day.count), (2026, 1, 1));
+        let mut g = g;
+        g.hang_ornament(&found(), "tree", "pine", 1, "2026-12-01").unwrap();
+        assert_eq!(g.ornaments.len(), 2, "still up in December");
+        // A day the old rule saved the same way as the new one is left alone.
+        for day in ["2026-11-14", "2026-01-05"] {
+            assert_eq!(Garden::restore(Some(&saved(day)), 0).ornament_year, 2025, "{day}");
+        }
     }
 
     #[test]

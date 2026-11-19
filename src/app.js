@@ -214,7 +214,7 @@ function redrawGround() {
   renderTrees();
   renderFruit();
 }
-// December's question about the winter yard, checked at each repaint of the scene.
+// The winter lights' question about the winter yard, checked at each repaint of the scene.
 const winterCheck = setupWinter({ choice: chosenSeason, show: showSeason, visible: () => shown && !document.hidden });
 // The year-end letter, written and brought while the yard is seen (letter.js).
 const letterCheck = setupLetters({ visible: () => shown && !document.hidden });

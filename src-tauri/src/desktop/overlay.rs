@@ -637,7 +637,7 @@ fn stroll(
                     roaming.visiting = Some((id.clone(), kind.clone()));
                     // Onto a bench or a swing, as in the yard; beside anything else.
                     if catalog().stood_on(kind) {
-                        roam::onto(&here, SPRITE_FOOT, b, *foot, &area, rand01())
+                        roam::onto(&here, p.size, SPRITE_FOOT, b, *foot, &area, rand01())
                     } else {
                         roam::beside(&here, p.size, SPRITE_FOOT, b, &area, rand01() < 0.5)
                     }

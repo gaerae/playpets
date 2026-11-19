@@ -52,12 +52,13 @@ pub fn beside(b: &Bounds, sprite: f64, foot: f64, d: &Bounds, area: &Bounds, rig
 
 /// Where a friend stands on a seat `d` (a bench, a swing: catalog.json "stand": "on"), as the yard
 /// sends one (decor.js walkTo): its feet on the seat's ground line (`foot`, a share of its box from
-/// the top) and 3 px in front, at `r` (0 to 1) across the middle 40% of its width.
-pub fn onto(b: &Bounds, foot: f64, d: &Bounds, seat_foot: f64, area: &Bounds, r: f64) -> (f64, f64) {
+/// the top) and 3 px in front, at `r` (0 to 1) across the middle 40% of its width. Its drawing
+/// (`sprite` wide) stays on the screen, as beside a seat, even on a small seat at the edge.
+pub fn onto(b: &Bounds, sprite: f64, foot: f64, d: &Bounds, seat_foot: f64, area: &Bounds, r: f64) -> (f64, f64) {
     let x = d.x + d.w * (0.3 + 0.4 * r) - b.w / 2.0;
     let y = d.y + d.h * seat_foot + 3.0 - (b.h - foot);
     (
-        clamp(x, area.x - b.w / 2.0, area.x + area.w - b.w / 2.0),
+        clamp(x, area.x - (b.w - sprite) / 2.0, area.x + area.w - (b.w + sprite) / 2.0),
         clamp(y, area.y, area.y + area.h - b.h),
     )
 }
@@ -164,7 +165,7 @@ mod tests {
             h: 120.0,
         };
         for r in [0.0, 0.5, 1.0] {
-            let (x, y) = onto(&friend, 28.0, &bench, 0.94, &area, r);
+            let (x, y) = onto(&friend, 112.0, 28.0, &bench, 0.94, &area, r);
             let feet = (x + friend.w / 2.0, y + friend.h - 28.0);
             assert_eq!(
                 feet.1,
@@ -175,8 +176,22 @@ mod tests {
         }
         // Kept on the screen, as any stroll is.
         let low = Bounds { y: 870.0, ..bench };
-        let (_, y) = onto(&friend, 28.0, &low, 0.94, &area, 0.5);
+        let (_, y) = onto(&friend, 112.0, 28.0, &low, 0.94, &area, 0.5);
         assert!(y <= area.y + area.h - friend.h);
+        // A small seat at a screen's edge: the friend's whole drawing stays on the screen.
+        for (seat_x, r) in [(area.x, 0.0), (area.x + area.w - 44.0, 1.0)] {
+            let stump = Bounds {
+                x: seat_x,
+                w: 44.0,
+                ..bench
+            };
+            let (x, _) = onto(&friend, 112.0, 28.0, &stump, 0.94, &area, r);
+            let middle = x + friend.w / 2.0;
+            assert!(
+                middle - 56.0 >= area.x - 1e-9 && middle + 56.0 <= area.x + area.w + 1e-9,
+                "{seat_x}"
+            );
+        }
     }
 
     #[test]
