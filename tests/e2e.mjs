@@ -770,9 +770,22 @@ const scenario = `(async()=>{
     discoveryFlow.cancelDiscoveryWork();
     // A drag moves a planted tree too, onto ground it may stand on, and it stays moved.
     const treeEl=document.querySelector('.planted-tree'),treePress={bubbles:true,pointerId:9,button:0,clientX:discoveryTreeBox.left+discoveryTreeBox.width/2,clientY:discoveryTreeBox.bottom-4};
+    // This check has failed now and then on Windows with nothing to say why: when it fails, it says
+    // which gate the drag stopped at (props.js movable, planted-trees.js save) and what the backend
+    // answered to moveTree.
+    const treeGate={},treeCalls=[],treeFetch=window.fetch;
+    treeEl.addEventListener('pointerdown',()=>{treeGate.down={aiming:!!discoveryState.aiming,game:!!discoveryState.game,disabled:treeEl.disabled,connected:treeEl.isConnected,visibility:document.visibilityState};},{capture:true,once:true});
+    treeEl.addEventListener('pointermove',()=>{treeGate.move={dragging:treeEl.classList.contains('dragging'),invalid:treeEl.classList.contains('invalid')};},{once:true});
+    window.fetch=async function(input,options){
+      let payload;if(String(input).includes('/call')&&typeof options?.body==='string'){try{payload=JSON.parse(options.body);}catch{}}
+      const reply=await treeFetch.call(this,input,options);
+      if(payload?.name==='moveTree')treeCalls.push({args:payload.args,status:reply.status,body:await reply.clone().text().catch(()=>null)});
+      return reply;
+    };
     treeEl.dispatchEvent(new PointerEvent('pointerdown',treePress));treeEl.dispatchEvent(new PointerEvent('pointermove',{...treePress,clientX:treePress.clientX+30}));treeEl.dispatchEvent(new PointerEvent('pointerup',{...treePress,clientX:treePress.clientX+30}));
     const treeMoved=await until(async()=>(await playPets.bootstrap()).data.garden.trees.at(-1)?.x>discoveryTree.x+0.005);
-    await L('treeMoved='+(treeMoved?'dragged':'err:'+JSON.stringify({from:discoveryTree,now:(await playPets.bootstrap()).data.garden.trees.at(-1)})));
+    window.fetch=treeFetch;
+    await L('treeMoved='+(treeMoved?'dragged':'err:'+JSON.stringify({from:discoveryTree,now:(await playPets.bootstrap()).data.garden.trees.at(-1),gate:treeGate,calls:treeCalls,shown:document.querySelector('.planted-tree')===treeEl,disabledAfter:treeEl.disabled})));
     await must('removeDiscoveryTree',playPets.removeTree(discoveryTree.id));
     await until(()=>!document.querySelector('.planted-tree'));
     await L('discovery='+(discoveryNoEarly&&discoveryOnce&&discoverySaved?'arrival-replay-and-tree':'err'));
