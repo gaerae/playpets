@@ -103,26 +103,6 @@ body {
 .decor:not(.hung) .cord {
   display: none;
 }
-/* A climbing flower's vine (vine.js): drawn under the desktop's things, never in the pointer's way.
-   Its flowers are open in the morning and day; in the evening and night each is a closed bud. */
-.vine {
-  position: absolute;
-  left: 0;
-  top: 0;
-  overflow: visible;
-  pointer-events: none;
-}
-.vine-stem {
-  fill: none;
-  stroke: #5b8a3a;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-:root:is(.period-evening, .period-night) .vine-open,
-:root:is(.period-morning, .period-day) .vine-closed {
-  display: none;
-}
 /* A fishbowl's fish (yard/display.js) swims ahead, turns, swims back past the middle and turns to
    face ahead again. The album's fish face right. */
 .decor .held.moving[data-motion="swim"] {

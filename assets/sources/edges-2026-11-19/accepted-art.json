@@ -20,31 +20,6 @@
         "hanging_pot": [146, 116, 489, 802],
         "mobile": [818, 116, 522, 802]
       }
-    },
-    {
-      "name": "climbing-vine",
-      "prompt": "Production transparent game sprite atlas of separate pieces for a climbing morning glory vine in a cozy desktop yard, strict FOUR columns by THREE rows, equal cells, landscape 1536x1024. Style matches the attached reference images exactly: soft sculpted painted miniature detail, rich restrained colours, gentle shading, clean silhouettes. Each piece alone in its own cell, centred, fully inside the central 70% of the cell, nothing touching cell edges. Row 1: (1) a small round terracotta pot with dark soil and one young twining morning glory sprout with two heart-shaped leaves; (2) a single heart-shaped green morning glory leaf seen flat from the front with a short stalk, pointing up; (3) the same kind of leaf tilted to the left, slightly smaller; (4) the same kind of leaf tilted to the right, a little lighter green. Row 2: (5) one open morning glory flower seen from the front, a soft blue-violet trumpet with a white star centre; (6) one open morning glory flower seen from the front, soft pink with a white star centre; (7) one closed twisted morning glory bud, blue-violet, on a short stem; (8) a curly thin green tendril spiral. Row 3: (9) a small cluster of two leaves and a bud together; (10) one open morning glory flower seen from the side, blue-violet; (11) a single young small leaf, bright fresh green; (12) a short straight piece of thin green twining vine stem, horizontal. ACTUAL fully transparent RGBA background, no floor, no shadow, no haze, no text, labels or gridlines. IMPORTANT: the background must be truly transparent alpha everywhere outside each piece.",
-      "references": [
-        "assets/art/decor/collection.png (the flowerpot)",
-        "assets/art/collection-extension/village-props.png"
-      ],
-      "file": "climbing-vine.png",
-      "sha256": "86f0d1b4a0e11574c0124fadf4d0f977a17a803470fd459473aa5f26a851330b",
-      "size": [1536, 1024],
-      "runtimeAtlas": "collection-extension/climbing-vine.png",
-      "runtimeSha256": "efdd38872d0e36ca854b550e35961f5d9ec22698c45ca19d5f2131d00fad1508",
-      "processing": "Alpha below 50 cleared to 0,0,0,0 in the runtime atlas; all other samples unchanged. The pot, the leaf cluster, the side-on flower and the stem piece are not used.",
-      "acceptedIds": ["leaf", "leaf_left", "leaf_right", "flower_blue", "flower_pink", "bud", "tendril", "young_leaf"],
-      "boxes": {
-        "leaf": [466, 46, 218, 251],
-        "leaf_left": [845, 84, 200, 201],
-        "leaf_right": [1234, 84, 202, 197],
-        "flower_blue": [63, 386, 261, 242],
-        "flower_pink": [450, 388, 255, 240],
-        "bud": [909, 389, 95, 244],
-        "tendril": [1281, 399, 126, 233],
-        "young_leaf": [866, 763, 167, 171]
-      }
     }
   ]
 }

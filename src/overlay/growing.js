@@ -5,7 +5,7 @@
 
 import { t } from '../core/i18n.js';
 import { artSize, artSvg, colorStyle } from '../yard/art.js';
-import { climbArt, flowerKind, STAGES, treeArt, treeKind, treeSize } from '../yard/catalog.js';
+import { flowerKind, STAGES, treeArt, treeKind, treeSize } from '../yard/catalog.js';
 import { plantArt, plantStature, stageOf } from '../yard/growth.js';
 
 // Yard pixels per unit of a plant's drawing (garden.js UNIT): a friend's sprite on the desktop is
@@ -24,7 +24,7 @@ export function growing(garden, id) {
 /** Every drawing a flower or a tree of `kind` may be drawn with, to load before it is. */
 export function growingArt(kind) {
   const flower = flowerKind(kind);
-  if (flower) return [...STAGES.map(s => s.art), flower.art, ...climbArt(flower)].filter(Boolean);
+  if (flower) return [...STAGES.map(s => s.art), flower.art].filter(Boolean);
   const tree = treeKind(kind);
   return tree ? [...tree.stages.map(s => s.art), ...Object.values(tree.seasonArt || {})] : [];
 }

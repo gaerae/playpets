@@ -247,13 +247,6 @@
       "art": "flowers/morning_glory.svg",
       "foot": 0.968,
       "stature": 1.2,
-      "climbs": {
-        "leaves": ["flowers/vine/leaf.svg", "flowers/vine/leaf_left.svg", "flowers/vine/leaf_right.svg"],
-        "flowers": ["flowers/vine/flower_blue.svg", "flowers/vine/flower_pink.svg"],
-        "bud": "flowers/vine/bud.svg",
-        "tendril": "flowers/vine/tendril.svg",
-        "tip": "flowers/vine/young_leaf.svg"
-      },
       "colors": {
         "petal": "#5a6fd0",
         "petal-hi": "#9aa8ec",

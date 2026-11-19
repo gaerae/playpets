@@ -268,19 +268,15 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
 - Accepted source, prompt, hashes and measured boxes:
   `assets/sources/display-2026-11-19/accepted-art.json`.
 
-## Hanging gifts and the climbing vine (2026-11-19)
+## Hanging gifts (2026-11-19)
 
 - `collection-extension/hanging-gifts` holds two gifts on the wind chime's kind
   of hooked stand: a hanging flower pot and a wooden mobile. Each one's hanging
   piece is its `part` in `catalog.json`; on the desktop it can hang from a
   screen's top without its stand.
-- `collection-extension/climbing-vine` holds the morning glory vine's pieces:
-  three leaves, a blue and a pink flower, a closed bud, a tendril and a young
-  leaf (`climbs` in `catalog.json`, `src/overlay/vine.js`). The pot, the leaf
-  cluster, the side-on flower and the stem piece are not used.
 - Crops follow measured silhouettes with a 2-pixel margin; reproduce the
   wrappers with `node scripts/pack-collection.mjs`.
 - Alpha below 190 is cleared in the hanging sheet (it had a soft haze behind
-  the mobile) and below 50 in the vine sheet.
-- Accepted sources, prompts, hashes and measured boxes:
+  the mobile).
+- Accepted source, prompt, hashes and measured boxes:
   `assets/sources/edges-2026-11-19/accepted-art.json`.

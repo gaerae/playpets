@@ -53,19 +53,12 @@ export function useCatalog(catalog) {
     catalog.garden.stages.map(s => ({ ...s, at: s.minutes * 60 * 1000 })),
   );
 }
-/** The pieces a climbing flower's vine is drawn with on the desktop (catalog.json "climbs"). */
-export const climbArt = flower =>
-  flower?.climbs
-    ? [...flower.climbs.leaves, ...flower.climbs.flowers, flower.climbs.bud, flower.climbs.tendril, flower.climbs.tip]
-    : [];
 /** Every drawing the catalogue (and the events) name, for content.js to load. */
 export function artOf(catalog, events = { events: [] }) {
   return [
     ...events.events,
     ...catalog.garden.stages,
     ...catalog.flowers,
-    // A climbing flower's vine on the desktop: its leaves, flowers, bud, tendril and tip.
-    ...catalog.flowers.flatMap(f => climbArt(f).map(art => ({ art }))),
     ...catalog.gifts,
     ...(catalog.displays || []),
     // A gift's Christmas night is a second look (the grand tree) and the sleigh that comes only with it.
