@@ -10,6 +10,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.8.7] - 2026-11-19
+
 ### Changed
 
 - A friend standing still mostly stands and does its little idle gesture now and then, at its own moments, instead of fidgeting nonstop; friends no longer move in step with each other.
