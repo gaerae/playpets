@@ -34,8 +34,8 @@
       "sha256": "3f43d6a9e8b4da33d94910be4219acfe4b694682a5fee880dacefd6746a7bd2d",
       "size": [1536, 1024],
       "runtimeAtlas": "collection-extension/flowers-5.png",
-      "runtimeSha256": "962786a986396b0442414e08d4a402b4fea1d65862170232fc2bbcaa88fdbd85",
-      "processing": "Alpha below 50 cleared to 0,0,0,0 in the runtime atlas; all other samples unchanged. The anemone and the marigold share three columns, so their crops stop at the shared edge.",
+      "runtimeSha256": "c2c9983571ffd17f4b186de42ef65e74ec6523fa148832055031ff3dd7533317",
+      "processing": "Alpha below 50 cleared to 0,0,0,0 in the runtime atlas. The rose's red thorns (small red pieces on the stems, away from the blooms, plus a two-pixel rim) are repainted a muted olive keeping their shading, so they sit back against the stems; all other samples unchanged. The anemone and the marigold share three columns, so their crops stop at the shared edge.",
       "acceptedIds": ["japanese_anemone", "marigold", "rose"],
       "boxes": {
         "japanese_anemone": [29, 167, 452, 731],
