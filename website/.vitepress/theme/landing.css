@@ -1873,6 +1873,38 @@ html:lang(zh-Hans) .landing .eyebrow {
 .friend-3 {
   bottom: 10%;
 }
+/* A friend standing in the previews mostly stands, as in the app (src/core/animation.js idleCell):
+   its idle row plays once in the first 1.1 s of a 6 s cycle and its first cell holds for the rest,
+   each friend from its own point in the cycle. Only the name and the length change, so the row's
+   steps and a paused page (.no-motion) still apply; a paused preview, a still sprite and reduced
+   motion keep the sprite still. */
+@media (prefers-reduced-motion: no-preference) {
+  :is(.living-friend, .desk-friend) .sprite[data-state="idle"]:not(.sprite-still, .preview-paused *) i {
+    animation-name: sprite-rest;
+    animation-duration: 6s;
+  }
+}
+@keyframes sprite-rest {
+  0% {
+    background-position-x: 0;
+  }
+  18.33% {
+    background-position-x: calc(var(--frames) * -192px);
+    animation-timing-function: step-start;
+  }
+  100% {
+    background-position-x: 0;
+  }
+}
+:is(.friend-1, .desk-friend-1) .sprite i {
+  animation-delay: -2.3s;
+}
+:is(.friend-2, .desk-friend-2) .sprite i {
+  animation-delay: -4.2s;
+}
+:is(.friend-3, .desk-friend-3) .sprite i {
+  animation-delay: -1.2s;
+}
 .view-desktop .living-friend .sprite {
   --display-scale: 0.52;
 }

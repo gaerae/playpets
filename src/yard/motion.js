@@ -68,17 +68,17 @@ function stepping(v, walking, strolling) {
 }
 // The sheet's rows a walk shows (core/animation.js), one way or the other.
 const WALK_CYCLES = new Set(['right', 'left']);
-// The body (the friend's button, about its feet) tilts toward `target` degrees on a spring. Only a
-// lean still moving keeps the loop at its busy pace (`v.leaning`, app.js pace): one held toward a
-// pointer stays written, and an upright one is let go. Written only when it changes by a tenth of
-// a degree.
+// The body (the friend's button, about its feet; `--lean`, friends.css) tilts toward `target`
+// degrees on a spring. Only a lean still moving keeps the loop at its busy pace (`v.leaning`,
+// app.js pace): one held toward a pointer stays written, and an upright one is let go. Written only
+// when it changes by a tenth of a degree.
 function lean(v, target, dt) {
   if (reduced.matches || (!v.lean && Math.abs(target) < 0.05)) {
     v.leaning = false;
     if (v.lean) {
       v.lean = null;
       v.leanShown = 0;
-      v.button.style.rotate = '';
+      v.button.style.removeProperty('--lean');
     }
     return;
   }
@@ -88,7 +88,8 @@ function lean(v, target, dt) {
   const shown = v.lean ? Math.round(v.lean.angle * 10) / 10 : 0;
   if ((v.leanShown ?? 0) === shown) return;
   v.leanShown = shown;
-  v.button.style.rotate = shown ? `${shown}deg` : '';
+  if (shown) v.button.style.setProperty('--lean', `${shown}deg`);
+  else v.button.style.removeProperty('--lean');
 }
 // How fast a carried friend is pulled across, in its body lengths a second: from where it was a
 // frame ago (`v.heldAt`).
@@ -194,10 +195,11 @@ export function moveFriends(now, dt) {
     v.cellEnds = walk && !action && !reduced.matches ? now + cellLeft(state, clock) : Infinity;
     drawSprite(v.canvas, v.asset, state, clock, look, action, now);
     crown(v.label, v.asset, petHeight(v.pet));
-    // A carried friend's body trails the pull; one looking at the pointer leans a little toward it.
+    // A carried friend hangs from where it is held, so its feet trail the pull and its top leads;
+    // one looking at the pointer leans a little toward it.
     if (v.drag) {
       const pulled = pull(v, dt);
-      if (v.drag.moved) tilt = -clamp(pulled * LEAN.perBody, -LEAN.carry, LEAN.carry);
+      if (v.drag.moved) tilt = clamp(pulled * LEAN.perBody, -LEAN.carry, LEAN.carry);
     } else {
       v.heldAt = null;
       if (look) tilt = Math.sign(look.x) * LEAN.look;

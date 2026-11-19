@@ -15,8 +15,12 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A friend standing still mostly stands and does its little idle gesture now and then, at its own moments, instead of fidgeting nonstop; friends no longer move in step with each other.
 - A friend looking at the pointer turns toward it a step at a time and leans a little that way, instead of jumping to face it.
 - Walks speed up from a stand and slow into their stop, and the friend leans with the change of pace.
-- A carried friend is lifted off the ground and leans against the pull; let go, it drops the last bit and lands with a small squash. A jump lands the same way.
-- Friends in the yard have a soft shade on the ground under their feet, which shrinks while they are lifted.
+- A carried friend is lifted off the ground and swings with the pull, its feet trailing; let go, it drops the last bit and lands with a small squash. A jump lands the same way. A drag the system cancels sets the friend back down without the drop.
+- Friends in the yard have a soft shade on the ground under their feet, which shrinks while they are lifted and stays level while they lean.
+
+### Website and docs
+
+- Friends standing in the website's yard and desktop previews do their idle gesture now and then, each at its own moment, instead of fidgeting nonstop.
 
 ## [1.8.6] - 2026-11-18
 

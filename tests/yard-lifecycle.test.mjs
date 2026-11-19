@@ -140,6 +140,26 @@ for (const moved of [false, true])
     assert.equal(v.button.classList.contains('pressed'), false);
   });
 
+// A cancelled drag puts the friend back where it stood: it was never let go over the yard, so it
+// does not fall from the lift or squash on landing. A real drop does both.
+for (const type of ['pointercancel', 'pointerup'])
+  test(`a friend carried and ${type === 'pointerup' ? 'let go falls and lands' : 'cancelled is set down without a fall'}`, async t => {
+    const { pet } = yard(t);
+    setupViews({ select() {}, patted() {}, openChat() {} });
+    syncViews();
+    const v = views.get(pet.id),
+      played = [];
+    v.canvas.animate = (frames, options) => played.push({ frames, options });
+    await v.button.fire('pointerdown');
+    await v.button.fire('pointermove', { clientX: 200 });
+    assert.equal(v.button.classList.contains('held'), true, 'carried, it is lifted');
+    await v.button.fire(type);
+    await flush();
+    assert.equal(v.button.classList.contains('held'), false, 'it is no longer lifted');
+    if (type === 'pointerup') assert.equal(played.length, 2, 'the fall, then the squash on landing');
+    else assert.deepEqual(played, []);
+  });
+
 test('an arrow key moves the friend at once and saves where it stands', async t => {
   const { pet } = yard(t);
   setupViews({ select() {}, patted() {}, openChat() {} });
