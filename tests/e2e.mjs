@@ -1384,16 +1384,17 @@ const scenario = `(async()=>{
     await L('albumTakeOut='+(grownFlower&&grownTree?'grown-out':'err:'+JSON.stringify({grownFlower,grownTree,grownToast,world:(await playPets.bootstrap()).data.world})));
     if(grownFlower){await playPets.setOnDesktop(grownFlower.id,false);await playPets.pullPlant(grownFlower.id);}
     if(grownTree)await playPets.removeTree(grownTree.id);
-    // A treasure found before goes into a specimen case, in the yard and out on the desktop; the yard
-    // draws it inside the case.
+    // A treasure found before comes out on its own, in the yard and out on the desktop; the yard draws
+    // its full painting, with no shadow under it.
     $('album-button').click();await until(()=>document.querySelectorAll('.album-card').length>0);
     document.querySelector('.album-tabs [data-book=treasure]').click();
     (await until(()=>document.querySelector('.album-card:not(.unknown) .album-actions')))?.children[1].click();
-    const shownCase=await until(async()=>{const d=(await playPets.bootstrap()).data,c=d.garden.decor.find(x=>x.kind==='specimen_case');return c?.holds?.join()==='quartz'&&d.desktopLayout.some(i=>i.id===c.id)&&c;},8000);
+    const shownOut=await until(async()=>{const d=(await playPets.bootstrap()).data,c=d.garden.decor.find(x=>x.kind==='treasure_out');return c?.holds?.join()==='quartz'&&d.desktopLayout.some(i=>i.id===c.id)&&c;},8000);
     $('close-album').click();
-    const drawnCase=await until(()=>document.querySelector('.decor[data-kind=specimen_case] .held[data-held=quartz] image'),5000);
-    await L('albumDisplay='+(shownCase&&drawnCase?'in-its-case':'err:'+JSON.stringify({shownCase,drawn:!!drawnCase,kinds:[...document.querySelectorAll('.decor')].map(d=>d.dataset.kind)})));
-    if(shownCase){await playPets.setOnDesktop(shownCase.id,false);await playPets.putAway(shownCase.id);}
+    const drawnOut=await until(()=>document.querySelector('.decor[data-kind=treasure_out] .held[data-held=quartz] svg use'),5000),
+      shaded=!!document.querySelector('.decor[data-kind=treasure_out] .decor-shade');
+    await L('albumFindOut='+(shownOut&&drawnOut&&!shaded?'on-its-own':'err:'+JSON.stringify({shownOut,drawn:!!drawnOut,shaded,kinds:[...document.querySelectorAll('.decor')].map(d=>d.dataset.kind)})));
+    if(shownOut){await playPets.setOnDesktop(shownOut.id,false);await playPets.putAway(shownOut.id);}
     // Back out again, so the switch below brings everything in rather than sending everyone out.
     await must('friendOut',playPets.setOnDesktop(p1.data.id,true));
     await playPets.putAway(outGift.id);
@@ -2015,10 +2016,7 @@ const expect = [
   [/^wanderOn=ok/, 'roaming toggle'],
   [/^desktopPlant=out-and-in$/, 'a flower goes out on the desktop from its menu and comes back in'],
   [/^albumTakeOut=grown-out$/, 'a flower and a tree come out of the album grown, the flower onto the desktop too'],
-  [
-    /^albumDisplay=in-its-case$/,
-    'a treasure goes into a specimen case in the yard and on the desktop, drawn inside it',
-  ],
+  [/^albumFindOut=on-its-own$/, 'a treasure goes into a specimen case in the yard and on the desktop, drawn inside it'],
   [
     /^desktopItems=one-at-a-time$/,
     'a gift taken out of the album goes out on the desktop, and a friend comes in, each on its own',

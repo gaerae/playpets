@@ -117,18 +117,17 @@
    - Furniture and friends share the same yard zoom, independent of display density. Do not multiply layout sizes by `devicePixelRatio`.
 3. Add `decor.kind_<id>` (its name) and `decor.visit_<id>` (a list of things friends say when they visit it) to every string table.
 
-### Add a display
-A display holds finds from one album book; it is set out as a gift is, but made from an album card ([design](../design/2026-11-19-album-on-display.md)).
-1. Add an entry to `displays` in `src/content/catalog.json`, with a gift's `art`, `size`, `foot` and `shade`, and:
+### Let an album book's finds come out
+A fish, a bug or a treasure comes out of its album card on its own: a kind with no drawing of its own that holds one find, set out as a gift is ([design](../design/2026-11-19-album-finds-out.md)).
+1. Add an entry to `displays` in `src/content/catalog.json`, with a gift's `size` and `foot` but no `art` or `shade`, and:
 
    | Key | Meaning |
    |---|---|
-   | `holds` | The album book it holds from: `fish`, `bug`, `treasure` or `flower`. One display per book (`display_for` in `pets/content.rs`) |
-   | `room` | How many it holds; 1 if left out. A display with more takes each new find until it is full (`Garden::display`) |
-   | `slots` | Where each find is drawn, `[x, y, width, height]` as shares of its box, one per `room` (`src/yard/display.js`) |
+   | `holds` | The album book it holds from: `fish`, `bug` or `treasure`. One kind per book (`display_for` in `pets/content.rs`) |
+   | `slots` | Where the find is drawn, one `[x, y, width, height]` as shares of its box (`src/yard/display.js`) |
 
-2. Draw it empty: the finds are their album drawings.
-3. Add `decor.kind_<id>` and `decor.visit_<id>` to every string table, and the album button's words to `src/panel/album-display.js`.
+2. Add the book's names to `NAMES` in `src/yard/display.js` and its card's buttons in `src/panel/album.js` (`displayButtons`).
+3. Add `decor.visit_<id>` to every string table: what friends say when they visit it. A find out is named for the find, so it needs no `decor.kind_<id>`.
 
 ### Drawings
 Collection art:

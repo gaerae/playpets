@@ -202,8 +202,8 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 5px;
-  height: 5px;
+  width: 7px;
+  height: 7px;
   border: 1px solid rgb(255 255 255 / 0.9);
   border-radius: 50%;
   background: rgb(196 228 255 / 0.4);
@@ -211,13 +211,13 @@
 }
 .decor .bubbles i:nth-child(2) {
   left: 45%;
-  width: 4px;
-  height: 4px;
+  width: 5.5px;
+  height: 5.5px;
 }
 .decor .bubbles i:nth-child(3) {
   left: 80%;
-  width: 3px;
-  height: 3px;
+  width: 4px;
+  height: 4px;
 }
 
 /* The grand Christmas tree (yard/grand-tree.js), in the yard and out on the desktop: a layer

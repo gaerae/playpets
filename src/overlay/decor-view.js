@@ -2,8 +2,8 @@
 // known which it is, then brought in line with the garden only when the garden, the season or the
 // minute changes. A friend walking streams places many times a second; none of this runs for those.
 
-import { t } from '../core/i18n.js';
 import { loadArt } from '../yard/art.js';
+import { displayName, heldArt } from '../yard/display.js';
 import { drawGrowing, growing, growingArt } from './growing.js';
 import { giftLayers } from './poke.js';
 import { wear, wearArt } from './wear.js';
@@ -19,7 +19,9 @@ export async function drawDecor(view, garden, season, night = () => []) {
   if (view.drawn || view.loading) return;
   const known = garden(),
     thing = growing(known, view.id),
-    art = thing ? growingArt(view.kind) : wearArt(view.kind);
+    holds = holdsOf(known, view.id),
+    // A find out has no drawing of its own: it waits for the garden to say which find it holds.
+    art = thing ? growingArt(view.kind) : [...wearArt(view.kind), ...heldArt(view.kind, holds)];
   if (!art.length) return;
   view.loading = true;
   try {
@@ -33,8 +35,8 @@ export async function drawDecor(view, garden, season, night = () => []) {
   if (!thing) {
     // Under what it wears, which wear.js adds after it; a lit gift's light and a moving part with it
     // (poke.js).
-    view.button.insertAdjacentHTML('afterbegin', giftLayers(view.kind, holdsOf(known, view.id)));
-    view.button.title = t(`decor.kind_${view.kind}`);
+    view.button.insertAdjacentHTML('afterbegin', giftLayers(view.kind, holds));
+    view.button.title = displayName(view.kind, holds);
     view.button.setAttribute('aria-label', view.button.title);
   }
   dressDecor(view, garden(), season(), new Date(), night());
