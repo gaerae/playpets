@@ -10,11 +10,12 @@ import { artSize, artSvg } from '../yard/art.js';
 import { flowerKind, STAGES } from '../yard/catalog.js';
 
 const DAY = 24 * 60 * 60 * 1000;
-/** reach: how near the work area's bottom its foot stands to climb; lift: how far above its foot
+/** reach: how near the work area's bottom its foot stands to climb, past the floor line a gift
+ * or a flower is sent out to (desktop/overlay.rs start_of, 53 px up); lift: how far above its foot
  * the vine runs; edge: how far in from the side
  * the vine climbs; climb: how much of the screen's height it climbs; start: the share grown on the
  * day it blooms; days: until it is all grown; step: the room between two leaves (px). */
-export const VINE = Object.freeze({ reach: 48, lift: 3, edge: 8, climb: 2 / 3, start: 0.1, days: 7, step: 26 });
+export const VINE = Object.freeze({ reach: 64, lift: 3, edge: 8, climb: 2 / 3, start: 0.1, days: 7, step: 26 });
 // Each piece's height on the screen (px); its width keeps its drawing's proportions.
 const HEIGHT = { leaf: 17, flower: 20, tendril: 17, tip: 12 };
 // How far from the stem a piece sits, toward the middle of the screen.

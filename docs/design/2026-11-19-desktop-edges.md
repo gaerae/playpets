@@ -32,7 +32,7 @@
 | Poke | A hung piece sways about its pivot, as on its hook; a chime rings | |
 | Friends | A friend does not visit a hung thing | It is out of reach |
 | New gifts | `hanging_pot` and `mobile` are gifts friends bring, with album cards, names and visit lines in four languages. The album grows to 187 | They are things to collect, as the chime is |
-| Climbing | A morning glory on the desktop climbs once it blooms, when its foot is within 48 px of the work area's bottom (`catalog.json` `climbs`: its vine's pieces) | The bottom is the floor things stand on; the vine starts from there |
+| Climbing | A morning glory on the desktop climbs once it blooms, when its foot is within 64 px of the work area's bottom, which takes in the floor line a flower is sent out to (`catalog.json` `climbs`: its vine's pieces) | The bottom is the floor things stand on; the vine starts from there |
 | Where | From the flower's foot along the bottom to the nearer side, then up that side to two thirds of the screen's height | It frames the screen and keeps out of the middle |
 | How long | A share of that path: one tenth on the day it blooms, all of it a week later, by the clock | Something to come back to, without counting days |
 | Pieces | Every 26 px a leaf on the inner side, turning; every third a flower (blue or pink), and a closed bud beside each; a tendril now and then; a young leaf at the tip. Chosen from the flower's id, so a vine looks the same each time it is drawn | |
@@ -51,3 +51,4 @@
 - The new gifts come after the last everyday gift and before the seasonal ones, so the first gifts, the mementos and the album's order keep theirs.
 - The vine runs 3 px above the flower's foot, so the screen's edge does not cut its stem.
 - While a climbing flower is carried, its vine is not drawn; set down, it shows again.
+- The reach was 48 px at first; in the real app a flower sent out stands on the floor line 53 px up (FLOOR_GAP + SPRITE_FOOT) and did not climb, so it is 64 px.

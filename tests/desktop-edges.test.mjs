@@ -72,6 +72,14 @@ test('only a morning glory in bloom standing on the bottom climbs', () => {
   assert.equal(vineOf({ ...glory, kind: 'tulip' }, standing(200), bloomAt + DAY), null);
   assert.equal(vineOf(glory, null, bloomAt + DAY), null);
   assert.ok(vineOf(glory, standing(200, 825 - 90 * 0.968 - VINE.reach + 1), bloomAt + DAY), 'within reach');
+  // Sent out, a decoration stands with its foot on the floor line friends stand on, FLOOR_GAP +
+  // SPRITE_FOOT above the bottom (desktop/overlay.rs start_of): a glory there climbs.
+  const rs = readFileSync(new URL('../src-tauri/src/desktop/overlay.rs', import.meta.url), 'utf8');
+  const constant = name => Number(rs.match(new RegExp(`const ${name}: f64 = ([\\d.]+);`))[1]);
+  const floorGap =
+    constant('FLOOR_GAP') + constant('FOOT') + Number(rs.match(/const SPRITE_FOOT: f64 = FOOT \+ ([\d.]+);/)[1]);
+  const floorLine = 825 - floorGap - 90 * flowerKind('morning_glory').foot;
+  assert.ok(vineOf(glory, standing(200, floorLine), bloomAt + DAY), 'on the floor line it was sent out to');
 });
 
 test('a vine has leaves on its inner side, flowers with their buds, a tendril now and then and a tip', () => {
