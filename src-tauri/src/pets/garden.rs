@@ -182,7 +182,7 @@ pub struct Decor {
         skip_serializing_if = "Vec::is_empty"
     )]
     pub dress: Vec<String>,
-    /// What a display holds, by the album's ids in slot order (catalog.json displays).
+    /// The find a find out holds, by its album id (catalog.json displays).
     #[serde(
         default,
         deserialize_with = "super::or_default",
@@ -368,7 +368,7 @@ impl Garden {
             DECOR_FLOOR_MAX,
         );
         decor.iter_mut().for_each(tidy);
-        // A display left holding nothing has nothing to show.
+        // A find out holding nothing has nothing to show.
         decor.retain(|d| catalog().display_of(&d.kind).is_none() || !d.holds.is_empty());
         let mut received: Vec<String> = Vec::new();
         for kind in raw.get("received").and_then(Value::as_array).into_iter().flatten() {

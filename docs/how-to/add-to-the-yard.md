@@ -126,7 +126,7 @@ A fish, a bug or a treasure comes out of its album card on its own: a kind with 
    | `holds` | The album book it holds from: `fish`, `bug` or `treasure`. One kind per book (`display_for` in `pets/content.rs`) |
    | `slots` | Where the find is drawn, one `[x, y, width, height]` as shares of its box (`src/yard/display.js`) |
 
-2. Add the book's names to `NAMES` in `src/yard/display.js` and its card's buttons in `src/panel/album.js` (`displayButtons`).
+2. Add the book's names to `NAMES` in `src/yard/display.js` and point its album book's `action` in `src/panel/album.js` at `displayButtons` (`src/panel/album-display.js`).
 3. Add `decor.visit_<id>` to every string table: what friends say when they visit it. A find out is named for the find, so it needs no `decor.kind_<id>`.
 
 ### Drawings

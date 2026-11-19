@@ -187,7 +187,7 @@
   height: 100%;
   transform: none;
 }
-.decor[data-kind="fish_out"] .held svg {
+.decor .held[data-book="fish"] svg {
   rotate: -6deg;
 }
 .decor .bubbles {

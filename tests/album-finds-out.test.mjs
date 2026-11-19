@@ -99,6 +99,11 @@ test('a find is drawn from its full painting and named for itself', () => {
   assert.equal(giftLayers('fish_out', [fish]), '');
   const css = readFileSync(new URL('../src/overlay/overlay.css', import.meta.url), 'utf8');
   assert.match(css, /\.decor \.held\.moving ~ \.bubbles i/);
+  // A fish is turned a little, in the yard and on the desktop alike: keyed off the find, not the
+  // button's kind, which only the yard marks.
+  assert.match(layers, /data-book="fish"/);
+  const yardCss = readFileSync(new URL('../src/styles/worn.css', import.meta.url), 'utf8');
+  assert.match(yardCss, /\.decor \.held\[data-book="fish"\] svg \{\s*rotate:/);
 });
 
 test('a firefly out glows from evening; other bugs do not', () => {

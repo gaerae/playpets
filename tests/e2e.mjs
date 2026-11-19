@@ -2016,7 +2016,10 @@ const expect = [
   [/^wanderOn=ok/, 'roaming toggle'],
   [/^desktopPlant=out-and-in$/, 'a flower goes out on the desktop from its menu and comes back in'],
   [/^albumTakeOut=grown-out$/, 'a flower and a tree come out of the album grown, the flower onto the desktop too'],
-  [/^albumFindOut=on-its-own$/, 'a treasure goes into a specimen case in the yard and on the desktop, drawn inside it'],
+  [
+    /^albumFindOut=on-its-own$/,
+    'a treasure comes out on its own in the yard and on the desktop, drawn from its painting with no shadow',
+  ],
   [
     /^desktopItems=one-at-a-time$/,
     'a gift taken out of the album goes out on the desktop, and a friend comes in, each on its own',

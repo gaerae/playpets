@@ -402,7 +402,7 @@ export function putAway(id) {
   // A snowman is not kept: it melts (garden.rs put_away).
   const done = giftKind(d.kind)?.built
     ? t('decor.snowman_put_away')
-    : t(boxed ? 'decor.memento_put_away' : 'decor.put_away_done', { kind: kindName(d.kind) });
+    : t(boxed ? 'decor.memento_put_away' : 'decor.put_away_done', { kind: displayName(d.kind, d.holds) });
   // Drawn again at once and when it comes back, so what the yard shows of it follows (the
   // Christmas tree lets go of its night, and comes back grand without the change).
   removeWithUndo(id, view, done, () => call('putAway', id), renderDecor);

@@ -37,7 +37,7 @@ export function heldLayers(kind, holds = []) {
       const found = heldKind(display.holds, id);
       if (!found?.art) return '';
       const [x, y, w, h] = display.slots[i];
-      const held = `<span class="held" data-held="${id}" style="left:${share(x)};top:${share(y)};width:${share(w)};height:${share(h)}">${artSvg(found.art)}</span>`;
+      const held = `<span class="held" data-held="${id}" data-book="${display.holds}" style="left:${share(x)};top:${share(y)};width:${share(w)};height:${share(h)}">${artSvg(found.art)}</span>`;
       return display.holds === 'fish' ? held + BUBBLES : held;
     })
     .join('');
