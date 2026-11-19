@@ -24,11 +24,7 @@ struct Kind {
     /// What a built gift can wear, in the order it is drawn (the snowman's scarf, nose and hat).
     #[serde(default)]
     dress: Vec<DressPart>,
-    /// An event's gift that comes before the event, from this month-day ("11-15") to the event's
-    /// end: the Christmas tree and the baby reindeer, ahead of the winter lights (early_gifts).
-    #[serde(default)]
-    from: Option<String>,
-    /// A gift drawn during part of the year ("december"), and also in its `seasons` when it has
+    /// A gift drawn during part of the year ("christmas"), and also in its `seasons` when it has
     /// them; put away, it waits in the box.
     #[serde(default)]
     shown: Option<String>,
@@ -259,31 +255,6 @@ pub fn event_gifts(event: &str, day: &str) -> Vec<&'static str> {
     } else {
         Vec::new()
     }
-}
-
-/// The event gifts that come early on that day, in catalogue order: each from its own `from` to
-/// its event's end, when the event is fixed to the calendar. The event itself is not on yet, so
-/// none of its toasts or scenes are; its own order (event_gifts) still comes first once it is.
-pub fn early_gifts(day: &str) -> Vec<&'static str> {
-    let Some(md) = month_day(day) else {
-        return Vec::new();
-    };
-    catalog()
-        .gifts
-        .iter()
-        .filter(|k| {
-            let (Some(from), Some(event)) = (k.from.as_deref().and_then(month_day), k.event.as_deref()) else {
-                return false;
-            };
-            events()
-                .events
-                .iter()
-                .find(|e| e.id == event && e.fixed)
-                .and_then(|e| month_day(&e.to))
-                .is_some_and(|to| !k.built && within(md, from, to))
-        })
-        .map(|k| k.id.as_str())
-        .collect()
 }
 
 /// The catalogue the app was built with.
@@ -737,25 +708,12 @@ mod tests {
     }
 
     #[test]
-    fn the_tree_and_the_baby_reindeer_come_from_november_15_and_santa_waits() {
-        let two = ["xmas_tree", "baby_reindeer"];
-        assert_eq!(early_gifts("2026-11-15"), two);
-        assert_eq!(early_gifts("2026-11-30"), two);
-        assert_eq!(early_gifts("2026-12-31"), two);
-        assert!(early_gifts("2026-11-14").is_empty());
-        assert!(early_gifts("2027-01-02").is_empty(), "the lights are over");
-        assert!(
-            early_gifts("2026-05-20").is_empty(),
-            "fixed to the calendar in the south too"
-        );
-    }
-
-    #[test]
     fn the_winter_lights_bring_three_gifts_in_order_and_the_snowman_is_built() {
         let three = ["xmas_tree", "baby_reindeer", "santa"];
         assert_eq!(event_gifts("lights", "2026-12-01"), three);
         assert_eq!(event_gifts("lights", "2026-12-31"), three);
-        assert!(event_gifts("lights", "2026-11-30").is_empty());
+        assert_eq!(event_gifts("lights", "2026-11-15"), three, "from mid-November");
+        assert!(event_gifts("lights", "2026-11-14").is_empty());
         assert!(
             event_gifts("lights", "2026-06-15").is_empty(),
             "December in the south too"

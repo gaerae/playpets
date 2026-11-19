@@ -1,6 +1,6 @@
 // Ornaments on the Christmas tree (docs/design/2026-11-09-a-winter-to-share.md, "Decorating the
 // tree"): found flowers, trees, gifts and small finds hang on the tree's twelve hooks, three a day,
-// and stay all winter; the first hang of the next Christmas (from November 15, when the tree comes)
+// and stay all winter; the first hang of the next Christmas (from November 15, when the lights start)
 // takes them down, so each Christmas starts a fresh tree. The backend keeps them and the rule
 // (src-tauri/src/pets/garden.rs hang_ornament); this module says what hangs this Christmas and what
 // still could, and draws it.
@@ -70,7 +70,7 @@ const known = o => !!bookOf(o.book)?.kind(o.id);
 /** A book's name as the album calls it ("Flowers", "Keepsakes"); empty for one not of the four. */
 export const bookName = book => (bookOf(book) ? t(bookOf(book).tab) : '');
 
-/** The Christmas whose ornaments `date` shows: its year from November 15, when the tree comes, else
+/** The Christmas whose ornaments `date` shows: its year from November 15, when the lights start, else
  * the year before. */
 export function ornamentSeason(date) {
   const month = date.getMonth();

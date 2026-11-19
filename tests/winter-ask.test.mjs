@@ -1,5 +1,5 @@
-// Most people keep the yard in spring, so in December the yard asks once whether to show winter
-// until January 7; on January 8 the season before comes back (the backend keeps the answer).
+// Most people keep the yard in spring, so during the winter lights (from November 15) the yard asks
+// once whether to show winter until January 7; on January 8 the season before comes back (the backend keeps the answer).
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
@@ -26,14 +26,15 @@ const { scene } = await import('../src/yard/world.js');
 const d = (y, m, day) => new Date(y, m - 1, day, 12);
 const flush = () => new Promise(resolve => setImmediate(resolve));
 
-test('December asks once a year, in a place with seasons, when the yard is not winter', () => {
+test('the winter lights ask once a year from November 15, in a place with seasons, when the yard is not winter', () => {
   assert.equal(winterAsk(d(2026, 12, 5), false, 'spring', null, true), true);
   assert.equal(winterAsk(d(2026, 12, 5), false, 'winter', null, true), false);
   assert.equal(winterAsk(d(2026, 12, 5), false, 'auto', null, true), false, 'auto is winter in the north');
   assert.equal(winterAsk(d(2026, 12, 5), true, 'auto', null, true), true, 'auto is summer in the south');
   assert.equal(winterAsk(d(2026, 12, 5), false, 'spring', { year: 2026, previous: null }, true), false);
   assert.equal(winterAsk(d(2027, 12, 5), false, 'spring', { year: 2026, previous: null }, true), true);
-  assert.equal(winterAsk(d(2026, 11, 30), false, 'spring', null, true), false);
+  assert.equal(winterAsk(d(2026, 11, 15), false, 'spring', null, true), true, 'from mid-November');
+  assert.equal(winterAsk(d(2026, 11, 14), false, 'spring', null, true), false);
   assert.equal(winterAsk(d(2027, 1, 3), false, 'spring', null, true), false);
   assert.equal(winterAsk(d(2026, 12, 5), false, 'spring', null, false), false, 'not in the garden workshop');
 });
@@ -245,7 +246,7 @@ test("a season picked by hand during the lights is this year's answer, so nothin
 });
 
 test('a season picked by hand outside the lights answers nothing', async t => {
-  yard(t, { now: d(2026, 11, 30) });
+  yard(t, { now: d(2026, 11, 14) });
   seasonPickedByHand('spring', new Date(), false);
   await flush();
   assert.deepEqual(answers, []);

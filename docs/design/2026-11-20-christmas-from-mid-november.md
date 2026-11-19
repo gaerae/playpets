@@ -33,3 +33,5 @@ Follows [a winter to share](2026-11-09-a-winter-to-share.md): the Christmas tree
 
 - A gift-level `from`, not a new event: an event would bring its own toast and scene to November.
 - The decorating season moves with the tree. Otherwise ornaments hung in late November would be hidden on December 1 and taken down by the first hang in December.
+
+Follow-up (2026-11-20): the whole `lights` event now starts on November 15, as people start decorating early. Santa, the lights on the trees, the event's toast and the winter-yard question come from then too. The three gifts are the event's own gifts again, so `from`, `early_gifts` and the `advent` window are gone; one window, `christmas` (November 15 to January 7), holds all three. The ornament season keeps its November 15 start.

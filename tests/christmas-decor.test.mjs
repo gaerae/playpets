@@ -56,9 +56,9 @@ for (const [boxed, key] of [
   });
 }
 
-// Christmas decorations show in their window (the tree and the baby reindeer from November 15, Santa
-// from December 1, all to January 7) and whenever the yard shows winter, a snowman only while it
-// shows winter; the rest always. A hidden one keeps its place in the garden.
+// Christmas decorations show from November 15, when the winter lights start, to January 7 and
+// whenever the yard shows winter, a snowman only while it shows winter; the rest always. A hidden
+// one keeps its place in the garden.
 const { decorShown, hiddenKinds, yardSeason } = await import('../src/yard/decor-shown.js');
 const { decorTarget, refreshShownDecor } = await import('../src/yard/decor.js');
 const state = await import('../src/core/state.js');
@@ -85,10 +85,9 @@ function yard(ctx, now, season, decor, world = 'woodland') {
 test('a kind shows by its window or its season, and the rest always', () => {
   const d = (y, m, day) => new Date(y, m - 1, day, 12);
   assert.equal(decorShown('xmas_tree', d(2026, 11, 14), 'autumn'), false);
-  assert.equal(decorShown('xmas_tree', d(2026, 11, 15), 'autumn'), true, 'the tree from mid-November');
-  assert.equal(decorShown('baby_reindeer', d(2026, 11, 15), 'autumn'), true, 'and the baby reindeer');
-  assert.equal(decorShown('santa', d(2026, 11, 30), 'autumn'), false, 'Santa waits for December');
-  assert.equal(decorShown('santa', d(2026, 12, 1), 'autumn'), true);
+  assert.equal(decorShown('santa', d(2026, 11, 14), 'autumn'), false);
+  for (const kind of ['xmas_tree', 'baby_reindeer', 'santa'])
+    assert.equal(decorShown(kind, d(2026, 11, 15), 'autumn'), true, `${kind} from mid-November`);
   assert.equal(decorShown('xmas_tree', d(2026, 12, 1), 'summer'), true, 'whatever the season');
   assert.equal(decorShown('baby_reindeer', d(2027, 1, 7), 'spring'), true);
   assert.equal(decorShown('baby_reindeer', d(2027, 1, 8), 'spring'), false);
@@ -103,7 +102,7 @@ test('a kind shows by its window or its season, and the rest always', () => {
   assert.equal(decorShown('no-such-kind', d(2026, 7, 1), 'summer'), true);
   assert.deepEqual(hiddenKinds(d(2026, 7, 1), 'summer'), ['snowman', 'xmas_tree', 'baby_reindeer', 'santa']);
   assert.deepEqual(hiddenKinds(d(2026, 12, 5), 'winter'), []);
-  assert.deepEqual(hiddenKinds(d(2026, 11, 20), 'autumn'), ['snowman', 'santa']);
+  assert.deepEqual(hiddenKinds(d(2026, 11, 20), 'autumn'), ['snowman']);
   assert.deepEqual(hiddenKinds(d(2026, 7, 1), 'winter'), []);
   assert.deepEqual(hiddenKinds(d(2026, 7, 1), null), ['snowman', 'xmas_tree', 'baby_reindeer', 'santa']);
 });

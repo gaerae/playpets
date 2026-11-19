@@ -797,8 +797,7 @@
       "foot": 0.958,
       "shade": [0.6, 0.1, 0.94],
       "event": "lights",
-      "from": "11-15",
-      "shown": "advent",
+      "shown": "christmas",
       "seasons": ["winter"],
       "hooks": [
         [0.485, 0.35, 0.1],
@@ -880,8 +879,7 @@
         [0.69, 0.96, 0.08]
       ],
       "event": "lights",
-      "from": "11-15",
-      "shown": "advent",
+      "shown": "christmas",
       "seasons": ["winter"]
     },
     {
@@ -891,7 +889,7 @@
       "foot": 0.974,
       "shade": [0.66, 0.1, 0.955, 0.55],
       "event": "lights",
-      "shown": "december",
+      "shown": "christmas",
       "seasons": ["winter"]
     }
   ],

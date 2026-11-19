@@ -23,12 +23,12 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
-- The Christmas tree and the baby reindeer come early: friends bring them from November 15, and both show in the yard and on the desktop from then until January 7. Santa, the winter lights and the question about a winter yard still start on December 1. Ornaments hung from November 15 stay up through December, and the next Christmas's tree starts bare on the next November 15.
+- The winter lights start on November 15 instead of December 1, as people start decorating early: the lights on the trees, the gifts friends bring (the Christmas tree, then the baby reindeer, then Santa) and the question about showing a winter yard all come from then. The three gifts show in the yard and on the desktop from November 15 to January 7. Ornaments hung from November 15 stay up through December, and the next tree starts bare on the next November 15.
 
 ### Website and docs
 
 - The README and the guide count the album's 203 entries, and the guide says how finds on the desktop answer a click.
-- The guide says the Christmas tree and the baby reindeer come from November 15.
+- The guide gives the winter lights' new dates, November 15 to December 31.
 
 ## [1.8.7] - 2026-11-19
 

@@ -52,12 +52,11 @@ export function eventStart(event, date, south = false) {
   return new Date(year, Math.floor(from / 100) - 1, from % 100);
 }
 /** An event's dates in the person's language ("Sep 8 – Oct 15"), six months on in the south; ''
- * for no event. Each end is formatted alone: a Japanese range would be bare numbers (09/08～10/15).
- * `start` ("11-15") opens the range earlier, for a gift that comes before its event. */
-export function eventDates(id, south = false, start = null) {
+ * for no event. Each end is formatted alone: a Japanese range would be bare numbers (09/08～10/15). */
+export function eventDates(id, south = false) {
   const event = EVENTS.find(e => e.id === id);
   if (!event) return '';
-  let from = day(start || event.from),
+  let from = day(event.from),
     to = day(event.to);
   if (south && !event.fixed) [from, to] = [later(from, false), later(to, true)];
   // A leap year holds the south's February 29.

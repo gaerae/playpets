@@ -28,7 +28,7 @@
     },
     {
       "id": "lights",
-      "from": "12-01",
+      "from": "11-15",
       "to": "12-31",
       "fixed": true,
       "scene": { "seasons": ["winter"], "periods": ["evening", "night"] }

@@ -12,11 +12,8 @@ import { inEvent } from './events.js';
 import { worldAllows } from './worlds.js';
 
 /** Each window a gift can show in, by local month-day; fixed to the calendar in both hemispheres.
- * `advent` is for the gifts that come early, from November 15 ("from" in catalog.json). */
-export const SHOWN = Object.freeze({
-  advent: Object.freeze({ from: '11-15', to: '01-07', fixed: true }),
-  december: Object.freeze({ from: '12-01', to: '01-07', fixed: true }),
-});
+ * `christmas` runs from the winter lights' first day to the end of the new year's week. */
+export const SHOWN = Object.freeze({ christmas: Object.freeze({ from: '11-15', to: '01-07', fixed: true }) });
 
 const monthDay = date => `${date.getMonth() + 1}-${date.getDate()}`;
 // A kind with a rule shows when any of its rules lets it; one with none always. An unknown window

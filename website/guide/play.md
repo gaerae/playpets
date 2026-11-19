@@ -234,7 +234,7 @@ A few times a year the yard changes for a while. Each event comes on its own on 
 | Cherry blossom festival | April 1 to 20, while the yard shows spring | <SceneChips lang="en" event="blossom" label="Any day, pick" /> |
 | Firefly nights | July 20 to August 20, while the yard shows summer | <SceneChips lang="en" event="fireflies" label="Any day, pick" /> |
 | Harvest moon | September 8 to October 15, while the yard shows autumn | <SceneChips lang="en" event="harvest" label="Any day, pick" /> |
-| Winter lights | December 1 to 31, in any season | <SceneChips lang="en" event="lights" label="Any day, pick" /> |
+| Winter lights | November 15 to December 31, in any season | <SceneChips lang="en" event="lights" label="Any day, pick" /> |
 | New Year | January 1 to 7, in any season | <SceneChips lang="en" event="newyear" label="Any day, pick" /> |
 
 | Event | In the yard | Gift, on its dates only |
@@ -242,22 +242,20 @@ A few times a year the yard changes for a while. Each event comes on its own on 
 | Cherry blossom festival | Petals drift everywhere and more butterflies come out; friends gather for [flower viewing](#flower-viewing) | A cherry sapling |
 | Firefly nights | More fireflies at night, and a golden one to catch | A watermelon |
 | Harvest moon | The moonlight carp comes to the lake at night. Called up by hand, the full moon shows. On its own, the moon rises big and golden on the nights around the event's first full moon (two days either side, as at Chuseok and the Mid-Autumn Festival) and keeps its phase on the others | A pumpkin |
-| Winter lights | Little lights along the trees, glowing from evening on | A small Christmas tree, then a baby reindeer (both from November 15), then Santa |
+| Winter lights | Little lights along the trees, glowing from evening on | A small Christmas tree, then a baby reindeer, then Santa |
 | New Year | Friends greet the new year | A kite |
 
 - The event's name shows beside the scene label, a card says it has begun the first time you see it that year, and friends talk about it.
-- With the season on **Auto**, only the dates bring an event. The calendar's own event comes first: December's lights stay whatever scene you pick.
+- With the season on **Auto**, only the dates bring an event. The calendar's own event comes first: the winter lights stay whatever scene you pick.
 - Event fish and bugs, such as the golden firefly and the moonlight carp, come whenever the event is on, either way.
 - An event's gifts come the first times a gift is due during its dates, one each time, in a fixed order, and only then. A gift you have stays for good; the album shows when each one comes.
 - South of the equator (by your computer's time zone), the cherry blossom festival, firefly nights and harvest moon come six months later. The winter lights and New Year keep their dates.
 
-### December
+### Christmas
 
-In December, if the yard isn't showing winter, PlayPets asks once whether to show it until January 7. Say yes, and your own season comes back on January 8.
+During the winter lights, if the yard isn't showing winter, PlayPets asks once whether to show it until January 7. Say yes, and your own season comes back on January 8.
 
-- The Christmas tree and the baby reindeer come early: friends bring them from November 15, and they show in the yard and on the desktop until January 7.
-- Santa comes and shows from December 1 to January 7.
-- All three also show whenever the yard shows winter.
+- The Christmas tree, the baby reindeer and Santa show in the yard and on the desktop from November 15 to January 7, and whenever the yard shows winter.
 - The rest of the time they wait out of sight, still counting toward the 12 decorations. Put one away and it goes back into the gift box.
 
 ### Christmas night {#christmas-night}

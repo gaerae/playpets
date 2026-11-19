@@ -79,7 +79,7 @@ Follow-up (2026-11-10): the decorating view lets a person take a bauble down fro
 
 Follow-up (2026-11-12): a hook is a bauble's centre and width as shares of the tree's drawing (`[x, y, w]` in `catalog.json`), so a hung bauble is the size of the painted ones and its rim is a thin line. Twelve hung baubles at that size do not fit between the small tree's painted ones, so five hooks sit on painted baubles and cover them; the other seven sit in the gaps, clear of every painted bauble and light. The grand tree's twelve hooks sit on twelve of its thirteen painted baubles. `baubles` lists each drawing's painted baubles, and the content tests check the hooks against them.
 
-Follow-up (2026-11-20, [Christmas from mid-November](2026-11-20-christmas-from-mid-november.md)): the tree and the baby reindeer come and show from November 15, ahead of the `lights` event. A tree's decorating season starts on November 15 too, so ornaments hung in late November stay up in December.
+Follow-up (2026-11-20, [Christmas from mid-November](2026-11-20-christmas-from-mid-november.md)): the `lights` event starts on November 15, so the tree, the baby reindeer and Santa come and show from then. A tree's decorating season starts on November 15 too, so ornaments hung in late November stay up in December.
 
 ## Building a snowman
 

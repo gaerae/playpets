@@ -16,8 +16,8 @@ test('each event is on from its first day to its last, and not around it', () =>
   assert.equal(on('2026-04-21'), null);
   assert.equal(on('2026-08-01'), 'fireflies');
   assert.equal(on('2026-10-01'), 'harvest');
-  assert.equal(on('2026-11-30'), null);
-  assert.equal(on('2026-12-01'), 'lights');
+  assert.equal(on('2026-11-14'), null);
+  assert.equal(on('2026-11-15'), 'lights', 'the lights start in mid-November');
   assert.equal(on('2026-12-31'), 'lights');
   assert.equal(on('2027-01-03'), 'newyear');
   assert.equal(on('2026-06-15'), null);
@@ -79,12 +79,11 @@ test('an event names its dates in the person language, six months on in the sout
   assert.equal(eventDates('harvest'), 'Sep 8 – Oct 15');
   assert.equal(eventDates('harvest', true), 'Mar 8 – Apr 15');
   assert.equal(eventDates('newyear', true), 'Jan 1 – Jan 7', 'the new year keeps its date');
-  assert.equal(eventDates('lights', true), 'Dec 1 – Dec 31');
-  assert.equal(eventDates('lights', false, '11-15'), 'Nov 15 – Dec 31', 'a gift that comes before its event');
+  assert.equal(eventDates('lights', true), 'Nov 15 – Dec 31');
   setLanguageForTests('ja');
-  assert.equal(eventDates('lights'), '12月1日～12月31日');
+  assert.equal(eventDates('lights'), '11月15日～12月31日');
   setLanguageForTests('ko');
-  assert.equal(eventDates('lights'), '12월 1일~12월 31일');
+  assert.equal(eventDates('lights'), '11월 15일~12월 31일');
   assert.equal(eventDates('missing'), '');
 });
 

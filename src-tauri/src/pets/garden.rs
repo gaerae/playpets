@@ -108,8 +108,8 @@ pub struct OrnamentDay {
     pub count: u32,
 }
 
-/// The Christmas a day decorates for: its year from November 15, when the tree comes (catalog.json
-/// xmas_tree "from"), the year before until then.
+/// The Christmas a day decorates for: its year from November 15, when the winter lights start
+/// (events.json), the year before until then.
 fn ornament_season(day: &str) -> u32 {
     let year = day.get(0..4).and_then(|y| y.parse::<u32>().ok()).unwrap_or(0);
     if day.get(5..10).is_some_and(|md| md >= "11-15") {
@@ -642,8 +642,7 @@ impl Garden {
     /// A friend (`from`) brings an everyday gift and sets it down at (x, y): one every
     /// GIFT_EVERY_DAYS days, on a day the two did something together (the caller checks that).
     /// `day` is the page's local date. During a seasonal event (`event`, which the page says and
-    /// the dates check), its own gifts come first, in order, one each time; from November 15 the
-    /// Christmas gifts that come early (early_gifts) do too. `now` (ms) is when it came.
+    /// the dates check), its own gifts come first, in order, one each time. `now` (ms) is when it came.
     pub fn gift(
         &mut self,
         x: f64,
@@ -660,14 +659,9 @@ impl Garden {
         if !self.gift_day.is_empty() && super::days_between(&self.gift_day, day).is_none_or(|d| d < GIFT_EVERY_DAYS) {
             return Err(i18n::t("error.gift_today"));
         }
-        // An event's own gifts first, then any that come ahead of their event (the tree from
-        // November 15), each once; then the everyday ones.
         let kind = event
             .map(|e| super::content::event_gifts(e, day))
-            .unwrap_or_default()
-            .into_iter()
-            .chain(super::content::early_gifts(day))
-            .find(|g| !self.received.iter().any(|r| r == g))
+            .and_then(|gifts| gifts.into_iter().find(|g| !self.received.iter().any(|r| r == g)))
             .unwrap_or_else(|| self.next_gift(turn_of(now)));
         let given = self.give(kind, from, false, x, y, now)?;
         self.gift_day = day.into();
@@ -1434,10 +1428,8 @@ mod tests {
     }
 
     /// The `n`th day a gift may come, GIFT_EVERY_DAYS apart from 2026-11-01.
-    const GIFT_START: u64 = 1_772_366_400_000; // 2026-03-01, noon UTC
     fn gift_day(n: usize) -> String {
-        // Before the Christmas gifts that come from November 15 (early_gifts).
-        let start = GIFT_START;
+        let start = 1_793_491_200_000_u64; // 2026-11-01, noon UTC
         super::super::latest_day(start + (n as u64) * GIFT_EVERY_DAYS as u64 * 86_400_000)
     }
 
@@ -1452,7 +1444,7 @@ mod tests {
             ("bench", DECOR_FLOOR_MAX, false)
         );
         assert_eq!(first.decor.from.as_deref(), Some("miso"));
-        let next_day = super::super::latest_day(GIFT_START + 86_400_000);
+        let next_day = super::super::latest_day(1_793_491_200_000 + 86_400_000);
         assert!(
             g.gift(0.5, 0.5, &gift_day(0), 0, None, "miso").is_err(),
             "not twice a day"
@@ -1516,13 +1508,6 @@ mod tests {
             e.gift(0.5, 0.5, "2026-12-01", 0, None, "miso").is_err(),
             "not on a day before the last"
         );
-        // From November 15 the tree and the baby reindeer come with no event on; Santa waits for December.
-        let mut early = Garden::default();
-        let kinds: Vec<String> = ["2026-11-20", "2026-11-22", "2026-11-24"]
-            .iter()
-            .map(|day| early.gift(0.5, 0.5, day, 0, None, "miso").unwrap().decor.kind)
-            .collect();
-        assert_eq!(kinds, ["xmas_tree", "baby_reindeer", "bench"]);
         assert_eq!(
             e.gift(0.5, 0.5, "2027-06-01", 0, Some("blossom"), "miso")
                 .unwrap()
