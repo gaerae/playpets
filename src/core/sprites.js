@@ -180,6 +180,9 @@ export function drawSprite(
 ) {
   if (!asset) return;
   const authored = action && sameCompanionAppearance(action.asset, asset) ? companionImage(action) : null;
+  // Kept up on every draw, so a turn that can no longer be drawn (reduced motion, a companion's own
+  // action, a sheet without look rows) ends here and leaves no loop busy on `_turning`.
+  const looking = facing(canvas, look, now, state === 'idle' && asset.version === 2 && !authored && !reduced.matches);
   actionSurface(canvas, authored ? action.clip : null);
   if (authored) {
     const frame = reduced.matches ? action.clip.frames[0] : action.frame;
@@ -212,8 +215,7 @@ export function drawSprite(
   }
   const frame = reduced.matches
     ? { row: 0, column: 0 }
-    : (asset.version === 2 && facing(canvas, look, now, state === 'idle')) ||
-      (state === 'idle' ? idleCell(elapsed, (canvas._seed ??= nextSeed())) : frameAt(state, elapsed));
+    : looking || (state === 'idle' ? idleCell(elapsed, (canvas._seed ??= nextSeed())) : frameAt(state, elapsed));
   // Animation cells change a few times a second and the loops run more often than that:
   // skip the clear+blit entirely when this canvas already shows the same cell.
   const key = `${asset.id}:${frame.row}:${frame.column}`;

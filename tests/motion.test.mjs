@@ -6,7 +6,7 @@ import { reduced } from '../src/core/sprites.js';
 import { setData, views } from '../src/core/state.js';
 import { geometry, measureYard, sizeOf } from '../src/yard/field.js';
 import { moveFriends, STROLL, WALK } from '../src/yard/motion.js';
-import { sendTo } from '../src/yard/trips.js';
+import { release, sendTo } from '../src/yard/trips.js';
 import { GLIDE_MS, place } from '../src/yard/views.js';
 import { element, installDom } from './support/dom.mjs';
 import { flatField } from './support/flat-field.mjs';
@@ -288,6 +288,110 @@ test('the first step of a walk counts from when the friend set off', t => {
     const next = rampPace(setOff, WALK, far - first / body, 50);
     assert.ok(Math.abs(friend.x - 0.2 - first - 50 * next * body) < 1e-9, 'then a whole frame each, quicker');
     assert.ok(next > setOff);
+  } finally {
+    views.clear();
+    reduced.matches = previousReduced;
+  }
+});
+
+// A trail is walked print by print (trails.js): a stop on the way is passed through at the walk's
+// pace, not braked into and set off from again.
+test('a walk through a stop on its way keeps its pace there', t => {
+  installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
+  setData({ statuses: {} });
+  const previousReduced = reduced.matches;
+  reduced.matches = false;
+  let clock = 1000;
+  t.mock.method(performance, 'now', () => clock);
+  try {
+    const friend = {
+      pet: { id: 'friend', size: 112 },
+      x: 0.1,
+      y: 0.5,
+      nextWander: Infinity,
+      button: element(),
+      label: element(),
+      canvas: { animate() {} },
+    };
+    views.clear();
+    views.set('friend', friend);
+    measureYard();
+    let passed = null;
+    sendTo(
+      friend,
+      { x: 0.5, y: 0.5 },
+      {
+        save: false,
+        through: true,
+        arrive: () => {
+          passed = friend.vel;
+          sendTo(friend, { x: 0.9, y: 0.5 }, { save: false });
+        },
+      },
+    );
+    const paces = [];
+    for (clock = 1050; passed === null && clock < 20000; clock += 50) {
+      moveFriends(clock, 50);
+      paces.push(friend.vel);
+    }
+    assert.ok(passed !== null, 'it reached the stop');
+    assert.equal(Math.min(...paces.slice(paces.indexOf(WALK))), WALK, 'no braking into the stop');
+    moveFriends(clock, 50);
+    assert.equal(friend.vel, WALK, 'and it walks on at its pace');
+  } finally {
+    views.clear();
+    reduced.matches = previousReduced;
+  }
+});
+
+// A walk cut short (a game, an agent's duty or the person taking the friend) leaves it standing: the
+// next walk sets off from a stand again, not at the pace the last one had reached.
+test('a walk cut short and started again ramps up from a stand', t => {
+  installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
+  setData({ statuses: {} });
+  const previousReduced = reduced.matches;
+  reduced.matches = false;
+  let clock = 1000;
+  t.mock.method(performance, 'now', () => clock);
+  try {
+    const friend = {
+      pet: { id: 'friend', size: 112 },
+      x: 0.1,
+      y: 0.5,
+      nextWander: Infinity,
+      button: element(),
+      label: element(),
+      canvas: { animate() {} },
+    };
+    views.clear();
+    views.set('friend', friend);
+    measureYard();
+    sendTo(friend, { x: 0.9, y: 0.5 }, { save: false });
+    for (clock = 1050; clock <= 1600; clock += 50) moveFriends(clock, 50);
+    assert.equal(friend.vel, WALK, 'at its pace');
+    // Let go and sent off again at once, with no frame between.
+    release(friend);
+    sendTo(friend, { x: 0.1, y: 0.5 }, { save: false });
+    const from = friend.x;
+    clock += 50;
+    moveFriends(clock, 50);
+    const body = sizeOf(friend.pet) / geometry(friend.pet).w;
+    assert.ok(friend.vel < WALK / 2, `it sets off slowly (${friend.vel})`);
+    assert.ok(Math.abs(from - friend.x) < 50 * (WALK / 2) * body, 'and steps a short way');
+    // Picked up on the way, it stands while held, and sets off again from a stand when put down.
+    for (clock += 50; friend.vel < WALK; clock += 50) moveFriends(clock, 50);
+    friend.drag = { moved: false };
+    moveFriends(clock, 50);
+    friend.drag = null;
+    clock += 50;
+    moveFriends(clock, 50);
+    assert.ok(friend.vel < WALK / 2, `put down, it sets off slowly (${friend.vel})`);
+    // Turning toward a new place on the way keeps its pace.
+    for (clock += 50; friend.vel < WALK; clock += 50) moveFriends(clock, 50);
+    sendTo(friend, { x: 0.5, y: 0.6 }, { save: false });
+    clock += 50;
+    moveFriends(clock, 50);
+    assert.equal(friend.vel, WALK, 'a new place on the way keeps the pace');
   } finally {
     views.clear();
     reduced.matches = previousReduced;

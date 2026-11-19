@@ -104,6 +104,8 @@ export function moveFriends(now, dt) {
     sitOut(v, now);
     keepDuty(v);
     const walking = !!v.target && !v.drag && !v.frozen && !reduced.matches;
+    // Held, frozen in a game or with nowhere to go, it stands: its next step sets off from a stand.
+    if (!walking) v.vel = 0;
     // Where the body leans this frame: set by a walk's change of pace, a pull or a look below.
     let tilt = 0;
     stepping(v, walking, !!v.trip?.slow && !v.speed);
@@ -117,27 +119,36 @@ export function moveFriends(now, dt) {
         v.y = v.target.y;
         v.target = null;
         v.trip = null;
-        v.vel = 0;
         // Only places a friend chose or was given are saved; game positions and the walk home are not.
         if (trip?.save !== false)
           call('updatePet', id, { x: v.x, y: v.y }).catch(e => toast(spoken(e, t('error.generic')), { error: true }));
         // Arrivals such as fishing anchor their drawings to the friend's pixel position. A walk
         // glides from step to step (views.js place), the step that ends it too.
         place(v, { glide: walking });
-        stepping(v, false, false);
-        settle(v);
-        trip?.arrive?.(v, now);
+        // A stop on the way (sendTo `through`) is walked through: no stop, and the next trip its
+        // arrival sends it on goes on at the walk's pace.
+        if (!trip?.through) {
+          stepping(v, false, false);
+          settle(v);
+        }
+        v.passing = !!trip?.through;
+        try {
+          trip?.arrive?.(v, now);
+        } finally {
+          v.passing = false;
+        }
       } else {
         // The first step counts from when the friend set off (trips.js sendTo), not from the frame
         // before, which may be long ago in a calm yard.
         const span = Math.min(dt, Math.max(0, now - (v.leftAt ?? -Infinity)));
         // A pace is in body lengths, a friend's own and a game's or a trail's (`v.speed`) alike, so
         // a walk looks as quick in any window and any way it goes. It speeds up from a stand and
-        // slows into its stop (core/physics.js), and the body leans with the change.
+        // slows into its stop (core/physics.js), unless it only passes through, and the body leans
+        // with the change.
         const left = bodiesApart(v.pet, v, v.target),
           pace = v.speed || (v.trip?.slow ? STROLL : WALK),
           was = v.vel ?? 0;
-        v.vel = rampPace(was, pace, left, span);
+        v.vel = rampPace(was, pace, v.trip?.through ? Infinity : left, span);
         const step = Math.min(1, (span * v.vel) / left);
         if (span > 0) tilt = (dx >= 0 ? 1 : -1) * LEAN.accel * clamp(((v.vel - was) / span) * (RAMP_MS / pace), -1, 1);
         v.x += dx * step;

@@ -13,7 +13,8 @@ class Sheet {
 }
 globalThis.Image = Sheet;
 const { idleCell, LOOK_HOLD, lookFrame, TURN_MS } = await import('../src/core/animation.js');
-const { drawSprite } = await import('../src/core/sprites.js');
+const sprites = await import('../src/core/sprites.js');
+const { drawSprite } = sprites;
 
 const surface = () => {
   const drawn = [];
@@ -80,6 +81,30 @@ test('a friend that walks off stops looking at once', () => {
   drawSprite(c, pet, 'right', 10, null, null, 10);
   assert.equal(last(c).row, 1, 'the walk row');
   assert.equal(c._turning, false);
+});
+
+// The yard's loop runs busy while a canvas turns (app.js pace): a turn that can no longer be drawn
+// must not leave it turning.
+test('a turn cut off by reduced motion or a sheet without look rows ends at once', () => {
+  const { reduced } = sprites;
+  const previous = reduced.matches;
+  try {
+    const c = surface();
+    drawSprite(c, pet, 'idle', 0, { x: 100, y: 0 }, null, 0);
+    drawSprite(c, pet, 'idle', 10, { x: -100, y: 0 }, null, 10);
+    assert.equal(c._turning, true, 'turning');
+    reduced.matches = true;
+    drawSprite(c, pet, 'idle', 20, { x: -100, y: 0 }, null, 20);
+    assert.equal(c._turning, false, 'reduced motion shows one still cell');
+    reduced.matches = previous;
+    drawSprite(c, pet, 'idle', 30, { x: 100, y: 0 }, null, 30);
+    drawSprite(c, pet, 'idle', 40, { x: -100, y: 0 }, null, 40);
+    assert.equal(c._turning, true, 'turning again');
+    drawSprite(c, { ...pet, id: 'plain', version: 1 }, 'idle', 50, { x: -100, y: 0 }, null, 50);
+    assert.equal(c._turning, false, 'its look changed to a sheet with no look rows');
+  } finally {
+    reduced.matches = previous;
+  }
 });
 
 test('a sheet without look rows never turns', () => {

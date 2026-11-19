@@ -102,15 +102,19 @@ function arrive(v) {
   trip?.arrive?.(v, performance.now());
 }
 // Walks a friend to the end of its trips; returns how many there were, and the last target.
+// Every leg but the last passes its print at the walk's pace (motion.js `through`).
 function walk(v) {
   let legs = 0,
     last = null;
+  const through = [];
   while (v.target && legs < 50) {
     last = v.target;
+    through.push(!!v.trip?.through);
     arrive(v);
     legs++;
   }
   walk.last = last;
+  walk.through = through;
   return legs;
 }
 const flush = () => new Promise(resolve => setImmediate(resolve));
@@ -142,6 +146,11 @@ for (const bird of [false, true])
     // beside it are not walked back over.
     const legs = walk(y.v);
     assert.ok(legs >= 2 && legs <= points.length, `${legs} legs for ${points.length} points`);
+    assert.deepEqual(
+      walk.through,
+      walk.through.map((_, i) => i < legs - 1),
+      'it walks through every print and stops only at the last',
+    );
     // It stops beside the bush on the side the tail shows, clear of it.
     const bush = footTarget(y.v, parseFloat(end.style.left), parseFloat(end.style.top)),
       tailLeft = !/tail-peek[^"]*mirror/.test(end.innerHTML);

@@ -447,7 +447,14 @@ export function followTrail(n) {
   const go = () => {
     const target = stops[leg];
     if (!still) v.button?.classList.toggle('sniff-left', target.x < v.x);
-    sendTo(v, target, { arrive, cancel: follow.cancel, save: false, speed: leg ? speed : 0 });
+    // Every print but the last is walked through, not stopped at.
+    sendTo(v, target, {
+      arrive,
+      cancel: follow.cancel,
+      save: false,
+      speed: leg ? speed : 0,
+      through: leg < stops.length - 1,
+    });
   };
   const arrive = () => {
     if (trail.follow !== follow) return;
