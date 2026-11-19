@@ -23,6 +23,7 @@ import { glideMs } from './glide.js';
 import { visitKey } from './growing.js';
 import { nextDraw } from './pace.js';
 import { poke, showLamp } from './poke.js';
+import { showVine } from './vine.js';
 
 setupInteractions();
 document.documentElement.lang = language();
@@ -181,8 +182,13 @@ keepPeriod();
 // and the clock (decor-view.js): when one of those changed, never for a friend's step.
 const night = () => data.nightDecor || [];
 function redress() {
-  for (const v of decorations.values()) dressDecor(v, data.garden, season, new Date(), night());
+  for (const v of decorations.values()) {
+    dressDecor(v, data.garden, season, new Date(), night());
+    showVine(v, v.position, data.garden, layer());
+  }
 }
+// Vines are drawn under the desktop's things, in the layer that holds them.
+const layer = () => document.getElementById('friends');
 // A gift, a flower or a planted tree out on the desktop: dragged to move, poked to answer (poke.js:
 // a press let go where it started, as a friend's pat), and its menu takes it off the desktop.
 function createDecor(id, kind) {
@@ -242,6 +248,7 @@ function renderDecor(local) {
         continue;
       }
       v.wrap.remove();
+      v.vine?.remove();
       decorations.delete(id);
     }
   for (const position of local) {
@@ -252,18 +259,25 @@ function renderDecor(local) {
     }
     // Drawn once the catalogue says what it is; until then each render asks again (cheap).
     if (!v.drawn)
-      catalogue.then(() =>
-        drawDecor(
-          v,
-          () => data.garden,
-          () => season,
-          night,
-        ),
-      );
+      catalogue
+        .then(() =>
+          drawDecor(
+            v,
+            () => data.garden,
+            () => season,
+            night,
+          ),
+        )
+        // A climbing flower's vine once its pieces are in.
+        .then(() => showVine(v, v.position, data.garden, layer()));
     v.wrap.style.visibility = 'visible';
     v.wrap.style.width = `${position.width}px`;
     v.wrap.style.height = `${position.height}px`;
     v.wrap.style.transform = `translate(${position.x - position.origin.x}px,${position.y - position.origin.y}px)`;
+    // A hanging gift at a screen's top hangs from it (poke.js), and a climbing flower climbs (vine.js).
+    v.button.classList.toggle('hung', !!position.hung);
+    v.position = position;
+    showVine(v, position, data.garden, layer());
   }
 }
 function render() {

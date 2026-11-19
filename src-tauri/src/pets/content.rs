@@ -17,6 +17,10 @@ struct Kind {
     /// everyday rotation nor an event's order holds it.
     #[serde(default)]
     built: bool,
+    /// A gift that hangs from its hook (the chime): on the desktop, set down at a screen's top, it
+    /// hangs from that edge (desktop/overlay.rs set_down).
+    #[serde(default)]
+    hangs: bool,
     /// What a built gift can wear, in the order it is drawn (the snowman's scarf, nose and hat).
     #[serde(default)]
     dress: Vec<DressPart>,
@@ -430,6 +434,10 @@ impl Catalog {
             .iter()
             .any(|k| k.id == id && k.stand.as_deref() == Some("on"))
     }
+    /// Whether this gift hangs from the top of a screen when set down there.
+    pub fn hangs(&self, id: &str) -> bool {
+        self.gifts.iter().any(|k| k.id == id && k.hangs)
+    }
     /// Whether this gift is built in the yard, not brought by a friend (the snowman).
     pub fn is_built(&self, id: &str) -> bool {
         self.gifts.iter().any(|k| k.id == id && k.built)
@@ -485,6 +493,17 @@ mod tests {
         assert!(c.holds("fish", "crucian") && c.holds("bug", "firefly"));
         assert!(c.holds("treasure", "quartz") && c.holds("flower", "tulip"));
         assert!(!c.holds("fish", "firefly") && !c.holds("gift", "bench") && !c.holds("flower", "nothing"));
+    }
+
+    #[test]
+    fn the_chime_the_hanging_pot_and_the_mobile_hang_and_nothing_else_does() {
+        for kind in ["windchime", "hanging_pot", "mobile"] {
+            assert!(catalog().hangs(kind), "{kind}");
+            assert!(catalog().is_gift(kind), "{kind} is brought");
+        }
+        for other in ["lantern", "pinwheel", "bench", "fishbowl", "missing"] {
+            assert!(!catalog().hangs(other), "{other}");
+        }
     }
 
     #[test]

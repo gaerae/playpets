@@ -3,8 +3,10 @@
 // (catalog.json "part": points and pivot as shares of its box, and "spin" or "sway"): the drawing
 // is laid twice, once without the part and once with only the part, which turns. Each motion is
 // one animation that ends by itself (overlay.css). A lamp ("poke": "switch") goes off or on until
-// the hour next changes, and a fishbowl's fish swims across and back (display.js). Design:
-// docs/design/2026-11-19-desktop-items-that-answer.md, docs/design/2026-11-19-album-on-display.md.
+// the hour next changes, and a fishbowl's fish swims across and back (display.js). A gift that hangs
+// draws its cord too, for when it hangs from a screen's top. Design:
+// docs/design/2026-11-19-desktop-items-that-answer.md, docs/design/2026-11-19-album-on-display.md,
+// docs/design/2026-11-19-desktop-edges.md.
 
 import { artSvg } from '../yard/art.js';
 import { giftKind } from '../yard/catalog.js';
@@ -25,8 +27,13 @@ export function giftLayers(kind, holds = []) {
   const points = part.points.map(share).join(','),
     // The box, then the part as a hole in it: the joins there and back cancel out.
     rest = `0% 0%,100% 0%,100% 100%,0% 100%,0% 0%,${points},${share(part.points[0])}`;
+  // A gift that hangs has a cord from its box's top to the pivot, shown once it hangs from a
+  // screen's top without its stand (overlay.css .hung).
+  const [px, py] = part.pivot,
+    cord = gift.hangs ? `<span class="cord" style="left: ${px * 100}%; height: ${py * 100}%"></span>` : '';
   return (
     `${under}<span class="part-still" style="clip-path: polygon(evenodd,${rest})">${drawing}</span>` +
+    cord +
     `<span class="part" data-motion="${part.motion}" style="clip-path: polygon(${points});transform-origin: ${share(part.pivot)}">${drawing}</span>`
   );
 }

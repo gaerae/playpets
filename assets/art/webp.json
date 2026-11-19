@@ -219,10 +219,20 @@
     "svg": "9af1ce076ee76e3067b5976be38fe1f0f2027f3b3abd34abfc767a28db89fc55",
     "webp": "614440704e70ea1e987fd0ec1e21f077305742e1c534ed96a1f1edc58cd5b016"
   },
+  "album/decor/sculpted/hanging_pot.webp": {
+    "png": "1fc8f1caca6d4b0cd93104552bd0ff6c669b7e11b5d1c48c8485c99503a3eb85",
+    "svg": "3607bb3f15d45e9ae93fb1da0c2f1e392529358b800d45c115a8bc5c4302bd27",
+    "webp": "3b13e25f8fa046ea4116b508dfb684ef6d44f3a1eab67cddfd899e02a85fc626"
+  },
   "album/decor/sculpted/lantern.webp": {
     "png": "96fc15d3db5404814f64607f6c6acad8cc6303d0deb4384d7e1162420d292cf3",
     "svg": "a3fc971e7ffc2d9a519274128ea07c1c27b546b434a9b140d3aab62798dd9e9b",
     "webp": "dda7db22fa61574a8f9ea04f23548b025937ea4ae1c5003d422f58d1bf13d1e9"
+  },
+  "album/decor/sculpted/mobile.webp": {
+    "png": "1fc8f1caca6d4b0cd93104552bd0ff6c669b7e11b5d1c48c8485c99503a3eb85",
+    "svg": "e267b9ae3bbb334fc9a1de100711ad7b71725c53ce5c70420e07c4adc1669991",
+    "webp": "035e96221ca30e247219a50d0ea171b9d9192355dff9514087c0395cfbc9df7c"
   },
   "album/decor/sculpted/pinwheel.webp": {
     "png": "96fc15d3db5404814f64607f6c6acad8cc6303d0deb4384d7e1162420d292cf3",
@@ -912,6 +922,10 @@
     "png": "23cca024a3f917d472c774c66a1f03fe8a7fc32e9682fcd976b00ee31bc77e43",
     "webp": "3df91b1dac2a444f5db95c08a891334592d7a73ade14c82f054bb68b8c419951"
   },
+  "collection-extension/climbing-vine.png": {
+    "png": "efdd38872d0e36ca854b550e35961f5d9ec22698c45ca19d5f2131d00fad1508",
+    "webp": "28fa3fed81029ae9634780c517aa484bfc0cda30a1162291fa3153055077032d"
+  },
   "collection-extension/cute-props.png": {
     "png": "a1a273906dfa7dc353a23bc37a62c2d72ec7ca3c10c7c1b30870a4906758276a",
     "webp": "9708e541bce878c3a388a2f2578f1febf7ec057e3b3c3b6bd2592169dd4afd32"
@@ -951,6 +965,10 @@
   "collection-extension/gudgeon.png": {
     "png": "413e0b3d320a16686e655be6253c4e8bf6d040f51ee514e3fba3e8f6738bb306",
     "webp": "bb3062da3ab894ffd855581f9854dad9d796a656c99f71645d9b90f76469a469"
+  },
+  "collection-extension/hanging-gifts.png": {
+    "png": "1fc8f1caca6d4b0cd93104552bd0ff6c669b7e11b5d1c48c8485c99503a3eb85",
+    "webp": "dd5c2580d15bfc195079e0c10b95c614800717cbcb68d9e639d495934b5dd7ce"
   },
   "collection-extension/hoppers.png": {
     "png": "c9eab471860c37784a3d8f89c59252b5d1ff7a8a05c0d889015009cee129d6f8",

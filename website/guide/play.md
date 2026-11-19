@@ -453,7 +453,7 @@ A window is small at 640 pixels wide or less, or 480 tall or less.
 
 ## Collecting at your own pace
 
-The album has 185 entries across aquatic life, bugs, flowers, gifts, trees, footprints, spring shoots and little finds. Look for Korean aucha perch and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights. Grow dandelions, morning glories, red spider lilies and pansies, plant a ginkgo or a persimmon tree, dig up a pinecone, a paper boat or, now and then, a four-leaf clover, and make room for a water wheel, a hammock or a crock stand from a friend.
+The album has 187 entries across aquatic life, bugs, flowers, gifts, trees, footprints, spring shoots and little finds. Look for Korean aucha perch and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights. Grow dandelions, morning glories, red spider lilies and pansies, plant a ginkgo or a persimmon tree, dig up a pinecone, a paper boat or, now and then, a four-leaf clover, and make room for a water wheel, a hammock or a crock stand from a friend.
 
 ### How long it takes
 

@@ -84,7 +84,7 @@ test('guide bug percentages use one actual spawned-individual pool, not two full
   assert.ok(Math.abs(festival.find(item => item.id === 'golden_firefly').chance - 1 / 111) < 1e-12);
 });
 
-test('all 185 album entries remain reachable and event gifts retain calendar gates', async () => {
+test('all 187 album entries remain reachable and event gifts retain calendar gates', async () => {
   const { discoveryBugChances, discoveryFindChances } = await import('../website/.vitepress/theme/discovery-odds.js');
   const { LIMITS } = await import('../src/core/limits.js');
   const events = JSON.parse(await readFile(new URL('../src/content/events.json', import.meta.url))).events;
@@ -127,7 +127,7 @@ test('all 185 album entries remain reachable and event gifts retain calendar gat
   for (const [book, found] of Object.entries(seen)) assert.equal(found.size, catalog[book].length, book);
   assert.equal(
     Object.values(seen).reduce((sum, found) => sum + found.size, 0),
-    185,
+    187,
   );
 });
 

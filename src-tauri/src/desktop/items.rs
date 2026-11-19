@@ -97,6 +97,7 @@ fn friend(p: &Pet) -> Item {
         saved: spot(p.desktop_position),
         decor: None,
         foot: 1.0,
+        hangs: false,
     }
 }
 
@@ -108,6 +109,7 @@ fn decoration(d: &crate::pets::garden::Decor) -> Item {
         saved: spot(d.desktop_position),
         decor: Some((d.kind.clone(), (w * DECOR_SCALE).round(), (h * DECOR_SCALE).round())),
         foot: catalog().gift_foot(&d.kind),
+        hangs: catalog().hangs(&d.kind),
     }
 }
 
@@ -119,6 +121,7 @@ fn plant(p: &crate::pets::garden::Plant, now: u64) -> Item {
         saved: spot(p.desktop_position),
         decor: Some((p.kind.clone(), w, h)),
         foot: plant_foot(&p.kind, p.planted, now),
+        hangs: false,
     }
 }
 
@@ -131,6 +134,7 @@ fn tree(t: &crate::pets::discovery::Tree) -> Option<Item> {
         saved: spot(t.desktop_position),
         decor: Some((t.kind.clone(), w, h)),
         foot: 1.0,
+        hangs: false,
     })
 }
 
@@ -281,6 +285,21 @@ mod tests {
         assert_eq!(plant_foot("tulip", 1000, 1000 + bloom - 1), 1.0);
         assert_eq!(plant_foot("tulip", 1000, 1000 + bloom), 0.932);
         assert_eq!(plant_foot("no-such-flower", 0, bloom), 1.0);
+    }
+
+    #[test]
+    fn a_chime_goes_out_able_to_hang_and_a_bench_does_not() {
+        let (mut pets, mut garden) = yard();
+        garden.decor.push(Decor {
+            id: "chime".into(),
+            kind: "windchime".into(),
+            ..Decor::default()
+        });
+        set(&mut pets, &mut garden, "chime", true).unwrap();
+        set(&mut pets, &mut garden, "bench", true).unwrap();
+        let out = items(&pets, &garden, Some(&[]));
+        let hangs = |id: &str| out.iter().find(|i| i.id == id).unwrap().hangs;
+        assert!(hangs("chime") && !hangs("bench"));
     }
 
     fn garden_with_growing() -> (Vec<Pet>, Garden) {

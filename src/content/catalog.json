@@ -247,6 +247,13 @@
       "art": "flowers/morning_glory.svg",
       "foot": 0.968,
       "stature": 1.2,
+      "climbs": {
+        "leaves": ["flowers/vine/leaf.svg", "flowers/vine/leaf_left.svg", "flowers/vine/leaf_right.svg"],
+        "flowers": ["flowers/vine/flower_blue.svg", "flowers/vine/flower_pink.svg"],
+        "bud": "flowers/vine/bud.svg",
+        "tendril": "flowers/vine/tendril.svg",
+        "tip": "flowers/vine/young_leaf.svg"
+      },
       "colors": {
         "petal": "#5a6fd0",
         "petal-hi": "#9aa8ec",
@@ -544,6 +551,7 @@
       "foot": 0.888,
       "shade": [0.5, 0.06, 0.875, 0.73],
       "effects": ["chime"],
+      "hangs": true,
       "part": {
         "motion": "sway",
         "pivot": [0.342, 0.247],
@@ -646,6 +654,42 @@
       "size": [90, 75],
       "foot": 0.944,
       "shade": [0.96, 0.2, 0.9]
+    },
+    {
+      "id": "hanging_pot",
+      "art": "decor/sculpted/hanging_pot.svg",
+      "size": [43.9, 72],
+      "foot": 0.971,
+      "shade": [0.42, 0.05, 0.971, 0.808],
+      "hangs": true,
+      "part": {
+        "motion": "sway",
+        "pivot": [0.299, 0.157],
+        "points": [
+          [0, 0.157],
+          [0.72, 0.157],
+          [0.72, 0.86],
+          [0, 0.86]
+        ]
+      }
+    },
+    {
+      "id": "mobile",
+      "art": "decor/sculpted/mobile.svg",
+      "size": [46.9, 72],
+      "foot": 0.971,
+      "shade": [0.4, 0.05, 0.971, 0.82],
+      "hangs": true,
+      "part": {
+        "motion": "sway",
+        "pivot": [0.333, 0.157],
+        "points": [
+          [0, 0.157],
+          [0.72, 0.157],
+          [0.72, 0.74],
+          [0, 0.74]
+        ]
+      }
     },
     {
       "id": "kite",
