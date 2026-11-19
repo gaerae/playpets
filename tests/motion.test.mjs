@@ -511,6 +511,13 @@ test('a carried friend leans against the pull, and toward a pointer it looks at'
     friend.look = { x: -80, y: 0 };
     for (let at = 3000; at < 3600; at += 50) moveFriends(at, 50);
     assert.ok(lean() < -1 && lean() >= -LEAN.look - 0.05, `it leans toward the pointer (${lean()})`);
+    // Held still at that lean, it no longer moves: the yard may slow down again (app.js pace).
+    for (let at = 3600; at < 4400; at += 50) moveFriends(at, 50);
+    assert.ok(friend.lean, 'it keeps leaning while it looks');
+    assert.equal(friend.leaning, false, 'a settled lean is not movement');
+    friend.look = null;
+    moveFriends(4400, 50);
+    assert.equal(friend.leaning, true, 'straightening up is');
   } finally {
     views.clear();
     reduced.matches = previousReduced;

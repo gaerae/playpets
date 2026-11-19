@@ -68,11 +68,13 @@ function stepping(v, walking, strolling) {
 }
 // The sheet's rows a walk shows (core/animation.js), one way or the other.
 const WALK_CYCLES = new Set(['right', 'left']);
-// The body (the friend's button, about its feet) tilts toward `target` degrees on a spring; upright
-// and still, the lean is let go and nothing is left written, so the loop may rest (app.js pace).
-// Written only when it changes by a tenth of a degree.
+// The body (the friend's button, about its feet) tilts toward `target` degrees on a spring. Only a
+// lean still moving keeps the loop at its busy pace (`v.leaning`, app.js pace): one held toward a
+// pointer stays written, and an upright one is let go. Written only when it changes by a tenth of
+// a degree.
 function lean(v, target, dt) {
   if (reduced.matches || (!v.lean && Math.abs(target) < 0.05)) {
+    v.leaning = false;
     if (v.lean) {
       v.lean = null;
       v.leanShown = 0;
@@ -81,7 +83,8 @@ function lean(v, target, dt) {
     return;
   }
   v.lean = leanStep(v.lean ?? { angle: 0, spin: 0 }, target, dt);
-  if (!target && settled(v.lean)) v.lean = null;
+  v.leaning = !settled(v.lean, target);
+  if (!target && !v.leaning) v.lean = null;
   const shown = v.lean ? Math.round(v.lean.angle * 10) / 10 : 0;
   if ((v.leanShown ?? 0) === shown) return;
   v.leanShown = shown;

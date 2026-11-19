@@ -55,8 +55,9 @@
 | The friends' idle cycle stopped (a trial, not shipped) | 0.8% |
 
 - What is left is the idle cycle itself: about 0.6% for each redraw a second (see Rationale), and the idle row changes cells about five times a second.
-  - Since 2026-11-19 the row plays for 1.1 s in three beats of 3.6 s out of five, so a standing friend redraws about a fifth as often (not measured again yet).
-- In the yard, a turn and a lean keep the loop at its busy pace until they settle (`pace()` in `app.js`); a friend that stands with no lean adds nothing.
+  - Since 2026-11-19 the row plays for 1.1 s in three beats of 3.6 s out of five, so a standing friend redraws about a fifth as often.
+  - Measured 2026-11-19 with `pnpm run measure`, Apple M2 Pro, two alternating runs each: desktop only (yard hidden) 4.4–5.1% before, 2.3–2.9% after. The yard's states varied too much between runs that day (12–33%) to compare.
+- In the yard, a turn and a lean that still moves keep the loop at its busy pace (`pace()` in `app.js`); a friend that stands, or holds its lean toward the pointer, adds nothing.
 - Strolling friends cost the same before and after (8.6–10.1% against 8.7–9.3%): walking wakes the loop for each step anyway.
 - Do not draw when the window is not visible.
   - Loops return right away when `document.hidden` is set or when the backend reports the window hidden (the `window` event, `<html data-unseen>`).
