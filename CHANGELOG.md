@@ -21,9 +21,14 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A fish out of the album is drawn by its length, from a tiny killifish to a big sturgeon, in the yard and on the desktop.
 - A friend who visits a find out names it, in the yard and on the desktop.
 
+### Changed
+
+- The Christmas tree and the baby reindeer come early: friends bring them from November 15, and both show in the yard and on the desktop from then until January 7. Santa, the winter lights and the question about a winter yard still start on December 1. Ornaments hung from November 15 stay up through December, and the next Christmas's tree starts bare on the next November 15.
+
 ### Website and docs
 
 - The README and the guide count the album's 203 entries, and the guide says how finds on the desktop answer a click.
+- The guide says the Christmas tree and the baby reindeer come from November 15.
 
 ## [1.8.7] - 2026-11-19
 

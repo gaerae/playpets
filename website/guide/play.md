@@ -242,7 +242,7 @@ A few times a year the yard changes for a while. Each event comes on its own on 
 | Cherry blossom festival | Petals drift everywhere and more butterflies come out; friends gather for [flower viewing](#flower-viewing) | A cherry sapling |
 | Firefly nights | More fireflies at night, and a golden one to catch | A watermelon |
 | Harvest moon | The moonlight carp comes to the lake at night. Called up by hand, the full moon shows. On its own, the moon rises big and golden on the nights around the event's first full moon (two days either side, as at Chuseok and the Mid-Autumn Festival) and keeps its phase on the others | A pumpkin |
-| Winter lights | Little lights along the trees, glowing from evening on | A small Christmas tree, then a baby reindeer, then Santa |
+| Winter lights | Little lights along the trees, glowing from evening on | A small Christmas tree, then a baby reindeer (both from November 15), then Santa |
 | New Year | Friends greet the new year | A kite |
 
 - The event's name shows beside the scene label, a card says it has begun the first time you see it that year, and friends talk about it.
@@ -255,7 +255,9 @@ A few times a year the yard changes for a while. Each event comes on its own on 
 
 In December, if the yard isn't showing winter, PlayPets asks once whether to show it until January 7. Say yes, and your own season comes back on January 8.
 
-- The Christmas tree, the baby reindeer and Santa show in the yard and on the desktop from December 1 to January 7, and whenever the yard shows winter.
+- The Christmas tree and the baby reindeer come early: friends bring them from November 15, and they show in the yard and on the desktop until January 7.
+- Santa comes and shows from December 1 to January 7.
+- All three also show whenever the yard shows winter.
 - The rest of the time they wait out of sight, still counting toward the 12 decorations. Put one away and it goes back into the gift box.
 
 ### Christmas night {#christmas-night}
@@ -275,7 +277,7 @@ Press the Christmas tree to decorate it.
 - Each day, hang up to three things you've found in the album: flowers, trees, gifts and keepsakes. Aquatic life and bugs stay in the water and the grass.
 - Each becomes a small ornament tinted by kind; point at one to see what it is.
 - To change the tree, take an ornament down from its card. The day's three stay used.
-- Ornaments stay on the tree in the yard, the grand tree too, until the next December starts with a bare tree.
+- Ornaments stay on the tree in the yard, the grand tree too, until the next November 15 starts with a bare tree.
 
 ### Flower viewing
 

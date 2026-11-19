@@ -80,6 +80,7 @@ test('an event names its dates in the person language, six months on in the sout
   assert.equal(eventDates('harvest', true), 'Mar 8 – Apr 15');
   assert.equal(eventDates('newyear', true), 'Jan 1 – Jan 7', 'the new year keeps its date');
   assert.equal(eventDates('lights', true), 'Dec 1 – Dec 31');
+  assert.equal(eventDates('lights', false, '11-15'), 'Nov 15 – Dec 31', 'a gift that comes before its event');
   setLanguageForTests('ja');
   assert.equal(eventDates('lights'), '12月1日～12月31日');
   setLanguageForTests('ko');

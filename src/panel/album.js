@@ -38,7 +38,7 @@ function when(kind, where) {
 const eventHint = k => {
   const season = giftSeason(k.event),
     event = t(`event.${k.event}.name`),
-    dates = eventDates(k.event, systemSouth());
+    dates = eventDates(k.event, systemSouth(), k.from);
   return season
     ? t('catch.event_season_hint', { event, dates, season: t(`catch.season_${season}`) })
     : t('catch.event_hint', { event, dates });
@@ -235,7 +235,8 @@ function card(b, kind, entry, index) {
 // Set out while out of sight (decor-shown.js), a gift would vanish into the yard: it waits, and says
 // when it shows: a Christmas gift its dates, a snowman winter.
 const showsNow = kind => decorShown(kind, new Date(), yardSeason(scene));
-const whenShown = kind => t(giftKind(kind)?.shown ? 'album.shown_december' : 'album.shown_winter');
+const SHOWN_TITLE = { advent: 'album.shown_advent', december: 'album.shown_december' };
+const whenShown = kind => t(SHOWN_TITLE[giftKind(kind)?.shown] || 'album.shown_winter');
 // A gift that came before can always come back out of its card (garden.rs take_out): one in the
 // yard says so, and one waiting in the box is set out from the box below the book. A snowman is
 // built in the snow, never set out: its card only says when one stands in the yard.

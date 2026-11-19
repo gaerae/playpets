@@ -58,11 +58,14 @@ async function decorated(ctx, { now, scene = DAY, garden = {}, before } = {}) {
   return { ...parts, tree };
 }
 
-test("a December's ornaments belong to that December until the next one", () => {
+// A tree's Christmas starts on November 15, when the tree comes out (decor-shown.js advent), so
+// what hangs in late November is still up in December.
+test("a Christmas's ornaments belong to it until the next one starts on November 15", () => {
+  assert.equal(ornamentSeason(new Date(2026, 10, 15)), 2026);
   assert.equal(ornamentSeason(new Date(2026, 11, 1)), 2026);
   assert.equal(ornamentSeason(new Date(2027, 0, 7)), 2026);
-  assert.equal(ornamentSeason(new Date(2027, 10, 30)), 2026);
-  assert.equal(ornamentSeason(new Date(2027, 11, 1)), 2027);
+  assert.equal(ornamentSeason(new Date(2027, 10, 14)), 2026);
+  assert.equal(ornamentSeason(new Date(2027, 10, 15)), 2027);
   const o = camellia();
   assert.deepEqual(treeOrnaments({ ornamentYear: 2026, ornaments: [o] }, new Date(2027, 0, 5)), [o]);
   assert.deepEqual(treeOrnaments({ ornamentYear: 2026, ornaments: [o] }, new Date(2027, 11, 1)), []);
@@ -209,9 +212,9 @@ test('the grand tree wears the same ornaments on its own hooks', async ctx => {
   assert.equal(named(art, 'ornaments').length, 1);
 });
 
-test("last December's ornaments are not drawn from December 1", async ctx => {
+test("last Christmas's ornaments are not drawn from November 15", async ctx => {
   const { tree } = await decorated(ctx, {
-    now: new Date(2026, 11, 1, 12),
+    now: new Date(2026, 10, 15, 12),
     garden: { ornaments: [camellia(0), pinecone(11)], ornamentYear: 2025 },
   });
   const [layer] = named(tree(), 'ornaments');
