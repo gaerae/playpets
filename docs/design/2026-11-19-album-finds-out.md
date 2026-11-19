@@ -46,7 +46,7 @@ Replaces the displays first built on this branch (a fishbowl, a bug jar, a speci
 | Fish | Drawn a little above its foot and turned a little. A poke swims it across and back over about 2 s, turning at each end, with three small bubbles |
 | Bug | Sits on its foot. A jar is no longer needed for the firefly's glow: a firefly out glows from evening |
 | Treasure | Sits on its foot |
-| Shadow | None, in the yard or on the desktop |
+| Shadow | None, in the yard or on the desktop. A firefly's glow has its halo but no pool of light on the ground, which reads as a shadow |
 | Names and menus | A find out is named for itself (a goldfish), not for a container |
 | Limit | Each find out is one of the yard's gifts, as before (`DECOR_MAX`), shared with the desktop |
 | Old saves | None exist: displays never shipped |

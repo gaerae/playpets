@@ -106,13 +106,15 @@ test('a find is drawn from its full painting and named for itself', () => {
   assert.match(yardCss, /\.decor \.held\[data-book="fish"\] svg \{\s*rotate:/);
 });
 
-test('a firefly out glows from evening; other bugs do not', () => {
+test('a firefly out glows from evening, with no light on the ground; other bugs do not', () => {
   const firefly = BUGS.find(b => b.kind === 'firefly').id,
     butterfly = BUGS.find(b => b.kind === 'butterfly').id;
-  assert.deepEqual(displayEffects('bug_out', [firefly]), ['glow']);
+  assert.deepEqual(displayEffects('bug_out', [firefly]), ['halo']);
   assert.deepEqual(displayEffects('bug_out', [butterfly]), []);
   assert.deepEqual(displayEffects('fish_out', [FISH[0].id]), []);
   assert.match(giftLayers('bug_out', [firefly]), /class="fx-glow"/);
+  // A pool of light on the ground reads as a shadow under it: none (album-finds-out.md).
+  assert.doesNotMatch(giftLayers('bug_out', [firefly]), /fx-pool/);
   assert.doesNotMatch(giftLayers('bug_out', [butterfly]), /fx-glow/);
 });
 

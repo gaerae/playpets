@@ -47,11 +47,12 @@ export function heldArt(kind, holds = []) {
   const display = displayKind(kind);
   return display ? holds.map(id => heldKind(display.holds, id)?.art).filter(Boolean) : [];
 }
-/** A find out's effects: a firefly glows from evening, as a lit gift does. */
+/** A find out's effects: a firefly glows from evening, as a lit gift does, but casts no light on the
+ * ground, as it casts no shadow. */
 export function displayEffects(kind, holds = []) {
   const display = displayKind(kind);
   if (display?.holds !== 'bug') return [];
-  return holds.some(id => heldKind('bug', id)?.kind === 'firefly') ? ['glow'] : [];
+  return holds.some(id => heldKind('bug', id)?.kind === 'firefly') ? ['halo'] : [];
 }
 /** What a find out is called: the find's own name ("Crucian carp"); a gift's own name. */
 export function displayName(kind, holds = []) {
