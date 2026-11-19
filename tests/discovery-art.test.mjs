@@ -8,7 +8,7 @@ const read = name => readFileSync(new URL(`../${name}`, import.meta.url));
 const catalog = JSON.parse(read('src/content/catalog.json'));
 const sources = JSON.parse(read('assets/discovery/ART-SOURCES.json'));
 
-test('discovery offers twenty distinct tree species with growth and deciduous seasonal art', () => {
+test('discovery offers twenty-four distinct tree species with growth and deciduous seasonal art', () => {
   assert.deepEqual(
     catalog.trees.map(tree => tree.id),
     [
@@ -32,6 +32,10 @@ test('discovery offers twenty distinct tree species with growth and deciduous se
       'red_plum',
       'yuzu',
       'juniper',
+      'lilac',
+      'silk_tree',
+      'osmanthus',
+      'holly',
     ],
   );
   for (const id of ['oak', 'birch', 'willow', 'ginkgo', 'persimmon', 'magnolia', 'crape_myrtle', 'metasequoia']) {
@@ -51,6 +55,10 @@ test('discovery offers twenty distinct tree species with growth and deciduous se
     ['golden_rain_tree', 'summer'],
     ['chestnut', 'autumn'],
     ['red_plum', 'winter'],
+    ['lilac', 'spring'],
+    ['silk_tree', 'summer'],
+    ['osmanthus', 'autumn'],
+    ['holly', 'winter'],
   ]) {
     const tree = catalog.trees.find(item => item.id === id);
     assert.deepEqual(
@@ -79,6 +87,8 @@ test('whimsical keepsakes have translated names and year-round weighted discover
     ...['old_coin', 'blue_feather', 'pinecone', 'old_key', 'paper_boat', 'spinning_top'].map(id => [id, 'common']),
     ['freshwater_pearl', 'uncommon'],
     ['four_leaf_clover', 'uncommon'],
+    ...['heart_locket', 'pearl_hair_clip', 'shell_mirror'].map(id => [id, 'common']),
+    ['perfume_bottle', 'uncommon'],
   ]) {
     const treasure = catalog.treasures.find(item => item.id === id);
     assert.equal(treasure?.rarity, rarity, id);
@@ -104,6 +114,10 @@ test('whimsical keepsakes have translated names and year-round weighted discover
     'red_plum',
     'yuzu',
     'juniper',
+    'lilac',
+    'silk_tree',
+    'osmanthus',
+    'holly',
   ])
     for (const strings of Object.values(STRINGS)) assert.ok(strings[`tree.${id}`]);
 });

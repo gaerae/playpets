@@ -267,3 +267,20 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   the mobile).
 - Accepted source, prompt, hashes and measured boxes:
   `assets/sources/edges-2026-11-19/accepted-art.json`.
+
+## Flowers and keepsakes for the album of 203 (2026-11-20)
+
+- `collection-extension/flowers-4` holds two new flowers for each season in
+  reading order: lily of the valley and peony (spring), rose and lily (summer),
+  marigold and Japanese anemone (autumn), poinsettia and amaryllis (winter).
+  `flowers-3` was the style reference.
+- The lily and the amaryllis stand a little taller in the yard (`stature` 1.2
+  and 1.15 in `catalog.json`); every new flower has a measured `foot`.
+- `collection-extension/keepsakes` holds four keepsakes in reading order: a
+  heart locket, a tiny perfume bottle, a pearl ribbon clip and a seashell
+  mirror. `cute-props` was the style reference.
+- Alpha below 50 is cleared to fully transparent; crops follow measured
+  silhouettes with a 14-pixel margin. Reproduce the wrappers with
+  `node scripts/pack-collection.mjs`.
+- Accepted sources, prompts, hashes and measured boxes:
+  `assets/sources/album-plus-2026-11-20/accepted-art.json`.

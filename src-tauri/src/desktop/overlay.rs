@@ -377,7 +377,7 @@ fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt
     let (mons, primary) = current_monitors(app, inner);
     let cursor = cursor_in(app, &mons, primary);
     let mut arrivals: Vec<(String, i64, i64)> = Vec::new();
-    let mut visits: Vec<(String, String)> = Vec::new();
+    let mut visits: Vec<(String, String, String)> = Vec::new();
     let (moved, busy) = {
         let mut d = crate::app::hold(inner);
         if let Some(item) = d.warming.take()
@@ -411,9 +411,13 @@ fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt
     for (id, x, y) in &arrivals {
         on_position(id, *x, *y);
     }
-    // A friend that walked over to a decoration says something about it (overlay.js).
-    for (pet, kind) in &visits {
-        crate::app::push_event(app, &json!({"type": "visit", "petId": pet, "kind": kind}));
+    // A friend that walked over to a decoration says something about it (overlay.js), naming the
+    // find a find out holds, which the page looks up by the decoration's id.
+    for (pet, decor, kind) in &visits {
+        crate::app::push_event(
+            app,
+            &json!({"type": "visit", "petId": pet, "decorId": decor, "kind": kind}),
+        );
     }
     sync_windows(app, inner, &mons, cursor, moved || !arrivals.is_empty());
     busy
@@ -584,7 +588,7 @@ fn stroll(
     cursor: Option<(f64, f64)>,
     dt_ms: f64,
     arrivals: &mut Vec<(String, i64, i64)>,
-    visits: &mut Vec<(String, String)>,
+    visits: &mut Vec<(String, String, String)>,
 ) -> bool {
     if !d.wander || !d.visible || d.drag.is_some() {
         return false;
@@ -650,8 +654,8 @@ fn stroll(
                     roaming.target = None;
                     roaming.next_at = rest();
                     arrivals.push((p.id.clone(), nx.round() as i64, ny.round() as i64));
-                    if let Some((_, kind)) = roaming.visiting.take() {
-                        visits.push((p.id.clone(), kind));
+                    if let Some((decor, kind)) = roaming.visiting.take() {
+                        visits.push((p.id.clone(), decor, kind));
                     }
                 }
             }

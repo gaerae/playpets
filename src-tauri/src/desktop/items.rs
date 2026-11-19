@@ -103,11 +103,13 @@ fn friend(p: &Pet) -> Item {
 
 fn decoration(d: &crate::pets::garden::Decor) -> Item {
     let (w, h) = catalog().gift_size(&d.kind).unwrap_or((64.0, 64.0));
+    // A fish out is drawn by its length (content.rs find_scale), as in the yard.
+    let scale = DECOR_SCALE * catalog().find_scale(&d.kind, &d.holds);
     Item {
         id: d.id.clone(),
         size: 0.0,
         saved: spot(d.desktop_position),
-        decor: Some((d.kind.clone(), (w * DECOR_SCALE).round(), (h * DECOR_SCALE).round())),
+        decor: Some((d.kind.clone(), (w * scale).round(), (h * scale).round())),
         foot: catalog().gift_foot(&d.kind),
         hangs: catalog().hangs(&d.kind),
     }
@@ -300,6 +302,29 @@ mod tests {
         let out = items(&pets, &garden, Some(&[]));
         let hangs = |id: &str| out.iter().find(|i| i.id == id).unwrap().hangs;
         assert!(hangs("chime") && !hangs("bench"));
+    }
+
+    // A sturgeon out takes more of the desktop than a killifish: its box follows the fish's length.
+    #[test]
+    fn a_big_fish_goes_out_bigger_than_a_small_one() {
+        let (mut pets, mut garden) = yard();
+        for (id, fish) in [("big", "sturgeon"), ("small", "killifish")] {
+            garden.decor.push(Decor {
+                id: id.into(),
+                kind: "fish_out".into(),
+                holds: vec![fish.into()],
+                ..Decor::default()
+            });
+            set(&mut pets, &mut garden, id, true).unwrap();
+        }
+        let out = items(&pets, &garden, Some(&[]));
+        let size = |id: &str| {
+            let (_, w, h) = out.iter().find(|i| i.id == id).unwrap().decor.clone().unwrap();
+            (w, h)
+        };
+        let (bw, bh) = size("big");
+        let (sw, sh) = size("small");
+        assert!(bw > 2.0 * sw && bh > 2.0 * sh, "{bw}x{bh} against {sw}x{sh}");
     }
 
     fn garden_with_growing() -> (Vec<Pet>, Garden) {

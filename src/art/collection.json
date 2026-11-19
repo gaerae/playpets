@@ -1280,5 +1280,113 @@
     "crop": [1155, 574, 366, 404],
     "size": [40, 54],
     "art": "flowers/winter_heath.svg"
+  },
+  {
+    "id": "lily_of_the_valley",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-4.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [67, 75, 277, 381],
+    "size": [40, 54],
+    "art": "flowers/lily_of_the_valley.svg"
+  },
+  {
+    "id": "peony",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-4.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [403, 79, 347, 376],
+    "size": [40, 54],
+    "art": "flowers/peony.svg"
+  },
+  {
+    "id": "rose",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-4.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [795, 91, 318, 364],
+    "size": [40, 54],
+    "art": "flowers/rose.svg"
+  },
+  {
+    "id": "lily",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-4.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1187, 56, 300, 399],
+    "size": [40, 54],
+    "art": "flowers/lily.svg"
+  },
+  {
+    "id": "marigold",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-4.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [37, 555, 329, 379],
+    "size": [40, 54],
+    "art": "flowers/marigold.svg"
+  },
+  {
+    "id": "japanese_anemone",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-4.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [419, 546, 300, 387],
+    "size": [40, 54],
+    "art": "flowers/japanese_anemone.svg"
+  },
+  {
+    "id": "poinsettia",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-4.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [774, 557, 346, 376],
+    "size": [40, 54],
+    "art": "flowers/poinsettia.svg"
+  },
+  {
+    "id": "amaryllis",
+    "kind": "flower",
+    "atlas": "collection-extension/flowers-4.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1167, 531, 327, 403],
+    "size": [40, 54],
+    "art": "flowers/amaryllis.svg"
+  },
+  {
+    "id": "heart_locket",
+    "kind": "treasure",
+    "atlas": "collection-extension/keepsakes.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [36, 359, 321, 324],
+    "size": [40, 40],
+    "art": "discovery/heart_locket.svg"
+  },
+  {
+    "id": "perfume_bottle",
+    "kind": "treasure",
+    "atlas": "collection-extension/keepsakes.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [395, 326, 350, 364],
+    "size": [40, 40],
+    "art": "discovery/perfume_bottle.svg"
+  },
+  {
+    "id": "pearl_hair_clip",
+    "kind": "treasure",
+    "atlas": "collection-extension/keepsakes.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [782, 375, 362, 316],
+    "size": [40, 40],
+    "art": "discovery/pearl_hair_clip.svg"
+  },
+  {
+    "id": "shell_mirror",
+    "kind": "treasure",
+    "atlas": "collection-extension/keepsakes.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1185, 350, 310, 348],
+    "size": [40, 40],
+    "art": "discovery/shell_mirror.svg"
   }
 ]

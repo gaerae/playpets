@@ -220,6 +220,40 @@
   height: 4px;
 }
 
+/* A treasure's sparkles (yard/display.js), unseen until it is poked on the desktop (overlay.css):
+   three little four-pointed stars by its top. */
+.decor .sparkle {
+  position: absolute;
+  inset: -8% -8% 40% 40%;
+  pointer-events: none;
+}
+.decor .sparkle i {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  background: #fff6cf;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  filter: drop-shadow(0 0 2px #ffe27a);
+  opacity: 0;
+  scale: 0.4;
+}
+.decor .sparkle i:nth-child(1) {
+  left: 70%;
+  top: 10%;
+}
+.decor .sparkle i:nth-child(2) {
+  left: 25%;
+  top: 30%;
+  width: 7px;
+  height: 7px;
+}
+.decor .sparkle i:nth-child(3) {
+  left: 85%;
+  top: 65%;
+  width: 6px;
+  height: 6px;
+}
+
 /* The grand Christmas tree (yard/grand-tree.js), in the yard and out on the desktop: a layer
    inside the small tree's button, standing on the same foot. .xmas-grand shows it, and every turn
    either way is a short crossfade. .xmas-rise is the change itself: a gold veil climbs from the

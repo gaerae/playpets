@@ -451,6 +451,19 @@ impl Catalog {
     pub fn fish_max(&self, id: &str) -> Option<f64> {
         self.fish.iter().find(|f| f.id == id).map(|f| f.size[1])
     }
+    /// How much bigger than its book's box a find out is drawn: a fish by its longest length, on a
+    /// log scale from a killifish's 4 cm (0.7) to a sturgeon's 150 cm (1.45); 1 for anything else.
+    /// The page draws it the same (display.js findScale).
+    pub fn find_scale(&self, kind: &str, holds: &[String]) -> f64 {
+        let fish = (self.display_of(kind) == Some("fish"))
+            .then(|| holds.first())
+            .flatten()
+            .and_then(|id| self.fish_max(id));
+        fish.map_or(1.0, |max| {
+            let at = ((max.ln() - 4f64.ln()) / (150f64.ln() - 4f64.ln())).clamp(0.0, 1.0);
+            0.7 + 0.75 * at
+        })
+    }
     /// Whether this bug flies over the yard.
     pub fn is_bug(&self, id: &str) -> bool {
         self.bugs.iter().any(|k| k.id == id)
@@ -482,6 +495,24 @@ mod tests {
         assert!(c.holds("fish", "crucian") && c.holds("bug", "firefly"));
         assert!(c.holds("treasure", "quartz") && c.holds("flower", "tulip"));
         assert!(!c.holds("fish", "firefly") && !c.holds("gift", "bench") && !c.holds("flower", "nothing"));
+    }
+
+    // A fish out is drawn by its length: from a killifish (4 cm at most) to a sturgeon (150 cm),
+    // on a log scale, the same as the page (display.js findScale).
+    #[test]
+    fn a_fish_out_is_sized_by_its_length_and_other_finds_by_their_book() {
+        let c = catalog();
+        let scale = |kind: &str, id: &str| c.find_scale(kind, &[id.to_string()]);
+        assert_eq!(scale("fish_out", "killifish"), 0.7);
+        assert_eq!(scale("fish_out", "sturgeon"), 1.45);
+        let goldfish = scale("fish_out", "goldfish");
+        assert!(goldfish > 0.9 && goldfish < 1.05, "{goldfish}");
+        assert!(scale("fish_out", "minnow") < scale("fish_out", "carp"));
+        assert_eq!(scale("bug_out", "ladybug"), 1.0);
+        assert_eq!(scale("treasure_out", "heart_locket"), 1.0);
+        assert_eq!(scale("bench", "crucian"), 1.0);
+        assert_eq!(c.find_scale("fish_out", &[]), 1.0);
+        assert_eq!(scale("fish_out", "no-such-fish"), 1.0);
     }
 
     #[test]
@@ -575,8 +606,8 @@ mod tests {
                 })
                 .count()
         };
-        // Six times the weight turns about 12% into about 44% of the common finds (19 kinds).
-        assert!(share("common", Some("squirrel"), &["pinecone", "acorn_teacup"]) > 400);
+        // Six times the weight turns about 10% into about 40% of the common finds (22 kinds).
+        assert!(share("common", Some("squirrel"), &["pinecone", "acorn_teacup"]) > 350);
         assert!(share("common", None, &["pinecone", "acorn_teacup"]) < 250);
         assert!(share("uncommon", Some("magpie"), &["star_fragment", "quartz", "tiny_crown"]) > 700);
         for track in &c.tracks {

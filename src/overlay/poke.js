@@ -3,14 +3,15 @@
 // (catalog.json "part": points and pivot as shares of its box, and "spin" or "sway"): the drawing
 // is laid twice, once without the part and once with only the part, which turns. Each motion is
 // one animation that ends by itself (overlay.css). A lamp ("poke": "switch") goes off or on until
-// the hour next changes, and a fish out swims across and back (display.js). A gift that hangs
+// the hour next changes, and a find out answers in its own way (display.js pokeOf): a fish swims
+// across and back, a butterfly flaps, a treasure sparkles, and a few make a sound. A gift that hangs
 // draws its cord too, for when it hangs from a screen's top. Design:
 // docs/design/2026-11-19-desktop-items-that-answer.md, docs/design/2026-11-19-album-finds-out.md,
-// docs/design/2026-11-19-desktop-edges.md.
+// docs/design/2026-11-19-desktop-edges.md, docs/design/2026-11-20-finds-come-alive.md.
 
 import { artSvg } from '../yard/art.js';
 import { giftKind } from '../yard/catalog.js';
-import { displayEffects, displayKind } from '../yard/display.js';
+import { displayEffects, displayKind, pokeOf } from '../yard/display.js';
 import { effectLayers } from '../yard/effects.js';
 
 const share = ([x, y]) => `${x * 100}% ${y * 100}%`;
@@ -50,8 +51,9 @@ export function showLamp(view, period) {
   view.button.classList.toggle('lamp-off', switched && !view.lamp.on);
 }
 
-/** The gift `view` was poked at the hour `period`: a lamp switches, a moving part turns once
- * (not with `reduced` motion), and a chime rings through `ring`. */
+/** The gift `view` was poked at the hour `period`: a lamp switches, a moving part turns once and a
+ * find out (what `view.holds`) moves its own way (not with `reduced` motion), and a chime or a
+ * find's own cue rings through `ring(cue)`, with reduced motion too. */
 export function poke(view, { period, reduced, ring }) {
   const gift = giftKind(view.kind);
   if (!gift) return;
@@ -60,17 +62,20 @@ export function poke(view, { period, reduced, ring }) {
     view.lamp = { period, on: !lit };
     showLamp(view, period);
   }
-  // A fish out is its own moving part.
-  const part =
-    (gift.part && (view.part ??= view.button.querySelector('.part'))) ||
-    (displayKind(view.kind)?.holds === 'fish' && view.button.querySelector('.held'));
+  const display = displayKind(view.kind),
+    answer = display && pokeOf(display.holds, view.holds?.[0]);
+  // A find out is its own moving part.
+  const part = answer
+    ? view.button.querySelector('.held')
+    : gift.part && (view.part ??= view.button.querySelector('.part'));
   if (part && !reduced) {
-    if (!gift.part) part.dataset.motion = 'swim';
+    if (answer) part.dataset.motion = answer.motion;
     // From the start again when poked while it still moves.
     part.classList.remove('moving');
     void part.offsetWidth;
     part.classList.add('moving');
     part.addEventListener('animationend', () => part.classList.remove('moving'), { once: true });
   }
-  if (gift.effects?.includes('chime')) ring();
+  if (answer?.cue) ring(answer.cue);
+  else if (gift.effects?.includes('chime')) ring('chime');
 }

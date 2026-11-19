@@ -32,8 +32,8 @@ export function buildGroundProfile({
   garden = {},
   lake = null,
   scale = 1,
-  // A gift's box and foot share before its depth (props.js giftSize).
-  giftDimensions = kind => giftSize(kind),
+  // A gift's box and foot share before its depth (props.js giftSize), by what a find out holds.
+  giftDimensions = (kind, holds) => giftSize(kind, undefined, holds),
   // How big a thing whose foot is at a yard point is drawn for its depth (field.js depthScaleAt), so
   // what friends walk around is the size drawn; 1 everywhere leaves depth out.
   depthScaleAt = () => 1,
@@ -132,7 +132,7 @@ export function buildGroundProfile({
     const gift = giftKind(item.kind),
       // Drawn as decor.js places it: one friends stand on stays on the field.
       at = foot({ x: item.x, y: Math.min(item.y, gift?.stand === 'on' ? 1 : floorAt(item.x)) }),
-      size = giftDimensions(item.kind),
+      size = giftDimensions(item.kind, item.holds),
       depth = depthScaleAt(at.x, at.y),
       w = size.w * depth,
       h = size.h * depth,

@@ -181,7 +181,7 @@ test('a grown flower card has Set out and the desktop, and no frame', ctx => {
 });
 
 test('a poked fish swims a turn; nothing moves with reduced motion', () => {
-  const view = { id: 'd1', kind: 'fish_out', button: element('button') },
+  const view = { id: 'd1', kind: 'fish_out', holds: ['crucian'], button: element('button') },
     fish = element('span');
   fish.className = 'held';
   view.button.querySelector = selector => (selector === '.held' ? fish : null);
@@ -192,7 +192,7 @@ test('a poked fish swims a turn; nothing moves with reduced motion', () => {
   assert.equal(fish.classList.contains('moving'), false);
   poke(view, { period: 'day', reduced: true, ring() {} });
   assert.equal(fish.classList.contains('moving'), false);
-  // A treasure or a bug does not swim.
+  // A treasure sparkles instead (finds-come-alive.test.mjs); one whose find is not known yet stays.
   const still = element('span');
   still.className = 'held';
   poke(

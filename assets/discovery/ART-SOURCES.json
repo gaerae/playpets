@@ -616,6 +616,82 @@
         }
       ],
       "notes": "Generated 2026-11-16 through the Codex CLI built-in image tool. The acorns a grown oak drops at its foot in autumn (tree moments). Cropped to the drawing with a 24-pixel margin, halved with premultiplied averaging, and alpha below 50 cleared to 0,0,0,0; the raw 1254x1254 generation is not kept, sha256 5d8ed80d62e9d7f105ea5b0ee510fddfc895af95ad6b548501a192c6524a0e6b."
+    },
+    {
+      "id": "lilac",
+      "file": "lilac-source.png",
+      "atlas": "trees/lilac.png",
+      "size": [1536, 1024],
+      "sha256": "93af61d47278342265c4395b5084cba6b7781c5603ac24e38d259b70e69326f4",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. The first two reference images are STYLE ONLY: match their warm tactile miniature sculpted illustration, detailed natural hand-painted wood and leaves, crisp botanical silhouette, soft top-left light. Charming and lovable, a tree people want to collect: warm, saturated, glowing colours like the best reference trees, clean readable shapes that still read at 80 pixels, never dull, muddy, grey or cluttered. Genuine transparent RGBA background, no floor, cast shadow, background colour, haze, glow, checkerboard ink, labels, text, grid, pot, grass tuft or dirt mound. NO snow, NO frost anywhere. Landscape 1536x1024 canvas: six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside their cells with wide transparent gutters, nothing touches or crosses a cell edge. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered, a few short spreading surface roots at the base like the magnolia reference. Row1: small seedling (30% cell height), young sapling (60%), mature tree in its DEFAULT look (85%). Row2: the SAME mature tree in three other seasons (all 85%, same trunk, branching, root identity, crown size and proportions). Designed to look polished at 35/70/160 CSS pixels. Row1 col3 mature DEFAULT = SPRING in full bloom. Row2: SUMMER, AUTUMN, WINTER. LILAC TREE (Syringa), a small multi-stemmed tree. Signature: big fragrant cone-shaped clusters of tiny four-petal flowers in soft LAVENDER-PURPLE and lilac-pink. Smooth grey-brown stems, heart-shaped mid-green leaves in pairs, a rounded vase-shaped crown. Seedling: a thin stem with two pairs of small heart-shaped leaves. Young: a slim sapling with heart-shaped leaves and one small lavender flower cluster. Row1 col3 mature DEFAULT: the rounded crown covered in many plump lavender-purple flower cones among fresh green heart leaves. Row2 (in this order): col1 SUMMER: a full crown of green heart-shaped leaves, no flowers; col2 AUTUMN: the leaves turning soft yellow and muted purple-bronze; col3 WINTER: bare graceful grey branches with small paired buds, no leaves.",
+      "references": [
+        {
+          "path": "assets/discovery/magnolia-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "assets/discovery/oak-source.png",
+          "role": "Style reference only"
+        }
+      ],
+      "notes": "Alpha below 50 cleared to 0,0,0,0 from the generated sheet; crops follow measured silhouettes. Six-cell tree sheets reuse one source per species across growth and seasons."
+    },
+    {
+      "id": "silk_tree",
+      "file": "silk_tree-source.png",
+      "atlas": "trees/silk_tree.png",
+      "size": [1536, 1024],
+      "sha256": "969ae2c868742096b0d6985d7ecfb3142f5f7f7353b205b5ee4be4a29f6cf53b",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. The first two reference images are STYLE ONLY: match their warm tactile miniature sculpted illustration, detailed natural hand-painted wood and leaves, crisp botanical silhouette, soft top-left light. Charming and lovable, a tree people want to collect: warm, saturated, glowing colours like the best reference trees, clean readable shapes that still read at 80 pixels, never dull, muddy, grey or cluttered. Genuine transparent RGBA background, no floor, cast shadow, background colour, haze, glow, checkerboard ink, labels, text, grid, pot, grass tuft or dirt mound. NO snow, NO frost anywhere. Landscape 1536x1024 canvas: six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside their cells with wide transparent gutters, nothing touches or crosses a cell edge. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered, a few short spreading surface roots at the base like the magnolia reference. Row1: small seedling (30% cell height), young sapling (60%), mature tree in its DEFAULT look (85%). Row2: the SAME mature tree in three other seasons (all 85%, same trunk, branching, root identity, crown size and proportions). Designed to look polished at 35/70/160 CSS pixels. Row1 col3 mature DEFAULT = SUMMER in full bloom. Row2: SPRING, AUTUMN, WINTER. SILK TREE (Albizia julibrissin, mimosa tree). Signature: fluffy powder-puff flowers of long silky threads, PINK at the tips fading to WHITE at the base, sitting on top of a wide flat UMBRELLA-shaped crown of delicate feathery fern-like leaves. A short leaning trunk with smooth grey-brown bark branching into a broad spreading canopy, wider than tall. Seedling: a thin stem with two small feathery fern-like leaves. Young: a slim sapling with a small umbrella of feathery leaves and two pink puffs. Row1 col3 mature DEFAULT: the wide umbrella crown of fresh green feathery leaves dotted all over its top with many pink-and-white silky pompom flowers. Row2 (in this order): col1 SPRING: the same crown in fresh light-green feathery leaves, no flowers; col2 AUTUMN: feathery leaves turning golden yellow with a few hanging flat tan seed pods; col3 WINTER: bare spreading umbrella branches with a few flat tan seed pods hanging, no leaves.",
+      "references": [
+        {
+          "path": "assets/discovery/magnolia-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "assets/discovery/oak-source.png",
+          "role": "Style reference only"
+        }
+      ],
+      "notes": "Alpha below 50 cleared to 0,0,0,0 from the generated sheet; crops follow measured silhouettes. Six-cell tree sheets reuse one source per species across growth and seasons."
+    },
+    {
+      "id": "osmanthus",
+      "file": "osmanthus-source.png",
+      "atlas": "trees/osmanthus.png",
+      "size": [1536, 1024],
+      "sha256": "007f96ab34838ffe5c88059d22743bfb1945b97d353c7715e6ab299128231f5a",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. The first two reference images are STYLE ONLY: match their warm tactile miniature sculpted illustration, detailed natural hand-painted wood and leaves, crisp botanical silhouette, soft top-left light. Charming and lovable, a tree people want to collect: warm, saturated, glowing colours like the best reference trees, clean readable shapes that still read at 80 pixels, never dull, muddy, grey or cluttered. Genuine transparent RGBA background, no floor, cast shadow, background colour, haze, glow, checkerboard ink, labels, text, grid, pot, grass tuft or dirt mound. NO snow, NO frost anywhere. Landscape 1536x1024 canvas: six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside their cells with wide transparent gutters, nothing touches or crosses a cell edge. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered, a few short spreading surface roots at the base like the magnolia reference. Row1: small seedling (30% cell height), young sapling (60%), mature tree in its DEFAULT look (85%). Row2: the SAME mature tree in three other seasons (all 85%, same trunk, branching, root identity, crown size and proportions). Designed to look polished at 35/70/160 CSS pixels. Row1 col3 mature DEFAULT = AUTUMN in bloom. Row2: SPRING, SUMMER, WINTER. SWEET OSMANTHUS (Osmanthus fragrans var. aurantiacus, orange osmanthus), an EVERGREEN. Signature: dense clusters of tiny bright ORANGE-GOLD four-petal flowers tucked all along the branches among glossy dark-green leaves, like the tree is sprinkled with golden stars. A round dense compact crown on a short smooth grey trunk, glossy elliptic finely toothed dark-green leaves. Seedling: a thin stem with four glossy dark-green leaves. Young: a small rounded glossy bush-tree with a few tiny orange flower clusters. Row1 col3 mature DEFAULT: the round glossy dark-green crown sprinkled all over with many tiny bright orange-gold flower clusters. Row2 (in this order): col1 SPRING: the same evergreen crown with fresh lighter-green new leaf tips, no flowers; col2 SUMMER: a dense deep glossy green crown, no flowers; col3 WINTER: the same dense dark green crown with a few small dark purple-blue oval berries, no flowers.",
+      "references": [
+        {
+          "path": "assets/discovery/magnolia-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "assets/discovery/oak-source.png",
+          "role": "Style reference only"
+        }
+      ],
+      "notes": "Alpha below 50 cleared to 0,0,0,0 from the generated sheet; crops follow measured silhouettes. Six-cell tree sheets reuse one source per species across growth and seasons."
+    },
+    {
+      "id": "holly",
+      "file": "holly-source.png",
+      "atlas": "trees/holly.png",
+      "size": [1536, 1024],
+      "sha256": "fdd73da909912f655e3180bb0976a54f9d17c754d307ac653de8b237aee8b20a",
+      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy illustrated game transparent sprite sheet. The first two reference images are STYLE ONLY: match their warm tactile miniature sculpted illustration, detailed natural hand-painted wood and leaves, crisp botanical silhouette, soft top-left light. Charming and lovable, a tree people want to collect: warm, saturated, glowing colours like the best reference trees, clean readable shapes that still read at 80 pixels, never dull, muddy, grey or cluttered. Genuine transparent RGBA background, no floor, cast shadow, background colour, haze, glow, checkerboard ink, labels, text, grid, pot, grass tuft or dirt mound. NO snow, NO frost anywhere. Landscape 1536x1024 canvas: six isolated trees in a generous equally spaced 3-column by 2-row sheet, entire silhouettes remain inside their cells with wide transparent gutters, nothing touches or crosses a cell edge. Front orthographic view with slightly visible top surfaces. All roots at cell baseline, centered, a few short spreading surface roots at the base like the magnolia reference. Row1: small seedling (30% cell height), young sapling (60%), mature tree in its DEFAULT look (85%). Row2: the SAME mature tree in three other seasons (all 85%, same trunk, branching, root identity, crown size and proportions). Designed to look polished at 35/70/160 CSS pixels. Row1 col3 mature DEFAULT = WINTER with berries. Row2: SPRING, SUMMER, AUTUMN. HOLLY TREE (Ilex), an EVERGREEN. Signature: very glossy dark-green leaves with wavy SPIKY edges and big bright clusters of round shiny SCARLET RED berries, like a festive wreath shaped into a little tree. A neat conical-to-rounded crown on a short smooth pale grey trunk. Seedling: a thin stem with three small glossy spiky leaves. Young: a small conical glossy spiky-leaved sapling with one little cluster of red berries. Row1 col3 mature DEFAULT: the glossy spiky dark-green crown full of many bright red berry clusters. Row2 (in this order): col1 SPRING: the same crown with tiny clusters of small white four-petal flowers, no berries; col2 SUMMER: a glossy green crown with small round GREEN berries; col3 AUTUMN: the berries turning orange and half red.",
+      "references": [
+        {
+          "path": "assets/discovery/magnolia-source.png",
+          "role": "Style reference only"
+        },
+        {
+          "path": "assets/discovery/oak-source.png",
+          "role": "Style reference only"
+        }
+      ],
+      "notes": "Alpha below 50 cleared to 0,0,0,0 from the generated sheet; crops follow measured silhouettes. Six-cell tree sheets reuse one source per species across growth and seasons."
     }
   ],
   "assets": [
@@ -1806,6 +1882,214 @@
       "crop": [1088, 19, 350, 981],
       "anchor": [0.5, 1],
       "frame": [980, 27, 556, 973]
+    },
+    {
+      "id": "lilac-seedling",
+      "source": "lilac",
+      "art": "trees/lilac-seedling.svg",
+      "size": [35, 40],
+      "crop": [214, 325, 116, 153],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "lilac-young",
+      "source": "lilac",
+      "art": "trees/lilac-young.svg",
+      "size": [70, 95],
+      "crop": [638, 109, 242, 369],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "lilac-mature",
+      "source": "lilac",
+      "art": "trees/lilac-mature.svg",
+      "size": [160, 170],
+      "crop": [1019, 11, 469, 470],
+      "anchor": [0.5, 1],
+      "frame": [1006.5, 8, 482, 473]
+    },
+    {
+      "id": "lilac-mature-summer",
+      "source": "lilac",
+      "art": "trees/lilac-mature-summer.svg",
+      "size": [160, 170],
+      "crop": [30, 523, 462, 470],
+      "anchor": [0.5, 1],
+      "frame": [16, 520, 482, 473]
+    },
+    {
+      "id": "lilac-mature-autumn",
+      "source": "lilac",
+      "art": "trees/lilac-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [524, 523, 461, 470],
+      "anchor": [0.5, 1],
+      "frame": [509.5, 520, 482, 473]
+    },
+    {
+      "id": "lilac-mature-winter",
+      "source": "lilac",
+      "art": "trees/lilac-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [1033, 520, 452, 473],
+      "anchor": [0.5, 1],
+      "frame": [1008, 520, 482, 473]
+    },
+    {
+      "id": "silk_tree-seedling",
+      "source": "silk_tree",
+      "art": "trees/silk_tree-seedling.svg",
+      "size": [35, 40],
+      "crop": [169, 325, 139, 147],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "silk_tree-young",
+      "source": "silk_tree",
+      "art": "trees/silk_tree-young.svg",
+      "size": [70, 95],
+      "crop": [540, 142, 333, 332],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "silk_tree-mature",
+      "source": "silk_tree",
+      "art": "trees/silk_tree-mature.svg",
+      "size": [160, 170],
+      "crop": [960, 50, 559, 424],
+      "anchor": [0.5, 1],
+      "frame": [875.5, 50, 644, 424]
+    },
+    {
+      "id": "silk_tree-mature-spring",
+      "source": "silk_tree",
+      "art": "trees/silk_tree-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [8, 542, 496, 412],
+      "anchor": [0.5, 1],
+      "frame": [-100, 530, 644, 424]
+    },
+    {
+      "id": "silk_tree-mature-autumn",
+      "source": "silk_tree",
+      "art": "trees/silk_tree-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [511, 544, 501, 410],
+      "anchor": [0.5, 1],
+      "frame": [400, 530, 644, 424]
+    },
+    {
+      "id": "silk_tree-mature-winter",
+      "source": "silk_tree",
+      "art": "trees/silk_tree-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [1014, 554, 513, 400],
+      "anchor": [0.5, 1],
+      "frame": [906, 530, 644, 424]
+    },
+    {
+      "id": "osmanthus-seedling",
+      "source": "osmanthus",
+      "art": "trees/osmanthus-seedling.svg",
+      "size": [35, 40],
+      "crop": [191, 311, 139, 165],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "osmanthus-young",
+      "source": "osmanthus",
+      "art": "trees/osmanthus-young.svg",
+      "size": [70, 95],
+      "crop": [612, 141, 302, 336],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "osmanthus-mature",
+      "source": "osmanthus",
+      "art": "trees/osmanthus-mature.svg",
+      "size": [160, 170],
+      "crop": [1051, 12, 450, 475],
+      "anchor": [0.5, 1],
+      "frame": [1050, 12, 452, 475]
+    },
+    {
+      "id": "osmanthus-mature-spring",
+      "source": "osmanthus",
+      "art": "trees/osmanthus-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [37, 527, 449, 474],
+      "anchor": [0.5, 1],
+      "frame": [35.5, 526, 452, 475]
+    },
+    {
+      "id": "osmanthus-mature-summer",
+      "source": "osmanthus",
+      "art": "trees/osmanthus-mature-summer.svg",
+      "size": [160, 170],
+      "crop": [543, 526, 451, 475],
+      "anchor": [0.5, 1],
+      "frame": [542.5, 526, 452, 475]
+    },
+    {
+      "id": "osmanthus-mature-winter",
+      "source": "osmanthus",
+      "art": "trees/osmanthus-mature-winter.svg",
+      "size": [160, 170],
+      "crop": [1051, 526, 451, 475],
+      "anchor": [0.5, 1],
+      "frame": [1050.5, 526, 452, 475]
+    },
+    {
+      "id": "holly-seedling",
+      "source": "holly",
+      "art": "trees/holly-seedling.svg",
+      "size": [35, 40],
+      "crop": [169, 291, 172, 199],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "holly-young",
+      "source": "holly",
+      "art": "trees/holly-young.svg",
+      "size": [70, 95],
+      "crop": [620, 123, 296, 367],
+      "anchor": [0.5, 1]
+    },
+    {
+      "id": "holly-mature",
+      "source": "holly",
+      "art": "trees/holly-mature.svg",
+      "size": [160, 170],
+      "crop": [1049, 6, 458, 488],
+      "anchor": [0.5, 1],
+      "frame": [1043, 6, 464, 488]
+    },
+    {
+      "id": "holly-mature-spring",
+      "source": "holly",
+      "art": "trees/holly-mature-spring.svg",
+      "size": [160, 170],
+      "crop": [25, 519, 457, 488],
+      "anchor": [0.5, 1],
+      "frame": [19, 519, 464, 488]
+    },
+    {
+      "id": "holly-mature-summer",
+      "source": "holly",
+      "art": "trees/holly-mature-summer.svg",
+      "size": [160, 170],
+      "crop": [537, 519, 458, 488],
+      "anchor": [0.5, 1],
+      "frame": [531, 519, 464, 488]
+    },
+    {
+      "id": "holly-mature-autumn",
+      "source": "holly",
+      "art": "trees/holly-mature-autumn.svg",
+      "size": [160, 170],
+      "crop": [1049, 519, 458, 488],
+      "anchor": [0.5, 1],
+      "frame": [1043.5, 519, 464, 488]
     }
   ]
 }

@@ -15,11 +15,15 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A flower or tree you have found can come out of its album card again, fully grown and free, as many as the yard has room for (24 flowers, 6 trees): Set out puts it in the yard, and the small screen beside it puts it on the desktop too. It works in any season, and a tree shows its season's leaves.
 - Gifts on the desktop answer: the lantern and the campfire light up from evening by the computer's clock, a friend that strolls to a bench, swing, hammock, stump or picnic blanket stands on it, and a click spins the pinwheel, swings and rings the wind chime, or switches the lantern off and on until the time of day changes. With reduced motion nothing turns, but the light still switches and the chime still rings.
 - A fish, bug or treasure you have found can come out of its album card on its own, with no container or shadow: Set out puts it in the yard, and the small screen beside it puts it on the desktop too, as many as the yard has room for. A fish floats a little and, clicked on the desktop, swims a turn with a few bubbles; a firefly glows from evening.
-- The desktop's edges come into play. The wind chime and two new gifts friends bring, a hanging flower pot and a wooden mobile, hang from the top of a screen on a cord when set down near it, and swing when clicked. The album now has 187 entries.
+- The desktop's edges come into play. The wind chime and two new gifts friends bring, a hanging flower pot and a wooden mobile, hang from the top of a screen on a cord when set down near it, and swing when clicked.
+- Sixteen new entries join the album, now 203: eight flowers, two for each season (lily of the valley and peony, rose and lily, marigold and Japanese anemone, poinsettia and amaryllis); four trees to plant (lilac, silk tree, sweet osmanthus and holly), each with its own look in every season; and four keepsakes to dig up (a heart locket, a rare tiny perfume bottle, a pearl ribbon clip and a seashell mirror).
+- Every find out on the desktop answers a click its own way: fish swim, butterflies and moths flap, dragonflies dart, fireflies blink, beetles and crickets hop, keepsakes sparkle, the heart locket sways and the perfume bottle gives a little spray. With reduced motion nothing moves, but the spray still sounds.
+- A fish out of the album is drawn by its length, from a tiny killifish to a big sturgeon, in the yard and on the desktop.
+- A friend who visits a find out names it, in the yard and on the desktop.
 
 ### Website and docs
 
-- The README and the guide count the album's 187 entries.
+- The README and the guide count the album's 203 entries, and the guide says how finds on the desktop answer a click.
 
 ## [1.8.7] - 2026-11-19
 

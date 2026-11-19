@@ -23,6 +23,8 @@ export async function drawDecor(view, garden, season, night = () => []) {
     // A find out has no drawing of its own: it waits for the garden to say which find it holds.
     art = thing ? growingArt(view.kind) : [...wearArt(view.kind), ...heldArt(view.kind, holds)];
   if (!art.length) return;
+  // What a find out holds, for a poke to answer by (poke.js).
+  view.holds = holds;
   view.loading = true;
   try {
     await loadArt(art);

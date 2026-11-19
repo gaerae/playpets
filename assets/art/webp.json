@@ -339,6 +339,11 @@
     "svg": "3703f4129229714878b9d7062ccc19fcd615f55c3961e5f7ac184afb523aa7e6",
     "webp": "5edcae2819cd2ed335da83389677970091517fadb32c087139542bbe45d1c74a"
   },
+  "album/discovery/heart_locket.webp": {
+    "png": "8f0ac7c5cdd8ac3a01da8aa6f85ec22dc2816f294932f3c9180823f69aad9da5",
+    "svg": "5067e27b663cad0985e52ef48032b915314032408cee377b1b180825ca6e9c8e",
+    "webp": "65b9596c7037c61711f5a76227e4eeaceac40d58594ac11935d1cf11d33d95a1"
+  },
   "album/discovery/leaf_fossil.webp": {
     "png": "eb5063f1d17313205e38d8e8c3caffe2d0a9b05ff5fdbf5622d4a25018dcd0fb",
     "svg": "af0b3feffeef9d7a776abcd8ef3a5941bab3c88daa1db39773c75169c311bb09",
@@ -364,6 +369,16 @@
     "svg": "b30dafda1ecfb02b24d0a2fdedcdbf2ac4d6f919a2171ac2db07aae384847673",
     "webp": "b5de88467c97a1b70478f83cb4ea7f70deb6c08e315ba89ac0def688390fa753"
   },
+  "album/discovery/pearl_hair_clip.webp": {
+    "png": "8f0ac7c5cdd8ac3a01da8aa6f85ec22dc2816f294932f3c9180823f69aad9da5",
+    "svg": "37ac8b18aba3c7bfb696a4f931f7cced259d3955be54e73c181ad987a518290a",
+    "webp": "e7a1a22d35aa4866fba6e4d72e795e76711a568ea0eea9e31518359e4a769671"
+  },
+  "album/discovery/perfume_bottle.webp": {
+    "png": "8f0ac7c5cdd8ac3a01da8aa6f85ec22dc2816f294932f3c9180823f69aad9da5",
+    "svg": "17a22272fd7d850406819b49afb1d6bc77049a70f8e6e9ce077be575fe6a728d",
+    "webp": "2551d1045e3e9de69552568fd0e38d79c45d1c622593017afcd92c17291a844f"
+  },
   "album/discovery/pinecone.webp": {
     "png": "e22916992c750a280e2957024256027991b764ab4fd25bdafe6c14580298581f",
     "svg": "dab8fe7e56c073b7fb5ae27c416bf1f10ac075633ff3663cdc11ec0df144179f",
@@ -378,6 +393,11 @@
     "png": "eb5063f1d17313205e38d8e8c3caffe2d0a9b05ff5fdbf5622d4a25018dcd0fb",
     "svg": "59e06705319d019b2c5d353f7d079e66a82d30fdeb8f3dae9f84706f5a7ee305",
     "webp": "a79a1ee99188285c9333f2827eacb84cf298ad42d7f19fcf442222d433f34f47"
+  },
+  "album/discovery/shell_mirror.webp": {
+    "png": "8f0ac7c5cdd8ac3a01da8aa6f85ec22dc2816f294932f3c9180823f69aad9da5",
+    "svg": "796d28ddb9aa716786cc7f4daf34a245fd225d7f3d12c662c92dc85992f9a158",
+    "webp": "6dce12d8ba0bc18dcfed2e7984ed0cc5904dccd956c61db622c196085259c423"
   },
   "album/discovery/sleeping_fox.webp": {
     "png": "a1a273906dfa7dc353a23bc37a62c2d72ec7ca3c10c7c1b30870a4906758276a",
@@ -599,6 +619,11 @@
     "svg": "550a55264a6b0bfa4150e4ce7195c847fc75ee28bf282c3c43fbfc01b902ae08",
     "webp": "30f44762da322ad8b7d83f4ab28af3129d823bfe090269534f5e08680cad2eed"
   },
+  "album/flowers/amaryllis.webp": {
+    "png": "1c0ea164325276923e64bab7d43a511dadf192558425b01e9a555add9d47a977",
+    "svg": "46c758cc942b175959d42fe49565529d71e6d8e69128f59e60bb3ea32805ee02",
+    "webp": "a9709e67c696cdd82612a4ee26176aefcaf6acd684eae9577e8d5eae9bf7cd6e"
+  },
   "album/flowers/aster.webp": {
     "png": "525bf43f34374639e89425c40038d93d6b957d2fd92852dd8fc8419cef56b93c",
     "svg": "e4d11c8a1e8d66dcdf2740d95995899dc3e13afed288bae04081fceef0635c82",
@@ -709,10 +734,30 @@
     "svg": "0d30f069d9502d183773bbb2c15a9bf293f9bb122389eb9ddb9647101a17f67b",
     "webp": "ff79883bc2d7fa25a6cb57a8291a4982bfd8d6b29df915cf627a9ee388753776"
   },
+  "album/flowers/japanese_anemone.webp": {
+    "png": "1c0ea164325276923e64bab7d43a511dadf192558425b01e9a555add9d47a977",
+    "svg": "b4e7779da5fa5b346fff2b307b7d27674790fa4ce0bd9ec1afa2546525376e14",
+    "webp": "9d940bf3aacbdb59daffc6328a1a8cfe5f867a5c445bdb2cc7c7fbed5af0309c"
+  },
   "album/flowers/lavender.webp": {
     "png": "525bf43f34374639e89425c40038d93d6b957d2fd92852dd8fc8419cef56b93c",
     "svg": "fedf77d077e2b638164305b3b143bd7c8b0b22d143a8627428e49c8d762c0652",
     "webp": "9522397c66c3f49f2c9c0c17807138698cbb94b181a11e6fcd7e3dc98d106f91"
+  },
+  "album/flowers/lily.webp": {
+    "png": "1c0ea164325276923e64bab7d43a511dadf192558425b01e9a555add9d47a977",
+    "svg": "fd355966de02f09c61dbb5d0f5e1f36606235270acd52be6a08ad9a08cd2b10e",
+    "webp": "7ab1550365d47c3517de07cbe56bdedbafb290bdd30d9c7270df4becf93c578a"
+  },
+  "album/flowers/lily_of_the_valley.webp": {
+    "png": "1c0ea164325276923e64bab7d43a511dadf192558425b01e9a555add9d47a977",
+    "svg": "a8d33c6e3a4aad817b3586c50933b2382316c7e79d2f6e94d19d68fe7296910b",
+    "webp": "af8e8569e7d697ee8a0d7890a0d7b76debdb9575230e2099902b95649d264877"
+  },
+  "album/flowers/marigold.webp": {
+    "png": "1c0ea164325276923e64bab7d43a511dadf192558425b01e9a555add9d47a977",
+    "svg": "378a13e9dd425cde6d0c6985b3d2b79a049f6f2eae5e1f446e2ed396bd704660",
+    "webp": "5b35ac37dcd22194033324fa73eb80b37436e440dabd22d1dad6c6ba4692905e"
   },
   "album/flowers/morning_glory.webp": {
     "png": "92f6cbbeaa23e09c007b9c93e0ba2414afc59e8f04759c33e3827769c381651e",
@@ -728,6 +773,21 @@
     "png": "11f00a904e0238e35826460b94aebdf26d921f772a7434b986456209875f6cf3",
     "svg": "2a8ece10550f664aa6ca47fb5990407e43135b4ad55a3fe1e56bdbc9ee2b2235",
     "webp": "15fdf39e43225e4ec04363d193a12d02b1c5e38c3b015aff63dda6ff4819129f"
+  },
+  "album/flowers/peony.webp": {
+    "png": "1c0ea164325276923e64bab7d43a511dadf192558425b01e9a555add9d47a977",
+    "svg": "376f881b03dfa9841865d8978225f2aba304ae88fe16e700448b1c3ce37259ea",
+    "webp": "bdfc89c9fdfa448928c6e2bdaf5499a66a411125633c5341717cde207245c2b4"
+  },
+  "album/flowers/poinsettia.webp": {
+    "png": "1c0ea164325276923e64bab7d43a511dadf192558425b01e9a555add9d47a977",
+    "svg": "812722f3ad4d691b4c70c12892ebcecc43b1cb60c46c286fe24ab55b8f5aaf2f",
+    "webp": "aa5c7706f8f86301ab01364f93e4027b8d39c5e753847d8d19c99a620421aee9"
+  },
+  "album/flowers/rose.webp": {
+    "png": "1c0ea164325276923e64bab7d43a511dadf192558425b01e9a555add9d47a977",
+    "svg": "976e07c7c6efa20769b6a527266ee5fb49e14dc1a2a7bd7417fd74df2c1c087a",
+    "webp": "f82a9aed7932a339ad238c87c565f845cd2d7b27e0a285dfce824d3ce2fdd5aa"
   },
   "album/flowers/snowdrop.webp": {
     "png": "4facb70ea74cd5db0592bc7cd68d02d3067a183c3f1bbd26070c7fabab284194",
@@ -839,10 +899,20 @@
     "svg": "58da63d0fc3657165d813e90be42439b9a559ed82e9ec7a2eea5f598549fad80",
     "webp": "c4033b9b55c26933c4923e1d3bc638c560e0109ff839b89d072afad83c543d9a"
   },
+  "album/trees/holly-mature.webp": {
+    "png": "fdd73da909912f655e3180bb0976a54f9d17c754d307ac653de8b237aee8b20a",
+    "svg": "155b31a04f5e73dde6f9a4853649c7ca8bfabac7921f290ee3b062e5aac699fd",
+    "webp": "e887e48ebac1e3dffeb9a82d15a02fa440e83d22c195adb501e7f711e9dd7e87"
+  },
   "album/trees/juniper-mature.webp": {
     "png": "d89daecce11830e185f3d736d9137b633a1ef540d3622535880d528b1c42803e",
     "svg": "57c76ac4b109d499758b0c5da35f75e221957107c063ddbdc92dd9169ccac4b5",
     "webp": "81421de2f0d18b0eb8530790ce4c73e598399a86d3cca2d6d60272e5a1ac2032"
+  },
+  "album/trees/lilac-mature.webp": {
+    "png": "93af61d47278342265c4395b5084cba6b7781c5603ac24e38d259b70e69326f4",
+    "svg": "b608ba196694126ef2ba5245224cbf7deb53ffb3fa34f0e0fb91ed420cb6d18f",
+    "webp": "5494a187ba88994fe87b5f7ea74da7ba9608fbb66a8c44bc44f4d8e99f282c3d"
   },
   "album/trees/magnolia-mature.webp": {
     "png": "4533b4db8ee912e2f126a76ccb916264eeb4b7fd37d5d68029d937abd2fbdd74",
@@ -864,6 +934,11 @@
     "svg": "e24d313107d5dbc146c33fefaa7592c57dca336e23ea0a8b0be1c67a8875abc8",
     "webp": "66529d8716d16d008a20b2d2b441ccd256367499c221dd19f65a5a0d21109e9f"
   },
+  "album/trees/osmanthus-mature.webp": {
+    "png": "007f96ab34838ffe5c88059d22743bfb1945b97d353c7715e6ab299128231f5a",
+    "svg": "324c769f2ae4d2034fd84f56295a9d2e38020fd0c3278a63e36af126b71dd55e",
+    "webp": "c68c41202c55fbb177a0a80652e105574364979d11af148c0dbcc041810942bc"
+  },
   "album/trees/persimmon-mature.webp": {
     "png": "5f6ef2c5bb57e1692e346028fae2ae740bea5769d8a82afc3fdf2f8f180521e1",
     "svg": "efa9b56869175074e701517e71e144157e4e3e3260e10c407111064de4363418",
@@ -878,6 +953,11 @@
     "png": "49724ead351cce40028c7990ccfcaab3b5b54e4ac804777f19493d7bf6931129",
     "svg": "61738ea2cec30b236b8713b6f7f707365360a8e3be687ee9a0d012bbe5913381",
     "webp": "ddec639aacd1223454f575e66c50ea2354a93455050a9cdda94ec9bf4df148a8"
+  },
+  "album/trees/silk_tree-mature.webp": {
+    "png": "969ae2c868742096b0d6985d7ecfb3142f5f7f7353b205b5ee4be4a29f6cf53b",
+    "svg": "92786308a13c19c9f71fa20bac9100da5c695b5b456ebd840aab5da82e00ad8d",
+    "webp": "b49abcde52fa7a5503164a0b37dfef2231bd2be6266e907a3dd0cc7c1de6360d"
   },
   "album/trees/willow-mature.webp": {
     "png": "0da261196f35dd1d68e88749e608c9f46c86f3ed9ea693dae0c9546aefd73924",
@@ -946,6 +1026,10 @@
     "png": "11f00a904e0238e35826460b94aebdf26d921f772a7434b986456209875f6cf3",
     "webp": "bf410c36324d1a07c3d7f70225f7f7eb1f203c38ad928009faeee2c49b9715d5"
   },
+  "collection-extension/flowers-4.png": {
+    "png": "1c0ea164325276923e64bab7d43a511dadf192558425b01e9a555add9d47a977",
+    "webp": "19970a513ffa289e9ce1f6636b1bd09c942fbb29f77583b83a0fb362dda5c042"
+  },
   "collection-extension/flowers.png": {
     "png": "525bf43f34374639e89425c40038d93d6b957d2fd92852dd8fc8419cef56b93c",
     "webp": "b1d423587b3c9c35be41051df6669ab6870bad8689860ed947ef83d3434ff451"
@@ -965,6 +1049,10 @@
   "collection-extension/hoppers.png": {
     "png": "c9eab471860c37784a3d8f89c59252b5d1ff7a8a05c0d889015009cee129d6f8",
     "webp": "27057c672c02b70110816e5f7c3f5fcbcf998f95850f6fa3a6c9800b250b356a"
+  },
+  "collection-extension/keepsakes.png": {
+    "png": "8f0ac7c5cdd8ac3a01da8aa6f85ec22dc2816f294932f3c9180823f69aad9da5",
+    "webp": "075e5e4d15032f50183c0f6f321a340a9591b3a8307ba4b4b55ae0236629ef38"
   },
   "collection-extension/lake-creatures-2.png": {
     "png": "a4ce380811fb75b65ce039134ba77b680645358bdaf5b3171e996da2ca651d70",
@@ -1414,9 +1502,17 @@
     "png": "5b01351d9ae5f1d84ff5710b65363b1d4de49a02e23d22625e9b8e000f9a9f7a",
     "webp": "54e92d3f74f7b56a6dc779a423b9fdeade43229971516aca3faf0847a5335a77"
   },
+  "trees/holly.png": {
+    "png": "fdd73da909912f655e3180bb0976a54f9d17c754d307ac653de8b237aee8b20a",
+    "webp": "4d57ec8fc6b4695d562fa17b9c0e214aea8970c0357dbf028a63f857d381f72f"
+  },
   "trees/juniper.png": {
     "png": "d89daecce11830e185f3d736d9137b633a1ef540d3622535880d528b1c42803e",
     "webp": "84ddbd713c71922d7a4d1e2ea50f195f6fce64d301f537c04031b6e252d1ed88"
+  },
+  "trees/lilac.png": {
+    "png": "93af61d47278342265c4395b5084cba6b7781c5603ac24e38d259b70e69326f4",
+    "webp": "b3d7259008d061d4cd954615c771e30fa34bfb8d595d67abb7341ee432570f21"
   },
   "trees/magnolia.png": {
     "png": "4533b4db8ee912e2f126a76ccb916264eeb4b7fd37d5d68029d937abd2fbdd74",
@@ -1429,6 +1525,10 @@
   "trees/oak.png": {
     "png": "644c6a15b82b247be8f623f2952c375cd84157f40e11857447a7636a47dec9a0",
     "webp": "920cb81d18983f78bb31951232f609d62251244d9f3a5a7186668ff9f679eeb4"
+  },
+  "trees/osmanthus.png": {
+    "png": "007f96ab34838ffe5c88059d22743bfb1945b97d353c7715e6ab299128231f5a",
+    "webp": "900be6065ac9490d52fab308cb5fc314329fadc6f04559a67ecd888a4e5acfd6"
   },
   "trees/persimmon-growth.png": {
     "png": "ccd4bac84d4cc40ba49aab2d83c794cb8d56a5678ad8f3ea64a3a2e16fc7e836",
@@ -1449,6 +1549,10 @@
   "trees/seasons.png": {
     "png": "b553c5caca07c86ff1ead83eb8cb6bab10c2d4d295bb92a3cf1298664083fa7e",
     "webp": "df7dec944504a8e8eb1457fd2c18533d4254424b68b10bf3b270885f71b6b4d6"
+  },
+  "trees/silk_tree.png": {
+    "png": "969ae2c868742096b0d6985d7ecfb3142f5f7f7353b205b5ee4be4a29f6cf53b",
+    "webp": "635d86fe74ae1978c5c288ff208b939889d3c65c9bfa61c2d0f58500a1250d46"
   },
   "trees/willow.png": {
     "png": "0da261196f35dd1d68e88749e608c9f46c86f3ed9ea693dae0c9546aefd73924",

@@ -16,6 +16,7 @@ import { applyStatus, fadedBetween, stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { every, everyMinute, halt, moveTo } from '../core/ticker.js';
 import { useCatalog } from '../yard/catalog.js';
+import { displayKind, visitLines } from '../yard/display.js';
 import { periodFor } from '../yard/scene.js';
 import { ring } from './chime.js';
 import { dressDecor, drawDecor } from './decor-view.js';
@@ -217,7 +218,7 @@ function createDecor(id, kind) {
     if (!view.drag) return;
     const moved = view.drag.moved;
     view.drag = null;
-    if (!moved) poke(view, { period, reduced: reduced.matches, ring: () => ring(sound) });
+    if (!moved) poke(view, { period, reduced: reduced.matches, ring: cue => ring(sound, cue) });
     await api.dragStop();
     if (button.hasPointerCapture(e.pointerId)) button.releasePointerCapture(e.pointerId);
   };
@@ -399,7 +400,11 @@ api.onEvent(event => {
     if (event.petId && event.petId !== id) continue;
     // A friend that strolled over to a gift, a flower or a tree says something that fits it, as in
     // the yard.
-    if (event.type === 'visit') say(v, pick(list(visitKey(event.kind))) || '');
+    if (event.type === 'visit') {
+      // A find out is named by what it holds, which the garden keeps under its id.
+      const holds = data.garden?.decor?.find(d => d.id === event.decorId)?.holds;
+      say(v, pick(displayKind(event.kind) ? visitLines(event.kind, holds) : list(visitKey(event.kind))) || '');
+    }
     if (event.type === 'status') {
       v.status = stateOf(data, id);
       say(v, event.message);

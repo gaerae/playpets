@@ -154,6 +154,17 @@ The red plum redrawn (2026-11-16):
   `ART-SOURCES.json`.
 - The four mature frames share one scale and the trunk's centerline.
 
+Four flowering trees (2026-11-20):
+- Lilac, silk tree, sweet osmanthus and holly use the six-tree sheet layout, one
+  source each, with the magnolia and the oak as style references. The mature tree
+  is the look of the season the species belongs to (lilac blossom in spring,
+  silk tree pompoms in summer, osmanthus flowers in autumn, holly berries in
+  winter); the second row holds the other three seasons.
+- The silk tree's crown spreads to the right of its trunk, so its mature frames
+  are wider than the crown and it is drawn a little smaller to keep the trunk on
+  the frame's centreline, as every species' mature frames do.
+- Alpha below 50 is cleared as before; the hashes are in `ART-SOURCES.json`.
+
 More finds (2026-11-03):
 - `more-finds-source.png` holds the cicada shell, blue feather, pinecone, old
   key, paper boat, spinning top, freshwater pearl and four-leaf clover in

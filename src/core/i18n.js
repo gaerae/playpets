@@ -85,6 +85,8 @@ export function list(key) {
   const value = STRINGS[current]?.[key] ?? STRINGS.en[key];
   return Array.isArray(value) ? value : [];
 }
+/** A list of sentences (list) with `params` filled in, as t fills one. */
+export const lines = (key, params = {}) => list(key).map(text => fill(text, params));
 // Static markup names its sentences: <span data-i18n="tabs.friend"></span> for the text, and
 // data-i18n-title / -placeholder / -aria-label for those attributes.
 export function apply(root = document) {

@@ -219,6 +219,8 @@ export function createSoundscape(ctx, destination) {
     /** A cue for something a friend did (soundmix.js CUES), at `t`. */
     cue(name, t = ctx.currentTime + 0.01) {
       if (name === 'water') burst(t, 0.9, 500, 1400, 0.05, 0, 0.8);
+      // A perfume bottle's puff: one short soft hiss, falling as the mist spreads.
+      if (name === 'spritz') burst(t, 0.35, 6000, 3000, 0.04, 0, 0.9);
       const steps = name === 'pat' ? [2 + Math.floor(rand() * 3)] : CUES[name];
       if (!steps) return;
       const gap = name === 'level' ? 0.13 : 0.085,

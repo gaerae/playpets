@@ -9,7 +9,7 @@
 
 import { openDecorMenu } from '../core/controls.js';
 import { put, putAttribute } from '../core/dom.js';
-import { list, t } from '../core/i18n.js';
+import { t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { between, clamp, pick } from '../core/math.js';
 import { systemSouth } from '../core/season.js';
@@ -21,7 +21,7 @@ import { showCard } from './card.js';
 import { giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
 import { decorShown, hiddenKinds, yardSeason } from './decor-shown.js';
-import { displayEffects, displayKind, displayName, heldLayers } from './display.js';
+import { displayEffects, displayKind, displayName, heldLayers, visitLines } from './display.js';
 import { dressLayers } from './dress-layers.js';
 import { effectLayers, effectsVisited } from './effects.js';
 import { giftEvent } from './events.js';
@@ -97,11 +97,12 @@ let toldDesktop = null;
 const MEMENTO_NEW_MS = 86_400_000;
 let heartsFade = null;
 
-function placement(kind, point) {
+// `holds`: what a find out holds, which sizes it (props.js giftSize); a saved decoration has it.
+function placement(kind, point, holds = point.holds) {
   // A gift friends stand on stays where they can reach it (footTarget keeps them on their field);
   // others go down to just above the dock.
   const at = standOn(kind) ? fieldToYard({ x: point.x, y: Math.min(point.y, 1) }) : standAt(point),
-    { w, h, foot } = size(kind, at);
+    { w, h, foot } = size(kind, at, holds);
   // Saved coordinates locate the foot; wide furniture still needs room at either edge.
   at.x = clamp(at.x, w / 2 + 4, field().width - w / 2 - 4);
   return { ...at, w, h, foot };
@@ -113,12 +114,12 @@ const standsFree = at => [-0.4, 0, 0.4].every(side => !blocked(at.x + side * at.
 export const decorPlacement = d => placement(d.kind, d);
 // Where a gift is drawn, as a place: a place past the edge a wide gift cannot reach is kept as
 // where it stops, so dragging it back moves it at once.
-const drawnPlace = (kind, point) => {
-  const at = placement(kind, point);
+const drawnPlace = (kind, point, holds) => {
+  const at = placement(kind, point, holds);
   return yardToDecor(at.x, at.y);
 };
 function position(v, x, y) {
-  const at = placement(v.kind, { x, y });
+  const at = placement(v.kind, { x, y }, v.holds);
   setDown(v.button, at.x, at.y, at.w, at.h, flat(v.kind) ? 0 : depthAt(at.y), at.foot);
   return at;
 }
@@ -175,7 +176,7 @@ function create(d) {
     const current = data.garden?.decor.find(item => item.id === v.id),
       f = field();
     if (!current) return;
-    const from = drawnPlace(v.kind, current);
+    const from = drawnPlace(v.kind, current, v.holds);
     v.drag = beginDrag(button, e, from, {
       width: Math.max(1, f.width - EDGE * 2),
       height: Math.max(1, f.bottom - f.top),
@@ -200,7 +201,7 @@ function create(d) {
     if (!drag.moved) return pressed(v);
     // Let go on the furniture, it goes back where it stood.
     if (drag.at && !drag.free) return renderDecor();
-    if (drag.at) return save(v.id, drawnPlace(v.kind, drag.at));
+    if (drag.at) return save(v.id, drawnPlace(v.kind, drag.at, v.holds));
   };
   button.addEventListener('pointerup', drop);
   button.addEventListener('pointercancel', () => {
@@ -232,8 +233,8 @@ function create(d) {
       const d = data.garden?.decor.find(x => x.id === v.id);
       if (!d) return;
       const at = placement(v.kind, d),
-        to = drawnPlace(v.kind, yardToDecor(at.x + step[0], at.y + step[1]));
-      if (standsFree(placement(v.kind, to))) save(v.id, to);
+        to = drawnPlace(v.kind, yardToDecor(at.x + step[0], at.y + step[1]), d.holds);
+      if (standsFree(placement(v.kind, to, d.holds))) save(v.id, to);
     } else if (e.key === 'Delete' || e.key === 'Backspace') putAway(v.id);
   });
   return v;
@@ -286,6 +287,8 @@ export function renderDecor() {
   // A kind out of sight is left out, not taken away: it keeps its place for when it shows.
   const decor = (data.garden?.decor || []).filter(d => decorShown(d.kind, date, season));
   reconcile(shown, decor, make, (v, d) => {
+    // What a find out holds sizes it, so it is known before it is placed.
+    v.holds = d.holds || [];
     if (!v.drag?.moved) position(v, d.x, d.y);
     const until = d.memento && d.came_at ? d.came_at + MEMENTO_NEW_MS : 0;
     if (until > now) fadeAt = Math.min(fadeAt, until);
@@ -367,7 +370,7 @@ function walkTo(v, d, own = false) {
     on = standOn(d.kind),
     x = on ? at.x + (Math.random() - 0.5) * dw * 0.4 : at.x + side * (dw / 2 + width * 0.3),
     y = at.y + (on ? 3 : 0);
-  sendTo(v, footTarget(v, x, y), { slow: true, own, arrive: () => visited(v, d.kind) });
+  sendTo(v, footTarget(v, x, y), { slow: true, own, arrive: () => visited(v, d) });
 }
 function visit(id) {
   const d = data.garden?.decor.find(x => x.id === id);
@@ -385,9 +388,9 @@ export function decorTarget(v) {
   return v.target;
 }
 // A friend reached the decoration it went to.
-function visited(v, kind) {
-  effectsVisited(giftKind(kind)?.effects, { cue });
-  if (kind && Math.random() < 0.6) bubble(v, pick(list(`decor.visit_${kind}`)), 3000);
+function visited(v, d) {
+  effectsVisited(giftKind(d.kind)?.effects, { cue });
+  if (Math.random() < 0.6) bubble(v, pick(visitLines(d.kind, d.holds)), 3000);
 }
 
 // Put away at once with a moment to undo it (props.js); a friend may bring it again another day,
