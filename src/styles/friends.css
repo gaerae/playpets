@@ -50,6 +50,8 @@
   will-change: transform;
   transition: none;
   user-select: none;
+  /* The body's lean, about the feet (yard/motion.js lean). */
+  rotate: var(--lean, 0deg);
 }
 .yard-pet:active {
   cursor: grabbing;
@@ -167,7 +169,8 @@
   }
 }
 /* A soft shade on the ground under the feet, which shrinks with the friend by its depth (views.js
-   place). It stays on the ground while the friend is carried and lifted, smaller and fainter. */
+   place). It stays on the ground while the friend is carried and lifted, smaller and fainter, and
+   stays level while the body leans. */
 .yard-pet:before {
   content: "";
   position: absolute;
@@ -177,6 +180,7 @@
   background: radial-gradient(closest-side, rgb(46 32 18 / 0.42), rgb(46 32 18 / 0.2) 60%, rgb(46 32 18 / 0));
   bottom: 0;
   left: 19%;
+  rotate: calc(var(--lean, 0deg) * -1);
   transform: scaleY(0.5);
   transition:
     scale 0.15s ease-out,

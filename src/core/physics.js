@@ -16,7 +16,8 @@ export function rampPace(speed, pace, left, dt) {
 }
 
 /** How far the body tilts, in degrees: into a walk as it speeds up (and back as it slows), toward a
- * pointer it looks at, and against the pull while it is carried, `perBody` a body length a second. */
+ * pointer it looks at, and with the pull while it is carried (held up top, its feet trail),
+ * `perBody` a body length a second. */
 export const LEAN = Object.freeze({ accel: 3, look: 1.5, carry: 8, perBody: 1.5 });
 // A critically damped spring (stiffness a second squared): it settles in about 0.4 s and never
 // swings past its target.

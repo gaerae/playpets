@@ -77,7 +77,6 @@ export function effect(view, text) {
     setTimeout(() => node.remove(), 1400 + i * 90);
   }
 }
-// Renewing the pose a friend is already in (every step of a walk) must not restart its animation.
 // The body settles as a friend stops or lands: a short squash on the compositor, by scale alone, so
 // what the canvas's transform shows (a press, a tilt, a spin) goes on through it.
 const SETTLE = [{ scale: '1.05 0.95' }, { scale: '1' }];
@@ -99,6 +98,7 @@ function fall(v) {
   });
   settle(v, ms);
 }
+// Renewing the pose a friend is already in (every step of a walk) must not restart its animation.
 export function pose(view, state, duration = 1200) {
   const now = performance.now();
   if (renewsClock(view.pose, state, view.until, now)) view.since = now;
@@ -510,14 +510,16 @@ function createView(p) {
   const end = guard(async e => {
     if (!v.drag) return;
     const { moved, talk, x, y } = endDrag(v, e.currentTarget, e);
-    if (moved) fall(v);
+    // A cancelled drag goes back where it started: set down, not dropped from the lift.
     if (e.type === 'pointercancel') {
+      button.classList.remove('held');
       v.x = x;
       v.y = y;
       place(v);
       return;
     }
     if (moved) {
+      fall(v);
       clearOfDock(v);
       await call('updatePet', p.id, { x: v.x, y: v.y });
     } else if (talk && e.type === 'pointerup') {

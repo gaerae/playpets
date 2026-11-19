@@ -541,7 +541,7 @@ test('a walking friend leans into its start, back into its stop, and stands upri
     label: element(),
     canvas: { animate: frames => settles.push(frames) },
   };
-  const lean = () => Number.parseFloat(friend.button.style.rotate || '0');
+  const lean = () => Number.parseFloat(friend.button.style['--lean'] ?? '0');
   try {
     views.clear();
     views.set('friend', friend);
@@ -558,7 +558,7 @@ test('a walking friend leans into its start, back into its stop, and stands upri
     assert.equal(settles.length, 1, 'it squashes as it stops');
     for (; clock < 22_000 && friend.lean; clock += 50) moveFriends(clock, 50);
     assert.equal(friend.lean, null, 'the lean has settled');
-    assert.equal(friend.button.style.rotate, '', 'upright, with nothing left written');
+    assert.equal(friend.button.style['--lean'], undefined, 'upright, with nothing left written');
     // The other way, it leans the other way.
     sendTo(friend, { x: 0.2, y: 0.5 }, { save: false });
     clock += 50;
@@ -569,7 +569,7 @@ test('a walking friend leans into its start, back into its stop, and stands upri
     reduced.matches = true;
     clock += 50;
     moveFriends(clock, 50);
-    assert.equal(friend.button.style.rotate, '', 'with reduced motion it never leans');
+    assert.equal(friend.button.style['--lean'], undefined, 'with reduced motion it never leans');
     assert.equal(friend.lean, null);
   } finally {
     views.clear();
@@ -577,7 +577,7 @@ test('a walking friend leans into its start, back into its stop, and stands upri
   }
 });
 
-test('a carried friend leans against the pull, and toward a pointer it looks at', t => {
+test('a carried friend swings with the pull, and leans toward a pointer it looks at', t => {
   installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
   setData({ statuses: {} });
   const previousReduced = reduced.matches;
@@ -596,7 +596,7 @@ test('a carried friend leans against the pull, and toward a pointer it looks at'
     label: element(),
     canvas: { animate() {} },
   };
-  const lean = () => Number.parseFloat(friend.button.style.rotate || '0');
+  const lean = () => Number.parseFloat(friend.button.style['--lean'] ?? '0');
   try {
     views.clear();
     views.set('friend', friend);
@@ -606,11 +606,11 @@ test('a carried friend leans against the pull, and toward a pointer it looks at'
       friend.x += 0.02;
       moveFriends(at, 50);
     }
-    assert.ok(lean() < -1, `pulled right, its body trails left (${lean()})`);
-    assert.ok(lean() >= -LEAN.carry - 0.05);
+    assert.ok(lean() > 1, `pulled right, it hangs from where it is held: its feet trail, its top leads (${lean()})`);
+    assert.ok(lean() <= LEAN.carry + 0.05);
     friend.drag = null;
     for (let at = 1350; at < 3000; at += 50) moveFriends(at, 50);
-    assert.equal(friend.button.style.rotate, '', 'let go, it stands upright');
+    assert.equal(friend.button.style['--lean'], undefined, 'let go, it stands upright');
     // Looking at the pointer to its left, it leans a little that way.
     friend.look = { x: -80, y: 0 };
     for (let at = 3000; at < 3600; at += 50) moveFriends(at, 50);

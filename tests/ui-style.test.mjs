@@ -643,6 +643,7 @@ const SET_FROM_CODE = {
   '--veil-y': 'src/yard/veil.js',
   '--veil-rx': 'src/yard/veil.js',
   '--veil-ry': 'src/yard/veil.js',
+  '--lean': 'src/yard/motion.js',
 };
 // A misspelt or removed token silently falls back to the property's initial value (no colour, no
 // size), so every one a stylesheet reads has to come from somewhere.
