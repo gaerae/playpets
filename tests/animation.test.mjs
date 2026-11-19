@@ -2,7 +2,20 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { animationSpec, cellLeft, frameAt, headroom, lookAt, lookFrame, renewsClock } from '../src/core/animation.js';
+import {
+  animationSpec,
+  cellLeft,
+  directionFrame,
+  frameAt,
+  headroom,
+  idleCell,
+  idleLeft,
+  lookAt,
+  lookDirection,
+  lookFrame,
+  renewsClock,
+  turnStep,
+} from '../src/core/animation.js';
 
 test('site preview descriptors follow the runtime rows, frame counts and loop lengths', () => {
   const states = ['idle', 'right', 'left', 'wave', 'jump', 'error', 'waiting', 'working', 'done'];
@@ -83,5 +96,82 @@ test("the time left in a cell runs to that cell's own end, and round the loop", 
       const left = cellLeft(state, at);
       assert.deepEqual(frameAt(state, at + left - 0.5), frameAt(state, at), `${state} at ${at}`);
       assert.notDeepEqual(frameAt(state, at + left), frameAt(state, at), `${state} at ${at}`);
+    }
+});
+
+test('a standing friend mostly stands, and plays its idle row now and then, whole and in order', () => {
+  const cycle = Math.round(animationSpec('idle').seconds * 1000);
+  for (const seed of [0, 1, 7, 12345, 0xdeadbeef]) {
+    let resting = 0,
+      steps = 0,
+      previous = 0;
+    const gestures = [];
+    for (let t = 0; t < 600_000; t += 10) {
+      const cell = idleCell(t, seed);
+      steps++;
+      assert.equal(cell.row, 0, 'only the idle row');
+      if (cell.column === 0) resting++;
+      // A gesture shows its second cell after its first, which is the resting one.
+      if (cell.column === 1 && previous === 0) gestures.push(t - 280);
+      previous = cell.column;
+    }
+    assert.ok(resting / steps > 0.8, `seed ${seed}: it stands still most of the time (${resting / steps})`);
+    const gaps = gestures.slice(1).map((t, i) => t - gestures[i]);
+    const mean = gaps.reduce((a, b) => a + b, 0) / gaps.length;
+    assert.ok(mean > 4500 && mean < 8000, `seed ${seed}: a gesture about every 6 s (${mean})`);
+    assert.ok(Math.min(...gaps) >= 2000, `seed ${seed}: at least 2 s apart (${Math.min(...gaps)})`);
+    assert.ok(Math.min(...gaps) >= cycle + 1000, 'a second of rest between two gestures at least');
+    // Each gesture plays the row once through: its cells in order.
+    for (const start of gestures.slice(0, 20))
+      for (let at = 0; at < cycle; at += 10) assert.deepEqual(idleCell(start + at, seed), frameAt('idle', at));
+  }
+});
+
+test('friends do not gesture together', () => {
+  let together = 0,
+    apart = 0;
+  for (let t = 0; t < 120_000; t += 50) {
+    const a = idleCell(t, 1).column,
+      b = idleCell(t, 2).column;
+    if (a || b) a && b ? together++ : apart++;
+  }
+  assert.ok(apart > together * 3, `${apart} apart, ${together} together`);
+});
+
+test('the idle rhythm says when its cell changes, and it changes then', () => {
+  for (const seed of [0, 3, 99])
+    for (let at = 0; at < 60_000; at += 41) {
+      const left = idleLeft(at, seed);
+      assert.ok(left > 0 && left <= 20_000, `seed ${seed} at ${at}: ${left}`);
+      assert.deepEqual(idleCell(at + left - 0.5, seed), idleCell(at, seed), `seed ${seed} at ${at}`);
+      assert.notDeepEqual(idleCell(at + left, seed), idleCell(at, seed), `seed ${seed} at ${at}`);
+    }
+});
+
+test('a look turns one direction at a time, the shorter way round', () => {
+  assert.equal(lookDirection(0, -1), 0, 'up');
+  assert.equal(lookDirection(1, 0), 4, 'right');
+  assert.equal(lookDirection(0, 1), 8, 'down');
+  assert.equal(lookDirection(-1, 0), 12, 'left');
+  assert.deepEqual(directionFrame(4), lookFrame(1, 0));
+  assert.deepEqual(directionFrame(8), lookFrame(0, 1));
+  assert.equal(turnStep(null, 5), 5, 'a look starts where the pointer is');
+  assert.equal(turnStep(4, 4), 4);
+  assert.equal(turnStep(4, 6), 5);
+  assert.equal(turnStep(4, 2), 3);
+  assert.equal(turnStep(1, 14), 0, 'round through up');
+  assert.equal(turnStep(0, 15), 15);
+  assert.equal(turnStep(14, 1), 15);
+  assert.equal(turnStep(15, 0), 0);
+  assert.equal(turnStep(2, 10), 1, 'right behind: one way, always the same');
+  for (let from = 0; from < 16; from++)
+    for (let to = 0; to < 16; to++) {
+      let at = from,
+        steps = 0;
+      while (at !== to) {
+        at = turnStep(at, to);
+        steps++;
+      }
+      assert.ok(steps <= 8, `${from} to ${to} in ${steps}`);
     }
 });

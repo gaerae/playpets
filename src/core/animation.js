@@ -41,10 +41,79 @@ export function cellLeft(state, elapsed) {
   }
   return durations[0];
 }
+
+// A standing friend mostly stands (the idle row's first cell) and plays the row once now and then.
+// Time goes in beats of IDLE_BEAT; in IDLE_PLAY of them the row plays from a moment between
+// IDLE_FROM and IDLE_FROM + IDLE_SPAN into the beat, so two gestures are at least 2.1 s apart, a
+// second of rest between them. Which beats and when come from `seed` (one per canvas): friends do
+// not move together. Cycling the row without a pause read as fidgeting, and drew five times a second.
+export const IDLE_BEAT = 3600;
+const IDLE_PLAY = 0.6,
+  IDLE_FROM = 500,
+  IDLE_SPAN = 1500;
+const idleRow = rows.idle[1],
+  idleCycle = idleRow.reduce((a, b) => a + b, 0),
+  REST = Object.freeze({ row: 0, column: 0 });
+// A number in [0, 1) for a seed and a beat: the same every time it is asked.
+function unit(seed, n) {
+  let h = (seed ^ Math.imul(n + 1, 0x9e3779b1)) >>> 0;
+  h = Math.imul(h ^ (h >>> 16), 0x85ebca6b);
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
+  return ((h ^ (h >>> 16)) >>> 0) / 2 ** 32;
+}
+// Where the gesture of beat `k` starts, as time from the beat's start, or null when it rests.
+function gestureIn(k, seed) {
+  return unit(seed, 2 * k) < IDLE_PLAY ? IDLE_FROM + Math.floor(unit(seed, 2 * k + 1) * IDLE_SPAN) : null;
+}
+/** The cell a standing friend shows at `elapsed` (ms) by its canvas's `seed`. */
+export function idleCell(elapsed, seed = 0) {
+  const t = Math.max(0, elapsed),
+    k = Math.floor(t / IDLE_BEAT),
+    start = gestureIn(k, seed),
+    at = t - k * IDLE_BEAT - (start ?? 0);
+  return start !== null && at >= 0 && at < idleCycle ? frameAt('idle', at) : REST;
+}
+/** How long the cell idleCell shows at `elapsed` goes on showing: to its gesture's next cell, or
+ * through the rest to where the next gesture leaves its first cell (which is the resting one). */
+export function idleLeft(elapsed, seed = 0) {
+  const t = Math.max(0, elapsed);
+  const k = Math.floor(t / IDLE_BEAT);
+  const start = gestureIn(k, seed),
+    at = t - k * IDLE_BEAT - (start ?? 0);
+  if (start !== null && at >= 0 && at < idleCycle) return cellLeft('idle', at);
+  // Resting: the next gesture shows its second cell where its first one ends.
+  for (let next = start !== null && at < 0 ? k : k + 1; next < k + 64; next++) {
+    const from = gestureIn(next, seed);
+    if (from !== null) return next * IDLE_BEAT + from + idleRow[0] - t;
+  }
+  return IDLE_BEAT;
+}
+
+// A look at the pointer is one of 16 directions, drawn in rows 9-10 of a v2 sheet, 0 straight up
+// and going clockwise. It turns at most one direction a TURN_MS, the shorter way round, so a pointer
+// going round a friend turns it instead of making it jump; once a look ends the friend holds its
+// last direction LOOK_HOLD before it stands again, so a pointer passing over it does not flicker.
+export const TURN_MS = 60;
+export const LOOK_HOLD = 250;
+/** The direction (0 to 15) a friend looks toward `dx`, `dy` (pixels from its middle). */
+export function lookDirection(dx, dy) {
+  return Math.round(((Math.atan2(dx, -dy) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 8)) % 16;
+}
+/** The cell that looks in `direction`. */
+export function directionFrame(direction) {
+  return { row: 9 + Math.floor(direction / 8), column: direction % 8 };
+}
+/** One turn from `from` toward `to` (directions), the shorter way: right behind turns
+ * counterclockwise. A look with no direction yet starts at `to`. */
+export function turnStep(from, to) {
+  if (from === null || from === undefined) return to;
+  const diff = ((to - from + 24) % 16) - 8;
+  if (!diff) return from;
+  return (from + (diff > 0 ? 1 : -1) + 16) % 16;
+}
 export function lookFrame(dx, dy) {
   if (Math.hypot(dx, dy) < 0.001) return { row: 0, column: 0 };
-  const direction = Math.round(((Math.atan2(dx, -dy) + Math.PI * 2) % (Math.PI * 2)) / (Math.PI / 8)) % 16;
-  return { row: 9 + Math.floor(direction / 8), column: direction % 8 };
+  return directionFrame(lookDirection(dx, dy));
 }
 // Where a friend looks while the pointer moves over it: the pointer's offset from the middle of
 // its box, or nowhere when the pointer is right on its middle. Used by the yard and the desktop.

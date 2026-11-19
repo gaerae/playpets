@@ -41,7 +41,8 @@
   - Use it, not a CSS transition: WebKit starts a transition that replaces another a frame late, so the friend stops once every step.
 - Something that cycles on a canvas (a wing beat) spans at least six frames at the interval it is drawn at. A faster cycle is drawn at scattered points and flickers.
 - The overlay stays open all day, so its loop wakes only for a cell that ends, not on a fixed interval.
-  - Standing friends share one clock: one wake serves them all, about five a second for the idle row.
+  - A standing friend plays its idle row once in some beats and rests between ([lively friends](../design/2026-11-19-lively-friends.md)): while it rests, the loop sleeps until its next gesture starts (`idleLeft`); while it plays, it wakes about five times a second.
+  - A friend turning toward the pointer wakes it every 60ms (`TURN_MS`) until it faces the pointer.
   - A pose wakes it once its cells have played, when the pose ends: a jump holds its last cell until then.
   - Whatever changes a drawing in between wakes it at once (`drawNow`): a friend come out, a status, a pat, a walk's first step or a turn, a drag, a look, the season, reduced motion turned off.
   - A new thing the overlay draws calls `drawNow` where it changes, or the friend shows it only at its next cell.
@@ -54,6 +55,8 @@
 | The friends' idle cycle stopped (a trial, not shipped) | 0.8% |
 
 - What is left is the idle cycle itself: about 0.6% for each redraw a second (see Rationale), and the idle row changes cells about five times a second.
+  - Since 2026-11-19 the row plays for 1.1 s in three beats of 3.6 s out of five, so a standing friend redraws about a fifth as often (not measured again yet).
+- In the yard, a turn and a lean keep the loop at its busy pace until they settle (`pace()` in `app.js`); a friend that stands with no lean adds nothing.
 - Strolling friends cost the same before and after (8.6–10.1% against 8.7–9.3%): walking wakes the loop for each step anyway.
 - Do not draw when the window is not visible.
   - Loops return right away when `document.hidden` is set or when the backend reports the window hidden (the `window` event, `<html data-unseen>`).

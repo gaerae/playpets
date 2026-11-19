@@ -51,6 +51,7 @@ export function wanderTarget(position, rng, clear = () => true, body = BODY) {
   return clear(position, middle) ? middle : null;
 }
 export function idleAction(rng, quiet = false) {
-  if (rng() >= 0.25) return { type: 'move' };
-  return { type: 'pose', pose: quiet || rng() < 0.5 ? 'wave' : 'jump' };
+  // A pose one time in eight, a jump one pose in four: big gestures stay a surprise.
+  if (rng() >= 0.12) return { type: 'move' };
+  return { type: 'pose', pose: quiet || rng() < 0.75 ? 'wave' : 'jump' };
 }

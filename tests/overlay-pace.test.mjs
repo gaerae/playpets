@@ -1,10 +1,10 @@
 // The desktop's frame loop wakes when a friend's cell ends, not ten times a second: a friend standing
-// on the desktop changes cells about five times a second, and a still one (reduced motion) never
-// (src/overlay/pace.js, overlay.js animate).
+// on the desktop mostly stands and plays its idle row now and then, and a still one (reduced
+// motion) never changes (src/overlay/pace.js, overlay.js animate).
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { cellLeft } from '../src/core/animation.js';
+import { cellLeft, idleCell, idleLeft, TURN_MS } from '../src/core/animation.js';
 import { FOLLOW_MS, nextDraw } from '../src/overlay/pace.js';
 
 const friend = (over = {}) => ({
@@ -19,19 +19,29 @@ const friend = (over = {}) => ({
   ...over,
 });
 
-test('a standing friend is drawn again when its cell ends', () => {
-  // The idle row's cells last 280, 110, 110, 140, 140 and 320 ms.
-  assert.equal(nextDraw([friend()], 0), 280);
-  assert.equal(nextDraw([friend()], 300), 90);
-  assert.equal(nextDraw([friend()], 1099), 8, 'never sooner than a few ms after a frame');
+test('a standing friend is drawn again when its idle cell changes', () => {
+  for (const seed of [0, 5]) {
+    const standing = friend({ sprite: { _seed: seed } });
+    for (let now = 0; now < 20_000; now += 97)
+      assert.equal(nextDraw([standing], now), Math.max(8, Math.ceil(idleLeft(now, seed))), `seed ${seed} at ${now}`);
+  }
   // Friends doing different things: the first cell to end.
-  assert.equal(nextDraw([friend(), friend({ status: 'working' })], 0), 120);
+  assert.equal(nextDraw([friend(), friend({ status: 'working' })], 0), Math.min(120, idleLeft(0, 0)));
 });
 
-test('an idle desktop wakes once for each cell, about half as often as every 100 ms', () => {
-  let wakes = 0;
-  for (let now = 0; now < 11_000; now += nextDraw([friend()], now)) wakes++;
-  assert.equal(wakes, 60, 'six cells a cycle, ten cycles');
+test('an idle desktop wakes for each cell its friend shows, far less often than the row cycling did', () => {
+  const standing = friend({ sprite: { _seed: 11 } });
+  let wakes = 0,
+    changes = 0,
+    shown = idleCell(0, 11);
+  for (let now = 0; now < 60_000; now += nextDraw([standing], now)) {
+    wakes++;
+    const cell = idleCell(now, 11);
+    if (cell.column !== shown.column) changes++;
+    shown = cell;
+  }
+  assert.ok(wakes <= changes + 2, `${wakes} wakes for ${changes} changes`);
+  assert.ok(wakes < 120, `${wakes} wakes in a minute, where cycling the row woke 327 times`);
 });
 
 test('with reduced motion a friend shows one cell, and the loop rests until woken', () => {
@@ -49,7 +59,7 @@ test('a gesture plays its cells, holds its last one, and the friend stands again
   assert.equal(nextDraw([jump], 1000), 140, 'its first cell');
   // The jump's cells end at 840 ms; it then holds its last cell until the pose ends.
   assert.equal(nextDraw([jump], 1900), 500, 'played through: wakes when the pose ends, not every few ms');
-  assert.equal(nextDraw([jump], 2400), cellLeft('idle', 2400), 'standing again');
+  assert.equal(nextDraw([jump], 2400), Math.ceil(idleLeft(2400, 0)), 'standing again');
 });
 
 test('a walking friend is drawn when its step ends or the walk does', () => {
@@ -58,11 +68,16 @@ test('a walking friend is drawn when its step ends or the walk does', () => {
   assert.equal(nextDraw([walking], 500), cellLeft('right', 500), 'mid-walk: when the step ends');
 });
 
-test('a friend held or looking at the pointer is drawn every 100 ms, as before', () => {
+test('a friend held or looking at the pointer is drawn every 100 ms, and one turning at each turn', () => {
   assert.equal(nextDraw([friend({ drag: { x: 0, y: 0 } })], 0), FOLLOW_MS);
   assert.equal(FOLLOW_MS, 100);
   const looking = friend({ look: { x: 1, y: 0 }, lookedAt: 1000 });
   assert.equal(nextDraw([looking], 1000), FOLLOW_MS);
   assert.equal(nextDraw([looking], 1350), 50, 'until the look runs out');
-  assert.equal(nextDraw([looking], 1400), cellLeft('idle', 1400), 'then it stands as before');
+  assert.equal(nextDraw([looking], 1400), Math.ceil(idleLeft(1400, 0)), 'then it stands as before');
+  // Still turning toward the pointer, or holding its last look before it stands again.
+  const turning = friend({ look: { x: 1, y: 0 }, lookedAt: 1000, sprite: { _turning: true } });
+  assert.equal(nextDraw([turning], 1000), TURN_MS);
+  const holding = friend({ sprite: { _turning: true } });
+  assert.equal(nextDraw([holding], 5000), TURN_MS);
 });

@@ -398,11 +398,11 @@ function animate(now) {
     if (!v.asset) continue;
     const state = now < v.until ? v.pose : v.status;
     const look = state === 'idle' && v.look && now - v.lookedAt < LOOK_MS && !v.drag ? v.look : null;
-    // Standing animations share one clock, so still friends change cells together (fewer
-    // redraws of the see-through window); a pose runs from when it began.
+    // Standing goes by the loop's clock and each canvas's own idle rhythm, so still friends rarely
+    // change cells at all (core/animation.js idleCell); a pose runs from when it began.
     const elapsed = now - v.since;
     const clock = now < v.until ? (Number.isFinite(v.until) ? poseClock(state, elapsed) : elapsed) : now;
-    drawSprite(v.sprite, v.asset, state, clock, look);
+    drawSprite(v.sprite, v.asset, state, clock, look, null, now);
     crown(v.button, v.asset, (v.pet.size * 208) / 192); // the cell is 192×208
   }
   return nextDraw(views.values(), now, { reduced: reduced.matches, lookMs: LOOK_MS });

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
+import { LEAN, rampPace } from '../src/core/physics.js';
 import { reduced } from '../src/core/sprites.js';
 import { setData, views } from '../src/core/state.js';
 import { geometry, measureYard, sizeOf } from '../src/yard/field.js';
@@ -272,16 +273,21 @@ test('the first step of a walk counts from when the friend set off', t => {
     views.clear();
     views.set('friend', friend);
     measureYard();
-    // WALK is in body lengths, across the field (the yard less a body and its edges).
-    const perMs = (WALK * sizeOf(friend.pet)) / geometry(friend.pet).w;
+    // Its pace is in body lengths, across the field (the yard less a body and its edges), and
+    // ramps up from a stand (core/physics.js).
+    const body = sizeOf(friend.pet) / geometry(friend.pet).w,
+      far = 0.6 / body;
     sendTo(friend, { x: 0.8, y: 0.5 }, { save: false });
     clock = 1010;
     moveFriends(1010, 120);
-    const first = friend.x - 0.2;
-    assert.ok(Math.abs(first - 10 * perMs) < 1e-9, `it walked for 10 ms, not 120 (${first})`);
+    const first = friend.x - 0.2,
+      setOff = rampPace(0, WALK, far, 10);
+    assert.ok(Math.abs(first - 10 * setOff * body) < 1e-9, `it walked for 10 ms, not 120 (${first})`);
     clock = 1060;
     moveFriends(1060, 50);
-    assert.ok(Math.abs(friend.x - 0.2 - first - 50 * perMs) < 1e-9, 'then a whole frame each');
+    const next = rampPace(setOff, WALK, far - first / body, 50);
+    assert.ok(Math.abs(friend.x - 0.2 - first - 50 * next * body) < 1e-9, 'then a whole frame each, quicker');
+    assert.ok(next > setOff);
   } finally {
     views.clear();
     reduced.matches = previousReduced;
@@ -296,7 +302,8 @@ test('a friend keeps its pace in body lengths, whatever the window’s size and 
   let clock = 1000;
   t.mock.method(performance, 'now', () => clock);
   // How far the friend moved on the screen (views.js place: x across the field's width, y down its
-  // height), in its body lengths, a second, from the first fifth of a second of a walk from `from` to `to` (before it arrives, in the smallest window too).
+  // height), in its body lengths, a second, over one frame once it is up to pace (a quarter of a
+  // second in, core/physics.js RAMP_MS) and before it slows to arrive, in the smallest window too.
   const walked = (width, height, trip, from, to) => {
     installDom(t, { anyId: true, props: { rect: { width, height } } });
     setData({ statuses: {} });
@@ -312,10 +319,13 @@ test('a friend keeps its pace in body lengths, whatever the window’s size and 
     views.set('friend', friend);
     clock = 1000;
     sendTo(friend, to, { save: false, ...trip });
-    clock = 1200;
-    moveFriends(1200, 200);
-    const { w, h } = geometry(friend.pet, from.x);
-    return { px: Math.hypot((friend.x - from.x) * w, (friend.y - from.y) * h) * 5, body: sizeOf(friend.pet) };
+    for (clock = 1050; clock <= 1250; clock += 50) moveFriends(clock, 50);
+    const at = { x: friend.x, y: friend.y };
+    clock = 1300;
+    moveFriends(1300, 50);
+    assert.ok(friend.target, 'still on its way');
+    const { w, h } = geometry(friend.pet, at.x);
+    return { px: Math.hypot((friend.x - at.x) * w, (friend.y - at.y) * h) * 20, body: sizeOf(friend.pet) };
   };
   const across = [
       { x: 0.1, y: 0.5 },
@@ -401,6 +411,142 @@ test('a walking friend tells the loop when its step ends, on the clock all walks
     reduced.matches = true;
     moveFriends(2150, 50);
     for (const v of [a, b, still]) assert.equal(v.cellEnds, Infinity, 'with reduced motion a friend shows one cell');
+  } finally {
+    views.clear();
+    reduced.matches = previousReduced;
+  }
+});
+
+// A walk leans into its start and back as it slows, on a spring (core/physics.js), by the friend's
+// button about its feet: the canvas keeps its own transform, translate and rotate for a press, a
+// tilt and the step's bob. Upright again, nothing is left written, and the loop may rest.
+test('a walking friend leans into its start, back into its stop, and stands upright after', t => {
+  installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
+  setData({ statuses: {} });
+  const previousReduced = reduced.matches;
+  reduced.matches = false;
+  let clock = 1000;
+  t.mock.method(performance, 'now', () => clock);
+  const settles = [];
+  const friend = {
+    pet: { id: 'friend', size: 112 },
+    x: 0.2,
+    y: 0.5,
+    nextWander: Infinity,
+    button: element(),
+    label: element(),
+    canvas: { animate: frames => settles.push(frames) },
+  };
+  const lean = () => Number.parseFloat(friend.button.style.rotate || '0');
+  try {
+    views.clear();
+    views.set('friend', friend);
+    measureYard();
+    sendTo(friend, { x: 0.8, y: 0.5 }, { save: false });
+    const leans = [];
+    for (clock = 1050; friend.target && clock < 20_000; clock += 50) {
+      moveFriends(clock, 50);
+      leans.push(lean());
+    }
+    assert.ok(Math.max(...leans) > 1, `it leans forward, to the right, setting off (${Math.max(...leans)})`);
+    assert.ok(Math.max(...leans) <= LEAN.accel + 0.05, 'by a few degrees at most');
+    assert.ok(Math.min(...leans) < -0.5, `and back as it slows (${Math.min(...leans)})`);
+    assert.equal(settles.length, 1, 'it squashes as it stops');
+    for (; clock < 22_000 && friend.lean; clock += 50) moveFriends(clock, 50);
+    assert.equal(friend.lean, null, 'the lean has settled');
+    assert.equal(friend.button.style.rotate, '', 'upright, with nothing left written');
+    // The other way, it leans the other way.
+    sendTo(friend, { x: 0.2, y: 0.5 }, { save: false });
+    clock += 50;
+    moveFriends(clock, 50);
+    clock += 50;
+    moveFriends(clock, 50);
+    assert.ok(lean() < 0, 'leftward, it leans left');
+    reduced.matches = true;
+    clock += 50;
+    moveFriends(clock, 50);
+    assert.equal(friend.button.style.rotate, '', 'with reduced motion it never leans');
+    assert.equal(friend.lean, null);
+  } finally {
+    views.clear();
+    reduced.matches = previousReduced;
+  }
+});
+
+test('a carried friend leans against the pull, and toward a pointer it looks at', t => {
+  installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
+  setData({ statuses: {} });
+  const previousReduced = reduced.matches;
+  reduced.matches = false;
+  t.mock.method(performance, 'now', () => 1000);
+  const friend = {
+    pet: { id: 'friend', size: 112 },
+    x: 0.3,
+    y: 0.5,
+    nextWander: Infinity,
+    pose: 'idle',
+    since: 0,
+    until: 0,
+    drag: { moved: true },
+    button: element(),
+    label: element(),
+    canvas: { animate() {} },
+  };
+  const lean = () => Number.parseFloat(friend.button.style.rotate || '0');
+  try {
+    views.clear();
+    views.set('friend', friend);
+    measureYard();
+    moveFriends(1000, 50);
+    for (let at = 1050; at <= 1300; at += 50) {
+      friend.x += 0.02;
+      moveFriends(at, 50);
+    }
+    assert.ok(lean() < -1, `pulled right, its body trails left (${lean()})`);
+    assert.ok(lean() >= -LEAN.carry - 0.05);
+    friend.drag = null;
+    for (let at = 1350; at < 3000; at += 50) moveFriends(at, 50);
+    assert.equal(friend.button.style.rotate, '', 'let go, it stands upright');
+    // Looking at the pointer to its left, it leans a little that way.
+    friend.look = { x: -80, y: 0 };
+    for (let at = 3000; at < 3600; at += 50) moveFriends(at, 50);
+    assert.ok(lean() < -1 && lean() >= -LEAN.look - 0.05, `it leans toward the pointer (${lean()})`);
+  } finally {
+    views.clear();
+    reduced.matches = previousReduced;
+  }
+});
+
+test('a jump lands with a squash', t => {
+  installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
+  setData({ statuses: {} });
+  const previousReduced = reduced.matches;
+  reduced.matches = false;
+  const settles = [];
+  const friend = {
+    pet: { id: 'friend', size: 112 },
+    x: 0.5,
+    y: 0.5,
+    nextWander: Infinity,
+    pose: 'jump',
+    since: 1000,
+    until: 2000,
+    button: element(),
+    label: element(),
+    canvas: { animate: frames => settles.push(frames) },
+  };
+  try {
+    views.clear();
+    views.set('friend', friend);
+    moveFriends(1500, 50);
+    assert.equal(settles.length, 0, 'not while it is in the air');
+    moveFriends(2050, 50);
+    assert.equal(settles.length, 1, 'once it lands');
+    moveFriends(2100, 50);
+    assert.equal(settles.length, 1, 'and only once');
+    Object.assign(friend, { pose: 'wave', since: 2100, until: 2600 });
+    moveFriends(2700, 50);
+    assert.equal(settles.length, 1, 'a wave does not land');
   } finally {
     views.clear();
     reduced.matches = previousReduced;

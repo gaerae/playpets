@@ -1,5 +1,14 @@
 // Draws one 192×208 cell of a pet's sprite sheet onto a canvas. Shared by the yard and the desktop overlay.
-import { frameAt, headroom, lookFrame } from './animation.js';
+import {
+  directionFrame,
+  frameAt,
+  headroom,
+  idleCell,
+  LOOK_HOLD,
+  lookDirection,
+  TURN_MS,
+  turnStep,
+} from './animation.js';
 import { companionImage, sameCompanionAppearance, setCompanionSeason } from './companion-actions.js';
 import { isSeason } from './season.js';
 
@@ -130,7 +139,45 @@ function markFirst(canvas) {
   firstMarked = true;
   globalThis.performance?.mark?.('first-friend');
 }
-export function drawSprite(canvas, asset, state = 'idle', elapsed = 0, look = null, action = null) {
+// Each canvas gets its own seed for the idle rhythm (animation.js idleCell), in the order canvases
+// are first drawn.
+let seeds = 0;
+const nextSeed = () => Math.imul(++seeds, 0x9e3779b1) >>> 0;
+// The direction a canvas shows while its friend looks (`look`, pixels from its middle) at `now`, as a
+// cell, or null once it stands: one turn a TURN_MS toward the look, and a moment's hold
+// (LOOK_HOLD) when the look ends; a friend that does anything but stand stops looking at once.
+// `canvas._turning` says the loop should draw it again soon.
+function facing(canvas, look, now, standing) {
+  if (!standing) {
+    canvas._facing = canvas._lookEnded = null;
+    canvas._turning = false;
+  } else if (look) {
+    const want = lookDirection(look.x, look.y);
+    canvas._lookEnded = null;
+    if (canvas._facing == null || now - canvas._turnedAt >= TURN_MS) {
+      const next = turnStep(canvas._facing, want);
+      if (next !== canvas._facing) canvas._turnedAt = now;
+      canvas._facing = next;
+    }
+    canvas._turning = canvas._facing !== want;
+  } else if (canvas._facing != null) {
+    canvas._lookEnded ??= now;
+    if (now - canvas._lookEnded >= LOOK_HOLD) canvas._facing = canvas._lookEnded = null;
+    canvas._turning = canvas._facing != null;
+  }
+  return canvas._facing == null ? null : directionFrame(canvas._facing);
+}
+/** Draws `state` at `elapsed` on `canvas`: a standing friend by the idle rhythm, a look (v2 sheets)
+ * turned toward `look`, or a companion's own `action`. `now` is the clock a turn is timed by. */
+export function drawSprite(
+  canvas,
+  asset,
+  state = 'idle',
+  elapsed = 0,
+  look = null,
+  action = null,
+  now = globalThis.performance?.now() ?? 0,
+) {
   if (!asset) return;
   const authored = action && sameCompanionAppearance(action.asset, asset) ? companionImage(action) : null;
   actionSurface(canvas, authored ? action.clip : null);
@@ -165,9 +212,8 @@ export function drawSprite(canvas, asset, state = 'idle', elapsed = 0, look = nu
   }
   const frame = reduced.matches
     ? { row: 0, column: 0 }
-    : look && asset.version === 2
-      ? lookFrame(look.x, look.y)
-      : frameAt(state, elapsed);
+    : (asset.version === 2 && facing(canvas, look, now, state === 'idle')) ||
+      (state === 'idle' ? idleCell(elapsed, (canvas._seed ??= nextSeed())) : frameAt(state, elapsed));
   // Animation cells change a few times a second and the loops run more often than that:
   // skip the clear+blit entirely when this canvas already shows the same cell.
   const key = `${asset.id}:${frame.row}:${frame.column}`;

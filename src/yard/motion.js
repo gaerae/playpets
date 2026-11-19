@@ -4,7 +4,8 @@
 import { cellLeft, poseClock } from '../core/animation.js';
 import { clearCompanionAction, companionAction } from '../core/companion-actions.js';
 import { t } from '../core/i18n.js';
-import { between } from '../core/math.js';
+import { between, clamp } from '../core/math.js';
+import { LEAN, leanStep, RAMP_MS, rampPace, settled } from '../core/physics.js';
 import { crown, drawSprite, reduced } from '../core/sprites.js';
 import { aiming, call, data, game, toast, views } from '../core/state.js';
 import { stateOf } from '../core/status.js';
@@ -26,7 +27,7 @@ import { visitTarget } from './garden.js';
 import { groundProfile } from './ground.js';
 import { loungeTarget, sitOut } from './lounge.js';
 import { sendTo } from './trips.js';
-import { followPointer, place, pose, reachOf } from './views.js';
+import { followPointer, place, pose, reachOf, settle } from './views.js';
 import { idleAction, strollClear, WANDER_DELAY, wanderTarget } from './wander.js';
 import { blocked } from './workspace.js';
 
@@ -67,15 +68,41 @@ function stepping(v, walking, strolling) {
 }
 // The sheet's rows a walk shows (core/animation.js), one way or the other.
 const WALK_CYCLES = new Set(['right', 'left']);
-// The body settles as a friend stops: a short squash on the compositor, by scale alone, so what
-// the canvas's transform shows (a press, a tilt, a spin) goes on through it.
-const SETTLE = [{ scale: '1.05 0.95' }, { scale: '1' }];
+// The body (the friend's button, about its feet) tilts toward `target` degrees on a spring; upright
+// and still, the lean is let go and nothing is left written, so the loop may rest (app.js pace).
+// Written only when it changes by a tenth of a degree.
+function lean(v, target, dt) {
+  if (reduced.matches || (!v.lean && Math.abs(target) < 0.05)) {
+    if (v.lean) {
+      v.lean = null;
+      v.leanShown = 0;
+      v.button.style.rotate = '';
+    }
+    return;
+  }
+  v.lean = leanStep(v.lean ?? { angle: 0, spin: 0 }, target, dt);
+  if (!target && settled(v.lean)) v.lean = null;
+  const shown = v.lean ? Math.round(v.lean.angle * 10) / 10 : 0;
+  if ((v.leanShown ?? 0) === shown) return;
+  v.leanShown = shown;
+  v.button.style.rotate = shown ? `${shown}deg` : '';
+}
+// How fast a carried friend is pulled across, in its body lengths a second: from where it was a
+// frame ago (`v.heldAt`).
+function pull(v, dt) {
+  const from = v.heldAt;
+  v.heldAt = { x: v.x, y: v.y };
+  if (!from || dt <= 0 || from.x === v.x) return 0;
+  return (Math.sign(v.x - from.x) * bodiesApart(v.pet, from, { x: v.x, y: from.y }) * 1000) / dt;
+}
 export function moveFriends(now, dt) {
   for (const [id, v] of views) {
     if (game) clearCompanionAction(v);
     sitOut(v, now);
     keepDuty(v);
     const walking = !!v.target && !v.drag && !v.frozen && !reduced.matches;
+    // Where the body leans this frame: set by a walk's change of pace, a pull or a look below.
+    let tilt = 0;
     stepping(v, walking, !!v.trip?.slow && !v.speed);
     if (v.target && !v.drag && !v.frozen) {
       const dx = v.target.x - v.x,
@@ -87,6 +114,7 @@ export function moveFriends(now, dt) {
         v.y = v.target.y;
         v.target = null;
         v.trip = null;
+        v.vel = 0;
         // Only places a friend chose or was given are saved; game positions and the walk home are not.
         if (trip?.save !== false)
           call('updatePet', id, { x: v.x, y: v.y }).catch(e => toast(spoken(e, t('error.generic')), { error: true }));
@@ -94,18 +122,21 @@ export function moveFriends(now, dt) {
         // glides from step to step (views.js place), the step that ends it too.
         place(v, { glide: walking });
         stepping(v, false, false);
-        if (!reduced.matches) v.canvas?.animate?.(SETTLE, { duration: 260, easing: 'ease-out' });
+        settle(v);
         trip?.arrive?.(v, now);
       } else {
         // The first step counts from when the friend set off (trips.js sendTo), not from the frame
         // before, which may be long ago in a calm yard.
         const span = Math.min(dt, Math.max(0, now - (v.leftAt ?? -Infinity)));
         // A pace is in body lengths, a friend's own and a game's or a trail's (`v.speed`) alike, so
-        // a walk looks as quick in any window and any way it goes.
-        const step = Math.min(
-          1,
-          (span * (v.speed || (v.trip?.slow ? STROLL : WALK))) / bodiesApart(v.pet, v, v.target),
-        );
+        // a walk looks as quick in any window and any way it goes. It speeds up from a stand and
+        // slows into its stop (core/physics.js), and the body leans with the change.
+        const left = bodiesApart(v.pet, v, v.target),
+          pace = v.speed || (v.trip?.slow ? STROLL : WALK),
+          was = v.vel ?? 0;
+        v.vel = rampPace(was, pace, left, span);
+        const step = Math.min(1, (span * v.vel) / left);
+        if (span > 0) tilt = (dx >= 0 ? 1 : -1) * LEAN.accel * clamp(((v.vel - was) / span) * (RAMP_MS / pace), -1, 1);
         v.x += dx * step;
         v.y += dy * step;
         pose(v, dx >= 0 ? 'right' : 'left', 150);
@@ -147,7 +178,21 @@ export function moveFriends(now, dt) {
     // otherwise show for 100 or 150 ms, a limp. Only a walk: standing and gestures keep to the loop's
     // pace, as the performance standard counts it. A companion's own action has no step.
     v.cellEnds = walk && !action && !reduced.matches ? now + cellLeft(state, clock) : Infinity;
-    drawSprite(v.canvas, v.asset, state, clock, look, action);
+    drawSprite(v.canvas, v.asset, state, clock, look, action, now);
     crown(v.label, v.asset, petHeight(v.pet));
+    // A carried friend's body trails the pull; one looking at the pointer leans a little toward it.
+    if (v.drag) {
+      const pulled = pull(v, dt);
+      if (v.drag.moved) tilt = -clamp(pulled * LEAN.perBody, -LEAN.carry, LEAN.carry);
+    } else {
+      v.heldAt = null;
+      if (look) tilt = Math.sign(look.x) * LEAN.look;
+    }
+    lean(v, tilt, dt);
+    // A jump lands with the squash of a stop, once.
+    if (v.pose === 'jump' && now >= v.until && v.landed !== v.since) {
+      v.landed = v.since;
+      settle(v);
+    }
   }
 }
