@@ -184,7 +184,7 @@ Friends use what they get. They sit on the bench, the swing and the stump, gathe
 - The yard holds 12 decorations. When it's full, a new one waits in the **gift box** at the top of the album's Gifts book, which holds 12 more. Press one there to set it out once there's room.
 - Putting one away keeps its album entry and makes room for the gifts still to come. A memento goes back into the gift box instead, unless the box is full.
 - Any gift that came before can come back out: **Set out** on its card in the album's Gifts book, once there's room. The snowman is the exception: you build it again.
-- The album has 31 gifts, seven of them only on their events' dates. The snowman is one of the 31, but you build it ([Snowman](#snowman)). A memento is one of the 31 too, so it adds no new entry.
+- The album has 41 gifts, seventeen of them only on their events' dates. The snowman is one of the 41, but you build it ([Snowman](#snowman)). A memento is one of the 41 too, so it adds no new entry.
 
 ## Fishing and bugs <Since v="0.1.0" />
 
@@ -245,7 +245,7 @@ A few times a year the yard changes for a while. Each event comes on its own on 
 | Cherry blossom festival | Petals drift everywhere and more butterflies come out; friends gather for [flower viewing](#flower-viewing) | A cherry sapling |
 | Firefly nights | More fireflies at night, and a golden one to catch | A watermelon |
 | Harvest moon | The moonlight carp comes to the lake at night. Called up by hand, the full moon shows. On its own, the moon rises big and golden on the nights around the event's first full moon (two days either side, as at Chuseok and the Mid-Autumn Festival) and keeps its phase on the others | A pumpkin |
-| Winter lights | Little lights along the trees, glowing from evening on | A small Christmas tree, then a baby reindeer, then Santa |
+| Winter lights | Little lights along the trees, glowing from evening on | A small Christmas tree, then a baby reindeer, then Santa, then ten more decorations |
 | New Year | Friends greet the new year | A kite |
 
 - The event's name shows beside the scene label, a card says it has begun the first time you see it that year, and friends talk about it.
@@ -258,7 +258,8 @@ A few times a year the yard changes for a while. Each event comes on its own on 
 
 During the winter lights, if the yard isn't showing winter, PlayPets asks once whether to show it until January 7. Say yes, and your own season comes back on January 8.
 
-- The Christmas tree, the baby reindeer and Santa show in the yard and on the desktop from November 15 to January 7, and whenever the yard shows winter.
+- After Santa come ten decorations: a ribbon tree and a pastel retro tree, each small and then big, a string-light arch, a stack of gift boxes, a wreath stand, a candy cane star lamp, a gingerbread house and a sundries cart. The trees, the lamps, the house and the cart light up from evening. On the desktop, a click switches the arch and the lamp off and on, and the wreath can hang from a screen's top.
+- The winter lights' gifts show in the yard and on the desktop from November 15 to January 7, and whenever the yard shows winter.
 - The rest of the time they wait out of sight, still counting toward the 12 decorations. Put one away and it goes back into the gift box.
 
 ### Christmas night {#christmas-night}
@@ -456,13 +457,13 @@ A window is small at 640 pixels wide or less, or 480 tall or less.
 
 ## Collecting at your own pace
 
-The album has 203 entries across aquatic life, bugs, flowers, gifts, trees, footprints, spring shoots and little finds. Look for Korean aucha perch and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights. Grow dandelions, peonies, red spider lilies and poinsettias, plant a lilac or a persimmon tree, dig up a pinecone, a heart locket or, now and then, a four-leaf clover, and make room for a water wheel, a hammock or a crock stand from a friend. Set out on the desktop, a find answers a click: a butterfly flaps its wings, a locket sways and a perfume bottle gives a little spray.
+The album has 213 entries across aquatic life, bugs, flowers, gifts, trees, footprints, spring shoots and little finds. Look for Korean aucha perch and mitten crabs, a rare sturgeon on cold nights, mantises in the grass, and katydids and crickets on autumn nights. Grow dandelions, peonies, red spider lilies and poinsettias, plant a lilac or a persimmon tree, dig up a pinecone, a heart locket or, now and then, a four-leaf clover, and make room for a water wheel, a hammock or a crock stand from a friend. Set out on the desktop, a find answers a click: a butterfly flaps its wings, a locket sways and a perfume bottle gives a little spray.
 
 ### How long it takes
 
 - The full album isn't a one-day or one-week goal, and there's no set finish date.
 - The 23 ordinary gifts arrive on different days.
-- The seven event gifts come only on their events' dates, spread across the calendar, so depending on when you start, collecting them all can take months. Picking a season calls up an event's scene, not its gifts.
+- The seventeen event gifts come only on their events' dates, spread across the calendar, so depending on when you start, collecting them all can take months. Picking a season calls up an event's scene, not its gifts.
 - Flowers bloom four hours after planting and trees mature after twelve, counting time with the app closed.
 
 ### Tips

@@ -142,3 +142,7 @@ Follow-up (2026-11-10): the letter has its own chip (`#letter-chip`) beside the 
 - Wording of every line, within the voice rules.
 - How the decorating view and letter card are laid out, within the existing dialog styles.
 - Which finds each animal leans to, beyond the two examples.
+
+## Follow-up (2026-11-21)
+
+- The little tree and its grand version are redrawn in gold and cream; the twelve hooks and Christmas night stay, measured again on the new drawing. Ten more winter-lights gifts come after Santa ([winter decorations](2026-11-21-winter-decor.md)).
