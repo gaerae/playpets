@@ -72,7 +72,8 @@ test('a flower the album has comes out in bloom, into the yard or onto the deskt
   assert.equal(desktop.getAttribute('aria-label'), desktop.title);
   assert.equal(desktop.title, t('album.set_out_desktop', { kind: name }));
   yard.onclick();
-  assert.ok(yard.disabled && desktop.disabled, 'a second click before the album redraws does nothing');
+  assert.equal(yard.parentNode.dataset.pending, 'true', 'held until the album redraws');
+  yard.onclick();
   await flush();
   assert.equal(calls.length, 1);
   const [method, out, x, y] = calls[0];
@@ -94,14 +95,14 @@ test('a flower the album has comes out in bloom, into the yard or onto the deskt
   const again = buttonsOf(nodes, 0);
   again[0].onclick();
   await flush();
-  assert.ok(!again[0].disabled && !again[1].disabled);
+  assert.equal(again[0].parentNode.dataset.pending, undefined, 'let go after a refusal');
   // A full field says so, on both (the frame beside them is the yard's gifts', album-finds-out.test.mjs).
   nodes = album(ctx, 'flower', {
     album: { flowers: { [kind]: { count: 1, best: 0, first: 1 } } },
     garden: { plants: many(24, { kind }) },
   });
   for (const button of [...buttonsOf(nodes, 0)].slice(0, 2)) {
-    assert.equal(button.disabled, true);
+    assert.equal(button.getAttribute('aria-disabled'), 'true');
     assert.equal(button.title, t('album.flowers_full', { limit: 24 }));
   }
 });
@@ -135,14 +136,14 @@ test('a tree the album has comes out mature on free soil of the current place, w
   // Six trees fill the yard, wherever they were planted.
   nodes = album(ctx, 'tree', { album: found, garden: { trees: many(6, { kind, world: 'elsewhere', stage: 2 }) } });
   for (const button of buttonsOf(nodes, 0)) {
-    assert.equal(button.disabled, true);
+    assert.equal(button.getAttribute('aria-disabled'), 'true');
     assert.equal(button.title, t('album.trees_full', { limit: 6 }));
   }
   // A paved place has no soil for one.
   scene.world = 'workshop';
   nodes = album(ctx, 'tree', { album: found });
   for (const button of buttonsOf(nodes, 0)) {
-    assert.equal(button.disabled, true);
+    assert.equal(button.getAttribute('aria-disabled'), 'true');
     assert.equal(button.title, t('album.tree_soil'));
   }
 });
@@ -174,7 +175,7 @@ test('a grown flower or tree comes back through its card, within what the album 
     garden: { plants: many(2, { kind: flower, bloomed: true }) },
   });
   [fewer, , more] = buttonsOf(nodes, 0);
-  assert.equal(more.disabled, true);
+  assert.equal(more.getAttribute('aria-disabled'), 'true');
   fewer.onclick();
   await flush();
   assert.deepEqual(calls, [['pullPlant', 'x1']]);

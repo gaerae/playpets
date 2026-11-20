@@ -738,8 +738,10 @@ body.compact .update-compact {
 .album-hint {
   margin-bottom: 4px;
 }
-/* A gift that came before, back out into the yard: a small press under its stamp. */
+/* A card's presses: set out, bring back, and the desktop's screen. Each is at least 28 px tall, so
+   a quick second press lands, and the row keeps its shape as things go out and come back. */
 .album-take-out {
+  min-height: 28px;
   margin-top: 4px;
   padding: 3px 10px;
   border: 1px solid var(--album-edge);
@@ -751,23 +753,34 @@ body.compact .update-compact {
   font-weight: 650;
   cursor: pointer;
 }
-.album-take-out:hover:not(:disabled) {
+.album-take-out:hover:not(:disabled, [aria-disabled="true"]) {
   border-color: var(--album-gold);
 }
-.album-take-out:disabled {
+/* One that cannot be pressed now keeps the focus and its title; it only looks quiet. */
+.album-take-out:disabled,
+.album-take-out[aria-disabled="true"] {
   cursor: default;
   color: var(--muted);
 }
-/* A flower's or a tree's two: into the yard, and onto the desktop too (a small screen). */
+/* Held while a press is saved: the pointer says it is working. */
+.album-actions[data-pending] .album-take-out {
+  cursor: progress;
+}
 .album-actions {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 4px;
 }
+/* Set out and Put back are one button, the same width either way, so it stays under the pointer;
+   out, it reads as pressed in, as the screen does. */
+.album-toggle {
+  min-width: 76px;
+}
 .album-to-desktop {
   display: inline-grid;
   place-items: center;
+  min-width: 32px;
   padding: 3px 7px;
 }
 .album-to-desktop svg {
@@ -775,16 +788,18 @@ body.compact .update-compact {
   width: 15px;
   height: 15px;
 }
-/* On the desktop: the screen reads as pressed in. */
+/* In the yard, or on the desktop: the button is filled in, in both themes. */
+.album-toggle[aria-pressed="true"],
 .album-to-desktop[aria-pressed="true"] {
-  border-color: var(--album-gold);
-  background: var(--album-gold-soft);
-  color: var(--album-gold-ink);
+  border-color: var(--album-gold-ink);
+  background: var(--album-gold-ink);
+  color: var(--album-paper);
 }
 /* Fewer and more around how many are out, within what the album found. */
 .album-step {
-  min-width: 26px;
-  padding: 3px 0;
+  width: 28px;
+  padding: 0;
+  font-size: var(--font-sm);
 }
 .album-count {
   min-width: 30px;

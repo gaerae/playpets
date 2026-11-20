@@ -223,9 +223,9 @@ Only outdoors in clear weather; rain and snow stop them. Click one and the neare
 - **Rare** marks the kinds that seldom come and everything that comes only with a seasonal event. An event's card gives its dates and the scene that calls it up.
 - A catch shows a card, and says so when it's new. A card for something the album keeps (a fish, a bug, a flower in bloom, a gift, a keepsake or a spring shoot) has **See in album**, which opens that book.
 - Something new puts a small dot on **Album** and on **Play** in the dock until you open the album.
-- A flower, tree, fish, bug or keepsake you have found comes out of its card again: **Set out** puts one in the yard, and the small screen button beside it puts it on the desktop too.
-- Once something is out, the card brings it back. Found once, **Put back** takes it in. Found more often, **−** and **+** take one in or set one more out, up to how many you found and what the yard has room for. The card shows how many are out.
-- The screen button is lit while that kind is on the desktop. Press it again to take them off the desktop; they stay in the yard.
+- A flower, tree, fish, bug or keepsake you have found comes out of its card again, and goes back in the same way. The buttons stay where they are, so you can press again at once.
+- Found once: **Set out** puts it in the yard and turns into **Put back**. Found more often: **+** sets one more out and **−** takes one in, up to how many you found and what the yard has room for. The number between them is how many are out.
+- The small screen button puts it on the desktop too, and stays lit while that kind is there. Press it again to take them off the desktop; they stay in the yard.
 - A flower comes out in bloom and a tree fully grown, up to the yard's 24 plants and six trees. A tree needs an outdoor place with soil.
 - A fish, bug or keepsake comes out on its own, with no bowl or jar, and counts as one of the yard's 12 decorations. A fish is drawn by its length, and a friend who visits a find names it.
 - Saved as `album` in `state.json`.

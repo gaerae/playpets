@@ -22,7 +22,7 @@ export const strings = {
   'album.set_out_more': '{kind}: set out one more',
   'album.out_count': 'Out: {count} of {limit}',
   'album.all_out': 'All you found ({count}) are out. Find more to set out another.',
-  'album.desktop_on': '{kind}: show on the desktop too',
+  'album.desktop_on': '{kind}: show on desktop',
   'album.desktop_off': '{kind}: take off the desktop. It stays in the yard.',
   'album.flowers_full': 'The field holds {limit} flowers. Pull one to set out another.',
   'album.trees_full': 'The yard holds {limit} trees. Remove one to set out another.',

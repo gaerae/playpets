@@ -33,7 +33,7 @@ import { SECRETS } from '../yard/secrets.js';
 import { printSpecimen, tailPeek } from '../yard/trail-art.js';
 import { scene } from '../yard/world.js';
 import { worldFor, worldHasSoil } from '../yard/worlds.js';
-import { findButtons, landing, setOutRow } from './album-actions.js';
+import { findButtons, landing, restoreRowFocus, rowFocus, setOutRow } from './album-actions.js';
 
 // When and where a fish or a bug is found: "Summer, Evening, Night, at the lake".
 function when(kind, where) {
@@ -413,9 +413,12 @@ export function renderAlbum() {
     have = b.found();
   // Each book has its own ground under the drawings: water for fish, wood for gifts (dialog.css).
   $('album-grid').dataset.book = book;
+  // A press on a card redraws the book: the focus goes back to the control it was on.
+  const was = rowFocus();
   $('album-grid').replaceChildren(
     ...b.kinds.filter(k => !b.hidden || have[k.id]).map((k, index) => card(b, k, have[k.id], index)),
   );
+  restoreRowFocus($('album-grid'), was);
 }
 // Whether a book is there to open: a hidden one once something in it is found.
 const shown = id => {

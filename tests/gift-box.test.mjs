@@ -111,18 +111,20 @@ test('a gift that came before comes back out of its card, once, unless it is out
   assert.equal(pond, undefined, 'the box sets that one out');
   assert.equal(flowerpot, undefined, 'one that never came');
   bench.onclick();
-  assert.equal(bench.disabled, true);
+  assert.equal(bench.parentNode.dataset.pending, 'true');
+  bench.onclick();
   await flush();
+  assert.equal(calls.length, 1, 'a second press while held does nothing');
   const [name, kind, x, y] = calls[0];
   assert.deepEqual([name, kind, y], ['takeOut', 'bench', 0.8]);
   assert.ok(x >= 0.3 && x <= 0.7);
   refuse = true;
   bench.onclick();
   await flush();
-  assert.equal(bench.disabled, false, 'a refused one can be tried again');
+  assert.equal(bench.getAttribute('aria-disabled'), 'false', 'a refused one can be tried again');
   nodes = album(ctx, { received: ['bench'], decor: gifts(12, { kind: 'lantern' }) });
   const full = Object.values(takeOut(nodes))[0];
-  assert.equal(full.disabled, true);
+  assert.equal(full.getAttribute('aria-disabled'), 'true');
   assert.equal(full.title, t('album.set_out_full'));
 });
 
@@ -146,25 +148,24 @@ test('a Christmas gift waits in the album until its window or a winter yard', as
   let nodes = album(ctx, garden);
   let tree = cardOf(nodes, 'xmas_tree'),
     [santa] = nodes.get('album-box-items').children;
-  for (const button of [tree, santa]) {
-    assert.equal(button.disabled, true);
-    assert.equal(button.title, t('album.shown_christmas'));
-  }
+  assert.equal(tree.getAttribute('aria-disabled'), 'true');
+  assert.equal(santa.disabled, true);
+  for (const button of [tree, santa]) assert.equal(button.title, t('album.shown_christmas'));
   ctx.mock.timers.setTime(new Date(2026, 10, 15, 12).getTime());
   nodes = album(ctx, garden);
   tree = cardOf(nodes, 'xmas_tree');
   [santa] = nodes.get('album-box-items').children;
-  assert.equal(tree.disabled, false);
+  assert.equal(tree.getAttribute('aria-disabled'), 'false');
   assert.equal(tree.title, t('album.set_out', { kind: t('decor.kind_xmas_tree') }));
   assert.equal(santa.disabled, false);
   // Out in the yard but out of sight in July: it can still be put back.
   ctx.mock.timers.setTime(new Date(2026, 6, 1, 12).getTime());
   nodes = album(ctx, { received: ['xmas_tree'], decor: [{ id: 'x', kind: 'xmas_tree', x: 0.5, y: 0.5 }] });
   assert.equal(cardOf(nodes, 'xmas_tree').textContent, t('album.put_back'));
-  assert.ok(!cardOf(nodes, 'xmas_tree').disabled);
+  assert.equal(cardOf(nodes, 'xmas_tree').getAttribute('aria-disabled'), 'false');
   scene.season = 'winter';
   nodes = album(ctx, garden);
-  assert.equal(cardOf(nodes, 'xmas_tree').disabled, false, 'a winter yard in July shows it');
+  assert.equal(cardOf(nodes, 'xmas_tree').getAttribute('aria-disabled'), 'false', 'a winter yard in July shows it');
 });
 
 // A snowman is built in the snow, never set out: its card offers nothing until one stands in the yard.
