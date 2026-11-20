@@ -1423,6 +1423,11 @@ const scenario = `(async()=>{
     await soon(async()=>!(await playPets.bootstrap()).data.desktopLayout.length);
     const sendAgain=await sendOut(p1.data.id);
     for(const [name,ms] of [['cold',sendCold],['warm',sendWarm],['again',sendAgain]])await L('perf send-out-'+name+' '+(ms===null?'none':ms)+' ms');
+    // What a tree, a flower or a find adds once placed: the overlay fetches and decodes its painted
+    // sheet the first time it draws it. Timed on this window's engine (the overlay's), from a fresh
+    // address so nothing this window drew before is reused.
+    const sheetCost=async sheet=>{const t0=performance.now(),img=new Image();img.src="art/"+sheet+"?cold="+t0;try{await img.decode();return Math.round(performance.now()-t0);}catch{return null;}};
+    for(const [name,sheet] of [['tree','trees/cherry-summer.webp'],['flower','collection-extension/flowers-5.webp'],['find','fish/specimens.webp']])await L('perf sheet-'+name+' '+((await sheetCost(sheet))??'none')+' ms');
     await L('sendOut='+([sendCold,sendWarm,sendAgain].every(ms=>ms!==null)?'measured':'err:'+JSON.stringify({sendCold,sendWarm,sendAgain})));
     // Brought in with the switch, the windows close; opening the menu of something not out then readies
     // the window it would show in, empty (overlay.rs warm), so Show on desktop shows it at once.
