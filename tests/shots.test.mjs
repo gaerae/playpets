@@ -183,7 +183,7 @@ test('the play pictures start from a lived-in garden that state.json accepts', (
   for (const item of garden.decor) assert.ok(gifts.has(item.kind) && garden.received.includes(item.kind), item.kind);
   for (const item of [...garden.plants, ...garden.decor, ...garden.trees])
     assert.ok(item.x >= 0 && item.x <= 1 && item.y >= 0 && item.y <= 1, item.id);
-  assert.ok(garden.decor.length <= 12 && garden.plants.length <= 24);
+  assert.ok(garden.decor.length <= 12 && garden.plants.length <= 12 && garden.trees.length <= 12);
   for (const [book, kinds] of Object.entries(album))
     for (const kind of Object.keys(kinds)) assert.ok(ids(catalog[book]).has(kind), `${book} ${kind}`);
   assert.ok(Object.keys(album.fish).length >= 6, 'the album has a page of fish to show');

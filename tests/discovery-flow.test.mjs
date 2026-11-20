@@ -586,7 +586,8 @@ test('the tree tool stops at a full yard, wherever its trees were planted, count
   state.data.pets.push(other.pet);
   t.after(() => release(other));
   const tree = (id, x) => ({ id, kind: 'maple', world: 'woodland', planted: 0, x, y: 0.9 });
-  state.data.garden.trees = [0.05, 0.15, 0.25, 0.35, 0.45].map((x, i) => ({
+  // One short of the yard's twelve.
+  state.data.garden.trees = Array.from({ length: 11 }, (_, i) => 0.04 + i * 0.04).map((x, i) => ({
     ...tree(`t${i}`, x),
     world: i ? 'woodland' : 'lakeside',
   }));
@@ -594,12 +595,12 @@ test('the tree tool stops at a full yard, wherever its trees were planted, count
   setupDiscovery();
   beginDiscovery('tree');
   await document.getElementById('yard').dispatch('click', { clientX: 500, clientY: 620 });
-  assert.ok(v.trip, 'the sixth tree is on its way');
+  assert.ok(v.trip, 'the twelfth tree is on its way');
   await document.getElementById('yard').dispatch('click', { clientX: 800, clientY: 620 });
-  assert.equal(other.trip, undefined, 'no friend walks off to plant a seventh');
+  assert.equal(other.trip, undefined, 'no friend walks off to plant a thirteenth');
   assert.equal(
     document.getElementById('toast').textContent,
-    'You have 6 planted trees. Remove one before planting another.',
+    'You have 12 planted trees. Remove one before planting another.',
   );
 });
 
@@ -619,13 +620,14 @@ test('a tree just saved counts until the state the page is sent shows it', async
   state.data.pets.push(other.pet);
   t.after(() => release(other));
   const tree = (id, x) => ({ id, kind: 'maple', world: 'woodland', planted: 0, x, y: 0.9 });
-  state.data.garden.trees = [0.05, 0.15, 0.25, 0.35, 0.45].map((x, i) => ({
+  // One short of the yard's twelve.
+  state.data.garden.trees = Array.from({ length: 11 }, (_, i) => 0.04 + i * 0.04).map((x, i) => ({
     ...tree(`t${i}`, x),
     world: i ? 'woodland' : 'lakeside',
   }));
   state.data.garden.saplings = { maple: 3 };
   const previous = state.api.plantTree;
-  state.api.plantTree = async () => ({ ok: true, data: tree('sixth', 0.5) });
+  state.api.plantTree = async () => ({ ok: true, data: tree('twelfth', 0.5) });
   t.after(() => {
     if (previous) state.api.plantTree = previous;
     else delete state.api.plantTree;
@@ -639,10 +641,10 @@ test('a tree just saved counts until the state the page is sent shows it', async
   await arrive();
   // Saved, but the new state has not reached the page yet.
   await document.getElementById('yard').dispatch('click', { clientX: 800, clientY: 620 });
-  assert.equal(other.trip, undefined, 'no friend walks off to plant a seventh');
+  assert.equal(other.trip, undefined, 'no friend walks off to plant a thirteenth');
   assert.equal(
     document.getElementById('toast').textContent,
-    'You have 6 planted trees. Remove one before planting another.',
+    'You have 12 planted trees. Remove one before planting another.',
   );
 });
 

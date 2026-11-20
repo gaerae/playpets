@@ -23,8 +23,10 @@ use uuid::Uuid;
 pub const SEED_MAX: u32 = 20;
 /// Saplings kept for each species, independently of flower seeds.
 pub const SAPLING_MAX: u32 = 20;
-/// Plants the field holds, so it stays a field.
-pub const PLANT_MAX: usize = 24;
+/// Plants the field holds, twelve as of every kind (docs/decisions/2026-11-20-twelve-of-each.md).
+pub const PLANT_MAX: usize = 12;
+/// Plants a saved yard keeps: one saved when the field held 24 loses none of them.
+pub const PLANT_KEEP: usize = 24;
 /// Decorations the yard holds, so friends still have room to play.
 pub const DECOR_MAX: usize = 12;
 /// Gifts the box keeps while the yard is full.
@@ -357,7 +359,7 @@ impl Garden {
             .min(SEED_MAX as u64) as u32;
         let plants = placed(
             raw.get("plants"),
-            PLANT_MAX,
+            PLANT_KEEP,
             |p: &Plant| catalog().is_flower(&p.kind),
             |p| (&mut p.x, &mut p.y),
             DECOR_FLOOR_MAX,
@@ -1308,6 +1310,19 @@ mod tests {
         assert_eq!(g.pull(&id), Ok(()));
         assert!(g.pull(&id).is_err(), "pulled already");
         assert_eq!(g.plants.len(), PLANT_MAX - 1);
+    }
+
+    #[test]
+    fn a_yard_saved_with_more_flowers_than_the_field_now_holds_keeps_them_all() {
+        // The field held 24 before every kind came to twelve; nothing planted then is lost.
+        let raw = json!({"plants": (0..30).map(|i| json!({"id": format!("p{i}"), "kind": "tulip", "x": 0.5, "y": 0.5, "planted": 1})).collect::<Vec<_>>()});
+        let mut g = Garden::restore(Some(&raw), 0);
+        assert_eq!(g.plants.len(), PLANT_KEEP);
+        // More are planted only once fewer than the field holds are left.
+        g.seeds = 1;
+        assert!(g.plant("tulip", 0.5, 0.5, 1).is_err());
+        g.plants.truncate(PLANT_MAX - 1);
+        assert!(g.plant("tulip", 0.5, 0.5, 1).is_ok());
     }
 
     #[test]

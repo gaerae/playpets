@@ -14,7 +14,7 @@
 
 ## Non-goals
 
-- No new limits: the yard's counts (24 flowers, 6 trees, the gifts' room) stay as they are.
+- No new limits of the album's own: the yard's counts hold, twelve of every kind ([decision](../decisions/2026-11-20-twelve-of-each.md)).
 - No change to how things are found or counted in the album.
 - Nothing grown from a seed or a sapling is taken while it is still growing.
 

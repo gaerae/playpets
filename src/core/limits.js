@@ -4,7 +4,7 @@
 // The page reads them from the state the backend sends; these are the same values for the moment
 // before it has, and a test keeps them equal to the backend's (tests/limits.test.mjs).
 export const LIMITS = {
-  trees: 6,
+  trees: 12,
   treeYoungMs: 7200000,
   treeMatureMs: 43200000,
   digCooldownMs: 8000,
@@ -15,7 +15,7 @@ export const LIMITS = {
   persona: 400,
   seeds: 20,
   saplings: 20,
-  plants: 24,
+  plants: 12,
   decor: 12,
   giftBox: 12,
   giftEveryDays: 2,

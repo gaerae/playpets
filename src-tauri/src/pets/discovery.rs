@@ -11,8 +11,9 @@ use uuid::Uuid;
 
 /// How many trees a saved yard keeps: one saved when each place had its own six keeps them all.
 pub const TREE_MAX: usize = 24;
-/// How many trees may be planted: one yard of them, standing in every place with soil.
-pub const TREE_YARD_MAX: usize = 6;
+/// How many trees may be planted: one yard of them, standing in every place with soil, twelve as of
+/// every kind (docs/decisions/2026-11-20-twelve-of-each.md).
+pub const TREE_YARD_MAX: usize = 12;
 pub const TREE_YOUNG_MS: u64 = 2 * 60 * 60 * 1000;
 pub const TREE_MATURE_MS: u64 = 12 * 60 * 60 * 1000;
 pub const DIG_COOLDOWN_MS: u64 = 8000;
@@ -1324,7 +1325,8 @@ mod tests {
         g.saplings.insert("cherry".into(), 1);
         plant_tree(&mut g, "meadow", "cherry", 0.3, 0.6, &ground(), now).unwrap();
         assert_eq!(g.out_of_album("tree", "cherry"), std::slice::from_ref(&t.id));
-        a.trees.get_mut("cherry").unwrap().count = 9;
+        // Found more often than the yard holds: the yard's trees are the limit.
+        a.trees.get_mut("cherry").unwrap().count = TREE_YARD_MAX as u32 + 3;
         // Copies of one kind, up to the yard's trees.
         for _ in 2..TREE_YARD_MAX {
             take_out_tree(&mut g, &a, "meadow", "cherry", 0.3, 0.6, &ground(), now).unwrap();

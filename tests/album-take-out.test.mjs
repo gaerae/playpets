@@ -99,11 +99,11 @@ test('a flower the album has comes out in bloom, into the yard or onto the deskt
   // A full field says so, on both (the frame beside them is the yard's gifts', album-finds-out.test.mjs).
   nodes = album(ctx, 'flower', {
     album: { flowers: { [kind]: { count: 1, best: 0, first: 1 } } },
-    garden: { plants: many(24, { kind }) },
+    garden: { plants: many(12, { kind }) },
   });
   for (const button of [...buttonsOf(nodes, 0)].slice(0, 2)) {
     assert.equal(button.getAttribute('aria-disabled'), 'true');
-    assert.equal(button.title, t('album.flowers_full', { limit: 24 }));
+    assert.equal(button.title, t('album.flowers_full', { limit: 12 }));
   }
 });
 
@@ -133,11 +133,11 @@ test('a tree the album has comes out mature on free soil of the current place, w
   const [, world, out, x, y, ground, desktopToo] = calls[0];
   assert.deepEqual([world, out, desktopToo], [scene.world, kind, true]);
   assert.ok(groundAllows({ x, y }, ground, { planting: true }), 'a spot the ground allows for planting');
-  // Six trees fill the yard, wherever they were planted.
-  nodes = album(ctx, 'tree', { album: found, garden: { trees: many(6, { kind, world: 'elsewhere', stage: 2 }) } });
+  // Twelve trees fill the yard, wherever they were planted.
+  nodes = album(ctx, 'tree', { album: found, garden: { trees: many(12, { kind, world: 'elsewhere', stage: 2 }) } });
   for (const button of buttonsOf(nodes, 0)) {
     assert.equal(button.getAttribute('aria-disabled'), 'true');
-    assert.equal(button.title, t('album.trees_full', { limit: 6 }));
+    assert.equal(button.title, t('album.trees_full', { limit: 12 }));
   }
   // A paved place has no soil for one.
   scene.world = 'workshop';

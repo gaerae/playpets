@@ -119,6 +119,16 @@ mod tests {
     use super::*;
 
     #[test]
+    fn the_yard_holds_twelve_of_every_kind() {
+        // One number to remember (docs/decisions/2026-11-20-twelve-of-each.md); the desktop shows
+        // what the yard has, so it holds the same.
+        let all = limits();
+        for kind in ["pets", "plants", "trees", "decor", "giftBox"] {
+            assert_eq!(all[kind], 12, "{kind}");
+        }
+    }
+
+    #[test]
     fn days_between_counts_calendar_days_across_months_and_years() {
         assert_eq!(days_between("2026-10-29", "2026-10-31"), Some(2));
         assert_eq!(days_between("2026-12-31", "2027-01-02"), Some(2));

@@ -106,7 +106,7 @@ You can pet friends, chat, grow flowers, decorate the Christmas tree and play th
 |---|---|---|
 | Flowers | In the ground | In small pots |
 | Digging, fishing | Yes | No |
-| Trees | Yes, the same six in each | No |
+| Trees | Yes, the same ones in each | No |
 | Bugs | In clear weather | No |
 | Seasonal landscapes and effects | Follow the season | No |
 | Snowman, footprints in the snow | In winter | No |
@@ -154,7 +154,7 @@ What blooms depends on the season you planted in:
 | Right-click → **Pull up**, or **Delete** or **Backspace** | Gone at once, no question. **Undo** in the notice brings it back for about six seconds; after that it's gone for good. If the app closes first, it stays. The seed doesn't come back |
 | Right-click → **Show on desktop** | It grows on your desk too ([Desktop mode](./desktop.md#flowers-and-trees-on-the-desktop)) |
 
-- Limits: 20 seeds and 24 plants.
+- Limits: 20 seeds and 12 plants. A yard that had more before keeps them.
 - The **Album** records each kind of flower the first time it blooms. After that, its card can set one out in bloom, in any season, without a seed ([Album](#album)).
 - Saved as `garden` in `state.json`.
 
@@ -226,7 +226,7 @@ Only outdoors in clear weather; rain and snow stop them. Click one and the neare
 - A flower, tree, fish, bug or keepsake you have found comes out of its card again, and goes back in the same way. The buttons stay where they are, so you can press again at once.
 - Found once: **Set out** puts it in the yard and turns into **Put back**. Found more often: **+** sets one more out and **−** takes one in, up to how many you found and what the yard has room for. The number between them is how many are out.
 - The small screen button puts it on the desktop too, and stays lit while that kind is there. Press it again to take them off the desktop; they stay in the yard.
-- A flower comes out in bloom and a tree fully grown, up to the yard's 24 plants and six trees. A tree needs an outdoor place with soil.
+- A flower comes out in bloom and a tree fully grown, up to the yard's 12 plants and 12 trees. A tree needs an outdoor place with soil.
 - A fish, bug or keepsake comes out on its own, with no bowl or jar, and counts as one of the yard's 12 decorations. A fish is drawn by its length, and a friend who visits a find names it.
 - Saved as `album` in `state.json`.
 
@@ -353,7 +353,7 @@ The Friend panel shows how close a friend is to you: its level, how far it is to
 3. Pick a kind you have and click clear ground. It uses one sapling.
 
 - Growth counts time with the app closed: young after two hours, mature after twelve. A mature tree is recorded once in **Album → Trees**, and from then on its card can set one out fully grown, without a sapling ([Album](#album)).
-- Up to six trees. Like flowers and gifts, they stand in every outdoor place, wherever you planted them.
+- Up to 12 trees. Like flowers and gifts, they stand in every outdoor place, wherever you planted them.
 - Drag a tree to move it. Right-click → **Remove**, or **Delete**: gone at once, with **Undo** for about six seconds. Its album entry stays; the sapling doesn't come back.
 - Imported backgrounds can allow or turn off soil.
 
