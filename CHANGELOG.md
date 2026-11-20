@@ -10,6 +10,11 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Changed
+
+- In the Wild garden, friends walk all the way back across the meadow left of the pond, where ferns and boulders used to stop them, and look smaller the farther back they go.
+- The outdoor pictures meet the sky in a smooth edge: treetops, hills and the meadow's line no longer show a pale, stepped outline.
+
 ## [1.9.0] - 2026-11-20
 
 ### Added

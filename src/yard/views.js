@@ -30,7 +30,7 @@ import { plain } from '../core/text.js';
 import { halt, moveTo } from '../core/ticker.js';
 import {
   depthAt,
-  depthScale,
+  depthScaleAt,
   dockBox,
   EDGE,
   field,
@@ -314,7 +314,8 @@ export function place(v, { glide = false } = {}) {
   // under the feet: the label starts where the shrunk body does, its body room shrinks with it, and
   // what sits on the head (the line, a petal) goes by the head shrunk the same
   // way (--depth, friends.css). Rounded, so a step does not write it again.
-  const depth = Math.round(depthScale(v.y) * 100) / 100;
+  const foot = footOf(v),
+    depth = Math.round(depthScaleAt(foot.x, foot.y) * 100) / 100;
   if (v.depth !== depth) {
     v.depth = depth;
     v.button.style.scale = String(depth);
