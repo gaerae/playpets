@@ -10,6 +10,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-11-20
+
 ### Added
 
 - A flower or tree you have found can come out of its album card again, fully grown and free, as many as the yard has room for (24 flowers, 6 trees): Set out puts it in the yard, and the small screen beside it puts it on the desktop too. It works in any season, and a tree shows its season's leaves.
