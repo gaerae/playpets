@@ -97,7 +97,7 @@ const BOOKS = {
     unknown: 'catch.unknown_flower',
     hint: k => t('catch.flower_hint', { season: t(`catch.season_${k.season}`) }),
     record: entry => t('catch.grown', { count: entry.count }),
-    action: k => growingButtons('flower', k.id),
+    action: (k, entry) => growingButtons('flower', k.id, entry),
   },
   fish: {
     tab: 'catch.tab_fish',
@@ -113,7 +113,7 @@ const BOOKS = {
       ]),
     record: entry => caughtLine(entry, true),
     rare,
-    action: k => findButtons('fish', k.id),
+    action: (k, entry) => findButtons('fish', k.id, entry),
   },
   bug: {
     tab: 'catch.tab_bugs',
@@ -129,7 +129,7 @@ const BOOKS = {
       ]),
     record: entry => caughtLine(entry, false),
     rare,
-    action: k => findButtons('bug', k.id),
+    action: (k, entry) => findButtons('bug', k.id, entry),
   },
   gift: {
     tab: 'catch.tab_gifts',
@@ -152,7 +152,7 @@ const BOOKS = {
     draw: (k, unknown) => specimen(grownArt(k), unknown),
     hint: favored('album.tree_how'),
     record: entry => t('catch.trees_grown', { count: entry.count }),
-    action: k => growingButtons('tree', k.id),
+    action: (k, entry) => growingButtons('tree', k.id, entry),
   },
   treasure: {
     tab: 'album.treasures',
@@ -163,7 +163,7 @@ const BOOKS = {
     hint: favored('album.treasure_how'),
     record: entry => caughtLine(entry, false),
     rare: k => k.rarity === 'uncommon',
-    action: k => findButtons('treasure', k.id),
+    action: (k, entry) => findButtons('treasure', k.id, entry),
   },
   // Winter animals whose prints a friend followed: the print is the clue, the tail what was seen.
   track: {
@@ -238,7 +238,7 @@ function card(b, kind, entry, index) {
     record.className = 'album-record';
     record.textContent = b.record(entry);
     el.append(record);
-    const action = b.action?.(kind);
+    const action = b.action?.(kind, entry);
     if (action) el.append(action);
   }
   return el;
@@ -247,55 +247,60 @@ function card(b, kind, entry, index) {
 // when it shows: a Christmas gift its dates, a snowman winter.
 const showsNow = kind => decorShown(kind, new Date(), yardSeason(scene));
 const whenShown = kind => t(giftKind(kind)?.shown ? 'album.shown_christmas' : 'album.shown_winter');
-// A gift that came before can always come back out of its card (garden.rs take_out): one in the
-// yard says so, and one waiting in the box is set out from the box below the book. A snowman is
-// built in the snow, never set out: its card only says when one stands in the yard.
+// A gift that came before can always come back out of its card (garden.rs take_out), and back in:
+// one waiting in the box is set out from the box below the book. Set out while out of sight, it
+// waits and says when it shows. A snowman is built in the snow, never set out: its card only says
+// when one stands in the yard.
 function takeOutButton(kind) {
   const garden = data.garden || {};
   if ((garden.boxed || []).some(d => d.kind === kind)) return null;
   const out = (garden.decor || []).some(d => d.kind === kind);
-  if (giftKind(kind)?.built && !out) return null;
-  const room = (garden.decor?.length ?? 0) < limit(data, 'decor'),
-    shows = showsNow(kind),
-    button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'album-take-out';
-  button.textContent = t(out ? 'album.in_yard' : 'album.take_out');
-  button.disabled = out || !room || !shows;
-  button.title = !shows
-    ? whenShown(kind)
-    : out
-      ? t('album.in_yard')
-      : room
-        ? t('album.set_out', { kind: t(`decor.kind_${kind}`) })
-        : t('album.set_out_full');
-  button.setAttribute('aria-label', button.title);
-  button.onclick = () => {
-    // Taken out once: a second click before the album redraws would find it out already.
+  if (giftKind(kind)?.built) {
+    if (!out) return null;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'album-take-out';
+    button.textContent = button.title = t('album.in_yard');
     button.disabled = true;
-    call('takeOut', kind, ...landing()).catch(error => {
-      button.disabled = false;
-      toast(spoken(error, t('error.generic')), { error: true });
-    });
-  };
-  return button;
+    button.setAttribute('aria-label', button.title);
+    return button;
+  }
+  const room = limit(data, 'decor'),
+    why = !showsNow(kind) ? whenShown(kind) : (garden.decor?.length ?? 0) >= room ? t('album.set_out_full') : '';
+  return setOutRow({
+    book: 'gift',
+    item: kind,
+    name: t(`decor.kind_${kind}`),
+    most: 1,
+    room,
+    why,
+    setOut: desktop => call('takeOut', kind, ...landing(), desktop),
+  });
 }
 // A flower or a tree the album has comes out again, grown and free, as often as there is room
 // (garden.rs take_out_flower, discovery.rs take_out_tree): into the yard, or into the yard and out
 // on the desktop. A flower goes near the front of the field, as a gift does; a tree onto free soil
 // of the place shown. Design: docs/design/2026-11-19-album-take-out.md.
-function growingButtons(book, kind) {
+function growingButtons(book, kind, entry) {
   const garden = data.garden || {},
     tree = book === 'tree',
-    most = limit(data, tree ? 'trees' : 'plants'),
-    full = ((tree ? garden.trees : garden.plants)?.length ?? 0) >= most,
+    room = limit(data, tree ? 'trees' : 'plants'),
+    full = ((tree ? garden.trees : garden.plants)?.length ?? 0) >= room,
     why =
       tree && !worldHasSoil(scene.world)
         ? t('album.tree_soil')
         : full
-          ? t(tree ? 'album.trees_full' : 'album.flowers_full', { limit: most })
+          ? t(tree ? 'album.trees_full' : 'album.flowers_full', { limit: room })
           : '';
-  return setOutRow(t(nameKey(tree ? 'trees' : 'flowers', kind)), why, desktop => takeOutGrowing(tree, kind, desktop));
+  return setOutRow({
+    book,
+    item: kind,
+    name: t(nameKey(tree ? 'trees' : 'flowers', kind)),
+    most: entry?.count ?? 1,
+    room,
+    why,
+    setOut: desktop => takeOutGrowing(tree, kind, desktop),
+  });
 }
 function takeOutGrowing(tree, kind, desktop) {
   if (!tree) return call('takeOutFlower', kind, ...landing(), desktop);

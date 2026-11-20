@@ -14,6 +14,15 @@ globalThis.playPets = {
     calls.push(['takeOut', ...args]);
     return refuse ? { ok: false, error: 'fixture refusal' } : { ok: true, data: {} };
   },
+  putAway: async (...args) => {
+    calls.push(['putAway', ...args]);
+    return { ok: true, data: null };
+  },
+};
+// A card's first button: Set out (or Put back), in its row beside the desktop's; a snowman's lone one.
+const firstButton = card => {
+  const row = card.children.find(child => child.classList?.contains('album-actions'));
+  return row ? row.children[0] : card.children.find(child => child.classList?.contains('album-take-out'));
 };
 const state = await import('../src/core/state.js');
 const { t } = await import('../src/core/i18n.js');
@@ -82,9 +91,7 @@ test('a gift that came before comes back out of its card, once, unless it is out
   ctx.mock.timers.enable({ apis: ['setTimeout'] });
   const takeOut = nodes => {
     const cards = nodes.get('album-grid').children;
-    return Object.fromEntries(
-      cards.map((card, i) => [i, card.children.find(child => child.classList?.contains('album-take-out'))]),
-    );
+    return Object.fromEntries(cards.map((card, i) => [i, firstButton(card)]));
   };
   // The bench came and was put away; the lantern is in the yard; the pond waits in the box.
   let nodes = album(ctx, {
@@ -95,8 +102,12 @@ test('a gift that came before comes back out of its card, once, unless it is out
   const [bench, lantern, , pond, , , , , , flowerpot] = Object.values(takeOut(nodes));
   assert.ok(bench && !bench.disabled);
   assert.equal(bench.title, t('album.set_out', { kind: t('decor.kind_bench') }));
-  assert.equal(lantern?.disabled, true, 'in the yard already');
-  assert.equal(lantern.title, t('album.in_yard'));
+  // In the yard already: a press puts it back.
+  assert.equal(lantern.textContent, t('album.put_back'));
+  assert.equal(lantern.title, t('album.put_back_one', { kind: t('decor.kind_lantern') }));
+  lantern.onclick();
+  await flush();
+  assert.deepEqual(calls.pop(), ['putAway', 'l']);
   assert.equal(pond, undefined, 'the box sets that one out');
   assert.equal(flowerpot, undefined, 'one that never came');
   bench.onclick();
@@ -129,7 +140,7 @@ test('a Christmas gift waits in the album until its window or a winter yard', as
   // A card's Set out button; cards are in catalogue order.
   const cardOf = (nodes, kind) => {
     const card = nodes.get('album-grid').children[GIFTS.findIndex(g => g.id === kind)];
-    return card.children.find(child => child.classList?.contains('album-take-out'));
+    return firstButton(card);
   };
   const garden = { received: ['xmas_tree', 'santa'], boxed: [{ id: 's', kind: 'santa', x: 0.5, y: 0.5 }] };
   let nodes = album(ctx, garden);
@@ -146,10 +157,11 @@ test('a Christmas gift waits in the album until its window or a winter yard', as
   assert.equal(tree.disabled, false);
   assert.equal(tree.title, t('album.set_out', { kind: t('decor.kind_xmas_tree') }));
   assert.equal(santa.disabled, false);
-  // Out in the yard but out of sight in July: the title says when it shows, not "In the yard".
+  // Out in the yard but out of sight in July: it can still be put back.
   ctx.mock.timers.setTime(new Date(2026, 6, 1, 12).getTime());
   nodes = album(ctx, { received: ['xmas_tree'], decor: [{ id: 'x', kind: 'xmas_tree', x: 0.5, y: 0.5 }] });
-  assert.equal(cardOf(nodes, 'xmas_tree').title, t('album.shown_christmas'));
+  assert.equal(cardOf(nodes, 'xmas_tree').textContent, t('album.put_back'));
+  assert.ok(!cardOf(nodes, 'xmas_tree').disabled);
   scene.season = 'winter';
   nodes = album(ctx, garden);
   assert.equal(cardOf(nodes, 'xmas_tree').disabled, false, 'a winter yard in July shows it');

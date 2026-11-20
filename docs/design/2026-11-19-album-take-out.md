@@ -42,3 +42,7 @@
 
 - The desktop button is a small screen icon beside Set out, named by its title: two worded buttons do not fit a card's width.
 - A full yard, or a place without soil, turns both buttons off and says why in their title, as a gift's button does. Twenty draws finding no free soil say so in a toast.
+
+## Follow-up (2026-11-20)
+
+- A card now brings things back too, and sets out no more of a kind than the album found: [Album cards that set out and bring back](./2026-11-20-album-in-and-out.md).

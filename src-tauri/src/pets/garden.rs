@@ -564,9 +564,49 @@ impl Garden {
         Ok(plant)
     }
 
+    /// The copies of an album kind out in the yard, by id in the order they came: a flower of the
+    /// kind in bloom, a tree of it grown, a find out holding it, a gift of it (`book`: flower, tree,
+    /// fish, bug, treasure or gift). A seedling or a young tree is still growing and is not one.
+    /// Design: docs/design/2026-11-20-album-in-and-out.md.
+    pub fn out_of_album(&self, book: &str, item: &str) -> Vec<String> {
+        let ids = |it: &mut dyn Iterator<Item = &str>| it.map(String::from).collect();
+        match book {
+            "flower" => ids(&mut self
+                .plants
+                .iter()
+                .filter(|p| p.kind == item && p.bloomed)
+                .map(|p| p.id.as_str())),
+            "tree" => ids(&mut self
+                .trees
+                .iter()
+                .filter(|t| t.kind == item && t.matured)
+                .map(|t| t.id.as_str())),
+            "gift" => ids(&mut self.decor.iter().filter(|d| d.kind == item).map(|d| d.id.as_str())),
+            _ => {
+                let Some(kind) = catalog().find_out_for(book) else {
+                    return Vec::new();
+                };
+                ids(&mut self
+                    .decor
+                    .iter()
+                    .filter(|d| d.kind == kind && d.holds.first().is_some_and(|h| h == item))
+                    .map(|d| d.id.as_str()))
+            }
+        }
+    }
+
+    /// Refuses one more copy of an album kind once as many are out as the album found.
+    pub fn album_has_more(&self, album: &Album, book: &str, item: &str) -> Result<(), String> {
+        let found = album.count(book, item);
+        if self.out_of_album(book, item).len() >= found as usize {
+            return Err(i18n::tr("error.album_all_out", &[("count", &found.to_string())]));
+        }
+        Ok(())
+    }
+
     /// Sets a flower of a kind the album has into the field at (x, y), in bloom and free: its
     /// planting is put back by the bloom time, and it counts as flowered already, so the album gains
-    /// nothing from it. Any number of a kind, as long as the field has room.
+    /// nothing from it. As many of a kind in bloom as the album found, as long as the field has room.
     /// Design: docs/design/2026-11-19-album-take-out.md.
     pub fn take_out_flower(&mut self, album: &Album, kind: &str, x: f64, y: f64, now: u64) -> Result<Plant, String> {
         if !album.flowers.contains_key(kind) {
@@ -578,6 +618,7 @@ impl Garden {
         let (Some((x, y)), true) = (decor_place(x, y), catalog().is_flower(kind)) else {
             return Err(i18n::t("error.bad_request"));
         };
+        self.album_has_more(album, "flower", kind)?;
         let plant = Plant {
             id: Uuid::new_v4().to_string(),
             kind: kind.into(),
@@ -854,7 +895,8 @@ impl Garden {
     }
 
     /// Sets a find from the album (`book`: fish, bug or treasure; `item`, one the album has) out on
-    /// its own at (x, y), one more each time. It is one of the yard's gifts and nothing is spent.
+    /// its own at (x, y), one more each time up to the album's count. It is one of the yard's gifts
+    /// and nothing is spent.
     /// Design: docs/design/2026-11-19-album-finds-out.md.
     pub fn take_out_find(
         &mut self,
@@ -876,6 +918,7 @@ impl Garden {
         let (Some(kind), Some((x, y)), true) = (catalog().find_out_for(book), decor_place(x, y), found) else {
             return Err(i18n::t("error.bad_request"));
         };
+        self.album_has_more(album, book, item)?;
         if self.decor.len() >= DECOR_MAX {
             return Err(i18n::tr("error.decor_full", &[("limit", &DECOR_MAX.to_string())]));
         }
@@ -1337,14 +1380,34 @@ mod tests {
             "not found yet"
         );
         album.flowered("cosmos", 1);
+        // A seedling of the kind is still growing: it is not one of the album's out.
+        g.plants.push(Plant {
+            id: "young".into(),
+            kind: "cosmos".into(),
+            x: 0.2,
+            y: 0.8,
+            planted: now,
+            bloomed: false,
+            on_desktop: false,
+            desktop_position: None,
+        });
         let p = g.take_out_flower(&album, "cosmos", 0.5, 0.8, now).unwrap();
         assert_eq!((p.kind.as_str(), p.x, p.y), ("cosmos", 0.5, 0.8));
         assert!(p.bloomed, "already counted, so it adds nothing to the album");
         assert_eq!(p.planted, now - catalog().bloom_after_ms(), "grown from the start");
         assert_eq!(g.bloom(&p.id, now), Ok(None));
         assert_eq!(g.seeds, 0, "no seed spent");
-        // Any number of one kind, up to the field's limit.
-        for _ in 1..PLANT_MAX {
+        assert_eq!(g.out_of_album("flower", "cosmos"), std::slice::from_ref(&p.id));
+        // As many as the album found: one grown, one out.
+        assert_eq!(
+            g.take_out_flower(&album, "cosmos", 0.4, 0.8, now),
+            Err(i18n::tr("error.album_all_out", &[("count", "1")]))
+        );
+        // Grown more often, more come out, up to the field's limit.
+        for _ in 0..PLANT_MAX {
+            album.flowered("cosmos", 1);
+        }
+        for _ in 2..PLANT_MAX {
             g.take_out_flower(&album, "cosmos", 0.4, 0.8, now).unwrap();
         }
         assert!(
@@ -1369,15 +1432,22 @@ mod tests {
         );
         album.catch("fish", "crucian", 20.0, 1).unwrap();
         let fish = g.take_out_find(&album, "fish", "crucian", 0.5, 0.8, now).unwrap();
+        assert!(
+            g.take_out_find(&album, "fish", "crucian", 0.4, 0.8, now).is_err(),
+            "caught once, out once"
+        );
+        album.catch("fish", "crucian", 20.0, 1).unwrap();
         assert_eq!(
             (fish.kind.as_str(), fish.holds.clone()),
             ("fish_out", vec!["crucian".to_string()])
         );
         assert_eq!(fish.came_at, now);
         assert!(g.received.is_empty(), "a find out is not a gift that came");
-        // Two of one fish are fine, each on its own.
+        // Caught twice, two are out, each on its own.
         let again = g.take_out_find(&album, "fish", "crucian", 0.4, 0.8, now).unwrap();
         assert_ne!(again.id, fish.id);
+        assert_eq!(g.out_of_album("fish", "crucian"), [fish.id.clone(), again.id.clone()]);
+        assert!(g.out_of_album("bug", "crucian").is_empty(), "a fish out is not a bug's");
         assert!(g.take_out_find(&album, "nothing", "crucian", 0.5, 0.8, now).is_err());
         assert!(g.take_out_find(&album, "fish", "crucian", f64::NAN, 0.8, now).is_err());
         // A find the album keeps but this catalogue no longer has would take a place with nothing to draw.
@@ -1392,7 +1462,7 @@ mod tests {
         album.treasures.insert(
             "quartz".to_string(),
             super::super::album::Entry {
-                count: 1,
+                count: 2,
                 best: 0.0,
                 first: 1,
             },
@@ -1415,6 +1485,7 @@ mod tests {
         album.flowered("tulip", 1);
         assert!(g.take_out_find(&album, "flower", "tulip", 0.5, 0.8, now).is_err());
         // One of the yard's gifts, not kept in the box when put away.
+        album.fish.get_mut("crucian").unwrap().count = 99;
         while g.decor.len() < DECOR_MAX {
             g.take_out_find(&album, "fish", "crucian", 0.5, 0.8, now).unwrap();
         }

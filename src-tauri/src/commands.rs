@@ -525,11 +525,22 @@ static COMMANDS: &[Command] = &[
         let _ = crate::menu::pop_desktop_menu(c.app, c.sender, &choices);
         Ok(Value::Null)
     }),
-    // (kind, x, y): a gift that came before, out of the album and down in the yard again.
+    // (kind, x, y, desktop): a gift that came before, out of the album and down in the yard again,
+    // and out on the desktop too when `desktop`.
     main("takeOut", |c| {
-        let (x, y, now) = (c.float(1), c.float(2), now_ms());
+        let (x, y, now, desktop) = (c.float(1), c.float(2), now_ms(), c.flag(3));
         commit(c.app, &c.state, |d| {
-            d.garden.take_out(c.text(0), x, y, now).map(|d| json!(d))
+            let decor = d.garden.take_out(c.text(0), x, y, now)?;
+            out_on_desktop(d, &decor.id, desktop)?;
+            Ok(json!(decor))
+        })
+    }),
+    // (book, item, on): every copy of an album kind on the desktop, or off it and in the yard only.
+    main("albumOnDesktop", |c| {
+        let on = c.arg(2).as_bool().ok_or_else(|| i18n::t("error.bad_request"))?;
+        commit(c.app, &c.state, |d| {
+            let AppData { pets, garden, .. } = d;
+            album_on_desktop(pets, garden, c.text(0), c.text(1), on).map(|()| Value::Null)
         })
     }),
     // (kind, x, y, desktop): a flower the album has, in bloom in the field, and out on the desktop
@@ -661,6 +672,24 @@ static COMMANDS: &[Command] = &[
 fn out_on_desktop(d: &mut AppData, id: &str, desktop: bool) -> Result<(), String> {
     let AppData { pets, garden, .. } = d;
     out_too(pets, garden, id, desktop)
+}
+/// Every copy of an album kind out in the yard goes on the desktop, or comes off it and stays in
+/// the yard (docs/design/2026-11-20-album-in-and-out.md).
+fn album_on_desktop(
+    pets: &mut [model::Pet],
+    garden: &mut crate::pets::garden::Garden,
+    book: &str,
+    item: &str,
+    on: bool,
+) -> Result<(), String> {
+    let ids = garden.out_of_album(book, item);
+    if ids.is_empty() {
+        return Err(i18n::t("error.decor_missing"));
+    }
+    for id in &ids {
+        crate::desktop::items::set(pets, garden, id, on)?;
+    }
+    Ok(())
 }
 fn out_too(
     pets: &mut [model::Pet],
@@ -809,7 +838,7 @@ mod tests {
     #[test]
     fn a_find_set_out_for_the_desktop_is_out_on_it_from_the_same_save() {
         let album = crate::pets::album::Album::restore(Some(&json!({
-            "fish": {"crucian": {"count": 1, "best": 10.0, "first": 1}},
+            "fish": {"crucian": {"count": 2, "best": 10.0, "first": 1}},
             "bugs": {}
         })));
         let mut garden = crate::pets::garden::Garden::default();
@@ -821,6 +850,29 @@ mod tests {
         }
         assert!(out_too(&mut [], &mut garden, "nothing", true).is_err());
         assert!(out_too(&mut [], &mut garden, "nothing", false).is_ok());
+    }
+
+    // A card's desktop button moves every copy of its kind at once, and only those.
+    #[test]
+    fn an_album_kind_goes_on_and_off_the_desktop_together() {
+        let album = crate::pets::album::Album::restore(Some(&json!({
+            "fish": {"crucian": {"count": 3, "best": 10.0, "first": 1}},
+            "bugs": {"firefly": {"count": 1, "best": 0.0, "first": 1}}
+        })));
+        let mut garden = crate::pets::garden::Garden::default();
+        let a = garden.take_out_find(&album, "fish", "crucian", 0.5, 0.8, 1).unwrap().id;
+        let b = garden.take_out_find(&album, "fish", "crucian", 0.4, 0.8, 1).unwrap().id;
+        let bug = garden.take_out_find(&album, "bug", "firefly", 0.4, 0.8, 1).unwrap().id;
+        let on = |g: &crate::pets::garden::Garden, id: &str| g.decor.iter().any(|d| d.id == id && d.on_desktop);
+        album_on_desktop(&mut [], &mut garden, "fish", "crucian", true).unwrap();
+        assert!(on(&garden, &a) && on(&garden, &b) && !on(&garden, &bug));
+        album_on_desktop(&mut [], &mut garden, "fish", "crucian", false).unwrap();
+        assert!(!on(&garden, &a) && !on(&garden, &b));
+        assert_eq!(garden.decor.len(), 3, "off the desktop, still in the yard");
+        assert!(
+            album_on_desktop(&mut [], &mut garden, "treasure", "quartz", true).is_err(),
+            "none out"
+        );
     }
 
     #[test]
@@ -942,6 +994,7 @@ mod tests {
             "takeOutFlower",
             "takeOutTree",
             "takeOutFind",
+            "albumOnDesktop",
             "hangOrnament",
             "takeDownOrnament",
             "buildSnowman",

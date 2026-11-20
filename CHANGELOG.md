@@ -10,6 +10,12 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Changed
+
+- An album card now brings back what it set out. Found once, **Put back** takes it in; found more often, **−** and **+** take one in or set one more out, up to how many you found and the yard's room, and the card shows how many are out. Gift cards work the same way.
+- The small screen button on an album card stays lit while that kind is on the desktop; press it again to take them all off the desktop, and they stay in the yard.
+- Every notice along the bottom of the yard has a close button and closes with a click anywhere on it, including the one with **Undo**, whose words no longer get selected when you drag. Closing an **Undo** notice keeps the removal.
+
 ## [1.9.0] - 2026-11-20
 
 ### Added

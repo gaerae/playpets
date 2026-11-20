@@ -17,6 +17,8 @@ globalThis.playPets = {
   takeOutFlower: answer('takeOutFlower', { id: 'p1' }),
   takeOutTree: answer('takeOutTree', { id: 't1' }),
   setOnDesktop: answer('setOnDesktop', null),
+  pullPlant: answer('pullPlant', null),
+  removeTree: answer('removeTree', null),
 };
 const state = await import('../src/core/state.js');
 const { t } = await import('../src/core/i18n.js');
@@ -143,4 +145,49 @@ test('a tree the album has comes out mature on free soil of the current place, w
     assert.equal(button.disabled, true);
     assert.equal(button.title, t('album.tree_soil'));
   }
+});
+
+// What a card set out comes back through it: a flower pulled, a tree removed, the last one first; a
+// seedling or a young tree still growing is not the card's (album-in-and-out.md).
+test('a grown flower or tree comes back through its card, within what the album found', async ctx => {
+  ctx.mock.timers.enable({ apis: ['setTimeout'] });
+  const flower = FLOWERS[0].id,
+    tree = TREES[0].id,
+    twice = { count: 2, best: 0, first: 1 };
+  let nodes = album(ctx, 'flower', {
+    album: { flowers: { [flower]: twice } },
+    garden: {
+      plants: [...many(1, { kind: flower, bloomed: true }), { id: 'young', kind: flower, x: 0.2, y: 0.8, planted: 9 }],
+    },
+  });
+  const [, count] = buttonsOf(nodes, 0);
+  let [fewer, , more] = buttonsOf(nodes, 0);
+  assert.equal(count.textContent, '1/2', 'the seedling is not counted');
+  more.onclick();
+  await flush();
+  assert.deepEqual(
+    calls.map(c => c[0]),
+    ['takeOutFlower'],
+  );
+  nodes = album(ctx, 'flower', {
+    album: { flowers: { [flower]: twice } },
+    garden: { plants: many(2, { kind: flower, bloomed: true }) },
+  });
+  [fewer, , more] = buttonsOf(nodes, 0);
+  assert.equal(more.disabled, true);
+  fewer.onclick();
+  await flush();
+  assert.deepEqual(calls, [['pullPlant', 'x1']]);
+  // A tree found once and grown in the yard: Put back removes it; a sapling stays.
+  nodes = album(ctx, 'tree', {
+    album: { trees: { [tree]: { count: 1, best: 0, first: 1 } } },
+    garden: {
+      trees: [...many(1, { kind: tree, stage: 2, matured: true }), { id: 's', kind: tree, x: 0.4, y: 0.6, stage: 0 }],
+    },
+  });
+  const [back] = buttonsOf(nodes, 0);
+  assert.equal(back.textContent, t('album.put_back'));
+  back.onclick();
+  await flush();
+  assert.deepEqual(calls, [['removeTree', 'x0']]);
 });

@@ -339,10 +339,18 @@ body.window-top .window-buttons,
 .toast[hidden] {
   display: none;
 }
-/* Each line is a message on the shared surface; a failure stands apart in the dark ink. */
+/* Each line is a message on the shared surface; a failure stands apart in the dark ink. Every line
+   closes the same way: its close button, or a press anywhere on it, so its words are not for
+   selecting. */
 .toast > span {
   pointer-events: auto;
-  padding: 8px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 4px 4px 14px;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
   border: 1px solid var(--message-line);
   border-radius: var(--radius-panel);
   background: var(--message-surface);
@@ -354,7 +362,6 @@ body.window-top .window-buttons,
 }
 /* One action on a notice, such as Undo: a quiet text button that still reads as pressable. */
 .toast-action {
-  margin-left: 10px;
   padding: 2px 8px;
   border: 1px solid var(--message-line);
   border-radius: var(--radius-control);
@@ -364,8 +371,26 @@ body.window-top .window-buttons,
   font-weight: 650;
   cursor: pointer;
 }
-.toast-action:hover {
+.toast-action:hover,
+.toast-close:hover {
   background: var(--control-hover);
+}
+.toast-close {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.toast-close svg {
+  width: 14px;
+  height: 14px;
 }
 .toast > span.error {
   border-color: transparent;

@@ -775,6 +775,25 @@ body.compact .update-compact {
   width: 15px;
   height: 15px;
 }
+/* On the desktop: the screen reads as pressed in. */
+.album-to-desktop[aria-pressed="true"] {
+  border-color: var(--album-gold);
+  background: var(--album-gold-soft);
+  color: var(--album-gold-ink);
+}
+/* Fewer and more around how many are out, within what the album found. */
+.album-step {
+  min-width: 26px;
+  padding: 3px 0;
+}
+.album-count {
+  min-width: 30px;
+  margin-top: 4px;
+  font-size: var(--font-xs);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
 /* One not found yet is an empty place on the page: a dashed outline, a faint shape and the hint. */
 .album-card.unknown {
   border-style: dashed;

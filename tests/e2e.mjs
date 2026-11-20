@@ -1382,7 +1382,17 @@ const scenario = `(async()=>{
     const grownToast=document.querySelector('.toast')?.textContent;
     $('close-album').click();
     await L('albumTakeOut='+(grownFlower&&grownTree?'grown-out':'err:'+JSON.stringify({grownFlower,grownTree,grownToast,world:(await playPets.bootstrap()).data.world})));
-    if(grownFlower){await playPets.setOnDesktop(grownFlower.id,false);await playPets.pullPlant(grownFlower.id);}
+    // The flower's card brings it back: its screen takes it off the desktop and leaves it in the yard,
+    // then Put back takes it in.
+    $('album-button').click();await until(()=>document.querySelectorAll('.album-card').length>0);
+    document.querySelector('.album-tabs [data-book=flower]').click();
+    (await until(()=>document.querySelector('.album-card:not(.unknown) .album-to-desktop[aria-pressed=true]')))?.click();
+    const offDesk=await until(async()=>{const d=(await playPets.bootstrap()).data,p=d.garden.plants.find(x=>x.id===grownFlower?.id);return p&&!p.onDesktop&&!d.desktopLayout.some(i=>i.id===p.id)&&p;},8000);
+    (await until(()=>document.querySelector('.album-card:not(.unknown) .album-to-desktop[aria-pressed=false]:not(:disabled)')?.previousElementSibling))?.click();
+    const putBack=await until(async()=>!(await playPets.bootstrap()).data.garden.plants.some(x=>x.id===grownFlower?.id),8000);
+    $('close-album').click();
+    await L('albumBringIn='+(offDesk&&putBack?'off-then-in':'err:'+JSON.stringify({offDesk:!!offDesk,putBack})));
+    if(grownFlower&&!putBack){await playPets.setOnDesktop(grownFlower.id,false);await playPets.pullPlant(grownFlower.id);}
     if(grownTree)await playPets.removeTree(grownTree.id);
     // A treasure found before comes out on its own, in the yard and out on the desktop; the yard draws
     // its full painting, with no shadow under it.
@@ -2021,6 +2031,7 @@ const expect = [
   [/^wanderOn=ok/, 'roaming toggle'],
   [/^desktopPlant=out-and-in$/, 'a flower goes out on the desktop from its menu and comes back in'],
   [/^albumTakeOut=grown-out$/, 'a flower and a tree come out of the album grown, the flower onto the desktop too'],
+  [/^albumBringIn=off-then-in$/, 'the flower comes off the desktop and back into the album through its card'],
   [
     /^albumFindOut=on-its-own$/,
     'a treasure comes out on its own in the yard and on the desktop, drawn from its painting with no shadow',
