@@ -100,7 +100,7 @@ export const sections = {
   },
   album: {
     title: 'Eight books to fill',
-    lead: '{count} things to find, each in its own way. Nothing runs out and there is no deadline: a find you missed comes round again with its season.',
+    lead: '{count} things to find, each in its own way. Nothing runs out and there is no deadline: a find you missed comes round again with its season. Any flower, tree or find you have can be set out again, in the yard or on the desktop.',
     books: {
       flowers:
         'Dig up seeds, then plant them with Play → Plant a seed. They bloom in four hours; each season has its own.',
@@ -246,7 +246,7 @@ export const sections = {
   ],
   miniTitle: 'A small window, or the desktop',
   miniBody:
-    'Drag a window edge to shrink the yard down to 300 × 210 and keep it beside your work. Turn on Always on top so other windows don’t cover it. In desktop mode, friends come out in front of your other windows.',
+    'Drag a window edge to shrink the yard down to 300 × 210 and keep it beside your work. Turn on Always on top so other windows don’t cover it. In desktop mode, friends come out in front of your other windows. Gifts out there answer too: the lantern lights up in the evening, friends stand on the bench, and the wind chime hangs from the top of the screen and rings when you click it.',
   miniLink: 'Window size and Always on top',
   agentGuide: 'Connect a coding agent',
   connectionDetails: 'Which AI you can connect, and what it costs',

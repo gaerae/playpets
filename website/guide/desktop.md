@@ -12,7 +12,7 @@ Send your friends out of the yard window and they live on your desktop, on top o
 | Send one friend out | Right-click it in the yard → **Show on desktop** | [Turning it on and off](#turning-it-on-and-off) |
 | Send everything out | **Friends & settings → Window & desktop → Show on desktop** | [Turning it on and off](#turning-it-on-and-off) |
 | Let friends wander | **Stroll on desktop**, right below it | [Stroll on desktop](#stroll-on-desktop) |
-| Put a gift, flower or tree on your desk | Right-click it in the yard → **Show on desktop** | [Gifts](#gifts-on-the-desktop), [flowers and trees](#flowers-and-trees-on-the-desktop) |
+| Put a gift, flower, tree or find on your desk | Right-click it in the yard → **Show on desktop**, or the screen button on its album card | [Gifts](#gifts-on-the-desktop), [flowers and trees](#flowers-and-trees-on-the-desktop) |
 | Chat with a friend | Point at it, then click its name | [Things to do](#things-to-do-on-the-desktop) |
 | Bring something back | Right-click it → **Take off the desktop** | [Things to do](#things-to-do-on-the-desktop) |
 | Hide the window, keep friends out | **Friends & settings → Close window** | [Close, reopen, quit](#close-reopen-and-quit) |
@@ -31,7 +31,7 @@ Every friend at once:
 3. If you like, turn on **Stroll on desktop** right below it. It works only while something is out on the desktop.
 
 - Both switches show their current state, and the menu stays open while you change them.
-- Turning off **Show on desktop** brings everything back to the yard: friends, gifts, flowers and trees.
+- Turning off **Show on desktop** brings everything back to the yard: friends, gifts, finds, flowers and trees.
 - Desktop mode is unavailable with no friends.
 - The tray icon's menu has the same items, so you don't need to open the yard window.
 
@@ -42,7 +42,7 @@ Every friend at once:
 | Pat | Left-click a friend once |
 | Move | Drag a friend and drop it, onto another monitor too |
 | Chat | Point at a friend: its name shows below it with a speech mark. Click the name and the yard opens on that friend's chat |
-| Menu | Right-click a friend for **Talk to** or **Take off the desktop**. A gift, a flower and a tree have **Take off the desktop** |
+| Menu | Right-click a friend for **Talk to** or **Take off the desktop**. A gift, a flower, a tree and a fish, bug or keepsake from the album have **Take off the desktop** |
 | Eye contact | Move the mouse over a resting friend's face and its eyes follow. Only v2 pets with 16-direction gaze artwork can do this |
 
 - A double-click does nothing, so no window opens by accident while you move a friend.
@@ -55,7 +55,11 @@ Every friend at once:
 Right-click a gift in the yard, such as the bench or a flowerpot, and choose **Show on desktop**. It stays in the yard too.
 
 - Drag it to move it, onto another monitor too. It stays where you leave it.
-- Friends strolling on the desktop walk over to a gift now and then, stand beside it and say something about it.
+- Friends strolling on the desktop walk over to a gift now and then, stand beside it and say something about it. On the bench, swing, hammock, stump or picnic blanket they stand on it.
+- The lantern and the campfire light up from evening, by your computer's clock.
+- A click answers: the pinwheel spins, the wind chime swings and rings, and the lantern switches off and on until the time of day changes. With reduced motion nothing turns, but the light still switches and the chime still rings.
+- Set the wind chime, the hanging pot or the mobile down near the top of a screen and it hangs from there on a cord, swinging when clicked.
+- A fish, bug or keepsake set out from the album goes out like a gift, or straight from its card with the small screen button ([Album](./play.md#album)). Each answers a click its own way: a fish swims a turn with a few bubbles, a butterfly flaps, a firefly blinks and a keepsake sparkles.
 - Putting a gift away in the yard takes it off the desktop too. A gift that came before can be set out again from the album ([Gifts](./play.md#gifts)).
 - The snowman and the Christmas gifts are on the desktop only while the yard shows them ([Seasonal events](./play.md#seasonal-events)). The snowman keeps its scarf, hat and nose and the tree its ornaments.
 - On [Christmas night](./play.md#christmas-night) the tree on the desktop grows along with the one in the yard.
@@ -68,6 +72,7 @@ Right-click a flower or a tree you planted and choose **Show on desktop**. It st
 - A grown tree wears the season the yard shows.
 - A tree from another place stays out whichever place the yard shows.
 - Drag it to move it, like a gift. Friends strolling on the desktop walk over to it now and then.
+- A flower or tree in the album can come out grown: the small screen button on its card sets one out in the yard and on the desktop at once ([Album](./play.md#album)).
 - Pull it up or remove it in the yard and it leaves the desktop too.
 
 ## Stroll on desktop <Since v="0.1.0" /> {#stroll-on-desktop}

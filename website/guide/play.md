@@ -141,10 +141,10 @@ What blooms depends on the season you planted in:
 
 | Planted in | Flowers |
 |---|---|
-| Spring | Tulips, daffodils, crocuses, grape hyacinths, dandelions, azaleas, bleeding hearts, pasque flowers |
-| Summer | Sunflowers, hydrangeas, lavender, bellflowers, morning glories, garden balsam, daylilies, hollyhocks |
-| Autumn | Cosmos, chrysanthemums, dahlias, asters, red spider lilies, cockscomb, buckwheat, gentians |
-| Winter | Camellias, snowdrops, hellebores, cyclamen, Amur adonis, pansies, flowering kale, winter heath |
+| Spring | Tulips, daffodils, crocuses, grape hyacinths, dandelions, azaleas, bleeding hearts, pasque flowers, lilies of the valley, peonies |
+| Summer | Sunflowers, hydrangeas, lavender, bellflowers, morning glories, garden balsam, daylilies, hollyhocks, roses, lilies |
+| Autumn | Cosmos, chrysanthemums, dahlias, asters, red spider lilies, cockscomb, buckwheat, gentians, marigolds, Japanese anemones |
+| Winter | Camellias, snowdrops, hellebores, cyclamen, Amur adonis, pansies, flowering kale, winter heath, poinsettias, amaryllis |
 
 | On a plant | What happens |
 |---|---|
@@ -155,7 +155,7 @@ What blooms depends on the season you planted in:
 | Right-click → **Show on desktop** | It grows on your desk too ([Desktop mode](./desktop.md#flowers-and-trees-on-the-desktop)) |
 
 - Limits: 20 seeds and 24 plants.
-- The **Album** records each kind of flower the first time it blooms.
+- The **Album** records each kind of flower the first time it blooms. After that, its card can set one out in bloom, in any season, without a seed ([Album](#album)).
 - Saved as `garden` in `state.json`.
 
 ### Gifts {#gifts}
@@ -184,7 +184,7 @@ Friends use what they get. They sit on the bench, the swing and the stump, gathe
 - The yard holds 12 decorations. When it's full, a new one waits in the **gift box** at the top of the album's Gifts book, which holds 12 more. Press one there to set it out once there's room.
 - Putting one away keeps its album entry and makes room for the gifts still to come. A memento goes back into the gift box instead, unless the box is full.
 - Any gift that came before can come back out: **Set out** on its card in the album's Gifts book, once there's room. The snowman is the exception: you build it again.
-- The album has 29 gifts, seven of them only on their events' dates. The snowman is one of the 29, but you build it ([Snowman](#snowman)). A memento is one of the 29 too, so it adds no new entry.
+- The album has 31 gifts, seven of them only on their events' dates. The snowman is one of the 31, but you build it ([Snowman](#snowman)). A memento is one of the 31 too, so it adds no new entry.
 
 ## Fishing and bugs <Since v="0.1.0" />
 
@@ -223,6 +223,9 @@ Only outdoors in clear weather; rain and snow stop them. Click one and the neare
 - **Rare** marks the kinds that seldom come and everything that comes only with a seasonal event. An event's card gives its dates and the scene that calls it up.
 - A catch shows a card, and says so when it's new. A card for something the album keeps (a fish, a bug, a flower in bloom, a gift, a keepsake or a spring shoot) has **See in album**, which opens that book.
 - Something new puts a small dot on **Album** and on **Play** in the dock until you open the album.
+- A flower, tree, fish, bug or keepsake you have found comes out of its card again: **Set out** puts one in the yard, and the small screen button beside it puts it on the desktop too. Each press sets out one more.
+- A flower comes out in bloom and a tree fully grown, up to the yard's 24 plants and six trees. A tree needs an outdoor place with soil.
+- A fish, bug or keepsake comes out on its own, with no bowl or jar, and counts as one of the yard's 12 decorations. A fish is drawn by its length, and a friend who visits a find names it.
 - Saved as `album` in `state.json`.
 
 ## Seasonal events <Since v="0.1.0" /> {#seasonal-events}
@@ -337,17 +340,17 @@ The Friend panel shows how close a friend is to you: its level, how far it is to
 
 | A dig finds | Rules |
 |---|---|
-| A flower seed, a sapling, one of 25 keepsakes (**Album → Keepsakes**), or nothing | After a rare find, every friend and place waits 24 hours for another. The same patch gives nothing more for 24 hours. Each friend waits eight seconds between digs. Repeats happen, so a full set can take a while |
+| A flower seed, a sapling, one of 29 keepsakes (**Album → Keepsakes**), or nothing | After a rare find, every friend and place waits 24 hours for another. The same patch gives nothing more for 24 hours. Each friend waits eight seconds between digs. Repeats happen, so a full set can take a while |
 
 - Limits: 20 seeds, and 20 saplings per kind. A full pocket doesn't turn a find into something else.
 
 ### Planting a tree
 
 1. Find a sapling by digging.
-2. Choose **Play → Garden → Plant a tree** to see your stock: cherry, maple, pine, oak, birch, willow, ginkgo, persimmon, bamboo, magnolia, crape myrtle, dawn redwood, wisteria, Korean fringe tree, fig, golden rain tree, chestnut, red plum, yuzu and juniper.
+2. Choose **Play → Garden → Plant a tree** to see your stock: cherry, maple, pine, oak, birch, willow, ginkgo, persimmon, bamboo, magnolia, crape myrtle, dawn redwood, wisteria, Korean fringe tree, fig, golden rain tree, chestnut, red plum, yuzu, juniper, lilac, silk tree, sweet osmanthus and holly.
 3. Pick a kind you have and click clear ground. It uses one sapling.
 
-- Growth counts time with the app closed: young after two hours, mature after twelve. A mature tree is recorded once in **Album → Trees**.
+- Growth counts time with the app closed: young after two hours, mature after twelve. A mature tree is recorded once in **Album → Trees**, and from then on its card can set one out fully grown, without a sapling ([Album](#album)).
 - Up to six trees. Like flowers and gifts, they stand in every outdoor place, wherever you planted them.
 - Drag a tree to move it. Right-click → **Remove**, or **Delete**: gone at once, with **Undo** for about six seconds. Its album entry stays; the sapling doesn't come back.
 - Imported backgrounds can allow or turn off soil.
@@ -458,7 +461,7 @@ The album has 203 entries across aquatic life, bugs, flowers, gifts, trees, foot
 ### How long it takes
 
 - The full album isn't a one-day or one-week goal, and there's no set finish date.
-- The 21 ordinary gifts arrive on different days.
+- The 23 ordinary gifts arrive on different days.
 - The seven event gifts come only on their events' dates, spread across the calendar, so depending on when you start, collecting them all can take months. Picking a season calls up an event's scene, not its gifts.
 - Flowers bloom four hours after planting and trees mature after twelve, counting time with the app closed.
 
