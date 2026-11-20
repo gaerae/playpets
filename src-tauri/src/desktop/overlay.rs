@@ -564,19 +564,33 @@ fn follow_drag(
     moved
 }
 
-/// The decorations out that a friend can walk to, where they stand and where their drawing ends: a
-/// stroll may go to one. One hung from a screen's top is out of reach.
-fn reachable(d: &Inner, mons: &[Mon]) -> Vec<(String, String, Bounds, f64)> {
-    d.pets
-        .iter()
+/// A decoration a stroll may go to: its id and kind, the box it stands in, where its drawing ends
+/// (`Item::foot`) and the screen it is on.
+struct Reach<'m> {
+    id: String,
+    kind: String,
+    at: Bounds,
+    foot: f64,
+    monitor: Option<&'m str>,
+}
+
+/// The decorations out that a friend can walk to. One hung from a screen's top is out of reach.
+fn reachable<'m>(pets: &[Item], positions: &HashMap<String, (f64, f64)>, mons: &'m [Mon]) -> Vec<Reach<'m>> {
+    pets.iter()
         .filter_map(|item| {
             let (kind, w, h) = item.decor.clone()?;
-            let &(x, y) = d.positions.get(&item.id)?;
-            let area = monitor_of_box(mons, x, y, (w, h)).map(|m| m.area);
-            if area.is_some_and(|a| hung(item, y, &a)) {
+            let &(x, y) = positions.get(&item.id)?;
+            let mon = monitor_of_box(mons, x, y, (w, h));
+            if mon.is_some_and(|m| hung(item, y, &m.area)) {
                 return None;
             }
-            Some((item.id.clone(), kind, Bounds { x, y, w, h }, item.foot))
+            Some(Reach {
+                id: item.id.clone(),
+                kind,
+                at: Bounds { x, y, w, h },
+                foot: item.foot,
+                monitor: mon.map(|m| m.id.as_str()),
+            })
         })
         .collect()
 }
@@ -596,7 +610,8 @@ fn stroll(
     let now = Instant::now();
     let rest = || now + Duration::from_millis(roam::delay(rand01(), roam::ROAM_DELAY) as u64);
     let mut moved = false;
-    let decorations = reachable(d, mons);
+    // Looked up only when a friend picks where to go, not on every step of a walk.
+    let mut decorations: Option<Vec<Reach>> = None;
     for p in d.pets.iter().filter(|p| p.decor.is_none()) {
         let Some(&(px, py)) = d.positions.get(&p.id) else {
             continue;
@@ -625,21 +640,21 @@ fn stroll(
                 });
                 let here = Bounds { x: px, y: py, w, h };
                 // Only one on the same screen: a walk never crosses from one monitor to another.
+                let screen = mon.map(|m| m.id.as_str());
                 let near: Vec<_> = decorations
+                    .get_or_insert_with(|| reachable(&d.pets, &d.positions, mons))
                     .iter()
-                    .filter(|(_, _, b, _)| {
-                        monitor_of_box(mons, b.x, b.y, (b.w, b.h)).map(|m| &m.id) == mon.map(|m| &m.id)
-                    })
+                    .filter(|r| r.monitor == screen)
                     .collect();
                 roaming.visiting = None;
                 roaming.target = Some(if !near.is_empty() && rand01() < VISIT_CHANCE {
-                    let (id, kind, b, foot) = near[((rand01() * near.len() as f64) as usize).min(near.len() - 1)];
-                    roaming.visiting = Some((id.clone(), kind.clone()));
+                    let to = near[((rand01() * near.len() as f64) as usize).min(near.len() - 1)];
+                    roaming.visiting = Some((to.id.clone(), to.kind.clone()));
                     // Onto a bench or a swing, as in the yard; beside anything else.
-                    if catalog().stood_on(kind) {
-                        roam::onto(&here, p.size, SPRITE_FOOT, b, *foot, &area, rand01())
+                    if catalog().stood_on(&to.kind) {
+                        roam::onto(&here, p.size, SPRITE_FOOT, &to.at, to.foot, &area, rand01())
                     } else {
-                        roam::beside(&here, p.size, SPRITE_FOOT, b, &area, rand01() < 0.5)
+                        roam::beside(&here, p.size, SPRITE_FOOT, &to.at, &area, rand01() < 0.5)
                     }
                 } else {
                     roam::roam_target(&here, &area, rand01(), rand01(), rand01())
@@ -1220,18 +1235,76 @@ mod tests {
         );
         let row = |d: &Inner, id: &str| layout_of(d, &d.mons).into_iter().find(|r| r["id"] == id).unwrap();
         assert_eq!(row(&d, "windchime")["hung"], true);
-        assert!(reachable(&d, &d.mons).iter().all(|(id, ..)| id != "windchime"));
+        assert!(
+            reachable(&d.pets, &d.positions, &d.mons)
+                .iter()
+                .all(|r| r.id != "windchime")
+        );
         // Let go further down, it stands where it is put.
         dropped(&mut d, "windchime", (600.0, 80.0));
         assert_eq!(d.positions["windchime"], (600.0, 80.0));
         assert!(row(&d, "windchime").get("hung").is_none());
-        assert!(reachable(&d, &d.mons).iter().any(|(id, ..)| id == "windchime"));
+        assert!(
+            reachable(&d.pets, &d.positions, &d.mons)
+                .iter()
+                .any(|r| r.id == "windchime")
+        );
         // Held within reach, it already looks hung.
         d.positions.insert("windchime".into(), (600.0, 40.0));
         assert_eq!(row(&d, "windchime")["hung"], true);
         dropped(&mut d, "bench", (600.0, 50.0));
         assert_eq!(d.positions["bench"], (600.0, 50.0));
         assert!(row(&d, "bench").get("hung").is_none());
+    }
+
+    // Each decoration carries the screen it stands on, so a friend walks only to one on its own.
+    #[test]
+    fn a_stroll_goes_only_to_something_on_the_friends_own_screen() {
+        let b = |x, y, w, h| Bounds { x, y, w, h };
+        let second = Mon {
+            id: "1".into(),
+            area: b(1440.0, 25.0, 1440.0, 800.0),
+            physical: b(1440.0, 0.0, 1440.0, 900.0),
+            scale: 1.0,
+        };
+        let mons = vec![screen()[0].clone(), second];
+        let far = Item {
+            id: "far".into(),
+            ..out("bench", None, Some((151.0, 121.0)))
+        };
+        let mut d = Inner {
+            visible: true,
+            wander: true,
+            pets: vec![out("pip", None, None), out("bench", None, Some((151.0, 121.0))), far],
+            ..Inner::default()
+        };
+        d.positions.insert("bench".into(), (700.0, 680.0));
+        d.positions.insert("far".into(), (2000.0, 680.0));
+        let screens: Vec<_> = reachable(&d.pets, &d.positions, &mons)
+            .into_iter()
+            .map(|r| (r.id, r.monitor))
+            .collect();
+        assert_eq!(
+            screens,
+            [("bench".to_string(), Some("0")), ("far".to_string(), Some("1"))]
+        );
+        let mut visited = Vec::new();
+        for _ in 0..200 {
+            d.positions.insert("pip".into(), (300.0, 600.0));
+            d.roams.insert(
+                "pip".into(),
+                Roam {
+                    target: None,
+                    next_at: Instant::now(),
+                    visiting: None,
+                },
+            );
+            stroll(&mut d, &mons, None, 40.0, &mut Vec::new(), &mut Vec::new());
+            assert!(d.roams["pip"].target.is_some(), "it picks where to go");
+            visited.extend(d.roams["pip"].visiting.clone().map(|(id, _)| id));
+        }
+        assert!(!visited.is_empty(), "a friend visits now and then");
+        assert!(visited.iter().all(|id| id == "bench"), "never one on another screen");
     }
 
     // Pointer capture stays in the window the drag began in; a window on another screen draws the

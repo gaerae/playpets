@@ -9,6 +9,14 @@ import { CUES, stepHz } from './soundmix.js';
 // How loud each bed is at its full level, so that the layers sit together.
 const BED = { breeze: 0.5, leaves: 0.09, water: 0.3, rain: 0.22 };
 
+/** Only the yard's cues (`cue`, `setVolume`), playing into `destination` of the context `ctx`, for
+ * a window with no yard to hear: the desktop's chime and a find's own sound (src/overlay/chime.js).
+ * It makes no beds, and its noise and room only when a cue first needs them. */
+export function createCueVoice(ctx, destination) {
+  const { cue, setVolume } = createVoice(ctx, destination, () => {});
+  return { cue, setVolume };
+}
+
 /** A soundscape playing into `destination` of the context `ctx`. */
 export function createSoundscape(ctx, destination) {
   const rand = Math.random;
@@ -17,34 +25,13 @@ export function createSoundscape(ctx, destination) {
     wildlife.add(source);
     source.onended = () => wildlife.delete(source);
   }
-  const out = ctx.createGain();
-  // A gentle limiter keeps a burst of tones from ever clipping.
-  const limit = ctx.createDynamicsCompressor();
-  limit.threshold.value = -10;
-  limit.knee.value = 6;
-  limit.ratio.value = 4;
-  limit.attack.value = 0.004;
-  limit.release.value = 0.25;
-  out.gain.value = 0;
-  out.connect(limit).connect(destination);
-  // A small room of air around the calls and the tones (the beds stay dry).
-  const send = ctx.createGain(),
-    room = ctx.createConvolver(),
-    roomOut = ctx.createGain();
-  room.buffer = air(ctx, 1.6);
-  roomOut.gain.value = 0.45;
-  send.connect(room).connect(roomOut).connect(out);
-
+  const voice = createVoice(ctx, destination, track),
+    { out, filter, tone, burst } = voice;
+  // The yard sounds from its start, so its room and noise are made now rather than at a first call.
+  voice.room();
   const brown = noise(ctx, 'brown', 6),
-    pink = noise(ctx, 'pink', 6),
-    white = noise(ctx, 'white', 1);
-  const filter = (type, frequency, q = 0.7) => {
-    const f = ctx.createBiquadFilter();
-    f.type = type;
-    f.frequency.value = frequency;
-    f.Q.value = q;
-    return f;
-  };
+    pink = noise(ctx, 'pink', 6);
+  voice.white();
   // A slow wobble on a parameter, made by the audio itself (no timer).
   const lfo = (rate, depth, param) => {
     const o = ctx.createOscillator(),
@@ -81,62 +68,6 @@ export function createSoundscape(ctx, destination) {
   lfo(0.045, 0.22, beds.breeze.motion.gain);
   // Between gusts the leaves are nearly still.
   beds.leaves.motion.gain.value = 0.08;
-
-  // One voice of a call: a tone gliding from f0 to f1, panned, into the air.
-  function tone(t, f0, f1, dur, vol, pan = 0, attack = 0.012, type = 'sine', ambient = true) {
-    const o = ctx.createOscillator(),
-      g = ctx.createGain(),
-      p = ctx.createStereoPanner();
-    o.type = type;
-    o.frequency.setValueAtTime(f0, t);
-    if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(vol, t + Math.min(attack, dur / 2));
-    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    p.pan.value = pan;
-    o.connect(g).connect(p);
-    p.connect(out);
-    p.connect(send);
-    if (ambient) track(o);
-    o.start(t);
-    o.stop(t + dur + 0.02);
-  }
-  // A burst of noise through a band, for drops and splashes.
-  function burst(t, dur, from, to, vol, pan = 0, q = 1.2, ambient = false) {
-    const src = ctx.createBufferSource(),
-      f = filter('bandpass', from, q),
-      g = ctx.createGain(),
-      p = ctx.createStereoPanner();
-    src.buffer = white;
-    f.frequency.setValueAtTime(from, t);
-    f.frequency.exponentialRampToValueAtTime(to, t + dur);
-    g.gain.setValueAtTime(vol, t);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    p.pan.value = pan;
-    src.connect(f).connect(g).connect(p);
-    p.connect(out);
-    if (ambient) track(src);
-    src.start(t, rand() * 0.5, dur + 0.02);
-  }
-  // A tine like a kalimba's: the note and a quick bright overtone, dying away in the air.
-  function pluck(t, f, vol) {
-    for (const [mult, v, ring] of [
-      [1, vol, 1.1],
-      [4.1, vol * 0.22, 0.12],
-    ]) {
-      const o = ctx.createOscillator(),
-        g = ctx.createGain();
-      o.frequency.value = f * mult;
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(v, t + 0.005);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + ring);
-      o.connect(g);
-      g.connect(out);
-      g.connect(send);
-      o.start(t);
-      o.stop(t + ring + 0.02);
-    }
-  }
 
   // Birds, each kind with its own song.
   const BIRDS = {
@@ -184,10 +115,7 @@ export function createSoundscape(ctx, destination) {
         wildlife.clear();
       }
     },
-    /** The overall loudness, 0 to 100; 0 fades it all out. */
-    setVolume(volume, t = ctx.currentTime, glide = 0.5) {
-      out.gain.setTargetAtTime(volume > 0 ? (volume / 100) ** 1.5 * 1.1 : 0, t, glide);
-    },
+    setVolume: voice.setVolume,
     /** A gust through the leaves, starting at `t`. */
     gust(t) {
       const g = beds.leaves.motion.gain,
@@ -216,17 +144,7 @@ export function createSoundscape(ctx, destination) {
     drop(t, vol) {
       burst(t, 0.03, 1800 + rand() * 3200, 900, vol, rand() * 1.6 - 0.8, 3, true);
     },
-    /** A cue for something a friend did (soundmix.js CUES), at `t`. */
-    cue(name, t = ctx.currentTime + 0.01) {
-      if (name === 'water') burst(t, 0.9, 500, 1400, 0.05, 0, 0.8);
-      // A perfume bottle's puff: one short soft hiss, falling as the mist spreads.
-      if (name === 'spritz') burst(t, 0.35, 6000, 3000, 0.04, 0, 0.9);
-      const steps = name === 'pat' ? [2 + Math.floor(rand() * 3)] : CUES[name];
-      if (!steps) return;
-      const gap = name === 'level' ? 0.13 : 0.085,
-        start = name === 'water' ? t + 0.5 : t;
-      for (const [i, s] of steps.entries()) pluck(start + i * gap, stepHz(s), name === 'pat' ? 0.06 : 0.09);
-    },
+    cue: voice.cue,
     /** A firework bursting at `t`: a low thump, then its stars crackling; `size` 1 is a full shell. */
     boom(t, pan, size = 1) {
       burst(t, 1.4, 320, 50, 0.32 * size, pan, 0.5);
@@ -242,7 +160,125 @@ export function createSoundscape(ctx, destination) {
     /** A fish comes out of the water. */
     splash(t = ctx.currentTime + 0.01) {
       burst(t, 0.55, 3200, 500, 0.16, 0, 0.7);
-      this.cue('catch', t + 0.18);
+      voice.cue('catch', t + 0.18);
+    },
+  };
+}
+
+// What the cues and calls sound through: the output with its limiter, a small room of air, and the
+// voices themselves. `track` hears each call's voice, so a silent scene can cancel it.
+function createVoice(ctx, destination, track) {
+  const rand = Math.random;
+  const out = ctx.createGain();
+  // A gentle limiter keeps a burst of tones from ever clipping.
+  const limit = ctx.createDynamicsCompressor();
+  limit.threshold.value = -10;
+  limit.knee.value = 6;
+  limit.ratio.value = 4;
+  limit.attack.value = 0.004;
+  limit.release.value = 0.25;
+  out.gain.value = 0;
+  out.connect(limit).connect(destination);
+  // A small room of air around the calls and the tones (the beds stay dry), and the white noise of
+  // a hiss, each made when first needed.
+  let send = null,
+    white = null;
+  const room = () => {
+    if (send) return send;
+    send = ctx.createGain();
+    const space = ctx.createConvolver(),
+      roomOut = ctx.createGain();
+    space.buffer = air(ctx, 1.6);
+    roomOut.gain.value = 0.45;
+    send.connect(space).connect(roomOut).connect(out);
+    return send;
+  };
+  const whiteNoise = () => (white ??= noise(ctx, 'white', 1));
+  const filter = (type, frequency, q = 0.7) => {
+    const f = ctx.createBiquadFilter();
+    f.type = type;
+    f.frequency.value = frequency;
+    f.Q.value = q;
+    return f;
+  };
+
+  // One voice of a call: a tone gliding from f0 to f1, panned, into the air.
+  function tone(t, f0, f1, dur, vol, pan = 0, attack = 0.012, type = 'sine', ambient = true) {
+    const o = ctx.createOscillator(),
+      g = ctx.createGain(),
+      p = ctx.createStereoPanner();
+    o.type = type;
+    o.frequency.setValueAtTime(f0, t);
+    if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + Math.min(attack, dur / 2));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    p.pan.value = pan;
+    o.connect(g).connect(p);
+    p.connect(out);
+    p.connect(room());
+    if (ambient) track(o);
+    o.start(t);
+    o.stop(t + dur + 0.02);
+  }
+  // A burst of noise through a band, for drops and splashes.
+  function burst(t, dur, from, to, vol, pan = 0, q = 1.2, ambient = false) {
+    const src = ctx.createBufferSource(),
+      f = filter('bandpass', from, q),
+      g = ctx.createGain(),
+      p = ctx.createStereoPanner();
+    src.buffer = whiteNoise();
+    f.frequency.setValueAtTime(from, t);
+    f.frequency.exponentialRampToValueAtTime(to, t + dur);
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    p.pan.value = pan;
+    src.connect(f).connect(g).connect(p);
+    p.connect(out);
+    if (ambient) track(src);
+    src.start(t, rand() * 0.5, dur + 0.02);
+  }
+  // A tine like a kalimba's: the note and a quick bright overtone, dying away in the air.
+  function pluck(t, f, vol) {
+    for (const [mult, v, ring] of [
+      [1, vol, 1.1],
+      [4.1, vol * 0.22, 0.12],
+    ]) {
+      const o = ctx.createOscillator(),
+        g = ctx.createGain();
+      o.frequency.value = f * mult;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(v, t + 0.005);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + ring);
+      o.connect(g);
+      g.connect(out);
+      g.connect(room());
+      o.start(t);
+      o.stop(t + ring + 0.02);
+    }
+  }
+
+  return {
+    out,
+    filter,
+    tone,
+    burst,
+    room,
+    white: whiteNoise,
+    /** The overall loudness, 0 to 100; 0 fades it all out. */
+    setVolume(volume, t = ctx.currentTime, glide = 0.5) {
+      out.gain.setTargetAtTime(volume > 0 ? (volume / 100) ** 1.5 * 1.1 : 0, t, glide);
+    },
+    /** A cue for something a friend did (soundmix.js CUES), at `t`. */
+    cue(name, t = ctx.currentTime + 0.01) {
+      if (name === 'water') burst(t, 0.9, 500, 1400, 0.05, 0, 0.8);
+      // A perfume bottle's puff: one short soft hiss, falling as the mist spreads.
+      if (name === 'spritz') burst(t, 0.35, 6000, 3000, 0.04, 0, 0.9);
+      const steps = name === 'pat' ? [2 + Math.floor(rand() * 3)] : CUES[name];
+      if (!steps) return;
+      const gap = name === 'level' ? 0.13 : 0.085,
+        start = name === 'water' ? t + 0.5 : t;
+      for (const [i, s] of steps.entries()) pluck(start + i * gap, stepHz(s), name === 'pat' ? 0.06 : 0.09);
     },
   };
 }

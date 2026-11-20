@@ -51,6 +51,10 @@ export function showLamp(view, period) {
   view.button.classList.toggle('lamp-off', switched && !view.lamp.on);
 }
 
+function stopMoving(event) {
+  event.currentTarget.classList.remove('moving');
+}
+
 /** The gift `view` was poked at the hour `period`: a lamp switches, a moving part turns once and a
  * find out (what `view.holds`) moves its own way (not with `reduced` motion), and a chime or a
  * find's own cue rings through `ring(cue)`, with reduced motion too. */
@@ -74,7 +78,10 @@ export function poke(view, { period, reduced, ring }) {
     part.classList.remove('moving');
     void part.offsetWidth;
     part.classList.add('moving');
-    part.addEventListener('animationend', () => part.classList.remove('moving'), { once: true });
+    // Starting over ends the motion without an `animationend`, so the last poke's listener is still
+    // there: one shared listener, put back once, keeps quick pokes from piling them up.
+    part.removeEventListener('animationend', stopMoving);
+    part.addEventListener('animationend', stopMoving, { once: true });
   }
   if (answer?.cue) ring(answer.cue);
   else if (gift.effects?.includes('chime')) ring('chime');

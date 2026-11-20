@@ -59,6 +59,19 @@ test('a poke spins the pinwheel and swings the wind chime, which rings; nothing 
   assert.equal(bench.part.classList.contains('moving'), false, 'a bench has no part');
 });
 
+// Poked again while it moves, the motion starts over without an end, so the listener that ends it is
+// the same one: quick pokes do not pile up listeners.
+test('quick pokes keep one listener for the end of the motion', () => {
+  const pinwheel = desktopGift('pinwheel');
+  for (let i = 0; i < 4; i++) poke(pinwheel, { period: 'day', reduced: false, ring() {} });
+  assert.equal(pinwheel.part.listeners.get('animationend')?.length, 1);
+  pinwheel.part.dispatch('animationend');
+  assert.equal(pinwheel.part.classList.contains('moving'), false);
+  poke(pinwheel, { period: 'day', reduced: false, ring() {} });
+  assert.ok(pinwheel.part.classList.contains('moving'), 'a later poke moves it again');
+  assert.equal(pinwheel.part.listeners.get('animationend')?.length, 1);
+});
+
 test('a poked lantern switches its light until the time of day changes', () => {
   const lantern = desktopGift('lantern'),
     lamp = () => ['lamp-on', 'lamp-off'].filter(c => lantern.button.classList.contains(c));
