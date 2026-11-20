@@ -2,10 +2,13 @@
 // known which it is, then brought in line with the garden only when the garden, the season or the
 // minute changes. A friend walking streams places many times a second; none of this runs for those.
 
-import { t } from '../core/i18n.js';
-import { artSvg, loadArt } from '../yard/art.js';
+import { loadArt } from '../yard/art.js';
+import { decorName, heldArt } from '../yard/find-out.js';
 import { drawGrowing, growing, growingArt } from './growing.js';
+import { giftLayers } from './poke.js';
 import { wear, wearArt } from './wear.js';
+
+const holdsOf = (garden, id) => garden?.decor?.find(d => d.id === id)?.holds || [];
 
 /** Draws the desktop thing `view` ({ id, kind, button }) once its drawings are in: as a flower or a
  * tree when `garden` lists it so, else as a gift. A flower placed on the screen before the garden
@@ -14,9 +17,14 @@ import { wear, wearArt } from './wear.js';
  * while loading. */
 export async function drawDecor(view, garden, season, night = () => []) {
   if (view.drawn || view.loading) return;
-  const thing = growing(garden(), view.id),
-    art = thing ? growingArt(view.kind) : wearArt(view.kind);
+  const known = garden(),
+    thing = growing(known, view.id),
+    holds = holdsOf(known, view.id),
+    // A find out has no drawing of its own: it waits for the garden to say which find it holds.
+    art = thing ? growingArt(view.kind) : [...wearArt(view.kind), ...heldArt(view.kind, holds)];
   if (!art.length) return;
+  // What a find out holds, for a poke to answer by (poke.js).
+  view.holds = holds;
   view.loading = true;
   try {
     await loadArt(art);
@@ -27,9 +35,10 @@ export async function drawDecor(view, garden, season, night = () => []) {
   view.growing = !!thing;
   // A flower or a tree is named by its stage as it is drawn (growing.js).
   if (!thing) {
-    // Under what it wears, which wear.js adds after it.
-    view.button.insertAdjacentHTML('afterbegin', artSvg(art[0]));
-    view.button.title = t(`decor.kind_${view.kind}`);
+    // Under what it wears, which wear.js adds after it; a lit gift's light and a moving part with it
+    // (poke.js).
+    view.button.insertAdjacentHTML('afterbegin', giftLayers(view.kind, holds));
+    view.button.title = decorName(view.kind, holds);
     view.button.setAttribute('aria-label', view.button.title);
   }
   dressDecor(view, garden(), season(), new Date(), night());

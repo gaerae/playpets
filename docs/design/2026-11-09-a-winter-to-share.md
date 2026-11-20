@@ -79,6 +79,8 @@ Follow-up (2026-11-10): the decorating view lets a person take a bauble down fro
 
 Follow-up (2026-11-12): a hook is a bauble's centre and width as shares of the tree's drawing (`[x, y, w]` in `catalog.json`), so a hung bauble is the size of the painted ones and its rim is a thin line. Twelve hung baubles at that size do not fit between the small tree's painted ones, so five hooks sit on painted baubles and cover them; the other seven sit in the gaps, clear of every painted bauble and light. The grand tree's twelve hooks sit on twelve of its thirteen painted baubles. `baubles` lists each drawing's painted baubles, and the content tests check the hooks against them.
 
+Follow-up (2026-11-20, [Christmas from mid-November](2026-11-20-christmas-from-mid-november.md)): the `lights` event starts on November 15, so the tree, the baby reindeer and Santa come and show from then. A tree's decorating season starts on November 15 too, so ornaments hung in late November stay up in December.
+
 ## Building a snowman
 
 | What | Rule |
@@ -121,6 +123,8 @@ Follow-up (2026-11-12): a hook is a bauble's centre and width as shares of the t
 | New Year | On the first day the yard is open from 01-01 to 01-07, the same friend brings the answer back: quotes it as plain text and cheers the person on. Never asks whether it was done |
 | Next December | The next year's letter recalls last year's answer to look back on |
 | A friend that left | Its letters stay; the closest friend now brings the answer back |
+
+Follow-up (2026-11-20): the letter's season is longer. It is written on the first day open from 12-15 to 12-31, read again until 01-15, and the answer comes back on the first day open from 01-01 to 01-15; the backend clears the text after 01-15 by the page's date, or 01-17 by the latest date on Earth. The footprints' one-a-day stretch (12-26 to 01-07) is unchanged.
 
 Follow-up (2026-11-10): the letter has its own chip (`#letter-chip`) beside the event chip and a row in the yard menu, so it no longer shares the event chip. The New Year cheer is its own card, and the answer counts as brought back only after the card shows. The friend's AI writes only while the yard is seen and never without a connection; without one the letter is made on the device from the app's own lines. The letter's text is cleared after January 7 by the minute check, and the answer stays.
 

@@ -1,0 +1,65 @@
+{
+  "generated": "2026-11-20",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "sources": [
+    {
+      "name": "flowers",
+      "prompt": "Use case: stylized-concept. Production transparent game sprite atlas, exactly 8 botanical flower specimens, strict FOUR columns by TWO rows, equal cells, landscape 1536x1024. Style matches the attached reference sheet exactly: soft sculpted painted miniature detail, rich restrained colours, gentle material shading, the same scale, baseline and plant habit as those flowers; new flowers only, not copies. Each one charming and lovable, the kind of flower a young woman would love to grow, with one clear signature feature that still reads at 50 pixels, warm saturated colours, never dull, muddy or cluttered. Row1: (1) LILY OF THE VALLEY: two broad upright glossy green leaves cupping one arching stem hung with a row of small round PURE WHITE nodding bells, getting smaller toward the tip. (2) PINK PEONY: a lush bush of deeply divided green leaves carrying two huge round fully double SOFT PINK ruffled blooms with a blush centre and one round green bud. (3) GARDEN ROSE: a small upright rose bush with dark green toothed leaves and three open cupped CORAL-PINK roses with spiralled petals, plus two buds. (4) WHITE LILY: one tall straight stem with narrow leaves along it, topped by three big open PURE WHITE trumpet lilies with recurved tips, a soft yellow-green throat and rust-orange stamens, one long bud. Row2: (5) MARIGOLD: a rounded bushy clump of ferny dark-green leaves covered in many round ruffled pompom flowers in bright ORANGE and GOLD. (6) JAPANESE ANEMONE: two or three tall slender wiry stems over a low clump of three-lobed leaves, carrying open SOFT PINK saucer flowers with five rounded petals and a round golden-green centre ringed by yellow stamens, plus little round buds. (7) POINSETTIA: a low rounded plant of dark green pointed leaves crowned by big star-shaped rosettes of bright SCARLET RED bracts with tiny yellow-green centres, no pot. (8) AMARYLLIS: one thick tall bare green stem from a few long strap leaves, topped by three big open trumpet flowers in RED with WHITE star stripes, facing outward. Entire plant including all stem bases and leaf tips in the central 80% of its cell. Similar overall height in each cell, the lily and the amaryllis a little taller, upright specimens, bottom baseline aligned. Deliberate clean silhouettes, subtle material shading. ACTUAL fully transparent RGBA background, no painted haze, no floor, no pot, no soil, no text, labels or gridlines. IMPORTANT: the background must be truly transparent alpha everywhere outside each plant, no paper, cream, white or grey background, no haze, no glow.",
+      "references": ["assets/art/collection-extension/flowers-3.png"],
+      "file": "flowers.png",
+      "sha256": "bdf290f1aeddbd4e5224352f62b3b4318536a53ee4758f2bcd3052937a029197",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/flowers-4.png",
+      "runtimeSha256": "1c0ea164325276923e64bab7d43a511dadf192558425b01e9a555add9d47a977",
+      "processing": "Alpha below 50 cleared to 0,0,0,0 in the runtime atlas; all other samples unchanged.",
+      "acceptedIds": ["lily_of_the_valley", "peony", "lily", "poinsettia", "amaryllis"],
+      "boxes": {
+        "lily_of_the_valley": [81, 89, 249, 353],
+        "peony": [417, 93, 319, 348],
+        "lily": [1201, 70, 272, 371],
+        "poinsettia": [788, 571, 318, 348],
+        "amaryllis": [1181, 545, 299, 375]
+      },
+      "replaced": {
+        "japanese_anemone": "redrawn in flowers-redo (looked like an older flower: the anemone like the cosmos, the marigold like the chrysanthemum, the rose bush like the peony); its cell here is no longer used",
+        "marigold": "redrawn in flowers-redo (looked like an older flower: the anemone like the cosmos, the marigold like the chrysanthemum, the rose bush like the peony); its cell here is no longer used",
+        "rose": "redrawn in flowers-redo (looked like an older flower: the anemone like the cosmos, the marigold like the chrysanthemum, the rose bush like the peony); its cell here is no longer used"
+      }
+    },
+    {
+      "name": "flowers-redo",
+      "prompt": "Use case: stylized-concept. Production transparent game sprite atlas, exactly 3 botanical flower specimens in strict THREE equal columns, ONE row, landscape 1536x1024, each plant centred in its column at the same baseline across the middle of the canvas. Style matches the attached reference sheet exactly: soft sculpted painted miniature detail, rich restrained colours, gentle material shading, the same scale and plant size as those flowers (each plant about the same height as the reference plants); new drawings, not copies. Each one charming and lovable, the kind of flower a young woman would love to grow, with one clear signature feature that still reads at 50 pixels, never dull, muddy or cluttered. (1) WHITE JAPANESE ANEMONE: two or three tall slender wiry branching stems rising high over a low clump of dark green three-lobed toothed leaves, carrying open PURE WHITE saucer flowers with five or six broad rounded slightly cupped petals, each with a bright LIME-GREEN round button centre ringed by a fringe of golden stamens, plus a few small round green buds on their own thin stems; airy and graceful, clearly white, NO pink. (2) FRENCH MARIGOLD: a low compact mounded clump of fine ferny dark-green leaves covered in many small flat-topped flowers, each one BICOLOUR: deep MAHOGANY-RED petals edged and tipped with bright GOLD, a gold centre, like little red-and-gold rosettes; NOT a single big orange pompom, NOT plain orange. (3) LONG-STEMMED RED ROSES: three long straight thorny stems standing upright and slightly fanned, each topped by one elegant high-centred classic CRIMSON RED rose bloom with spiralled petals, at different heights, a few dark green toothed leaves along the stems, one tight bud; slender and tall like a small bouquet growing from the ground, NOT a bush, no ribbon, no vase. Entire plant including all stem bases and leaf tips inside the central 80% of its column, wide transparent gutters, nothing touches another plant. Deliberate clean silhouettes, subtle material shading. ACTUAL fully transparent RGBA background, no painted haze, no floor, no pot, no soil, no text, labels or gridlines. IMPORTANT: the background must be truly transparent alpha everywhere outside each plant, no paper, cream, white or grey background, no haze, no glow.",
+      "references": ["assets/art/collection-extension/flowers-4.png"],
+      "file": "flowers-redo.png",
+      "sha256": "3f43d6a9e8b4da33d94910be4219acfe4b694682a5fee880dacefd6746a7bd2d",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/flowers-5.png",
+      "runtimeSha256": "c2c9983571ffd17f4b186de42ef65e74ec6523fa148832055031ff3dd7533317",
+      "processing": "Alpha below 50 cleared to 0,0,0,0 in the runtime atlas. The rose's red thorns (small red pieces on the stems, away from the blooms, plus a two-pixel rim) are repainted a muted olive keeping their shading, so they sit back against the stems; all other samples unchanged. The anemone and the marigold share three columns, so their crops stop at the shared edge.",
+      "acceptedIds": ["japanese_anemone", "marigold", "rose"],
+      "boxes": {
+        "japanese_anemone": [29, 167, 452, 731],
+        "marigold": [478, 336, 528, 560],
+        "rose": [1013, 135, 499, 758]
+      }
+    },
+    {
+      "name": "treasures",
+      "prompt": "Use case: stylized-concept. Production transparent game sprite atlas for a cozy desktop pet game's album of little treasures found while digging and exploring, exactly 4 objects, strict FOUR columns by ONE row, equal cells, landscape 1536x1024 with the objects in the middle band. Style matches the attached reference image exactly: soft sculpted painted miniature detail, rich restrained warm colours, gentle material shading, crisp clean silhouettes; new objects only, not copies. Each one pretty and precious, a little keepsake a young woman in her twenties would love to find and keep on her desk, with one clear signature feature that still reads at 40 pixels. Soft blush, cream, pearl and warm gold tones, delicate and elegant, never childish or cluttered. Front three-quarter view from slightly above, each resting on its own. (1) HEART LOCKET: a small polished rose-gold heart-shaped locket on a fine delicate chain laid in a soft loop, a tiny engraved flourish and a little pink gem on its front. (2) VINTAGE PERFUME BOTTLE: a small faceted blush-pink glass perfume bottle with a gold collar, a round gold atomizer bulb with a short silky tassel, light glinting through the glass. (3) PEARL RIBBON HAIR CLIP: a soft blush-pink satin ribbon bow on a gold hair clip, the bow's centre and tails dotted with small glowing white pearls. (4) SEASHELL COMPACT MIRROR: a small pastel mint-and-cream scallop-shell shaped compact mirror, half open, a round mirror inside catching a soft shine, a tiny pearl clasp. All four about the same size, each inside the central 70% of its cell, bottoms on the same baseline. ACTUAL fully transparent RGBA background, no floor, no shadow, no haze, no glow, no text, labels or gridlines. IMPORTANT: the background must be truly transparent alpha everywhere outside each object.",
+      "references": ["assets/art/collection-extension/cute-props.png"],
+      "file": "treasures.png",
+      "sha256": "84f4ed9274f089c5f0dd6cfce288fad0d744b44337e1c22c7117bebe89490094",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/keepsakes.png",
+      "runtimeSha256": "8f0ac7c5cdd8ac3a01da8aa6f85ec22dc2816f294932f3c9180823f69aad9da5",
+      "processing": "Alpha below 50 cleared to 0,0,0,0 in the runtime atlas; all other samples unchanged.",
+      "acceptedIds": ["heart_locket", "perfume_bottle", "pearl_hair_clip", "shell_mirror"],
+      "boxes": {
+        "heart_locket": [50, 373, 293, 296],
+        "perfume_bottle": [409, 340, 322, 336],
+        "pearl_hair_clip": [796, 389, 334, 288],
+        "shell_mirror": [1199, 364, 282, 320]
+      }
+    }
+  ]
+}

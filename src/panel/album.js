@@ -11,15 +11,29 @@ import { $, call, data, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { previewSvg } from '../yard/art.js';
 import { albumSeen } from '../yard/card.js';
-import { BUGS, FISH, FLOWERS, GIFTS, giftKind, grownArt, SHOOTS, TRACKS, TREASURES, TREES } from '../yard/catalog.js';
+import {
+  BUGS,
+  FISH,
+  FLOWERS,
+  GIFTS,
+  giftKind,
+  grownArt,
+  nameKey,
+  SHOOTS,
+  TRACKS,
+  TREASURES,
+  TREES,
+} from '../yard/catalog.js';
 import { bugSvg, fishSvg } from '../yard/creatures.js';
 import { decorShown, yardSeason } from '../yard/decor-shown.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
 import { eventDates, eventScene, giftSeason } from '../yard/events.js';
+import { treeSpot } from '../yard/planted-trees.js';
 import { SECRETS } from '../yard/secrets.js';
 import { printSpecimen, tailPeek } from '../yard/trail-art.js';
 import { scene } from '../yard/world.js';
-import { worldFor } from '../yard/worlds.js';
+import { worldFor, worldHasSoil } from '../yard/worlds.js';
+import { findButtons, landing, setOutRow } from './album-actions.js';
 
 // When and where a fish or a bug is found: "Summer, Evening, Night, at the lake".
 function when(kind, where) {
@@ -67,28 +81,30 @@ const caughtLine = (entry, size) =>
     ? joinList([t('catch.count', { count: entry.count }), t('catch.best', { size: entry.best.toFixed(1) })])
     : t('catch.count', { count: entry.count });
 
-// Each book: its tab's name, its kinds (the catalogue's), what has been found, and how a card draws
-// and describes a kind (`unknown`: what a card not found yet says, when not "not met yet"). A kind
+// Each book: its tab's name, its kinds (the catalogue's `list`, whose kinds are named by
+// catalog.js NAME_KEYS unless it has its own `name`), what has been found, and how a card draws and
+// describes a kind (`unknown`: what a card not found yet says, when not "not met yet"). A kind
 // added to the catalogue shows up in its book; a new book is one more entry here (its tab is made
-// from it). A `hidden` book shows only what has been found, is not there at all before that, and
+// from it) and one in NAME_KEYS. A `hidden` book shows only what has been found, is not there at all before that, and
 // stays out of the album's count; `note` is what its status line says.
 const BOOKS = {
   flower: {
     tab: 'catch.tab_flowers',
     kinds: FLOWERS,
+    list: 'flowers',
     found: () => data.album?.flowers || {},
     draw: (k, unknown) => specimen(k.art, unknown),
-    name: k => t(`garden.kind_${k.id}`),
     unknown: 'catch.unknown_flower',
     hint: k => t('catch.flower_hint', { season: t(`catch.season_${k.season}`) }),
     record: entry => t('catch.grown', { count: entry.count }),
+    action: k => growingButtons('flower', k.id),
   },
   fish: {
     tab: 'catch.tab_fish',
     kinds: FISH,
+    list: 'fish',
     found: () => data.album?.fish || {},
     draw: (k, unknown) => (k.art ? specimen(k.art, unknown) : fishSvg(k, unknown)),
-    name: k => t(`catch.fish_${k.id}`),
     hint: k =>
       joinList([
         ...(k.event ? [eventSceneHint(k)] : []),
@@ -97,13 +113,14 @@ const BOOKS = {
       ]),
     record: entry => caughtLine(entry, true),
     rare,
+    action: k => findButtons('fish', k.id),
   },
   bug: {
     tab: 'catch.tab_bugs',
     kinds: BUGS,
+    list: 'bugs',
     found: () => data.album?.bugs || {},
     draw: (k, unknown) => (k.art ? specimen(k.art, unknown) : bugSvg(k, unknown)),
-    name: k => t(`catch.bug_${k.id}`),
     hint: k =>
       joinList([
         ...(k.event ? [eventSceneHint(k)] : []),
@@ -112,14 +129,15 @@ const BOOKS = {
       ]),
     record: entry => caughtLine(entry, false),
     rare,
+    action: k => findButtons('bug', k.id),
   },
   gift: {
     tab: 'catch.tab_gifts',
     kinds: GIFTS,
+    list: 'gifts',
     // The garden keeps which gifts have come; each counts once.
     found: () => Object.fromEntries((data.garden?.received || []).map(id => [id, { count: 1 }])),
     draw: (k, unknown) => specimen(k.art, unknown),
-    name: k => t(`decor.kind_${k.id}`),
     unknown: 'catch.unknown_gift',
     hint: k => (k.event ? eventHint(k) : t(k.built ? 'catch.built_hint' : 'catch.gift_hint')),
     record: () => t('catch.received'),
@@ -129,29 +147,31 @@ const BOOKS = {
   tree: {
     tab: 'album.trees',
     kinds: TREES,
+    list: 'trees',
     found: () => data.album?.trees || {},
     draw: (k, unknown) => specimen(grownArt(k), unknown),
-    name: k => t(`tree.${k.id}`),
     hint: favored('album.tree_how'),
     record: entry => t('catch.trees_grown', { count: entry.count }),
+    action: k => growingButtons('tree', k.id),
   },
   treasure: {
     tab: 'album.treasures',
     kinds: TREASURES,
+    list: 'treasures',
     found: () => data.album?.treasures || {},
     draw: (k, unknown) => specimen(k.art, unknown),
-    name: k => t(`treasure.${k.id}`),
     hint: favored('album.treasure_how'),
     record: entry => caughtLine(entry, false),
     rare: k => k.rarity === 'uncommon',
+    action: k => findButtons('treasure', k.id),
   },
   // Winter animals whose prints a friend followed: the print is the clue, the tail what was seen.
   track: {
     tab: 'album.tracks',
     kinds: TRACKS,
+    list: 'tracks',
     found: () => data.album?.tracks || {},
     draw: (k, unknown) => (unknown ? printSpecimen(k) : tailPeek(k)),
-    name: k => t(`track.${k.id}`),
     unknown: 'album.whose_prints',
     hint: () => t('album.tracks_hint'),
     record: entry => t('album.followed', { count: entry.count }),
@@ -160,9 +180,9 @@ const BOOKS = {
   shoot: {
     tab: 'album.shoots',
     kinds: SHOOTS,
+    list: 'shoots',
     found: () => data.album?.shoots || {},
     draw: (k, unknown) => specimen(k.art, unknown),
-    name: k => t(`shoot.${k.id}`),
     hint: k => t('shoot.hint', { season: t(`catch.season_${k.season}`) }),
     record: entry => t('shoot.count', { count: entry.count }),
   },
@@ -201,7 +221,7 @@ function card(b, kind, entry, index) {
   el.append(stage);
   const name = document.createElement('strong'),
     hint = document.createElement('small');
-  name.textContent = entry ? b.name(kind) : t(b.unknown || 'catch.unknown');
+  name.textContent = entry ? (b.name ? b.name(kind) : t(nameKey(b.list, kind.id))) : t(b.unknown || 'catch.unknown');
   hint.className = 'album-hint';
   hint.textContent = b.hint(kind);
   el.append(name, hint);
@@ -226,7 +246,7 @@ function card(b, kind, entry, index) {
 // Set out while out of sight (decor-shown.js), a gift would vanish into the yard: it waits, and says
 // when it shows: a Christmas gift its dates, a snowman winter.
 const showsNow = kind => decorShown(kind, new Date(), yardSeason(scene));
-const whenShown = kind => t(giftKind(kind)?.shown ? 'album.shown_december' : 'album.shown_winter');
+const whenShown = kind => t(giftKind(kind)?.shown ? 'album.shown_christmas' : 'album.shown_winter');
 // A gift that came before can always come back out of its card (garden.rs take_out): one in the
 // yard says so, and one waiting in the box is set out from the box below the book. A snowman is
 // built in the snow, never set out: its card only says when one stands in the yard.
@@ -253,12 +273,35 @@ function takeOutButton(kind) {
   button.onclick = () => {
     // Taken out once: a second click before the album redraws would find it out already.
     button.disabled = true;
-    call('takeOut', kind, 0.3 + Math.random() * 0.4, 0.8).catch(error => {
+    call('takeOut', kind, ...landing()).catch(error => {
       button.disabled = false;
       toast(spoken(error, t('error.generic')), { error: true });
     });
   };
   return button;
+}
+// A flower or a tree the album has comes out again, grown and free, as often as there is room
+// (garden.rs take_out_flower, discovery.rs take_out_tree): into the yard, or into the yard and out
+// on the desktop. A flower goes near the front of the field, as a gift does; a tree onto free soil
+// of the place shown. Design: docs/design/2026-11-19-album-take-out.md.
+function growingButtons(book, kind) {
+  const garden = data.garden || {},
+    tree = book === 'tree',
+    most = limit(data, tree ? 'trees' : 'plants'),
+    full = ((tree ? garden.trees : garden.plants)?.length ?? 0) >= most,
+    why =
+      tree && !worldHasSoil(scene.world)
+        ? t('album.tree_soil')
+        : full
+          ? t(tree ? 'album.trees_full' : 'album.flowers_full', { limit: most })
+          : '';
+  return setOutRow(t(nameKey(tree ? 'trees' : 'flowers', kind)), why, desktop => takeOutGrowing(tree, kind, desktop));
+}
+function takeOutGrowing(tree, kind, desktop) {
+  if (!tree) return call('takeOutFlower', kind, ...landing(), desktop);
+  const spot = treeSpot();
+  if (!spot) return Promise.reject(Object.assign(new Error(t('album.tree_no_room')), { spoken: true }));
+  return call('takeOutTree', scene.world, kind, spot.point.x, spot.point.y, spot.ground, desktop);
 }
 // The gift box, in the gift book: gifts that came while the yard was full, and mementos put away.
 // Each is set out near the front of the yard, from where the person drags it on.
@@ -288,7 +331,7 @@ function renderBox(open) {
       button.onclick = () => {
         // Set out once: a second click before the album redraws would find it gone.
         button.disabled = true;
-        call('setOut', d.id, 0.3 + Math.random() * 0.4, 0.8).catch(error => {
+        call('setOut', d.id, ...landing()).catch(error => {
           button.disabled = false;
           toast(spoken(error, t('error.generic')), { error: true });
         });

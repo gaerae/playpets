@@ -509,42 +509,6 @@
     opacity: 1;
   }
 }
-/* Effects a gift names (catalog.json "effects", src/yard/effects.js).
-   glow: lit from evening on, and not dimmed at night. Its light is a halo round the lamp and a warm
-   pool on the ground at its foot. Laid over the blue of the night, a wide pale halo only greyed the
-   snow (a gift is its own stacking context, so the light cannot be added to the yard behind it), so
-   the halo stays small and close, and the pool, brightest at the foot and flat as the ground, is
-   what reads as light falling on the snow or the grass. */
-.decor .fx-glow,
-.decor .fx-pool {
-  position: absolute;
-  left: 50%;
-  border-radius: 50%;
-  translate: -50% -50%;
-  opacity: 0;
-  transition: opacity 2s;
-  pointer-events: none;
-}
-.decor .fx-glow {
-  top: 32%;
-  width: 230%;
-  aspect-ratio: 1;
-  background: radial-gradient(circle, #ffe3a87a, #ffcf7a38 24%, #ffcf7a00 56%);
-}
-.decor .fx-pool {
-  top: 97%;
-  width: 300%;
-  height: 46%;
-  background: radial-gradient(closest-side, #ffdc9ccc, #ffc66e66 38%, #ffc66e1f 70%, #ffc66e00);
-}
-.period-evening .decor .fx-glow,
-.period-evening .decor .fx-pool {
-  opacity: 0.55;
-}
-.period-night .decor .fx-glow,
-.period-night .decor .fx-pool {
-  opacity: 1;
-}
 /* The scene's colours any drawing can paint with: --lamp lights up from evening on, --bird is 0 at
    night and in rain or snow (a bird on the birdhouse), --sky-* mirror the sky (the pond). */
 .period-evening .decor,
@@ -675,10 +639,11 @@
 .decor.xmas-grand:not(.xmas-rise) .xmas-hit {
   pointer-events: auto;
 }
-/* What a snowman wears (worn.css) scales with it as one when it is pointed at, chosen or dragged. */
-.decor:hover > .dress-layers,
-.decor:focus-visible > .dress-layers,
-.decor.dragging > .dress-layers {
+/* What a snowman wears and what a display holds (worn.css) scale with it as one when it is pointed
+   at, chosen or dragged. */
+.decor:hover > :is(.dress-layers, .held-layer),
+.decor:focus-visible > :is(.dress-layers, .held-layer),
+.decor.dragging > :is(.dress-layers, .held-layer) {
   transform: scale(1.06);
 }
 /* The old snowman melts down into the snow as a new one is finished (snowman.js finish): its

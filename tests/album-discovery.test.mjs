@@ -33,7 +33,8 @@ test('tree and keepsake books use saved counts, mature artwork and explicit keep
   assert.equal(cards.length, TREES.length);
   assert.match(cards[0].children[0].innerHTML, /cherry-mature/);
   assert.equal(treeTab.children[1].textContent, `1/${TREES.length}`);
-  assert.equal(cards[0].children.at(-1).textContent.includes('2'), true);
+  // The record says how many; the buttons below it take one out again (album-take-out.test.mjs).
+  assert.equal(cards[0].children.find(c => c.classList?.contains('album-record')).textContent.includes('2'), true);
   // Each card carries its place in the book; each tab, how full its book is, marked once complete.
   assert.deepEqual(
     cards.map(card => card.children[0].children.at(-1).textContent),

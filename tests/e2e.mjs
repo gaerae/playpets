@@ -56,7 +56,12 @@ await writeFile(
         },
       ],
     },
-    album: { treasures: { quartz: { count: 1, best: 0, first: rareLedgerAt } } },
+    // A flower and a tree found before, to take out of the album again.
+    album: {
+      treasures: { quartz: { count: 1, best: 0, first: rareLedgerAt } },
+      flowers: { tulip: { count: 1, best: 0, first: rareLedgerAt } },
+      trees: { cherry: { count: 1, best: 0, first: rareLedgerAt } },
+    },
     // December's winter question already answered for this year: in the south "auto" is summer
     // then, and the question would otherwise cover the yard the scenario clicks.
     winterAsked: { year: new Date().getFullYear(), previous: null },
@@ -187,7 +192,7 @@ const scenario = `(async()=>{
     await L('intro='+p1.data.persona);
     await must('rename',playPets.updatePet(p1.data.id,{name:'타우리',size:160,persona:'반말로 짧게 대답해요.'}));
     // The year-end letter: both years follow the backend's rule (the latest date on Earth, UTC+14, or the year before),
-    // not the page's calendar alone. The page's own check (December 26 to 31) writes only its local year, and from
+    // not the page's calendar alone. The page's own check (December 15 to 31) writes only its local year, and from
     // the lines. The friend has no connection yet, so whichever of the scenario and the page writes that year first
     // sends nothing and takes the year; the checks accept the page's lines as well as this call's.
     const earthYear=new Date(Date.now()+14*3600e3).getUTCFullYear(),pageYear=new Date().getFullYear(),otherYear=pageYear===earthYear?pageYear-1:pageYear+1;
@@ -1364,6 +1369,32 @@ const scenario = `(async()=>{
     await must('plantIn',playPets.setOnDesktop(outPlant?.id,false));
     const plantBack=await until(async()=>!(await playPets.bootstrap()).data.desktopLayout.some(i=>i.id===outPlant.id),8000);
     await L('desktopPlant='+(withPlant&&plantBack?'out-and-in':'err:'+JSON.stringify({outPlant,withPlant,plantBack})));
+    // A flower and a tree the album has come out of their cards again, grown and free: the flower
+    // onto the desktop too, the tree onto free soil of the place shown.
+    const grownBefore=(await playPets.bootstrap()).data.garden,isNew=(list,old)=>list.find(x=>!old.some(o=>o.id===x.id));
+    $('album-button').click();await until(()=>document.querySelectorAll('.album-card').length>0);
+    document.querySelector('.album-tabs [data-book=flower]').click();
+    (await until(()=>document.querySelector('.album-card:not(.unknown) .album-actions')))?.children[1].click();
+    const grownFlower=await until(async()=>{const d=(await playPets.bootstrap()).data,p=isNew(d.garden.plants,grownBefore.plants);return p?.bloomed&&p.kind==='tulip'&&d.desktopLayout.some(i=>i.id===p.id)&&p;},8000);
+    document.querySelector('.album-tabs [data-book=tree]').click();
+    (await until(()=>document.querySelector('.album-card:not(.unknown) .album-actions')))?.children[0].click();
+    const grownTree=await until(async()=>{const tr=isNew((await playPets.bootstrap()).data.garden.trees,grownBefore.trees);return tr?.stage===2&&tr.matured&&tr.kind==='cherry'&&tr;},8000);
+    const grownToast=document.querySelector('.toast')?.textContent;
+    $('close-album').click();
+    await L('albumTakeOut='+(grownFlower&&grownTree?'grown-out':'err:'+JSON.stringify({grownFlower,grownTree,grownToast,world:(await playPets.bootstrap()).data.world})));
+    if(grownFlower){await playPets.setOnDesktop(grownFlower.id,false);await playPets.pullPlant(grownFlower.id);}
+    if(grownTree)await playPets.removeTree(grownTree.id);
+    // A treasure found before comes out on its own, in the yard and out on the desktop; the yard draws
+    // its full painting, with no shadow under it.
+    $('album-button').click();await until(()=>document.querySelectorAll('.album-card').length>0);
+    document.querySelector('.album-tabs [data-book=treasure]').click();
+    (await until(()=>document.querySelector('.album-card:not(.unknown) .album-actions')))?.children[1].click();
+    const shownOut=await until(async()=>{const d=(await playPets.bootstrap()).data,c=d.garden.decor.find(x=>x.kind==='treasure_out');return c?.holds?.join()==='quartz'&&d.desktopLayout.some(i=>i.id===c.id)&&c;},8000);
+    $('close-album').click();
+    const drawnOut=await until(()=>document.querySelector('.decor[data-kind=treasure_out] .held[data-held=quartz] svg use'),5000),
+      shaded=!!document.querySelector('.decor[data-kind=treasure_out] .decor-shade');
+    await L('albumFindOut='+(shownOut&&drawnOut&&!shaded?'on-its-own':'err:'+JSON.stringify({shownOut,drawn:!!drawnOut,shaded,kinds:[...document.querySelectorAll('.decor')].map(d=>d.dataset.kind)})));
+    if(shownOut){await playPets.setOnDesktop(shownOut.id,false);await playPets.putAway(shownOut.id);}
     // Back out again, so the switch below brings everything in rather than sending everyone out.
     await must('friendOut',playPets.setOnDesktop(p1.data.id,true));
     await playPets.putAway(outGift.id);
@@ -1392,6 +1423,11 @@ const scenario = `(async()=>{
     await soon(async()=>!(await playPets.bootstrap()).data.desktopLayout.length);
     const sendAgain=await sendOut(p1.data.id);
     for(const [name,ms] of [['cold',sendCold],['warm',sendWarm],['again',sendAgain]])await L('perf send-out-'+name+' '+(ms===null?'none':ms)+' ms');
+    // What a tree, a flower or a find adds once placed: the overlay fetches and decodes its painted
+    // sheet the first time it draws it. Timed on this window's engine (the overlay's), from a fresh
+    // address so nothing this window drew before is reused.
+    const sheetCost=async sheet=>{const t0=performance.now(),img=new Image();img.src="art/"+sheet+"?cold="+t0;try{await img.decode();return Math.round(performance.now()-t0);}catch{return null;}};
+    for(const [name,sheet] of [['tree','trees/cherry-summer.webp'],['flower','collection-extension/flowers-5.webp'],['find','fish/specimens.webp']])await L('perf sheet-'+name+' '+((await sheetCost(sheet))??'none')+' ms');
     await L('sendOut='+([sendCold,sendWarm,sendAgain].every(ms=>ms!==null)?'measured':'err:'+JSON.stringify({sendCold,sendWarm,sendAgain})));
     // Brought in with the switch, the windows close; opening the menu of something not out then readies
     // the window it would show in, empty (overlay.rs warm), so Show on desktop shows it at once.
@@ -1984,6 +2020,11 @@ const expect = [
   [/^overlayLayout=[1-9]/, 'overlay layout created'],
   [/^wanderOn=ok/, 'roaming toggle'],
   [/^desktopPlant=out-and-in$/, 'a flower goes out on the desktop from its menu and comes back in'],
+  [/^albumTakeOut=grown-out$/, 'a flower and a tree come out of the album grown, the flower onto the desktop too'],
+  [
+    /^albumFindOut=on-its-own$/,
+    'a treasure comes out on its own in the yard and on the desktop, drawn from its painting with no shadow',
+  ],
   [
     /^desktopItems=one-at-a-time$/,
     'a gift taken out of the album goes out on the desktop, and a friend comes in, each on its own',

@@ -599,7 +599,7 @@ test('the landing shows every album book and every seasonal event with how to en
         `${item.id}: ${id}`,
       );
   // Christmas night is called up by the scene, not the calendar (docs/decisions/2026-11-12): a
-  // winter card of its own with no dates, apart from the December lights.
+  // winter card of its own with no dates, apart from the winter lights.
   const christmas = shown.find(item => item.id === 'christmas');
   assert.ok(christmas && !christmas.event && !christmas.from, 'christmas night has no dates');
   assert.ok(YEAR.find(s => s.season === 'winter').items.includes(christmas));

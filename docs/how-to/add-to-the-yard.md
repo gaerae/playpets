@@ -30,6 +30,28 @@
 
 ## Steps
 
+### Add an album entry: the checklist
+Every album book is a list in `src/content/catalog.json`; its kinds are named by the key in `NAME_KEYS` (`src/yard/catalog.js`):
+
+| Book | List | Name key | Drawing comes from | Its own rules |
+|---|---|---|---|---|
+| Flowers | `flowers` | `garden.kind_<id>` | `src/art/collection.json` or a flower SVG | Each season grows as many flowers as the others; add one per season ([Add a flower](#add-a-flower)) |
+| Aquatic life, Bugs | `fish`, `bugs` | `catch.fish_<id>`, `catch.bug_<id>` | `src/art/collection.json` | [Add a fish or a bug](#add-a-fish-or-a-bug) |
+| Gifts | `gifts` | `decor.kind_<id>`, `decor.visit_<id>` | a gift SVG or `src/art/collection.json` | Always at the end of the list ([Add a gift](#add-a-gift)) |
+| Trees | `trees` | `tree.<id>` | `assets/discovery/ART-SOURCES.json` | Three stages and seasonal art ([Planted trees](#planted-trees-and-discoveries)) |
+| Keepsakes | `treasures` | `treasure.<id>` | `src/art/collection.json` | `rarity`; the drawing stands on the bottom of its box |
+| Footprints, Spring shoots | `tracks`, `shoots` | `track.<id>`, `shoot.<id>` | their own SVGs | [Footprints](#add-an-animal-s-footprints), [Spring shoots](#planted-trees-and-discoveries) |
+
+1. Add the entry to its list, and its name to all four string tables (ko, en, ja, zh-hans).
+2. Keep the painted sheet in `assets/art/` with its prompt and provenance (`assets/sources/<date>/accepted-art.json`), record its crop, then run `pnpm run art:pack`. It makes the wrappers, trims the sheets, and makes the shipped WebP and the album card previews. Packing again with nothing new changes nothing.
+3. Update the words that count the album. `tests/album-copy.test.mjs` lists each sentence that holds a number (the README, the guide in every language, `src-tauri/src/chat/guide.rs`), and fails until it matches the catalogue. Add the new kind's name to any list the guide gives, such as the flowers by season or the trees you can plant.
+4. Add a line under `## [Unreleased]` in `CHANGELOG.md`.
+5. Run the checks in [Verification](#verification).
+
+- The landing and the site's album page count from the catalogue; they need no change.
+- The backend keeps at most `KINDS_MAX` kinds a book (`pets/album.rs`); a test keeps every book under half of it.
+- A new book is one more row in `NAME_KEYS`, an entry in the album's `BOOKS` (`src/panel/album.js`), a field in `Album` (`pets/album.rs`), and its line in the content test of `pets/content.rs`.
+
 ### Add a fish or a bug
 1. Add an entry to `fish` or `bugs` in `src/content/catalog.json`. Copy a close one and change:
 
@@ -81,8 +103,8 @@
    | `effects` | See below |
    | `size` | `[width, height]` in catalogue units, in the drawing's shape. Usually its SVG view box; furniture may need a different footprint. The desktop draws the gift at this size too (`gift_size` in `pets/content.rs`) |
    | `event` | An event's id. The gift comes only during that event. Several gifts of one event come in catalogue order, one each time a gift is due |
-   | `shown` | `"december"`: shows in the yard and on the desktop from December 1 to January 7, and is hidden with its state kept otherwise, unless its `seasons` show it. It goes back into the gift box when put away. The windows are `SHOWN` in `src/yard/decor-shown.js` |
-   | `seasons` | Shows while the yard shows one of these seasons; never in a place without seasons (`seasonalEffects: false`, the garden workshop). The season the yard shows is `yardSeason` in `src/yard/decor-shown.js`. A kind with both `shown` and `seasons` shows when either says so: the Christmas gifts show in December and in any winter yard ([why](../decisions/2026-11-12-scenes-before-dates.md)) |
+   | `shown` | `"christmas"`: shows in the yard and on the desktop from November 15 to January 7, and is hidden with its state kept otherwise, unless its `seasons` show it. It goes back into the gift box when put away. The windows are `SHOWN` in `src/yard/decor-shown.js` |
+   | `seasons` | Shows while the yard shows one of these seasons; never in a place without seasons (`seasonalEffects: false`, the garden workshop). The season the yard shows is `yardSeason` in `src/yard/decor-shown.js`. A kind with both `shown` and `seasons` shows when either says so: the Christmas gifts show from November 15 to January 7 and in any winter yard ([why](../decisions/2026-11-12-scenes-before-dates.md)) |
    | `built` | `true`: never brought by a friend; it comes from building it (the snowman) |
    | `ball` | The drawing a built kind is rolled from |
    | `stack` | `[base ball width ÷ box width, base ball bottom ÷ box height]` |
@@ -117,12 +139,27 @@
    - Furniture and friends share the same yard zoom, independent of display density. Do not multiply layout sizes by `devicePixelRatio`.
 3. Add `decor.kind_<id>` (its name) and `decor.visit_<id>` (a list of things friends say when they visit it) to every string table.
 
+### Let an album book's finds come out
+A fish, a bug or a treasure comes out of its album card on its own: a kind with no drawing of its own that holds one find, set out as a gift is ([design](../design/2026-11-19-album-finds-out.md)).
+1. Add an entry to `findsOut` in `src/content/catalog.json`, with a gift's `size` and `foot` but no `art` or `shade`, and:
+
+   | Key | Meaning |
+   |---|---|
+   | `holds` | The album's book it holds from, as the album names it: `fish`, `bug` or `treasure`. One kind per book (`find_out_for` in `pets/content.rs`) |
+   | `list` | The catalogue list its finds are in (`fish`, `bugs`, `treasures`); they are looked up and named from it (`src/yard/find-out.js`) |
+   | `poke` (optional) | How its finds answer a click on the desktop, when not by their own `poke` or, for a bug, by its `kind`: a motion `src/overlay/overlay.css` draws, such as `swim` or `twinkle` |
+   | `slots` | Where the find is drawn, one `[x, y, width, height]` as shares of its box |
+
+2. Point its album book's `action` in `src/panel/album.js` at `findButtons` (`src/panel/album-actions.js`), and add its book to `holds` in `pets/content.rs` and `take_out_find` in `pets/garden.rs`.
+3. Add `decor.visit_<id>` to every string table: what friends say when they visit it. A find out is named for the find, so it needs no `decor.kind_<id>`.
+
 ### Drawings
 Collection art:
 - Current collection art uses generated transparent atlases and SVG crop wrappers.
 - `src/art/collection.json` records each specimen's atlas, reviewed crop and display size.
 - A firefly also has `yard`: a crop of the bug alone inside its album crop. The yard draws it small under the firefly's light (`ambient-art.js`); the album keeps the full crop.
-- `scripts/pack-collection.mjs` reproduces each wrapper.
+- `scripts/pack-collection.mjs` reproduces each wrapper. A keepsake's drawing sits on the bottom of its box, so it stands on the ground.
+- Both packers clear what no drawing cuts from a sheet a keepsake comes from (`scripts/sheet-trim-lib.mjs`); run `pnpm run assets:optimize` on it afterwards, and the next pack keeps it as long as its pixels are the same.
 - Keep the PNG atlas in `assets/art/` with its prompts and provenance, then run `pnpm run assets:webp`; the wrapper's `<image>` names the `.webp` copy in `src/art/` ([shipped WebP](../../assets/README.md)).
 - Measure each crop rather than assuming equally spaced generated cells.
 - Review the whole body, the alpha, the isolation from neighbouring cells and the real album and yard size.
@@ -308,7 +345,7 @@ Guide labels:
 - Event gifts stay tied to the calendar.
 - Gifts follow a deterministic sequence, not a loot probability.
 - The cap of 12 placed decorations pauses deliveries.
-- Removing a decoration keeps its album entry, so all 29 gifts can be collected over time.
+- Removing a decoration keeps its album entry, so every gift can be collected over time.
 
 Reachability:
 - Keep every album entry reachable across valid contexts.

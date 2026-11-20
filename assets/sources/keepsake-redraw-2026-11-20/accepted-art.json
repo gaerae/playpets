@@ -1,0 +1,29 @@
+{
+  "generated": "2026-11-20",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "sources": [
+    {
+      "name": "keepsake-redraw",
+      "prompt": "Use case: stylized-concept. Production transparent game sprite atlas for a cozy desktop pet game's album of little treasures found while digging, exactly 9 objects, strict THREE columns by THREE rows, equal cells, square 1536x1536. Style matches the attached reference image exactly: soft sculpted painted miniature detail, rich restrained warm colours, gentle material shading, crisp clean silhouettes. These are REDRAWS of existing everyday found objects: keep what each object is and its basic silhouette, but make each one pretty and precious, a little keepsake a young woman in her twenties would love to find and keep on her desk, with one clear signature feature that still reads at 40 pixels. Soft blush, cream, mint, butter and warm gold accents balanced with the object's own natural material, delicate and elegant, never childish, never junky, rusty or dirty, never cluttered. Front three-quarter view from slightly above, each resting on its own. Row1: (1) SMALL POTTERY SHARD: a curved broken shard of cream porcelain with a hand-painted soft blue and blush flower sprig and a worn thin gold rim along one edge, clean softly chipped edges. (2) BOTTLE CAP: a vintage crimped bottle cap in soft mint enamel with a pearly cream liner and a tiny embossed heart on top, clean and shiny, no text or brand. (3) TINY WIND-UP TOY ROBOT: a small rounded vintage tin wind-up robot in pastel mint and cream with simple dot eyes, rosy peach cheeks, a tiny heart on its chest, little antenna with a round bead and a warm brass wind-up key, not any existing character. Row2: (4) TINY CROWN: a delicate small gold crown with fine filigree openwork and three rounded points each tipped with a tiny white pearl. (5) OLD COIN: an old round coin with a square hole in the middle, warm softly polished gold-bronze with gentle mint verdigris in the recesses, four small raised abstract bumps around the hole that are NOT readable characters, a thin red silk thread tied through the hole in a small bow. (6) SPINNING TOP: a small wooden spinning top painted in soft pastel bands of dusty rose, butter yellow and sage with a thin gold line, a short tip and a round handle. Row3: (7) OLD KEY: a small vintage brass key with an ornate heart-shaped bow of fine filigree and simple teeth. (8) STRIPED PEBBLE: a smooth rounded river pebble in warm pale dove gray with one soft creamy ring stripe around it, gently glossy as if just wet. (9) OLD BUTTON: a round vintage four-hole button of iridescent mother-of-pearl with a scalloped flower-shaped edge and a soft pink-mint sheen. All nine about the same size, each inside the central 70% of its cell, bottoms on the same baseline. ACTUAL fully transparent RGBA background, no floor, no shadow, no haze, no glow, no text, labels or gridlines. IMPORTANT: the background must be truly transparent alpha everywhere outside each object.",
+      "references": ["assets/art/collection-extension/keepsakes.png"],
+      "raw": {
+        "kept": false,
+        "sha256": "7484e74123a6c77b906919534fffeb37bbbc6fb65d26f45bcfabe72ef68ac3d9",
+        "size": [1254, 1254]
+      },
+      "runtimeAtlas": "collection-extension/keepsakes-2.png",
+      "runtimeSha256": "015e9a563e2e20999b65056f194392f48be234e89fa1ad3ff8412aeb8cb238f2",
+      "processing": "Alpha below 50 cleared to 0,0,0,0; all other alpha unchanged. No stray specks (pieces under 400 pixels) were found. Every half-clear edge pixel takes the mean colour of the fully opaque pixels within 3 pixels, because the generator left a red fringe there. The packer then clears what no drawing cuts (scripts/sheet-trim-lib.mjs): the spinning top's and the striped pebble's cells, which are not used. The export was made smaller with oxipng (pnpm run assets:optimize), every pixel kept. The raw generation is not kept in the repository; only its hash is recorded.",
+      "acceptedIds": ["clay_shard", "bottle_cap", "toy_robot", "tiny_crown", "old_coin", "old_key", "old_button"],
+      "boxes": {
+        "clay_shard": [21, 51, 366, 369],
+        "bottle_cap": [428, 80, 394, 324],
+        "toy_robot": [848, 2, 378, 418],
+        "tiny_crown": [33, 471, 391, 289],
+        "old_coin": [450, 446, 345, 389],
+        "old_key": [105, 804, 266, 421],
+        "old_button": [845, 836, 371, 366]
+      }
+    }
+  ]
+}

@@ -1,8 +1,9 @@
 // Ornaments on the Christmas tree (docs/design/2026-11-09-a-winter-to-share.md, "Decorating the
 // tree"): found flowers, trees, gifts and small finds hang on the tree's twelve hooks, three a day,
-// and stay all winter; the first hang of the next December takes them down, so each December
-// starts a fresh tree. The backend keeps them and the rule (src-tauri/src/pets/garden.rs
-// hang_ornament); this module says what hangs this December and what still could, and draws it.
+// and stay all winter; the first hang of the next Christmas (from November 15, when the lights start)
+// takes them down, so each Christmas starts a fresh tree. The backend keeps them and the rule
+// (src-tauri/src/pets/garden.rs hang_ornament); this module says what hangs this Christmas and what
+// still could, and draws it.
 // Hook i is about the same place on the small and the grand drawing (catalog.json xmas_tree hooks
 // and night.hooks), so the same ornaments show on both. A hook is a ball's centre and width. Every
 // hook on the grand tree and five on the small one sit on a bauble painted on the drawing (its
@@ -69,15 +70,17 @@ const known = o => !!bookOf(o.book)?.kind(o.id);
 /** A book's name as the album calls it ("Flowers", "Keepsakes"); empty for one not of the four. */
 export const bookName = book => (bookOf(book) ? t(bookOf(book).tab) : '');
 
-/** The December whose ornaments `date` shows: its year in December, else the year before. */
+/** The Christmas whose ornaments `date` shows: its year from November 15, when the lights start, else
+ * the year before. */
 export function ornamentSeason(date) {
-  return date.getMonth() === 11 ? date.getFullYear() : date.getFullYear() - 1;
+  const month = date.getMonth();
+  return month === 11 || (month === 10 && date.getDate() >= 15) ? date.getFullYear() : date.getFullYear() - 1;
 }
-/** What hangs on the tree at `date`: the garden's ornaments while they are this December's. */
+/** What hangs on the tree at `date`: the garden's ornaments while they are this Christmas's. */
 export function treeOrnaments(garden, date) {
   return garden?.ornamentYear === ornamentSeason(date) ? garden.ornaments || [] : [];
 }
-/** How many more can hang today, of `perDay`: today's count is this December's and today's only. */
+/** How many more can hang today, of `perDay`: today's count is this Christmas's and today's only. */
 export function leftToday(garden, date, perDay) {
   const day = garden?.ornamentDay;
   if (garden?.ornamentYear !== ornamentSeason(date) || day?.day !== localDay(date)) return perDay;
@@ -89,7 +92,7 @@ export function freeHooks(garden, date, hooks) {
   return Array.from({ length: hooks }, (_, i) => i).filter(i => !taken.has(i));
 }
 /** What could hang at `date`: every find of the four books the catalogue still has, in book and
- * catalogue order, but the tree itself and what already hangs this December. */
+ * catalogue order, but the tree itself and what already hangs this Christmas. */
 export function hangable(d, date) {
   const hanging = new Set(treeOrnaments(d.garden, date).map(o => `${o.book}:${o.id}`));
   return ORNAMENT_BOOKS.flatMap(book => {

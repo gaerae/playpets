@@ -79,6 +79,18 @@ for (const [boxed, key] of [
   });
 }
 
+// A find out of the album is named for the find it holds when put away (find-out.js).
+test('a fish out put away is named for the fish', async ctx => {
+  const { nodes, buttons } = yard(ctx, {
+    decor: [{ id: 'f1', kind: 'fish_out', x: 0.3, y: 0.5, holds: ['goldfish'] }],
+  });
+  await buttons[0].dispatch('keydown', { key: 'Delete', preventDefault() {} });
+  assert.equal(
+    nodes.get('toast').children.at(-1).dataset.words,
+    t('decor.put_away_done', { kind: t('catch.fish_goldfish') }),
+  );
+});
+
 // A kind that takes a press first (the mailbox with a letter in it): the press is its own when it
 // says so, and a friend walks over when it does not; it keeps its own name either way.
 test('a kind may take a press before a friend visits, and keeps its own name', async ctx => {

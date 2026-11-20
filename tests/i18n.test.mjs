@@ -112,9 +112,10 @@ test('every key the page names is in the table', async () => {
     const text = await readFile(file, 'utf8');
     for (const [, key] of text.matchAll(/\b(?:t|list)\(\s*['"]([^'"]+)['"]/g)) note(key, file);
     for (const [, key] of text.matchAll(/data-(?:i18n(?:-[a-z-]+)?|title)="([^"]+)"/g)) note(key, file);
-    // Plain strings shaped like a key of a known area ('connection.models_found'), not file names.
+    // Plain strings shaped like a key of a known area ('connection.models_found'), not file names,
+    // nor a key's start that an id ends (catalog.js NAME_KEYS 'catch.fish_').
     for (const [, key] of text.matchAll(/['"]([a-z_]+(?:\.[a-z0-9_]+)+)['"]/g))
-      if (areas.has(key.split('.')[0]) && !/\.(json|js|css|html|svg|png|webp|toml)$/.test(key)) note(key, file);
+      if (areas.has(key.split('.')[0]) && !/\.(json|js|css|html|svg|png|webp|toml)$|_$/.test(key)) note(key, file);
   }
   // Built from the scene: caption.<weather>.<period>.
   for (const w of ['clear', 'rain', 'snow'])

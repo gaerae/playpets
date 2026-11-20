@@ -364,12 +364,12 @@
     {
       "day": "2026-11-30",
       "south": false,
-      "event": null
+      "event": "lights"
     },
     {
       "day": "2026-11-30",
       "south": true,
-      "event": null
+      "event": "lights"
     },
     {
       "day": "2026-12-01",
@@ -378,6 +378,26 @@
     },
     {
       "day": "2026-12-01",
+      "south": true,
+      "event": "lights"
+    },
+    {
+      "day": "2026-11-14",
+      "south": false,
+      "event": null
+    },
+    {
+      "day": "2026-11-15",
+      "south": false,
+      "event": "lights"
+    },
+    {
+      "day": "2026-11-14",
+      "south": true,
+      "event": null
+    },
+    {
+      "day": "2026-11-15",
       "south": true,
       "event": "lights"
     }

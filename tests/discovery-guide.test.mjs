@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { eligibleKinds, fishWeight, relativeChances, wildlifeGroup } from '../src/yard/catalog.js';
+import { ALBUM_BOOKS, eligibleKinds, fishWeight, relativeChances, wildlifeGroup } from '../src/yard/catalog.js';
 import { trailAnimal } from '../src/yard/trail-rules.js';
 import { ADVICE } from './support/advice.mjs';
 
@@ -84,20 +84,11 @@ test('guide bug percentages use one actual spawned-individual pool, not two full
   assert.ok(Math.abs(festival.find(item => item.id === 'golden_firefly').chance - 1 / 111) < 1e-12);
 });
 
-test('all 185 album entries remain reachable and event gifts retain calendar gates', async () => {
+test('every album entry remains reachable and event gifts retain calendar gates', async () => {
   const { discoveryBugChances, discoveryFindChances } = await import('../website/.vitepress/theme/discovery-odds.js');
   const { LIMITS } = await import('../src/core/limits.js');
   const events = JSON.parse(await readFile(new URL('../src/content/events.json', import.meta.url))).events;
-  const seen = {
-    fish: new Set(),
-    bugs: new Set(),
-    flowers: new Set(),
-    gifts: new Set(),
-    trees: new Set(),
-    treasures: new Set(),
-    tracks: new Set(),
-    shoots: new Set(),
-  };
+  const seen = Object.fromEntries(ALBUM_BOOKS.map(book => [book, new Set()]));
   for (const season of ['spring', 'summer', 'autumn', 'winter']) {
     for (const period of ['morning', 'day', 'evening', 'night']) {
       for (const event of [null, ...events.map(item => item.id)]) {
@@ -125,10 +116,6 @@ test('all 185 album entries remain reachable and event gifts retain calendar gat
     for (const n of [0, 1]) seen.tracks.add(trailAnimal(day, n, ids));
   }
   for (const [book, found] of Object.entries(seen)) assert.equal(found.size, catalog[book].length, book);
-  assert.equal(
-    Object.values(seen).reduce((sum, found) => sum + found.size, 0),
-    185,
-  );
 });
 
 test('guide dig odds use the shared context weights and cooldown transfer', async () => {

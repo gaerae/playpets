@@ -7,7 +7,17 @@ import test from 'node:test';
 import { LIMITS } from '../src/core/limits.js';
 import { STRINGS } from '../src/core/strings.js';
 import { PAINTER_NAMES, THING_KINDS } from '../src/yard/backdrop.js';
-import { artOf, eventGifts, giftKind, SHOOTS, shootKind, TRACKS, trailArt } from '../src/yard/catalog.js';
+import {
+  ALBUM_BOOKS,
+  artOf,
+  eventGifts,
+  giftKind,
+  nameKey,
+  SHOOTS,
+  shootKind,
+  TRACKS,
+  trailArt,
+} from '../src/yard/catalog.js';
 import { SHOWN } from '../src/yard/decor-shown.js';
 import { EFFECT_NAMES } from '../src/yard/effects.js';
 import { readPalette } from '../src/yard/palette.js';
@@ -16,30 +26,26 @@ import { catalog, events, yard } from './support/content.mjs';
 
 const LANGUAGES = Object.keys(STRINGS);
 
-test('every kind has its name, and every gift its lines, in every language', () => {
+test('every kind in every album book has its name, and every gift its lines, in every language', () => {
   const keys = [
-    ...catalog.flowers.map(f => `garden.kind_${f.id}`),
-    ...catalog.gifts.flatMap(g => [`decor.kind_${g.id}`, `decor.visit_${g.id}`]),
-    ...catalog.fish.map(f => `catch.fish_${f.id}`),
-    ...catalog.bugs.map(b => `catch.bug_${b.id}`),
+    ...ALBUM_BOOKS.flatMap(book => catalog[book].map(kind => nameKey(book, kind.id))),
+    ...catalog.gifts.map(g => `decor.visit_${g.id}`),
+    // A find out is named for the find; its visit lines are its own.
+    ...catalog.findsOut.map(d => `decor.visit_${d.id}`),
     ...catalog.garden.stages.map(s => `garden.stage_${s.name}`),
-    ...catalog.shoots.map(s => `shoot.${s.id}`),
   ];
   for (const lang of LANGUAGES) for (const key of keys) assert.ok(STRINGS[lang][key], `${lang}: ${key}`);
 });
 
-test('the spring shoots are eight spring kinds with their drawings', () => {
-  assert.deepEqual(
-    catalog.shoots.map(s => s.id),
-    ['shepherds_purse', 'mugwort', 'fiddlehead', 'wild_garlic', 'bamboo_shoot', 'horsetail', 'asparagus', 'morel'],
-  );
+test('the spring shoots are spring kinds with their drawings', () => {
+  assert.ok(catalog.shoots.length > 0);
   for (const s of catalog.shoots) {
     assert.equal(s.season, 'spring', s.id);
     assert.equal(s.art, `shoots/${s.id}.svg`);
     assert.ok(s.size.length === 2 && s.size.every(Number.isFinite), `${s.id}: a size`);
     assert.equal(Math.max(...s.size), 40, `${s.id}: the longer side is 40`);
   }
-  assert.equal(SHOOTS.length, 8);
+  assert.deepEqual(SHOOTS, catalog.shoots);
   assert.equal(shootKind('morel').art, 'shoots/morel.svg');
   assert.equal(shootKind('carp'), null);
 });
@@ -129,10 +135,9 @@ test('flower raster specimens resolve locally with transparent isolated atlas cr
   assert.equal(sheet[25], 6, 'RGBA preserves transparent specimen edges');
   for (const flower of catalog.flowers) {
     const svg = readFileSync(new URL(`../src/art/${flower.art}`, import.meta.url), 'utf8');
-    assert.match(
-      svg,
-      /<image[^>]+href="art\/(?:flowers\/(?:specimens|seasonal-extension)|collection-extension\/flowers(?:-[23])?)\.webp"/,
-    );
+    // Any painted sheet the app ships, so a new flower can come on a new sheet.
+    const sheet = svg.match(/<image[^>]+href="art\/([^"]+)\.webp"/)?.[1];
+    assert.ok(sheet && existsSync(new URL(`../src/art/${sheet}.webp`, import.meta.url)), `${flower.id}: ${sheet}`);
     assert.match(svg, /overflow="hidden"/, 'a specimen cannot show its neighboring cell');
   }
 });

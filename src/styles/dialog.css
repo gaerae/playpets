@@ -692,7 +692,7 @@ body.compact .update-compact {
   filter: drop-shadow(0 4px 2px #28473122);
 }
 /* Each drawing in the same box, so a wide pond or picnic blanket does not outweigh a lantern. */
-.album-card svg {
+.album-specimen svg {
   width: 100%;
   max-width: 112px;
   height: 64px;
@@ -757,6 +757,23 @@ body.compact .update-compact {
 .album-take-out:disabled {
   cursor: default;
   color: var(--muted);
+}
+/* A flower's or a tree's two: into the yard, and onto the desktop too (a small screen). */
+.album-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+}
+.album-to-desktop {
+  display: inline-grid;
+  place-items: center;
+  padding: 3px 7px;
+}
+.album-to-desktop svg {
+  display: block;
+  width: 15px;
+  height: 15px;
 }
 /* One not found yet is an empty place on the page: a dashed outline, a faint shape and the hint. */
 .album-card.unknown {
@@ -1441,7 +1458,7 @@ body.compact .update-compact {
     height: 56px;
     margin: 0;
   }
-  .album-card svg {
+  .album-specimen svg {
     max-width: 50px;
     height: 46px;
   }

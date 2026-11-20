@@ -7,7 +7,7 @@ import { strings as en } from '../../../src/core/strings/en.js';
 import { strings as ja } from '../../../src/core/strings/ja.js';
 import { strings as ko } from '../../../src/core/strings/ko.js';
 import { strings as zh } from '../../../src/core/strings/zh-hans.js';
-import { eligibleKinds, fishWeight, relativeChances } from '../../../src/yard/catalog.js';
+import { eligibleKinds, fishWeight, nameKey, relativeChances } from '../../../src/yard/catalog.js';
 import { discoveryBugChances, discoveryFindChances } from './discovery-odds.js';
 
 const props = defineProps({ lang: { type: String, default: 'en' } });
@@ -165,8 +165,7 @@ const digFinds = computed(() =>
     rareReady: true,
   }),
 );
-const digName = item =>
-  catalog.trees.some(tree => tree.id === item.id) ? tr(`tree.${item.id}`) : tr(`treasure.${item.id}`);
+const digName = item => tr(nameKey(catalog.trees.some(tree => tree.id === item.id) ? 'trees' : 'treasures', item.id));
 const text = computed(() => copy[props.lang] || copy.en);
 const strings = computed(() => ({ en, ko, ja, 'zh-hans': zh })[props.lang] || en);
 const tr = key => strings.value[key] || en[key] || key;
@@ -213,9 +212,6 @@ const rows = computed(() => {
     );
   return source.map(item => {
     const chance = chances.find(c => c.id === item.id)?.chance ?? null;
-    const prefix = { fish: 'catch.fish_', bugs: 'catch.bug_', flowers: 'garden.kind_', gifts: 'decor.kind_', shoots: 'shoot.' }[
-      book.value
-    ];
     const condition =
       book.value === 'gifts'
         ? item.event
@@ -229,7 +225,7 @@ const rows = computed(() => {
             ...(item.event ? [tr(`event.${item.event}.name`)] : []),
             ...(book.value === 'bugs' ? [tr('weather.clear')] : []),
           ].join(', ');
-    return { id: item.id, name: tr(prefix + item.id), chance, condition, event: item.event, built: item.built };
+    return { id: item.id, name: tr(nameKey(book.value, item.id)), chance, condition, event: item.event, built: item.built };
   });
 });
 const frequency = chance =>

@@ -254,3 +254,72 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   silhouettes. Reproduce the wrappers with `node scripts/pack-collection.mjs`.
 - Accepted source, prompt, hashes and measured boxes:
   `assets/sources/more-kinds-2026-11-15/accepted-art.json`.
+
+## Hanging gifts (2026-11-19)
+
+- `collection-extension/hanging-gifts` holds two gifts on the wind chime's kind
+  of hooked stand: a hanging flower pot and a wooden mobile. Each one's hanging
+  piece is its `part` in `catalog.json`; on the desktop it can hang from a
+  screen's top without its stand.
+- Crops follow measured silhouettes with a 2-pixel margin; reproduce the
+  wrappers with `node scripts/pack-collection.mjs`.
+- Alpha below 190 is cleared in the hanging sheet (it had a soft haze behind
+  the mobile).
+- Accepted source, prompt, hashes and measured boxes:
+  `assets/sources/edges-2026-11-19/accepted-art.json`.
+
+## Flowers and keepsakes for the album of 203 (2026-11-20)
+
+- `collection-extension/flowers-4` holds two new flowers for each season in
+  reading order: lily of the valley and peony (spring), rose and lily (summer),
+  marigold and Japanese anemone (autumn), poinsettia and amaryllis (winter).
+  `flowers-3` was the style reference.
+- The lily and the amaryllis stand a little taller in the yard (`stature` 1.2
+  and 1.15 in `catalog.json`); every new flower has a measured `foot`.
+- `collection-extension/keepsakes` holds four keepsakes in reading order: a
+  heart locket, a tiny perfume bottle, a pearl ribbon clip and a seashell
+  mirror. `cute-props` was the style reference.
+- Alpha below 50 is cleared to fully transparent; crops follow measured
+  silhouettes with a 14-pixel margin. Reproduce the wrappers with
+  `node scripts/pack-collection.mjs`.
+- Three were redrawn the same day in `collection-extension/flowers-5`, because
+  they looked like older flowers: the Japanese anemone is white (it had been
+  pink like the cosmos), the marigold is a red-and-gold French marigold (it had
+  been orange like the chrysanthemum), and the rose is three long stems (it had
+  been a bush like the peony). Their cells in `flowers-4` are no longer used.
+  The anemone and the marigold share three columns, so their crops stop at the
+  shared edge instead of taking the margin.
+- Accepted sources, prompts, hashes and measured boxes:
+  `assets/sources/album-plus-2026-11-20/accepted-art.json`.
+
+## Seven keepsakes redrawn (2026-11-20)
+
+- Seven older keepsakes were redrawn to sit with the locket, perfume bottle,
+  ribbon clip and shell mirror: the same kinds, prettier drawings. The spinning
+  top and the striped pebble keep their first drawings.
+- `collection-extension/keepsakes-2` holds, in reading order: the porcelain
+  shard (cream with a painted flower sprig and a gold rim, was a terracotta
+  piece), the bottle cap (mint enamel with a small heart, was a rusty teal
+  cap), the toy robot (mint and cream, rosy cheeks), the tiny crown (gold
+  filigree with three pearls), the old coin (warm gold-bronze with a red thread
+  bow, still a coin with a square hole), a spinning top, the old key (a
+  heart-shaped filigree bow), a striped pebble, and the old button
+  (flower-shaped mother-of-pearl, was wood). `keepsakes` was the style
+  reference. The top and the pebble keep their first drawings, so their cells
+  are cleared.
+- Alpha below 50 is cleared to fully transparent, and each half-clear edge
+  pixel takes the colour of the opaque pixels next to it: the generator left a
+  red fringe there. Crops follow measured silhouettes with a 14-pixel margin.
+- Every keepsake's drawing sits on the bottom of its box
+  (`preserveAspectRatio="xMidYMax meet"`), as the discovery keepsakes always
+  did; wide ones such as the crown, the bottle cap and the wooden whale had
+  hovered over the spot they were set down on.
+- `pack-collection.mjs` and `pack-discovery.mjs` clear what no drawing cuts from
+  every sheet a keepsake comes from (`scripts/sheet-trim-lib.mjs`), here
+  `finds`, `cute-props` and `keepsakes-2`; the app's keepsake sheets went from
+  3.6 MB to 2.3 MB.
+- The name of the shard follows its new drawing in English, Japanese and
+  Simplified Chinese (porcelain, not pottery); the Korean name already covers
+  both.
+- Accepted source, prompt, hashes and measured boxes:
+  `assets/sources/keepsake-redraw-2026-11-20/accepted-art.json`.

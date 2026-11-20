@@ -362,7 +362,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
 /// What an overlay window reads of the state (overlay.js and the modules it imports); the rest is
 /// the yard window's. tests/overlay-slice.test.mjs runs the overlay page on this list and fails on
 /// a key it reads that is not here, or one here it never reads.
-pub const OVERLAY_KEYS: [&str; 9] = [
+pub const OVERLAY_KEYS: [&str; 10] = [
     "pets",
     "assets",
     "statuses",
@@ -372,6 +372,8 @@ pub const OVERLAY_KEYS: [&str; 9] = [
     "language",
     "scene",
     "ownsWebviewStorage",
+    // The wind chime rings out here at the yard's volume (chime.js).
+    "sound",
 ];
 
 /// The state as an overlay window sees it: OVERLAY_KEYS of the yard's (`public_state`), with only

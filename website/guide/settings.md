@@ -214,7 +214,7 @@ If a friend can't load when the app opens, a collapsed **Startup notices** card 
 
 - Each friend's name, personality, relationship, what it calls you, size and position in the yard
 - Each friend's closeness
-- Year-end letters and your answers (the letter's text until January 7, then only the answer)
+- Year-end letters and your answers (the letter's text until January 15, then only the answer)
 - The garden, the decorations in the yard and the album
 - The kind, server address and model name of each AI connection
 - Language, desktop mode and strolling, the window position, size and Always on top setting, the chosen time of day, weather and season

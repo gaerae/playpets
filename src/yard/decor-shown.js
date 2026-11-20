@@ -11,8 +11,9 @@ import { GIFTS, giftKind } from './catalog.js';
 import { inEvent } from './events.js';
 import { worldAllows } from './worlds.js';
 
-/** Each window a gift can show in, by local month-day; fixed to the calendar in both hemispheres. */
-export const SHOWN = Object.freeze({ december: Object.freeze({ from: '12-01', to: '01-07', fixed: true }) });
+/** Each window a gift can show in, by local month-day; fixed to the calendar in both hemispheres.
+ * `christmas` runs from the winter lights' first day to the end of the new year's week. */
+export const SHOWN = Object.freeze({ christmas: Object.freeze({ from: '11-15', to: '01-07', fixed: true }) });
 
 const monthDay = date => `${date.getMonth() + 1}-${date.getDate()}`;
 // A kind with a rule shows when any of its rules lets it; one with none always. An unknown window
@@ -25,7 +26,7 @@ const shows = (gift, md, season) => {
 
 /** The season the yard shows in `scene` (world.js), or null in a place with no seasons to show
  * (worlds.json `seasonalEffects`), such as the garden workshop: no snow there, so no snowman either. The
- * one answer to "does the yard show winter", for the gifts, the album and December's question. */
+ * one answer to "does the yard show winter", for the gifts, the album and the lights' question. */
 export function yardSeason(scene) {
   return worldAllows(scene.world, 'seasonalEffects') ? scene.season : null;
 }

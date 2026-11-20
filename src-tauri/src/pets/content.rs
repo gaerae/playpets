@@ -17,10 +17,14 @@ struct Kind {
     /// everyday rotation nor an event's order holds it.
     #[serde(default)]
     built: bool,
+    /// A gift that hangs from its hook (the chime): on the desktop, set down at a screen's top, it
+    /// hangs from that edge (desktop/overlay.rs set_down).
+    #[serde(default)]
+    hangs: bool,
     /// What a built gift can wear, in the order it is drawn (the snowman's scarf, nose and hat).
     #[serde(default)]
     dress: Vec<DressPart>,
-    /// A gift drawn during part of the year ("december"), and also in its `seasons` when it has
+    /// A gift drawn during part of the year ("christmas"), and also in its `seasons` when it has
     /// them; put away, it waits in the box.
     #[serde(default)]
     shown: Option<String>,
@@ -44,6 +48,12 @@ struct Kind {
     /// Where a gift's drawing, or a flower's in bloom, ends, as a share of its height from the top.
     #[serde(default)]
     foot: Option<f64>,
+    /// "on": friends stand on it (a bench, a swing), rather than beside it.
+    #[serde(default)]
+    stand: Option<String>,
+    /// A find out's album book ("fish", "bug", "treasure"): what it holds, one at a time.
+    #[serde(default)]
+    holds: Option<String>,
 }
 #[derive(Deserialize)]
 struct SizedStage {
@@ -177,6 +187,10 @@ pub struct Catalog {
     garden: Garden,
     flowers: Vec<Kind>,
     gifts: Vec<Kind>,
+    /// A find from the album out on its own (a fish, a bug, a treasure): set out as a gift is, but
+    /// made from an album card, never brought (docs/design/2026-11-19-album-finds-out.md).
+    #[serde(default, rename = "findsOut")]
+    finds_out: Vec<Kind>,
     fish: Vec<Fish>,
     bugs: Vec<Kind>,
     #[serde(default)]
@@ -360,22 +374,43 @@ impl Catalog {
     /// Whether this gift is drawn only part of the year (a time of year or a season): the desktop
     /// leaves these out until the yard says which are hidden (desktop/items.rs).
     pub fn comes_and_goes(&self, id: &str) -> bool {
-        self.gifts
-            .iter()
-            .any(|k| k.id == id && (k.shown.is_some() || !k.seasons.is_empty()))
+        self.decor_kind(id)
+            .is_some_and(|k| k.shown.is_some() || !k.seasons.is_empty())
+    }
+    /// A gift or a find out, as the yard sets either out.
+    fn decor_kind(&self, id: &str) -> Option<&Kind> {
+        self.gifts.iter().chain(&self.finds_out).find(|k| k.id == id)
+    }
+    /// Whether the yard can hold this: a gift or a find out.
+    pub fn is_decor(&self, id: &str) -> bool {
+        self.decor_kind(id).is_some()
+    }
+    /// The kind a find from this album book comes out as.
+    pub fn find_out_for(&self, book: &str) -> Option<&str> {
+        let k = self.finds_out.iter().find(|k| k.holds.as_deref() == Some(book))?;
+        Some(k.id.as_str())
+    }
+    /// The album book a find out holds from; None for a gift.
+    pub fn book_of(&self, id: &str) -> Option<&str> {
+        self.finds_out.iter().find(|k| k.id == id)?.holds.as_deref()
+    }
+    /// Whether this album book has this kind, as a find out can hold it.
+    pub fn holds(&self, book: &str, id: &str) -> bool {
+        match book {
+            "fish" => self.fish_max(id).is_some(),
+            "bug" => self.is_bug(id),
+            "treasure" => self.treasures.iter().any(|t| t.id == id),
+            _ => false,
+        }
     }
     /// A gift's footprint, [width, height] in catalogue units (the yard's, before its zoom).
     pub fn gift_size(&self, id: &str) -> Option<(f64, f64)> {
-        let [w, h] = self.gifts.iter().find(|k| k.id == id)?.size?;
+        let [w, h] = self.decor_kind(id)?.size?;
         Some((w, h))
     }
     /// Where a gift's drawing ends, as a share of its box's height from the top (1 at its edge).
     pub fn gift_foot(&self, id: &str) -> f64 {
-        self.gifts
-            .iter()
-            .find(|k| k.id == id)
-            .and_then(|k| k.foot)
-            .unwrap_or(1.0)
+        self.decor_kind(id).and_then(|k| k.foot).unwrap_or(1.0)
     }
     /// Where a flower's stem ends in its bloom's drawing, as a share of its height from the top.
     pub fn bloom_foot(&self, id: &str) -> f64 {
@@ -384,6 +419,14 @@ impl Catalog {
             .find(|k| k.id == id)
             .and_then(|k| k.foot)
             .unwrap_or(1.0)
+    }
+    /// Whether friends stand on this gift (a bench, a swing, a blanket) rather than beside it.
+    pub fn stood_on(&self, id: &str) -> bool {
+        self.decor_kind(id).is_some_and(|k| k.stand.as_deref() == Some("on"))
+    }
+    /// Whether this gift hangs from the top of a screen when set down there.
+    pub fn hangs(&self, id: &str) -> bool {
+        self.decor_kind(id).is_some_and(|k| k.hangs)
     }
     /// Whether this gift is built in the yard, not brought by a friend (the snowman).
     pub fn is_built(&self, id: &str) -> bool {
@@ -405,6 +448,19 @@ impl Catalog {
     pub fn fish_max(&self, id: &str) -> Option<f64> {
         self.fish.iter().find(|f| f.id == id).map(|f| f.size[1])
     }
+    /// How much bigger than its book's box a find out is drawn: a fish by its longest length, on a
+    /// log scale from a killifish's 4 cm (0.7) to a sturgeon's 150 cm (1.45); 1 for anything else.
+    /// The page draws it the same (find-out.js findScale).
+    pub fn find_scale(&self, kind: &str, holds: &[String]) -> f64 {
+        let fish = (self.book_of(kind) == Some("fish"))
+            .then(|| holds.first())
+            .flatten()
+            .and_then(|id| self.fish_max(id));
+        fish.map_or(1.0, |max| {
+            let at = ((max.ln() - 4f64.ln()) / (150f64.ln() - 4f64.ln())).clamp(0.0, 1.0);
+            0.7 + 0.75 * at
+        })
+    }
     /// Whether this bug flies over the yard.
     pub fn is_bug(&self, id: &str) -> bool {
         self.bugs.iter().any(|k| k.id == id)
@@ -418,6 +474,86 @@ impl Catalog {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // The album keeps KINDS_MAX kinds a book and refuses a new one past it, as a sign of a file
+    // gone wrong; a book the catalogue grows to that size would refuse real finds. Half leaves
+    // room for the books to keep growing between releases.
+    #[test]
+    fn every_album_book_has_room_to_grow_under_the_albums_cap() {
+        let c = catalog();
+        let books = [
+            ("flowers", c.flowers.len()),
+            ("gifts", c.gifts.len()),
+            ("fish", c.fish.len()),
+            ("bugs", c.bugs.len()),
+            ("trees", c.trees.len()),
+            ("treasures", c.treasures.len()),
+            ("tracks", c.tracks.len()),
+            ("shoots", c.shoots.len()),
+        ];
+        for (book, count) in books {
+            assert!(count > 0, "{book}");
+            assert!(count <= super::super::album::KINDS_MAX / 2, "{book}: {count} kinds");
+        }
+    }
+
+    #[test]
+    fn each_album_book_with_finds_out_has_one_kind_for_them_and_none_is_a_gift() {
+        let c = catalog();
+        for (book, kind) in [("fish", "fish_out"), ("bug", "bug_out"), ("treasure", "treasure_out")] {
+            assert_eq!(c.find_out_for(book), Some(kind), "{book}");
+            assert_eq!(c.book_of(kind), Some(book), "{kind}");
+            assert!(c.is_decor(kind) && !c.is_gift(kind), "{kind}");
+            assert!(!c.gifts().contains(&kind), "{kind} is not brought");
+            assert!(c.gift_size(kind).is_some(), "{kind} has a size");
+        }
+        assert_eq!(c.find_out_for("flower"), None, "a flower comes out of its own card");
+        assert_eq!(c.find_out_for("gift"), None);
+        assert_eq!(c.book_of("bench"), None);
+        assert!(c.is_decor("bench"));
+        assert!(c.holds("fish", "crucian") && c.holds("bug", "firefly"));
+        assert!(c.holds("treasure", "quartz") && !c.holds("flower", "tulip"));
+        assert!(!c.holds("fish", "firefly") && !c.holds("gift", "bench") && !c.holds("flower", "nothing"));
+    }
+
+    // A fish out is drawn by its length: from a killifish (4 cm at most) to a sturgeon (150 cm),
+    // on a log scale, the same as the page (find-out.js findScale).
+    #[test]
+    fn a_fish_out_is_sized_by_its_length_and_other_finds_by_their_book() {
+        let c = catalog();
+        let scale = |kind: &str, id: &str| c.find_scale(kind, &[id.to_string()]);
+        assert_eq!(scale("fish_out", "killifish"), 0.7);
+        assert_eq!(scale("fish_out", "sturgeon"), 1.45);
+        let goldfish = scale("fish_out", "goldfish");
+        assert!(goldfish > 0.9 && goldfish < 1.05, "{goldfish}");
+        assert!(scale("fish_out", "minnow") < scale("fish_out", "carp"));
+        assert_eq!(scale("bug_out", "ladybug"), 1.0);
+        assert_eq!(scale("treasure_out", "heart_locket"), 1.0);
+        assert_eq!(scale("bench", "crucian"), 1.0);
+        assert_eq!(c.find_scale("fish_out", &[]), 1.0);
+        assert_eq!(scale("fish_out", "no-such-fish"), 1.0);
+    }
+
+    #[test]
+    fn the_chime_the_hanging_pot_and_the_mobile_hang_and_nothing_else_does() {
+        for kind in ["windchime", "hanging_pot", "mobile"] {
+            assert!(catalog().hangs(kind), "{kind}");
+            assert!(catalog().is_gift(kind), "{kind} is brought");
+        }
+        for other in ["lantern", "pinwheel", "bench", "fish_out", "missing"] {
+            assert!(!catalog().hangs(other), "{other}");
+        }
+    }
+
+    #[test]
+    fn friends_stand_on_the_seats_and_beside_the_rest() {
+        for seat in ["bench", "swing", "hammock", "stump", "picnic"] {
+            assert!(catalog().stood_on(seat), "{seat}");
+        }
+        for other in ["lantern", "pinwheel", "missing"] {
+            assert!(!catalog().stood_on(other), "{other}");
+        }
+    }
 
     #[test]
     fn affinity_places_are_the_shipped_places_with_soil() {
@@ -489,8 +625,8 @@ mod tests {
                 })
                 .count()
         };
-        // Six times the weight turns about 12% into about 44% of the common finds (19 kinds).
-        assert!(share("common", Some("squirrel"), &["pinecone", "acorn_teacup"]) > 400);
+        // Six times the weight turns about 10% into about 40% of the common finds (22 kinds).
+        assert!(share("common", Some("squirrel"), &["pinecone", "acorn_teacup"]) > 350);
         assert!(share("common", None, &["pinecone", "acorn_teacup"]) < 250);
         assert!(share("uncommon", Some("magpie"), &["star_fragment", "quartz", "tiny_crown"]) > 700);
         for track in &c.tracks {
@@ -595,7 +731,8 @@ mod tests {
         let three = ["xmas_tree", "baby_reindeer", "santa"];
         assert_eq!(event_gifts("lights", "2026-12-01"), three);
         assert_eq!(event_gifts("lights", "2026-12-31"), three);
-        assert!(event_gifts("lights", "2026-11-30").is_empty());
+        assert_eq!(event_gifts("lights", "2026-11-15"), three, "from mid-November");
+        assert!(event_gifts("lights", "2026-11-14").is_empty());
         assert!(
             event_gifts("lights", "2026-06-15").is_empty(),
             "December in the south too"

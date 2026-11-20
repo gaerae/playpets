@@ -11,9 +11,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::BTreeMap;
 
-/// Kinds an album keeps, for each of its books (fish, bugs, flowers); far more than the catalogue
-/// has, so it only stops a file that grew out of hand.
-pub const KINDS_MAX: usize = 64;
+/// Kinds an album keeps, for each of its books; far more than the catalogue has (a test keeps every
+/// book under half of it), so it only stops a file that grew out of hand.
+pub const KINDS_MAX: usize = 256;
 /// The longest fish (cm) the album believes.
 pub const SIZE_MAX: f64 = 300.0;
 /// What the yard keeps to itself (src/yard/secrets.js has the same list): its book shows only

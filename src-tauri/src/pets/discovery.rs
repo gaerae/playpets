@@ -387,20 +387,56 @@ pub fn plant_tree(
         .filter(|count| **count > 0)
         .ok_or_else(|| i18n::t("error.no_saplings"))?;
     *stock -= 1;
+    Ok(set_tree(garden, world, kind, x, y, now, false))
+}
+/// Plants a tree of a kind the album has at (x, y), mature and free: its planting is put back by
+/// TREE_MATURE_MS and it counts as matured already, so growing adds nothing to the album. Any number
+/// of a kind within the yard's trees, on ground the page found free as for planting.
+/// Design: docs/design/2026-11-19-album-take-out.md.
+#[allow(clippy::too_many_arguments)]
+pub fn take_out_tree(
+    garden: &mut Garden,
+    album: &Album,
+    world: &str,
+    kind: &str,
+    x: f64,
+    y: f64,
+    ground: &GroundProfile,
+    now: u64,
+) -> Result<Tree, String> {
+    ground.validate_planting(x, y)?;
+    if !identifier(world) || !catalog().is_tree(kind) || !album.trees.contains_key(kind) {
+        return Err(bad_request());
+    }
+    if garden.trees.len() >= TREE_YARD_MAX {
+        return Err(i18n::t("error.tree_full"));
+    }
+    Ok(set_tree(
+        garden,
+        world,
+        kind,
+        x,
+        y,
+        now.saturating_sub(TREE_MATURE_MS),
+        true,
+    ))
+}
+// A sapling just planted, or (`grown`) a tree out of the album at its last stage.
+fn set_tree(garden: &mut Garden, world: &str, kind: &str, x: f64, y: f64, planted: u64, grown: bool) -> Tree {
     let tree = Tree {
         id: Uuid::new_v4().to_string(),
         world: world.into(),
         kind: kind.into(),
         x,
         y,
-        planted: now,
-        stage: 0,
-        matured: false,
+        planted,
+        stage: if grown { 2 } else { 0 },
+        matured: grown,
         on_desktop: false,
         desktop_position: None,
     };
     garden.trees.push(tree.clone());
-    Ok(tree)
+    tree
 }
 pub fn move_tree(garden: &mut Garden, id: &str, x: f64, y: f64, ground: &GroundProfile) -> Result<(), String> {
     ground.validate_planting(x, y)?;
@@ -1246,6 +1282,47 @@ mod tests {
         assert!(!result.repeated);
         assert_eq!(garden.seeds, 1);
         assert_eq!(garden.digs.len(), 1);
+    }
+
+    #[test]
+    fn a_tree_the_album_has_comes_out_mature_free_on_free_ground_and_within_the_yards_limit() {
+        let mut g = Garden::default();
+        let mut a = Album::default();
+        let now = 9 * TREE_MATURE_MS;
+        assert!(
+            take_out_tree(&mut g, &a, "meadow", "cherry", 0.5, 0.5, &ground(), now).is_err(),
+            "not found yet"
+        );
+        a.trees.insert(
+            "cherry".into(),
+            Entry {
+                count: 1,
+                best: 0.0,
+                first: 1,
+            },
+        );
+        let t = take_out_tree(&mut g, &a, "meadow", "cherry", 0.5, 0.5, &ground(), now).unwrap();
+        assert_eq!((t.stage, t.matured, t.planted), (2, true, now - TREE_MATURE_MS));
+        assert!(g.saplings.is_empty(), "no sapling spent");
+        // Grown already, so growing counts nothing again.
+        assert!(!grow_trees(&mut g, &mut a, now + 1));
+        assert_eq!(a.trees["cherry"].count, 1);
+        // Ground the page did not allow is refused, and so is a place that is not one.
+        let wet: GroundProfile = serde_json::from_value(
+            json!({"soil":true,"bounds":{"left":0.0,"top":0.0,"right":1.0,"bottom":1.0},"water":[{"x":0.5,"y":0.5,"rx":0.2,"ry":0.2}],"obstacles":[]}),
+        )
+        .unwrap();
+        assert!(take_out_tree(&mut g, &a, "meadow", "cherry", 0.5, 0.5, &wet, now).is_err());
+        assert!(take_out_tree(&mut g, &a, "", "cherry", 0.5, 0.5, &ground(), now).is_err());
+        // Copies of one kind, up to the yard's trees.
+        for _ in 1..TREE_YARD_MAX {
+            take_out_tree(&mut g, &a, "meadow", "cherry", 0.3, 0.6, &ground(), now).unwrap();
+        }
+        assert!(
+            take_out_tree(&mut g, &a, "meadow", "cherry", 0.3, 0.6, &ground(), now).is_err(),
+            "the yard is full"
+        );
+        assert_eq!(g.trees.len(), TREE_YARD_MAX);
     }
 
     #[test]

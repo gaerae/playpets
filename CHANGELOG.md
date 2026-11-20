@@ -10,6 +10,33 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- A flower or tree you have found can come out of its album card again, fully grown and free, as many as the yard has room for (24 flowers, 6 trees): Set out puts it in the yard, and the small screen beside it puts it on the desktop too. It works in any season, and a tree shows its season's leaves.
+- Gifts on the desktop answer: the lantern and the campfire light up from evening by the computer's clock, a friend that strolls to a bench, swing, hammock, stump or picnic blanket stands on it, and a click spins the pinwheel, swings and rings the wind chime, or switches the lantern off and on until the time of day changes. With reduced motion nothing turns, but the light still switches and the chime still rings.
+- A fish, bug or treasure you have found can come out of its album card on its own, with no container or shadow: Set out puts it in the yard, and the small screen beside it puts it on the desktop too, as many as the yard has room for. A fish floats a little and, clicked on the desktop, swims a turn with a few bubbles; a firefly glows from evening.
+- The desktop's edges come into play. The wind chime and two new gifts friends bring, a hanging flower pot and a wooden mobile, hang from the top of a screen on a cord when set down near it, and swing when clicked.
+- Eighteen new entries join the album, now 203: the hanging flower pot and the wooden mobile among the gifts; eight flowers, two for each season (lily of the valley and peony, rose and lily, marigold and Japanese anemone, poinsettia and amaryllis); four trees to plant (lilac, silk tree, sweet osmanthus and holly), each with its own look in every season; and four keepsakes to dig up (a heart locket, a rare tiny perfume bottle, a pearl ribbon clip and a seashell mirror).
+- Every find out on the desktop answers a click its own way: fish swim, butterflies and moths flap, dragonflies dart, fireflies blink, beetles and crickets hop, keepsakes sparkle, the heart locket sways and the perfume bottle gives a little spray. With reduced motion nothing moves, but the spray still sounds.
+- A fish out of the album is drawn by its length, from a tiny killifish to a big sturgeon, in the yard and on the desktop.
+- A friend who visits a find out names it, in the yard and on the desktop.
+
+### Changed
+
+- Seven keepsakes are redrawn to sit with the newer ones, each still the same find, and the app carries 1.3 MB less keepsake art: a porcelain shard with a painted flower and a gold rim, a mint bottle cap with a little heart, a mint-and-cream toy robot, a gold filigree crown with three pearls, a warm gold coin tied with a red thread, a key with a heart-shaped bow and a flower-shaped mother-of-pearl button. The shard is called a porcelain shard in English, Japanese and Chinese.
+- The winter lights start on November 15 instead of December 1, as people start decorating early: the lights on the trees, the gifts friends bring (the Christmas tree, then the baby reindeer, then Santa) and the question about showing a winter yard all come from then. The three gifts show in the yard and on the desktop from November 15 to January 7. Ornaments hung from November 15 stay up through December, and the next tree starts bare on the next November 15.
+- The year-end letter has a longer season: your closest friend writes it on the first day you open PlayPets from December 15 to 31 (was December 26), and brings your answer back on the first day from January 1 to 15 (was January 7). The letter can be read again until January 15.
+
+### Fixed
+
+- Wide keepsakes such as the crown, the bottle cap, the wooden whale and the acorn teacup stand on the ground where they are set out, in the yard and on the desktop, instead of hovering a little above it.
+
+### Website and docs
+
+- The README and the guide count the album's 203 entries, and the guide says how finds on the desktop answer a click.
+- The guide gives the winter lights' new dates, November 15 to December 31, and the year-end letter's, December 15 to January 15.
+- The guide and the landing in every language say that a found flower, tree, fish, bug or keepsake can be set out again from its album card, and how gifts on the desktop answer and hang from a screen's top. The guide counts 31 gifts, 23 of them ordinary, and 29 keepsakes, and lists the new flowers and trees.
+
 ## [1.8.7] - 2026-11-19
 
 ### Changed

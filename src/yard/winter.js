@@ -1,7 +1,7 @@
-// Most people keep the yard in its first season, so during the winter lights (December) the yard
-// asks once a year whether to show winter until January 7. A yes keeps the season before beside
-// the answer (state.json `winterAsked`), and the backend brings it back on January 8 unless another
-// season was picked by hand since. Only an outdoor place asks: a room shows no yard to snow on.
+// Most people keep the yard in its first season, so during the winter lights (from November 15)
+// the yard asks once a year whether to show winter until January 7. A yes keeps the season before
+// beside the answer (state.json `winterAsked`), and the backend brings it back on January 8 unless
+// another season was picked by hand since. Only an outdoor place asks: a room shows no yard to snow on.
 
 import { confirmAction } from '../core/confirm.js';
 import { t } from '../core/i18n.js';
@@ -12,7 +12,7 @@ import { eventOn } from './events.js';
 import { scene } from './world.js';
 
 /** Whether to ask now: the winter lights are on, the place has seasons, the yard is not showing
- * winter, and this year's December has not been asked yet. */
+ * winter, and this year's lights have not asked yet. */
 export function winterAsk(date, south, choice, asked, seasonal) {
   return (
     seasonal &&
@@ -35,7 +35,7 @@ export function occupied(doc = globalThis.document) {
   return typing || [...(doc?.querySelectorAll?.('dialog') ?? [])].some(dialog => dialog.open);
 }
 
-/** A season the person picked by hand during the lights is this December's answer, when it is not
+/** A season the person picked by hand during the lights is this year's answer, when it is not
  * winter: the yard does not then ask to show winter right after. Called by the season picker. */
 export function seasonPickedByHand(choice, date = new Date(), south = systemSouth()) {
   const year = date.getFullYear();

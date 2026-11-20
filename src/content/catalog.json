@@ -410,6 +410,104 @@
         "petal-lo": "#a82468",
         "heart": "#4a6a34"
       }
+    },
+    {
+      "id": "lily_of_the_valley",
+      "season": "spring",
+      "art": "flowers/lily_of_the_valley.svg",
+      "foot": 0.963,
+      "colors": {
+        "petal": "#f6f3e8",
+        "petal-hi": "#ffffff",
+        "petal-lo": "#cdd2bc",
+        "heart": "#7aa848"
+      }
+    },
+    {
+      "id": "peony",
+      "season": "spring",
+      "art": "flowers/peony.svg",
+      "foot": 0.871,
+      "colors": {
+        "petal": "#f088ae",
+        "petal-hi": "#f9bcd2",
+        "petal-lo": "#d0588a",
+        "heart": "#f4c84a"
+      }
+    },
+    {
+      "id": "rose",
+      "season": "summer",
+      "art": "flowers/rose.svg",
+      "foot": 0.982,
+      "colors": {
+        "petal": "#d61e2e",
+        "petal-hi": "#f0525a",
+        "petal-lo": "#9a1022",
+        "heart": "#8a0f1e"
+      }
+    },
+    {
+      "id": "lily",
+      "season": "summer",
+      "art": "flowers/lily.svg",
+      "foot": 0.958,
+      "stature": 1.2,
+      "colors": {
+        "petal": "#f7f3ec",
+        "petal-hi": "#ffffff",
+        "petal-lo": "#d8d0c0",
+        "heart": "#c63238"
+      }
+    },
+    {
+      "id": "marigold",
+      "season": "autumn",
+      "art": "flowers/marigold.svg",
+      "foot": 0.89,
+      "colors": {
+        "petal": "#a8221c",
+        "petal-hi": "#f2b41c",
+        "petal-lo": "#7a1614",
+        "heart": "#f0a818"
+      }
+    },
+    {
+      "id": "japanese_anemone",
+      "season": "autumn",
+      "art": "flowers/japanese_anemone.svg",
+      "foot": 0.982,
+      "colors": {
+        "petal": "#f8f7f1",
+        "petal-hi": "#ffffff",
+        "petal-lo": "#d5d8ca",
+        "heart": "#9ccc3c"
+      }
+    },
+    {
+      "id": "poinsettia",
+      "season": "winter",
+      "art": "flowers/poinsettia.svg",
+      "foot": 0.873,
+      "colors": {
+        "petal": "#e0263a",
+        "petal-hi": "#f45e6a",
+        "petal-lo": "#a6162a",
+        "heart": "#f0c42c"
+      }
+    },
+    {
+      "id": "amaryllis",
+      "season": "winter",
+      "art": "flowers/amaryllis.svg",
+      "foot": 0.925,
+      "stature": 1.15,
+      "colors": {
+        "petal": "#de2832",
+        "petal-hi": "#fbe6e0",
+        "petal-lo": "#a6161e",
+        "heart": "#c4d468"
+      }
     }
   ],
   "gifts": [
@@ -433,7 +531,8 @@
       "size": [30, 72],
       "foot": 0.968,
       "shade": [0.82, 0.07, 0.95],
-      "effects": ["glow"]
+      "effects": ["glow"],
+      "poke": "switch"
     },
     {
       "id": "birdhouse",
@@ -469,7 +568,21 @@
       "art": "decor/sculpted/pinwheel.svg",
       "size": [30, 64],
       "foot": 0.846,
-      "shade": [0.5, 0.06, 0.835, 0.51]
+      "shade": [0.5, 0.06, 0.835, 0.51],
+      "part": {
+        "motion": "spin",
+        "pivot": [0.512, 0.366],
+        "points": [
+          [0, 0],
+          [1, 0],
+          [1, 0.579],
+          [0.566, 0.579],
+          [0.566, 0.487],
+          [0.463, 0.487],
+          [0.463, 0.533],
+          [0, 0.533]
+        ]
+      }
     },
     {
       "id": "campfire",
@@ -528,7 +641,20 @@
       "size": [36, 72],
       "foot": 0.888,
       "shade": [0.5, 0.06, 0.875, 0.73],
-      "effects": ["chime"]
+      "effects": ["chime"],
+      "hangs": true,
+      "part": {
+        "motion": "sway",
+        "pivot": [0.342, 0.247],
+        "points": [
+          [0, 0.247],
+          [0.628, 0.247],
+          [0.628, 0.775],
+          [0.477, 0.775],
+          [0.477, 1],
+          [0, 1]
+        ]
+      }
     },
     {
       "id": "cherry_sapling",
@@ -621,6 +747,42 @@
       "shade": [0.96, 0.2, 0.9]
     },
     {
+      "id": "hanging_pot",
+      "art": "decor/sculpted/hanging_pot.svg",
+      "size": [43.9, 72],
+      "foot": 0.971,
+      "shade": [0.42, 0.05, 0.971, 0.808],
+      "hangs": true,
+      "part": {
+        "motion": "sway",
+        "pivot": [0.299, 0.157],
+        "points": [
+          [0, 0.157],
+          [0.72, 0.157],
+          [0.72, 0.86],
+          [0, 0.86]
+        ]
+      }
+    },
+    {
+      "id": "mobile",
+      "art": "decor/sculpted/mobile.svg",
+      "size": [46.9, 72],
+      "foot": 0.971,
+      "shade": [0.4, 0.05, 0.971, 0.82],
+      "hangs": true,
+      "part": {
+        "motion": "sway",
+        "pivot": [0.333, 0.157],
+        "points": [
+          [0, 0.157],
+          [0.72, 0.157],
+          [0.72, 0.74],
+          [0, 0.74]
+        ]
+      }
+    },
+    {
       "id": "kite",
       "art": "decor/kite.svg",
       "size": [70, 90],
@@ -635,7 +797,7 @@
       "foot": 0.958,
       "shade": [0.6, 0.1, 0.94],
       "event": "lights",
-      "shown": "december",
+      "shown": "christmas",
       "seasons": ["winter"],
       "hooks": [
         [0.485, 0.35, 0.1],
@@ -717,7 +879,7 @@
         [0.69, 0.96, 0.08]
       ],
       "event": "lights",
-      "shown": "december",
+      "shown": "christmas",
       "seasons": ["winter"]
     },
     {
@@ -727,8 +889,36 @@
       "foot": 0.974,
       "shade": [0.66, 0.1, 0.955, 0.55],
       "event": "lights",
-      "shown": "december",
+      "shown": "christmas",
       "seasons": ["winter"]
+    }
+  ],
+  "findsOut": [
+    {
+      "id": "fish_out",
+      "list": "fish",
+      "poke": "swim",
+      "size": [84, 54],
+      "foot": 1,
+      "holds": "fish",
+      "slots": [[0, 0, 1, 0.72]]
+    },
+    {
+      "id": "bug_out",
+      "list": "bugs",
+      "size": [52, 46],
+      "foot": 0.98,
+      "holds": "bug",
+      "slots": [[0, 0, 1, 1]]
+    },
+    {
+      "id": "treasure_out",
+      "list": "treasures",
+      "poke": "twinkle",
+      "size": [44, 44],
+      "foot": 0.98,
+      "holds": "treasure",
+      "slots": [[0, 0, 1, 1]]
     }
   ],
   "fish": [
@@ -2248,6 +2438,118 @@
         "weather": ["rain"],
         "places": ["woodland"]
       }
+    },
+    {
+      "id": "lilac",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/lilac-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/lilac-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/lilac-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {
+        "summer": "trees/lilac-mature-summer.svg",
+        "autumn": "trees/lilac-mature-autumn.svg",
+        "winter": "trees/lilac-mature-winter.svg"
+      },
+      "affinity": {
+        "seasons": ["spring"],
+        "weather": ["rain"],
+        "places": ["woodland"]
+      }
+    },
+    {
+      "id": "silk_tree",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/silk_tree-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/silk_tree-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/silk_tree-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {
+        "spring": "trees/silk_tree-mature-spring.svg",
+        "autumn": "trees/silk_tree-mature-autumn.svg",
+        "winter": "trees/silk_tree-mature-winter.svg"
+      },
+      "affinity": {
+        "seasons": ["summer"],
+        "weather": ["clear"],
+        "places": ["courtyard"]
+      }
+    },
+    {
+      "id": "osmanthus",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/osmanthus-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/osmanthus-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/osmanthus-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {
+        "spring": "trees/osmanthus-mature-spring.svg",
+        "summer": "trees/osmanthus-mature-summer.svg",
+        "winter": "trees/osmanthus-mature-winter.svg"
+      },
+      "affinity": {
+        "seasons": ["autumn"],
+        "weather": ["rain"],
+        "places": ["lakeside"]
+      }
+    },
+    {
+      "id": "holly",
+      "stages": [
+        {
+          "name": "seedling",
+          "art": "trees/holly-seedling.svg"
+        },
+        {
+          "name": "young",
+          "art": "trees/holly-young.svg"
+        },
+        {
+          "name": "mature",
+          "art": "trees/holly-mature.svg"
+        }
+      ],
+      "footprint": [22, 9],
+      "seasonArt": {
+        "spring": "trees/holly-mature-spring.svg",
+        "summer": "trees/holly-mature-summer.svg",
+        "autumn": "trees/holly-mature-autumn.svg"
+      },
+      "affinity": {
+        "seasons": ["winter"],
+        "weather": ["clear"],
+        "places": ["courtyard"]
+      }
     }
   ],
   "treasures": [
@@ -2549,6 +2851,56 @@
         "seasons": ["spring"],
         "weather": ["rain"],
         "places": ["courtyard"]
+      }
+    },
+    {
+      "id": "heart_locket",
+      "art": "discovery/heart_locket.svg",
+      "rarity": "common",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["spring"],
+        "weather": ["clear"],
+        "places": ["lakeside"]
+      },
+      "poke": { "motion": "rock" }
+    },
+    {
+      "id": "perfume_bottle",
+      "art": "discovery/perfume_bottle.svg",
+      "rarity": "uncommon",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["winter"],
+        "weather": ["clear"],
+        "places": ["woodland"]
+      },
+      "poke": { "motion": "twinkle", "cue": "spritz" }
+    },
+    {
+      "id": "pearl_hair_clip",
+      "art": "discovery/pearl_hair_clip.svg",
+      "rarity": "common",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["autumn"],
+        "weather": ["rain"],
+        "places": ["courtyard"]
+      }
+    },
+    {
+      "id": "shell_mirror",
+      "art": "discovery/shell_mirror.svg",
+      "rarity": "common",
+      "weight": 1,
+      "seasons": ["spring", "summer", "autumn", "winter"],
+      "affinity": {
+        "seasons": ["summer"],
+        "weather": ["clear"],
+        "places": ["lakeside"]
       }
     }
   ],

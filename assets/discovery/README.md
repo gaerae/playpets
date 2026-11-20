@@ -16,6 +16,10 @@ node scripts/pack-discovery.mjs
   sizes.
 - The packer validates source hashes and crop geometry, copies the accepted
   pixels unchanged, and writes clipped viewports.
+- A sheet a keepsake is cut from then loses what no drawing cuts, cleared to
+  0,0,0,0 (`scripts/sheet-trim-lib.mjs`): a redrawn keepsake's old cell, the
+  cicada shell. The source here stays as it was accepted. An export made
+  smaller with oxipng since is kept when its pixels are the same.
 - It does not draw or stretch trees or modify their transparency.
 - Its source atlas crops were reviewed one by one; they are not inferred from
   equal atlas cells.
@@ -154,6 +158,17 @@ The red plum redrawn (2026-11-16):
   `ART-SOURCES.json`.
 - The four mature frames share one scale and the trunk's centerline.
 
+Four flowering trees (2026-11-20):
+- Lilac, silk tree, sweet osmanthus and holly use the six-tree sheet layout, one
+  source each, with the magnolia and the oak as style references. The mature tree
+  is the look of the season the species belongs to (lilac blossom in spring,
+  silk tree pompoms in summer, osmanthus flowers in autumn, holly berries in
+  winter); the second row holds the other three seasons.
+- The silk tree's crown spreads to the right of its trunk, so its mature frames
+  are wider than the crown and it is drawn a little smaller to keep the trunk on
+  the frame's centreline, as every species' mature frames do.
+- Alpha below 50 is cleared as before; the hashes are in `ART-SOURCES.json`.
+
 More finds (2026-11-03):
 - `more-finds-source.png` holds the cicada shell, blue feather, pinecone, old
   key, paper boat, spinning top, freshwater pearl and four-leaf clover in
@@ -161,10 +176,18 @@ More finds (2026-11-03):
 - The cicada shell cell is not exported: an insect part did not suit a dug-up
   keepsake. The old coin (`old-coin-source.png`) takes its place.
 - The pearl and the clover are uncommon; the other six are ordinary.
+- The old key is redrawn in `collection-extension/keepsakes-2` (2026-11-20, see
+  `assets/art/COLLECTION.md`); its cell here is no longer exported. So is the
+  old coin: `old-coin-source.png` is no longer an exported atlas, and stays
+  only as the chestnut burr's style reference.
 
 Whimsical finds:
 - `whimsical-finds-source.png` holds the bottle cap, toy robot, tiny crown and
   star fragment in reading order.
+- The bottle cap, toy robot and tiny crown are redrawn in
+  `collection-extension/keepsakes-2` (2026-11-20); only the star fragment is
+  still cut from this sheet, and the export keeps only its cell. The pottery
+  shard and the old button of `finds-source.png` are redrawn there too.
 - Their catalog records make them available year-round.
 - The source sheets keep their original alpha and metadata; colored RGB under
   zero-alpha pixels is invisible when the app draws it.

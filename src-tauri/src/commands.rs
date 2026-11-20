@@ -60,6 +60,10 @@ impl Ctx<'_> {
     fn float(&self, i: usize) -> f64 {
         float(self.args, i)
     }
+    /// A yes or no the page may leave out: no when it does.
+    fn flag(&self, i: usize) -> bool {
+        self.arg(i).as_bool().unwrap_or(false)
+    }
     /// An argument read as `T`; one the page could not have sent is a bad request.
     fn parse<T: serde::de::DeserializeOwned>(&self, i: usize) -> Result<T, String> {
         serde_json::from_value(self.arg(i).clone()).map_err(|_| i18n::t("error.bad_request"))
@@ -209,7 +213,7 @@ static COMMANDS: &[Command] = &[
             Ok(Value::Null)
         })
     }),
-    // (year, previous|null): the answer to December's question; with a season, winter is shown now.
+    // (year, previous|null): the answer to the winter lights' question; with a season, winter is shown now.
     main("answerWinter", |c| {
         let year = u32::try_from(c.arg(0).as_u64().ok_or_else(|| i18n::t("error.bad_request"))?)
             .map_err(|_| i18n::t("error.bad_request"))?;
@@ -528,6 +532,47 @@ static COMMANDS: &[Command] = &[
             d.garden.take_out(c.text(0), x, y, now).map(|d| json!(d))
         })
     }),
+    // (kind, x, y, desktop): a flower the album has, in bloom in the field, and out on the desktop
+    // too when `desktop` (docs/design/2026-11-19-album-take-out.md).
+    main("takeOutFlower", |c| {
+        let (x, y, now, desktop) = (c.float(1), c.float(2), now_ms(), c.flag(3));
+        commit(c.app, &c.state, |d| {
+            let plant = d.garden.take_out_flower(&d.album, c.text(0), x, y, now)?;
+            out_on_desktop(d, &plant.id, desktop)?;
+            Ok(json!(plant))
+        })
+    }),
+    // (book, item, x, y, desktop): a find from the album out on its own, and on the desktop too when
+    // `desktop` (docs/design/2026-11-19-album-finds-out.md).
+    main("takeOutFind", |c| {
+        let (x, y, now, desktop) = (c.float(2), c.float(3), now_ms(), c.flag(4));
+        commit(c.app, &c.state, |d| {
+            let decor = d.garden.take_out_find(&d.album, c.text(0), c.text(1), x, y, now)?;
+            out_on_desktop(d, &decor.id, desktop)?;
+            Ok(json!(decor))
+        })
+    }),
+    // (world, kind, x, y, ground, desktop): a tree the album has, mature on free soil, and on the
+    // desktop too when `desktop`.
+    main("takeOutTree", |c| {
+        let ground: discovery::GroundProfile = c.parse(4)?;
+        let (now, desktop) = (now_ms(), c.flag(5));
+        commit(c.app, &c.state, |d| {
+            let AppData { garden, album, .. } = d;
+            let tree = discovery::take_out_tree(
+                garden,
+                album,
+                c.text(0),
+                c.text(1),
+                c.float(2),
+                c.float(3),
+                &ground,
+                now,
+            )?;
+            out_on_desktop(d, &tree.id, desktop)?;
+            Ok(json!(tree))
+        })
+    }),
     // (book, id, hook, local day): an ornament on the Christmas tree, three a day.
     main("hangOrnament", hang_ornament),
     // (book, id, local day): an ornament taken down, its hook free for another.
@@ -611,6 +656,24 @@ static COMMANDS: &[Command] = &[
 ];
 
 /// A list of gift kinds the page sent (hideDecor, decorNight), each one the catalogue has.
+/// Something just set out from the album goes out on the desktop too, in the same save, when the
+/// person pressed the desktop's button on its card.
+fn out_on_desktop(d: &mut AppData, id: &str, desktop: bool) -> Result<(), String> {
+    let AppData { pets, garden, .. } = d;
+    out_too(pets, garden, id, desktop)
+}
+fn out_too(
+    pets: &mut [model::Pet],
+    garden: &mut crate::pets::garden::Garden,
+    id: &str,
+    desktop: bool,
+) -> Result<(), String> {
+    if desktop {
+        crate::desktop::items::set(pets, garden, id, true)?;
+    }
+    Ok(())
+}
+
 fn gift_kinds(arg: &Value) -> Result<Vec<String>, String> {
     let kinds = arg
         .as_array()
@@ -741,6 +804,25 @@ fn overlay_owns(app: &AppHandle, label: &str, pet_id: &str) -> bool {
 mod tests {
     use super::*;
 
+    // The desktop's button on an album card sets the thing out and puts it on the desktop in one
+    // save; Set out leaves it in the yard.
+    #[test]
+    fn a_find_set_out_for_the_desktop_is_out_on_it_from_the_same_save() {
+        let album = crate::pets::album::Album::restore(Some(&json!({
+            "fish": {"crucian": {"count": 1, "best": 10.0, "first": 1}},
+            "bugs": {}
+        })));
+        let mut garden = crate::pets::garden::Garden::default();
+        for desktop in [false, true] {
+            let decor = garden.take_out_find(&album, "fish", "crucian", 0.5, 0.8, 1).unwrap();
+            out_too(&mut [], &mut garden, &decor.id, desktop).unwrap();
+            let saved = garden.decor.iter().find(|d| d.id == decor.id).unwrap();
+            assert_eq!(saved.on_desktop, desktop);
+        }
+        assert!(out_too(&mut [], &mut garden, "nothing", true).is_err());
+        assert!(out_too(&mut [], &mut garden, "nothing", false).is_ok());
+    }
+
     #[test]
     fn the_apps_own_pages_open_and_nothing_next_to_them() {
         for ok in [
@@ -857,6 +939,9 @@ mod tests {
             "hideDecor",
             "decorNight",
             "takeOut",
+            "takeOutFlower",
+            "takeOutTree",
+            "takeOutFind",
             "hangOrnament",
             "takeDownOrnament",
             "buildSnowman",

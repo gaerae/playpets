@@ -116,8 +116,8 @@ test('a gift that came before comes back out of its card, once, unless it is out
 });
 
 // Set out in July in a yard kept in autumn, a Christmas gift would go into a spot no one sees: it
-// waits, and says when it shows. A winter yard shows it any day.
-test('a December gift waits in the album until December or a winter yard', async ctx => {
+// waits, and says when it shows: from mid-November. A winter yard shows it any day.
+test('a Christmas gift waits in the album until its window or a winter yard', async ctx => {
   ctx.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: new Date(2026, 6, 1, 12).getTime() });
   const { GIFTS } = await import('../src/yard/catalog.js');
   const { scene } = await import('../src/yard/world.js');
@@ -137,9 +137,9 @@ test('a December gift waits in the album until December or a winter yard', async
     [santa] = nodes.get('album-box-items').children;
   for (const button of [tree, santa]) {
     assert.equal(button.disabled, true);
-    assert.equal(button.title, t('album.shown_december'));
+    assert.equal(button.title, t('album.shown_christmas'));
   }
-  ctx.mock.timers.setTime(new Date(2026, 11, 2, 12).getTime());
+  ctx.mock.timers.setTime(new Date(2026, 10, 15, 12).getTime());
   nodes = album(ctx, garden);
   tree = cardOf(nodes, 'xmas_tree');
   [santa] = nodes.get('album-box-items').children;
@@ -149,7 +149,7 @@ test('a December gift waits in the album until December or a winter yard', async
   // Out in the yard but out of sight in July: the title says when it shows, not "In the yard".
   ctx.mock.timers.setTime(new Date(2026, 6, 1, 12).getTime());
   nodes = album(ctx, { received: ['xmas_tree'], decor: [{ id: 'x', kind: 'xmas_tree', x: 0.5, y: 0.5 }] });
-  assert.equal(cardOf(nodes, 'xmas_tree').title, t('album.shown_december'));
+  assert.equal(cardOf(nodes, 'xmas_tree').title, t('album.shown_christmas'));
   scene.season = 'winter';
   nodes = album(ctx, garden);
   assert.equal(cardOf(nodes, 'xmas_tree').disabled, false, 'a winter yard in July shows it');

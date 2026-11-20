@@ -1,12 +1,15 @@
 // What a gift out on the desktop wears, as the yard draws it: a snowman's dress over its drawing
 // and the Christmas tree's ornaments on it, from the garden the overlay is sent, and the grand tree
 // while the yard has its Christmas night. The yard's own modules draw all three (dress-layers.js,
-// ornaments.js, grand-tree.js); this only keeps a desktop gift in step.
+// ornaments.js, grand-tree.js); this only keeps a desktop gift in step. A find out is drawn
+// the same way (find-out.js).
 
 import { t } from '../core/i18n.js';
 import { reduced } from '../core/sprites.js';
+import { loadArt } from '../yard/art.js';
 import { giftKind } from '../yard/catalog.js';
 import { dressLayers } from '../yard/dress-layers.js';
+import { findOutKind, decorName, heldArt, heldLayers } from '../yard/find-out.js';
 import { grandLayers, RISE_MS } from '../yard/grand-tree.js';
 import { drawTreeOrnaments } from '../yard/ornaments.js';
 
@@ -15,7 +18,28 @@ import { drawTreeOrnaments } from '../yard/ornaments.js';
 export function wearArt(kind) {
   const gift = giftKind(kind);
   if (!gift) return [];
-  return [gift.art, ...(gift.dress || []).map(part => part.art), ...(gift.night ? [gift.night.art] : [])];
+  // A find out has no drawing of its own (find-out.js heldArt loads the find's).
+  return [gift.art, ...(gift.dress || []).map(part => part.art), ...(gift.night ? [gift.night.art] : [])].filter(
+    Boolean,
+  );
+}
+
+// The find the kind out `view` holds, drawn again only when that changed, once its drawing is
+// in; its name says what it holds.
+async function showHeld(view, holds) {
+  const key = holds.join();
+  if (key === view.held) return;
+  view.held = key;
+  await loadArt(heldArt(view.kind, holds));
+  if (view.held !== key) return;
+  if (!view.heldLayer) {
+    view.heldLayer = document.createElement('span');
+    view.heldLayer.className = 'held-layer';
+    view.button.append(view.heldLayer);
+  }
+  view.heldLayer.innerHTML = heldLayers(view.kind, holds);
+  view.button.title = decorName(view.kind, holds);
+  view.button.setAttribute('aria-label', view.button.title);
 }
 
 // The tree stands grand while `grand` (the yard said so: christmas-night.js tells the backend, which
@@ -42,6 +66,7 @@ function standGrand(view, grand) {
  * `now`: what a snowman wears, drawn again only when that changed, and what hangs on the tree and
  * whether it stands grand (`night`: the kinds the yard shows in their night look). */
 export function wear(view, garden, now = new Date(), night = []) {
+  if (findOutKind(view.kind)) showHeld(view, garden?.decor?.find(d => d.id === view.id)?.holds || []);
   if (giftKind(view.kind)?.dress) {
     const dress = garden?.decor?.find(d => d.id === view.id)?.dress || [];
     if (dress.join() !== view.worn) {

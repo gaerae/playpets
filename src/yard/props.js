@@ -10,6 +10,7 @@ import { spoken } from '../core/text.js';
 import { artSize } from './art.js';
 import { giftKind } from './catalog.js';
 import { decorFloor, depthScaleAt, EDGE, field, fieldToYard, propZoom, yardToDecor } from './field.js';
+import { findScale } from './find-out.js';
 import { thingAt, thingGone } from './veil.js';
 import { scene } from './world.js';
 
@@ -256,10 +257,11 @@ export async function moveSaved(view, item, at, { send, current, show, settle })
 
 /** Full rendered gift dimensions, shared by drawing, visiting and ground placement: its box, w × h
  * yard pixels, for a foot at `at` (yard pixels; none, as at the front), and the share of the box's
- * height at which its drawing ends (`foot`, catalog.json). */
-export function giftSize(kind, at) {
+ * height at which its drawing ends (`foot`, catalog.json). A find out is sized by what it `holds`
+ * (find-out.js findScale: a fish by its length). */
+export function giftSize(kind, at, holds = []) {
   const gift = giftKind(kind),
     [w, h] = gift?.size || artSize(gift?.art),
-    scale = 1.05 * propScale(at);
+    scale = 1.05 * propScale(at) * findScale(kind, holds);
   return { w: w * scale, h: h * scale, foot: gift?.foot ?? 1 };
 }

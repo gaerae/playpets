@@ -2,38 +2,22 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { webpName } from '../scripts/art-webp-lib.mjs';
+import { decodePng } from '../scripts/png-lossless-lib.mjs';
 import { STRINGS } from '../src/core/strings.js';
 
 const read = name => readFileSync(new URL(`../${name}`, import.meta.url));
 const catalog = JSON.parse(read('src/content/catalog.json'));
 const sources = JSON.parse(read('assets/discovery/ART-SOURCES.json'));
 
-test('discovery offers twenty distinct tree species with growth and deciduous seasonal art', () => {
-  assert.deepEqual(
-    catalog.trees.map(tree => tree.id),
-    [
-      'cherry',
-      'maple',
-      'pine',
-      'oak',
-      'birch',
-      'willow',
-      'ginkgo',
-      'persimmon',
-      'bamboo',
-      'magnolia',
-      'crape_myrtle',
-      'metasequoia',
-      'wisteria',
-      'fringe_tree',
-      'fig',
-      'golden_rain_tree',
-      'chestnut',
-      'red_plum',
-      'yuzu',
-      'juniper',
-    ],
-  );
+test('every tree is its own species that grows in three stages, with its seasons drawn', () => {
+  const ids = catalog.trees.map(tree => tree.id);
+  assert.equal(new Set(ids).size, ids.length);
+  for (const tree of catalog.trees)
+    assert.deepEqual(
+      tree.stages.map(stage => stage.name),
+      ['seedling', 'young', 'mature'],
+      tree.id,
+    );
   for (const id of ['oak', 'birch', 'willow', 'ginkgo', 'persimmon', 'magnolia', 'crape_myrtle', 'metasequoia']) {
     const tree = catalog.trees.find(item => item.id === id);
     assert.deepEqual(
@@ -51,6 +35,10 @@ test('discovery offers twenty distinct tree species with growth and deciduous se
     ['golden_rain_tree', 'summer'],
     ['chestnut', 'autumn'],
     ['red_plum', 'winter'],
+    ['lilac', 'spring'],
+    ['silk_tree', 'summer'],
+    ['osmanthus', 'autumn'],
+    ['holly', 'winter'],
   ]) {
     const tree = catalog.trees.find(item => item.id === id);
     assert.deepEqual(
@@ -79,6 +67,8 @@ test('whimsical keepsakes have translated names and year-round weighted discover
     ...['old_coin', 'blue_feather', 'pinecone', 'old_key', 'paper_boat', 'spinning_top'].map(id => [id, 'common']),
     ['freshwater_pearl', 'uncommon'],
     ['four_leaf_clover', 'uncommon'],
+    ...['heart_locket', 'pearl_hair_clip', 'shell_mirror'].map(id => [id, 'common']),
+    ['perfume_bottle', 'uncommon'],
   ]) {
     const treasure = catalog.treasures.find(item => item.id === id);
     assert.equal(treasure?.rarity, rarity, id);
@@ -104,6 +94,10 @@ test('whimsical keepsakes have translated names and year-round weighted discover
     'red_plum',
     'yuzu',
     'juniper',
+    'lilac',
+    'silk_tree',
+    'osmanthus',
+    'holly',
   ])
     for (const strings of Object.values(STRINGS)) assert.ok(strings[`tree.${id}`]);
 });
@@ -130,5 +124,84 @@ test('every discovery catalog asset resolves to a reviewed atlas viewport', () =
     assert.ok(svg.includes('clip-path='), art);
     assert.equal(read(`assets/art/${source.atlas}`).readUInt32BE(16), source.size[0]);
     assert.equal(read(`assets/art/${source.atlas}`)[25], 6, `${art}: RGBA source`);
+  }
+});
+
+// Seven keepsakes were redrawn on 2026-11-20 to sit with the newer ones: same kinds, prettier
+// drawings. Each comes from the sheet its provenance records, whole inside its crop; the spinning top
+// and the striped pebble keep their first drawings.
+test('the redrawn keepsakes come from their reviewed sheet, each whole inside its crop', () => {
+  const redrawn = ['clay_shard', 'bottle_cap', 'toy_robot', 'tiny_crown', 'old_coin', 'old_key', 'old_button'];
+  const records = JSON.parse(read('src/art/collection.json'));
+  const accepted = JSON.parse(read('assets/sources/keepsake-redraw-2026-11-20/accepted-art.json')).sources[0];
+  assert.deepEqual([...accepted.acceptedIds].sort(), [...redrawn].sort());
+  const atlas = accepted.runtimeAtlas.replace(/\.png$/, '.webp');
+  const sheet = decodePng(read(`assets/art/${accepted.runtimeAtlas}`));
+  const opaque = (x, y) =>
+    x >= 0 && y >= 0 && x < sheet.width && y < sheet.height && sheet.pixels[(y * sheet.width + x) * 4 + 3] > 0;
+  for (const id of redrawn) {
+    const record = records.find(item => item.id === id);
+    assert.equal(record?.atlas, atlas, id);
+    assert.deepEqual(record.crop, accepted.boxes[id], id);
+    assert.equal(catalog.treasures.find(item => item.id === id).art, record.art, id);
+    assert.ok(!sources.assets.some(item => item.id === id), `${id}: the old drawing is no longer packed`);
+    const [x, y, w, h] = record.crop;
+    for (let i = 0; i < Math.max(w, h); i++)
+      assert.ok(
+        !(i < h && (opaque(x - 1, y + i) || opaque(x + w, y + i))) &&
+          !(i < w && (opaque(x + i, y - 1) || opaque(x + i, y + h))),
+        `${id}: drawn past its crop`,
+      );
+  }
+  for (const id of ['spinning_top', 'striped_pebble'])
+    assert.ok(!records.some(item => item.id === id && item.atlas === atlas), `${id} keeps its drawing`);
+  // No accepted source is left with nothing cut from it.
+  for (const source of sources.sources)
+    assert.ok(
+      sources.assets.some(item => item.source === source.id),
+      `${source.id}: no viewport uses it`,
+    );
+});
+
+// A keepsake stands on the ground: its drawing sits on the bottom of its box, so a wide one (the
+// crown, the bottle cap, the whale) does not hover above the spot it was set down on.
+test('every keepsake drawing stands on the bottom of its box', () => {
+  for (const { id, art } of catalog.treasures) {
+    const svg = read(`src/art/${art}`).toString();
+    assert.match(svg, /<svg width="\d+" height="\d+" viewBox="[^"]+" preserveAspectRatio="xMidYMax meet"/, id);
+  }
+});
+
+// A sheet a keepsake is cut from ships only what some drawing cuts from it: cells nobody draws
+// (a redrawn keepsake's old cell, an unused one) are cleared, so they cost nothing in the app.
+test('a keepsake sheet ships only the parts its drawings cut', () => {
+  const records = JSON.parse(read('src/art/collection.json'));
+  const sheets = new Map();
+  for (const { art } of catalog.treasures) {
+    const record = records.find(item => item.art === art);
+    if (record) {
+      const png = `assets/art/${record.atlas.replace(/\.webp$/, '.png')}`;
+      sheets.set(
+        png,
+        records.filter(item => item.atlas === record.atlas).map(item => item.crop),
+      );
+      continue;
+    }
+    const source = sources.sources.find(item => item.id === sources.assets.find(a => a.art === art).source);
+    sheets.set(
+      `assets/art/${source.atlas}`,
+      sources.assets.filter(a => a.source === source.id).map(a => a.crop),
+    );
+  }
+  for (const [file, crops] of sheets) {
+    const { width, height, channels, pixels } = decodePng(read(file));
+    let outside = 0;
+    for (let y = 0; y < height; y++)
+      for (let x = 0; x < width; x++) {
+        if (crops.some(([cx, cy, cw, ch]) => x >= cx && y >= cy && x < cx + cw && y < cy + ch)) continue;
+        const at = (y * width + x) * channels;
+        for (let c = 0; c < channels; c++) if (pixels[at + c]) outside++;
+      }
+    assert.equal(outside, 0, `${file}: samples left outside every cut`);
   }
 });

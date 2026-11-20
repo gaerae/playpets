@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { crc32, inflateSync } from 'node:zlib';
+import { crc32, deflateSync, inflateSync } from 'node:zlib';
 
 export const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 
@@ -150,4 +150,31 @@ export function optimizationProvenance(source, record, tool) {
       },
     ],
   };
+}
+
+/** An 8-bit RGBA PNG of `pixels`, always the same bytes for the same pixels (no metadata). */
+export function encodePng(width, height, pixels) {
+  const chunk = (type, data) => {
+    const length = Buffer.alloc(4),
+      sum = Buffer.alloc(4),
+      body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
+    length.writeUInt32BE(data.length);
+    sum.writeUInt32BE(crc32(body));
+    return Buffer.concat([length, body, sum]);
+  };
+  const header = Buffer.alloc(13);
+  header.writeUInt32BE(width, 0);
+  header.writeUInt32BE(height, 4);
+  header[8] = 8;
+  header[9] = 6;
+  const stride = width * 4,
+    rows = Buffer.alloc((stride + 1) * height);
+  for (let y = 0; y < height; y++)
+    Buffer.from(pixels.buffer, pixels.byteOffset + y * stride, stride).copy(rows, y * (stride + 1) + 1);
+  return Buffer.concat([
+    SIGNATURE,
+    chunk('IHDR', header),
+    chunk('IDAT', deflateSync(rows, { level: 9 })),
+    chunk('IEND', Buffer.alloc(0)),
+  ]);
 }

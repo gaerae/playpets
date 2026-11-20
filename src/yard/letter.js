@@ -1,5 +1,5 @@
-// The year-end letter: from December 26 to 31 the closest friend writes one, and from January 1 to
-// 7 it brings back the answer the person left. When, who writes and what the letter says come
+// The year-end letter: from December 15 to 31 the closest friend writes one, and from January 1 to
+// 15 it brings back the answer the person left. When, who writes and what the letter says come
 // first, without the page; then how it comes, at the scene's minute check (setupLetters). The page
 // owns the calendar; the backend keeps the record (src-tauri/src/pets/letters.rs) and decides
 // whether the friend's AI writes it (chat/letter.rs). No line of the letter asks whether a plan
@@ -17,12 +17,12 @@ import { localDay } from './growth.js';
 import { openLetter } from './letter-card.js';
 import { bubble, cheer } from './views.js';
 
-/** 'write' from December 26 to 31, 'back' from January 1 to 7, otherwise null (local date). */
+/** 'write' from December 15 to 31, 'back' from January 1 to 15, otherwise null (local date). */
 export function letterTime(date) {
   const month = date.getMonth() + 1,
     day = date.getDate();
-  if (month === 12 && day >= 26) return 'write';
-  if (month === 1 && day <= 7) return 'back';
+  if (month === 12 && day >= 15) return 'write';
+  if (month === 1 && day <= 15) return 'back';
   return null;
 }
 
@@ -165,11 +165,11 @@ function deliver(letter) {
   else bubble(v, pick(list('letter.bubble')), 9000, () => open(letter.year));
 }
 
-// A letter's text is kept until January 7 (the New Year card reads it); after that only the answer
+// A letter's text is kept until January 15 (the New Year card reads it); after that only the answer
 // stays. The backend clears it by the same date (pets/letters.rs clear_ended).
-const ended = (letter, today) => !!letter.text && today > `${letter.year + 1}-01-07`;
+const ended = (letter, today) => !!letter.text && today > `${letter.year + 1}-01-15`;
 
-/** An answer just sent: written from January 1 to 7, it is not "remembered" a minute later, so it
+/** An answer just sent: written from January 1 to 15, it is not "remembered" a minute later, so it
  * counts as brought back already. A failure only means the cheer may come, which is harmless. */
 export function answered(year, now = new Date()) {
   if (letterTime(now) !== 'back' || year !== letterYear(now)) return Promise.resolve();
@@ -183,7 +183,7 @@ export function answered(year, now = new Date()) {
 /** Starts the letter, called by app.js before the sky; wires the chip. `visible()` says whether the
  * yard is seen: nothing is written, said or shown while it is not, so the friend's AI is asked only
  * then. Returns `check()`, for each repaint of the scene: the first only shows the ways in, the
- * next writes this year's letter once, from December 26, or from January 1 to 7 brings its answer
+ * next writes this year's letter once, from December 15, or from January 1 to 15 brings its answer
  * back once. Each asks the backend to clear a letter's text once its season is over. `card` shows
  * the New Year card (card.js). */
 export function setupLetters({ open: opener = openLetter, visible = () => !document.hidden, card = showCard } = {}) {

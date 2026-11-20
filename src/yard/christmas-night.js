@@ -2,8 +2,8 @@
 // out, the tree lights up and grows into the grand tree (about 2.6 s: a gold veil climbs from the
 // roots and reveals it while the small one fades, the star swells once, a warm light pools on the
 // snow, and nearby friends look up). It stays while the snow falls and goes back with a short
-// crossfade when it stops. No date is asked for: December brings the winter yard and its gifts on
-// its own, and on any other day a person who picks a snowy winter night calls it up
+// crossfade when it stops. No date is asked for: the winter lights bring the winter yard and its gifts
+// on their own, and on any other day a person who picks a snowy winter night calls it up
 // (docs/decisions/2026-11-12-scenes-before-dates.md). It grows each time the night comes together
 // in sight; the first look after a restart or a reload the same night, and reduced motion, are the
 // crossfade. A night begins on its evening: before 05:00 it is still the evening before's.

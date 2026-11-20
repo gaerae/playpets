@@ -1,0 +1,25 @@
+{
+  "generated": "2026-11-19",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "sources": [
+    {
+      "name": "hanging-gifts",
+      "prompt": "Production transparent game sprite atlas, exactly 2 small garden objects for a cozy desktop yard, strict TWO columns by ONE row, equal cells, landscape 1536x1024. Style matches the attached reference images exactly: soft sculpted painted miniature detail, rich restrained warm colours, gentle material shading, clean silhouettes. The first reference is a wind chime hanging from a curved bronze shepherd's hook stand: BOTH new objects use that SAME kind of stand, its pole on the RIGHT side of the cell, its curved hook reaching LEFT at the top, and the hanging object hanging below the hook end on a short cord, with clear empty space between the hanging object and the pole. (1) left cell HANGING FLOWER POT: a small terracotta pot held by three thin ropes gathered at one ring on the hook, overflowing with trailing green leaves and a few small pink and white flowers spilling down over its sides. (2) right cell WOODEN MOBILE: a small light wooden crossbar hanging level from the hook by one thread, with four little painted wooden shapes hanging from it on threads at different heights: a blue bird, a yellow star, a red bird and a small white cloud. Each object fully inside the central 80% of its cell, bottom baseline aligned, the stand's round base at the bottom, similar heights to each other. ACTUAL fully transparent RGBA background, no floor, no shadow, no haze, no text, labels or gridlines. IMPORTANT: the background must be truly transparent alpha everywhere outside each object.",
+      "references": [
+        "assets/art/decor/collection.png (the wind chime)",
+        "assets/art/collection-extension/village-props.png"
+      ],
+      "file": "hanging-gifts.png",
+      "sha256": "8b9c30edeaa9a5acc971e12c12c82befb2806d5359480b1f7be361f3e9d6b041",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/hanging-gifts.png",
+      "runtimeSha256": "1fc8f1caca6d4b0cd93104552bd0ff6c669b7e11b5d1c48c8485c99503a3eb85",
+      "processing": "Alpha below 190 cleared to 0,0,0,0 in the runtime atlas, which drops a soft haze behind the mobile and keeps its threads; all other samples unchanged.",
+      "acceptedIds": ["hanging_pot", "mobile"],
+      "boxes": {
+        "hanging_pot": [146, 116, 489, 802],
+        "mobile": [818, 116, 522, 802]
+      }
+    }
+  ]
+}

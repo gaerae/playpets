@@ -110,3 +110,21 @@ test('the desktop tree stands grand while the yard says so, and grows when it tu
   assert.ok(has('xmas-grand'));
   assert.ok(!has('xmas-rise'), 'with reduced motion it is a crossfade');
 });
+
+test('a find out of the album has no drawing of its own and is still drawn, named for the find', async t => {
+  const { FISH } = await import('../src/yard/catalog.js');
+  const { t: say } = await import('../src/core/i18n.js');
+  const fish = FISH.find(f => f.id === 'goldfish');
+  await drawYard(t, { now: NOW, art: [fish.art] });
+  const v = desktopThing('f', 'fish_out');
+  const garden = { plants: [], decor: [{ id: 'f', kind: 'fish_out', x: 0.4, y: 0.8, holds: ['goldfish'] }] };
+  await drawDecor(
+    v,
+    () => garden,
+    () => 'summer',
+  );
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(v.drawn, true, 'drawn though its kind names no drawing');
+  assert.match(v.heldLayer?.innerHTML || '', /#art-fish-goldfish/);
+  assert.equal(v.button.title, say('catch.fish_goldfish'));
+});
