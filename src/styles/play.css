@@ -211,7 +211,11 @@
   background: var(--message-surface);
   box-shadow: var(--message-shadow);
   animation: card-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* A press anywhere puts it away, as a notice line (shell.css .toast > span), so a drag never
+     selects its words. */
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
   /* a long line (an event's) wraps in a card of reading width, not across the whole yard */
   width: max-content;
   max-width: min(420px, calc(100% - 32px));

@@ -33,7 +33,7 @@
 | `+` with the desktop on | The new copy goes on the desktop too | The kind stays where it is shown |
 | Backend | `takeOutFlower`, `takeOutTree` and `takeOutFind` refuse past the album's count (`error.album_all_out`). `takeOut` takes `desktop` too. `albumOnDesktop (book, item, on)` sets every copy at once, saved once | The page's rule holds whatever calls it |
 | Bring back | `pullPlant`, `removeTree` or `putAway` on the last copy, without Undo | `+` sets it out again |
-| Notices | Every line has a close button and closes on a press anywhere on it; its words cannot be selected. Closing an Undo line keeps the removal and saves it now | One way to close; closing means done |
+| Notices | Every line has a close button and closes on a press anywhere on it; its words cannot be selected. Closing an Undo line keeps the removal and saves it now. The card for something found already closed both ways; its words cannot be selected either | One way to close; closing means done |
 
 ## Approaches
 
