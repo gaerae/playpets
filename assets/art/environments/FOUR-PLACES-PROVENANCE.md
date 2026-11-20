@@ -125,3 +125,32 @@
 | `lakeside-green.png` | `0df87da0b3d0662abaa448a63d57f9957b6ca2d409fb4d20d1a2435eed6753bf` |
 | `lakeside-autumn.png` | `2303dd2300d88b6b5a8571f5c82fb116bbd080b1fcb6ab6cc46b3bb95ef07398` |
 | `lakeside-winter.png` | `91af1757037287814d23c40081a3763878eb9683029b56b97afda3dba06c2b0a` |
+
+## Follow-up: soft sky edges and an open meadow (2026-11-21)
+
+- Every outdoor picture's line against the sky was rough: the cut kept a pale ring of the white it was painted on, and its pixels were all or nothing.
+- `scripts/soften-sky-edges.mjs` (`scripts/sky-edge-lib.mjs`) cleaned the line in place:
+  - the band next to the sky took the colour of the land just inside it, and its alpha rose over a pixel and a half;
+  - near-white patches no lower than 4 px under the sky (the ring, gaps between leaves) became sky, in the summer and autumn pictures only. Snow and blossom are the same white, so spring and winter ran with `--keep-white`.
+- The land inside and the clear sky kept every sample.
+- The Wild garden's left side was opened so friends can walk back to the meadow:
+  - Codex's image tool edited each season's picture with one brief: remove the band of ferns, boulders and tall flowers left of the pond, and paint open lawn rising into the meadow.
+  - The edit was blended into the original through a soft mask: full left of x 600 between y 420 and 700, fading over 80 px across the water and 60 px above and below. Everything else is the original's pixels.
+  - Its pond's left stones stay where they were.
+- The field follows it: the courtyard's `geometry.edge` rises to 0.48 on the left, and `geometry.far` and `depthFar` shrink a friend by its height on the screen.
+- SHA-256 of the 12 runtime PNGs now:
+
+| Runtime file | SHA-256 |
+| --- | --- |
+| `spring.png` | `015412a779bae4dc25a6117be914664c2404e5bf56693df3b3c3d5ab0e7062cb` |
+| `green.png` | `85d924e2bfcc71795d3d9703bc1376b8f8616c160e8b247b0811fbb1d16d7a8d` |
+| `autumn.png` | `d42de93c4ccd60e29b51b24837abed6247d50fd2c4cdfa649a8280f01631cc75` |
+| `winter.png` | `c306b04263f54310ac3e531950d4a8725dccb336ca59aba143355c56f7bdcd32` |
+| `courtyard-spring.png` | `f0f6e4887db5d67b97212355a3c950ce49a62239c809b9869b80bd880d9201f4` |
+| `courtyard-green.png` | `08403272f9bd41a2f5921351f991d25e9df7422fd4d106e19b1cc1e60c17b1f1` |
+| `courtyard-autumn.png` | `d5e772f21d4ece245bd4c3137aebdab1e7f00dcec7ab5923d5b7f6e926179524` |
+| `courtyard-winter.png` | `17d561b9d9b4481b13f101ddb60ca83e6bc49ba34b6f250b56cc3cd7b6b7410d` |
+| `lakeside-spring.png` | `6cc782a8829f5ddeacc9d1d0757d71257d4a0cff6f11bee716697a3b235b736d` |
+| `lakeside-green.png` | `90fd800a149dce29841ea8d87b043341a1e7f60399e383712a96f002d7ac7a81` |
+| `lakeside-autumn.png` | `65a9d7958328fa506d1b90acdef783927e5b5fb15ec8f1a34d1643647bd289ad` |
+| `lakeside-winter.png` | `0fd224676dc3ea103e3726dfa8d21207c967fab7d2e63882a5b1d980c83fdd83` |

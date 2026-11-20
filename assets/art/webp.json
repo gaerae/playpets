@@ -1343,68 +1343,68 @@
     "webp": "68c4fbf6b4acd10d3ffcff37b889fcd916dbf73ac5bfc184fb9e34b36f636e02"
   },
   "environments/autumn.png": {
-    "png": "e6ab0d7bb5dfb1681a131fc7546c474de6326cece4394833a5f116b38bff84c8",
-    "webp": "c454d09941850c4b0a2bbd149a40c345410815ce58eaae4b1d9e79db5d93a6df"
+    "png": "d42de93c4ccd60e29b51b24837abed6247d50fd2c4cdfa649a8280f01631cc75",
+    "webp": "75ca7763f30da297730a4a64381955799be2b8ec2d5e7ba3f034331c0d3f5073"
   },
   "environments/courtyard-autumn.png": {
-    "png": "ee5018778d7e86b04f2f115055f5e22515c0ba06b86040f087e214cef64e8b1f",
-    "webp": "f843a7cde2bdc00d2c61566382d8542a7692eee6c3ffeff971a863ade231b312"
+    "png": "d5e772f21d4ece245bd4c3137aebdab1e7f00dcec7ab5923d5b7f6e926179524",
+    "webp": "478143f17683ad96c1a6cc59412321e93f291862f59ce6c006d556a9d03f3a52"
   },
   "environments/courtyard-green.png": {
-    "png": "e071f89c0fb4d82fca842a5ccf9c77567557a268e1e41b65ed63f344b96eca02",
-    "webp": "5c0f17796171e006d32440a069b0d92bebe32cf20a2935217b9326369e402db0"
+    "png": "08403272f9bd41a2f5921351f991d25e9df7422fd4d106e19b1cc1e60c17b1f1",
+    "webp": "890811acc2171fec1d7f013c1e780bc9618c8ccd314b5e6adbe8480a0dcc4837"
   },
   "environments/courtyard-spring.png": {
-    "png": "0f1b42229b0d6a681ce6dcf3292e088974c02f15338e61a2aa855fc0909936af",
-    "webp": "76b567a000175d54e2363cee725ee8e4c7bad617dfa1dbfcb88aed0cc9509c28"
+    "png": "f0f6e4887db5d67b97212355a3c950ce49a62239c809b9869b80bd880d9201f4",
+    "webp": "b08b32ccfe2555214172b7947eb19d7795e13be584841274ea52b1f62bb71719"
   },
   "environments/courtyard-winter.png": {
-    "png": "12e621f127cbcdbd4c88f7c78f70eafeaca6309f9ac68f03ab72f28ec6b82282",
-    "webp": "3b2c9971240f3b5a1be3b6a6587ec969a877e3f2d4caeb047abdbb91e1d25a84"
+    "png": "17d561b9d9b4481b13f101ddb60ca83e6bc49ba34b6f250b56cc3cd7b6b7410d",
+    "webp": "d65662862425b2f49f41d41ed335058f1892774e719432913444f3fe229fd343"
   },
   "environments/green.png": {
-    "png": "ab0c5032fbefb5e20e4d5c94e49e96b6ad5d3038f0788f1dcda686a8f2829bb4",
-    "webp": "0df643e0afec4e13f3a95aa50ca72e4cd256d32cd99bba14a8eaea497042669b"
+    "png": "85d924e2bfcc71795d3d9703bc1376b8f8616c160e8b247b0811fbb1d16d7a8d",
+    "webp": "d3af8e61f30459cb8d23862e1b6f1cc048be8822a3b1f9da177ad8f3423372ef"
   },
   "environments/lakeside-autumn.png": {
-    "png": "2303dd2300d88b6b5a8571f5c82fb116bbd080b1fcb6ab6cc46b3bb95ef07398",
-    "webp": "251c310c384fd399e0112c6b5bc145c73cee13b105f3a8ec631ad9901b60c838"
+    "png": "65a9d7958328fa506d1b90acdef783927e5b5fb15ec8f1a34d1643647bd289ad",
+    "webp": "6840759bab4c45973d50a67374b0d3d195354433f472818de66cefcafcbd9602"
   },
   "environments/lakeside-green.png": {
-    "png": "0df87da0b3d0662abaa448a63d57f9957b6ca2d409fb4d20d1a2435eed6753bf",
-    "webp": "5632c2a869a37e73c3fffdd942ac37d9768936359cad4867c5cfcd730616de07"
+    "png": "90fd800a149dce29841ea8d87b043341a1e7f60399e383712a96f002d7ac7a81",
+    "webp": "06494327867d90f3d92c35c0c44e7f7ed9b6b3183446960c41cd4ab21b2d19e3"
   },
   "environments/lakeside-spring.png": {
-    "png": "594a9eaa1dd2afe82df3c5c8f9acfd001b3284284bba48db23f329e17a0ab67d",
-    "webp": "0080ff190db8e7ae7d90b93782a5fd55875af36990116e7c246c965e2b277fea"
+    "png": "6cc782a8829f5ddeacc9d1d0757d71257d4a0cff6f11bee716697a3b235b736d",
+    "webp": "54b3a9f0bead4060b528c4551ad427780ae4dfa0487be49c9510efd100180e0a"
   },
   "environments/lakeside-winter.png": {
-    "png": "91af1757037287814d23c40081a3763878eb9683029b56b97afda3dba06c2b0a",
-    "webp": "f6adba26790e79eed0844abf383904058f4dfacc9dff6a88b7a3e688939673c6"
+    "png": "0fd224676dc3ea103e3726dfa8d21207c967fab7d2e63882a5b1d980c83fdd83",
+    "webp": "65c4241479bcff18a097a6c6807687b9976bd7538a80ed9036ec4d4c65fd7ed2"
   },
   "environments/previews/courtyard-green.webp": {
-    "png": "e071f89c0fb4d82fca842a5ccf9c77567557a268e1e41b65ed63f344b96eca02",
-    "webp": "436008f470dfa56fee6a2d646e590752a0a482be55697bceeeab783c0f561acf"
+    "png": "08403272f9bd41a2f5921351f991d25e9df7422fd4d106e19b1cc1e60c17b1f1",
+    "webp": "24c9b36994ed4d63509f72774091f7d3eb675c98a6cd6cce95d9412b37748fc1"
   },
   "environments/previews/green.webp": {
-    "png": "ab0c5032fbefb5e20e4d5c94e49e96b6ad5d3038f0788f1dcda686a8f2829bb4",
-    "webp": "73ac3e0507d69cc796f2abb6ce48f95a5a784ec11bb08813ec769f7cc91c8239"
+    "png": "85d924e2bfcc71795d3d9703bc1376b8f8616c160e8b247b0811fbb1d16d7a8d",
+    "webp": "43727eb319ff98cdfa75595b281d9ccdf13ce83a759682bbc33f4b6635a2afa9"
   },
   "environments/previews/lakeside-green.webp": {
-    "png": "0df87da0b3d0662abaa448a63d57f9957b6ca2d409fb4d20d1a2435eed6753bf",
-    "webp": "5ec0cfe3745925b64134e67cca7e3286d271bcb21af0a19440e006ee018f7cfe"
+    "png": "90fd800a149dce29841ea8d87b043341a1e7f60399e383712a96f002d7ac7a81",
+    "webp": "b81b29291174db90e193d099b8ce063479c5a46a6ebf191844aa86128f49abb1"
   },
   "environments/previews/workshop.webp": {
     "png": "07c772909e1b901069a2c4831a4de4444722c6b6cba5386cd68402fa65ffd403",
     "webp": "663b358df5ee4a99805d9be2ef0cac5b9fca9f166b7b10b712fad04686f02d90"
   },
   "environments/spring.png": {
-    "png": "55156c327af3670095240d546e0c6b9dfd8ab26fdbb84c2293fba6949cf78812",
-    "webp": "37a89b08d2a33ed5a33fb55ab3fd225134b29cda1221c4eadd2e0abdd8a0bc00"
+    "png": "015412a779bae4dc25a6117be914664c2404e5bf56693df3b3c3d5ab0e7062cb",
+    "webp": "9b7bce756d0a77b8b115238240ab2ae6f213b2e66a14aa9d91c112e681538894"
   },
   "environments/winter.png": {
-    "png": "6554740736788df13a9add666512ec047e7f3344f49d617a2889befef8ddf0bb",
-    "webp": "75703c22ba873134f2ae2b79ef6e65a11b1075a7b5ed36c3ab9cdbf3b6e458ee"
+    "png": "c306b04263f54310ac3e531950d4a8725dccb336ca59aba143355c56f7bdcd32",
+    "webp": "d375766417dd294c5e881fd7ff07679db899656cc51a3a38a0fadf150cae6ffd"
   },
   "environments/workshop.png": {
     "png": "07c772909e1b901069a2c4831a4de4444722c6b6cba5386cd68402fa65ffd403",
