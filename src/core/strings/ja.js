@@ -10,8 +10,8 @@ export const listSeparator = '、';
 export const sentenceSeparator = '';
 export const strings = {
   'catch.rain_hint': '雨の日に見つけやすい',
-  'album.gift_full': '庭がいっぱいです。新しいプレゼントはプレゼント箱に入ります。飾りを一つ片付けると出せます。',
-  'album.gifts_full': '庭もプレゼント箱もいっぱいです。飾りを一つ片付けると置けます。',
+  'album.gift_full': '庭がいっぱいです。新しいプレゼントは図鑑で待ちます。飾りを一つ片付けると出せます。',
+  'album.gifts_full': '庭も、図鑑で待てるプレゼントもいっぱいです。飾りを一つ片付けると置けます。',
   'album.gift_rule':
     '友だちと何かをした日に、その友だちが二日に一度プレゼントを持ってきます。仲良くなったときにも届きます。',
   'album.set_out_full': '庭がいっぱいです。飾りを一つ片付けると出せます。',
@@ -32,7 +32,8 @@ export const strings = {
   'album.trees_full': '木は{limit}本まで植えられます。一本片付けると出せます。',
   'album.tree_soil': '木は土で育ちます。外の場所に行くと出せます。',
   'album.tree_no_room': 'ここには木を置ける空いた地面がありません。何かを動かしてから、もう一度試してください。',
-  'album.box_title': 'プレゼント箱 {count}/{limit}',
+  'album.memento': '{name}の思い出のプレゼント',
+  'album.memento_plain': '思い出のプレゼント',
   'album.favored': 'どれか一つでも合うと見つけやすい: {conditions}',
   'album.tree_how': '穴掘りで見つけた苗木を植えると、12時間で育ちます。',
   'album.treasure_how': '穴掘りで見つかります。',
@@ -419,7 +420,7 @@ export const strings = {
   'decor.title': '{kind}、ドラッグで動かせます',
   'decor.put_away_done': '{kind}を片づけました',
   'decor.put_away': '片づける',
-  'decor.memento_put_away': '{kind}をプレゼント箱にしまいました',
+  'decor.memento_put_away': '{kind}を図鑑にしまいました',
   'decor.snowman_put_away': '雪だるまがとけました。',
   'decor.dress': 'おしゃれ',
   'decor.memento_title': '{name}の思い出のプレゼント、{kind}。ドラッグで動かせます',
@@ -437,10 +438,11 @@ export const strings = {
   'decorating.take_down': '外す',
   'decorating.taken_down': '{name}のオーナメントを外しました。',
   'decorating.cheer': ['きれい！', 'うちのツリー、最高！', 'キラキラしてる！'],
-  'decor.brought_boxed': '{name}が{kind}を持ってきました。庭がいっぱいなので、図鑑のプレゼント箱に入れました。',
-  'decor.brought_memento': '{name}が思い出のプレゼントに{kind}を持ってきました。片付けてもプレゼント箱に残ります。',
+  'decor.brought_boxed': '{name}が{kind}を持ってきました。庭がいっぱいなので、図鑑で待っています。',
+  'decor.brought_memento':
+    '{name}が思い出のプレゼントに{kind}を持ってきました。片付けてもハートと一緒に図鑑に残ります。',
   'decor.brought_memento_boxed':
-    '{name}が思い出のプレゼントに{kind}を持ってきました。庭がいっぱいなので、図鑑のプレゼント箱に入れました。',
+    '{name}が思い出のプレゼントに{kind}を持ってきました。庭がいっぱいなので、図鑑で待っています。',
   'decor.brought_thanks': '{name}が仲良くなった記念に{kind}を持ってきました。',
   'decor.gift_memento': [
     'これ、ずっと大事にしてたんだ。あげるね！',

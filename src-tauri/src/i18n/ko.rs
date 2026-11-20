@@ -96,7 +96,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.album_all_out", "찾은 수({count})만큼 모두 나와 있어요. 더 찾으면 더 꺼낼 수 있어요."),
     ("error.decor_full", "놀이터에는 소품을 {limit}개까지 둘 수 있어요. 하나를 치우면 자리가 생겨요."),
     ("error.decor_missing", "그 소품을 찾을 수 없어요."),
-    ("error.gifts_full", "놀이터와 선물 상자가 모두 가득 찼어요. 소품을 하나 치우면 자리가 생겨요."),
+    ("error.gifts_full", "놀이터도, 도감에서 기다리는 선물 자리도 가득 찼어요. 소품을 하나 치우면 자리가 생겨요."),
     ("error.not_allowed", "이 동작은 할 수 없어요. 앱을 다시 열어 주세요."),
     ("error.bad_request", "요청을 처리하지 못했어요. 앱을 다시 열어 주세요."),
     ("error.request_failed", "요청을 처리하지 못했어요."),

@@ -181,8 +181,8 @@ Friends use what they get. They sit on the bench, the swing and the stump, gathe
 | Right-click → **Put away**, or **Delete** or **Backspace** | Gone at once. **Undo** in the notice brings it back for about six seconds. If the app closes first, it stays. A friend may bring it again another day |
 | Right-click → **Show on desktop** | Sends it out to the desktop ([Gifts on the desktop](./desktop.md#gifts-on-the-desktop)) |
 
-- The yard holds 12 decorations. When it's full, a new one waits in the **gift box** at the top of the album's Gifts book, which holds 12 more. Press one there to set it out once there's room.
-- Putting one away keeps its album entry and makes room for the gifts still to come. A memento goes back into the gift box instead, unless the box is full.
+- The yard holds 12 decorations. When it's full, up to 12 new ones wait in the album. Once there's room, **Set out** on the gift's own card in the Gifts book sets it out.
+- Putting one away keeps its album entry and makes room for the gifts still to come. A memento keeps its friend and its heart, shown on its card too.
 - Any gift that came before can come back out: **Set out** on its card in the album's Gifts book, once there's room, and **Put back** takes it in again. The snowman is the exception: you build it again.
 - The album has 31 gifts, seven of them only on their events' dates. The snowman is one of the 31, but you build it ([Snowman](#snowman)). A memento is one of the 31 too, so it adds no new entry.
 
@@ -261,7 +261,7 @@ A few times a year the yard changes for a while. Each event comes on its own on 
 During the winter lights, if the yard isn't showing winter, PlayPets asks once whether to show it until January 7. Say yes, and your own season comes back on January 8.
 
 - The Christmas tree, the baby reindeer and Santa show in the yard and on the desktop from November 15 to January 7, and whenever the yard shows winter.
-- The rest of the time they wait out of sight, still counting toward the 12 decorations. Put one away and it goes back into the gift box.
+- The rest of the time they wait out of sight, still counting toward the 12 decorations. Put one away and it waits in the album.
 
 ### Christmas night {#christmas-night}
 

@@ -96,7 +96,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.album_all_out", "找到的数量（{count}）已经全都摆出来了。再找到一些，就能多摆一个。"),
     ("error.decor_full", "乐园最多放 {limit} 件摆设。收起一件就有地方了。"),
     ("error.decor_missing", "找不到那件摆设。"),
-    ("error.gifts_full", "乐园和礼物盒都满了。收起一件摆设就有地方了。"),
+    ("error.gifts_full", "乐园满了，图鉴里等着的礼物也满了。收起一件摆设就有地方了。"),
     ("error.not_allowed", "这个操作无法完成。请重新打开应用。"),
     ("error.bad_request", "请求无法处理。请重新打开应用。"),
     ("error.request_failed", "无法处理请求。"),

@@ -7,8 +7,8 @@
 export const sentence = /[가-힣]/;
 export const strings = {
   'catch.rain_hint': '비 오는 날 더 잘 만나요',
-  'album.gift_full': '놀이터가 가득 찼어요. 새 선물은 선물 상자에 담기고, 소품 하나를 치우면 꺼내 놓을 수 있어요.',
-  'album.gifts_full': '놀이터와 선물 상자가 모두 가득 찼어요. 소품을 하나 치우면 자리가 생겨요.',
+  'album.gift_full': '놀이터가 가득 찼어요. 새 선물은 도감에서 기다리고, 소품 하나를 치우면 꺼내 놓을 수 있어요.',
+  'album.gifts_full': '놀이터도, 도감에서 기다리는 선물 자리도 가득 찼어요. 소품을 하나 치우면 자리가 생겨요.',
   'album.gift_rule':
     '친구와 함께 무언가를 한 날, 그 친구가 이틀에 한 번 선물을 가져와요. 사이가 가까워질 때도 선물이 와요.',
   'album.set_out_full': '놀이터가 가득 찼어요. 소품 하나를 치우면 꺼내 놓을 수 있어요.',
@@ -29,7 +29,8 @@ export const strings = {
   'album.trees_full': '나무는 {limit}그루까지 둘 수 있어요. 하나를 치우면 꺼낼 수 있어요.',
   'album.tree_soil': '나무는 흙에서 자라요. 바깥 장소로 가면 꺼낼 수 있어요.',
   'album.tree_no_room': '여기에는 나무를 놓을 빈 땅이 없어요. 무언가를 옮기고 다시 해 보세요.',
-  'album.box_title': '선물 상자 {count}/{limit}',
+  'album.memento': '{name}의 추억의 선물이에요',
+  'album.memento_plain': '추억의 선물이에요',
   'album.favored': '하나만 맞아도 더 잘 나와요: {conditions}',
   'album.tree_how': '땅파기로 찾은 묘목을 심으면 12시간 뒤에 다 자라요.',
   'album.treasure_how': '땅파기로 찾아요.',
@@ -416,7 +417,7 @@ export const strings = {
   'decor.title': '{kind}, 끌어서 옮길 수 있어요',
   'decor.put_away_done': '{kind:을/를} 치웠어요',
   'decor.put_away': '치우기',
-  'decor.memento_put_away': '{kind:을/를} 선물 상자에 넣었어요',
+  'decor.memento_put_away': '{kind:을/를} 도감에 넣었어요',
   'decor.snowman_put_away': '눈사람이 녹았어요.',
   'decor.dress': '꾸미기',
   'decor.memento_title': '{name}의 추억의 선물 {kind}, 끌어서 옮길 수 있어요',
@@ -434,10 +435,10 @@ export const strings = {
   'decorating.take_down': '내리기',
   'decorating.taken_down': '{name} 장식을 내렸어요.',
   'decorating.cheer': ['예쁘다!', '우리 트리 최고야!', '반짝반짝해!'],
-  'decor.brought_boxed': '{name:이/가} {kind:을/를} 가져왔어요. 놀이터가 가득 차서 도감의 선물 상자에 넣어 뒀어요.',
-  'decor.brought_memento': '{name:이/가} 추억의 선물로 {kind:을/를} 가져왔어요. 치워도 선물 상자에 남아요.',
+  'decor.brought_boxed': '{name:이/가} {kind:을/를} 가져왔어요. 놀이터가 가득 차서 도감에서 기다려요.',
+  'decor.brought_memento': '{name:이/가} 추억의 선물로 {kind:을/를} 가져왔어요. 치워도 하트를 단 채 도감에 남아요.',
   'decor.brought_memento_boxed':
-    '{name:이/가} 추억의 선물로 {kind:을/를} 가져왔어요. 놀이터가 가득 차서 도감의 선물 상자에 넣어 뒀어요.',
+    '{name:이/가} 추억의 선물로 {kind:을/를} 가져왔어요. 놀이터가 가득 차서 도감에서 기다려요.',
   'decor.brought_thanks': '{name:이/가} 더 가까워진 기념으로 {kind:을/를} 가져왔어요.',
   'decor.gift_memento': [
     '이건 내가 아끼는 거야. 너한테 줄게!',

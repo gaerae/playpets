@@ -6,8 +6,9 @@
 export const sentence = /[.!?]$/;
 export const strings = {
   'catch.rain_hint': 'More likely in rain',
-  'album.gift_full': 'The yard is full. New gifts go into the gift box; put a decoration away to set one out.',
-  'album.gifts_full': 'The yard and the gift box are both full. Put a decoration away to make room.',
+  'album.gift_full': 'The yard is full. New gifts wait in the album; put a decoration away to set one out.',
+  'album.gifts_full':
+    'The yard is full, and so is the room for gifts waiting in the album. Put a decoration away to make room.',
   'album.gift_rule':
     'A friend you did something with that day may bring a gift, one every other day. Friends also bring one when you grow closer.',
   'album.set_out_full': 'The yard is full. Put a decoration away to set this out.',
@@ -28,7 +29,8 @@ export const strings = {
   'album.trees_full': 'The yard holds {limit} trees. Remove one to set out another.',
   'album.tree_soil': 'Trees grow in soil. Go to a place outdoors to set one out.',
   'album.tree_no_room': 'There is no free ground for a tree here. Move something aside and try again.',
-  'album.box_title': 'Gift box {count}/{limit}',
+  'album.memento': '{name}’s memento',
+  'album.memento_plain': 'A memento',
   'album.favored': 'Each of these helps: {conditions}',
   'album.tree_how': 'Plant a sapling found by digging. It grows up in 12 hours.',
   'album.treasure_how': 'Found by digging.',
@@ -418,7 +420,7 @@ export const strings = {
   'decor.title': '{kind}, drag to move it',
   'decor.put_away_done': '{kind} put away',
   'decor.put_away': 'Put away',
-  'decor.memento_put_away': '{kind} put back in the gift box',
+  'decor.memento_put_away': '{kind} put back in the album',
   'decor.snowman_put_away': 'The snowman melted away.',
   'decor.dress': 'Dress up',
   'decor.memento_title': '{kind}, {name}’s memento: drag to move it',
@@ -436,10 +438,9 @@ export const strings = {
   'decorating.take_down': 'Take down',
   'decorating.taken_down': 'Took {name} off the tree.',
   'decorating.cheer': ['So pretty!', 'Our tree is the best!', 'Look at it sparkle!'],
-  'decor.brought_boxed': '{name} brought a gift: {kind}. The yard is full, so it’s waiting in the album’s gift box.',
-  'decor.brought_memento': '{name} brought its memento: {kind}. Put it away and it stays in the gift box.',
-  'decor.brought_memento_boxed':
-    '{name} brought its memento: {kind}. The yard is full, so it’s waiting in the album’s gift box.',
+  'decor.brought_boxed': '{name} brought a gift: {kind}. The yard is full, so it’s waiting in the album.',
+  'decor.brought_memento': '{name} brought its memento: {kind}. Put it away and it stays in the album with its heart.',
+  'decor.brought_memento_boxed': '{name} brought its memento: {kind}. The yard is full, so it’s waiting in the album.',
   'decor.brought_thanks': '{name} brought a gift for growing closer: {kind}.',
   'decor.gift_memento': [
     'This is my favorite thing. I want you to have it!',

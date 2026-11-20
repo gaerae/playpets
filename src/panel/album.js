@@ -7,8 +7,7 @@ import { closeOnBackdrop } from '../core/confirm.js';
 import { joinList, joinSentences, language, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { systemSouth } from '../core/season.js';
-import { $, call, data, toast } from '../core/state.js';
-import { spoken } from '../core/text.js';
+import { $, call, data, name } from '../core/state.js';
 import { previewSvg } from '../yard/art.js';
 import { albumSeen } from '../yard/card.js';
 import {
@@ -142,6 +141,7 @@ const BOOKS = {
     hint: k => (k.event ? eventHint(k) : t(k.built ? 'catch.built_hint' : 'catch.gift_hint')),
     record: () => t('catch.received'),
     rare,
+    mark: k => mementoHeart(k.id),
     action: k => takeOutButton(k.id),
   },
   tree: {
@@ -234,6 +234,8 @@ function card(b, kind, entry, index) {
     el.classList.add('rare');
   }
   if (entry) {
+    const mark = b.mark?.(kind);
+    if (mark) stage.append(mark);
     const record = document.createElement('small');
     record.className = 'album-record';
     record.textContent = b.record(entry);
@@ -247,13 +249,27 @@ function card(b, kind, entry, index) {
 // when it shows: a Christmas gift its dates, a snowman winter.
 const showsNow = kind => decorShown(kind, new Date(), yardSeason(scene));
 const whenShown = kind => t(giftKind(kind)?.shown ? 'album.shown_christmas' : 'album.shown_winter');
-// A gift that came before can always come back out of its card (garden.rs take_out), and back in:
-// one waiting in the box is set out from the box below the book. Set out while out of sight, it
-// waits and says when it shows. A snowman is built in the snow, never set out: its card only says
-// when one stands in the yard.
+// A friend's memento wears its giver's heart on its card, in the yard or waiting in the box, as it
+// does in the yard (garden.css .decor.memento).
+function mementoHeart(kind) {
+  const garden = data.garden || {},
+    memento = [...(garden.decor || []), ...(garden.boxed || [])].find(d => d.kind === kind && d.memento);
+  if (!memento) return null;
+  const from = data.pets.find(p => p.id === memento.from),
+    heart = document.createElement('span');
+  heart.className = 'album-heart';
+  heart.setAttribute('role', 'img');
+  heart.title = from ? t('album.memento', { name: name(from) }) : t('album.memento_plain');
+  heart.setAttribute('aria-label', heart.title);
+  heart.textContent = '♥';
+  return heart;
+}
+// A gift that came before can always come back out of its card (garden.rs take_out), and back in.
+// One waiting in the box (it came while the yard was full, or a memento put away) is that same gift:
+// its card sets it out. Set out while out of sight, it waits and says when it shows. A snowman is
+// built in the snow, never set out: its card only says when one stands in the yard.
 function takeOutButton(kind) {
   const garden = data.garden || {};
-  if ((garden.boxed || []).some(d => d.kind === kind)) return null;
   const out = (garden.decor || []).some(d => d.kind === kind);
   if (giftKind(kind)?.built) {
     if (!out) return null;
@@ -308,43 +324,6 @@ function takeOutGrowing(tree, kind, desktop) {
   if (!spot) return Promise.reject(Object.assign(new Error(t('album.tree_no_room')), { spoken: true }));
   return call('takeOutTree', scene.world, kind, spot.point.x, spot.point.y, spot.ground, desktop);
 }
-// The gift box, in the gift book: gifts that came while the yard was full, and mementos put away.
-// Each is set out near the front of the yard, from where the person drags it on.
-function renderBox(open) {
-  const boxed = data.garden?.boxed || [],
-    box = $('album-box');
-  box.hidden = !open || !boxed.length;
-  if (box.hidden) return;
-  const room = (data.garden?.decor?.length ?? 0) < limit(data, 'decor');
-  $('album-box-title').textContent = t('album.box_title', { count: boxed.length, limit: limit(data, 'giftBox') });
-  $('album-box-items').replaceChildren(
-    ...boxed.map(d => {
-      const button = document.createElement('button'),
-        label = document.createElement('small'),
-        kind = giftKind(d.kind),
-        named = t(`decor.kind_${d.kind}`),
-        shows = showsNow(d.kind);
-      button.type = 'button';
-      button.className = 'album-box-item';
-      button.classList.toggle('memento', !!d.memento);
-      button.disabled = !room || !shows;
-      button.title = !shows ? whenShown(d.kind) : room ? t('album.set_out', { kind: named }) : t('album.set_out_full');
-      button.setAttribute('aria-label', button.title);
-      button.innerHTML = kind ? specimen(kind.art, false) : '';
-      label.textContent = named;
-      button.append(label);
-      button.onclick = () => {
-        // Set out once: a second click before the album redraws would find it gone.
-        button.disabled = true;
-        call('setOut', d.id, ...landing()).catch(error => {
-          button.disabled = false;
-          toast(spoken(error, t('error.generic')), { error: true });
-        });
-      };
-      return button;
-    }),
-  );
-}
 /** Brings the album in line with what has been found (only while it is open). */
 export function renderAlbum() {
   clearTimeout(rareTimer);
@@ -379,7 +358,6 @@ export function renderAlbum() {
       boxFull = (data.garden?.boxed?.length ?? 0) >= limit(data, 'giftBox');
     status.textContent = t(yardFull ? (boxFull ? 'album.gifts_full' : 'album.gift_full') : 'album.gift_rule');
   }
-  renderBox(giftBook);
   let found = 0,
     total = 0;
   const share = {};

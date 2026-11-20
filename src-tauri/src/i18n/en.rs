@@ -96,7 +96,7 @@ const TABLE: &[(&str, &str)] = &[
     ("error.album_all_out", "All you found ({count}) are out. Find more to set out another."),
     ("error.decor_full", "The yard holds {limit} decorations. Put one away to make room."),
     ("error.decor_missing", "Couldn't find that decoration."),
-    ("error.gifts_full", "The yard and the gift box are both full. Put a decoration away to make room."),
+    ("error.gifts_full", "The yard is full, and so is the room for gifts waiting in the album. Put a decoration away to make room."),
     ("error.not_allowed", "That can't be done here. Reopen the app."),
     ("error.bad_request", "That couldn't be done. Reopen the app."),
     ("error.request_failed", "Couldn't complete that request."),

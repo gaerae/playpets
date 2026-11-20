@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import './support/content.mjs';
 import { installDom } from './support/dom.mjs';
@@ -49,41 +50,52 @@ function album(ctx, garden) {
   return dom.nodes;
 }
 
-test('the gift box is hidden while empty and its gifts wait while the yard is full', ctx => {
+// A gift waiting in the box is the same gift as any other: there is no box apart from the book, its
+// own card sets it out, and a memento wears its giver's heart on the card, as in the yard.
+test('the gift book has no box apart from it, and says when the yard and the waiting gifts are full', ctx => {
+  assert.doesNotMatch(readFileSync('src/index.html', 'utf8'), /album-box/);
   let nodes = album(ctx, {});
-  assert.equal(nodes.get('album-box').hidden, true);
   assert.equal(nodes.get('album-dig-status').textContent, t('album.gift_rule'));
   nodes = album(ctx, { decor: gifts(12), boxed: gifts(2, { memento: true }) });
-  assert.equal(nodes.get('album-box').hidden, false);
-  assert.equal(nodes.get('album-box-title').textContent, t('album.box_title', { count: 2, limit: 12 }));
-  const items = nodes.get('album-box-items').children;
-  assert.equal(items.length, 2);
-  assert.ok(items.every(b => b.disabled && b.title === t('album.set_out_full')));
-  assert.ok(items[0].classList.contains('memento'));
   assert.equal(nodes.get('album-dig-status').textContent, t('album.gift_full'));
   nodes = album(ctx, { decor: gifts(12), boxed: gifts(12) });
-  assert.equal(nodes.get('album-dig-status').textContent, t('album.gifts_full'), 'says the box is full too');
+  assert.equal(nodes.get('album-dig-status').textContent, t('album.gifts_full'), 'says the waiting gifts are full too');
 });
 
-test('a boxed gift is set out once, near the front of the yard', async ctx => {
-  // The refusal's toast fades on a timer that would outlive the test.
+test('a gift waiting in the box comes out of its own card, a memento marked with its giver', async ctx => {
   ctx.mock.timers.enable({ apis: ['setTimeout'] });
-  const nodes = album(ctx, { decor: gifts(3), boxed: gifts(1) });
-  const [item] = nodes.get('album-box-items').children;
-  assert.equal(item.disabled, false);
-  assert.equal(item.title, t('album.set_out', { kind: t('decor.kind_bench') }));
-  item.onclick();
-  assert.equal(item.disabled, true, 'a second click before the album redraws does nothing');
+  const { GIFTS } = await import('../src/yard/catalog.js');
+  const cardOf = (nodes, kind) => nodes.get('album-grid').children[GIFTS.findIndex(g => g.id === kind)];
+  const heartOf = card => card.children[0].children.find(c => c.classList?.contains('album-heart'));
+  const nodes = album(ctx, {
+    received: ['bench', 'lantern', 'pond'],
+    decor: [{ id: 'l', kind: 'lantern', x: 0.5, y: 0.5, memento: true, from: 'gone' }],
+    boxed: [
+      { id: 'b', kind: 'bench', x: 0.5, y: 0.5, memento: true, from: 'miso' },
+      { id: 'p', kind: 'pond', x: 0.5, y: 0.5 },
+    ],
+  });
+  // Its giver is still in the yard; the lantern's has left.
+  state.data.pets = [{ id: 'miso', name: 'Miso' }];
+  openAlbum('gift');
+  const bench = cardOf(nodes, 'bench'),
+    heart = heartOf(bench);
+  assert.ok(heart, 'a memento in the box has its heart on the card');
+  assert.equal(heart.title, t('album.memento', { name: 'Miso' }));
+  assert.equal(heart.getAttribute('aria-label'), heart.title);
+  assert.equal(heartOf(cardOf(nodes, 'lantern')).title, t('album.memento_plain'), 'one from a friend who left');
+  assert.equal(heartOf(cardOf(nodes, 'pond')), undefined, 'an everyday gift waiting has none');
+  // Waiting in the box is not out: its card sets it out, by the same call as any gift.
+  const setOut = firstButton(bench);
+  assert.equal(setOut.textContent, t('album.take_out'));
+  assert.equal(setOut.getAttribute('aria-pressed'), 'false');
+  setOut.onclick();
   await flush();
-  assert.equal(calls.length, 1);
-  const [id, x, y] = calls[0];
-  assert.equal(id, 'g0');
-  assert.ok(x >= 0.3 && x <= 0.7);
-  assert.equal(y, 0.8);
-  refuse = true;
-  item.onclick();
-  await flush();
-  assert.equal(item.disabled, false, 'a refused set-out can be tried again');
+  assert.deepEqual(
+    calls.map(c => c.slice(0, 2)),
+    [['takeOut', 'bench']],
+  );
+  assert.equal(firstButton(cardOf(nodes, 'pond')).getAttribute('aria-disabled'), 'false');
 });
 
 // What the album keeps can always come back out: a gift put away is set out again from its card.
@@ -108,7 +120,7 @@ test('a gift that came before comes back out of its card, once, unless it is out
   lantern.onclick();
   await flush();
   assert.deepEqual(calls.pop(), ['putAway', 'l']);
-  assert.equal(pond, undefined, 'the box sets that one out');
+  assert.equal(pond.title, t('album.set_out', { kind: t('decor.kind_pond') }), 'the box\u2019s too, from its card');
   assert.equal(flowerpot, undefined, 'one that never came');
   bench.onclick();
   assert.equal(bench.parentNode.dataset.pending, 'true');
@@ -147,17 +159,17 @@ test('a Christmas gift waits in the album until its window or a winter yard', as
   const garden = { received: ['xmas_tree', 'santa'], boxed: [{ id: 's', kind: 'santa', x: 0.5, y: 0.5 }] };
   let nodes = album(ctx, garden);
   let tree = cardOf(nodes, 'xmas_tree'),
-    [santa] = nodes.get('album-box-items').children;
+    santa = cardOf(nodes, 'santa');
   assert.equal(tree.getAttribute('aria-disabled'), 'true');
-  assert.equal(santa.disabled, true);
+  assert.equal(santa.getAttribute('aria-disabled'), 'true');
   for (const button of [tree, santa]) assert.equal(button.title, t('album.shown_christmas'));
   ctx.mock.timers.setTime(new Date(2026, 10, 15, 12).getTime());
   nodes = album(ctx, garden);
   tree = cardOf(nodes, 'xmas_tree');
-  [santa] = nodes.get('album-box-items').children;
+  santa = cardOf(nodes, 'santa');
   assert.equal(tree.getAttribute('aria-disabled'), 'false');
   assert.equal(tree.title, t('album.set_out', { kind: t('decor.kind_xmas_tree') }));
-  assert.equal(santa.disabled, false);
+  assert.equal(santa.getAttribute('aria-disabled'), 'false');
   // Out in the yard but out of sight in July: it can still be put back.
   ctx.mock.timers.setTime(new Date(2026, 6, 1, 12).getTime());
   nodes = album(ctx, { received: ['xmas_tree'], decor: [{ id: 'x', kind: 'xmas_tree', x: 0.5, y: 0.5 }] });

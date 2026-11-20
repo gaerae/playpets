@@ -470,66 +470,6 @@ body.compact .update-compact {
   line-height: 1.4;
   color: var(--muted);
 }
-/* The gift box sits above the gift book: a row of small buttons, one for each gift waiting in it. */
-.album-box {
-  margin: 0 0 10px;
-  padding: 8px 10px 10px;
-  border: 1px solid var(--album-edge);
-  border-radius: var(--radius-card);
-  background: color-mix(in srgb, var(--album-wood) 60%, var(--album-paper));
-}
-.album-box h3 {
-  margin: 0 0 6px;
-  font-size: var(--font-sm);
-  font-weight: 650;
-}
-.album-box-items {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-}
-.album-box-item {
-  position: relative;
-  display: flex;
-  flex: 0 0 auto;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  width: 72px;
-  padding: 4px;
-  border: 1px solid var(--album-edge);
-  border-radius: var(--radius-card);
-  background: var(--album-paper);
-  color: inherit;
-  cursor: pointer;
-}
-.album-box-item:hover:not(:disabled) {
-  border-color: var(--album-gold);
-}
-.album-box-item.memento::after {
-  content: "♥";
-  position: absolute;
-  top: 2px;
-  right: 4px;
-  color: var(--heart);
-  font-size: var(--font-xs);
-}
-.album-box-item:disabled {
-  cursor: default;
-  opacity: 0.6;
-}
-.album-box-item svg {
-  width: 100%;
-  height: 36px;
-}
-.album-box-item small {
-  max-width: 100%;
-  overflow: hidden;
-  font-size: var(--font-xs);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 /* the album draws flowers and gifts from the yard's own symbols, in daylight colours */
 .album-card {
   --soil: #8a6a4a;
@@ -835,6 +775,23 @@ body.compact .update-compact {
   font-weight: 600;
 }
 /* A kind that comes seldom says so in its corner, found or not; found, its card takes a gold edge. */
+/* A friend's memento wears its heart at the drawing's lower corner, as in the yard (garden.css
+   .decor.memento): a disc of the page's paper, clear of the number and the rare tag. */
+.album-heart {
+  position: absolute;
+  top: 72px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--album-paper);
+  box-shadow: 0 1px 2px var(--ink-15);
+  color: var(--heart);
+  font-size: var(--font-xs);
+  line-height: 1;
+}
 .album-rare {
   position: absolute;
   top: 8px;
@@ -1506,6 +1463,11 @@ body.compact .update-compact {
     top: 4px;
     left: auto;
     right: 8px;
+  }
+  .album-heart {
+    top: 44px;
+    right: auto;
+    left: 46px;
   }
   .album-hint {
     margin-bottom: 0;

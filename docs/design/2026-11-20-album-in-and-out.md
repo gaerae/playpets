@@ -33,6 +33,7 @@
 | `+` with the desktop on | The new copy goes on the desktop too | The kind stays where it is shown |
 | Backend | `takeOutFlower`, `takeOutTree` and `takeOutFind` refuse past the album's count (`error.album_all_out`). `takeOut` takes `desktop` too. `albumOnDesktop (book, item, on)` sets every copy at once, saved once | The page's rule holds whatever calls it |
 | Bring back | `pullPlant`, `removeTree` or `putAway` on the last copy, without Undo | `+` sets it out again |
+| Gifts waiting in the box | No box apart from the book. A gift waiting in the box (it came while the yard was full, or a memento or seasonal gift put away) is set out from its own card: `takeOut` sets out the one waiting, keeping its giver and heart. A memento's card wears its heart (`.album-heart`), titled with its giver | The box held the same gifts as the cards, above the book, and took room for nothing; the heart tells a memento apart, as in the yard |
 | Notices | Every line has a close button and closes on a press anywhere on it; its words cannot be selected. Closing an Undo line keeps the removal and saves it now. The card for something found already closed both ways; its words cannot be selected either | One way to close; closing means done |
 
 ## Approaches
@@ -47,5 +48,6 @@
 
 - Desktop off leaves things in the yard (the person's choice).
 - A built kind (a snowman) keeps its old card: it is built in the snow, never set out.
-- A gift kept in the box goes back to the box when put back, as Put away does.
+- A gift kept in the box goes back to the box when put back, as Put away does, and its card sets it out again.
+- The box keeps its limit of 12 waiting gifts; the gift book's status line says when both it and the yard are full.
 - The words follow the yard's menus: the desktop button's title says Show on desktop and Take off the desktop, as a thing's own menu does.

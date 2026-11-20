@@ -867,10 +867,15 @@ impl Garden {
         Ok(decor)
     }
 
-    /// Sets down again, at (x, y), a kind of gift that came before and was put away: what the album
-    /// keeps can always come back out. One that is in the yard or waiting in the box already is not
-    /// taken out twice.
+    /// Sets down again, at (x, y), a kind of gift that came before: what the album keeps can always
+    /// come back out. One waiting in the box is that gift, set out with its giver and its heart; one
+    /// in the yard already is not taken out twice.
+    /// Design: docs/design/2026-11-20-album-in-and-out.md.
     pub fn take_out(&mut self, kind: &str, x: f64, y: f64, now: u64) -> Result<Decor, String> {
+        if let Some(waiting) = self.boxed.iter().find(|d| d.kind == kind) {
+            let id = waiting.id.clone();
+            return self.set_out(&id, x, y);
+        }
         let Some((x, y)) = decor_place(x, y) else {
             return Err(i18n::t("error.bad_request"));
         };
@@ -878,7 +883,7 @@ impl Garden {
             return Err(i18n::t("error.decor_missing"));
         }
         // A built kind is built again, never set out; its put-away is a melt.
-        if catalog().is_built(kind) || self.decor.iter().chain(&self.boxed).any(|d| d.kind == kind) {
+        if catalog().is_built(kind) || self.decor.iter().any(|d| d.kind == kind) {
             return Err(i18n::t("error.bad_request"));
         }
         if self.decor.len() >= DECOR_MAX {
@@ -1192,12 +1197,40 @@ mod tests {
             .collect();
         assert!(g.take_out("bench", 0.4, 0.8, 2).is_err(), "a full yard");
         g.decor.clear();
+        // One waiting in the box is that same gift: its card sets it out, giver and heart kept.
         g.boxed.push(Decor {
             id: "boxed".into(),
             kind: "bench".into(),
+            from: Some("miso".into()),
+            memento: true,
+            came_at: 1,
             ..Decor::default()
         });
-        assert!(g.take_out("bench", 0.4, 0.8, 2).is_err(), "the box sets that one out");
+        let waited = g.take_out("bench", 0.4, 0.8, 2).unwrap();
+        assert_eq!(
+            (
+                waited.id.as_str(),
+                waited.from.as_deref(),
+                waited.memento,
+                waited.came_at,
+                waited.x,
+                waited.y
+            ),
+            ("boxed", Some("miso"), true, 1, 0.4, 0.8)
+        );
+        assert!(g.boxed.is_empty() && g.decor.len() == 1);
+        assert!(g.take_out("bench", 0.4, 0.8, 2).is_err(), "out already");
+        // Not while the yard is full: it waits on.
+        g.put_away("boxed").unwrap();
+        g.decor = (0..DECOR_MAX)
+            .map(|i| Decor {
+                id: i.to_string(),
+                kind: "lantern".into(),
+                ..Decor::default()
+            })
+            .collect();
+        assert!(g.take_out("bench", 0.4, 0.8, 2).is_err());
+        assert_eq!(g.boxed.len(), 1);
     }
 
     #[test]
