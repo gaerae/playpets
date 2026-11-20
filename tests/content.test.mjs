@@ -31,7 +31,7 @@ test('every kind in every album book has its name, and every gift its lines, in 
     ...ALBUM_BOOKS.flatMap(book => catalog[book].map(kind => nameKey(book, kind.id))),
     ...catalog.gifts.map(g => `decor.visit_${g.id}`),
     // A find out is named for the find; its visit lines are its own.
-    ...catalog.displays.map(d => `decor.visit_${d.id}`),
+    ...catalog.findsOut.map(d => `decor.visit_${d.id}`),
     ...catalog.garden.stages.map(s => `garden.stage_${s.name}`),
   ];
   for (const lang of LANGUAGES) for (const key of keys) assert.ok(STRINGS[lang][key], `${lang}: ${key}`);

@@ -168,7 +168,7 @@
   transform: none;
 }
 
-/* A find out of the album on its own (yard/display.js): its painting in its slot, kept in
+/* A find out of the album on its own (yard/find-out.js): its painting in its slot, kept in
    proportion and centred, with no shadow under it. A fish floats a little, turned a little, and on
    the desktop swims when poked, letting out its bubbles (overlay.css). */
 .decor .held-layer {
@@ -220,7 +220,7 @@
   height: 4px;
 }
 
-/* A treasure's sparkles (yard/display.js), unseen until it is poked on the desktop (overlay.css):
+/* A treasure's sparkles (yard/find-out.js), unseen until it is poked on the desktop (overlay.css):
    three little four-pointed stars by its top. */
 .decor .sparkle {
   position: absolute;

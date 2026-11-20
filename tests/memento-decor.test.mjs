@@ -79,7 +79,7 @@ for (const [boxed, key] of [
   });
 }
 
-// A find out of the album is named for the find it holds when put away (display.js).
+// A find out of the album is named for the find it holds when put away (find-out.js).
 test('a fish out put away is named for the fish', async ctx => {
   const { nodes, buttons } = yard(ctx, {
     decor: [{ id: 'f1', kind: 'fish_out', x: 0.3, y: 0.5, holds: ['goldfish'] }],

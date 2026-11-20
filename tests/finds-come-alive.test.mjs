@@ -1,6 +1,6 @@
 // Finds out of the album come alive: a fish's size follows its length, every find answers a poke on
 // the desktop in its own way, friends who visit one name it, and sixteen new entries join the album
-// (src/yard/display.js, src/overlay/poke.js; docs/design/2026-11-20-finds-come-alive.md).
+// (src/yard/find-out.js, src/overlay/poke.js; docs/design/2026-11-20-finds-come-alive.md).
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -10,7 +10,7 @@ import { element } from './support/dom.mjs';
 globalThis.playPets = {};
 const { STRINGS, loadStrings } = await import('../src/core/strings.js');
 const { list, t } = await import('../src/core/i18n.js');
-const { findScale, heldLayers, pokeOf, visitLines } = await import('../src/yard/display.js');
+const { findScale, heldLayers, pokeOf, visitLines } = await import('../src/yard/find-out.js');
 const { giftSize } = await import('../src/yard/props.js');
 const { poke } = await import('../src/overlay/poke.js');
 

@@ -76,16 +76,16 @@ test('a flower the album has comes out in bloom, into the yard or onto the deskt
   const [method, out, x, y] = calls[0];
   assert.deepEqual([method, out, y], ['takeOutFlower', kind, 0.8]);
   assert.ok(x >= 0.3 && x <= 0.7);
-  // On the desktop: taken out, then sent out by the id it came back with.
+  assert.equal(calls[0][4], false, 'into the yard only');
+  // On the desktop too: the same call, which also puts it out, so it is saved once.
   nodes = album(ctx, 'flower', { album: { flowers: { [kind]: { count: 1, best: 0, first: 1 } } } });
   buttonsOf(nodes, 0)[1].onclick();
   await flush();
   await flush();
   assert.deepEqual(
-    calls.map(c => c[0]),
-    ['takeOutFlower', 'setOnDesktop'],
+    calls.map(c => [c[0], c[1], c.at(-1)]),
+    [['takeOutFlower', kind, true]],
   );
-  assert.deepEqual(calls[1].slice(1), ['p1', true]);
   // Refused: both can be tried again.
   nodes = album(ctx, 'flower', { album: { flowers: { [kind]: { count: 1, best: 0, first: 1 } } } });
   refuse = true;
@@ -93,7 +93,7 @@ test('a flower the album has comes out in bloom, into the yard or onto the deskt
   again[0].onclick();
   await flush();
   assert.ok(!again[0].disabled && !again[1].disabled);
-  // A full field says so, on both (the frame beside them is the yard's gifts', album-display.test.mjs).
+  // A full field says so, on both (the frame beside them is the yard's gifts', album-finds-out.test.mjs).
   nodes = album(ctx, 'flower', {
     album: { flowers: { [kind]: { count: 1, best: 0, first: 1 } } },
     garden: { plants: many(24, { kind }) },
@@ -125,12 +125,11 @@ test('a tree the album has comes out mature on free soil of the current place, w
   await flush();
   assert.deepEqual(
     calls.map(c => c[0]),
-    ['takeOutTree', 'setOnDesktop'],
+    ['takeOutTree'],
   );
-  const [, world, out, x, y, ground] = calls[0];
-  assert.deepEqual([world, out], [scene.world, kind]);
+  const [, world, out, x, y, ground, desktopToo] = calls[0];
+  assert.deepEqual([world, out, desktopToo], [scene.world, kind, true]);
   assert.ok(groundAllows({ x, y }, ground, { planting: true }), 'a spot the ground allows for planting');
-  assert.deepEqual(calls[1].slice(1), ['t1', true]);
   // Six trees fill the yard, wherever they were planted.
   nodes = album(ctx, 'tree', { album: found, garden: { trees: many(6, { kind, world: 'elsewhere', stage: 2 }) } });
   for (const button of buttonsOf(nodes, 0)) {

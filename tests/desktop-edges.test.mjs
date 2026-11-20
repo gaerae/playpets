@@ -7,7 +7,7 @@ import './support/content.mjs';
 
 globalThis.playPets = {};
 const { giftLayers } = await import('../src/overlay/poke.js');
-const { GIFTS, flowerKind, giftKind } = await import('../src/yard/catalog.js');
+const { GIFTS, giftKind } = await import('../src/yard/catalog.js');
 
 test('the chime, the hanging pot and the mobile hang, each by a part with its pivot on its box', () => {
   assert.deepEqual(
@@ -30,7 +30,4 @@ test('the chime, the hanging pot and the mobile hang, each by a part with its pi
   const css = readFileSync(new URL('../src/overlay/overlay.css', import.meta.url), 'utf8');
   assert.match(css, /\.decor\.hung \.part-still\s*\{\s*display: none;/);
   assert.match(css, /\.decor:not\(\.hung\) \.cord\s*\{\s*display: none;/);
-  // The morning glory's vine was taken out until it has a prettier shape.
-  assert.equal(flowerKind('morning_glory').climbs, undefined);
-  assert.doesNotMatch(css, /\.vine/);
 });

@@ -189,8 +189,8 @@ pub struct Catalog {
     gifts: Vec<Kind>,
     /// A find from the album out on its own (a fish, a bug, a treasure): set out as a gift is, but
     /// made from an album card, never brought (docs/design/2026-11-19-album-finds-out.md).
-    #[serde(default)]
-    displays: Vec<Kind>,
+    #[serde(default, rename = "findsOut")]
+    finds_out: Vec<Kind>,
     fish: Vec<Fish>,
     bugs: Vec<Kind>,
     #[serde(default)]
@@ -377,30 +377,29 @@ impl Catalog {
         self.decor_kind(id)
             .is_some_and(|k| k.shown.is_some() || !k.seasons.is_empty())
     }
-    /// A gift or a display, as the yard sets either out.
+    /// A gift or a find out, as the yard sets either out.
     fn decor_kind(&self, id: &str) -> Option<&Kind> {
-        self.gifts.iter().chain(&self.displays).find(|k| k.id == id)
+        self.gifts.iter().chain(&self.finds_out).find(|k| k.id == id)
     }
-    /// Whether the yard can hold this: a gift or a display.
+    /// Whether the yard can hold this: a gift or a find out.
     pub fn is_decor(&self, id: &str) -> bool {
         self.decor_kind(id).is_some()
     }
     /// The kind a find from this album book comes out as.
-    pub fn display_for(&self, book: &str) -> Option<&str> {
-        let k = self.displays.iter().find(|k| k.holds.as_deref() == Some(book))?;
+    pub fn find_out_for(&self, book: &str) -> Option<&str> {
+        let k = self.finds_out.iter().find(|k| k.holds.as_deref() == Some(book))?;
         Some(k.id.as_str())
     }
     /// The album book a find out holds from; None for a gift.
-    pub fn display_of(&self, id: &str) -> Option<&str> {
-        self.displays.iter().find(|k| k.id == id)?.holds.as_deref()
+    pub fn book_of(&self, id: &str) -> Option<&str> {
+        self.finds_out.iter().find(|k| k.id == id)?.holds.as_deref()
     }
-    /// Whether this album book has this kind, as a display can hold it.
+    /// Whether this album book has this kind, as a find out can hold it.
     pub fn holds(&self, book: &str, id: &str) -> bool {
         match book {
             "fish" => self.fish_max(id).is_some(),
             "bug" => self.is_bug(id),
             "treasure" => self.treasures.iter().any(|t| t.id == id),
-            "flower" => self.is_flower(id),
             _ => false,
         }
     }
@@ -423,13 +422,11 @@ impl Catalog {
     }
     /// Whether friends stand on this gift (a bench, a swing, a blanket) rather than beside it.
     pub fn stood_on(&self, id: &str) -> bool {
-        self.gifts
-            .iter()
-            .any(|k| k.id == id && k.stand.as_deref() == Some("on"))
+        self.decor_kind(id).is_some_and(|k| k.stand.as_deref() == Some("on"))
     }
     /// Whether this gift hangs from the top of a screen when set down there.
     pub fn hangs(&self, id: &str) -> bool {
-        self.gifts.iter().any(|k| k.id == id && k.hangs)
+        self.decor_kind(id).is_some_and(|k| k.hangs)
     }
     /// Whether this gift is built in the yard, not brought by a friend (the snowman).
     pub fn is_built(&self, id: &str) -> bool {
@@ -453,9 +450,9 @@ impl Catalog {
     }
     /// How much bigger than its book's box a find out is drawn: a fish by its longest length, on a
     /// log scale from a killifish's 4 cm (0.7) to a sturgeon's 150 cm (1.45); 1 for anything else.
-    /// The page draws it the same (display.js findScale).
+    /// The page draws it the same (find-out.js findScale).
     pub fn find_scale(&self, kind: &str, holds: &[String]) -> f64 {
-        let fish = (self.display_of(kind) == Some("fish"))
+        let fish = (self.book_of(kind) == Some("fish"))
             .then(|| holds.first())
             .flatten()
             .and_then(|id| self.fish_max(id));
@@ -501,26 +498,26 @@ mod tests {
     }
 
     #[test]
-    fn each_album_book_has_one_display_and_displays_are_not_gifts() {
+    fn each_album_book_with_finds_out_has_one_kind_for_them_and_none_is_a_gift() {
         let c = catalog();
         for (book, kind) in [("fish", "fish_out"), ("bug", "bug_out"), ("treasure", "treasure_out")] {
-            assert_eq!(c.display_for(book), Some(kind), "{book}");
-            assert_eq!(c.display_of(kind), Some(book), "{kind}");
+            assert_eq!(c.find_out_for(book), Some(kind), "{book}");
+            assert_eq!(c.book_of(kind), Some(book), "{kind}");
             assert!(c.is_decor(kind) && !c.is_gift(kind), "{kind}");
             assert!(!c.gifts().contains(&kind), "{kind} is not brought");
             assert!(c.gift_size(kind).is_some(), "{kind} has a size");
         }
-        assert_eq!(c.display_for("flower"), None, "a flower comes out of its own card");
-        assert_eq!(c.display_for("gift"), None);
-        assert_eq!(c.display_of("bench"), None);
+        assert_eq!(c.find_out_for("flower"), None, "a flower comes out of its own card");
+        assert_eq!(c.find_out_for("gift"), None);
+        assert_eq!(c.book_of("bench"), None);
         assert!(c.is_decor("bench"));
         assert!(c.holds("fish", "crucian") && c.holds("bug", "firefly"));
-        assert!(c.holds("treasure", "quartz") && c.holds("flower", "tulip"));
+        assert!(c.holds("treasure", "quartz") && !c.holds("flower", "tulip"));
         assert!(!c.holds("fish", "firefly") && !c.holds("gift", "bench") && !c.holds("flower", "nothing"));
     }
 
     // A fish out is drawn by its length: from a killifish (4 cm at most) to a sturgeon (150 cm),
-    // on a log scale, the same as the page (display.js findScale).
+    // on a log scale, the same as the page (find-out.js findScale).
     #[test]
     fn a_fish_out_is_sized_by_its_length_and_other_finds_by_their_book() {
         let c = catalog();

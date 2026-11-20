@@ -3,7 +3,7 @@
 // minute changes. A friend walking streams places many times a second; none of this runs for those.
 
 import { loadArt } from '../yard/art.js';
-import { displayName, heldArt } from '../yard/display.js';
+import { decorName, heldArt } from '../yard/find-out.js';
 import { drawGrowing, growing, growingArt } from './growing.js';
 import { giftLayers } from './poke.js';
 import { wear, wearArt } from './wear.js';
@@ -38,7 +38,7 @@ export async function drawDecor(view, garden, season, night = () => []) {
     // Under what it wears, which wear.js adds after it; a lit gift's light and a moving part with it
     // (poke.js).
     view.button.insertAdjacentHTML('afterbegin', giftLayers(view.kind, holds));
-    view.button.title = displayName(view.kind, holds);
+    view.button.title = decorName(view.kind, holds);
     view.button.setAttribute('aria-label', view.button.title);
   }
   dressDecor(view, garden(), season(), new Date(), night());

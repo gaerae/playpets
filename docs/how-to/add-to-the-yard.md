@@ -141,14 +141,16 @@ Every album book is a list in `src/content/catalog.json`; its kinds are named by
 
 ### Let an album book's finds come out
 A fish, a bug or a treasure comes out of its album card on its own: a kind with no drawing of its own that holds one find, set out as a gift is ([design](../design/2026-11-19-album-finds-out.md)).
-1. Add an entry to `displays` in `src/content/catalog.json`, with a gift's `size` and `foot` but no `art` or `shade`, and:
+1. Add an entry to `findsOut` in `src/content/catalog.json`, with a gift's `size` and `foot` but no `art` or `shade`, and:
 
    | Key | Meaning |
    |---|---|
-   | `holds` | The album book it holds from: `fish`, `bug` or `treasure`. One kind per book (`display_for` in `pets/content.rs`) |
-   | `slots` | Where the find is drawn, one `[x, y, width, height]` as shares of its box (`src/yard/display.js`) |
+   | `holds` | The album's book it holds from, as the album names it: `fish`, `bug` or `treasure`. One kind per book (`find_out_for` in `pets/content.rs`) |
+   | `list` | The catalogue list its finds are in (`fish`, `bugs`, `treasures`); they are looked up and named from it (`src/yard/find-out.js`) |
+   | `poke` (optional) | How its finds answer a click on the desktop, when not by their own `poke` or, for a bug, by its `kind`: a motion `src/overlay/overlay.css` draws, such as `swim` or `twinkle` |
+   | `slots` | Where the find is drawn, one `[x, y, width, height]` as shares of its box |
 
-2. Add the book's names to `NAMES` in `src/yard/display.js` and point its album book's `action` in `src/panel/album.js` at `displayButtons` (`src/panel/album-display.js`).
+2. Point its album book's `action` in `src/panel/album.js` at `findButtons` (`src/panel/album-actions.js`), and add its book to `holds` in `pets/content.rs` and `take_out_find` in `pets/garden.rs`.
 3. Add `decor.visit_<id>` to every string table: what friends say when they visit it. A find out is named for the find, so it needs no `decor.kind_<id>`.
 
 ### Drawings

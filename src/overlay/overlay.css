@@ -103,7 +103,7 @@ body {
 .decor:not(.hung) .cord {
   display: none;
 }
-/* A fish out (yard/display.js) swims ahead, turns, swims back past the middle and turns to face
+/* A fish out (yard/find-out.js) swims ahead, turns, swims back past the middle and turns to face
    ahead again. The album's fish face right. Three bubbles rise from where it set off, one after
    another, each gone before the swim ends. */
 .decor .held.moving[data-motion="swim"] {
@@ -145,7 +145,7 @@ body {
     scale: 1 1;
   }
 }
-/* Every other find answers a poke its own way (display.js pokeOf), once, in a second or two: a
+/* Every other find answers a poke its own way (find-out.js pokeOf), once, in a second or two: a
    butterfly or a moth flaps, a dragonfly darts ahead (the album's bugs face up), a firefly blinks,
    a beetle or a cricket hops; a treasure sparkles and a locket sways. */
 .decor .held.moving[data-motion="flutter"] {

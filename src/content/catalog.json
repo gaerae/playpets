@@ -893,9 +893,11 @@
       "seasons": ["winter"]
     }
   ],
-  "displays": [
+  "findsOut": [
     {
       "id": "fish_out",
+      "list": "fish",
+      "poke": "swim",
       "size": [84, 54],
       "foot": 1,
       "holds": "fish",
@@ -903,6 +905,7 @@
     },
     {
       "id": "bug_out",
+      "list": "bugs",
       "size": [52, 46],
       "foot": 0.98,
       "holds": "bug",
@@ -910,6 +913,8 @@
     },
     {
       "id": "treasure_out",
+      "list": "treasures",
+      "poke": "twinkle",
       "size": [44, 44],
       "foot": 0.98,
       "holds": "treasure",

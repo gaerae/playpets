@@ -16,7 +16,7 @@ import { applyStatus, fadedBetween, stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
 import { every, everyMinute, halt, moveTo } from '../core/ticker.js';
 import { useCatalog } from '../yard/catalog.js';
-import { displayKind, visitLines } from '../yard/display.js';
+import { findOutKind, visitLines } from '../yard/find-out.js';
 import { periodFor } from '../yard/scene.js';
 import { ring } from './chime.js';
 import { dressDecor, drawDecor } from './decor-view.js';
@@ -403,7 +403,7 @@ api.onEvent(event => {
     if (event.type === 'visit') {
       // A find out is named by what it holds, which the garden keeps under its id.
       const holds = data.garden?.decor?.find(d => d.id === event.decorId)?.holds;
-      say(v, pick(displayKind(event.kind) ? visitLines(event.kind, holds) : list(visitKey(event.kind))) || '');
+      say(v, pick(findOutKind(event.kind) ? visitLines(event.kind, holds) : list(visitKey(event.kind))) || '');
     }
     if (event.type === 'status') {
       v.status = stateOf(data, id);

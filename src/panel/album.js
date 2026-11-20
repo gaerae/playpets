@@ -4,9 +4,7 @@
 // The ones found show how many (and the biggest fish); the others are silhouettes with when and
 // where to look, so there is always a next one. What there is to find is the catalogue's.
 import { closeOnBackdrop } from '../core/confirm.js';
-import { desktopTip } from '../core/controls.js';
 import { joinList, joinSentences, language, t } from '../core/i18n.js';
-import { icons } from '../core/icons.js';
 import { limit } from '../core/limits.js';
 import { systemSouth } from '../core/season.js';
 import { $, call, data, toast } from '../core/state.js';
@@ -35,7 +33,7 @@ import { SECRETS } from '../yard/secrets.js';
 import { printSpecimen, tailPeek } from '../yard/trail-art.js';
 import { scene } from '../yard/world.js';
 import { worldFor, worldHasSoil } from '../yard/worlds.js';
-import { displayButtons } from './album-display.js';
+import { findButtons, landing, setOutRow } from './album-actions.js';
 
 // When and where a fish or a bug is found: "Summer, Evening, Night, at the lake".
 function when(kind, where) {
@@ -115,7 +113,7 @@ const BOOKS = {
       ]),
     record: entry => caughtLine(entry, true),
     rare,
-    action: k => displayButtons('fish', k.id),
+    action: k => findButtons('fish', k.id),
   },
   bug: {
     tab: 'catch.tab_bugs',
@@ -131,7 +129,7 @@ const BOOKS = {
       ]),
     record: entry => caughtLine(entry, false),
     rare,
-    action: k => displayButtons('bug', k.id),
+    action: k => findButtons('bug', k.id),
   },
   gift: {
     tab: 'catch.tab_gifts',
@@ -165,7 +163,7 @@ const BOOKS = {
     hint: favored('album.treasure_how'),
     record: entry => caughtLine(entry, false),
     rare: k => k.rarity === 'uncommon',
-    action: k => displayButtons('treasure', k.id),
+    action: k => findButtons('treasure', k.id),
   },
   // Winter animals whose prints a friend followed: the print is the clue, the tail what was seen.
   track: {
@@ -275,7 +273,7 @@ function takeOutButton(kind) {
   button.onclick = () => {
     // Taken out once: a second click before the album redraws would find it out already.
     button.disabled = true;
-    call('takeOut', kind, 0.3 + Math.random() * 0.4, 0.8).catch(error => {
+    call('takeOut', kind, ...landing()).catch(error => {
       button.disabled = false;
       toast(spoken(error, t('error.generic')), { error: true });
     });
@@ -289,7 +287,6 @@ function takeOutButton(kind) {
 function growingButtons(book, kind) {
   const garden = data.garden || {},
     tree = book === 'tree',
-    name = t(tree ? `tree.${kind}` : `garden.kind_${kind}`),
     most = limit(data, tree ? 'trees' : 'plants'),
     full = ((tree ? garden.trees : garden.plants)?.length ?? 0) >= most,
     why =
@@ -297,44 +294,14 @@ function growingButtons(book, kind) {
         ? t('album.tree_soil')
         : full
           ? t(tree ? 'album.trees_full' : 'album.flowers_full', { limit: most })
-          : '',
-    row = document.createElement('div');
-  row.className = 'album-actions';
-  for (const desktop of [false, true]) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    // The desktop one is a small screen beside Set out: two words each would not fit a card's width.
-    button.className = desktop ? 'album-take-out album-to-desktop' : 'album-take-out';
-    if (desktop) {
-      button.innerHTML = '<span data-icon="monitor"></span>';
-      icons(button);
-    } else button.textContent = t('album.take_out');
-    button.disabled = !!why;
-    button.title = why || t(desktop ? 'album.set_out_desktop' : 'album.set_out', { kind: name });
-    button.setAttribute('aria-label', button.title);
-    button.onclick = () => {
-      // Taken out once a click: a second before the album redraws would take out another.
-      const both = row.children;
-      for (const b of both) b.disabled = true;
-      takeOutGrowing(tree, kind, desktop).catch(error => {
-        for (const b of both) b.disabled = false;
-        toast(spoken(error, t('error.generic')), { error: true });
-      });
-    };
-    row.append(button);
-  }
-  return row;
+          : '';
+  return setOutRow(t(nameKey(tree ? 'trees' : 'flowers', kind)), why, desktop => takeOutGrowing(tree, kind, desktop));
 }
-async function takeOutGrowing(tree, kind, desktop) {
-  let item;
-  if (tree) {
-    const spot = treeSpot();
-    if (!spot) throw Object.assign(new Error(t('album.tree_no_room')), { spoken: true });
-    item = await call('takeOutTree', scene.world, kind, spot.point.x, spot.point.y, spot.ground);
-  } else item = await call('takeOutFlower', kind, 0.3 + Math.random() * 0.4, 0.8);
-  if (!desktop || !item?.id) return;
-  await call('setOnDesktop', item.id, true);
-  desktopTip();
+function takeOutGrowing(tree, kind, desktop) {
+  if (!tree) return call('takeOutFlower', kind, ...landing(), desktop);
+  const spot = treeSpot();
+  if (!spot) return Promise.reject(Object.assign(new Error(t('album.tree_no_room')), { spoken: true }));
+  return call('takeOutTree', scene.world, kind, spot.point.x, spot.point.y, spot.ground, desktop);
 }
 // The gift box, in the gift book: gifts that came while the yard was full, and mementos put away.
 // Each is set out near the front of the yard, from where the person drags it on.
@@ -364,7 +331,7 @@ function renderBox(open) {
       button.onclick = () => {
         // Set out once: a second click before the album redraws would find it gone.
         button.disabled = true;
-        call('setOut', d.id, 0.3 + Math.random() * 0.4, 0.8).catch(error => {
+        call('setOut', d.id, ...landing()).catch(error => {
           button.disabled = false;
           toast(spoken(error, t('error.generic')), { error: true });
         });

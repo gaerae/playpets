@@ -184,7 +184,7 @@ pub struct Decor {
         skip_serializing_if = "Vec::is_empty"
     )]
     pub dress: Vec<String>,
-    /// The find a find out holds, by its album id (catalog.json displays).
+    /// The find a find out holds, by its album id (catalog.json findsOut).
     #[serde(
         default,
         deserialize_with = "super::or_default",
@@ -293,7 +293,7 @@ fn tidy(d: &mut Decor) {
         .map(String::from)
         .collect();
     // A find out keeps the first find its book has, and only that; a gift holds nothing.
-    let book = catalog().display_of(&d.kind).unwrap_or_default();
+    let book = catalog().book_of(&d.kind).unwrap_or_default();
     let kept = d.holds.drain(..).find(|id| catalog().holds(book, id));
     d.holds = kept.into_iter().collect();
 }
@@ -371,7 +371,7 @@ impl Garden {
         );
         decor.iter_mut().for_each(tidy);
         // A find out holding nothing has nothing to show.
-        decor.retain(|d| catalog().display_of(&d.kind).is_none() || !d.holds.is_empty());
+        decor.retain(|d| catalog().book_of(&d.kind).is_none() || !d.holds.is_empty());
         let mut received: Vec<String> = Vec::new();
         for kind in raw.get("received").and_then(Value::as_array).into_iter().flatten() {
             if let Some(kind) = kind.as_str()
@@ -856,7 +856,7 @@ impl Garden {
     /// Sets a find from the album (`book`: fish, bug or treasure; `item`, one the album has) out on
     /// its own at (x, y), one more each time. It is one of the yard's gifts and nothing is spent.
     /// Design: docs/design/2026-11-19-album-finds-out.md.
-    pub fn display(
+    pub fn take_out_find(
         &mut self,
         album: &Album,
         book: &str,
@@ -873,7 +873,7 @@ impl Garden {
                 "treasure" => album.treasures.contains_key(item),
                 _ => false,
             };
-        let (Some(kind), Some((x, y)), true) = (catalog().display_for(book), decor_place(x, y), found) else {
+        let (Some(kind), Some((x, y)), true) = (catalog().find_out_for(book), decor_place(x, y), found) else {
             return Err(i18n::t("error.bad_request"));
         };
         if self.decor.len() >= DECOR_MAX {
@@ -1364,11 +1364,11 @@ mod tests {
         let mut album = Album::default();
         let now = 5_000_000_000;
         assert!(
-            g.display(&album, "fish", "crucian", 0.5, 0.8, now).is_err(),
+            g.take_out_find(&album, "fish", "crucian", 0.5, 0.8, now).is_err(),
             "not caught yet"
         );
         album.catch("fish", "crucian", 20.0, 1).unwrap();
-        let fish = g.display(&album, "fish", "crucian", 0.5, 0.8, now).unwrap();
+        let fish = g.take_out_find(&album, "fish", "crucian", 0.5, 0.8, now).unwrap();
         assert_eq!(
             (fish.kind.as_str(), fish.holds.clone()),
             ("fish_out", vec!["crucian".to_string()])
@@ -1376,15 +1376,18 @@ mod tests {
         assert_eq!(fish.came_at, now);
         assert!(g.received.is_empty(), "a find out is not a gift that came");
         // Two of one fish are fine, each on its own.
-        let again = g.display(&album, "fish", "crucian", 0.4, 0.8, now).unwrap();
+        let again = g.take_out_find(&album, "fish", "crucian", 0.4, 0.8, now).unwrap();
         assert_ne!(again.id, fish.id);
-        assert!(g.display(&album, "nothing", "crucian", 0.5, 0.8, now).is_err());
-        assert!(g.display(&album, "fish", "crucian", f64::NAN, 0.8, now).is_err());
+        assert!(g.take_out_find(&album, "nothing", "crucian", 0.5, 0.8, now).is_err());
+        assert!(g.take_out_find(&album, "fish", "crucian", f64::NAN, 0.8, now).is_err());
         // A find the album keeps but this catalogue no longer has would take a place with nothing to draw.
         let newer = Album::restore(Some(
             &json!({"treasures": {"future_stone": {"count": 1, "best": 0.0, "first": 7}}}),
         ));
-        assert!(g.display(&newer, "treasure", "future_stone", 0.5, 0.8, now).is_err());
+        assert!(
+            g.take_out_find(&newer, "treasure", "future_stone", 0.5, 0.8, now)
+                .is_err()
+        );
         // A treasure and a bug come out on their own too, one each time.
         album.treasures.insert(
             "quartz".to_string(),
@@ -1397,24 +1400,26 @@ mod tests {
         album.catch("bug", "firefly", 0.0, 1).unwrap();
         for _ in 0..2 {
             assert_eq!(
-                g.display(&album, "treasure", "quartz", 0.5, 0.8, now).unwrap().holds,
+                g.take_out_find(&album, "treasure", "quartz", 0.5, 0.8, now)
+                    .unwrap()
+                    .holds,
                 ["quartz"]
             );
         }
         assert_eq!(
-            g.display(&album, "bug", "firefly", 0.5, 0.8, now).unwrap().kind,
+            g.take_out_find(&album, "bug", "firefly", 0.5, 0.8, now).unwrap().kind,
             "bug_out"
         );
         assert_eq!(g.decor.iter().filter(|d| d.kind == "treasure_out").count(), 2);
         // A flower comes out of its own card, never through here.
         album.flowered("tulip", 1);
-        assert!(g.display(&album, "flower", "tulip", 0.5, 0.8, now).is_err());
+        assert!(g.take_out_find(&album, "flower", "tulip", 0.5, 0.8, now).is_err());
         // One of the yard's gifts, not kept in the box when put away.
         while g.decor.len() < DECOR_MAX {
-            g.display(&album, "fish", "crucian", 0.5, 0.8, now).unwrap();
+            g.take_out_find(&album, "fish", "crucian", 0.5, 0.8, now).unwrap();
         }
         assert!(
-            g.display(&album, "fish", "crucian", 0.5, 0.8, now).is_err(),
+            g.take_out_find(&album, "fish", "crucian", 0.5, 0.8, now).is_err(),
             "the yard is full"
         );
         let out = g.decor.iter().find(|d| d.kind == "fish_out").unwrap().id.clone();

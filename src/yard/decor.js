@@ -21,7 +21,6 @@ import { showCard } from './card.js';
 import { giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
 import { decorShown, hiddenKinds, yardSeason } from './decor-shown.js';
-import { displayEffects, displayKind, displayName, heldLayers, visitLines } from './display.js';
 import { dressLayers } from './dress-layers.js';
 import { effectLayers, effectsVisited } from './effects.js';
 import { giftEvent } from './events.js';
@@ -37,6 +36,7 @@ import {
   standAt,
   yardToDecor,
 } from './field.js';
+import { findOutEffects, findOutKind, decorName, heldLayers, visitLines } from './find-out.js';
 import { FIRST_GIFT, GIFT_WAIT, giftDue, giftWait, localDay } from './growth.js';
 import {
   beginDrag,
@@ -127,8 +127,8 @@ function position(v, x, y) {
 function create(d) {
   const button = propButton('decor', d.kind),
     gift = giftKind(d.kind),
-    // A firefly out glows as a lit gift does (display.js).
-    effects = [...(gift?.effects || []), ...displayEffects(d.kind, d.holds)];
+    // A firefly out glows as a lit gift does (find-out.js).
+    effects = [...(gift?.effects || []), ...findOutEffects(d.kind, d.holds)];
   if (effects.length) button.dataset.effects = effects.join(' ');
   button.innerHTML = `${effectLayers(effects)}${gift?.art ? artSvg(gift.art) : ''}`;
   // A drawing with no ground of its own stands on a contact shade, under it (garden.css); one on
@@ -154,8 +154,8 @@ function create(d) {
     for (const node of [shade, ...feet]) button.insertBefore(node, first);
   }
   const v = { id: d.id, kind: d.kind, button, drag: null, busy: false, dressLayer: null, worn: null, heldLayer: null };
-  // The find a kind out holds (display.js); the update fills it.
-  if (displayKind(d.kind)) {
+  // The find a kind out holds (find-out.js); the update fills it.
+  if (findOutKind(d.kind)) {
     v.heldLayer = document.createElement('span');
     v.heldLayer.className = 'held-layer';
     button.append(v.heldLayer);
@@ -294,7 +294,7 @@ export function renderDecor() {
     if (until > now) fadeAt = Math.min(fadeAt, until);
     v.button.classList.toggle('memento-new', until > now);
     const from = d.memento && data.pets.find(p => p.id === d.from);
-    const kind = v.heldLayer ? displayName(d.kind, d.holds) : shownName(d.kind, v.button);
+    const kind = v.heldLayer ? decorName(d.kind, d.holds) : shownName(d.kind, v.button);
     const label = from
       ? t('decor.memento_title', { name: name(from), kind })
       : t(opensView(d.kind) ? 'decor.title_decorate' : 'decor.title', { kind });
@@ -405,7 +405,7 @@ export function putAway(id) {
   // A snowman is not kept: it melts (garden.rs put_away).
   const done = giftKind(d.kind)?.built
     ? t('decor.snowman_put_away')
-    : t(boxed ? 'decor.memento_put_away' : 'decor.put_away_done', { kind: displayName(d.kind, d.holds) });
+    : t(boxed ? 'decor.memento_put_away' : 'decor.put_away_done', { kind: decorName(d.kind, d.holds) });
   // Drawn again at once and when it comes back, so what the yard shows of it follows (the
   // Christmas tree lets go of its night, and comes back grand without the change).
   removeWithUndo(id, view, done, () => call('putAway', id), renderDecor);

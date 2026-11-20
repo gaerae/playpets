@@ -96,7 +96,7 @@ test('a shell bursts with a thump and crackles after it, and a quiet scene does 
   );
 });
 
-// A perfume bottle poked on the desktop (display.js pokeOf) sprays: one soft hiss of noise, no tune.
+// A perfume bottle poked on the desktop (find-out.js pokeOf) sprays: one soft hiss of noise, no tune.
 test('a perfume bottle sprays once', () => {
   const { sources, scape } = audio();
   const before = sources.length;

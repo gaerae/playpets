@@ -3,7 +3,7 @@
 // (catalog.json "part": points and pivot as shares of its box, and "spin" or "sway"): the drawing
 // is laid twice, once without the part and once with only the part, which turns. Each motion is
 // one animation that ends by itself (overlay.css). A lamp ("poke": "switch") goes off or on until
-// the hour next changes, and a find out answers in its own way (display.js pokeOf): a fish swims
+// the hour next changes, and a find out answers in its own way (find-out.js pokeOf): a fish swims
 // across and back, a butterfly flaps, a treasure sparkles, and a few make a sound. A gift that hangs
 // draws its cord too, for when it hangs from a screen's top. Design:
 // docs/design/2026-11-19-desktop-items-that-answer.md, docs/design/2026-11-19-album-finds-out.md,
@@ -11,8 +11,8 @@
 
 import { artSvg } from '../yard/art.js';
 import { giftKind } from '../yard/catalog.js';
-import { displayEffects, displayKind, pokeOf } from '../yard/display.js';
 import { effectLayers } from '../yard/effects.js';
+import { findOutEffects, findOutKind, pokeOf } from '../yard/find-out.js';
 
 const share = ([x, y]) => `${x * 100}% ${y * 100}%`;
 /** A gift's drawing as the desktop lays it: its effects' layers (a lit gift's halo and pool, a
@@ -21,7 +21,7 @@ const share = ([x, y]) => `${x * 100}% ${y * 100}%`;
 export function giftLayers(kind, holds = []) {
   const gift = giftKind(kind);
   if (!gift) return '';
-  const under = effectLayers([...(gift.effects || []), ...displayEffects(kind, holds)]);
+  const under = effectLayers([...(gift.effects || []), ...findOutEffects(kind, holds)]);
   // A find out has no drawing of its own: only its effects (a firefly's glow) under the find.
   if (!gift.art) return under;
   const drawing = artSvg(gift.art);
@@ -66,8 +66,8 @@ export function poke(view, { period, reduced, ring }) {
     view.lamp = { period, on: !lit };
     showLamp(view, period);
   }
-  const display = displayKind(view.kind),
-    answer = display && pokeOf(display.holds, view.holds?.[0]);
+  const out = findOutKind(view.kind),
+    answer = out && pokeOf(out.holds, view.holds?.[0]);
   // A find out is its own moving part.
   const part = answer
     ? view.button.querySelector('.held')

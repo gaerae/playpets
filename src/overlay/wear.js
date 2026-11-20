@@ -2,14 +2,14 @@
 // and the Christmas tree's ornaments on it, from the garden the overlay is sent, and the grand tree
 // while the yard has its Christmas night. The yard's own modules draw all three (dress-layers.js,
 // ornaments.js, grand-tree.js); this only keeps a desktop gift in step. A find out is drawn
-// the same way (display.js).
+// the same way (find-out.js).
 
 import { t } from '../core/i18n.js';
 import { reduced } from '../core/sprites.js';
 import { loadArt } from '../yard/art.js';
 import { giftKind } from '../yard/catalog.js';
-import { displayKind, displayName, heldArt, heldLayers } from '../yard/display.js';
 import { dressLayers } from '../yard/dress-layers.js';
+import { findOutKind, decorName, heldArt, heldLayers } from '../yard/find-out.js';
 import { grandLayers, RISE_MS } from '../yard/grand-tree.js';
 import { drawTreeOrnaments } from '../yard/ornaments.js';
 
@@ -18,7 +18,7 @@ import { drawTreeOrnaments } from '../yard/ornaments.js';
 export function wearArt(kind) {
   const gift = giftKind(kind);
   if (!gift) return [];
-  // A find out has no drawing of its own (display.js heldArt loads the find's).
+  // A find out has no drawing of its own (find-out.js heldArt loads the find's).
   return [gift.art, ...(gift.dress || []).map(part => part.art), ...(gift.night ? [gift.night.art] : [])].filter(
     Boolean,
   );
@@ -38,7 +38,7 @@ async function showHeld(view, holds) {
     view.button.append(view.heldLayer);
   }
   view.heldLayer.innerHTML = heldLayers(view.kind, holds);
-  view.button.title = displayName(view.kind, holds);
+  view.button.title = decorName(view.kind, holds);
   view.button.setAttribute('aria-label', view.button.title);
 }
 
@@ -66,7 +66,7 @@ function standGrand(view, grand) {
  * `now`: what a snowman wears, drawn again only when that changed, and what hangs on the tree and
  * whether it stands grand (`night`: the kinds the yard shows in their night look). */
 export function wear(view, garden, now = new Date(), night = []) {
-  if (displayKind(view.kind)) showHeld(view, garden?.decor?.find(d => d.id === view.id)?.holds || []);
+  if (findOutKind(view.kind)) showHeld(view, garden?.decor?.find(d => d.id === view.id)?.holds || []);
   if (giftKind(view.kind)?.dress) {
     const dress = garden?.decor?.find(d => d.id === view.id)?.dress || [];
     if (dress.join() !== view.worn) {

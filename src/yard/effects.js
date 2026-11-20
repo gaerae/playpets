@@ -6,7 +6,7 @@
 //   glow: lit from evening on, a halo round its light and a warm pool on the ground at its foot,
 //   and not dimmed at night.
 //   halo: the glow's halo alone, with no pool on the ground: a firefly out of the album, which has
-//   no shadow either (display.js).
+//   no shadow either (find-out.js).
 //   chime: rings when a friend visits it.
 // Without any effect, a drawing still follows the scene through the colours it paints with
 // (--lamp lights up in the evening, --bird is 0 at night and in rain or snow, --sky-* mirror the sky).
