@@ -8,10 +8,11 @@ export const sentence = /[가-힣]/;
 export const strings = {
   'catch.rain_hint': '비 오는 날 더 잘 만나요',
   'album.gift_full': '놀이터가 가득 찼어요. 새 선물은 도감에서 기다리고, 소품 하나를 치우면 꺼내 놓을 수 있어요.',
-  'album.gifts_full': '놀이터도, 도감에서 기다리는 선물 자리도 가득 찼어요. 소품을 하나 치우면 자리가 생겨요.',
   'album.gift_rule':
     '친구와 함께 무언가를 한 날, 그 친구가 이틀에 한 번 선물을 가져와요. 사이가 가까워질 때도 선물이 와요.',
   'album.set_out_full': '놀이터가 가득 찼어요. 소품 하나를 치우면 꺼내 놓을 수 있어요.',
+  'album.finds_full':
+    '물속 생물, 곤충, 작은 발견은 도감에서 {limit}개까지 꺼내 놓을 수 있어요. 하나를 들여놓으면 또 꺼낼 수 있어요.',
   'album.shown_christmas': '11월 15일부터 1월 7일까지, 그리고 놀이터가 겨울일 때 나와요',
   'album.shown_winter': '놀이터가 겨울일 때 나와요',
   'album.set_out': '{kind:을/를} 놀이터에 꺼내 놓아요',

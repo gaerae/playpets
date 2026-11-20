@@ -163,11 +163,14 @@ for (const [book, list, name] of [
     again[0].onclick();
     await flush();
     assert.equal(again[0].parentNode.dataset.pending, undefined, 'let go after a refusal');
-    // A full yard says so.
+    // Gifts have their own room: twelve of them leave a find's free.
     nodes = album(ctx, book, { album: found, garden: { decor: decor(12) } });
+    assert.equal(buttonsOf(nodes, 0)[0].getAttribute('aria-disabled'), 'false');
+    // Twelve finds out of any book fill the finds' room, and it says so.
+    nodes = album(ctx, book, { album: found, garden: { decor: decor(12, { kind: 'fish_out', holds: ['carp'] }) } });
     for (const button of buttonsOf(nodes, 0)) {
       assert.equal(button.getAttribute('aria-disabled'), 'true');
-      assert.equal(button.title, t('album.set_out_full'));
+      assert.equal(button.title, t('album.finds_full', { limit: 12 }));
     }
   });
 

@@ -52,14 +52,15 @@ function album(ctx, garden) {
 
 // A gift waiting in the box is the same gift as any other: there is no box apart from the book, its
 // own card sets it out, and a memento wears its giver's heart on the card, as in the yard.
-test('the gift book has no box apart from it, and says when the yard and the waiting gifts are full', ctx => {
+test('the gift book has no box apart from it, and says when the yard is full of gifts', ctx => {
   assert.doesNotMatch(readFileSync('src/index.html', 'utf8'), /album-box/);
   let nodes = album(ctx, {});
   assert.equal(nodes.get('album-dig-status').textContent, t('album.gift_rule'));
   nodes = album(ctx, { decor: gifts(12), boxed: gifts(2, { memento: true }) });
   assert.equal(nodes.get('album-dig-status').textContent, t('album.gift_full'));
-  nodes = album(ctx, { decor: gifts(12), boxed: gifts(12) });
-  assert.equal(nodes.get('album-dig-status').textContent, t('album.gifts_full'), 'says the waiting gifts are full too');
+  // Finds set out from the album have their own room: they leave the gifts' free.
+  nodes = album(ctx, { decor: gifts(12, { kind: 'fish_out', holds: ['carp'] }) });
+  assert.equal(nodes.get('album-dig-status').textContent, t('album.gift_rule'));
 });
 
 test('a gift waiting in the box comes out of its own card, a memento marked with its giver', async ctx => {

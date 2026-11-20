@@ -11,10 +11,10 @@ export const sentenceSeparator = '';
 export const strings = {
   'catch.rain_hint': '雨の日に見つけやすい',
   'album.gift_full': '庭がいっぱいです。新しいプレゼントは図鑑で待ちます。飾りを一つ片付けると出せます。',
-  'album.gifts_full': '庭も、図鑑で待てるプレゼントもいっぱいです。飾りを一つ片付けると置けます。',
   'album.gift_rule':
     '友だちと何かをした日に、その友だちが二日に一度プレゼントを持ってきます。仲良くなったときにも届きます。',
   'album.set_out_full': '庭がいっぱいです。飾りを一つ片付けると出せます。',
+  'album.finds_full': '水中の生きもの、虫、小さな発見は図鑑から{limit}個まで出せます。ひとつしまうと、また出せます。',
   'album.shown_christmas': '11月15日から1月7日までと、庭が冬のときに出ます',
   'album.shown_winter': '庭が冬のときに出ます',
   'album.set_out': '{kind}を庭に出す',

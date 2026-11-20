@@ -11,9 +11,9 @@ export const sentenceSeparator = '';
 export const strings = {
   'catch.rain_hint': '雨天更容易遇到',
   'album.gift_full': '乐园满了。新礼物会在图鉴里等着，收起一件摆设就能把它摆出来。',
-  'album.gifts_full': '乐园满了，图鉴里等着的礼物也满了。收起一件摆设就有地方了。',
   'album.gift_rule': '和伙伴一起做过事的那天，它每两天会送来一件礼物。关系变得更亲近时也会送礼物。',
   'album.set_out_full': '乐园满了。收起一件摆设就能摆出来。',
+  'album.finds_full': '水中生物、虫和小小发现最多能从图鉴摆出 {limit} 件。收回一件就能再摆出来。',
   'album.shown_christmas': '11月15日到1月7日，以及乐园是冬天时，都会出现在乐园里',
   'album.shown_winter': '乐园是冬天时才会出现',
   'album.set_out': '把{kind}摆到乐园里',

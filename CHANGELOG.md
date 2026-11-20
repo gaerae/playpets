@@ -16,7 +16,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The small screen button on an album card stays lit while that kind is on the desktop; press it again to take them all off the desktop, and they stay in the yard.
 - Every notice along the bottom of the yard has a close button and closes with a click anywhere on it, including the one with **Undo**. Neither these notices nor the card for something found get their words selected when you drag. Closing an **Undo** notice keeps the removal.
 - The gift box above the album's Gifts book is gone: a gift waiting for room is set out from its own card, and a friend's memento shows its heart on the card, with the friend's name when you point at it.
-- The yard holds 12 of every kind: friends, gifts, flowers (was 24) and trees (was 6), and the desktop shows up to that many of each. Flowers you already planted beyond 12 stay.
+- The yard holds 12 of every kind: friends, gifts, flowers (was 24), trees (was 6), and fish, bugs and keepsakes set out from the album, which no longer take gifts' places. The desktop shows up to that many of each. Flowers you already planted beyond 12 stay.
+- Gifts that arrive while the yard is full wait in the album without a limit, one of each kind, so friends keep bringing them.
 
 ## [1.9.0] - 2026-11-20
 

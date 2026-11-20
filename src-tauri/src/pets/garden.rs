@@ -27,10 +27,14 @@ pub const SAPLING_MAX: u32 = 20;
 pub const PLANT_MAX: usize = 12;
 /// Plants a saved yard keeps: one saved when the field held 24 loses none of them.
 pub const PLANT_KEEP: usize = 24;
-/// Decorations the yard holds, so friends still have room to play.
+/// Gifts the yard holds, so friends still have room to play.
 pub const DECOR_MAX: usize = 12;
-/// Gifts the box keeps while the yard is full.
-pub const BOX_MAX: usize = 12;
+/// Finds (fish, bugs, keepsakes) out of the album the yard holds, apart from the gifts.
+/// Design: docs/decisions/2026-11-20-twelve-of-each.md.
+pub const FIND_MAX: usize = 12;
+/// Gifts a saved box keeps. Waiting has no limit of its own: one of each kind waits, and each
+/// friend's memento, so this only stops a hand-edited file growing without end.
+const BOX_KEEP: usize = 64;
 /// Days from one everyday gift to the next.
 pub const GIFT_EVERY_DAYS: i64 = 2;
 /// The levels a friend brings a gift for when it reaches them; at MEMENTO_LEVEL it is a memento.
@@ -271,6 +275,11 @@ fn placed<T: serde::de::DeserializeOwned>(
         .collect()
 }
 
+/// Whether a decoration is a find out of the album (a fish, bug or keepsake on its own).
+fn is_find(d: &Decor) -> bool {
+    catalog().book_of(&d.kind).is_some()
+}
+
 fn place(v: f64) -> Option<f64> {
     v.is_finite().then(|| v.clamp(0.0, 1.0))
 }
@@ -366,14 +375,20 @@ impl Garden {
         );
         let mut decor = placed(
             raw.get("decor"),
-            DECOR_MAX,
+            DECOR_MAX + FIND_MAX,
             |d: &Decor| catalog().is_decor(&d.kind),
             |d| (&mut d.x, &mut d.y),
             DECOR_FLOOR_MAX,
         );
         decor.iter_mut().for_each(tidy);
-        // A find out holding nothing has nothing to show.
-        decor.retain(|d| catalog().book_of(&d.kind).is_none() || !d.holds.is_empty());
+        // A find out holding nothing has nothing to show; gifts and finds each keep their own room.
+        decor.retain(|d| !is_find(d) || !d.holds.is_empty());
+        let (mut gifts, mut finds) = (0, 0);
+        decor.retain(|d| {
+            let seen = if is_find(d) { &mut finds } else { &mut gifts };
+            *seen += 1;
+            *seen <= if is_find(d) { FIND_MAX } else { DECOR_MAX }
+        });
         let mut received: Vec<String> = Vec::new();
         for kind in raw.get("received").and_then(Value::as_array).into_iter().flatten() {
             if let Some(kind) = kind.as_str()
@@ -386,7 +401,7 @@ impl Garden {
         let gift_day = day_at(raw, "giftDay");
         let mut boxed = placed(
             raw.get("boxed"),
-            BOX_MAX,
+            BOX_KEEP,
             |d: &Decor| catalog().is_gift(&d.kind),
             |d| (&mut d.x, &mut d.y),
             DECOR_FLOOR_MAX,
@@ -744,6 +759,15 @@ impl Garden {
         Ok(given)
     }
 
+    /// Gifts out in the yard: decorations that are not finds out of the album.
+    pub fn gifts_out(&self) -> usize {
+        self.decor.iter().filter(|d| !is_find(d)).count()
+    }
+    /// Finds (fish, bugs, keepsakes) out of the album in the yard.
+    pub fn finds_out(&self) -> usize {
+        self.decor.iter().filter(|d| is_find(d)).count()
+    }
+
     /// Whether a friend's memento is in the yard or the box.
     pub fn has_memento(&self, from: &str) -> bool {
         self.decor
@@ -767,8 +791,10 @@ impl Garden {
             came_at: now,
             ..Decor::default()
         };
-        let boxed = self.decor.len() >= DECOR_MAX;
-        if boxed && self.boxed.len() >= BOX_MAX {
+        let boxed = self.gifts_out() >= DECOR_MAX;
+        // Waiting has no limit of its own: one of each kind waits, and each friend's memento. With
+        // every kind out or waiting, none is brought twice.
+        if boxed && !memento && self.decor.iter().chain(&self.boxed).any(|d| d.kind == kind) {
             return Err(i18n::t("error.gifts_full"));
         }
         if !self.received.iter().any(|k| k == kind) {
@@ -807,7 +833,7 @@ impl Garden {
         if day <= self.snowman_day.as_str() {
             return Err(i18n::t("error.snowman_today"));
         }
-        if !self.decor.iter().any(|d| d.kind == SNOWMAN) && self.decor.len() >= DECOR_MAX {
+        if !self.decor.iter().any(|d| d.kind == SNOWMAN) && self.gifts_out() >= DECOR_MAX {
             return Err(i18n::tr("error.decor_full", &[("limit", &DECOR_MAX.to_string())]));
         }
         self.decor.retain(|d| d.kind != SNOWMAN);
@@ -858,7 +884,7 @@ impl Garden {
             .iter()
             .position(|d| d.id == id)
             .ok_or_else(|| i18n::t("error.decor_missing"))?;
-        if self.decor.len() >= DECOR_MAX {
+        if self.gifts_out() >= DECOR_MAX {
             return Err(i18n::tr("error.decor_full", &[("limit", &DECOR_MAX.to_string())]));
         }
         let mut decor = self.boxed.remove(at);
@@ -886,7 +912,7 @@ impl Garden {
         if catalog().is_built(kind) || self.decor.iter().any(|d| d.kind == kind) {
             return Err(i18n::t("error.bad_request"));
         }
-        if self.decor.len() >= DECOR_MAX {
+        if self.gifts_out() >= DECOR_MAX {
             return Err(i18n::tr("error.decor_full", &[("limit", &DECOR_MAX.to_string())]));
         }
         let decor = Decor {
@@ -926,8 +952,8 @@ impl Garden {
             return Err(i18n::t("error.bad_request"));
         };
         self.album_has_more(album, book, item)?;
-        if self.decor.len() >= DECOR_MAX {
-            return Err(i18n::tr("error.decor_full", &[("limit", &DECOR_MAX.to_string())]));
+        if self.finds_out() >= FIND_MAX {
+            return Err(i18n::tr("error.finds_full", &[("limit", &FIND_MAX.to_string())]));
         }
         let decor = Decor {
             id: Uuid::new_v4().to_string(),
@@ -975,9 +1001,8 @@ impl Garden {
     }
 
     /// Puts a decoration away (a friend may bring it again another day). A memento or a gift shown
-    /// only at a time of year goes into the box instead, to be set out again; with the box full it
-    /// goes as any gift does (the album still sets a received kind out), so a yard of mementos and
-    /// a full box can still make room.
+    /// only at a time of year waits in the box instead, its giver and heart kept, for its album card
+    /// to set it out again.
     pub fn put_away(&mut self, id: &str) -> Result<(), String> {
         let at = self
             .decor
@@ -986,7 +1011,7 @@ impl Garden {
             .ok_or_else(|| i18n::t("error.decor_missing"))?;
         let mut gone = self.decor.remove(at);
         gone.on_desktop = false;
-        if (gone.memento || catalog().kept_in_box(&gone.kind)) && self.boxed.len() < BOX_MAX {
+        if gone.memento || catalog().kept_in_box(&gone.kind) {
             self.boxed.push(gone);
         }
         Ok(())
@@ -1265,17 +1290,17 @@ mod tests {
         let bench = g.give("bench", "miso", false, 0.5, 0.5, 1).unwrap();
         g.put_away(&bench.decor.id).unwrap();
         assert_eq!(g.boxed.len(), 1, "an everyday gift is not kept");
-        // With the box full it leaves as a memento does, and the album sets it out again.
+        // However many wait, it waits too, and its card sets it out again.
         let out = g.set_out(&g.boxed[0].id.clone(), 0.5, 0.5).unwrap();
-        while g.boxed.len() < BOX_MAX {
-            g.boxed.push(Decor {
-                id: g.boxed.len().to_string(),
+        g.boxed = (0..20)
+            .map(|i| Decor {
+                id: i.to_string(),
                 kind: "tent".into(),
                 ..Decor::default()
-            });
-        }
+            })
+            .collect();
         g.put_away(&out.id).unwrap();
-        assert!(g.decor.is_empty() && g.boxed.len() == BOX_MAX);
+        assert!(g.decor.is_empty() && g.boxed.len() == 21);
         assert!(g.take_out("xmas_tree", 0.5, 0.5, 2).is_ok());
     }
 
@@ -1470,6 +1495,39 @@ mod tests {
     }
 
     #[test]
+    fn gifts_and_finds_from_the_album_each_have_twelve_places() {
+        let mut g = Garden::default();
+        let mut album = Album::default();
+        for _ in 0..=FIND_MAX {
+            album.catch("fish", "crucian", 20.0, 1).unwrap();
+        }
+        // A yard full of gifts leaves the finds their own room.
+        g.received = vec!["bench".into()];
+        g.decor = (0..DECOR_MAX)
+            .map(|i| Decor {
+                id: format!("g{i}"),
+                kind: "lantern".into(),
+                ..Decor::default()
+            })
+            .collect();
+        for _ in 0..FIND_MAX {
+            g.take_out_find(&album, "fish", "crucian", 0.5, 0.8, 1).unwrap();
+        }
+        assert_eq!(
+            g.take_out_find(&album, "fish", "crucian", 0.5, 0.8, 1),
+            Err(i18n::tr("error.finds_full", &[("limit", &FIND_MAX.to_string())]))
+        );
+        assert!(g.take_out("bench", 0.5, 0.8, 1).is_err(), "and the gifts theirs");
+        // Twelve finds out leave the gifts theirs: one comes out and a new one is set down, not boxed.
+        g.decor.retain(|d| d.kind != "lantern");
+        assert!(g.take_out("bench", 0.5, 0.8, 1).is_ok());
+        assert!(!g.give("pond", "miso", false, 0.5, 0.5, 1).unwrap().boxed);
+        // A saved yard keeps both.
+        let back = Garden::restore(Some(&serde_json::to_value(&g).unwrap()), 1);
+        assert_eq!(back.decor.len(), FIND_MAX + 2);
+    }
+
+    #[test]
     fn a_find_from_the_album_comes_out_on_its_own_one_more_each_time() {
         let mut g = Garden::default();
         let mut album = Album::default();
@@ -1604,13 +1662,18 @@ mod tests {
             );
         }
         assert_eq!(g.decor.len(), DECOR_MAX);
-        // A full yard keeps the next gifts in the box, in order, until the box is full too.
-        for (n, kind) in kinds.iter().enumerate().skip(DECOR_MAX).take(BOX_MAX) {
+        // A full yard keeps every next gift waiting, in order, one of each kind.
+        for (n, kind) in kinds.iter().enumerate().skip(DECOR_MAX) {
             let given = g.gift(0.5, 0.5, &gift_day(n), 0, None, "pip").unwrap();
             assert!(given.boxed);
             assert_eq!(given.decor.kind, *kind);
         }
-        assert_eq!(g.boxed.len(), (kinds.len() - DECOR_MAX).min(BOX_MAX));
+        assert_eq!(g.boxed.len(), kinds.len() - DECOR_MAX);
+        // With every kind out or waiting, none is brought twice.
+        assert_eq!(
+            g.gift(0.5, 0.5, &gift_day(kinds.len()), 0, None, "pip").unwrap_err(),
+            i18n::t("error.gifts_full")
+        );
         // Every kind has come: the next is one not in the yard.
         let id = g.decor[0].id.clone();
         assert_eq!(g.put_away(&id), Ok(()));
@@ -1709,8 +1772,11 @@ mod tests {
         // A memento or thanks gift that finds the yard full waits in the box too.
         let thanks = g.thanks("pip", 4, 0.5, 0.5, 0).unwrap();
         assert!(thanks.boxed && thanks.decor.memento);
-        while g.boxed.len() < BOX_MAX {
-            g.boxed.push(gift("swing", false));
+        // Every everyday kind out or waiting: none comes twice.
+        for kind in catalog().gifts() {
+            if !g.decor.iter().chain(&g.boxed).any(|d| d.kind == kind) {
+                g.boxed.push(gift(kind, false));
+            }
         }
         assert_eq!(
             g.thanks("pip", 5, 0.5, 0.5, 0).unwrap_err(),
@@ -1721,10 +1787,11 @@ mod tests {
             i18n::t("error.gifts_full")
         );
         assert_eq!(g.thanked.get("pip"), Some(&4), "a refused gift is not counted");
-        // With the box full, a memento put away goes as any gift does, so the yard has room again.
+        // A memento put away always waits in the box, so the yard has room again.
         let id = g.decor[0].id.clone();
+        let waited = g.boxed.len();
         g.put_away(&id).unwrap();
-        assert_eq!((g.decor.len(), g.boxed.len()), (DECOR_MAX - 1, BOX_MAX));
+        assert_eq!((g.decor.len(), g.boxed.len()), (DECOR_MAX - 1, waited + 1));
         let waiting = g.boxed[0].id.clone();
         assert!(g.set_out(&waiting, 0.5, 0.8).is_ok());
     }

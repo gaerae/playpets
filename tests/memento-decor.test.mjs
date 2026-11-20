@@ -65,8 +65,9 @@ test('a memento shows its heart for a day after it came, then only when looked a
 });
 
 for (const [boxed, key] of [
+  // Waiting has no limit of its own: however many wait, it waits too, in the album.
   [0, 'decor.memento_put_away'],
-  [12, 'decor.put_away_done'],
+  [20, 'decor.memento_put_away'],
 ]) {
   test(`a memento put away with ${boxed} in the box says ${key}`, async ctx => {
     const { nodes, buttons } = yard(ctx, {

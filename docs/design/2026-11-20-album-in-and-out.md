@@ -23,7 +23,7 @@
 | What | Rule | Why |
 |---|---|---|
 | Copies of a kind | A flower of the kind in bloom (`bloomed`), a tree of the kind grown (`matured`), a find out holding the item, a gift of the kind | What a card would set out; a seedling is still growing and is left alone |
-| How many | Up to the album's count for the kind (`count`), and only while the yard has room. A gift is one | The person found that many |
+| How many | Up to the album's count for the kind (`count`), and only while the yard has room: gifts and finds each have their own 12. A gift is one | The person found that many |
 | One allowed | One button, `Set out`, that turns to `Put back` while it is out, at the same width, filled in while out | A press again brings it back, under the same pointer |
 | More allowed | `−  n/m  +` from the start, `0/m` with none out: `−` brings the last one in, `+` sets one more out, `m` the most there can be | Add and remove within what was found; the row never changes shape under the pointer |
 | A press that cannot happen | Marked `aria-disabled`, not `disabled`: it keeps the focus and its title says why (`+` with all out, `−` with none, a full yard) | A quick second key press stays on `+` and does nothing, instead of landing on `−`; WebKit shows no title on a disabled button |
@@ -49,5 +49,5 @@
 - Desktop off leaves things in the yard (the person's choice).
 - A built kind (a snowman) keeps its old card: it is built in the snow, never set out.
 - A gift kept in the box goes back to the box when put back, as Put away does, and its card sets it out again.
-- The box keeps its limit of 12 waiting gifts; the gift book's status line says when both it and the yard are full.
+- Waiting has no limit of its own: one of each kind waits, and each friend's memento. With the yard full of gifts and every kind out or waiting, none is brought twice ([decision](../decisions/2026-11-20-twelve-of-each.md)).
 - The words follow the yard's menus: the desktop button's title says Show on desktop and Take off the desktop, as a thing's own menu does.

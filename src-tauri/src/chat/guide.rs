@@ -56,7 +56,7 @@ const TOPICS: &[Topic] = &[
     },
     Topic {
         id: "gifts",
-        facts: "Gifts: friends bring them on days the owner plays with them (patting, treats, chatting, fishing): at most one every 2 days for the yard, and one more each time a friend grows closer; at Very close it is that friend's memento. Gifts are decorations set out in the yard, up to 12; up to 12 more wait in the album, each set out from its own card in the Gifts book, a memento marked with a heart. A few come only during seasonal events.",
+        facts: "Gifts: friends bring them on days the owner plays with them (patting, treats, chatting, fishing): at most one every 2 days for the yard, and one more each time a friend grows closer; at Very close it is that friend's memento. Gifts are decorations set out in the yard, up to 12; with the yard full, new ones wait in the album, set out from their own cards. Finds set out from the album have their own 12. A few come only during seasonal events.",
     },
     Topic {
         id: "games",

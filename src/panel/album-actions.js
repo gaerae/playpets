@@ -13,7 +13,7 @@ import { icons } from '../core/icons.js';
 import { limit } from '../core/limits.js';
 import { call, data, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
-import { findOutFor, heldName } from '../yard/find-out.js';
+import { findOutFor, findsOut, heldName } from '../yard/find-out.js';
 
 /** Where something set out from the album lands: near the front of the yard, as a gift is. */
 export const landing = () => [0.3 + Math.random() * 0.4, 0.8];
@@ -146,8 +146,8 @@ export function restoreRowFocus(grid, was) {
 /** A found fish, bug or keepsake card's row. Null for a book whose finds do not come out. */
 export function findButtons(book, item, entry) {
   if (!findOutFor(book)) return null;
-  const room = limit(data, 'decor'),
-    full = (data.garden?.decor?.length ?? 0) >= room ? t('album.set_out_full') : '';
+  const room = limit(data, 'finds'),
+    full = findsOut(data.garden?.decor).length >= room ? t('album.finds_full', { limit: room }) : '';
   return setOutRow({
     book,
     item,

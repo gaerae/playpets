@@ -99,7 +99,7 @@ pub fn limits() -> serde_json::Value {
         "saplings": garden::SAPLING_MAX,
         "plants": garden::PLANT_MAX,
         "decor": garden::DECOR_MAX,
-        "giftBox": garden::BOX_MAX,
+        "finds": garden::FIND_MAX,
         "giftEveryDays": garden::GIFT_EVERY_DAYS,
         "ornamentHooks": garden::ORNAMENT_HOOKS,
         "ornamentsPerDay": garden::ORNAMENTS_PER_DAY,
@@ -123,9 +123,13 @@ mod tests {
         // One number to remember (docs/decisions/2026-11-20-twelve-of-each.md); the desktop shows
         // what the yard has, so it holds the same.
         let all = limits();
-        for kind in ["pets", "plants", "trees", "decor", "giftBox"] {
+        for kind in ["pets", "plants", "trees", "decor", "finds"] {
             assert_eq!(all[kind], 12, "{kind}");
         }
+        assert!(
+            all.get("giftBox").is_none(),
+            "gifts wait in the album without a limit of their own"
+        );
     }
 
     #[test]

@@ -7,11 +7,11 @@ export const sentence = /[.!?]$/;
 export const strings = {
   'catch.rain_hint': 'More likely in rain',
   'album.gift_full': 'The yard is full. New gifts wait in the album; put a decoration away to set one out.',
-  'album.gifts_full':
-    'The yard is full, and so is the room for gifts waiting in the album. Put a decoration away to make room.',
   'album.gift_rule':
     'A friend you did something with that day may bring a gift, one every other day. Friends also bring one when you grow closer.',
   'album.set_out_full': 'The yard is full. Put a decoration away to set this out.',
+  'album.finds_full':
+    'Up to {limit} aquatic life, bugs and keepsakes can be out from the album. Put one back to set out another.',
   'album.shown_christmas': 'Shows in the yard from November 15 to January 7, and whenever the yard shows winter',
   'album.shown_winter': 'Shows while the yard shows winter',
   'album.set_out': '{kind}: set it out in the yard',

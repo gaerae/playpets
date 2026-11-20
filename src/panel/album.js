@@ -27,6 +27,7 @@ import { bugSvg, fishSvg } from '../yard/creatures.js';
 import { decorShown, yardSeason } from '../yard/decor-shown.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
 import { eventDates, eventScene, giftSeason } from '../yard/events.js';
+import { giftsOut } from '../yard/find-out.js';
 import { treeSpot } from '../yard/planted-trees.js';
 import { SECRETS } from '../yard/secrets.js';
 import { printSpecimen, tailPeek } from '../yard/trail-art.js';
@@ -282,7 +283,7 @@ function takeOutButton(kind) {
     return button;
   }
   const room = limit(data, 'decor'),
-    why = !showsNow(kind) ? whenShown(kind) : (garden.decor?.length ?? 0) >= room ? t('album.set_out_full') : '';
+    why = !showsNow(kind) ? whenShown(kind) : giftsOut(garden.decor).length >= room ? t('album.set_out_full') : '';
   return setOutRow({
     book: 'gift',
     item: kind,
@@ -354,9 +355,8 @@ export function renderAlbum() {
   }
   if (giftBook) {
     status.title = '';
-    const yardFull = (data.garden?.decor?.length ?? 0) >= limit(data, 'decor'),
-      boxFull = (data.garden?.boxed?.length ?? 0) >= limit(data, 'giftBox');
-    status.textContent = t(yardFull ? (boxFull ? 'album.gifts_full' : 'album.gift_full') : 'album.gift_rule');
+    const yardFull = giftsOut(data.garden?.decor).length >= limit(data, 'decor');
+    status.textContent = t(yardFull ? 'album.gift_full' : 'album.gift_rule');
   }
   let found = 0,
     total = 0;

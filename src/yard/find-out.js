@@ -14,6 +14,10 @@ import { FINDS_OUT, LISTS, nameKey } from './catalog.js';
 export const findOutFor = book => FINDS_OUT.find(d => d.holds === book) || null;
 /** A find out's kind by its id, or null for a gift. */
 export const findOutKind = kind => FINDS_OUT.find(d => d.id === kind) || null;
+/** The gifts among the yard's decorations, and the finds out of the album: each has its own room
+ * (garden.rs DECOR_MAX and FIND_MAX). */
+export const giftsOut = decor => (decor || []).filter(d => !findOutKind(d.kind));
+export const findsOut = decor => (decor || []).filter(d => findOutKind(d.kind));
 /** A find of `book` by its id, as the catalogue has it (the find out's `list`), or null. */
 export const heldKind = (book, id) => LISTS[findOutFor(book)?.list]?.find(k => k.id === id) || null;
 /** A find's name, as its album card says it. */

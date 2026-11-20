@@ -23,8 +23,9 @@ const miso = { id: 'miso', name: 'Miso' };
 const NOW = new Date(2026, 11, 5, 12).getTime();
 
 for (const [boxed, key] of [
+  // Waiting has no limit of its own: however many wait, it waits too, in the album.
   [0, 'decor.memento_put_away'],
-  [12, 'decor.put_away_done'],
+  [20, 'decor.memento_put_away'],
 ]) {
   test(`a Christmas gift put away with ${boxed} in the box says ${key}`, async ctx => {
     ctx.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: NOW });

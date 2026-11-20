@@ -181,7 +181,7 @@ Friends use what they get. They sit on the bench, the swing and the stump, gathe
 | Right-click → **Put away**, or **Delete** or **Backspace** | Gone at once. **Undo** in the notice brings it back for about six seconds. If the app closes first, it stays. A friend may bring it again another day |
 | Right-click → **Show on desktop** | Sends it out to the desktop ([Gifts on the desktop](./desktop.md#gifts-on-the-desktop)) |
 
-- The yard holds 12 decorations. When it's full, up to 12 new ones wait in the album. Once there's room, **Set out** on the gift's own card in the Gifts book sets it out.
+- The yard holds 12 gifts. When it's full, new ones wait in the album, one of each kind. Once there's room, **Set out** on the gift's own card in the Gifts book sets it out.
 - Putting one away keeps its album entry and makes room for the gifts still to come. A memento keeps its friend and its heart, shown on its card too.
 - Any gift that came before can come back out: **Set out** on its card in the album's Gifts book, once there's room, and **Put back** takes it in again. The snowman is the exception: you build it again.
 - The album has 31 gifts, seven of them only on their events' dates. The snowman is one of the 31, but you build it ([Snowman](#snowman)). A memento is one of the 31 too, so it adds no new entry.
@@ -227,7 +227,7 @@ Only outdoors in clear weather; rain and snow stop them. Click one and the neare
 - Found once: **Set out** puts it in the yard and turns into **Put back**. Found more often: **+** sets one more out and **−** takes one in, up to how many you found and what the yard has room for. The number between them is how many are out.
 - The small screen button puts it on the desktop too, and stays lit while that kind is there. Press it again to take them off the desktop; they stay in the yard.
 - A flower comes out in bloom and a tree fully grown, up to the yard's 12 plants and 12 trees. A tree needs an outdoor place with soil.
-- A fish, bug or keepsake comes out on its own, with no bowl or jar, and counts as one of the yard's 12 decorations. A fish is drawn by its length, and a friend who visits a find names it.
+- A fish, bug or keepsake comes out on its own, with no bowl or jar, up to 12 of them, apart from the yard's 12 gifts. A fish is drawn by its length, and a friend who visits a find names it.
 - Saved as `album` in `state.json`.
 
 ## Seasonal events <Since v="0.1.0" /> {#seasonal-events}

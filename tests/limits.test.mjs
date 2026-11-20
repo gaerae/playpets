@@ -21,7 +21,8 @@ test("the page's limits before the state arrives are the backend's", () => {
   assert.equal(String(LIMITS.plants), constant(garden, 'PLANT_MAX'));
   assert.equal(String(LIMITS.trees), constant(discovery, 'TREE_YARD_MAX'));
   assert.equal(String(LIMITS.decor), constant(garden, 'DECOR_MAX'));
-  assert.equal(String(LIMITS.giftBox), constant(garden, 'BOX_MAX'));
+  assert.equal(String(LIMITS.finds), constant(garden, 'FIND_MAX'));
+  assert.equal(LIMITS.giftBox, undefined, 'gifts wait in the album without a limit of their own');
   assert.equal(String(LIMITS.giftEveryDays), constant(garden, 'GIFT_EVERY_DAYS'));
   assert.equal(String(LIMITS.ornamentHooks), constant(garden, 'ORNAMENT_HOOKS'));
   assert.equal(String(LIMITS.ornamentsPerDay), constant(garden, 'ORNAMENTS_PER_DAY'));
@@ -29,10 +30,10 @@ test("the page's limits before the state arrives are the backend's", () => {
   assert.match(read('src/index.html'), new RegExp(`id="pet-persona" maxlength="${LIMITS.persona}"`));
 });
 
-// One number to remember: the yard holds twelve of every kind, friends, flowers, trees and gifts,
-// and the box twelve more; the desktop shows what the yard has (docs/decisions/2026-11-20-twelve-of-each.md).
+// One number to remember: the yard holds twelve of every kind, friends, flowers, trees, gifts and
+// finds set out from the album; the desktop shows what the yard has (docs/decisions/2026-11-20-twelve-of-each.md).
 test('the yard holds twelve of every kind', () => {
-  for (const kind of ['pets', 'plants', 'trees', 'decor', 'giftBox']) assert.equal(LIMITS[kind], 12, kind);
+  for (const kind of ['pets', 'plants', 'trees', 'decor', 'finds']) assert.equal(LIMITS[kind], 12, kind);
 });
 
 test('the relationships the friend settings offer are the ones the backend knows and has a voice for', () => {

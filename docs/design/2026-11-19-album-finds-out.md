@@ -68,3 +68,4 @@ Replaces the displays first built on this branch (a fishbowl, a bug jar, a speci
 ## Follow-up (2026-11-20)
 
 - A card now brings things back too, and sets out no more of a kind than the album found: [Album cards that set out and bring back](./2026-11-20-album-in-and-out.md).
+- Finds out of the album now have their own 12 places, apart from the yard's 12 gifts (`FIND_MAX`): [Hold twelve of every kind in the yard](../decisions/2026-11-20-twelve-of-each.md).
