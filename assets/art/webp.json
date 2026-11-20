@@ -159,6 +159,21 @@
     "svg": "42a5a410d24737143d356e857079f86ab8643e9155dcbf3332c4f99930645ae7",
     "webp": "2b9d08b98b8c55126c9d8bda6696a73857fd5fd0c25bd8ac7895cda3a0c843f0"
   },
+  "album/decor/candy_lamp.webp": {
+    "png": "9324fd53a082243a657ca97bbfc25a5b8f1fcb7e30a8580890b134a261cc39c0",
+    "svg": "f90fedb2dddfe891e622e9c4ff2b22f1b7f67a770934f629988d15f5b1788248",
+    "webp": "3b6e0917381f8886c2b946a6b4e09154e56a8547c9de88c663e87fafc4811ae4"
+  },
+  "album/decor/gift_stack.webp": {
+    "png": "9324fd53a082243a657ca97bbfc25a5b8f1fcb7e30a8580890b134a261cc39c0",
+    "svg": "b26b023a8d8db62d76a7b920aaaa7b54dc3477565962f99da5b70d7bcdfcc17c",
+    "webp": "339faae8f4c82d19e90a31602a16cb72d4c1dfd3f2b3317fea84d43d4cae5e00"
+  },
+  "album/decor/gingerbread_house.webp": {
+    "png": "9324fd53a082243a657ca97bbfc25a5b8f1fcb7e30a8580890b134a261cc39c0",
+    "svg": "60fbbc40ab05be73b6e39fe783637015b71afb6d0a5eabebc717b1de25970b63",
+    "webp": "50fca03e44ca92c75fcb891c252f52a6ac06063aefd786a681f06f42506e47b8"
+  },
   "album/decor/hammock.webp": {
     "png": "f31116a3360b0982ca037350d7565c9712a69096338fc6a064830dab109ce5e4",
     "svg": "031686343416ce865702bc937a9fde10a5f50cea342b03d50d1190b42da414d6",
@@ -173,6 +188,11 @@
     "png": "f31116a3360b0982ca037350d7565c9712a69096338fc6a064830dab109ce5e4",
     "svg": "305f7dd176fb9ea5a3a721a1358f062ff2a1c9956cd6a4e0986fbacfb3e01819",
     "webp": "ebb9441d01a7782384856c9853e76bd27d6071f72110c8efa8715a42dedb32af"
+  },
+  "album/decor/light_arch.webp": {
+    "png": "9324fd53a082243a657ca97bbfc25a5b8f1fcb7e30a8580890b134a261cc39c0",
+    "svg": "5e9b703a5e97a48fa2721705b03513d70af8ac908a4346ccd3cddb1ac6716958",
+    "webp": "fefe47262a7525f043a19c065e0c2e8a8f44206e67e071b136abb2e156bf327e"
   },
   "album/decor/mailbox.webp": {
     "png": "54c472e449d6192a5bbb6055f390a9a58ed5cd64a14b69d17e768ba04a4e77fd",
@@ -193,6 +213,26 @@
     "png": "54c472e449d6192a5bbb6055f390a9a58ed5cd64a14b69d17e768ba04a4e77fd",
     "svg": "824c8517ab765b1d685554cfa8907bde5e0175d3f7168755c3df46332ec2721d",
     "webp": "12ae0703df07e026c0b277ffe69a19ddada5b7dc3bb59fa0e60011574f721846"
+  },
+  "album/decor/retro_tree.webp": {
+    "png": "e7171018930a3ee86b73e86e81c91e8db67478a71ff1603d93caac63eb7eb099",
+    "svg": "bde47e01171b3d7ab1e671a1231f9aac10c6754dc814bfe7a00e49992ad28d9b",
+    "webp": "75bcf7f5ac1cfbd0d445be1d38bb7d6a4d14499808f7c6964daa2b4f9cc07706"
+  },
+  "album/decor/retro_tree_big.webp": {
+    "png": "e7171018930a3ee86b73e86e81c91e8db67478a71ff1603d93caac63eb7eb099",
+    "svg": "4e084ee67a19ba3f522704159e924f580dfc14ee218a5178150da222f7242dd4",
+    "webp": "9f84a36b238a676a427eadf65a9f40fe9bceac1ea5d438acd5d42782dc0d038a"
+  },
+  "album/decor/ribbon_tree.webp": {
+    "png": "e7171018930a3ee86b73e86e81c91e8db67478a71ff1603d93caac63eb7eb099",
+    "svg": "c4bf6ec7543d9e28f738c5d3ef9abffc8f627a557ee23b0d399632943977e3b2",
+    "webp": "bc4a96a5dcfb8f0c8ce8bfcbc711e038cb56a3ef11a0b764673187d24f7081fa"
+  },
+  "album/decor/ribbon_tree_big.webp": {
+    "png": "e7171018930a3ee86b73e86e81c91e8db67478a71ff1603d93caac63eb7eb099",
+    "svg": "1bf9d370a15413fc1e8f6fa99a2b63362421fe3ecd25e81f7c016c7c0414c2ba",
+    "webp": "278ba6623abbbdbaca4ff29c3d7d060c9c767827b6a647837c39af50f41c3c0c"
   },
   "album/decor/santa.webp": {
     "png": "187e379051a39cc7fa91838644adcfa41621a6387b1eadb44a6b2a6f01c811e6",
@@ -279,6 +319,11 @@
     "svg": "67085938dca8111222cbcc658583ed7d3ea453d05d5d7c3b6b82c22a04fac662",
     "webp": "5f6c7e36e599ffb02aa8b91975db5b78a91a1f389e6d61cd76a63525e84d5ea2"
   },
+  "album/decor/sundries_cart.webp": {
+    "png": "9324fd53a082243a657ca97bbfc25a5b8f1fcb7e30a8580890b134a261cc39c0",
+    "svg": "83afe4491fb39fc5d225610996ff4fe3676be4ffb661a98c5384498c967a3156",
+    "webp": "092a4cafeec9c77ec2dbdef579fdd349e6cc27b9141de05c8d2eb0a461d80299"
+  },
   "album/decor/tent.webp": {
     "png": "54c472e449d6192a5bbb6055f390a9a58ed5cd64a14b69d17e768ba04a4e77fd",
     "svg": "1a98821f86cb52263b3e6dc3dbca561a0b376773c69b97596e95397c1cceba24",
@@ -289,10 +334,15 @@
     "svg": "05bc2c274dbf60e5253d02457326989c6411f761eff2015ab539069a11a0bc58",
     "webp": "83fd4ed4b3f323ec3c1db530997266b6400f18e7c8e5944b10fbd456d4730dae"
   },
+  "album/decor/wreath_stand.webp": {
+    "png": "9324fd53a082243a657ca97bbfc25a5b8f1fcb7e30a8580890b134a261cc39c0",
+    "svg": "0632e64a33a9768756c81b5a8b18b9c76012b40639ae3d829a16fb24f5422206",
+    "webp": "2941fbb19702dda32d553eafdc5038e63125148e297afd2652bbc7de150c3d15"
+  },
   "album/decor/xmas_tree.webp": {
-    "png": "23cca024a3f917d472c774c66a1f03fe8a7fc32e9682fcd976b00ee31bc77e43",
-    "svg": "bf54d2146e279589af992840d8836b15d317e721caec072d022cf1b2ef8aaf00",
-    "webp": "63d13d939c30f0162d2f5b002f1d18d5560f6f82138429a8feabffd189effb91"
+    "png": "1ebe36553fdabcc23bdb38ee3bc57e3427734b8ce189066bf86be0059e5404be",
+    "svg": "a45ac41f55f79af0c4ddca562ca8030cae5dcb7b270509248b7a5c69de71989c",
+    "webp": "fbcf55cf663425f6b92c2dceeda266bd6316aee2bcab20b62f740ee0517f4192"
   },
   "album/discovery/acorn_teacup.webp": {
     "png": "7a58be8547a157deba8d6e66d4d0afc50400006dfcac176f3a65e6b02e2d926e",
@@ -998,9 +1048,13 @@
     "png": "187e379051a39cc7fa91838644adcfa41621a6387b1eadb44a6b2a6f01c811e6",
     "webp": "ab89e07f0fc06c740ce08c2efbb55e36ad591b02e56ae77d6af37a921df9b7ef"
   },
+  "collection-extension/christmas-trees-2.png": {
+    "png": "e7171018930a3ee86b73e86e81c91e8db67478a71ff1603d93caac63eb7eb099",
+    "webp": "6a23b89fc731229fa21a4672c28a8dd76b88355a9eefb5655f570992865a0bef"
+  },
   "collection-extension/christmas-trees.png": {
-    "png": "23cca024a3f917d472c774c66a1f03fe8a7fc32e9682fcd976b00ee31bc77e43",
-    "webp": "3df91b1dac2a444f5db95c08a891334592d7a73ade14c82f054bb68b8c419951"
+    "png": "1ebe36553fdabcc23bdb38ee3bc57e3427734b8ce189066bf86be0059e5404be",
+    "webp": "1eed165c8723c141ed4521b9e02a4671e29a1a7b8a3bb9f052ff6c274a204462"
   },
   "collection-extension/cute-props.png": {
     "png": "7a58be8547a157deba8d6e66d4d0afc50400006dfcac176f3a65e6b02e2d926e",
@@ -1105,6 +1159,10 @@
   "collection-extension/winter-bush.png": {
     "png": "07859c8e18570bee3b8238e893ad842f158f5933510fa9238bb7d63151e3d489",
     "webp": "289d42541038c7aa0e90b375f364a1bb7d20c4b81cc33bd04796166f03750655"
+  },
+  "collection-extension/winter-props.png": {
+    "png": "9324fd53a082243a657ca97bbfc25a5b8f1fcb7e30a8580890b134a261cc39c0",
+    "webp": "fe1db65ab298ff808b1f19f6edadf8225e12e3a3d21c349117a64a30d5244fc4"
   },
   "collection-extension/winter-tails.png": {
     "png": "df41f89ac95e06b7c5f88265ca8db4ca1e62cb065d4fdcee93267c8fe45404ca",

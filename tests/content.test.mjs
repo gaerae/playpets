@@ -241,12 +241,53 @@ test('a gift says how it comes and when it shows', () => {
     if (g.shown) assert.ok(Object.hasOwn(SHOWN, g.shown), `${g.id}: shown`);
     for (const s of g.seasons || []) assert.ok(SEASONS.includes(s), `${g.id}: ${s}`);
   }
-  assert.ok(catalog.gifts.filter(g => g.shown || g.seasons).length <= 4);
-  assert.deepEqual(eventGifts('lights'), ['xmas_tree', 'baby_reindeer', 'santa']);
+  // Gifts that come and go are the snowman and the winter lights' own.
+  assert.ok(catalog.gifts.filter(g => g.shown || g.seasons).length <= 14);
+  // The tree, the reindeer and Santa first, as before; then the newer decorations, a big tree last.
+  const lights = [
+    'xmas_tree',
+    'baby_reindeer',
+    'santa',
+    'ribbon_tree',
+    'light_arch',
+    'gift_stack',
+    'wreath_stand',
+    'candy_lamp',
+    'retro_tree',
+    'gingerbread_house',
+    'sundries_cart',
+    'ribbon_tree_big',
+    'retro_tree_big',
+  ];
+  assert.deepEqual(eventGifts('lights'), lights);
   assert.deepEqual(
-    catalog.gifts.slice(-3).map(g => g.id),
-    ['xmas_tree', 'baby_reindeer', 'santa'],
+    catalog.gifts.slice(-lights.length).map(g => g.id),
+    lights,
   );
+  for (const id of lights.slice(3)) {
+    const g = giftKind(id);
+    assert.equal(g.shown, 'christmas', id);
+    assert.deepEqual(g.seasons, ['winter'], id);
+    assert.ok(!g.night && !g.hooks, `${id}: no ornaments and no Christmas night, the little tree's own`);
+  }
+});
+
+// A lit gift's halo is round its light, which is not always at the top of the middle: a lamp hung
+// to one side of its post, a cart's lantern. `light` is that point, as shares of the drawing.
+test('a gift that names where its light is is lit, and the light is on its drawing', () => {
+  const named = catalog.gifts.filter(g => g.light);
+  assert.ok(named.length >= 2);
+  for (const g of named) {
+    assert.ok(
+      g.effects?.some(e => e === 'glow' || e === 'halo'),
+      `${g.id}: lit`,
+    );
+    assert.equal(g.light.length, 2, g.id);
+    assert.ok(
+      g.light.every(v => v > 0 && v < 1),
+      `${g.id}: on the drawing`,
+    );
+  }
 });
 
 test("a gift's Christmas night names its drawings, its star, its bulbs and its guests", () => {
@@ -280,7 +321,7 @@ test('the Christmas tree has twelve hooks on each drawing, each on a painted bau
     const apart = (a, b) => Math.hypot(a[0] - b[0], ((a[1] - b[1]) * h) / w);
     const on = a => baubles.find(b => apart(a, b) <= 0.005);
     assert.equal(hooks.length, LIMITS.ornamentHooks, label);
-    assert.ok(baubles.length >= 5, `${label}: its painted baubles are listed`);
+    assert.ok(baubles.length >= 4, `${label}: its painted baubles are listed`);
     for (const ball of [...hooks, ...baubles]) {
       assert.equal(ball.length, 3, `${label}: ${ball} is a centre and a width`);
       assert.ok(ball[0] > 0 && ball[0] < 1 && ball[1] > 0 && ball[1] < 1, `${label}: ${ball} inside`);

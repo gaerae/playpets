@@ -1497,31 +1497,17 @@ mod tests {
         assert_eq!(g.put_away(&id), Ok(()));
         let next = g.next_gift(3);
         assert!(!g.decor.iter().any(|d| d.kind == next), "{next} is not in the yard");
-        // During a seasonal event its own gifts come first, in order, one each time; once all three came, the everyday ones again.
+        // During a seasonal event its own gifts come first, in order, one each time; once all of them came, the everyday ones again.
         let mut e = Garden::default();
+        let lights = catalog().event_gifts("lights");
+        assert_eq!(lights[..4], ["xmas_tree", "baby_reindeer", "santa", "ribbon_tree"]);
+        // From November 15 (the eighth gift day from November 1), one each gift day.
+        for (n, kind) in lights.iter().enumerate() {
+            let given = e.gift(0.5, 0.5, &gift_day(7 + n), 0, Some("lights"), "miso").unwrap();
+            assert_eq!(given.decor.kind, *kind);
+        }
         assert_eq!(
-            e.gift(0.5, 0.5, "2026-12-20", 0, Some("lights"), "miso")
-                .unwrap()
-                .decor
-                .kind,
-            "xmas_tree"
-        );
-        assert_eq!(
-            e.gift(0.5, 0.5, "2026-12-22", 0, Some("lights"), "miso")
-                .unwrap()
-                .decor
-                .kind,
-            "baby_reindeer"
-        );
-        assert_eq!(
-            e.gift(0.5, 0.5, "2026-12-24", 0, Some("lights"), "miso")
-                .unwrap()
-                .decor
-                .kind,
-            "santa"
-        );
-        assert_eq!(
-            e.gift(0.5, 0.5, "2026-12-26", 0, Some("lights"), "miso")
+            e.gift(0.5, 0.5, &gift_day(7 + lights.len()), 0, Some("lights"), "miso")
                 .unwrap()
                 .decor
                 .kind,
