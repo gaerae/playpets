@@ -4,10 +4,12 @@ import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { EXPORTS, webpName } from './art-webp-lib.mjs';
 import { pngSize } from './png-lossless-lib.mjs';
+import { keepIfSamePixels, trimKeepsakeSheets } from './sheet-trim-lib.mjs';
 
 const root = path.resolve(import.meta.dirname, '..');
 const sourceRoot = path.join(root, 'assets/discovery');
 const manifest = JSON.parse(await readFile(path.join(sourceRoot, 'ART-SOURCES.json'), 'utf8'));
+const previous = new Map();
 for (const source of manifest.sources) {
   const original = path.join(sourceRoot, source.file);
   const bytes = await readFile(original);
@@ -17,6 +19,7 @@ for (const source of manifest.sources) {
     throw new Error(`Source changed: ${source.file}`);
   const destination = path.join(root, EXPORTS, source.atlas);
   await mkdir(path.dirname(destination), { recursive: true });
+  previous.set(destination, await readFile(destination).catch(() => null));
   await copyFile(original, destination);
 }
 for (const asset of manifest.assets) {
@@ -46,5 +49,12 @@ for (const asset of manifest.assets) {
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}"><svg width="${width}" height="${height}" viewBox="${frame.join(' ')}" preserveAspectRatio="xMidYMax meet" overflow="hidden"><defs><clipPath id="${clip}"><rect x="${x}" y="${y}" width="${cropWidth}" height="${cropHeight}"/></clipPath></defs><image href="art/${webpName(source.atlas)}" width="${source.size[0]}" height="${source.size[1]}" clip-path="url(#${clip})"/></svg></svg>\n`,
   );
 }
+// A copied source is the accepted pixels; a keepsake sheet then loses the cells no drawing cuts.
+const trimmed = await trimKeepsakeSheets(
+  manifest.sources.map(source => source.atlas),
+  root,
+);
+if (trimmed.length) console.log(`Cleared what no drawing cuts from ${trimmed.join(', ')}`);
+for (const [destination, bytes] of previous) await keepIfSamePixels(destination, bytes);
 console.log(`Packed ${manifest.assets.length} discovery viewports from ${manifest.sources.length} accepted sources`);
 console.log('Run `pnpm run assets:webp` to update the shipped WebP atlases.');

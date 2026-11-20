@@ -134,7 +134,8 @@ Collection art:
 - Current collection art uses generated transparent atlases and SVG crop wrappers.
 - `src/art/collection.json` records each specimen's atlas, reviewed crop and display size.
 - A firefly also has `yard`: a crop of the bug alone inside its album crop. The yard draws it small under the firefly's light (`ambient-art.js`); the album keeps the full crop.
-- `scripts/pack-collection.mjs` reproduces each wrapper.
+- `scripts/pack-collection.mjs` reproduces each wrapper. A keepsake's drawing sits on the bottom of its box, so it stands on the ground.
+- Both packers clear what no drawing cuts from a sheet a keepsake comes from (`scripts/sheet-trim-lib.mjs`); run `pnpm run assets:optimize` on it afterwards, and the next pack keeps it as long as its pixels are the same.
 - Keep the PNG atlas in `assets/art/` with its prompts and provenance, then run `pnpm run assets:webp`; the wrapper's `<image>` names the `.webp` copy in `src/art/` ([shipped WebP](../../assets/README.md)).
 - Measure each crop rather than assuming equally spaced generated cells.
 - Review the whole body, the alpha, the isolation from neighbouring cells and the real album and yard size.

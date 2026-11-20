@@ -23,9 +23,13 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
-- Seven keepsakes are redrawn to sit with the newer ones, each still the same find: a porcelain shard with a painted flower and a gold rim, a mint bottle cap with a little heart, a mint-and-cream toy robot, a gold filigree crown with three pearls, a warm gold coin tied with a red thread, a key with a heart-shaped bow and a flower-shaped mother-of-pearl button. The shard is called a porcelain shard in English, Japanese and Chinese.
+- Seven keepsakes are redrawn to sit with the newer ones, each still the same find, and the app carries 1.3 MB less keepsake art: a porcelain shard with a painted flower and a gold rim, a mint bottle cap with a little heart, a mint-and-cream toy robot, a gold filigree crown with three pearls, a warm gold coin tied with a red thread, a key with a heart-shaped bow and a flower-shaped mother-of-pearl button. The shard is called a porcelain shard in English, Japanese and Chinese.
 - The winter lights start on November 15 instead of December 1, as people start decorating early: the lights on the trees, the gifts friends bring (the Christmas tree, then the baby reindeer, then Santa) and the question about showing a winter yard all come from then. The three gifts show in the yard and on the desktop from November 15 to January 7. Ornaments hung from November 15 stay up through December, and the next tree starts bare on the next November 15.
 - The year-end letter has a longer season: your closest friend writes it on the first day you open PlayPets from December 15 to 31 (was December 26), and brings your answer back on the first day from January 1 to 15 (was January 7). The letter can be read again until January 15.
+
+### Fixed
+
+- Wide keepsakes such as the crown, the bottle cap, the wooden whale and the acorn teacup stand on the ground where they are set out, in the yard and on the desktop, instead of hovering a little above it.
 
 ### Website and docs
 

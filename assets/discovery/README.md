@@ -16,6 +16,10 @@ node scripts/pack-discovery.mjs
   sizes.
 - The packer validates source hashes and crop geometry, copies the accepted
   pixels unchanged, and writes clipped viewports.
+- A sheet a keepsake is cut from then loses what no drawing cuts, cleared to
+  0,0,0,0 (`scripts/sheet-trim-lib.mjs`): a redrawn keepsake's old cell, the
+  cicada shell. The source here stays as it was accepted. An export made
+  smaller with oxipng since is kept when its pixels are the same.
 - It does not draw or stretch trees or modify their transparency.
 - Its source atlas crops were reviewed one by one; they are not inferred from
   equal atlas cells.
@@ -182,8 +186,8 @@ Whimsical finds:
   star fragment in reading order.
 - The bottle cap, toy robot and tiny crown are redrawn in
   `collection-extension/keepsakes-2` (2026-11-20); only the star fragment is
-  still cut from this sheet. The pottery shard and the old button of
-  `finds-source.png` are redrawn there too.
+  still cut from this sheet, and the export keeps only its cell. The pottery
+  shard and the old button of `finds-source.png` are redrawn there too.
 - Their catalog records make them available year-round.
 - The source sheets keep their original alpha and metadata; colored RGB under
   zero-alpha pixels is invisible when the app draws it.

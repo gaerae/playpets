@@ -302,13 +302,22 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   piece), the bottle cap (mint enamel with a small heart, was a rusty teal
   cap), the toy robot (mint and cream, rosy cheeks), the tiny crown (gold
   filigree with three pearls), the old coin (warm gold-bronze with a red thread
-  bow, still a coin with a square hole), a spinning top that is not used, the
-  old key (a heart-shaped filigree bow), a striped pebble that is not used, and
-  the old button (flower-shaped mother-of-pearl, was wood). `keepsakes` was the
-  style reference.
+  bow, still a coin with a square hole), a spinning top, the old key (a
+  heart-shaped filigree bow), a striped pebble, and the old button
+  (flower-shaped mother-of-pearl, was wood). `keepsakes` was the style
+  reference. The top and the pebble keep their first drawings, so their cells
+  are cleared.
 - Alpha below 50 is cleared to fully transparent, and each half-clear edge
   pixel takes the colour of the opaque pixels next to it: the generator left a
   red fringe there. Crops follow measured silhouettes with a 14-pixel margin.
+- Every keepsake's drawing sits on the bottom of its box
+  (`preserveAspectRatio="xMidYMax meet"`), as the discovery keepsakes always
+  did; wide ones such as the crown, the bottle cap and the wooden whale had
+  hovered over the spot they were set down on.
+- `pack-collection.mjs` and `pack-discovery.mjs` clear what no drawing cuts from
+  every sheet a keepsake comes from (`scripts/sheet-trim-lib.mjs`), here
+  `finds`, `cute-props` and `keepsakes-2`; the app's keepsake sheets went from
+  3.6 MB to 2.3 MB.
 - The name of the shard follows its new drawing in English, Japanese and
   Simplified Chinese (porcelain, not pottery); the Korean name already covers
   both.

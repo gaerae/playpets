@@ -30,7 +30,8 @@
       "sha256": "02fe56390476c82539337f8e784d54d19bb23efc3519541530a3a38c055e5cf8",
       "size": [1536, 1024],
       "runtimeAtlas": "collection-extension/finds.png",
-      "acceptedIds": ["glass_marble", "wooden_whale"]
+      "acceptedIds": ["glass_marble", "wooden_whale"],
+      "followUp": "2026-11-20: the packer clears what no drawing cuts from this keepsake sheet (scripts/sheet-trim-lib.mjs), then the export is made smaller with oxipng; the source file is unchanged."
     },
     {
       "name": "ground-bugs",
@@ -61,7 +62,8 @@
       "sha256": "a1a273906dfa7dc353a23bc37a62c2d72ec7ca3c10c7c1b30870a4906758276a",
       "size": [1536, 1024],
       "runtimeAtlas": "collection-extension/cute-props.png",
-      "acceptedIds": ["felt_mushroom", "acorn_teacup", "sleeping_fox", "bunny_watering_can", "hedgehog_planter"]
+      "acceptedIds": ["felt_mushroom", "acorn_teacup", "sleeping_fox", "bunny_watering_can", "hedgehog_planter"],
+      "followUp": "2026-11-20: the packer clears what no drawing cuts from this keepsake sheet (scripts/sheet-trim-lib.mjs), then the export is made smaller with oxipng; the source file is unchanged."
     },
     {
       "name": "green-cricket",

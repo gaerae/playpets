@@ -183,3 +183,46 @@ test('the redrawn keepsakes come from their reviewed sheet, each whole inside it
       `${source.id}: no viewport uses it`,
     );
 });
+
+// A keepsake stands on the ground: its drawing sits on the bottom of its box, so a wide one (the
+// crown, the bottle cap, the whale) does not hover above the spot it was set down on.
+test('every keepsake drawing stands on the bottom of its box', () => {
+  for (const { id, art } of catalog.treasures) {
+    const svg = read(`src/art/${art}`).toString();
+    assert.match(svg, /<svg width="\d+" height="\d+" viewBox="[^"]+" preserveAspectRatio="xMidYMax meet"/, id);
+  }
+});
+
+// A sheet a keepsake is cut from ships only what some drawing cuts from it: cells nobody draws
+// (a redrawn keepsake's old cell, an unused one) are cleared, so they cost nothing in the app.
+test('a keepsake sheet ships only the parts its drawings cut', () => {
+  const records = JSON.parse(read('src/art/collection.json'));
+  const sheets = new Map();
+  for (const { art } of catalog.treasures) {
+    const record = records.find(item => item.art === art);
+    if (record) {
+      const png = `assets/art/${record.atlas.replace(/\.webp$/, '.png')}`;
+      sheets.set(
+        png,
+        records.filter(item => item.atlas === record.atlas).map(item => item.crop),
+      );
+      continue;
+    }
+    const source = sources.sources.find(item => item.id === sources.assets.find(a => a.art === art).source);
+    sheets.set(
+      `assets/art/${source.atlas}`,
+      sources.assets.filter(a => a.source === source.id).map(a => a.crop),
+    );
+  }
+  for (const [file, crops] of sheets) {
+    const { width, height, channels, pixels } = decodePng(read(file));
+    let outside = 0;
+    for (let y = 0; y < height; y++)
+      for (let x = 0; x < width; x++) {
+        if (crops.some(([cx, cy, cw, ch]) => x >= cx && y >= cy && x < cx + cw && y < cy + ch)) continue;
+        const at = (y * width + x) * channels;
+        for (let c = 0; c < channels; c++) if (pixels[at + c]) outside++;
+      }
+    assert.equal(outside, 0, `${file}: samples left outside every cut`);
+  }
+});
