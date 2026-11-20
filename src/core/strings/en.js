@@ -134,7 +134,7 @@ export const strings = {
   'treasure.striped_pebble': 'Striped pebble',
   'treasure.sea_glass': 'Sea glass',
   'treasure.leaf_fossil': 'Leaf fossil',
-  'treasure.clay_shard': 'Pottery shard',
+  'treasure.clay_shard': 'Porcelain shard',
   'treasure.old_button': 'Old button',
   'treasure.tiny_shell': 'Tiny shell',
   'treasure.quartz': 'Quartz',

@@ -1388,5 +1388,68 @@
     "crop": [1185, 350, 310, 348],
     "size": [40, 40],
     "art": "discovery/shell_mirror.svg"
+  },
+  {
+    "id": "clay_shard",
+    "kind": "treasure",
+    "atlas": "collection-extension/keepsakes-2.webp",
+    "atlasSize": [1254, 1254],
+    "crop": [21, 51, 366, 369],
+    "size": [40, 40],
+    "art": "discovery/clay_shard.svg"
+  },
+  {
+    "id": "bottle_cap",
+    "kind": "treasure",
+    "atlas": "collection-extension/keepsakes-2.webp",
+    "atlasSize": [1254, 1254],
+    "crop": [428, 80, 394, 324],
+    "size": [40, 40],
+    "art": "discovery/bottle_cap.svg"
+  },
+  {
+    "id": "toy_robot",
+    "kind": "treasure",
+    "atlas": "collection-extension/keepsakes-2.webp",
+    "atlasSize": [1254, 1254],
+    "crop": [848, 2, 378, 418],
+    "size": [40, 40],
+    "art": "discovery/toy_robot.svg"
+  },
+  {
+    "id": "tiny_crown",
+    "kind": "treasure",
+    "atlas": "collection-extension/keepsakes-2.webp",
+    "atlasSize": [1254, 1254],
+    "crop": [33, 471, 391, 289],
+    "size": [40, 40],
+    "art": "discovery/tiny_crown.svg"
+  },
+  {
+    "id": "old_coin",
+    "kind": "treasure",
+    "atlas": "collection-extension/keepsakes-2.webp",
+    "atlasSize": [1254, 1254],
+    "crop": [450, 446, 345, 389],
+    "size": [40, 40],
+    "art": "discovery/old_coin.svg"
+  },
+  {
+    "id": "old_key",
+    "kind": "treasure",
+    "atlas": "collection-extension/keepsakes-2.webp",
+    "atlasSize": [1254, 1254],
+    "crop": [105, 804, 266, 421],
+    "size": [40, 40],
+    "art": "discovery/old_key.svg"
+  },
+  {
+    "id": "old_button",
+    "kind": "treasure",
+    "atlas": "collection-extension/keepsakes-2.webp",
+    "atlasSize": [1254, 1254],
+    "crop": [845, 836, 371, 366],
+    "size": [40, 40],
+    "art": "discovery/old_button.svg"
   }
 ]

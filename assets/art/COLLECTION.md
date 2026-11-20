@@ -291,3 +291,26 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   shared edge instead of taking the margin.
 - Accepted sources, prompts, hashes and measured boxes:
   `assets/sources/album-plus-2026-11-20/accepted-art.json`.
+
+## Seven keepsakes redrawn (2026-11-20)
+
+- Seven older keepsakes were redrawn to sit with the locket, perfume bottle,
+  ribbon clip and shell mirror: the same kinds, prettier drawings. The spinning
+  top and the striped pebble keep their first drawings.
+- `collection-extension/keepsakes-2` holds, in reading order: the porcelain
+  shard (cream with a painted flower sprig and a gold rim, was a terracotta
+  piece), the bottle cap (mint enamel with a small heart, was a rusty teal
+  cap), the toy robot (mint and cream, rosy cheeks), the tiny crown (gold
+  filigree with three pearls), the old coin (warm gold-bronze with a red thread
+  bow, still a coin with a square hole), a spinning top that is not used, the
+  old key (a heart-shaped filigree bow), a striped pebble that is not used, and
+  the old button (flower-shaped mother-of-pearl, was wood). `keepsakes` was the
+  style reference.
+- Alpha below 50 is cleared to fully transparent, and each half-clear edge
+  pixel takes the colour of the opaque pixels next to it: the generator left a
+  red fringe there. Crops follow measured silhouettes with a 14-pixel margin.
+- The name of the shard follows its new drawing in English, Japanese and
+  Simplified Chinese (porcelain, not pottery); the Korean name already covers
+  both.
+- Accepted source, prompt, hashes and measured boxes:
+  `assets/sources/keepsake-redraw-2026-11-20/accepted-art.json`.

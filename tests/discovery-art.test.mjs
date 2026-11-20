@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { webpName } from '../scripts/art-webp-lib.mjs';
+import { decodePng } from '../scripts/png-lossless-lib.mjs';
 import { STRINGS } from '../src/core/strings.js';
 
 const read = name => readFileSync(new URL(`../${name}`, import.meta.url));
@@ -145,4 +146,40 @@ test('every discovery catalog asset resolves to a reviewed atlas viewport', () =
     assert.equal(read(`assets/art/${source.atlas}`).readUInt32BE(16), source.size[0]);
     assert.equal(read(`assets/art/${source.atlas}`)[25], 6, `${art}: RGBA source`);
   }
+});
+
+// Seven keepsakes were redrawn on 2026-11-20 to sit with the newer ones: same kinds, prettier
+// drawings. Each comes from the sheet its provenance records, whole inside its crop; the spinning top
+// and the striped pebble keep their first drawings.
+test('the redrawn keepsakes come from their reviewed sheet, each whole inside its crop', () => {
+  const redrawn = ['clay_shard', 'bottle_cap', 'toy_robot', 'tiny_crown', 'old_coin', 'old_key', 'old_button'];
+  const records = JSON.parse(read('src/art/collection.json'));
+  const accepted = JSON.parse(read('assets/sources/keepsake-redraw-2026-11-20/accepted-art.json')).sources[0];
+  assert.deepEqual([...accepted.acceptedIds].sort(), [...redrawn].sort());
+  const atlas = accepted.runtimeAtlas.replace(/\.png$/, '.webp');
+  const sheet = decodePng(read(`assets/art/${accepted.runtimeAtlas}`));
+  const opaque = (x, y) =>
+    x >= 0 && y >= 0 && x < sheet.width && y < sheet.height && sheet.pixels[(y * sheet.width + x) * 4 + 3] > 0;
+  for (const id of redrawn) {
+    const record = records.find(item => item.id === id);
+    assert.equal(record?.atlas, atlas, id);
+    assert.deepEqual(record.crop, accepted.boxes[id], id);
+    assert.equal(catalog.treasures.find(item => item.id === id).art, record.art, id);
+    assert.ok(!sources.assets.some(item => item.id === id), `${id}: the old drawing is no longer packed`);
+    const [x, y, w, h] = record.crop;
+    for (let i = 0; i < Math.max(w, h); i++)
+      assert.ok(
+        !(i < h && (opaque(x - 1, y + i) || opaque(x + w, y + i))) &&
+          !(i < w && (opaque(x + i, y - 1) || opaque(x + i, y + h))),
+        `${id}: drawn past its crop`,
+      );
+  }
+  for (const id of ['spinning_top', 'striped_pebble'])
+    assert.ok(!records.some(item => item.id === id && item.atlas === atlas), `${id} keeps its drawing`);
+  // No accepted source is left with nothing cut from it.
+  for (const source of sources.sources)
+    assert.ok(
+      sources.assets.some(item => item.source === source.id),
+      `${source.id}: no viewport uses it`,
+    );
 });

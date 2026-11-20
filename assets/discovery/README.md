@@ -172,10 +172,18 @@ More finds (2026-11-03):
 - The cicada shell cell is not exported: an insect part did not suit a dug-up
   keepsake. The old coin (`old-coin-source.png`) takes its place.
 - The pearl and the clover are uncommon; the other six are ordinary.
+- The old key is redrawn in `collection-extension/keepsakes-2` (2026-11-20, see
+  `assets/art/COLLECTION.md`); its cell here is no longer exported. So is the
+  old coin: `old-coin-source.png` is no longer an exported atlas, and stays
+  only as the chestnut burr's style reference.
 
 Whimsical finds:
 - `whimsical-finds-source.png` holds the bottle cap, toy robot, tiny crown and
   star fragment in reading order.
+- The bottle cap, toy robot and tiny crown are redrawn in
+  `collection-extension/keepsakes-2` (2026-11-20); only the star fragment is
+  still cut from this sheet. The pottery shard and the old button of
+  `finds-source.png` are redrawn there too.
 - Their catalog records make them available year-round.
 - The source sheets keep their original alpha and metadata; colored RGB under
   zero-alpha pixels is invisible when the app draws it.

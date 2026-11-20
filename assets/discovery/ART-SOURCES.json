@@ -201,19 +201,6 @@
       "notes": "Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha."
     },
     {
-      "id": "old-coin",
-      "file": "old-coin-source.png",
-      "atlas": "discovery/old-coin.png",
-      "size": [1263, 1246],
-      "sha256": "9e52faf5c2f388031a184f7c0f80353f3613486a0bcb69ae07cb8e0f55c825cc",
-      "prompt": "Use case: stylized-concept. Asset type: PlayPets cozy game keepsake sprite. Reference image is STYLE REFERENCE ONLY: match its warm sculpted illustrated materials, soft hand-painted detail, crisp edges, natural tactile finish and soft top-left lighting. Create a genuine transparent RGBA sprite of exactly ONE isolated object, centered, filling about 65% of the image width, orthographic slightly top-front view, readable at 40 CSS pixels: one old round Korean bronze coin (yeopjeon) with a square hole in the middle, a raised rim around the edge and around the hole, worn dark bronze with soft verdigris green patina in the recesses and a little earth still clinging to one edge, as if just dug up. Four small raised blocky marks around the hole are abstract worn bumps, NOT readable characters or letters. No background, no checkerboard ink, no ground shadow, no text, labels, brands or extra objects. Preserve genuine alpha.",
-      "input": {
-        "path": "assets/discovery/finds-source.png",
-        "role": "Style reference only"
-      },
-      "notes": "Replaces the cicada shell cell of more-finds, which is no longer exported. Hidden RGB beneath transparent pixels may show a colored halo in alpha-ignoring viewers; runtime respects original alpha."
-    },
-    {
       "id": "winter-trees",
       "file": "winter-trees-source.png",
       "atlas": "trees/winter.png",
@@ -793,22 +780,6 @@
       "anchor": [0.5, 0.5]
     },
     {
-      "id": "clay_shard",
-      "source": "finds",
-      "art": "discovery/clay_shard.svg",
-      "size": [40, 40],
-      "crop": [78, 435, 319, 327],
-      "anchor": [0.5, 0.5]
-    },
-    {
-      "id": "old_button",
-      "source": "finds",
-      "art": "discovery/old_button.svg",
-      "size": [40, 40],
-      "crop": [482, 448, 297, 300],
-      "anchor": [0.5, 0.5]
-    },
-    {
       "id": "tiny_shell",
       "source": "finds",
       "art": "discovery/tiny_shell.svg",
@@ -1048,30 +1019,6 @@
       "crop": [1027, 518, 494, 483],
       "anchor": [0.5, 1],
       "frame": [1020.5, 518, 507, 483]
-    },
-    {
-      "id": "bottle_cap",
-      "source": "whimsical-finds",
-      "art": "discovery/bottle_cap.svg",
-      "size": [40, 40],
-      "crop": [95, 157, 521, 445],
-      "anchor": [0.5, 0.5]
-    },
-    {
-      "id": "toy_robot",
-      "source": "whimsical-finds",
-      "art": "discovery/toy_robot.svg",
-      "size": [40, 40],
-      "crop": [687, 63, 504, 573],
-      "anchor": [0.5, 0.5]
-    },
-    {
-      "id": "tiny_crown",
-      "source": "whimsical-finds",
-      "art": "discovery/tiny_crown.svg",
-      "size": [40, 40],
-      "crop": [118, 733, 497, 389],
-      "anchor": [0.5, 0.5]
     },
     {
       "id": "star_fragment",
@@ -1367,14 +1314,6 @@
       "frame": [935.3, 69, 737.9, 784]
     },
     {
-      "id": "old_coin",
-      "source": "old-coin",
-      "art": "discovery/old_coin.svg",
-      "size": [40, 40],
-      "crop": [201, 196, 833, 840],
-      "anchor": [0.5, 0.5]
-    },
-    {
       "id": "chestnut_burr",
       "source": "chestnut-burr",
       "art": "discovery/chestnut_burr.svg",
@@ -1436,14 +1375,6 @@
       "art": "discovery/pinecone.svg",
       "size": [40, 40],
       "crop": [941, 47, 340, 372],
-      "anchor": [0.5, 0.5]
-    },
-    {
-      "id": "old_key",
-      "source": "more-finds",
-      "art": "discovery/old_key.svg",
-      "size": [40, 40],
-      "crop": [1465, 45, 186, 377],
       "anchor": [0.5, 0.5]
     },
     {

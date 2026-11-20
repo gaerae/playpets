@@ -137,7 +137,7 @@ export const strings = {
   'treasure.striped_pebble': '条纹卵石',
   'treasure.sea_glass': '海玻璃',
   'treasure.leaf_fossil': '树叶化石',
-  'treasure.clay_shard': '小陶片',
+  'treasure.clay_shard': '小瓷片',
   'treasure.old_button': '旧纽扣',
   'treasure.tiny_shell': '小贝壳',
   'treasure.quartz': '石英碎片',

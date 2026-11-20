@@ -138,7 +138,7 @@ export const strings = {
   'treasure.striped_pebble': 'しま模様の小石',
   'treasure.sea_glass': 'シーグラス',
   'treasure.leaf_fossil': '葉の化石',
-  'treasure.clay_shard': '小さな陶片',
+  'treasure.clay_shard': '小さな磁器のかけら',
   'treasure.old_button': '古いボタン',
   'treasure.tiny_shell': '小さな貝殻',
   'treasure.quartz': '水晶のかけら',
