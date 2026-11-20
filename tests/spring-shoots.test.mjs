@@ -39,8 +39,7 @@ test('the Spring shoots book shows each shoot, its name and the season', t => {
   setData({ ...before, album: { shoots: { morel: { count: 2, best: 0, first: 1 } } } });
   tab.onclick();
   const cards = document.getElementById('album-grid').children;
-  assert.equal(cards.length, 8);
-  assert.equal(SHOOTS.length, 8);
+  assert.equal(cards.length, SHOOTS.length);
   const hint = translate('shoot.hint', { season: translate('catch.season_spring') });
   for (const [index, card] of cards.entries()) {
     const found = SHOOTS[index].id === 'morel';

@@ -13,7 +13,19 @@ import { $, call, data, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { previewSvg } from '../yard/art.js';
 import { albumSeen } from '../yard/card.js';
-import { BUGS, FISH, FLOWERS, GIFTS, giftKind, grownArt, SHOOTS, TRACKS, TREASURES, TREES } from '../yard/catalog.js';
+import {
+  BUGS,
+  FISH,
+  FLOWERS,
+  GIFTS,
+  giftKind,
+  grownArt,
+  nameKey,
+  SHOOTS,
+  TRACKS,
+  TREASURES,
+  TREES,
+} from '../yard/catalog.js';
 import { bugSvg, fishSvg } from '../yard/creatures.js';
 import { decorShown, yardSeason } from '../yard/decor-shown.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
@@ -71,18 +83,19 @@ const caughtLine = (entry, size) =>
     ? joinList([t('catch.count', { count: entry.count }), t('catch.best', { size: entry.best.toFixed(1) })])
     : t('catch.count', { count: entry.count });
 
-// Each book: its tab's name, its kinds (the catalogue's), what has been found, and how a card draws
-// and describes a kind (`unknown`: what a card not found yet says, when not "not met yet"). A kind
+// Each book: its tab's name, its kinds (the catalogue's `list`, whose kinds are named by
+// catalog.js NAME_KEYS unless it has its own `name`), what has been found, and how a card draws and
+// describes a kind (`unknown`: what a card not found yet says, when not "not met yet"). A kind
 // added to the catalogue shows up in its book; a new book is one more entry here (its tab is made
-// from it). A `hidden` book shows only what has been found, is not there at all before that, and
+// from it) and one in NAME_KEYS. A `hidden` book shows only what has been found, is not there at all before that, and
 // stays out of the album's count; `note` is what its status line says.
 const BOOKS = {
   flower: {
     tab: 'catch.tab_flowers',
     kinds: FLOWERS,
+    list: 'flowers',
     found: () => data.album?.flowers || {},
     draw: (k, unknown) => specimen(k.art, unknown),
-    name: k => t(`garden.kind_${k.id}`),
     unknown: 'catch.unknown_flower',
     hint: k => t('catch.flower_hint', { season: t(`catch.season_${k.season}`) }),
     record: entry => t('catch.grown', { count: entry.count }),
@@ -91,9 +104,9 @@ const BOOKS = {
   fish: {
     tab: 'catch.tab_fish',
     kinds: FISH,
+    list: 'fish',
     found: () => data.album?.fish || {},
     draw: (k, unknown) => (k.art ? specimen(k.art, unknown) : fishSvg(k, unknown)),
-    name: k => t(`catch.fish_${k.id}`),
     hint: k =>
       joinList([
         ...(k.event ? [eventSceneHint(k)] : []),
@@ -107,9 +120,9 @@ const BOOKS = {
   bug: {
     tab: 'catch.tab_bugs',
     kinds: BUGS,
+    list: 'bugs',
     found: () => data.album?.bugs || {},
     draw: (k, unknown) => (k.art ? specimen(k.art, unknown) : bugSvg(k, unknown)),
-    name: k => t(`catch.bug_${k.id}`),
     hint: k =>
       joinList([
         ...(k.event ? [eventSceneHint(k)] : []),
@@ -123,10 +136,10 @@ const BOOKS = {
   gift: {
     tab: 'catch.tab_gifts',
     kinds: GIFTS,
+    list: 'gifts',
     // The garden keeps which gifts have come; each counts once.
     found: () => Object.fromEntries((data.garden?.received || []).map(id => [id, { count: 1 }])),
     draw: (k, unknown) => specimen(k.art, unknown),
-    name: k => t(`decor.kind_${k.id}`),
     unknown: 'catch.unknown_gift',
     hint: k => (k.event ? eventHint(k) : t(k.built ? 'catch.built_hint' : 'catch.gift_hint')),
     record: () => t('catch.received'),
@@ -136,9 +149,9 @@ const BOOKS = {
   tree: {
     tab: 'album.trees',
     kinds: TREES,
+    list: 'trees',
     found: () => data.album?.trees || {},
     draw: (k, unknown) => specimen(grownArt(k), unknown),
-    name: k => t(`tree.${k.id}`),
     hint: favored('album.tree_how'),
     record: entry => t('catch.trees_grown', { count: entry.count }),
     action: k => growingButtons('tree', k.id),
@@ -146,9 +159,9 @@ const BOOKS = {
   treasure: {
     tab: 'album.treasures',
     kinds: TREASURES,
+    list: 'treasures',
     found: () => data.album?.treasures || {},
     draw: (k, unknown) => specimen(k.art, unknown),
-    name: k => t(`treasure.${k.id}`),
     hint: favored('album.treasure_how'),
     record: entry => caughtLine(entry, false),
     rare: k => k.rarity === 'uncommon',
@@ -158,9 +171,9 @@ const BOOKS = {
   track: {
     tab: 'album.tracks',
     kinds: TRACKS,
+    list: 'tracks',
     found: () => data.album?.tracks || {},
     draw: (k, unknown) => (unknown ? printSpecimen(k) : tailPeek(k)),
-    name: k => t(`track.${k.id}`),
     unknown: 'album.whose_prints',
     hint: () => t('album.tracks_hint'),
     record: entry => t('album.followed', { count: entry.count }),
@@ -169,9 +182,9 @@ const BOOKS = {
   shoot: {
     tab: 'album.shoots',
     kinds: SHOOTS,
+    list: 'shoots',
     found: () => data.album?.shoots || {},
     draw: (k, unknown) => specimen(k.art, unknown),
-    name: k => t(`shoot.${k.id}`),
     hint: k => t('shoot.hint', { season: t(`catch.season_${k.season}`) }),
     record: entry => t('shoot.count', { count: entry.count }),
   },
@@ -210,7 +223,7 @@ function card(b, kind, entry, index) {
   el.append(stage);
   const name = document.createElement('strong'),
     hint = document.createElement('small');
-  name.textContent = entry ? b.name(kind) : t(b.unknown || 'catch.unknown');
+  name.textContent = entry ? (b.name ? b.name(kind) : t(nameKey(b.list, kind.id))) : t(b.unknown || 'catch.unknown');
   hint.className = 'album-hint';
   hint.textContent = b.hint(kind);
   el.append(name, hint);

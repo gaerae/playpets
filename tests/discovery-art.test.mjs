@@ -9,36 +9,15 @@ const read = name => readFileSync(new URL(`../${name}`, import.meta.url));
 const catalog = JSON.parse(read('src/content/catalog.json'));
 const sources = JSON.parse(read('assets/discovery/ART-SOURCES.json'));
 
-test('discovery offers twenty-four distinct tree species with growth and deciduous seasonal art', () => {
-  assert.deepEqual(
-    catalog.trees.map(tree => tree.id),
-    [
-      'cherry',
-      'maple',
-      'pine',
-      'oak',
-      'birch',
-      'willow',
-      'ginkgo',
-      'persimmon',
-      'bamboo',
-      'magnolia',
-      'crape_myrtle',
-      'metasequoia',
-      'wisteria',
-      'fringe_tree',
-      'fig',
-      'golden_rain_tree',
-      'chestnut',
-      'red_plum',
-      'yuzu',
-      'juniper',
-      'lilac',
-      'silk_tree',
-      'osmanthus',
-      'holly',
-    ],
-  );
+test('every tree is its own species that grows in three stages, with its seasons drawn', () => {
+  const ids = catalog.trees.map(tree => tree.id);
+  assert.equal(new Set(ids).size, ids.length);
+  for (const tree of catalog.trees)
+    assert.deepEqual(
+      tree.stages.map(stage => stage.name),
+      ['seedling', 'young', 'mature'],
+      tree.id,
+    );
   for (const id of ['oak', 'birch', 'willow', 'ginkgo', 'persimmon', 'magnolia', 'crape_myrtle', 'metasequoia']) {
     const tree = catalog.trees.find(item => item.id === id);
     assert.deepEqual(

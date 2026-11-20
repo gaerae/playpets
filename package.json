@@ -46,6 +46,7 @@
     "assets:audit": "node scripts/asset-audit.mjs",
     "assets:optimize": "node scripts/optimize-png.mjs",
     "assets:webp": "node scripts/art-webp.mjs",
+    "art:pack": "node scripts/pack-collection.mjs && node scripts/pack-discovery.mjs && node scripts/art-webp.mjs",
     "icons": "node scripts/make-icons.mjs",
     "art": "node scripts/make-installer-art.mjs",
     "og": "node scripts/make-og.mjs",

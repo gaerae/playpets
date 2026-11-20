@@ -2,7 +2,7 @@
 // is comes from src/content/catalog.json (the fish and bugs with their seasons, hours, weights and
 // looks, the flowers with their seasons, colours and drawings, the gifts with their drawings and
 // effects, the garden's stages); a kind is added or changed there, not here. Each kind's name is in
-// the string tables (catch.fish_<id>, catch.bug_<id>, garden.kind_<id>, decor.kind_<id>).
+// the string tables, under its book's key (NAME_KEYS).
 // How to add to the yard: docs/how-to/add-to-the-yard.md.
 
 // The lists, filled in place from the catalogue once at start (content.js) or by a test, so the
@@ -20,17 +20,23 @@ export const TRACKS = [];
 /** The spring shoots a friend can dig up, each with its drawing and size. */
 export const SHOOTS = [];
 let trailArts = [];
-/** The catalogue's lists that are the album's books, in the album's order; the site counts them too. */
-export const ALBUM_BOOKS = Object.freeze([
-  'flowers',
-  'fish',
-  'bugs',
-  'gifts',
-  'trees',
-  'treasures',
-  'tracks',
-  'shoots',
-]);
+/** The catalogue's lists that are the album's books, in the album's order, each with the string key
+ * that names its kinds before the id; the album, the desktop and the site name a kind by it. A new
+ * book is one more row here and one in the album (src/panel/album.js BOOKS). */
+export const NAME_KEYS = Object.freeze({
+  flowers: 'garden.kind_',
+  fish: 'catch.fish_',
+  bugs: 'catch.bug_',
+  gifts: 'decor.kind_',
+  trees: 'tree.',
+  treasures: 'treasure.',
+  tracks: 'track.',
+  shoots: 'shoot.',
+});
+/** The album's books, in its order; the site counts them too. */
+export const ALBUM_BOOKS = Object.freeze(Object.keys(NAME_KEYS));
+/** The string key that names kind `id` of the album book `list` ('flowers', 'fish', 'treasures'). */
+export const nameKey = (list, id) => `${NAME_KEYS[list]}${id}`;
 /** A plant's stages and when each begins, in ms from planting; `art` draws it (bloom: the flower's). */
 export const STAGES = [];
 

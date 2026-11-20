@@ -478,6 +478,28 @@ impl Catalog {
 mod tests {
     use super::*;
 
+    // The album keeps KINDS_MAX kinds a book and refuses a new one past it, as a sign of a file
+    // gone wrong; a book the catalogue grows to that size would refuse real finds. Half leaves
+    // room for the books to keep growing between releases.
+    #[test]
+    fn every_album_book_has_room_to_grow_under_the_albums_cap() {
+        let c = catalog();
+        let books = [
+            ("flowers", c.flowers.len()),
+            ("gifts", c.gifts.len()),
+            ("fish", c.fish.len()),
+            ("bugs", c.bugs.len()),
+            ("trees", c.trees.len()),
+            ("treasures", c.treasures.len()),
+            ("tracks", c.tracks.len()),
+            ("shoots", c.shoots.len()),
+        ];
+        for (book, count) in books {
+            assert!(count > 0, "{book}");
+            assert!(count <= super::super::album::KINDS_MAX / 2, "{book}: {count} kinds");
+        }
+    }
+
     #[test]
     fn each_album_book_has_one_display_and_displays_are_not_gifts() {
         let c = catalog();

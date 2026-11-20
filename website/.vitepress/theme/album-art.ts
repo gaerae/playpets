@@ -6,6 +6,7 @@ import { strings as en } from '../../../src/core/strings/en.js';
 import { strings as ja } from '../../../src/core/strings/ja.js';
 import { strings as ko } from '../../../src/core/strings/ko.js';
 import { strings as zh } from '../../../src/core/strings/zh-hans.js';
+import { nameKey } from '../../../src/yard/catalog.js';
 import generated from '../generated.json';
 
 const TABLES: Record<string, Record<string, unknown>> = { en, ko, ja, 'zh-hans': zh };
@@ -19,16 +20,6 @@ const BOOK_TAB: Record<string, string> = {
   tracks: 'album.tracks',
   shoots: 'album.shoots',
 };
-const KIND_PREFIX: Record<string, string> = {
-  flowers: 'garden.kind_',
-  fish: 'catch.fish_',
-  bugs: 'catch.bug_',
-  gifts: 'decor.kind_',
-  trees: 'tree.',
-  treasures: 'treasure.',
-  tracks: 'track.',
-  shoots: 'shoot.',
-};
 
 /** The app's string for `key` in `lang`, with {placeholders} filled. */
 export function appWord(lang: string, key: string, values: Record<string, string> = {}) {
@@ -36,7 +27,7 @@ export function appWord(lang: string, key: string, values: Record<string, string
   return text.replace(/\{(\w+)\}/g, (_, name) => values[name] ?? '');
 }
 export const bookName = (lang: string, book: string) => appWord(lang, BOOK_TAB[book]);
-export const kindName = (lang: string, book: string, id: string) => appWord(lang, `${KIND_PREFIX[book]}${id}`);
+export const kindName = (lang: string, book: string, id: string) => appWord(lang, nameKey(book, id));
 
 type Picture = { src: string; width: number; height: number };
 /** A kind's picture on the site, or null when site:prepare had no browser to paint it with. */

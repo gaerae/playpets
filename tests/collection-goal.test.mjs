@@ -4,15 +4,17 @@ import { LIMITS } from '../src/core/limits.js';
 import { bugChances, eligibleKinds, fishWeight, relativeChances } from '../src/yard/catalog.js';
 import { discoveryFindChances } from '../src/yard/discovery-rewards.js';
 import { flowerFor } from '../src/yard/growth.js';
-import { albumEntries, catalog } from './support/content.mjs';
+import { catalog } from './support/content.mjs';
 
 const seasons = ['spring', 'summer', 'autumn', 'winter'];
 
-test('the collection has 203 distinct entries with ten equally reachable flowers per season', () => {
-  assert.equal(albumEntries, 203);
+// Each season grows as many flowers as the others, so a flower added to one season comes with
+// one for each of the rest.
+test('every season grows as many flowers as the others, each equally reachable', () => {
+  const each = catalog.flowers.length / seasons.length;
   for (const season of seasons) {
     const kinds = catalog.flowers.filter(item => item.season === season);
-    assert.equal(kinds.length, 10, season);
+    assert.equal(kinds.length, each, season);
     const found = new Set(Array.from({ length: 400 }, (_, i) => flowerFor(season, () => (i + 0.5) / 400)));
     assert.deepEqual(found, new Set(kinds.map(item => item.id)));
   }
@@ -76,7 +78,7 @@ test('an ordinary bug is one in twenty somewhere, a rare one never more', () => 
     else assert.ok(best[bug.id] > 0.05, `${bug.id} ${best[bug.id]}`);
 });
 
-test('the brown field cricket keeps its grounded discovery route in the 203-entry collection', () => {
+test('the brown field cricket keeps its grounded discovery route', () => {
   const cricket = catalog.bugs.find(bug => bug.id === 'field_cricket');
   assert.ok(cricket);
   assert.equal(cricket.kind, 'cricket');
@@ -87,7 +89,6 @@ test('the brown field cricket keeps its grounded discovery route in the 203-entr
     catalog.bugs.some(bug => bug.id === 'stag_beetle'),
     false,
   );
-  assert.equal(catalog.bugs.length, 28);
 });
 
 test('over a year a rare fish bites less often than any ordinary one', () => {

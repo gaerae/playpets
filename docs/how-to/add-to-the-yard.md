@@ -30,6 +30,28 @@
 
 ## Steps
 
+### Add an album entry: the checklist
+Every album book is a list in `src/content/catalog.json`; its kinds are named by the key in `NAME_KEYS` (`src/yard/catalog.js`):
+
+| Book | List | Name key | Drawing comes from | Its own rules |
+|---|---|---|---|---|
+| Flowers | `flowers` | `garden.kind_<id>` | `src/art/collection.json` or a flower SVG | Each season grows as many flowers as the others; add one per season ([Add a flower](#add-a-flower)) |
+| Aquatic life, Bugs | `fish`, `bugs` | `catch.fish_<id>`, `catch.bug_<id>` | `src/art/collection.json` | [Add a fish or a bug](#add-a-fish-or-a-bug) |
+| Gifts | `gifts` | `decor.kind_<id>`, `decor.visit_<id>` | a gift SVG or `src/art/collection.json` | Always at the end of the list ([Add a gift](#add-a-gift)) |
+| Trees | `trees` | `tree.<id>` | `assets/discovery/ART-SOURCES.json` | Three stages and seasonal art ([Planted trees](#planted-trees-and-discoveries)) |
+| Keepsakes | `treasures` | `treasure.<id>` | `src/art/collection.json` | `rarity`; the drawing stands on the bottom of its box |
+| Footprints, Spring shoots | `tracks`, `shoots` | `track.<id>`, `shoot.<id>` | their own SVGs | [Footprints](#add-an-animal-s-footprints), [Spring shoots](#planted-trees-and-discoveries) |
+
+1. Add the entry to its list, and its name to all four string tables (ko, en, ja, zh-hans).
+2. Keep the painted sheet in `assets/art/` with its prompt and provenance (`assets/sources/<date>/accepted-art.json`), record its crop, then run `pnpm run art:pack`. It makes the wrappers, trims the sheets, and makes the shipped WebP and the album card previews. Packing again with nothing new changes nothing.
+3. Update the words that count the album. `tests/album-copy.test.mjs` lists each sentence that holds a number (the README, the guide in every language, `src-tauri/src/chat/guide.rs`), and fails until it matches the catalogue. Add the new kind's name to any list the guide gives, such as the flowers by season or the trees you can plant.
+4. Add a line under `## [Unreleased]` in `CHANGELOG.md`.
+5. Run the checks in [Verification](#verification).
+
+- The landing and the site's album page count from the catalogue; they need no change.
+- The backend keeps at most `KINDS_MAX` kinds a book (`pets/album.rs`); a test keeps every book under half of it.
+- A new book is one more row in `NAME_KEYS`, an entry in the album's `BOOKS` (`src/panel/album.js`), a field in `Album` (`pets/album.rs`), and its line in the content test of `pets/content.rs`.
+
 ### Add a fish or a bug
 1. Add an entry to `fish` or `bugs` in `src/content/catalog.json`. Copy a close one and change:
 
@@ -321,7 +343,7 @@ Guide labels:
 - Event gifts stay tied to the calendar.
 - Gifts follow a deterministic sequence, not a loot probability.
 - The cap of 12 placed decorations pauses deliveries.
-- Removing a decoration keeps its album entry, so all 29 gifts can be collected over time.
+- Removing a decoration keeps its album entry, so every gift can be collected over time.
 
 Reachability:
 - Keep every album entry reachable across valid contexts.
