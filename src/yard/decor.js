@@ -36,7 +36,7 @@ import {
   standAt,
   yardToDecor,
 } from './field.js';
-import { findOutEffects, findOutKind, decorName, giftsOut, heldLayers, visitLines } from './find-out.js';
+import { decorName, drawHeld, findOutEffects, findOutKind, giftsOut, visitLines } from './find-out.js';
 import { FIRST_GIFT, GIFT_WAIT, giftDue, giftWait, localDay } from './growth.js';
 import {
   beginDrag,
@@ -154,12 +154,8 @@ function create(d) {
     for (const node of [shade, ...feet]) button.insertBefore(node, first);
   }
   const v = { id: d.id, kind: d.kind, button, drag: null, busy: false, dressLayer: null, worn: null, heldLayer: null };
-  // The find a kind out holds (find-out.js); the update fills it.
-  if (findOutKind(d.kind)) {
-    v.heldLayer = document.createElement('span');
-    v.heldLayer.className = 'held-layer';
-    button.append(v.heldLayer);
-  }
+  // The find a kind out holds (find-out.js drawHeld): drawn now, under what the update adds.
+  if (findOutKind(d.kind)) drawHeld(v, d.holds || []);
   // What a snowman wears, over its drawing (snowman-dress.js); the update fills it.
   if (gift?.dress) {
     v.dressLayer = document.createElement('span');
@@ -307,11 +303,7 @@ export function renderDecor() {
       v.worn = worn.join();
       v.dressLayer.innerHTML = dressLayers(d.kind, worn);
     }
-    const held = (d.holds || []).join();
-    if (v.heldLayer && held !== v.held) {
-      v.held = held;
-      v.heldLayer.innerHTML = heldLayers(d.kind, d.holds);
-    }
+    if (v.heldLayer) drawHeld(v, d.holds || []);
   });
   // One timer for the next heart to fade, not a check every frame.
   clearTimeout(heartsFade);

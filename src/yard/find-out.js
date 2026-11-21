@@ -73,6 +73,21 @@ export function heldLayers(kind, holds = []) {
     })
     .join('');
 }
+/** Draws the find a kind out `view` ({ kind, button }) holds into its layer, made on the button
+ * the first time, only when `holds` changed since the last draw (the yard's decor.js and the
+ * desktop's wear.js alike). True when it drew. */
+export function drawHeld(view, holds = []) {
+  const key = holds.join();
+  if (view.heldLayer && key === view.held) return false;
+  view.held = key;
+  if (!view.heldLayer) {
+    view.heldLayer = document.createElement('span');
+    view.heldLayer.className = 'held-layer';
+    view.button.append(view.heldLayer);
+  }
+  view.heldLayer.innerHTML = heldLayers(view.kind, holds);
+  return true;
+}
 /** The drawings a find out is drawn from, to load with it. */
 export function heldArt(kind, holds = []) {
   const out = findOutKind(kind);

@@ -9,7 +9,7 @@ import { reduced } from '../core/sprites.js';
 import { loadArt } from '../yard/art.js';
 import { giftKind } from '../yard/catalog.js';
 import { dressLayers } from '../yard/dress-layers.js';
-import { findOutKind, decorName, heldArt, heldLayers } from '../yard/find-out.js';
+import { decorName, drawHeld, findOutKind, heldArt } from '../yard/find-out.js';
 import { grandLayers, RISE_MS } from '../yard/grand-tree.js';
 import { drawTreeOrnaments } from '../yard/ornaments.js';
 
@@ -24,20 +24,14 @@ export function wearArt(kind) {
   );
 }
 
-// The find the kind out `view` holds, drawn again only when that changed, once its drawing is
-// in; its name says what it holds.
+// The find the kind out `view` holds, drawn as the yard draws it (find-out.js drawHeld) once its
+// drawing is in; its name says what it holds. A newer find asked for meanwhile wins.
 async function showHeld(view, holds) {
   const key = holds.join();
-  if (key === view.held) return;
-  view.held = key;
+  if (key === view.asked) return;
+  view.asked = key;
   await loadArt(heldArt(view.kind, holds));
-  if (view.held !== key) return;
-  if (!view.heldLayer) {
-    view.heldLayer = document.createElement('span');
-    view.heldLayer.className = 'held-layer';
-    view.button.append(view.heldLayer);
-  }
-  view.heldLayer.innerHTML = heldLayers(view.kind, holds);
+  if (view.asked !== key || !drawHeld(view, holds)) return;
   view.button.title = decorName(view.kind, holds);
   view.button.setAttribute('aria-label', view.button.title);
 }
