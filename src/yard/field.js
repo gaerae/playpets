@@ -42,15 +42,17 @@ function edgeShape() {
     points = place.geometry?.edge;
   if (!points?.length || paintedLand() || place.fit === 'cover-bottom' || !yardSize.width) return null;
   const key = `${scene.world} ${yardSize.width} ${yardSize.height}`;
-  if (edgeAt?.key !== key || edgeAt.points !== points) {
+  if (edgeAt?.key !== key || edgeAt.geometry !== place.geometry) {
     const frame = environmentFrame(yardSize.width, yardSize.height, scene);
     const yard = points.map(([x, y]) => [frame.x + x * frame.width, frame.y + y * frame.height]);
+    const far = place.geometry.far;
     edgeAt = {
       key,
-      points,
+      geometry: place.geometry,
       yard,
       lake: environmentLake(yardSize.width, yardSize.height, scene),
       shore: SHORE * frame.height,
+      far: far === undefined ? undefined : frame.y + far * frame.height,
     };
     // The highest the field begins anywhere, where draw order (depthAt) starts.
     edgeAt.high = Math.min(...yard.map(([x]) => edgeTop(edgeAt, x, Infinity)));
@@ -124,10 +126,12 @@ export function depthScale(y) {
 /** How big something whose foot is at (px, py) in the yard is drawn for its depth: as a friend whose
  * feet are there (views.js place). A friend's place runs from where the field begins at its feet
  * down to its name tag's room (geometry), so a gift, a plant or a tree on the same spot reads at the
- * same scale; one set below a friend's reach is as near as the nearest friend. */
+ * same scale; one set below a friend's reach is as near as the nearest friend. Where the lawn
+ * reaches far back (geometry.far, a share of the picture's height), the scale runs from that line
+ * instead, the same at every x: up the meadow a friend is smaller than at the line beside it. */
 export function depthScaleAt(px, py) {
   if (!yardSize.width) measureYard();
-  const top = topAt(px);
+  const top = edgeShape()?.far ?? topAt(px);
   return depthScale((py - top) / Math.max(1, yardSize.height - TAG_ROOM - top));
 }
 export const petHeight = p => (sizeOf(p) * 208) / 192;

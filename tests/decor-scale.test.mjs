@@ -103,3 +103,13 @@ test('a lit gift pools its light on the ground at its foot', async () => {
   assert.match(layers, /class="fx-pool"/);
   assert.equal(effectLayers([]), '');
 });
+
+// A lamp hung to one side of its post is lit there: the halo is round the point the catalogue gives
+// (catalog.json "light"), and round the top of the middle without one. The pool stays at the foot.
+test("a lit gift's halo is round its light", async () => {
+  const { effectLayers } = await import('../src/yard/effects.js');
+  assert.match(effectLayers(['glow'], [0.74, 0.38]), /class="fx-glow" style="left: 74%; top: 38%"/);
+  assert.match(effectLayers(['halo'], [0.5, 0.2]), /class="fx-glow" style="left: 50%; top: 20%"/);
+  assert.match(effectLayers(['glow']), /class="fx-glow" aria-hidden/);
+  assert.match(effectLayers(['glow'], [0.74, 0.38]), /class="fx-pool" aria-hidden/);
+});

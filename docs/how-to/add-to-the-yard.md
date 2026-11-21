@@ -192,9 +192,11 @@ Name it in the gift's `effects`. The existing effects:
 | `glow` | Lit from evening on: a warm pool of light around it, and it is not dimmed at night |
 | `chime` | Rings when a friend visits it (the `chime` sound in `soundmix.js`) |
 
+- A lit gift's halo is round the top of the middle of its drawing. Where its light is elsewhere (a lamp hung to one side, a cart's lantern), give `light: [x, y]` as shares of the drawing's width and height.
+
 To make a new effect:
 1. Add an entry to `EFFECTS` in `src/yard/effects.js`, shaped `{ name: { layer, visited } }`.
-   - `layer`: markup drawn with the gift.
+   - `layer`: a function of the gift's `light` (or nothing) that returns markup drawn with the gift.
    - `visited`: what happens when a friend visits it.
    - Both are optional; leave both out if the effect is only a rule.
 2. Put its rules under "Effects" in `src/styles/garden.css`, selecting `.decor[data-effects~="<name>"]`.

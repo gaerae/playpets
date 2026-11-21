@@ -1,0 +1,73 @@
+{
+  "generated": "2026-11-21",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "sources": [
+    {
+      "name": "trees-gold",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game asset atlas for a cozy, cute, healing desktop pet game. Style: match the first reference props exactly: softly sculpted miniature, SMOOTH MATTE surfaces (NOT felt, NOT plush), soft painterly shading, key light from the UPPER LEFT, rounded silhouettes readable at small size. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO bloom, NO glow halo, NO colored edge fringe, NO floor, NO cast shadow, NO text, NO labels, NO numbers. Light bulbs and lanterns are drawn warm and bright but their light stays inside the object, never spilling outside its silhouette. Every object is complete and unclipped with generous transparent padding, and no object touches or overlaps another.\nLandscape 1536x1024 canvas. Exactly TWO objects side by side: on the LEFT a SMALL Christmas tree, about 380 px tall; on the RIGHT its GRAND version, about 900 px tall, standing on the same baseline near the bottom. Design: the gold and cream minimal style from the right half of the second reference image. Both trees: slender soft sage-green fir with plush snow on the tier tops, densely wrapped in tiny warm golden fairy-light bulbs, champagne gold and cream round baubles, a few cream velvet bows, and a small gold five-pointed star on top with NO rays. The small one stands in a plain gold metal pot. The grand one has a short brown trunk in a soft snow mound with three cream and gold wrapped gift boxes at its foot.",
+      "references": [
+        "assets/art/decor/props.png",
+        "the previous collection-extension/christmas-trees.png (Git history), sha256 23cca024a3f917d472c774c66a1f03fe8a7fc32e9682fcd976b00ee31bc77e43",
+        "a mockup the person chose from (not kept), sha256 a6a957e1f73c0dd6a084c748b9d6ef97aa224299e9cf2196cbc63504b3f79de2"
+      ],
+      "file": "trees-gold.png",
+      "sha256": "fd039a449d12c2cb3be08a6f9fb0ce891176b9a8ae70ff0b86bfb9ae8f9bb054",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/christmas-trees.png",
+      "acceptedIds": ["xmas_tree", "xmas_tree_grand"],
+      "notes": "Replaces the 2026-11-09 trees: the gold and cream minimal design. The small tree keeps its twelve ornament hooks and Christmas night; hooks, baubles, star and bulbs were measured again on this drawing."
+    },
+    {
+      "name": "trees-new",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game asset atlas for a cozy, cute, healing desktop pet game. Style: match the first reference props exactly: softly sculpted miniature, SMOOTH MATTE surfaces (NOT felt, NOT plush), soft painterly shading, key light from the UPPER LEFT, rounded silhouettes readable at small size. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO bloom, NO glow halo, NO colored edge fringe, NO floor, NO cast shadow, NO text, NO labels, NO numbers. Light bulbs and lanterns are drawn warm and bright but their light stays inside the object, never spilling outside its silhouette. Every object is complete and unclipped with generous transparent padding, and no object touches or overlaps another.\nLandscape 1536x1024 canvas. Exactly FOUR objects in one row, left to right, all standing on the same baseline near the bottom, evenly spaced with clear transparent gaps: (1) SMALL coquette ribbon tree about 380 px tall, (2) its GRAND version about 880 px tall, (3) SMALL pastel retro tree about 380 px tall, (4) its GRAND version about 880 px tall. Keep each tree narrow enough that none touch. Designs follow the second reference image (coquette pair, left) and the third reference image (pastel retro pair, left). Coquette: white snow-flocked fir decorated with blush pink and cream satin ribbon bows, a pearl bead garland, tiny pale pink and pearl glass baubles, tiny warm fairy lights, one big blush pink satin bow on top instead of a star; the small one stands in a cream fluted ceramic pot, the grand one on a soft snow mound. Pastel retro: soft sage green fir with plush snow on the tiers, vintage glass baubles in blush pink, mint, butter yellow and lilac, small colourful round bulbs, a silver tinsel garland, and a pink vintage glass spire finial on top; the small one stands in a pastel striped tin bucket, the grand one on a soft snow mound with a brown trunk.",
+      "references": [
+        "assets/art/decor/props.png",
+        "a mockup the person chose from (not kept), sha256 5e3defd0e55cc97259a3764313ca0235bb69211ccb49bf50f4c9a1a4e2435493",
+        "a mockup the person chose from (not kept), sha256 a6a957e1f73c0dd6a084c748b9d6ef97aa224299e9cf2196cbc63504b3f79de2"
+      ],
+      "file": "trees-new.png",
+      "sha256": "0ee1307aa652443cbfc19c2881fb76d55267592c882ab324b28bcd434bd3d9e1",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/christmas-trees-2.png",
+      "acceptedIds": ["ribbon_tree", "ribbon_tree_big", "retro_tree", "retro_tree_big"]
+    },
+    {
+      "name": "winter-props",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game asset atlas for a cozy, cute, healing desktop pet game. Style: match the first reference props exactly: softly sculpted miniature, SMOOTH MATTE surfaces (NOT felt, NOT plush), soft painterly shading, key light from the UPPER LEFT, rounded silhouettes readable at small size. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO bloom, NO glow halo, NO colored edge fringe, NO floor, NO cast shadow, NO text, NO labels, NO numbers. Light bulbs and lanterns are drawn warm and bright but their light stays inside the object, never spilling outside its silhouette. Every object is complete and unclipped with generous transparent padding, and no object touches or overlaps another.\nLandscape 1536x1024 canvas. Exactly SIX objects in a strict 3 columns by 2 rows grid, one complete object centered in each equal cell with at least 10% transparent padding, all at one consistent miniature scale, front three-quarter view. Designs follow the second and third reference images. Row 1: (1) a stack of three wrapped Christmas gift boxes, red, cream and sage green, with satin ribbons and bows, light snow on the lids; (2) a small wooden garden arch wrapped in an evergreen garland vine with warm glowing fairy-light bulbs, a few red berries and a little snow on top; (3) a bronze shepherd hook stand with a curled top and a round base, a round evergreen wreath with a red bow and two pinecones hanging from the hook on a short ring. Row 2: (4) a striped red and cream candy-cane lamp post with a red bow and holly, its curved arm holding a small glowing gold star lantern; (5) a little wooden sundries cart on two spoked wheels with a push handle, a striped red and cream canopy, a brass bell and a small glowing lantern hanging from the canopy, piled with knitted scarves, mittens, jars of candy and small wrapped presents, a blank wooden tag with no writing; (6) a small gingerbread house with white icing snow on the roof, candy dots, candy-cane corners, a red door with a tiny wreath and warm glowing windows. Each object stands on its own small soft snow patch inside its cell.",
+      "references": [
+        "assets/art/decor/props.png",
+        "a mockup the person chose from (not kept), sha256 fb6fd2a0c97002711c32ea32763fb0598bcb212408145398d8a5dcbf8e6120a5",
+        "a mockup the person chose from (not kept), sha256 2e7840925ffdd000e403a4c8554a234fd768132e5f0b62325517f959e21277a6"
+      ],
+      "file": "winter-props.png",
+      "sha256": "9e94340282313b550e1f84524fc208c6969037ae8c86b479f7045a482750c0f2",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/winter-props.png",
+      "acceptedIds": ["gift_stack", "light_arch", "wreath_stand", "candy_lamp", "sundries_cart", "gingerbread_house"]
+    }
+  ],
+  "processing": [
+    "Each source became its runtime atlas with the same pixels, except: alpha 1 or 2 anywhere, and alpha below 25 more than 6 px from the drawing (alpha 128 or more), set to 0,0,0,0. That clears the generator's faint haze and keeps the soft antialiased edge; the 2026-11-09 rule (clear all alpha below 50) made the edges hard.",
+    "Crops follow measured silhouettes (alpha above 24) with a 14-pixel margin; reproduce the wrappers with node scripts/pack-collection.mjs."
+  ],
+  "measured": {
+    "christmas-trees": {
+      "xmas_tree": [189, 541, 492, 1000],
+      "xmas_tree_grand": [649, 47, 1329, 1003]
+    },
+    "christmas-trees-2": {
+      "ribbon_tree": [22, 475, 279, 937],
+      "ribbon_tree_big": [313, 109, 738, 946],
+      "retro_tree": [776, 460, 1020, 933],
+      "retro_tree_big": [1041, 44, 1510, 944]
+    },
+    "winter-props": {
+      "gift_stack": [98, 83, 422, 451],
+      "candy_lamp": [133, 546, 366, 935],
+      "sundries_cart": [569, 545, 945, 941],
+      "light_arch": [591, 63, 926, 442],
+      "gingerbread_house": [1092, 554, 1456, 926],
+      "wreath_stand": [1114, 53, 1411, 452]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-// The desktop's edges: a chime, a hanging pot or a mobile hangs from a screen's top by a cord
+// The desktop's edges: a chime, a hanging pot, a mobile or a wreath hangs from a screen's top by a cord
 // (src/overlay/poke.js; docs/design/2026-11-19-desktop-edges.md).
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -9,14 +9,14 @@ globalThis.playPets = {};
 const { giftLayers } = await import('../src/overlay/poke.js');
 const { GIFTS, giftKind } = await import('../src/yard/catalog.js');
 
-test('the chime, the hanging pot and the mobile hang, each by a part with its pivot on its box', () => {
+test('the chime, the hanging pot, the mobile and the wreath hang, each by a part with its pivot on its box', () => {
   assert.deepEqual(
     GIFTS.filter(g => g.hangs)
       .map(g => g.id)
       .sort(),
-    ['hanging_pot', 'mobile', 'windchime'],
+    ['hanging_pot', 'mobile', 'windchime', 'wreath_stand'],
   );
-  for (const id of ['hanging_pot', 'mobile', 'windchime']) {
+  for (const id of ['hanging_pot', 'mobile', 'windchime', 'wreath_stand']) {
     const { part } = giftKind(id);
     assert.equal(part?.motion, 'sway', id);
     for (const [x, y] of [...part.points, part.pivot])

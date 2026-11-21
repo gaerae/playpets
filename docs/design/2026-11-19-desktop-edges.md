@@ -41,3 +41,7 @@
 - The hanging sheet kept a soft haze behind the mobile; its alpha is cut below 190 rather than 50, which keeps the threads and drops the haze.
 - The new gifts come after the last everyday gift and before the seasonal ones, so the first gifts, the mementos and the album's order keep theirs.
 - A morning glory that climbed the bottom and a side of a screen as a vine was built and taken out before release: the person did not find the vine pretty. Painted flower mounds were looked at instead and left out for now ([album finds out](2026-11-19-album-finds-out.md)).
+
+## Follow-up (2026-11-21)
+
+- The wreath stand hangs too, by the same rule ([winter decorations](2026-11-21-winter-decor.md)).

@@ -10,6 +10,20 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- Ten new winter decorations come with the winter lights, one each gift day after Santa: a coquette ribbon tree and a pastel retro tree, each in a small and a big size, a string-light arch, a stack of gift boxes, a wreath stand, a candy cane star lamp, a gingerbread house and a sundries cart. They show from November 15 to January 7, and whenever the yard shows winter. The trees, the arch, the lamp, the house and the cart light up from evening; on the desktop the arch and the lamp switch off and on with a click, and the wreath can hang from a screen's top. The album now has 213 entries.
+
+### Changed
+
+- In the Wild garden, friends walk all the way back across the meadow left of the pond, where ferns and boulders used to stop them, and look smaller the farther back they go.
+- The outdoor pictures meet the sky in a smooth edge: treetops, hills and the meadow's line no longer show a pale, stepped outline.
+- The little Christmas tree is redrawn in gold and cream, in the yard and on Christmas night. Its ornaments stay on its twelve hooks.
+
+### Website and docs
+
+- The README and the guide count the album's 213 entries and 41 gifts, and the guide describes the new winter decorations.
+
 ## [1.9.0] - 2026-11-20
 
 ### Added

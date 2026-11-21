@@ -323,3 +323,27 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   both.
 - Accepted source, prompt, hashes and measured boxes:
   `assets/sources/keepsake-redraw-2026-11-20/accepted-art.json`.
+
+## Winter decorations (2026-11-21)
+
+- The little Christmas tree and its grand night version are redrawn in gold and
+  cream: sage fir, snow on the tiers, gold and cream baubles, cream bows, a
+  gold star, a gold pot (small) and three cream gifts at the foot (grand).
+  `collection-extension/christmas-trees` now holds this pair; the 2026-11-09
+  pair is in Git history.
+- The tree keeps its twelve ornament hooks and its Christmas night. Its hooks,
+  painted baubles, star and bulbs were measured again on the new drawing; the
+  small tree paints four baubles (was five), so the other eight hooks are gaps.
+- Ten new winter-lights gifts in two atlases:
+  - `collection-extension/christmas-trees-2`: a coquette ribbon tree and a
+    pastel retro tree, each small and big, as separate album cards.
+  - `collection-extension/winter-props`: a stack of gift boxes, a string-light
+    arch, a wreath stand, a candy cane star lamp, a sundries cart and a
+    gingerbread house.
+- Generated with soft alpha: only alpha 1 or 2, and alpha below 25 more than
+  6 px from the drawing, is cleared. The edge keeps its antialiasing, where the
+  2026-11-09 rule (clear all alpha below 50) left it hard.
+- Crops follow measured silhouettes with a 14-pixel margin; reproduce the
+  wrappers with `node scripts/pack-collection.mjs`.
+- Accepted sources, prompts, hashes and measured boxes:
+  `assets/sources/winter-decor-2026-11-21/accepted-art.json`.

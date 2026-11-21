@@ -271,7 +271,8 @@ test('Undo before the change would have ended brings the tree back grand, and th
 const glint = button => layers(button)[0].children.find(c => c.classList.contains('xmas-glint'));
 const lit = button => glint(button).classList.contains('glinting');
 const bulbs = (await import('../src/yard/catalog.js')).giftKind('xmas_tree').night.bulbs;
-const at = bulb => ({ left: `${bulb[0] * 100}%`, top: `${bulb[1] * 100}%` });
+const { percent } = await import('../src/core/math.js');
+const at = bulb => ({ left: percent(bulb[0]), top: percent(bulb[1]) });
 const spot = button => ({ left: glint(button).style.left, top: glint(button).style.top });
 const TONIGHT = ({ storage }) => storage.setItem('xmas-night', '2026-12-24');
 
