@@ -1,5 +1,5 @@
 // The limits the backend keeps to (src-tauri/src/pets/mod.rs limits(): friends, a personality's
-// length, seeds kept, flowers in the field, gifts and finds out of the album in the yard, how often one comes, the Christmas tree's
+// length, seeds kept, flowers in the field, gifts and finds out of the album in the yard, how often one comes, the level a friend's memento comes at, the Christmas tree's
 // hooks and ornaments a day, the friendship levels).
 // The page reads them from the state the backend sends; these are the same values for the moment
 // before it has, and a test keeps them equal to the backend's (tests/limits.test.mjs).
@@ -19,6 +19,7 @@ export const LIMITS = {
   decor: 12,
   finds: 12,
   giftEveryDays: 2,
+  mementoLevel: 4,
   ornamentHooks: 12,
   ornamentsPerDay: 3,
   bondLevels: [0, 60, 200, 500, 1000],

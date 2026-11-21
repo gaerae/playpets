@@ -29,6 +29,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Fixed
 
 - Every tree that grows counts in the album, so a kind grown twice can be set out twice with **+**, and an album from an earlier version catches up with the trees grown in the yard.
+- With the yard full and every everyday gift out or waiting, friends still bring an event's own gift the first time and their memento, which wait in the album as before.
 
 ### Website and docs
 

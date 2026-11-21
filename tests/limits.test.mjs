@@ -24,6 +24,7 @@ test("the page's limits before the state arrives are the backend's", () => {
   assert.equal(String(LIMITS.finds), constant(garden, 'FIND_MAX'));
   assert.equal(LIMITS.giftBox, undefined, 'gifts wait in the album without a limit of their own');
   assert.equal(String(LIMITS.giftEveryDays), constant(garden, 'GIFT_EVERY_DAYS'));
+  assert.equal(String(LIMITS.mementoLevel), constant(garden, 'MEMENTO_LEVEL'));
   assert.equal(String(LIMITS.ornamentHooks), constant(garden, 'ORNAMENT_HOOKS'));
   assert.equal(String(LIMITS.ornamentsPerDay), constant(garden, 'ORNAMENTS_PER_DAY'));
   assert.equal(`[${LIMITS.bondLevels.join(', ')}]`, constant(bond, 'LEVELS'));

@@ -18,7 +18,7 @@ import { cadence } from '../core/ticker.js';
 import { artSvg } from './art.js';
 import { befriend, levelOf } from './bond.js';
 import { showCard } from './card.js';
-import { GIFTS, giftKind } from './catalog.js';
+import { GIFTS, eventGifts, giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
 import { decorShown, hiddenKinds, yardSeason } from './decor-shown.js';
 import { dressLayers } from './dress-layers.js';
@@ -426,13 +426,17 @@ let bringing = false,
 const THANKS_RETRY_MS = 10 * 60 * 1000;
 const refused = new Map();
 const togetherToday = (id, day) => data.bonds?.[id]?.day === day && data.bonds[id].today > 0;
-// No gift is asked for once the yard is full of gifts and every everyday kind is out or waiting:
-// one of each waits, and none comes twice (garden.rs give).
+const outOrWaiting = (g, match) => (g.decor || []).some(match) || (g.boxed || []).some(match);
+// No everyday gift is asked for once the yard is full of gifts and every everyday kind is out or
+// waiting: one of each waits, and none comes twice (garden.rs give).
 const full = g =>
   giftsOut(g.decor).length >= limit(data, 'decor') &&
-  GIFTS.filter(k => !k.event && !k.built).every(k =>
-    [...(g.decor || []), ...(g.boxed || [])].some(d => d.kind === k.id),
-  );
+  GIFTS.filter(k => !k.event && !k.built).every(k => outOrWaiting(g, d => d.kind === k.id));
+// What a full yard still takes, as the backend does (garden.rs gift, thanks): an event's own gift
+// not yet received, and a friend's memento when it has none out or waiting.
+const newEventGift = (g, event) => !!event && eventGifts(event).some(k => !g.received?.includes(k));
+const brings = (g, id, level) =>
+  level >= limit(data, 'mementoLevel') && !outOrWaiting(g, d => d.memento && d.from === id);
 // The level a friend brings its next thanks gift for: the one after the last it brought, so a
 // level reached while the yard and the box were full still comes. A friend with none brought yet
 // brings one for where it is (it may have been close before thanks gifts began).
@@ -467,19 +471,20 @@ function giftDueAt(g, now, today) {
 /** Called by the frame loop while the yard is seen and no game is on; deadlines use wall time. */
 export function giftTick() {
   const g = data.garden;
-  if (!g || bringing || full(g)) return;
+  if (!g || bringing) return;
   const now = Date.now(),
     today = localDay(new Date(now));
   if (now < retryAt || !giftDue(g.giftDay, today, limit(data, 'giftEveryDays'))) return;
+  // During an event, the gift is its own the first time (the backend checks the dates). A calendar
+  // festival counts whatever the yard shows; a seasonal one needs the scene to show it.
+  const event = giftEvent(new Date(now), systemSouth(), scene.event);
+  if (full(g) && !newEventGift(g, event)) return;
   // The wait starts once the person has done something with a friend that day.
   const together = [...views.values()].filter(v => togetherToday(v.pet.id, today));
   if (!together.length || now < giftDueAt(g, now, today)) return;
   const free = together.filter(isFree);
   if (!free.length) return;
   const v = pick(free);
-  // During an event, the gift is its own the first time (the backend checks the dates). A calendar
-  // festival counts whatever the yard shows; a seasonal one needs the scene to show it.
-  const event = giftEvent(new Date(now), systemSouth(), scene.event);
   const ask = at => call('receiveGift', at.x, at.y, today, event, v.pet.id);
   bring(v, ask, { say: 'decor.gift', detail: 'decor.brought' }).then(ok => {
     if (ok) befriend(v.pet.id, 'gift');
@@ -491,7 +496,8 @@ export function giftTick() {
 /** Called by the frame loop beside giftTick: a friend that grew closer brings a gift for its level. */
 export function thanksTick(now) {
   const g = data.garden;
-  if (!g || bringing || full(g) || !thanking.due(now)) return;
+  if (!g || bringing || !thanking.due(now)) return;
+  const stuck = full(g);
   const wall = Date.now(),
     today = localDay(new Date(wall));
   // Like an everyday gift, it comes on a day the person did something with that friend.
@@ -501,6 +507,7 @@ export function thanksTick(now) {
       isFree(v) &&
       togetherToday(v.pet.id, today) &&
       level > (g.thanked?.[v.pet.id] ?? 1) &&
+      (!stuck || brings(g, v.pet.id, level)) &&
       !(wall < refused.get(`${v.pet.id}:${level}`))
     );
   });

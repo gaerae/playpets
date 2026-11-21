@@ -101,6 +101,7 @@ pub fn limits() -> serde_json::Value {
         "decor": garden::DECOR_MAX,
         "finds": garden::FIND_MAX,
         "giftEveryDays": garden::GIFT_EVERY_DAYS,
+        "mementoLevel": garden::MEMENTO_LEVEL,
         "ornamentHooks": garden::ORNAMENT_HOOKS,
         "ornamentsPerDay": garden::ORNAMENTS_PER_DAY,
         "trees": discovery::TREE_YARD_MAX,
