@@ -283,7 +283,8 @@ function takeOutButton(kind) {
     return button;
   }
   const room = limit(data, 'decor'),
-    why = !showsNow(kind) ? whenShown(kind) : giftsOut(garden.decor).length >= room ? t('album.set_out_full') : '';
+    unseen = showsNow(kind) ? '' : whenShown(kind),
+    why = unseen || (giftsOut(garden.decor).length >= room ? t('album.set_out_full') : '');
   return setOutRow({
     book: 'gift',
     item: kind,
@@ -291,6 +292,7 @@ function takeOutButton(kind) {
     most: 1,
     room,
     why,
+    unseen,
     setOut: desktop => call('takeOut', kind, ...landing(), desktop),
   });
 }

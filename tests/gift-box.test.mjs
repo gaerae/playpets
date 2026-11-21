@@ -176,6 +176,17 @@ test('a Christmas gift waits in the album until its window or a winter yard', as
   nodes = album(ctx, { received: ['xmas_tree'], decor: [{ id: 'x', kind: 'xmas_tree', x: 0.5, y: 0.5 }] });
   assert.equal(cardOf(nodes, 'xmas_tree').textContent, t('album.put_back'));
   assert.equal(cardOf(nodes, 'xmas_tree').getAttribute('aria-disabled'), 'false');
+  // The desktop leaves it out too, so its screen waits and says when it shows.
+  const screenOf = nodes =>
+    cardOf(nodes, 'xmas_tree').parentNode.children.find(c => c.classList?.contains('album-to-desktop'));
+  assert.equal(screenOf(nodes).getAttribute('aria-disabled'), 'true');
+  assert.equal(screenOf(nodes).title, t('album.shown_christmas'));
+  // One already on the desktop can still come off it.
+  nodes = album(ctx, {
+    received: ['xmas_tree'],
+    decor: [{ id: 'x', kind: 'xmas_tree', x: 0.5, y: 0.5, onDesktop: true }],
+  });
+  assert.equal(screenOf(nodes).getAttribute('aria-disabled'), 'false');
   scene.season = 'winter';
   nodes = album(ctx, garden);
   assert.equal(cardOf(nodes, 'xmas_tree').getAttribute('aria-disabled'), 'false', 'a winter yard in July shows it');

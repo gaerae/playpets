@@ -30,6 +30,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - Every tree that grows counts in the album, so a kind grown twice can be set out twice with **+**, and an album from an earlier version catches up with the trees grown in the yard.
 - With the yard full and every everyday gift out or waiting, friends still bring an event's own gift the first time and their memento, which wait in the album as before.
+- **−** on a tree's album card takes back a tree from the place you are looking at first, and a copy you already removed in the yard, its **Undo** still showing, is no longer removed a second time with an error later.
+- The small screen button on a Christmas gift's card waits while the gift is out of sight for the season and says when it shows, as the desktop leaves it out too. One already on the desktop can still come off.
 
 ### Website and docs
 

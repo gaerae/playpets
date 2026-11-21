@@ -27,6 +27,7 @@ const { FLOWERS, TREES } = await import('../src/yard/catalog.js');
 const { groundAllows } = await import('../src/yard/discovery-rules.js');
 const { scene } = await import('../src/yard/world.js');
 const { measureYard } = await import('../src/yard/field.js');
+const { removeWithUndo } = await import('../src/yard/props.js');
 const flush = () => new Promise(resolve => setImmediate(resolve));
 const many = (n, more) => Array.from({ length: n }, (_, i) => ({ id: `x${i}`, x: 0.5, y: 0.5, planted: 1, ...more }));
 
@@ -191,4 +192,44 @@ test('a grown flower or tree comes back through its card, within what the album 
   back.onclick();
   await flush();
   assert.deepEqual(calls, [['removeTree', 'x0']]);
+});
+
+// − brings back what the person sees go: a tree from the place shown before one elsewhere. A copy
+// already leaving the yard, its Undo still offered, is not taken from under it; with no other out,
+// − saves that removal now instead (props.js removeWithUndo).
+test('fewer takes a tree from the place shown, and leaves one already leaving to its own removal', async ctx => {
+  ctx.mock.timers.enable({ apis: ['setTimeout'] });
+  const was = scene.world;
+  ctx.after(() => {
+    scene.world = was;
+  });
+  scene.world = 'woodland';
+  const tree = TREES[0].id,
+    flower = FLOWERS[0].id,
+    twice = { count: 2, best: 0, first: 1 };
+  let nodes = album(ctx, 'tree', {
+    album: { trees: { [tree]: twice } },
+    garden: {
+      trees: [
+        { id: 'here', world: 'woodland', kind: tree, x: 0.5, y: 0.5, stage: 2, matured: true },
+        { id: 'away', world: 'lake', kind: tree, x: 0.5, y: 0.5, stage: 2, matured: true },
+      ],
+    },
+  });
+  buttonsOf(nodes, 0)[0].onclick();
+  await flush();
+  assert.deepEqual(calls, [['removeTree', 'here']], 'the one in the place shown, though it came first');
+  const plants = many(2, { kind: flower, bloomed: true });
+  nodes = album(ctx, 'flower', { album: { flowers: { [flower]: twice } }, garden: { plants } });
+  const saved = [];
+  removeWithUndo('x1', { button: {} }, 'Pulled', async () => saved.push('x1'));
+  buttonsOf(nodes, 0)[0].onclick();
+  await flush();
+  assert.deepEqual(calls, [['pullPlant', 'x0']], 'not the one leaving with its Undo');
+  assert.deepEqual(saved, []);
+  nodes = album(ctx, 'flower', { album: { flowers: { [flower]: twice } }, garden: { plants: plants.slice(1) } });
+  buttonsOf(nodes, 0)[0].onclick();
+  await flush();
+  assert.deepEqual(calls, [], 'with only that one out, it is not removed twice');
+  assert.deepEqual(saved, ['x1'], 'its removal is saved now');
 });

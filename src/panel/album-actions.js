@@ -14,6 +14,8 @@ import { limit } from '../core/limits.js';
 import { call, data, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { findOutFor, findsOut, heldName } from '../yard/find-out.js';
+import { isLeaving, leaveNow } from '../yard/props.js';
+import { scene } from '../yard/world.js';
 
 /** Where something set out from the album lands: near the front of the yard, as a gift is. */
 export const landing = () => [0.3 + Math.random() * 0.4, 0.8];
@@ -30,7 +32,15 @@ export function outOfAlbum(book, item) {
 }
 // Bringing one back is what its own menu does, without the Undo: the card sets it out again.
 const BRING_IN = { flower: 'pullPlant', tree: 'removeTree' };
-const bringIn = (book, id) => call(BRING_IN[book] || 'putAway', id);
+/** Brings back the newest of `copies`, the one the person sees go: a tree from the place shown
+ * first. One already leaving the yard, its Undo still offered, is not taken from under it; with no
+ * other out, its removal is saved now (props.js removeWithUndo). */
+function bringBack(book, copies) {
+  const here = book === 'tree' ? copies.filter(c => c.world === scene.world) : [],
+    order = [...copies.filter(c => !here.includes(c)), ...here],
+    copy = order.findLast(c => !isLeaving(c.id)) ?? order.at(-1);
+  return isLeaving(copy.id) ? Promise.resolve(leaveNow(copy.id)) : call(BRING_IN[book] || 'putAway', copy.id);
+}
 
 function button(label, title, role, className = '') {
   const b = document.createElement('button');
@@ -51,13 +61,14 @@ const off = (b, why) => {
 
 /** A card's row for `item` of `book`, called `name`: `most` can be out at once (the album's count,
  * or one for a gift), up to `room`, the most the yard holds of it. `why` says why no more can come
- * out (a full yard, no soil, out of season), or is empty. `setOut(desktop)` sets one more out and
+ * out (a full yard, no soil, out of season), or is empty. `unseen` says when a kind out of sight for
+ * now shows (the desktop leaves it out too), or is empty. `setOut(desktop)` sets one more out and
  * resolves with it.
  * The row keeps its shape as things go out and come back, so the next press is where the last one
  * was: one that can be out once is a single button that turns from Set out to Put back; one found
  * more often is − n/m + from the first press on. A press holds the row until the album redraws, and
  * lets it go after a refusal. */
-export function setOutRow({ book, item, name, most, room, why = '', setOut }) {
+export function setOutRow({ book, item, name, most, room, why = '', unseen = '', setOut }) {
   const row = document.createElement('div');
   row.className = 'album-actions';
   row.dataset.card = `${book}:${item}`;
@@ -82,7 +93,7 @@ export function setOutRow({ book, item, name, most, room, why = '', setOut }) {
     setOut(desktop).then(made => {
       if (desktop && made?.id) desktopTip();
     });
-  const last = () => bringIn(book, copies.at(-1).id);
+  const last = () => bringBack(book, copies);
   if (cap <= 1 && out <= 1) {
     const toggle = out
       ? press(button(t('album.put_back'), t('album.put_back_one', { kind: name }), 'yard'), last)
@@ -106,13 +117,14 @@ export function setOutRow({ book, item, name, most, room, why = '', setOut }) {
     row.append(off(fewer, !out), count, off(plus, more));
   }
   // The desktop's switch: pressed while any copy is out there. Off, with none out, it sets one out
-  // there, and so waits on whatever stops Set out.
-  const waits = !out && !!why,
+  // there, and so waits on whatever stops Set out; off, it waits while the kind is out of sight,
+  // which the desktop leaves out too. On, it can always come off.
+  const waits = onDesktop ? '' : unseen || (!out && why),
     screen = press(
       button(
         '',
         waits
-          ? why
+          ? waits
           : t(onDesktop ? 'album.desktop_off' : out ? 'album.desktop_on' : 'album.set_out_desktop', { kind: name }),
         'desktop',
         'album-to-desktop',
@@ -123,7 +135,7 @@ export function setOutRow({ book, item, name, most, room, why = '', setOut }) {
   screen.innerHTML = '<span data-icon="monitor"></span>';
   icons(screen);
   screen.setAttribute('aria-pressed', String(onDesktop));
-  row.append(off(screen, waits));
+  row.append(off(screen, !!waits));
   return row;
 }
 
