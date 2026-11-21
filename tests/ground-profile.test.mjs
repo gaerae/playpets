@@ -30,6 +30,19 @@ test('soil respects explicit capabilities and conservatively excludes indoor flo
   assert.equal(base({ bounds: { ...bounds, bottom: bounds.top } }).soil, false);
 });
 
+test("the profile keeps the field's own line where a path raises the field's top", () => {
+  assert.equal(base().line, undefined, 'a field with no path has no line to keep');
+  // A path reaching back over the right half: the field begins at 200 there, not at 350.
+  const raised = base({ topAt: px => (px > 500 ? 200 : bounds.top) });
+  assert.equal(raised.line.length, 33);
+  const at = x => raised.line[Math.round(x * 32)];
+  assert.equal(at(0), 0);
+  assert.equal(at(0.25), 0);
+  // 150 of the 450 pixels from the raised top down to the field's foot.
+  assert.ok(Math.abs(at(0.75) - 150 / 450) < 1e-9, `line ${at(0.75)}`);
+  assert.ok(Math.abs(at(1) - 150 / 450) < 1e-9);
+});
+
 test('lake projection keeps cropped off-field centres and matches the visible water ellipse', () => {
   for (const [width, height] of [
     [1000, 700],

@@ -96,6 +96,16 @@ function walksOnGround(points, profile) {
   return true;
 }
 
+// The field's own line at field x (ground.js profile.line), 0 where no path raises the field's top.
+function lineAt(profile, x) {
+  const line = profile.line;
+  if (!line?.length) return 0;
+  const at = Math.min(Math.max(x, 0), 1) * (line.length - 1),
+    i = Math.floor(at),
+    j = Math.min(i + 1, line.length - 1);
+  return line[i] + (line[j] - line[i]) * (at - i);
+}
+
 /** A trail in field coordinates: in from a side, winding to an end on ground a friend can dig. */
 export function trailPath(seed, profile, { taken = [], other = null } = {}) {
   if (!profile?.soil || !profile.bounds) return null;
@@ -103,9 +113,12 @@ export function trailPath(seed, profile, { taken = [], other = null } = {}) {
   const bandTop = top + (bottom - top) * 0.15,
     bandHeight = (bottom - top) * 0.7;
   // The far field runs into the backdrop's own snowy bushes and trees, where the small bush at a
-  // trail's end is lost among them; the trail ends on the near snow instead.
-  const endTop = top + (bottom - top) * 0.5,
-    endHeight = (bottom - top) * 0.35;
+  // trail's end is lost among them; the trail ends on the near snow instead, measured from the
+  // field's own line where a path raises the field's top (ground.js profile.line).
+  const nearSnow = (x, share) => {
+    const back = lineAt(profile, x);
+    return top + (bottom - top) * (back + (1 - back) * (0.5 + share * 0.35));
+  };
   const takenTiles = new Set(taken.map(tileOf));
   for (let attempt = 0; attempt < 20; attempt++) {
     const rng = seeded(seed + attempt);
@@ -118,7 +131,7 @@ export function trailPath(seed, profile, { taken = [], other = null } = {}) {
     let endX;
     if (far) endX = fromLeft ? 0.9 + rng() * 0.04 : 0.06 + rng() * 0.04;
     else endX = 0.25 + rng() * 0.5;
-    const endY = endTop + rng() * endHeight;
+    const endY = nearSnow(endX, rng());
     const count = 5 + Math.floor(rng() * 4);
     let sign = rng() < 0.5 ? 1 : -1;
     const points = [{ x: startX, y: startY }];
