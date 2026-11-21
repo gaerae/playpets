@@ -134,7 +134,7 @@ pub struct GiftWait {
     pub due_at: u64,
 }
 
-/// Where a gift went: down in the yard, or into the box because the yard was full.
+/// Where a gift went: down in the yard, or to wait in the album because the yard was full.
 #[derive(Serialize, Clone, Debug, PartialEq)]
 pub struct Given {
     #[serde(flatten)]
@@ -1001,7 +1001,7 @@ impl Garden {
     }
 
     /// Puts a decoration away (a friend may bring it again another day). A memento or a gift shown
-    /// only at a time of year waits in the box instead, its giver and heart kept, for its album card
+    /// only at a time of year waits in the album instead, its giver and heart kept, for its album card
     /// to set it out again.
     pub fn put_away(&mut self, id: &str) -> Result<(), String> {
         let at = self

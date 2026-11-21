@@ -367,7 +367,7 @@ impl Catalog {
             .map(|k| k.id.as_str())
             .collect()
     }
-    /// Whether putting this gift away keeps it in the gift box (a gift shown only at a time of year).
+    /// Whether putting this gift away keeps it waiting in the album (a gift shown only at a time of year).
     pub fn kept_in_box(&self, id: &str) -> bool {
         self.gifts.iter().any(|k| k.id == id && k.shown.is_some())
     }

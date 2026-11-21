@@ -641,7 +641,7 @@ const scenario = `(async()=>{
     // The check keeps a far-off day, so today is marked again right after it.
     const viewedOk=(await playPets.markViewed('2027-04-05')).ok&&(await playPets.markViewed('soon')).ok===false&&(await playPets.bootstrap()).data.garden.viewed==='2027-04-05';await L('viewing='+(viewedOk?'day-kept':'err'));
     await playPets.markViewed(todayLocal());
-    // Real saved gifts fill the yard; the next waits in the gift box, putting one away retains its album record and
+    // Real saved gifts fill the yard; the next waits in the album, putting one away retains its album record and
     // frees the capacity, and the boxed one is set out from its own album card.
     const capacityGifts=[];
     for(let day=1;day<=12;day++){
@@ -700,8 +700,8 @@ const scenario = `(async()=>{
     for(const d of thankedState.decor.filter(d=>d.from===fid))await playPets.putAway(d.id);
     await L('thanksGift='+(thankedState.thanked?.[fid]===2&&apart.ok===false&&(!thanks.ok||thanks.data.from===fid)&&thanksAgain.ok===false&&tooHigh.ok===false?'once-a-level-reached':'err:'+JSON.stringify([apart,thanks,thanksAgain,tooHigh,thankedState.thanked])));
     // Pats bring at most a quarter of a day's worth; at Very close (level 4) the thanks gift is the friend's memento,
-    // which goes back into the gift box when put away and comes out of it again. A friend invited for it and sent
-    // away after, so the steps below keep their first friend as it was; its memento stays in the box.
+    // which waits in the album when put away and comes out of it again. A friend invited for it and sent
+    // away after, so the steps below keep their first friend as it was; its memento stays waiting.
     const closeFriend=(await playPets.addPet((await playPets.bootstrap()).data.pets[0].assetId)).data,mid=closeFriend?.id;
     const bondOf=async()=>(await playPets.bootstrap()).data.bonds[mid]||{points:0};
     const beforePats=(await bondOf()).points;for(let k=0;k<15;k++)await playPets.befriend(mid,'pat','2026-01-04');
@@ -1976,7 +1976,7 @@ const expect = [
   ],
   [
     /^event=gift-and-label$/,
-    'the winter lights bring the Christmas tree on their days, it goes back into the gift box when put away, and the scene label shows the event on now',
+    'the winter lights bring the Christmas tree on their days, it waits in the album when put away, and the scene label shows the event on now',
   ],
   [/^viewing=day-kept$/, 'the day friends viewed the blossom is kept and an odd day is refused'],
   [
@@ -2001,7 +2001,7 @@ const expect = [
   ],
   [
     /^memento=pats-capped-memento-boxed-and-set-out$/,
-    "pats bring at most a quarter of a day's worth, and at Very close a friend brings its memento, which goes back into the gift box when put away",
+    "pats bring at most a quarter of a day's worth, and at Very close a friend brings its memento, which waits in the album when put away",
   ],
   [
     /^befriendMany=each-friend-once$/,

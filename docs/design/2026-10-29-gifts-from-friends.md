@@ -53,3 +53,7 @@ Days to each level for one friend, before → after:
 
 - Points already earned stay; no friend's level goes down.
 - Flowers and trees still reach the album as they grow: the person planted them.
+
+## Follow-up: no gift box (2026-11-21)
+
+- The gift box and its limit (`BOX_MAX`) are gone. A gift that comes while the yard is full waits on its own card in the Gifts book, one of each kind, with no limit ([album in and out](2026-11-20-album-in-and-out.md)).

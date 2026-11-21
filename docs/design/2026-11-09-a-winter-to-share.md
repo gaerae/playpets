@@ -146,3 +146,4 @@ Follow-up (2026-11-10): the letter has its own chip (`#letter-chip`) beside the 
 ## Follow-up (2026-11-21)
 
 - The little tree and its grand version are redrawn in gold and cream; the twelve hooks and Christmas night stay, measured again on the new drawing. Ten more winter-lights gifts come after Santa ([winter decorations](2026-11-21-winter-decor.md)).
+- With the gift box gone, a Christmas gift put away waits on its own album card, as a memento does ([album in and out](2026-11-20-album-in-and-out.md)).

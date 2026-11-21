@@ -413,7 +413,7 @@ export function putAway(id) {
 
 // A friend brings a gift on its own: an everyday one every other day, from a friend the person
 // did something with that day, and one for each level it grows closer (its memento at 4). A gift
-// that finds the yard full waits in the gift box (album.js). The wait for the next everyday gift
+// that finds the yard full waits on its album card (album.js). The wait for the next everyday gift
 // is the backend's (garden giftWait), so a restart keeps it.
 const GIFT_RETRY_MS = 60 * 1000;
 // A thanks gift comes a little after the level it is for, and never two at once.

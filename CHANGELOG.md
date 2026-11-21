@@ -29,6 +29,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Website and docs
 
 - The README and the guide count the album's 213 entries and 41 gifts, and the guide describes the new winter decorations.
+- The site's album guide says a gift that comes while the yard is full waits on its own card, no longer in a gift box.
 
 ## [1.9.0] - 2026-11-20
 
