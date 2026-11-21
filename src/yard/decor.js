@@ -18,7 +18,7 @@ import { cadence } from '../core/ticker.js';
 import { artSvg } from './art.js';
 import { befriend, levelOf } from './bond.js';
 import { showCard } from './card.js';
-import { giftKind } from './catalog.js';
+import { GIFTS, giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
 import { decorShown, hiddenKinds, yardSeason } from './decor-shown.js';
 import { dressLayers } from './dress-layers.js';
@@ -36,7 +36,7 @@ import {
   standAt,
   yardToDecor,
 } from './field.js';
-import { findOutEffects, findOutKind, decorName, heldLayers, visitLines } from './find-out.js';
+import { findOutEffects, findOutKind, decorName, giftsOut, heldLayers, visitLines } from './find-out.js';
 import { FIRST_GIFT, GIFT_WAIT, giftDue, giftWait, localDay } from './growth.js';
 import {
   beginDrag,
@@ -394,14 +394,13 @@ function visited(v, d) {
 }
 
 // Put away at once with a moment to undo it (props.js); a friend may bring it again another day,
-// and a memento or a Christmas gift goes back into the gift box instead.
+// and a memento or a Christmas gift waits in the album instead, its giver and heart kept.
 /** Puts a gift away, with a moment to take it back (its menu, or Delete). */
 export function putAway(id) {
   const d = data.garden?.decor.find(x => x.id === id),
     view = shown.get(id);
   if (!d || !view) return;
-  // With the box full it goes as any gift does (garden.rs put_away).
-  const boxed = (d.memento || !!giftKind(d.kind)?.shown) && (data.garden.boxed?.length ?? 0) < limit(data, 'giftBox');
+  const boxed = d.memento || !!giftKind(d.kind)?.shown;
   // A snowman is not kept: it melts (garden.rs put_away).
   const done = giftKind(d.kind)?.built
     ? t('decor.snowman_put_away')
@@ -427,7 +426,13 @@ let bringing = false,
 const THANKS_RETRY_MS = 10 * 60 * 1000;
 const refused = new Map();
 const togetherToday = (id, day) => data.bonds?.[id]?.day === day && data.bonds[id].today > 0;
-const full = g => (g.decor?.length ?? 0) >= limit(data, 'decor') && (g.boxed?.length ?? 0) >= limit(data, 'giftBox');
+// No gift is asked for once the yard is full of gifts and every everyday kind is out or waiting:
+// one of each waits, and none comes twice (garden.rs give).
+const full = g =>
+  giftsOut(g.decor).length >= limit(data, 'decor') &&
+  GIFTS.filter(k => !k.event && !k.built).every(k =>
+    [...(g.decor || []), ...(g.boxed || [])].some(d => d.kind === k.id),
+  );
 // The level a friend brings its next thanks gift for: the one after the last it brought, so a
 // level reached while the yard and the box were full still comes. A friend with none brought yet
 // brings one for where it is (it may have been close before thanks gifts began).

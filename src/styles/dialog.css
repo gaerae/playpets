@@ -470,66 +470,6 @@ body.compact .update-compact {
   line-height: 1.4;
   color: var(--muted);
 }
-/* The gift box sits above the gift book: a row of small buttons, one for each gift waiting in it. */
-.album-box {
-  margin: 0 0 10px;
-  padding: 8px 10px 10px;
-  border: 1px solid var(--album-edge);
-  border-radius: var(--radius-card);
-  background: color-mix(in srgb, var(--album-wood) 60%, var(--album-paper));
-}
-.album-box h3 {
-  margin: 0 0 6px;
-  font-size: var(--font-sm);
-  font-weight: 650;
-}
-.album-box-items {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-}
-.album-box-item {
-  position: relative;
-  display: flex;
-  flex: 0 0 auto;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  width: 72px;
-  padding: 4px;
-  border: 1px solid var(--album-edge);
-  border-radius: var(--radius-card);
-  background: var(--album-paper);
-  color: inherit;
-  cursor: pointer;
-}
-.album-box-item:hover:not(:disabled) {
-  border-color: var(--album-gold);
-}
-.album-box-item.memento::after {
-  content: "♥";
-  position: absolute;
-  top: 2px;
-  right: 4px;
-  color: var(--heart);
-  font-size: var(--font-xs);
-}
-.album-box-item:disabled {
-  cursor: default;
-  opacity: 0.6;
-}
-.album-box-item svg {
-  width: 100%;
-  height: 36px;
-}
-.album-box-item small {
-  max-width: 100%;
-  overflow: hidden;
-  font-size: var(--font-xs);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 /* the album draws flowers and gifts from the yard's own symbols, in daylight colours */
 .album-card {
   --soil: #8a6a4a;
@@ -738,8 +678,10 @@ body.compact .update-compact {
 .album-hint {
   margin-bottom: 4px;
 }
-/* A gift that came before, back out into the yard: a small press under its stamp. */
+/* A card's presses: set out, bring back, and the desktop's screen. Each is at least 28 px tall, so
+   a quick second press lands, and the row keeps its shape as things go out and come back. */
 .album-take-out {
+  min-height: 28px;
   margin-top: 4px;
   padding: 3px 10px;
   border: 1px solid var(--album-edge);
@@ -751,29 +693,61 @@ body.compact .update-compact {
   font-weight: 650;
   cursor: pointer;
 }
-.album-take-out:hover:not(:disabled) {
+.album-take-out:hover:not(:disabled, [aria-disabled="true"]) {
   border-color: var(--album-gold);
 }
-.album-take-out:disabled {
+/* One that cannot be pressed now keeps the focus and its title; it only looks quiet. */
+.album-take-out:disabled,
+.album-take-out[aria-disabled="true"] {
   cursor: default;
   color: var(--muted);
 }
-/* A flower's or a tree's two: into the yard, and onto the desktop too (a small screen). */
+/* Held while a press is saved: the pointer says it is working. */
+.album-actions[data-pending] .album-take-out {
+  cursor: progress;
+}
 .album-actions {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 4px;
 }
+/* Set out and Put back are one button, the same width either way, so it stays under the pointer;
+   out, it reads as pressed in, as the screen does. */
+.album-toggle {
+  min-width: 76px;
+}
 .album-to-desktop {
   display: inline-grid;
   place-items: center;
+  min-width: 32px;
   padding: 3px 7px;
 }
 .album-to-desktop svg {
   display: block;
   width: 15px;
   height: 15px;
+}
+/* In the yard, or on the desktop: the button is filled in, in both themes. */
+.album-toggle[aria-pressed="true"],
+.album-to-desktop[aria-pressed="true"] {
+  border-color: var(--album-gold-ink);
+  background: var(--album-gold-ink);
+  color: var(--album-paper);
+}
+/* Fewer and more around how many are out, within what the album found. */
+.album-step {
+  width: 28px;
+  padding: 0;
+  font-size: var(--font-sm);
+}
+.album-count {
+  min-width: 30px;
+  margin-top: 4px;
+  font-size: var(--font-xs);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 /* One not found yet is an empty place on the page: a dashed outline, a faint shape and the hint. */
 .album-card.unknown {
@@ -801,6 +775,23 @@ body.compact .update-compact {
   font-weight: 600;
 }
 /* A kind that comes seldom says so in its corner, found or not; found, its card takes a gold edge. */
+/* A friend's memento wears its heart at the drawing's lower corner, as in the yard (garden.css
+   .decor.memento): a disc of the page's paper, clear of the number and the rare tag. */
+.album-heart {
+  position: absolute;
+  top: 72px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--album-paper);
+  box-shadow: 0 1px 2px var(--ink-15);
+  color: var(--heart);
+  font-size: var(--font-xs);
+  line-height: 1;
+}
 .album-rare {
   position: absolute;
   top: 8px;
@@ -1472,6 +1463,11 @@ body.compact .update-compact {
     top: 4px;
     left: auto;
     right: 8px;
+  }
+  .album-heart {
+    top: 44px;
+    right: auto;
+    left: 46px;
   }
   .album-hint {
     margin-bottom: 0;

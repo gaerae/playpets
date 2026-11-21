@@ -642,7 +642,7 @@ const scenario = `(async()=>{
     const viewedOk=(await playPets.markViewed('2027-04-05')).ok&&(await playPets.markViewed('soon')).ok===false&&(await playPets.bootstrap()).data.garden.viewed==='2027-04-05';await L('viewing='+(viewedOk?'day-kept':'err'));
     await playPets.markViewed(todayLocal());
     // Real saved gifts fill the yard; the next waits in the gift box, putting one away retains its album record and
-    // frees the capacity, and the boxed one is set out from the album.
+    // frees the capacity, and the boxed one is set out from its own album card.
     const capacityGifts=[];
     for(let day=1;day<=12;day++){
       const result=await giftOn(0.12+(day%4)*0.2,0.5+Math.floor((day-1)/4)*0.1,'2026-03-'+String(day*2).padStart(2,'0'));
@@ -652,14 +652,15 @@ const scenario = `(async()=>{
     await until(()=>document.querySelectorAll('.decor').length===12);
     $('album-button').click();$('album-select').value='gift';$('album-select').dispatchEvent(new Event('change'));
     const boxedGift=(await giftOn(0.5,0.5,'2026-03-26')).data,fullGiftState=(await playPets.bootstrap()).data.garden;
-    const boxShown=await until(()=>!$('album-box').hidden&&document.querySelectorAll('.album-box-item').length===1&&document.querySelector('.album-box-item').disabled);
+    const waitingButton=()=>document.querySelector('[data-card="gift:'+boxedGift.kind+'"] [data-role="yard"]');
+    const boxShown=await until(()=>!$('album-box')&&waitingButton()?.getAttribute('aria-disabled')==='true'&&waitingButton().getAttribute('aria-pressed')==='false');
     const capacityExplained=$('album-dig-status').textContent===${say('album.gift_full')}&&!$('album-dig-status').hidden&&!$('album-odds-button')&&boxedGift?.boxed===true&&fullGiftState.decor.length===12&&fullGiftState.boxed.length===1&&!!boxShown;
     await playPets.putAway(capacityGifts[0].id);
-    const capacityFreed=await until(()=>$('album-dig-status').textContent===${say('album.gift_rule')}&&!document.querySelector('.album-box-item').disabled);
+    const capacityFreed=await until(()=>$('album-dig-status').textContent===${say('album.gift_rule')}&&waitingButton()?.getAttribute('aria-disabled')==='false');
     const afterGiftAway=(await playPets.bootstrap()).data.garden;
     const giftRecordKept=afterGiftAway.received.length===fullGiftState.received.length&&afterGiftAway.received.includes(capacityGifts[0].kind)&&afterGiftAway.decor.length===11;
-    document.querySelector('.album-box-item').click();
-    const setOut=await until(async()=>{const g=(await playPets.bootstrap()).data.garden;return g.boxed.length===0&&g.decor.some(d=>d.id===boxedGift.id)&&$('album-box').hidden;});
+    waitingButton().click();
+    const setOut=await until(async()=>{const g=(await playPets.bootstrap()).data.garden;return g.boxed.length===0&&g.decor.some(d=>d.id===boxedGift.id)&&waitingButton()?.getAttribute('aria-pressed')==='true';});
     $('close-album').click();for(const item of [...capacityGifts.slice(1),boxedGift])await playPets.putAway(item.id);
     await until(()=>!document.querySelector('.decor'));
     await L('giftCapacity='+(capacityExplained&&capacityFreed&&giftRecordKept&&setOut?'full-boxed-set-out-record-kept':'err:'+JSON.stringify({capacityExplained,capacityFreed:!!capacityFreed,giftRecordKept,setOut:!!setOut})));
@@ -1382,7 +1383,17 @@ const scenario = `(async()=>{
     const grownToast=document.querySelector('.toast')?.textContent;
     $('close-album').click();
     await L('albumTakeOut='+(grownFlower&&grownTree?'grown-out':'err:'+JSON.stringify({grownFlower,grownTree,grownToast,world:(await playPets.bootstrap()).data.world})));
-    if(grownFlower){await playPets.setOnDesktop(grownFlower.id,false);await playPets.pullPlant(grownFlower.id);}
+    // The flower's card brings it back: its screen takes it off the desktop and leaves it in the yard,
+    // then Put back takes it in.
+    $('album-button').click();await until(()=>document.querySelectorAll('.album-card').length>0);
+    document.querySelector('.album-tabs [data-book=flower]').click();
+    (await until(()=>document.querySelector('.album-card:not(.unknown) .album-to-desktop[aria-pressed=true]')))?.click();
+    const offDesk=await until(async()=>{const d=(await playPets.bootstrap()).data,p=d.garden.plants.find(x=>x.id===grownFlower?.id);return p&&!p.onDesktop&&!d.desktopLayout.some(i=>i.id===p.id)&&p;},8000);
+    (await until(()=>document.querySelector('.album-card:not(.unknown) .album-to-desktop[aria-pressed=false]:not(:disabled)')?.previousElementSibling))?.click();
+    const putBack=await until(async()=>!(await playPets.bootstrap()).data.garden.plants.some(x=>x.id===grownFlower?.id),8000);
+    $('close-album').click();
+    await L('albumBringIn='+(offDesk&&putBack?'off-then-in':'err:'+JSON.stringify({offDesk:!!offDesk,putBack})));
+    if(grownFlower&&!putBack){await playPets.setOnDesktop(grownFlower.id,false);await playPets.pullPlant(grownFlower.id);}
     if(grownTree)await playPets.removeTree(grownTree.id);
     // A treasure found before comes out on its own, in the yard and out on the desktop; the yard draws
     // its full painting, with no shadow under it.
@@ -2021,6 +2032,7 @@ const expect = [
   [/^wanderOn=ok/, 'roaming toggle'],
   [/^desktopPlant=out-and-in$/, 'a flower goes out on the desktop from its menu and comes back in'],
   [/^albumTakeOut=grown-out$/, 'a flower and a tree come out of the album grown, the flower onto the desktop too'],
+  [/^albumBringIn=off-then-in$/, 'the flower comes off the desktop and back into the album through its card'],
   [
     /^albumFindOut=on-its-own$/,
     'a treasure comes out on its own in the yard and on the desktop, drawn from its painting with no shadow',

@@ -34,6 +34,18 @@ test('everything the yard says shares one lane just above the dock, clear of the
   assert.doesNotMatch(css, /\.catch-card\.near/, 'a card no longer stands apart above its finder');
 });
 
+// A notice that closes on a press anywhere on it is pressed, never selected: a drag across its words
+// would start a selection and the press would not close it (album-in-and-out.md).
+test('every notice a press closes is pressed the same way, never selected', async () => {
+  const css = await styles();
+  for (const selector of ['\\.toast>span', '\\.catch-card']) {
+    const rule = css.match(new RegExp(`(?:^|})${selector}\\{([^}]*)\\}`))?.[1] || '';
+    assert.match(rule, /cursor:pointer/, selector);
+    assert.match(rule, /(?:^|;)user-select:none/, selector);
+    assert.match(rule, /-webkit-user-select:none/, selector);
+  }
+});
+
 test('panels, controls and cards share restrained corner tokens while switches stay round', async () => {
   const css = await styles();
   for (const token of ['panel', 'control', 'card']) assert.match(css, new RegExp(`--radius-${token}:\\d+px`));

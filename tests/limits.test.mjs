@@ -12,19 +12,28 @@ const constant = (source, name) => source.match(new RegExp(`pub const ${name}: [
 test("the page's limits before the state arrives are the backend's", () => {
   const model = read('src-tauri/src/pets/model.rs'),
     garden = read('src-tauri/src/pets/garden.rs'),
+    discovery = read('src-tauri/src/pets/discovery.rs'),
     bond = read('src-tauri/src/pets/bond.rs');
   assert.equal(String(LIMITS.pets), constant(model, 'LIMIT'));
   assert.equal(String(LIMITS.persona), constant(model, 'PERSONA_MAX'));
   assert.equal(String(LIMITS.seeds), constant(garden, 'SEED_MAX'));
   assert.equal(String(LIMITS.saplings), constant(garden, 'SAPLING_MAX'));
   assert.equal(String(LIMITS.plants), constant(garden, 'PLANT_MAX'));
+  assert.equal(String(LIMITS.trees), constant(discovery, 'TREE_YARD_MAX'));
   assert.equal(String(LIMITS.decor), constant(garden, 'DECOR_MAX'));
-  assert.equal(String(LIMITS.giftBox), constant(garden, 'BOX_MAX'));
+  assert.equal(String(LIMITS.finds), constant(garden, 'FIND_MAX'));
+  assert.equal(LIMITS.giftBox, undefined, 'gifts wait in the album without a limit of their own');
   assert.equal(String(LIMITS.giftEveryDays), constant(garden, 'GIFT_EVERY_DAYS'));
   assert.equal(String(LIMITS.ornamentHooks), constant(garden, 'ORNAMENT_HOOKS'));
   assert.equal(String(LIMITS.ornamentsPerDay), constant(garden, 'ORNAMENTS_PER_DAY'));
   assert.equal(`[${LIMITS.bondLevels.join(', ')}]`, constant(bond, 'LEVELS'));
   assert.match(read('src/index.html'), new RegExp(`id="pet-persona" maxlength="${LIMITS.persona}"`));
+});
+
+// One number to remember: the yard holds twelve of every kind, friends, flowers, trees, gifts and
+// finds set out from the album; the desktop shows what the yard has (docs/decisions/2026-11-20-twelve-of-each.md).
+test('the yard holds twelve of every kind', () => {
+  for (const kind of ['pets', 'plants', 'trees', 'decor', 'finds']) assert.equal(LIMITS[kind], 12, kind);
 });
 
 test('the relationships the friend settings offer are the ones the backend knows and has a voice for', () => {

@@ -4,6 +4,7 @@
 
 import { styledAsset } from './appearance.js';
 import { t } from './i18n.js';
+import { icons } from './icons.js';
 import { displayName } from './names.js';
 import { spoken } from './text.js';
 
@@ -109,9 +110,11 @@ export function dropLine(line) {
   if (!notice.children.length) notice.hidden = true;
 }
 /** Says something short along the bottom of the yard; `error` marks a failure apart from news, and
- * `action` ({ label, run }) adds one button, such as Undo, for `ms` (or the reading time). Returns
- * the line, which a line with an action keeps for itself. */
-export function toast(message, { error = false, action = null, ms = 0 } = {}) {
+ * `action` ({ label, run }) adds one button, such as Undo, for `ms` (or the reading time). Every
+ * line closes the same way, by its close button or a press anywhere on it; `onClose` runs when the
+ * person closes it (a pending removal is saved then). Returns the line, which a line with an action
+ * keeps for itself. */
+export function toast(message, { error = false, action = null, ms = 0, onClose = null } = {}) {
   const words = String(message);
   // A form that already says it beside its field does not need it said twice over its buttons.
   const dialog = [...document.querySelectorAll('dialog[open]')].at(-1);
@@ -127,7 +130,22 @@ export function toast(message, { error = false, action = null, ms = 0 } = {}) {
     line = document.createElement('span');
     line.dataset.words = words;
     line.textContent = words;
-    if (!action) line.addEventListener('click', () => dropLine(line));
+    const closed = line,
+      close = event => {
+        event?.stopPropagation?.();
+        dropLine(closed);
+        onClose?.();
+      };
+    line.addEventListener('click', close);
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'toast-close';
+    button.title = t('common.close');
+    button.setAttribute('aria-label', button.title);
+    button.innerHTML = '<span data-icon="close"></span>';
+    icons(button);
+    button.addEventListener('click', close);
+    line.append(button);
     notice.append(line);
   }
   if (action) {
@@ -135,11 +153,14 @@ export function toast(message, { error = false, action = null, ms = 0 } = {}) {
     button.type = 'button';
     button.className = 'toast-action';
     button.textContent = action.label;
-    button.onclick = () => {
+    button.onclick = event => {
+      // The press is the action's, not a close of the line it sits on.
+      event?.stopPropagation();
       dropLine(line);
       return action.run();
     };
-    line.append(button);
+    // Before the close, so the close stays last on the line.
+    line.insertBefore(button, line.querySelector?.('.toast-close') ?? null);
   }
   line.classList.toggle('error', error);
   // Plain lines take turns in the room there is; a line with an action stays until it is done, at

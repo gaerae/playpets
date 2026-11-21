@@ -18,6 +18,8 @@ const answer =
 globalThis.playPets = {
   takeOutFind: answer('takeOutFind', { id: 'd1' }),
   setOnDesktop: answer('setOnDesktop', null),
+  albumOnDesktop: answer('albumOnDesktop', null),
+  putAway: answer('putAway', null),
 };
 const state = await import('../src/core/state.js');
 const { t } = await import('../src/core/i18n.js');
@@ -139,20 +141,17 @@ for (const [book, list, name] of [
     assert.ok(desktop.classList.contains('album-to-desktop'));
     assert.equal(desktop.title, t('album.set_out_desktop', { kind: name(id) }));
     yard.onclick();
-    assert.ok(yard.disabled && desktop.disabled, 'a second click before the album redraws does nothing');
+    assert.equal(yard.parentNode.dataset.pending, 'true', 'held until the album redraws');
+    yard.onclick();
     await flush();
     const [method, b, item, x, y, desktopToo] = calls[0];
     assert.deepEqual([method, b, item, y, desktopToo], ['takeOutFind', book, id, 0.8, false]);
     assert.ok(x >= 0.3 && x <= 0.7);
-    // Each press sets out one more.
-    nodes = album(ctx, book, {
-      album: found,
-      garden: { decor: [{ id: 'd0', kind: `${book}_out`, x: 0.5, y: 0.8, holds: [id] }] },
-    });
+    // On the desktop too by the same call, saved once.
+    nodes = album(ctx, book, { album: found });
     buttonsOf(nodes, 0)[1].onclick();
     await flush();
     await flush();
-    // Out on the desktop by the same call, saved once.
     assert.deepEqual(
       calls.map(c => [...c.slice(0, 3), c.at(-1)]),
       [['takeOutFind', book, id, true]],
@@ -163,14 +162,92 @@ for (const [book, list, name] of [
     const again = buttonsOf(nodes, 0);
     again[0].onclick();
     await flush();
-    assert.ok(!again[0].disabled && !again[1].disabled);
-    // A full yard says so.
+    assert.equal(again[0].parentNode.dataset.pending, undefined, 'let go after a refusal');
+    // Gifts have their own room: twelve of them leave a find's free.
     nodes = album(ctx, book, { album: found, garden: { decor: decor(12) } });
+    assert.equal(buttonsOf(nodes, 0)[0].getAttribute('aria-disabled'), 'false');
+    // Twelve finds out of any book fill the finds' room, and it says so.
+    nodes = album(ctx, book, { album: found, garden: { decor: decor(12, { kind: 'fish_out', holds: ['carp'] }) } });
     for (const button of buttonsOf(nodes, 0)) {
-      assert.equal(button.disabled, true);
-      assert.equal(button.title, t('album.set_out_full'));
+      assert.equal(button.getAttribute('aria-disabled'), 'true');
+      assert.equal(button.title, t('album.finds_full', { limit: 12 }));
     }
   });
+
+// A card brings back what it set out: Put back when one can be out, else fewer and more within the
+// album's count; the screen moves the whole kind on or off the desktop (album-in-and-out.md).
+test('a find out comes back through its card, and goes on and off the desktop as a kind', async ctx => {
+  ctx.mock.timers.enable({ apis: ['setTimeout'] });
+  const id = FISH[0].id,
+    name = t(`catch.fish_${id}`),
+    out = (n, more = {}) =>
+      Array.from({ length: n }, (_, i) => ({ id: `f${i}`, kind: 'fish_out', x: 0.5, y: 0.8, holds: [id], ...more }));
+  // Caught once, out once: Put back takes it in.
+  let nodes = album(ctx, 'fish', { album: { fish: { [id]: entry } }, garden: { decor: out(1) } });
+  const [back] = buttonsOf(nodes, 0);
+  let [, screen] = buttonsOf(nodes, 0);
+  assert.equal(buttonsOf(nodes, 0).length, 2);
+  assert.equal(back.textContent, t('album.put_back'));
+  assert.equal(back.title, t('album.put_back_one', { kind: name }));
+  assert.equal(screen.getAttribute('aria-pressed'), 'false');
+  assert.equal(screen.title, t('album.desktop_on', { kind: name }));
+  back.onclick();
+  await flush();
+  assert.deepEqual(calls, [['putAway', 'f0']]);
+  // On the desktop: the screen is pressed, and a press takes the kind off it (it stays in the yard).
+  nodes = album(ctx, 'fish', { album: { fish: { [id]: entry } }, garden: { decor: out(1, { onDesktop: true }) } });
+  [, screen] = buttonsOf(nodes, 0);
+  assert.equal(screen.getAttribute('aria-pressed'), 'true');
+  assert.equal(screen.title, t('album.desktop_off', { kind: name }));
+  screen.onclick();
+  await flush();
+  assert.deepEqual(calls, [['albumOnDesktop', 'fish', id, false]]);
+  // Caught three times, two out: fewer, how many of how many, more.
+  const three = { fish: { [id]: { ...entry, count: 3 } } };
+  nodes = album(ctx, 'fish', { album: three, garden: { decor: out(2) } });
+  let [fewer, count, more] = buttonsOf(nodes, 0);
+  assert.equal(buttonsOf(nodes, 0).length, 4);
+  assert.equal(count.textContent, '2/3');
+  assert.equal(count.title, t('album.out_count', { count: 2, limit: 3 }));
+  assert.equal(more.title, t('album.set_out_more', { kind: name }));
+  assert.equal(more.getAttribute('aria-disabled'), 'false');
+  fewer.onclick();
+  await flush();
+  assert.deepEqual(calls, [['putAway', 'f1']], 'the last one out comes back');
+  nodes = album(ctx, 'fish', { album: three, garden: { decor: out(2, { onDesktop: true }) } });
+  buttonsOf(nodes, 0)[2].onclick();
+  await flush();
+  assert.deepEqual(
+    calls.map(c => [c[0], c.at(-1)]),
+    [['takeOutFind', true]],
+    'one more joins the kind on the desktop',
+  );
+  // All three out: no more, and it says why.
+  nodes = album(ctx, 'fish', { album: three, garden: { decor: out(3) } });
+  [fewer, count, more] = buttonsOf(nodes, 0);
+  assert.equal(count.textContent, '3/3');
+  assert.equal(more.getAttribute('aria-disabled'), 'true');
+  assert.equal(more.title, t('album.all_out', { count: 3 }));
+  assert.equal(fewer.getAttribute('aria-disabled'), 'false');
+  // None out yet, the row already has its shape: nothing to bring back, one to set out.
+  nodes = album(ctx, 'fish', { album: three });
+  [fewer, count, more] = buttonsOf(nodes, 0);
+  assert.equal(count.textContent, '0/3');
+  assert.equal(fewer.getAttribute('aria-disabled'), 'true');
+  assert.equal(more.title, t('album.set_out', { kind: name }));
+  // Found once, the one button turns from Set out to Put back and reads as pressed while out.
+  nodes = album(ctx, 'fish', { album: { fish: { [id]: entry } } });
+  assert.equal(buttonsOf(nodes, 0)[0].getAttribute('aria-pressed'), 'false');
+  // Never past what the yard holds, whatever the count.
+  nodes = album(ctx, 'fish', { album: { fish: { [id]: { ...entry, count: 40 } } }, garden: { decor: out(2) } });
+  assert.equal(buttonsOf(nodes, 0)[1].textContent, '2/12');
+  // Another fish, or a gift, out is not this card's.
+  nodes = album(ctx, 'fish', {
+    album: { fish: { [id]: entry } },
+    garden: { decor: [...out(1, { holds: ['no_such'] }), ...decor(1)] },
+  });
+  assert.equal(buttonsOf(nodes, 0)[0].textContent, t('album.take_out'));
+});
 
 test('a grown flower card has Set out and the desktop, and no frame', ctx => {
   ctx.mock.timers.enable({ apis: ['setTimeout'] });
@@ -200,4 +277,31 @@ test('a poked fish swims a turn; nothing moves with reduced motion', () => {
     { period: 'day', reduced: false, ring() {} },
   );
   assert.equal(still.classList.contains('moving'), false);
+});
+
+// A press redraws the book; the focus goes back to the control it was on, even one that cannot be
+// pressed now (album-in-and-out.md).
+test('the focus stays on the card’s row as the album redraws', async ctx => {
+  ctx.mock.timers.enable({ apis: ['setTimeout'] });
+  const { renderAlbum } = await import('../src/panel/album.js');
+  const id = FISH[0].id,
+    three = { fish: { [id]: { ...entry, count: 3 } } },
+    out = n => Array.from({ length: n }, (_, i) => ({ id: `f${i}`, kind: 'fish_out', x: 0.5, y: 0.8, holds: [id] }));
+  const nodes = album(ctx, 'fish', { album: three, garden: { decor: out(2) } });
+  buttonsOf(nodes, 0)[2].focus();
+  state.setData({ ...state.data, garden: { ...state.data.garden, decor: out(3) } });
+  renderAlbum();
+  const row = buttonsOf(nodes, 0);
+  assert.equal(row[1].textContent, '3/3');
+  assert.equal(
+    globalThis.document.activeElement,
+    row[2],
+    'all out, + keeps the focus, so a quick press does not land on −',
+  );
+  assert.equal(row[2].getAttribute('aria-disabled'), 'true');
+  row[2].onclick();
+  assert.equal(row[2].parentNode.dataset.pending, undefined, 'and does nothing');
+  row[3].focus();
+  renderAlbum();
+  assert.equal(globalThis.document.activeElement, buttonsOf(nodes, 0)[3], 'the screen, again');
 });

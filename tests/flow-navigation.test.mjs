@@ -84,6 +84,39 @@ test('a notice leaves when pressed, and a resting pointer holds it only for a wh
   assert.equal(notice.children.length, 0);
 });
 
+// Every notice closes the same way: its close button or a press anywhere on it. Closing an Undo
+// notice says done; its Undo button is its own press (album-in-and-out.md).
+test('every notice has the same close, and closing one with Undo is not an Undo', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { document, nodes } = installDom(t, { ids: ['toast'] });
+  document.querySelectorAll = () => [];
+  const notice = nodes.get('toast');
+  const closeOf = line => line.children.find(c => c.classList?.contains('toast-close'));
+  state.toast('Saved');
+  assert.ok(closeOf(notice.children[0]), 'a plain notice has one');
+  assert.equal(notice.children[0].textContent, 'Saved', 'and it adds no words');
+  const done = [];
+  state.toast('Flower pulled', {
+    ms: 6000,
+    action: { label: 'Undo', run: () => done.push('undo') },
+    onClose: () => done.push('closed'),
+  });
+  const line = notice.children.at(-1);
+  assert.ok(closeOf(line));
+  await line.dispatch('click');
+  assert.deepEqual(done, ['closed']);
+  assert.ok(!notice.children.includes(line));
+  state.toast('Tree removed', {
+    action: { label: 'Undo', run: () => done.push('undo') },
+    onClose: () => done.push('closed again'),
+  });
+  notice.children
+    .at(-1)
+    .children.find(c => c.classList?.contains('toast-action'))
+    .onclick({ stopPropagation() {} });
+  assert.deepEqual(done, ['closed', 'undo']);
+});
+
 test('the friend last talked to is the one selected at the next start', t => {
   installStorage(t, fakeStorage());
   state.setData({ pets: [{ id: 'a' }, { id: 'b' }] });

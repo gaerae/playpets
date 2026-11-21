@@ -119,3 +119,23 @@ test('a thing brought back, by Undo or after a failed save, says so', async t =>
   assert.equal(view.button.hidden, false);
   assert.equal(restored, 2, 'a failed save');
 });
+
+// Closing the notice says done: the removal is saved then, not when its time is up, and only once.
+test('closing an Undo notice saves the removal at once', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { document, nodes } = installDom(t, { ids: ['toast'] });
+  document.querySelectorAll = () => [];
+  const notice = nodes.get('toast');
+  notice.hidden = true;
+  const view = { button: element('button') };
+  let commits = 0;
+  removeWithUndo('aster', view, 'Aster pulled up', async () => commits++);
+  await notice.children[0].children.find(c => c.classList?.contains('toast-close')).dispatch('click');
+  await Promise.resolve();
+  assert.equal(commits, 1, 'saved when closed');
+  assert.equal(view.button.hidden, true, 'and it stays away');
+  assert.equal(notice.children.length, 0);
+  t.mock.timers.tick(6000);
+  await Promise.resolve();
+  assert.equal(commits, 1, 'not saved twice');
+});

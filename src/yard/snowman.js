@@ -34,6 +34,7 @@ import {
   sizeOf,
   yardToDecor,
 } from './field.js';
+import { giftsOut } from './find-out.js';
 import { localDay } from './growth.js';
 import { hint } from './hint.js';
 import { beginDrag, dragPoint, endDrag, giftSize, KEY_STEPS, setDown } from './props.js';
@@ -150,7 +151,13 @@ export function snowmanTick(now) {
   }, START_AFTER_MS);
 }
 const offered = () =>
-  snowmanOffer({ date: new Date(), season: yardSeason(scene), garden: data.garden, decorMax: limit(data, 'decor') });
+  snowmanOffer({
+    date: new Date(),
+    season: yardSeason(scene),
+    // Finds out of the album have their own room; a snowman takes a gift's.
+    garden: { ...data.garden, decor: giftsOut(data.garden?.decor) },
+    decorMax: limit(data, 'decor'),
+  });
 
 const across = () => Math.max(1, field().width - EDGE * 2);
 const deep = () => Math.max(1, field().bottom - field().top);

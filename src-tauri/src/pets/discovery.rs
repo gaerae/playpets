@@ -11,8 +11,9 @@ use uuid::Uuid;
 
 /// How many trees a saved yard keeps: one saved when each place had its own six keeps them all.
 pub const TREE_MAX: usize = 24;
-/// How many trees may be planted: one yard of them, standing in every place with soil.
-pub const TREE_YARD_MAX: usize = 6;
+/// How many trees may be planted: one yard of them, standing in every place with soil, twelve as of
+/// every kind (docs/decisions/2026-11-20-twelve-of-each.md).
+pub const TREE_YARD_MAX: usize = 12;
 pub const TREE_YOUNG_MS: u64 = 2 * 60 * 60 * 1000;
 pub const TREE_MATURE_MS: u64 = 12 * 60 * 60 * 1000;
 pub const DIG_COOLDOWN_MS: u64 = 8000;
@@ -390,8 +391,9 @@ pub fn plant_tree(
     Ok(set_tree(garden, world, kind, x, y, now, false))
 }
 /// Plants a tree of a kind the album has at (x, y), mature and free: its planting is put back by
-/// TREE_MATURE_MS and it counts as matured already, so growing adds nothing to the album. Any number
-/// of a kind within the yard's trees, on ground the page found free as for planting.
+/// TREE_MATURE_MS and it counts as matured already, so growing adds nothing to the album. As many
+/// grown of a kind as the album found, within the yard's trees, on ground the page found free as
+/// for planting.
 /// Design: docs/design/2026-11-19-album-take-out.md.
 #[allow(clippy::too_many_arguments)]
 pub fn take_out_tree(
@@ -408,6 +410,7 @@ pub fn take_out_tree(
     if !identifier(world) || !catalog().is_tree(kind) || !album.trees.contains_key(kind) {
         return Err(bad_request());
     }
+    garden.album_has_more(album, "tree", kind)?;
     if garden.trees.len() >= TREE_YARD_MAX {
         return Err(i18n::t("error.tree_full"));
     }
@@ -1314,8 +1317,18 @@ mod tests {
         .unwrap();
         assert!(take_out_tree(&mut g, &a, "meadow", "cherry", 0.5, 0.5, &wet, now).is_err());
         assert!(take_out_tree(&mut g, &a, "", "cherry", 0.5, 0.5, &ground(), now).is_err());
+        // As many grown as the album found; a sapling still growing is not one of them.
+        assert_eq!(
+            take_out_tree(&mut g, &a, "meadow", "cherry", 0.3, 0.6, &ground(), now),
+            Err(i18n::tr("error.album_all_out", &[("count", "1")]))
+        );
+        g.saplings.insert("cherry".into(), 1);
+        plant_tree(&mut g, "meadow", "cherry", 0.3, 0.6, &ground(), now).unwrap();
+        assert_eq!(g.out_of_album("tree", "cherry"), std::slice::from_ref(&t.id));
+        // Found more often than the yard holds: the yard's trees are the limit.
+        a.trees.get_mut("cherry").unwrap().count = TREE_YARD_MAX as u32 + 3;
         // Copies of one kind, up to the yard's trees.
-        for _ in 1..TREE_YARD_MAX {
+        for _ in 2..TREE_YARD_MAX {
             take_out_tree(&mut g, &a, "meadow", "cherry", 0.3, 0.6, &ground(), now).unwrap();
         }
         assert!(

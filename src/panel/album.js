@@ -7,8 +7,7 @@ import { closeOnBackdrop } from '../core/confirm.js';
 import { joinList, joinSentences, language, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { systemSouth } from '../core/season.js';
-import { $, call, data, toast } from '../core/state.js';
-import { spoken } from '../core/text.js';
+import { $, call, data, name } from '../core/state.js';
 import { previewSvg } from '../yard/art.js';
 import { albumSeen } from '../yard/card.js';
 import {
@@ -28,12 +27,13 @@ import { bugSvg, fishSvg } from '../yard/creatures.js';
 import { decorShown, yardSeason } from '../yard/decor-shown.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
 import { eventDates, eventScene, giftSeason } from '../yard/events.js';
+import { giftsOut } from '../yard/find-out.js';
 import { treeSpot } from '../yard/planted-trees.js';
 import { SECRETS } from '../yard/secrets.js';
 import { printSpecimen, tailPeek } from '../yard/trail-art.js';
 import { scene } from '../yard/world.js';
 import { worldFor, worldHasSoil } from '../yard/worlds.js';
-import { findButtons, landing, setOutRow } from './album-actions.js';
+import { findButtons, landing, restoreRowFocus, rowFocus, setOutRow } from './album-actions.js';
 
 // When and where a fish or a bug is found: "Summer, Evening, Night, at the lake".
 function when(kind, where) {
@@ -97,7 +97,7 @@ const BOOKS = {
     unknown: 'catch.unknown_flower',
     hint: k => t('catch.flower_hint', { season: t(`catch.season_${k.season}`) }),
     record: entry => t('catch.grown', { count: entry.count }),
-    action: k => growingButtons('flower', k.id),
+    action: (k, entry) => growingButtons('flower', k.id, entry),
   },
   fish: {
     tab: 'catch.tab_fish',
@@ -113,7 +113,7 @@ const BOOKS = {
       ]),
     record: entry => caughtLine(entry, true),
     rare,
-    action: k => findButtons('fish', k.id),
+    action: (k, entry) => findButtons('fish', k.id, entry),
   },
   bug: {
     tab: 'catch.tab_bugs',
@@ -129,7 +129,7 @@ const BOOKS = {
       ]),
     record: entry => caughtLine(entry, false),
     rare,
-    action: k => findButtons('bug', k.id),
+    action: (k, entry) => findButtons('bug', k.id, entry),
   },
   gift: {
     tab: 'catch.tab_gifts',
@@ -142,6 +142,7 @@ const BOOKS = {
     hint: k => (k.event ? eventHint(k) : t(k.built ? 'catch.built_hint' : 'catch.gift_hint')),
     record: () => t('catch.received'),
     rare,
+    mark: k => mementoHeart(k.id),
     action: k => takeOutButton(k.id),
   },
   tree: {
@@ -152,7 +153,7 @@ const BOOKS = {
     draw: (k, unknown) => specimen(grownArt(k), unknown),
     hint: favored('album.tree_how'),
     record: entry => t('catch.trees_grown', { count: entry.count }),
-    action: k => growingButtons('tree', k.id),
+    action: (k, entry) => growingButtons('tree', k.id, entry),
   },
   treasure: {
     tab: 'album.treasures',
@@ -163,7 +164,7 @@ const BOOKS = {
     hint: favored('album.treasure_how'),
     record: entry => caughtLine(entry, false),
     rare: k => k.rarity === 'uncommon',
-    action: k => findButtons('treasure', k.id),
+    action: (k, entry) => findButtons('treasure', k.id, entry),
   },
   // Winter animals whose prints a friend followed: the print is the clue, the tail what was seen.
   track: {
@@ -234,11 +235,13 @@ function card(b, kind, entry, index) {
     el.classList.add('rare');
   }
   if (entry) {
+    const mark = b.mark?.(kind);
+    if (mark) stage.append(mark);
     const record = document.createElement('small');
     record.className = 'album-record';
     record.textContent = b.record(entry);
     el.append(record);
-    const action = b.action?.(kind);
+    const action = b.action?.(kind, entry);
     if (action) el.append(action);
   }
   return el;
@@ -247,98 +250,80 @@ function card(b, kind, entry, index) {
 // when it shows: a Christmas gift its dates, a snowman winter.
 const showsNow = kind => decorShown(kind, new Date(), yardSeason(scene));
 const whenShown = kind => t(giftKind(kind)?.shown ? 'album.shown_christmas' : 'album.shown_winter');
-// A gift that came before can always come back out of its card (garden.rs take_out): one in the
-// yard says so, and one waiting in the box is set out from the box below the book. A snowman is
+// A friend's memento wears its giver's heart on its card, in the yard or waiting in the box, as it
+// does in the yard (garden.css .decor.memento).
+function mementoHeart(kind) {
+  const garden = data.garden || {},
+    memento = [...(garden.decor || []), ...(garden.boxed || [])].find(d => d.kind === kind && d.memento);
+  if (!memento) return null;
+  const from = data.pets.find(p => p.id === memento.from),
+    heart = document.createElement('span');
+  heart.className = 'album-heart';
+  heart.setAttribute('role', 'img');
+  heart.title = from ? t('album.memento', { name: name(from) }) : t('album.memento_plain');
+  heart.setAttribute('aria-label', heart.title);
+  heart.textContent = '♥';
+  return heart;
+}
+// A gift that came before can always come back out of its card (garden.rs take_out), and back in.
+// One waiting in the box (it came while the yard was full, or a memento put away) is that same gift:
+// its card sets it out. Set out while out of sight, it waits and says when it shows. A snowman is
 // built in the snow, never set out: its card only says when one stands in the yard.
 function takeOutButton(kind) {
   const garden = data.garden || {};
-  if ((garden.boxed || []).some(d => d.kind === kind)) return null;
   const out = (garden.decor || []).some(d => d.kind === kind);
-  if (giftKind(kind)?.built && !out) return null;
-  const room = (garden.decor?.length ?? 0) < limit(data, 'decor'),
-    shows = showsNow(kind),
-    button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'album-take-out';
-  button.textContent = t(out ? 'album.in_yard' : 'album.take_out');
-  button.disabled = out || !room || !shows;
-  button.title = !shows
-    ? whenShown(kind)
-    : out
-      ? t('album.in_yard')
-      : room
-        ? t('album.set_out', { kind: t(`decor.kind_${kind}`) })
-        : t('album.set_out_full');
-  button.setAttribute('aria-label', button.title);
-  button.onclick = () => {
-    // Taken out once: a second click before the album redraws would find it out already.
+  if (giftKind(kind)?.built) {
+    if (!out) return null;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'album-take-out';
+    button.textContent = button.title = t('album.in_yard');
     button.disabled = true;
-    call('takeOut', kind, ...landing()).catch(error => {
-      button.disabled = false;
-      toast(spoken(error, t('error.generic')), { error: true });
-    });
-  };
-  return button;
+    button.setAttribute('aria-label', button.title);
+    return button;
+  }
+  const room = limit(data, 'decor'),
+    why = !showsNow(kind) ? whenShown(kind) : giftsOut(garden.decor).length >= room ? t('album.set_out_full') : '';
+  return setOutRow({
+    book: 'gift',
+    item: kind,
+    name: t(`decor.kind_${kind}`),
+    most: 1,
+    room,
+    why,
+    setOut: desktop => call('takeOut', kind, ...landing(), desktop),
+  });
 }
 // A flower or a tree the album has comes out again, grown and free, as often as there is room
 // (garden.rs take_out_flower, discovery.rs take_out_tree): into the yard, or into the yard and out
 // on the desktop. A flower goes near the front of the field, as a gift does; a tree onto free soil
 // of the place shown. Design: docs/design/2026-11-19-album-take-out.md.
-function growingButtons(book, kind) {
+function growingButtons(book, kind, entry) {
   const garden = data.garden || {},
     tree = book === 'tree',
-    most = limit(data, tree ? 'trees' : 'plants'),
-    full = ((tree ? garden.trees : garden.plants)?.length ?? 0) >= most,
+    room = limit(data, tree ? 'trees' : 'plants'),
+    full = ((tree ? garden.trees : garden.plants)?.length ?? 0) >= room,
     why =
       tree && !worldHasSoil(scene.world)
         ? t('album.tree_soil')
         : full
-          ? t(tree ? 'album.trees_full' : 'album.flowers_full', { limit: most })
+          ? t(tree ? 'album.trees_full' : 'album.flowers_full', { limit: room })
           : '';
-  return setOutRow(t(nameKey(tree ? 'trees' : 'flowers', kind)), why, desktop => takeOutGrowing(tree, kind, desktop));
+  return setOutRow({
+    book,
+    item: kind,
+    name: t(nameKey(tree ? 'trees' : 'flowers', kind)),
+    most: entry?.count ?? 1,
+    room,
+    why,
+    setOut: desktop => takeOutGrowing(tree, kind, desktop),
+  });
 }
 function takeOutGrowing(tree, kind, desktop) {
   if (!tree) return call('takeOutFlower', kind, ...landing(), desktop);
   const spot = treeSpot();
   if (!spot) return Promise.reject(Object.assign(new Error(t('album.tree_no_room')), { spoken: true }));
   return call('takeOutTree', scene.world, kind, spot.point.x, spot.point.y, spot.ground, desktop);
-}
-// The gift box, in the gift book: gifts that came while the yard was full, and mementos put away.
-// Each is set out near the front of the yard, from where the person drags it on.
-function renderBox(open) {
-  const boxed = data.garden?.boxed || [],
-    box = $('album-box');
-  box.hidden = !open || !boxed.length;
-  if (box.hidden) return;
-  const room = (data.garden?.decor?.length ?? 0) < limit(data, 'decor');
-  $('album-box-title').textContent = t('album.box_title', { count: boxed.length, limit: limit(data, 'giftBox') });
-  $('album-box-items').replaceChildren(
-    ...boxed.map(d => {
-      const button = document.createElement('button'),
-        label = document.createElement('small'),
-        kind = giftKind(d.kind),
-        named = t(`decor.kind_${d.kind}`),
-        shows = showsNow(d.kind);
-      button.type = 'button';
-      button.className = 'album-box-item';
-      button.classList.toggle('memento', !!d.memento);
-      button.disabled = !room || !shows;
-      button.title = !shows ? whenShown(d.kind) : room ? t('album.set_out', { kind: named }) : t('album.set_out_full');
-      button.setAttribute('aria-label', button.title);
-      button.innerHTML = kind ? specimen(kind.art, false) : '';
-      label.textContent = named;
-      button.append(label);
-      button.onclick = () => {
-        // Set out once: a second click before the album redraws would find it gone.
-        button.disabled = true;
-        call('setOut', d.id, ...landing()).catch(error => {
-          button.disabled = false;
-          toast(spoken(error, t('error.generic')), { error: true });
-        });
-      };
-      return button;
-    }),
-  );
 }
 /** Brings the album in line with what has been found (only while it is open). */
 export function renderAlbum() {
@@ -370,11 +355,9 @@ export function renderAlbum() {
   }
   if (giftBook) {
     status.title = '';
-    const yardFull = (data.garden?.decor?.length ?? 0) >= limit(data, 'decor'),
-      boxFull = (data.garden?.boxed?.length ?? 0) >= limit(data, 'giftBox');
-    status.textContent = t(yardFull ? (boxFull ? 'album.gifts_full' : 'album.gift_full') : 'album.gift_rule');
+    const yardFull = giftsOut(data.garden?.decor).length >= limit(data, 'decor');
+    status.textContent = t(yardFull ? 'album.gift_full' : 'album.gift_rule');
   }
-  renderBox(giftBook);
   let found = 0,
     total = 0;
   const share = {};
@@ -408,9 +391,12 @@ export function renderAlbum() {
     have = b.found();
   // Each book has its own ground under the drawings: water for fish, wood for gifts (dialog.css).
   $('album-grid').dataset.book = book;
+  // A press on a card redraws the book: the focus goes back to the control it was on.
+  const was = rowFocus();
   $('album-grid').replaceChildren(
     ...b.kinds.filter(k => !b.hidden || have[k.id]).map((k, index) => card(b, k, have[k.id], index)),
   );
+  restoreRowFocus($('album-grid'), was);
 }
 // Whether a book is there to open: a hidden one once something in it is found.
 const shown = id => {

@@ -106,7 +106,7 @@ You can pet friends, chat, grow flowers, decorate the Christmas tree and play th
 |---|---|---|
 | Flowers | In the ground | In small pots |
 | Digging, fishing | Yes | No |
-| Trees | Yes, the same six in each | No |
+| Trees | Yes, the same ones in each | No |
 | Bugs | In clear weather | No |
 | Seasonal landscapes and effects | Follow the season | No |
 | Snowman, footprints in the snow | In winter | No |
@@ -154,7 +154,7 @@ What blooms depends on the season you planted in:
 | Right-click → **Pull up**, or **Delete** or **Backspace** | Gone at once, no question. **Undo** in the notice brings it back for about six seconds; after that it's gone for good. If the app closes first, it stays. The seed doesn't come back |
 | Right-click → **Show on desktop** | It grows on your desk too ([Desktop mode](./desktop.md#flowers-and-trees-on-the-desktop)) |
 
-- Limits: 20 seeds and 24 plants.
+- Limits: 20 seeds and 12 plants. A yard that had more before keeps them.
 - The **Album** records each kind of flower the first time it blooms. After that, its card can set one out in bloom, in any season, without a seed ([Album](#album)).
 - Saved as `garden` in `state.json`.
 
@@ -181,9 +181,9 @@ Friends use what they get. They sit on the bench, the swing and the stump, gathe
 | Right-click → **Put away**, or **Delete** or **Backspace** | Gone at once. **Undo** in the notice brings it back for about six seconds. If the app closes first, it stays. A friend may bring it again another day |
 | Right-click → **Show on desktop** | Sends it out to the desktop ([Gifts on the desktop](./desktop.md#gifts-on-the-desktop)) |
 
-- The yard holds 12 decorations. When it's full, a new one waits in the **gift box** at the top of the album's Gifts book, which holds 12 more. Press one there to set it out once there's room.
-- Putting one away keeps its album entry and makes room for the gifts still to come. A memento goes back into the gift box instead, unless the box is full.
-- Any gift that came before can come back out: **Set out** on its card in the album's Gifts book, once there's room. The snowman is the exception: you build it again.
+- The yard holds 12 gifts. When it's full, new ones wait in the album, one of each kind. Once there's room, **Set out** on the gift's own card in the Gifts book sets it out.
+- Putting one away keeps its album entry and makes room for the gifts still to come. A memento keeps its friend and its heart, shown on its card too.
+- Any gift that came before can come back out: **Set out** on its card in the album's Gifts book, once there's room, and **Put back** takes it in again. The snowman is the exception: you build it again.
 - The album has 41 gifts, seventeen of them only on their events' dates. The snowman is one of the 41, but you build it ([Snowman](#snowman)). A memento is one of the 41 too, so it adds no new entry.
 
 ## Fishing and bugs <Since v="0.1.0" />
@@ -223,9 +223,11 @@ Only outdoors in clear weather; rain and snow stop them. Click one and the neare
 - **Rare** marks the kinds that seldom come and everything that comes only with a seasonal event. An event's card gives its dates and the scene that calls it up.
 - A catch shows a card, and says so when it's new. A card for something the album keeps (a fish, a bug, a flower in bloom, a gift, a keepsake or a spring shoot) has **See in album**, which opens that book.
 - Something new puts a small dot on **Album** and on **Play** in the dock until you open the album.
-- A flower, tree, fish, bug or keepsake you have found comes out of its card again: **Set out** puts one in the yard, and the small screen button beside it puts it on the desktop too. Each press sets out one more.
-- A flower comes out in bloom and a tree fully grown, up to the yard's 24 plants and six trees. A tree needs an outdoor place with soil.
-- A fish, bug or keepsake comes out on its own, with no bowl or jar, and counts as one of the yard's 12 decorations. A fish is drawn by its length, and a friend who visits a find names it.
+- A flower, tree, fish, bug or keepsake you have found comes out of its card again, and goes back in the same way. The buttons stay where they are, so you can press again at once.
+- Found once: **Set out** puts it in the yard and turns into **Put back**. Found more often: **+** sets one more out and **−** takes one in, up to how many you found and what the yard has room for. The number between them is how many are out.
+- The small screen button puts it on the desktop too, and stays lit while that kind is there. Press it again to take them off the desktop; they stay in the yard.
+- A flower comes out in bloom and a tree fully grown, up to the yard's 12 plants and 12 trees. A tree needs an outdoor place with soil.
+- A fish, bug or keepsake comes out on its own, with no bowl or jar, up to 12 of them, apart from the yard's 12 gifts. A fish is drawn by its length, and a friend who visits a find names it.
 - Saved as `album` in `state.json`.
 
 ## Seasonal events <Since v="0.1.0" /> {#seasonal-events}
@@ -260,7 +262,7 @@ During the winter lights, if the yard isn't showing winter, PlayPets asks once w
 
 - After Santa come ten decorations: a ribbon tree and a pastel retro tree, each small and then big, a string-light arch, a stack of gift boxes, a wreath stand, a candy cane star lamp, a gingerbread house and a sundries cart. The trees, the lamps, the house and the cart light up from evening. On the desktop, a click switches the arch and the lamp off and on, and the wreath can hang from a screen's top.
 - The winter lights' gifts show in the yard and on the desktop from November 15 to January 7, and whenever the yard shows winter.
-- The rest of the time they wait out of sight, still counting toward the 12 decorations. Put one away and it goes back into the gift box.
+- The rest of the time they wait out of sight, still counting toward the 12 decorations. Put one away and it waits in the album.
 
 ### Christmas night {#christmas-night}
 
@@ -352,7 +354,7 @@ The Friend panel shows how close a friend is to you: its level, how far it is to
 3. Pick a kind you have and click clear ground. It uses one sapling.
 
 - Growth counts time with the app closed: young after two hours, mature after twelve. A mature tree is recorded once in **Album → Trees**, and from then on its card can set one out fully grown, without a sapling ([Album](#album)).
-- Up to six trees. Like flowers and gifts, they stand in every outdoor place, wherever you planted them.
+- Up to 12 trees. Like flowers and gifts, they stand in every outdoor place, wherever you planted them.
 - Drag a tree to move it. Right-click → **Remove**, or **Delete**: gone at once, with **Undo** for about six seconds. Its album entry stays; the sapling doesn't come back.
 - Imported backgrounds can allow or turn off soil.
 

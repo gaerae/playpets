@@ -191,11 +191,19 @@ test('the first gift waits five minutes', async t => {
   assert.equal(gifts().length, 1);
 });
 
-test('a full yard sends the gift to the box; with both full no gift is asked for', async t => {
+// Gifts wait in the album without a limit of their own: a friend brings none only once every
+// everyday kind is out or waiting already, since one of each waits (garden.rs give).
+test('a full yard sends the gift to wait in the album; with every kind out or waiting none is asked for', async t => {
   const clock = fixture(t);
+  const { GIFTS } = await import('../src/yard/catalog.js');
   const twelve = () => Array.from({ length: 12 }, (_, id) => ({ id: `${id}`, kind: 'bench', x: 0.5, y: 0.5 }));
   state.data.garden.decor = twelve();
-  state.data.garden.boxed = twelve();
+  state.data.garden.boxed = GIFTS.filter(g => !g.event && !g.built && g.id !== 'bench').map(g => ({
+    id: `w-${g.id}`,
+    kind: g.id,
+    x: 0.5,
+    y: 0.5,
+  }));
   state.data.bonds[pet.id] = { points: 500 };
   clock.together();
   const decor = await fresh();
@@ -207,12 +215,31 @@ test('a full yard sends the gift to the box; with both full no gift is asked for
   decor.thanksTick(2e12);
   await flush();
   assert.equal(calls.length, 0);
-  state.data.garden.boxed = [];
+  state.data.garden.boxed = state.data.garden.boxed.slice(1);
   decor.giftTick();
   clock.advance(20 * MIN);
   decor.giftTick();
   await flush();
-  assert.equal(gifts().length, 1, 'the box has room');
+  assert.equal(gifts().length, 1, 'a kind not out or waiting can come');
+});
+
+test('finds set out from the album leave the gifts their room', async t => {
+  const clock = fixture(t);
+  state.data.garden.decor = Array.from({ length: 12 }, (_, id) => ({
+    id: `${id}`,
+    kind: 'fish_out',
+    holds: ['carp'],
+    x: 0.5,
+    y: 0.5,
+  }));
+  state.data.garden.boxed = [];
+  clock.together();
+  const decor = await fresh();
+  decor.giftTick();
+  clock.advance(20 * MIN);
+  decor.giftTick();
+  await flush();
+  assert.equal(gifts().length, 1);
 });
 
 test('a failed save waits a minute instead of retrying every frame', async t => {

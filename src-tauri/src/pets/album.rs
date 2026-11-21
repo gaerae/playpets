@@ -106,6 +106,20 @@ impl Album {
         }
     }
 
+    /// How many of `item` this book has found (`book`: flower, tree, fish, bug or treasure); 0 for
+    /// one not found and for a book with no copies to set out. A card sets out at most this many.
+    pub fn count(&self, book: &str, item: &str) -> u32 {
+        let found = match book {
+            "flower" => &self.flowers,
+            "tree" => &self.trees,
+            "fish" => &self.fish,
+            "bug" => &self.bugs,
+            "treasure" => &self.treasures,
+            _ => return 0,
+        };
+        found.get(item).map_or(0, |e| e.count)
+    }
+
     /// Records a flower that bloomed in the garden (the garden says which, garden.rs `bloom`).
     pub fn flowered(&mut self, kind: &str, now: u64) -> Entry {
         let entry = self.flowers.entry(kind.to_string()).or_insert(Entry {

@@ -38,3 +38,7 @@ Editing dialogs keep headings and actions available while their bodies scroll. I
 ## Follow-up (2026-10-20)
 
 The update controls shipped in their own Settings section, **App updates**, beside About rather than inside it. The quiet update entry, the tray and the macOS menu open that section.
+
+## Follow-up (2026-11-20)
+
+Twelve trees may now grow, and a saved yard still keeps up to 24: [Hold twelve of every kind in the yard](../decisions/2026-11-20-twelve-of-each.md).
