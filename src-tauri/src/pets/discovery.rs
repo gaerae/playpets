@@ -479,14 +479,25 @@ pub fn grow_trees(garden: &mut Garden, album: &mut Album, now: u64) -> bool {
             // An unknown future species keeps its progress but does not create a new album kind.
             if catalog().is_tree(&tree.kind) && (album.trees.contains_key(&tree.kind) || album.trees.len() < KINDS_MAX)
             {
-                album.trees.entry(tree.kind.clone()).or_insert(Entry {
-                    count: 1,
+                let entry = album.trees.entry(tree.kind.clone()).or_insert(Entry {
+                    count: 0,
                     best: 0.0,
                     first: now,
                 });
+                entry.count = entry.count.saturating_add(1);
                 tree.matured = true;
                 changed = true;
             }
+        }
+    }
+    // An album saved before each grown tree counted found a kind once, however many grew: it has
+    // found at least as many as stand grown in the yard (one out of the album is within its count).
+    for (kind, entry) in album.trees.iter_mut() {
+        let grown = garden.trees.iter().filter(|t| t.matured && t.kind == *kind).count();
+        let grown = u32::try_from(grown).unwrap_or(u32::MAX);
+        if grown > entry.count {
+            entry.count = grown;
+            changed = true;
         }
     }
     changed
@@ -1356,6 +1367,46 @@ mod tests {
             &json!([{"id":"t","world":"meadow","kind":"cherry","x":0.5,"y":0.5,"planted":1,"stage":0}]),
         ));
         assert!(!old[0].on_desktop && old[0].desktop_position.is_none());
+    }
+
+    #[test]
+    fn every_tree_grown_counts_in_the_album_and_one_out_of_it_does_not() {
+        let mut g = Garden::restore(Some(&json!({"saplings": {"cherry":5}})), 0);
+        let mut a = Album::default();
+        for x in [0.3, 0.6] {
+            plant_tree(&mut g, "meadow", "cherry", x, 0.5, &ground(), 10000).unwrap();
+        }
+        assert!(grow_trees(&mut g, &mut a, 10000 + TREE_MATURE_MS));
+        assert_eq!(a.trees["cherry"].count, 2, "two grown, two found");
+        // One out of the album, in place of one put away, is grown already and adds nothing.
+        let first = g.trees[0].id.clone();
+        remove_tree(&mut g, &first).unwrap();
+        take_out_tree(
+            &mut g,
+            &a,
+            "lake",
+            "cherry",
+            0.5,
+            0.5,
+            &ground(),
+            20000 + TREE_MATURE_MS,
+        )
+        .unwrap();
+        assert!(!grow_trees(&mut g, &mut a, 30000 + TREE_MATURE_MS));
+        assert_eq!(a.trees["cherry"].count, 2);
+        // An album saved when a tree counted once, however many grew: it counts the grown ones in the yard.
+        let mut old = Album::default();
+        old.trees.insert(
+            "cherry".into(),
+            Entry {
+                count: 1,
+                best: 0.0,
+                first: 1,
+            },
+        );
+        assert!(grow_trees(&mut g, &mut old, 40000 + TREE_MATURE_MS));
+        assert_eq!(old.trees["cherry"].count, 2);
+        assert!(!grow_trees(&mut g, &mut old, 50000 + TREE_MATURE_MS));
     }
 
     #[test]

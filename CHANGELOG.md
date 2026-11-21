@@ -26,6 +26,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The outdoor pictures meet the sky in a smooth edge: treetops, hills and the meadow's line no longer show a pale, stepped outline.
 - The little Christmas tree is redrawn in gold and cream, in the yard and on Christmas night. Its ornaments stay on its twelve hooks.
 
+### Fixed
+
+- Every tree that grows counts in the album, so a kind grown twice can be set out twice with **+**, and an album from an earlier version catches up with the trees grown in the yard.
+
 ### Website and docs
 
 - The README and the guide count the album's 213 entries and 41 gifts, and the guide describes the new winter decorations.
