@@ -962,8 +962,8 @@
     "kind": "gifts",
     "atlas": "collection-extension/christmas-trees.webp",
     "atlasSize": [1536, 1024],
-    "crop": [220, 600, 328, 414],
-    "size": [56, 72],
+    "crop": [175, 527, 332, 488],
+    "size": [49.0, 72],
     "art": "decor/xmas_tree.svg"
   },
   {
@@ -989,8 +989,8 @@
     "kind": "gifts",
     "atlas": "collection-extension/christmas-trees.webp",
     "atlasSize": [1536, 1024],
-    "crop": [865, 86, 574, 928],
-    "size": [98, 158],
+    "crop": [635, 33, 709, 985],
+    "size": [113.7, 158],
     "art": "decor/xmas_tree_grand.svg"
   },
   {
@@ -1451,5 +1451,95 @@
     "crop": [845, 836, 371, 366],
     "size": [40, 40],
     "art": "discovery/old_button.svg"
+  },
+  {
+    "id": "ribbon_tree",
+    "kind": "gifts",
+    "atlas": "collection-extension/christmas-trees-2.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [8, 461, 286, 491],
+    "size": [44.3, 76],
+    "art": "decor/ribbon_tree.svg"
+  },
+  {
+    "id": "light_arch",
+    "kind": "gifts",
+    "atlas": "collection-extension/winter-props.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [577, 49, 364, 408],
+    "size": [107.1, 120],
+    "art": "decor/light_arch.svg"
+  },
+  {
+    "id": "gift_stack",
+    "kind": "gifts",
+    "atlas": "collection-extension/winter-props.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [84, 69, 353, 397],
+    "size": [53.4, 60],
+    "art": "decor/gift_stack.svg"
+  },
+  {
+    "id": "wreath_stand",
+    "kind": "gifts",
+    "atlas": "collection-extension/winter-props.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1100, 39, 326, 428],
+    "size": [60.9, 80],
+    "art": "decor/wreath_stand.svg"
+  },
+  {
+    "id": "candy_lamp",
+    "kind": "gifts",
+    "atlas": "collection-extension/winter-props.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [119, 532, 262, 418],
+    "size": [50.1, 80],
+    "art": "decor/candy_lamp.svg"
+  },
+  {
+    "id": "retro_tree",
+    "kind": "gifts",
+    "atlas": "collection-extension/christmas-trees-2.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [762, 446, 273, 502],
+    "size": [41.3, 76],
+    "art": "decor/retro_tree.svg"
+  },
+  {
+    "id": "gingerbread_house",
+    "kind": "gifts",
+    "atlas": "collection-extension/winter-props.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1078, 540, 393, 401],
+    "size": [82.3, 84],
+    "art": "decor/gingerbread_house.svg"
+  },
+  {
+    "id": "sundries_cart",
+    "kind": "gifts",
+    "atlas": "collection-extension/winter-props.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [555, 531, 405, 425],
+    "size": [91.5, 96],
+    "art": "decor/sundries_cart.svg"
+  },
+  {
+    "id": "ribbon_tree_big",
+    "kind": "gifts",
+    "atlas": "collection-extension/christmas-trees-2.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [299, 95, 454, 866],
+    "size": [69.2, 132],
+    "art": "decor/ribbon_tree_big.svg"
+  },
+  {
+    "id": "retro_tree_big",
+    "kind": "gifts",
+    "atlas": "collection-extension/christmas-trees-2.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1027, 30, 498, 929],
+    "size": [70.8, 132],
+    "art": "decor/retro_tree_big.svg"
   }
 ]

@@ -83,11 +83,29 @@ function yard(ctx, now, season, decor, world = 'woodland') {
   return () => nodes.get('garden-layer').children.filter(b => !b.removed);
 }
 
+// The gifts shown only in winter: the snowman, then the winter lights' own in catalogue order.
+const WINTER_ONLY = [
+  'snowman',
+  'xmas_tree',
+  'baby_reindeer',
+  'santa',
+  'ribbon_tree',
+  'light_arch',
+  'gift_stack',
+  'wreath_stand',
+  'candy_lamp',
+  'retro_tree',
+  'gingerbread_house',
+  'sundries_cart',
+  'ribbon_tree_big',
+  'retro_tree_big',
+];
+
 test('a kind shows by its window or its season, and the rest always', () => {
   const d = (y, m, day) => new Date(y, m - 1, day, 12);
   assert.equal(decorShown('xmas_tree', d(2026, 11, 14), 'autumn'), false);
   assert.equal(decorShown('santa', d(2026, 11, 14), 'autumn'), false);
-  for (const kind of ['xmas_tree', 'baby_reindeer', 'santa'])
+  for (const kind of WINTER_ONLY.slice(1))
     assert.equal(decorShown(kind, d(2026, 11, 15), 'autumn'), true, `${kind} from mid-November`);
   assert.equal(decorShown('xmas_tree', d(2026, 12, 1), 'summer'), true, 'whatever the season');
   assert.equal(decorShown('baby_reindeer', d(2027, 1, 7), 'spring'), true);
@@ -101,11 +119,11 @@ test('a kind shows by its window or its season, and the rest always', () => {
   assert.equal(decorShown('snowman', d(2026, 12, 24), 'autumn'), false);
   assert.equal(decorShown('bench', d(2026, 7, 1), 'summer'), true);
   assert.equal(decorShown('no-such-kind', d(2026, 7, 1), 'summer'), true);
-  assert.deepEqual(hiddenKinds(d(2026, 7, 1), 'summer'), ['snowman', 'xmas_tree', 'baby_reindeer', 'santa']);
+  assert.deepEqual(hiddenKinds(d(2026, 7, 1), 'summer'), WINTER_ONLY);
   assert.deepEqual(hiddenKinds(d(2026, 12, 5), 'winter'), []);
   assert.deepEqual(hiddenKinds(d(2026, 11, 20), 'autumn'), ['snowman']);
   assert.deepEqual(hiddenKinds(d(2026, 7, 1), 'winter'), []);
-  assert.deepEqual(hiddenKinds(d(2026, 7, 1), null), ['snowman', 'xmas_tree', 'baby_reindeer', 'santa']);
+  assert.deepEqual(hiddenKinds(d(2026, 7, 1), null), WINTER_ONLY);
 });
 
 test('the yard draws only what shows now, and friends visit only that', ctx => {
@@ -161,7 +179,7 @@ test('the yard tells the desktop which kinds are hidden, once per change', ctx =
   ctx.mock.timers.setTime(new Date(2026, 6, 1, 12).getTime());
   scene.season = 'summer';
   refreshShownDecor();
-  assert.deepEqual(hidden.at(-1), ['snowman', 'xmas_tree', 'baby_reindeer', 'santa']);
+  assert.deepEqual(hidden.at(-1), WINTER_ONLY);
   assert.equal(hidden.length, sent + 1);
 });
 

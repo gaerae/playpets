@@ -58,6 +58,11 @@
 |---|---|
 | `fieldTop` | The flat back line of the walkable floor |
 | `edge` | `[[x, y], …]` from `x` 0 to 1; each `y` is where walkable ground ends at that `x` |
+| `far` | Optional, for ground reaching far back (a meadow, not a path): the picture `y` a friend is drawn smallest at, usually the edge's highest point |
+| `depthFar` | How small a friend at the back is drawn (default 0.84) |
+
+- Without `far`, a friend's size follows its saved `y`: one at the top of a raised path is as small as one at the line beside it.
+- With `far`, its size follows its height on the screen, alike at every `x`, from `depthFar` at `far` to its own size at the field's foot. The Wild garden uses `far` 0.48 and `depthFar` 0.68.
 
 To trace one:
 1. Open the summer picture at full size (1536 × 1024).

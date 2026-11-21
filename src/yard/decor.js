@@ -130,7 +130,7 @@ function create(d) {
     // A firefly out glows as a lit gift does (find-out.js).
     effects = [...(gift?.effects || []), ...findOutEffects(d.kind, d.holds)];
   if (effects.length) button.dataset.effects = effects.join(' ');
-  button.innerHTML = `${effectLayers(effects)}${gift?.art ? artSvg(gift.art) : ''}`;
+  button.innerHTML = `${effectLayers(effects, gift?.light)}${gift?.art ? artSvg(gift.art) : ''}`;
   // A drawing with no ground of its own stands on a contact shade, under it (garden.css); one on
   // spread feet has a small dark one under each foot, over a wide soft one under it all.
   if (gift?.shade) {

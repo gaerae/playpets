@@ -27,6 +27,8 @@
 - The seasons share one lawn and land tone, so a season change does not jump in color.
 - No rain or snow is painted in.
 - The field's top follows the picture: `geometry.fieldTop`, raised where `geometry.edge` traces ground reaching back.
+- Where the lawn reaches far back, `geometry.far` (a share of the picture's height) and `geometry.depthFar` scale a friend by its height on the screen, alike at every x.
+- The line against the sky is antialiased, with no pale ring. A newly accepted picture runs through `node scripts/soften-sky-edges.mjs`, with `--keep-white` for snow or blossom. The script leaves a picture whose edge is soft already; `--again` softens it once more and moves its line a pixel into the land.
 - The pond people click is `geometry.lake`, an ellipse in picture fractions. `yard/environment.js` (`environmentLake`) applies the picture's crop to it.
 - The pictures keep their proportions with a floor-anchored cover crop (`environmentFrame`), shared with the pond, the fishing stance and the festival lights.
 - Night tint uses alpha compositing, so darkness does not depend on Canvas filter support.
@@ -60,5 +62,6 @@
 | 2026-10-13 | Four places: hillside garden, stone courtyard, lakeside and village study ([provenance](FOUR-PLACES-PROVENANCE.md)) |
 | 2026-11-12 | Agent workspaces: a sunny office and the garden workshop. The office was dropped and the workshop replaced the village study (living room) |
 | 2026-11-13 | New outdoor set; the stone courtyard became the Wild garden. The previous outdoor pictures and the retired studio and office sources were removed from the repository; Git history keeps them |
+| 2026-11-21 | Soft sky edges on every outdoor picture (`scripts/soften-sky-edges.mjs`); the Wild garden's left side opened back to the meadow ([provenance](FOUR-PLACES-PROVENANCE.md)) |
 
 - Only `assets/sources/environments/studio-cozy-day.png` remains of the retired rooms: `scripts/creator-skill.mjs` copies it as the creator kit's interior example.

@@ -727,11 +727,26 @@ mod tests {
     }
 
     #[test]
-    fn the_winter_lights_bring_three_gifts_in_order_and_the_snowman_is_built() {
-        let three = ["xmas_tree", "baby_reindeer", "santa"];
-        assert_eq!(event_gifts("lights", "2026-12-01"), three);
-        assert_eq!(event_gifts("lights", "2026-12-31"), three);
-        assert_eq!(event_gifts("lights", "2026-11-15"), three, "from mid-November");
+    fn the_winter_lights_bring_their_gifts_in_order_and_the_snowman_is_built() {
+        // The tree, the reindeer and Santa first, as before; then the newer decorations, a big tree last.
+        let lights = [
+            "xmas_tree",
+            "baby_reindeer",
+            "santa",
+            "ribbon_tree",
+            "light_arch",
+            "gift_stack",
+            "wreath_stand",
+            "candy_lamp",
+            "retro_tree",
+            "gingerbread_house",
+            "sundries_cart",
+            "ribbon_tree_big",
+            "retro_tree_big",
+        ];
+        assert_eq!(event_gifts("lights", "2026-12-01"), lights);
+        assert_eq!(event_gifts("lights", "2026-12-31"), lights);
+        assert_eq!(event_gifts("lights", "2026-11-15"), lights, "from mid-November");
         assert!(event_gifts("lights", "2026-11-14").is_empty());
         assert!(
             event_gifts("lights", "2026-06-15").is_empty(),
@@ -763,7 +778,7 @@ mod tests {
             ],
             "mementos stay as they were"
         );
-        assert!(three.iter().all(|k| c.kept_in_box(k) && c.comes_and_goes(k)));
+        assert!(lights.iter().all(|k| c.kept_in_box(k) && c.comes_and_goes(k)));
         assert!(!c.kept_in_box("snowman") && c.comes_and_goes("snowman"));
         assert!(!c.kept_in_box("bench") && !c.comes_and_goes("bench"));
     }

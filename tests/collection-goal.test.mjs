@@ -195,8 +195,9 @@ test('each book keeps its rare finds to about one in five', () => {
   const rare = kind => kind.rarity === 'rare' || Boolean(kind.event);
   for (const book of ['fish', 'bugs', 'gifts']) {
     const share = catalog[book].filter(rare).length / catalog[book].length;
-    // The winter lights bring three gifts (one event), so the gift book may reach a quarter.
-    assert.ok(share >= 0.1 && share <= (book === 'gifts' ? 0.25 : 0.2), `${book} ${share}`);
+    // An event's gifts are dated, not left to chance: each comes on a gift day of its dates, in
+    // order. The winter lights bring thirteen, so the gift book may reach nearly half.
+    assert.ok(share >= 0.1 && share <= (book === 'gifts' ? 0.45 : 0.2), `${book} ${share}`);
   }
   const uncommon = catalog.treasures.filter(item => item.rarity === 'uncommon').length / catalog.treasures.length;
   assert.ok(uncommon >= 0.2 && uncommon <= 0.25, `keepsakes ${uncommon}`);

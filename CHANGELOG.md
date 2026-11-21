@@ -10,6 +10,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- Ten new winter decorations come with the winter lights, one each gift day after Santa: a coquette ribbon tree and a pastel retro tree, each in a small and a big size, a string-light arch, a stack of gift boxes, a wreath stand, a candy cane star lamp, a gingerbread house and a sundries cart. They show from November 15 to January 7, and whenever the yard shows winter. The trees, the arch, the lamp, the house and the cart light up from evening; on the desktop the arch and the lamp switch off and on with a click, and the wreath can hang from a screen's top. The album now has 213 entries.
+
 ### Changed
 
 - An album card now brings back what it set out, from the same place. Found once, **Set out** turns into **Put back**; found more often, **−** and **+** take one in or set one more out, up to how many you found and the yard's room, with how many are out between them. The buttons stay where they are, so pressing again at once, by mouse or keyboard, keeps working. Gift cards work the same way.
@@ -18,6 +22,13 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The gift box above the album's Gifts book is gone: a gift waiting for room is set out from its own card, and a friend's memento shows its heart on the card, with the friend's name when you point at it.
 - The yard holds 12 of every kind: friends, gifts, flowers (was 24), trees (was 6), and fish, bugs and keepsakes set out from the album, which no longer take gifts' places. The desktop shows up to that many of each. Flowers you already planted beyond 12 stay.
 - Gifts that arrive while the yard is full wait in the album without a limit, one of each kind, so friends keep bringing them.
+- In the Wild garden, friends walk all the way back across the meadow left of the pond, where ferns and boulders used to stop them, and look smaller the farther back they go.
+- The outdoor pictures meet the sky in a smooth edge: treetops, hills and the meadow's line no longer show a pale, stepped outline.
+- The little Christmas tree is redrawn in gold and cream, in the yard and on Christmas night. Its ornaments stay on its twelve hooks.
+
+### Website and docs
+
+- The README and the guide count the album's 213 entries and 41 gifts, and the guide describes the new winter decorations.
 
 ## [1.9.0] - 2026-11-20
 

@@ -159,6 +159,21 @@
     "svg": "42a5a410d24737143d356e857079f86ab8643e9155dcbf3332c4f99930645ae7",
     "webp": "2b9d08b98b8c55126c9d8bda6696a73857fd5fd0c25bd8ac7895cda3a0c843f0"
   },
+  "album/decor/candy_lamp.webp": {
+    "png": "9324fd53a082243a657ca97bbfc25a5b8f1fcb7e30a8580890b134a261cc39c0",
+    "svg": "f90fedb2dddfe891e622e9c4ff2b22f1b7f67a770934f629988d15f5b1788248",
+    "webp": "3b6e0917381f8886c2b946a6b4e09154e56a8547c9de88c663e87fafc4811ae4"
+  },
+  "album/decor/gift_stack.webp": {
+    "png": "9324fd53a082243a657ca97bbfc25a5b8f1fcb7e30a8580890b134a261cc39c0",
+    "svg": "b26b023a8d8db62d76a7b920aaaa7b54dc3477565962f99da5b70d7bcdfcc17c",
+    "webp": "339faae8f4c82d19e90a31602a16cb72d4c1dfd3f2b3317fea84d43d4cae5e00"
+  },
+  "album/decor/gingerbread_house.webp": {
+    "png": "9324fd53a082243a657ca97bbfc25a5b8f1fcb7e30a8580890b134a261cc39c0",
+    "svg": "60fbbc40ab05be73b6e39fe783637015b71afb6d0a5eabebc717b1de25970b63",
+    "webp": "50fca03e44ca92c75fcb891c252f52a6ac06063aefd786a681f06f42506e47b8"
+  },
   "album/decor/hammock.webp": {
     "png": "f31116a3360b0982ca037350d7565c9712a69096338fc6a064830dab109ce5e4",
     "svg": "031686343416ce865702bc937a9fde10a5f50cea342b03d50d1190b42da414d6",
@@ -173,6 +188,11 @@
     "png": "f31116a3360b0982ca037350d7565c9712a69096338fc6a064830dab109ce5e4",
     "svg": "305f7dd176fb9ea5a3a721a1358f062ff2a1c9956cd6a4e0986fbacfb3e01819",
     "webp": "ebb9441d01a7782384856c9853e76bd27d6071f72110c8efa8715a42dedb32af"
+  },
+  "album/decor/light_arch.webp": {
+    "png": "9324fd53a082243a657ca97bbfc25a5b8f1fcb7e30a8580890b134a261cc39c0",
+    "svg": "5e9b703a5e97a48fa2721705b03513d70af8ac908a4346ccd3cddb1ac6716958",
+    "webp": "fefe47262a7525f043a19c065e0c2e8a8f44206e67e071b136abb2e156bf327e"
   },
   "album/decor/mailbox.webp": {
     "png": "54c472e449d6192a5bbb6055f390a9a58ed5cd64a14b69d17e768ba04a4e77fd",
@@ -193,6 +213,26 @@
     "png": "54c472e449d6192a5bbb6055f390a9a58ed5cd64a14b69d17e768ba04a4e77fd",
     "svg": "824c8517ab765b1d685554cfa8907bde5e0175d3f7168755c3df46332ec2721d",
     "webp": "12ae0703df07e026c0b277ffe69a19ddada5b7dc3bb59fa0e60011574f721846"
+  },
+  "album/decor/retro_tree.webp": {
+    "png": "e7171018930a3ee86b73e86e81c91e8db67478a71ff1603d93caac63eb7eb099",
+    "svg": "bde47e01171b3d7ab1e671a1231f9aac10c6754dc814bfe7a00e49992ad28d9b",
+    "webp": "75bcf7f5ac1cfbd0d445be1d38bb7d6a4d14499808f7c6964daa2b4f9cc07706"
+  },
+  "album/decor/retro_tree_big.webp": {
+    "png": "e7171018930a3ee86b73e86e81c91e8db67478a71ff1603d93caac63eb7eb099",
+    "svg": "4e084ee67a19ba3f522704159e924f580dfc14ee218a5178150da222f7242dd4",
+    "webp": "9f84a36b238a676a427eadf65a9f40fe9bceac1ea5d438acd5d42782dc0d038a"
+  },
+  "album/decor/ribbon_tree.webp": {
+    "png": "e7171018930a3ee86b73e86e81c91e8db67478a71ff1603d93caac63eb7eb099",
+    "svg": "c4bf6ec7543d9e28f738c5d3ef9abffc8f627a557ee23b0d399632943977e3b2",
+    "webp": "bc4a96a5dcfb8f0c8ce8bfcbc711e038cb56a3ef11a0b764673187d24f7081fa"
+  },
+  "album/decor/ribbon_tree_big.webp": {
+    "png": "e7171018930a3ee86b73e86e81c91e8db67478a71ff1603d93caac63eb7eb099",
+    "svg": "1bf9d370a15413fc1e8f6fa99a2b63362421fe3ecd25e81f7c016c7c0414c2ba",
+    "webp": "278ba6623abbbdbaca4ff29c3d7d060c9c767827b6a647837c39af50f41c3c0c"
   },
   "album/decor/santa.webp": {
     "png": "187e379051a39cc7fa91838644adcfa41621a6387b1eadb44a6b2a6f01c811e6",
@@ -279,6 +319,11 @@
     "svg": "67085938dca8111222cbcc658583ed7d3ea453d05d5d7c3b6b82c22a04fac662",
     "webp": "5f6c7e36e599ffb02aa8b91975db5b78a91a1f389e6d61cd76a63525e84d5ea2"
   },
+  "album/decor/sundries_cart.webp": {
+    "png": "9324fd53a082243a657ca97bbfc25a5b8f1fcb7e30a8580890b134a261cc39c0",
+    "svg": "83afe4491fb39fc5d225610996ff4fe3676be4ffb661a98c5384498c967a3156",
+    "webp": "092a4cafeec9c77ec2dbdef579fdd349e6cc27b9141de05c8d2eb0a461d80299"
+  },
   "album/decor/tent.webp": {
     "png": "54c472e449d6192a5bbb6055f390a9a58ed5cd64a14b69d17e768ba04a4e77fd",
     "svg": "1a98821f86cb52263b3e6dc3dbca561a0b376773c69b97596e95397c1cceba24",
@@ -289,10 +334,15 @@
     "svg": "05bc2c274dbf60e5253d02457326989c6411f761eff2015ab539069a11a0bc58",
     "webp": "83fd4ed4b3f323ec3c1db530997266b6400f18e7c8e5944b10fbd456d4730dae"
   },
+  "album/decor/wreath_stand.webp": {
+    "png": "9324fd53a082243a657ca97bbfc25a5b8f1fcb7e30a8580890b134a261cc39c0",
+    "svg": "0632e64a33a9768756c81b5a8b18b9c76012b40639ae3d829a16fb24f5422206",
+    "webp": "2941fbb19702dda32d553eafdc5038e63125148e297afd2652bbc7de150c3d15"
+  },
   "album/decor/xmas_tree.webp": {
-    "png": "23cca024a3f917d472c774c66a1f03fe8a7fc32e9682fcd976b00ee31bc77e43",
-    "svg": "bf54d2146e279589af992840d8836b15d317e721caec072d022cf1b2ef8aaf00",
-    "webp": "63d13d939c30f0162d2f5b002f1d18d5560f6f82138429a8feabffd189effb91"
+    "png": "1ebe36553fdabcc23bdb38ee3bc57e3427734b8ce189066bf86be0059e5404be",
+    "svg": "a45ac41f55f79af0c4ddca562ca8030cae5dcb7b270509248b7a5c69de71989c",
+    "webp": "fbcf55cf663425f6b92c2dceeda266bd6316aee2bcab20b62f740ee0517f4192"
   },
   "album/discovery/acorn_teacup.webp": {
     "png": "7a58be8547a157deba8d6e66d4d0afc50400006dfcac176f3a65e6b02e2d926e",
@@ -998,9 +1048,13 @@
     "png": "187e379051a39cc7fa91838644adcfa41621a6387b1eadb44a6b2a6f01c811e6",
     "webp": "ab89e07f0fc06c740ce08c2efbb55e36ad591b02e56ae77d6af37a921df9b7ef"
   },
+  "collection-extension/christmas-trees-2.png": {
+    "png": "e7171018930a3ee86b73e86e81c91e8db67478a71ff1603d93caac63eb7eb099",
+    "webp": "6a23b89fc731229fa21a4672c28a8dd76b88355a9eefb5655f570992865a0bef"
+  },
   "collection-extension/christmas-trees.png": {
-    "png": "23cca024a3f917d472c774c66a1f03fe8a7fc32e9682fcd976b00ee31bc77e43",
-    "webp": "3df91b1dac2a444f5db95c08a891334592d7a73ade14c82f054bb68b8c419951"
+    "png": "1ebe36553fdabcc23bdb38ee3bc57e3427734b8ce189066bf86be0059e5404be",
+    "webp": "1eed165c8723c141ed4521b9e02a4671e29a1a7b8a3bb9f052ff6c274a204462"
   },
   "collection-extension/cute-props.png": {
     "png": "7a58be8547a157deba8d6e66d4d0afc50400006dfcac176f3a65e6b02e2d926e",
@@ -1105,6 +1159,10 @@
   "collection-extension/winter-bush.png": {
     "png": "07859c8e18570bee3b8238e893ad842f158f5933510fa9238bb7d63151e3d489",
     "webp": "289d42541038c7aa0e90b375f364a1bb7d20c4b81cc33bd04796166f03750655"
+  },
+  "collection-extension/winter-props.png": {
+    "png": "9324fd53a082243a657ca97bbfc25a5b8f1fcb7e30a8580890b134a261cc39c0",
+    "webp": "fe1db65ab298ff808b1f19f6edadf8225e12e3a3d21c349117a64a30d5244fc4"
   },
   "collection-extension/winter-tails.png": {
     "png": "df41f89ac95e06b7c5f88265ca8db4ca1e62cb065d4fdcee93267c8fe45404ca",
@@ -1343,68 +1401,68 @@
     "webp": "68c4fbf6b4acd10d3ffcff37b889fcd916dbf73ac5bfc184fb9e34b36f636e02"
   },
   "environments/autumn.png": {
-    "png": "e6ab0d7bb5dfb1681a131fc7546c474de6326cece4394833a5f116b38bff84c8",
-    "webp": "c454d09941850c4b0a2bbd149a40c345410815ce58eaae4b1d9e79db5d93a6df"
+    "png": "d42de93c4ccd60e29b51b24837abed6247d50fd2c4cdfa649a8280f01631cc75",
+    "webp": "75ca7763f30da297730a4a64381955799be2b8ec2d5e7ba3f034331c0d3f5073"
   },
   "environments/courtyard-autumn.png": {
-    "png": "ee5018778d7e86b04f2f115055f5e22515c0ba06b86040f087e214cef64e8b1f",
-    "webp": "f843a7cde2bdc00d2c61566382d8542a7692eee6c3ffeff971a863ade231b312"
+    "png": "d5e772f21d4ece245bd4c3137aebdab1e7f00dcec7ab5923d5b7f6e926179524",
+    "webp": "478143f17683ad96c1a6cc59412321e93f291862f59ce6c006d556a9d03f3a52"
   },
   "environments/courtyard-green.png": {
-    "png": "e071f89c0fb4d82fca842a5ccf9c77567557a268e1e41b65ed63f344b96eca02",
-    "webp": "5c0f17796171e006d32440a069b0d92bebe32cf20a2935217b9326369e402db0"
+    "png": "08403272f9bd41a2f5921351f991d25e9df7422fd4d106e19b1cc1e60c17b1f1",
+    "webp": "890811acc2171fec1d7f013c1e780bc9618c8ccd314b5e6adbe8480a0dcc4837"
   },
   "environments/courtyard-spring.png": {
-    "png": "0f1b42229b0d6a681ce6dcf3292e088974c02f15338e61a2aa855fc0909936af",
-    "webp": "76b567a000175d54e2363cee725ee8e4c7bad617dfa1dbfcb88aed0cc9509c28"
+    "png": "f0f6e4887db5d67b97212355a3c950ce49a62239c809b9869b80bd880d9201f4",
+    "webp": "b08b32ccfe2555214172b7947eb19d7795e13be584841274ea52b1f62bb71719"
   },
   "environments/courtyard-winter.png": {
-    "png": "12e621f127cbcdbd4c88f7c78f70eafeaca6309f9ac68f03ab72f28ec6b82282",
-    "webp": "3b2c9971240f3b5a1be3b6a6587ec969a877e3f2d4caeb047abdbb91e1d25a84"
+    "png": "17d561b9d9b4481b13f101ddb60ca83e6bc49ba34b6f250b56cc3cd7b6b7410d",
+    "webp": "d65662862425b2f49f41d41ed335058f1892774e719432913444f3fe229fd343"
   },
   "environments/green.png": {
-    "png": "ab0c5032fbefb5e20e4d5c94e49e96b6ad5d3038f0788f1dcda686a8f2829bb4",
-    "webp": "0df643e0afec4e13f3a95aa50ca72e4cd256d32cd99bba14a8eaea497042669b"
+    "png": "85d924e2bfcc71795d3d9703bc1376b8f8616c160e8b247b0811fbb1d16d7a8d",
+    "webp": "d3af8e61f30459cb8d23862e1b6f1cc048be8822a3b1f9da177ad8f3423372ef"
   },
   "environments/lakeside-autumn.png": {
-    "png": "2303dd2300d88b6b5a8571f5c82fb116bbd080b1fcb6ab6cc46b3bb95ef07398",
-    "webp": "251c310c384fd399e0112c6b5bc145c73cee13b105f3a8ec631ad9901b60c838"
+    "png": "65a9d7958328fa506d1b90acdef783927e5b5fb15ec8f1a34d1643647bd289ad",
+    "webp": "6840759bab4c45973d50a67374b0d3d195354433f472818de66cefcafcbd9602"
   },
   "environments/lakeside-green.png": {
-    "png": "0df87da0b3d0662abaa448a63d57f9957b6ca2d409fb4d20d1a2435eed6753bf",
-    "webp": "5632c2a869a37e73c3fffdd942ac37d9768936359cad4867c5cfcd730616de07"
+    "png": "90fd800a149dce29841ea8d87b043341a1e7f60399e383712a96f002d7ac7a81",
+    "webp": "06494327867d90f3d92c35c0c44e7f7ed9b6b3183446960c41cd4ab21b2d19e3"
   },
   "environments/lakeside-spring.png": {
-    "png": "594a9eaa1dd2afe82df3c5c8f9acfd001b3284284bba48db23f329e17a0ab67d",
-    "webp": "0080ff190db8e7ae7d90b93782a5fd55875af36990116e7c246c965e2b277fea"
+    "png": "6cc782a8829f5ddeacc9d1d0757d71257d4a0cff6f11bee716697a3b235b736d",
+    "webp": "54b3a9f0bead4060b528c4551ad427780ae4dfa0487be49c9510efd100180e0a"
   },
   "environments/lakeside-winter.png": {
-    "png": "91af1757037287814d23c40081a3763878eb9683029b56b97afda3dba06c2b0a",
-    "webp": "f6adba26790e79eed0844abf383904058f4dfacc9dff6a88b7a3e688939673c6"
+    "png": "0fd224676dc3ea103e3726dfa8d21207c967fab7d2e63882a5b1d980c83fdd83",
+    "webp": "65c4241479bcff18a097a6c6807687b9976bd7538a80ed9036ec4d4c65fd7ed2"
   },
   "environments/previews/courtyard-green.webp": {
-    "png": "e071f89c0fb4d82fca842a5ccf9c77567557a268e1e41b65ed63f344b96eca02",
-    "webp": "436008f470dfa56fee6a2d646e590752a0a482be55697bceeeab783c0f561acf"
+    "png": "08403272f9bd41a2f5921351f991d25e9df7422fd4d106e19b1cc1e60c17b1f1",
+    "webp": "24c9b36994ed4d63509f72774091f7d3eb675c98a6cd6cce95d9412b37748fc1"
   },
   "environments/previews/green.webp": {
-    "png": "ab0c5032fbefb5e20e4d5c94e49e96b6ad5d3038f0788f1dcda686a8f2829bb4",
-    "webp": "73ac3e0507d69cc796f2abb6ce48f95a5a784ec11bb08813ec769f7cc91c8239"
+    "png": "85d924e2bfcc71795d3d9703bc1376b8f8616c160e8b247b0811fbb1d16d7a8d",
+    "webp": "43727eb319ff98cdfa75595b281d9ccdf13ce83a759682bbc33f4b6635a2afa9"
   },
   "environments/previews/lakeside-green.webp": {
-    "png": "0df87da0b3d0662abaa448a63d57f9957b6ca2d409fb4d20d1a2435eed6753bf",
-    "webp": "5ec0cfe3745925b64134e67cca7e3286d271bcb21af0a19440e006ee018f7cfe"
+    "png": "90fd800a149dce29841ea8d87b043341a1e7f60399e383712a96f002d7ac7a81",
+    "webp": "b81b29291174db90e193d099b8ce063479c5a46a6ebf191844aa86128f49abb1"
   },
   "environments/previews/workshop.webp": {
     "png": "07c772909e1b901069a2c4831a4de4444722c6b6cba5386cd68402fa65ffd403",
     "webp": "663b358df5ee4a99805d9be2ef0cac5b9fca9f166b7b10b712fad04686f02d90"
   },
   "environments/spring.png": {
-    "png": "55156c327af3670095240d546e0c6b9dfd8ab26fdbb84c2293fba6949cf78812",
-    "webp": "37a89b08d2a33ed5a33fb55ab3fd225134b29cda1221c4eadd2e0abdd8a0bc00"
+    "png": "015412a779bae4dc25a6117be914664c2404e5bf56693df3b3c3d5ab0e7062cb",
+    "webp": "9b7bce756d0a77b8b115238240ab2ae6f213b2e66a14aa9d91c112e681538894"
   },
   "environments/winter.png": {
-    "png": "6554740736788df13a9add666512ec047e7f3344f49d617a2889befef8ddf0bb",
-    "webp": "75703c22ba873134f2ae2b79ef6e65a11b1075a7b5ed36c3ab9cdbf3b6e458ee"
+    "png": "c306b04263f54310ac3e531950d4a8725dccb336ca59aba143355c56f7bdcd32",
+    "webp": "d375766417dd294c5e881fd7ff07679db899656cc51a3a38a0fadf150cae6ffd"
   },
   "environments/workshop.png": {
     "png": "07c772909e1b901069a2c4831a4de4444722c6b6cba5386cd68402fa65ffd403",

@@ -6,7 +6,9 @@ import test from 'node:test';
 import './support/content.mjs';
 import { environmentFrame, environmentLake } from '../src/yard/environment.js';
 import {
+  DEPTH_FAR,
   depthAt,
+  depthScaleAt,
   EDGE,
   field,
   fieldToYard,
@@ -22,13 +24,13 @@ import { worldFor } from '../src/yard/worlds.js';
 import { installDom } from './support/dom.mjs';
 
 // A yard the picture's own size: one picture pixel is one yard pixel.
-function yard(t, edge) {
+function yard(t, edge, more = {}) {
   const { nodes } = installDom(t, { ids: ['yard'] });
   nodes.get('yard').getBoundingClientRect = () => ({ width: 1536, height: 1024 });
   const before = { world: scene.world },
     geometryBefore = worldFor('woodland').geometry;
   scene.world = 'woodland';
-  worldFor('woodland').geometry = { ...geometryBefore, fieldTop: 0.66, edge };
+  worldFor('woodland').geometry = { ...geometryBefore, fieldTop: 0.66, edge, ...more };
   t.after(() => {
     worldFor('woodland').geometry = geometryBefore;
     Object.assign(scene, before);
@@ -148,6 +150,28 @@ test("draw order runs from the highest ground to the yard's foot, whatever the e
   assert.ok(depthAt(LINE) > 1 && depthAt(LINE) < 101);
 });
 
+// Up a path, a friend is as far back as at the line beside it: each x has its own top.
+test('by default what stands at the top of the field is as small anywhere, up a path or not', t => {
+  yard(t, DOOR);
+  const up = depthScaleAt(0.25 * 1536, 0.58 * 1024),
+    beside = depthScaleAt(0.6 * 1536, LINE);
+  assert.equal(up, DEPTH_FAR);
+  assert.equal(beside, DEPTH_FAR);
+});
+
+// Where the lawn reaches far back (the Wild garden's open meadow), the same scale up the path and
+// at the line beside it would draw a friend far up the meadow as big as one at the line. A place
+// that names geometry.far measures depth by the height on the screen instead: at `far` a thing is
+// drawn at its depthFar, and the scale grows to 1 at the field's foot, the same at every x.
+test('a place with a far line shrinks things by their height on the screen, alike at every x', t => {
+  yard(t, DOOR, { far: 0.58, depthFar: 0.6 });
+  assert.equal(depthScaleAt(0.25 * 1536, 0.58 * 1024), 0.6, 'at the far line, up the path');
+  const line = depthScaleAt(0.6 * 1536, LINE);
+  assert.ok(line > 0.6 && line < 1, `at the line beside it, nearer (${line})`);
+  assert.equal(depthScaleAt(0.25 * 1536, LINE), line, 'as high on the screen, as big');
+  assert.equal(depthScaleAt(0.6 * 1536, 1024 - 28), 1, "at the yard's foot, its own size");
+});
+
 // The highest the lawn reaches in each outdoor picture, as fractions of the picture, read off all
 // four seasons' pictures: [from x, to x, top y]. Above it are hedges, bushes and the big tree, so
 // nothing set at the top of the field may stand higher there.
@@ -163,7 +187,11 @@ const LAWN = {
     [0.92, 0.94, 0.555],
   ],
   lakeside: [[0, 1, 0.555]],
-  courtyard: [[0, 1, 0.63]],
+  courtyard: [
+    [0.24, 1, 0.63],
+    // The meadow left of the pond, open back to the bushes along it.
+    [0, 0.24, 0.475],
+  ],
 };
 const lawnTop = (place, x) => Math.max(...LAWN[place].filter(([from, to]) => x >= from && x <= to).map(([, , y]) => y));
 const across = (from, to, step = 0.002) =>

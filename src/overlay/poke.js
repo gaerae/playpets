@@ -21,7 +21,7 @@ const share = ([x, y]) => `${x * 100}% ${y * 100}%`;
 export function giftLayers(kind, holds = []) {
   const gift = giftKind(kind);
   if (!gift) return '';
-  const under = effectLayers([...(gift.effects || []), ...findOutEffects(kind, holds)]);
+  const under = effectLayers([...(gift.effects || []), ...findOutEffects(kind, holds)], gift.light);
   // A find out has no drawing of its own: only its effects (a firefly's glow) under the find.
   if (!gift.art) return under;
   const drawing = artSvg(gift.art);
