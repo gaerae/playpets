@@ -93,7 +93,9 @@ export function setOutRow({ book, item, name, most, room, why = '', unseen = '',
     setOut(desktop).then(made => {
       if (desktop && made?.id) desktopTip();
     });
-  const last = () => bringBack(book, copies);
+  // What is out is read again at the press: the album keeps a card it would draw the same
+  // (album.js keepUnchanged), though the copies under it may have other ids by then.
+  const last = () => bringBack(book, outOfAlbum(book, item));
   if (cap <= 1 && out <= 1) {
     const toggle = out
       ? press(button(t('album.put_back'), t('album.put_back_one', { kind: name }), 'yard'), last)

@@ -23,7 +23,7 @@ globalThis.playPets = {
 };
 const state = await import('../src/core/state.js');
 const { t } = await import('../src/core/i18n.js');
-const { openAlbum, setupAlbum } = await import('../src/panel/album.js');
+const { openAlbum, renderAlbum, setupAlbum } = await import('../src/panel/album.js');
 const { ALBUM_BOOKS, BUGS, FISH, FLOWERS, TREASURES, artOf, giftKind } = await import('../src/yard/catalog.js');
 const { findOutEffects, findOutFor, decorName, heldLayers } = await import('../src/yard/find-out.js');
 const { giftLayers, poke } = await import('../src/overlay/poke.js');
@@ -304,4 +304,37 @@ test('the focus stays on the card’s row as the album redraws', async ctx => {
   row[3].focus();
   renderAlbum();
   assert.equal(globalThis.document.activeElement, buttonsOf(nodes, 0)[3], 'the screen, again');
+});
+
+test('the album draws again only the cards that changed, and a card kept acts on what is out now', async ctx => {
+  const [a, b] = FISH.map(f => f.id),
+    copy = (id, holds) => ({ id, kind: 'fish_out', x: 0.5, y: 0.8, holds: [holds] });
+  const nodes = album(ctx, 'fish', {
+      album: { fish: { [a]: entry, [b]: entry } },
+      garden: { decor: [copy('f0', a)] },
+    }),
+    grid = nodes.get('album-grid'),
+    first = [...grid.children];
+  renderAlbum();
+  first.forEach((card, i) => assert.equal(grid.children[i], card, `card ${i} kept`));
+  // The same fish is out under another id: the card looks the same and is kept, and its Put back
+  // takes in the one out now.
+  state.data.garden.decor = [copy('g0', a)];
+  renderAlbum();
+  assert.equal(grid.children[0], first[0]);
+  buttonsOf(nodes, 0)[0].onclick();
+  await flush();
+  assert.deepEqual(calls, [['putAway', 'g0']]);
+  // A pressed card waits for the redraw, which draws it again: a press that changed nothing frees it.
+  renderAlbum();
+  const pressed = grid.children[0];
+  assert.notEqual(pressed, first[0]);
+  assert.equal(pressed.children.find(c => c.classList?.contains('album-actions')).dataset.pending, undefined);
+  // The second fish comes out: only its card is drawn again.
+  state.data.garden.decor = [copy('g0', a), copy('h0', b)];
+  renderAlbum();
+  assert.equal(grid.children[0], pressed, 'the first card, unchanged, is kept');
+  assert.notEqual(grid.children[1], first[1], 'the second card is new');
+  assert.equal(buttonsOf(nodes, 1)[0].textContent, t('album.put_back'));
+  assert.equal(grid.children.length, first.length);
 });

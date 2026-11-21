@@ -395,10 +395,21 @@ export function renderAlbum() {
   $('album-grid').dataset.book = book;
   // A press on a card redraws the book: the focus goes back to the control it was on.
   const was = rowFocus();
-  $('album-grid').replaceChildren(
-    ...b.kinds.filter(k => !b.hidden || have[k.id]).map((k, index) => card(b, k, have[k.id], index)),
+  keepUnchanged(
+    $('album-grid'),
+    b.kinds.filter(k => !b.hidden || have[k.id]).map((k, index) => card(b, k, have[k.id], index)),
   );
   restoreRowFocus($('album-grid'), was);
+}
+// Only the cards that changed take their new drawing: the rest of the book, and the pictures in it,
+// stay as they are. Another book (another count of cards) is drawn whole. A kept card's buttons act
+// on what is out when pressed (album-actions.js setOutRow), so keeping it changes nothing they do.
+function keepUnchanged(grid, cards) {
+  const old = [...grid.children];
+  if (old.length !== cards.length) return grid.replaceChildren(...cards);
+  cards.forEach((fresh, i) => {
+    if (!old[i].isEqualNode(fresh)) old[i].replaceWith(fresh);
+  });
 }
 // Whether a book is there to open: a hidden one once something in it is found.
 const shown = id => {
