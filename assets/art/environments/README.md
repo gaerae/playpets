@@ -28,7 +28,7 @@
 - No rain or snow is painted in.
 - The field's top follows the picture: `geometry.fieldTop`, raised where `geometry.edge` traces ground reaching back.
 - Where the lawn reaches far back, `geometry.far` (a share of the picture's height) and `geometry.depthFar` scale a friend by its height on the screen, alike at every x.
-- The line against the sky is antialiased, with no pale ring. A picture changed by hand runs through `node scripts/soften-sky-edges.mjs` again, with `--keep-white` for snow or blossom.
+- The line against the sky is antialiased, with no pale ring. A newly accepted picture runs through `node scripts/soften-sky-edges.mjs`, with `--keep-white` for snow or blossom. The script leaves a picture whose edge is soft already; `--again` softens it once more and moves its line a pixel into the land.
 - The pond people click is `geometry.lake`, an ellipse in picture fractions. `yard/environment.js` (`environmentLake`) applies the picture's crop to it.
 - The pictures keep their proportions with a floor-anchored cover crop (`environmentFrame`), shared with the pond, the fishing stance and the festival lights.
 - Night tint uses alpha compositing, so darkness does not depend on Canvas filter support.

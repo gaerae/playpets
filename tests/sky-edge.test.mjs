@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { clearPaper, skyDistance, softenSkyEdge } from '../scripts/sky-edge-lib.mjs';
+import { clearPaper, skyDistance, softenSkyEdge, softened } from '../scripts/sky-edge-lib.mjs';
 
 // A 12 by 12 picture: clear sky in the top four rows, green land below with a one-pixel ring of the
 // white it was painted on along the sky, and a white flower deep in the land.
@@ -43,4 +43,11 @@ test('land meets the sky in a soft edge of its own colour, and the land inside k
   assert.deepEqual(at(pixels, 5, 8), GREEN);
   assert.deepEqual(at(pixels, 6, 9), PAPER);
   assert.deepEqual(at(pixels, 5, 2), SKY);
+});
+
+test('a picture whose edge is already soft is told from a hard cut, so the script does not wear it down', () => {
+  const pixels = picture();
+  assert.equal(softened(pixels, W, H), false, 'a hard cut');
+  softenSkyEdge(pixels, W, H);
+  assert.equal(softened(pixels, W, H), true, 'once softened');
 });

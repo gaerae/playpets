@@ -105,6 +105,20 @@ export function clearPaper(pixels, width, height) {
   return cleared;
 }
 
+/** Whether a picture's edge is soft already: most land that touches the sky is part clear. A cut
+ * picture's is opaque, and softening it again would move its line a pixel into the land. */
+export function softened(pixels, width, height) {
+  const d = skyDistance(pixels, width, height);
+  let edge = 0,
+    soft = 0;
+  for (let i = 0; i < d.length; i++)
+    if (d[i] === 1) {
+      edge++;
+      if (pixels[i * 4 + 3] < 255) soft++;
+    }
+  return edge > 0 && soft * 2 > edge;
+}
+
 /** Softens the line where a picture's land meets its clear sky, in place (8-bit RGBA). */
 export function softenSkyEdge(pixels, width, height) {
   const d = skyDistance(pixels, width, height),
