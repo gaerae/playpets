@@ -111,8 +111,9 @@ export function dropLine(line) {
 }
 /** Says something short along the bottom of the yard; `error` marks a failure apart from news, and
  * `action` ({ label, run }) adds one button, such as Undo, for `ms` (or the reading time). Every
- * line closes the same way, by its close button or a press anywhere on it; `onClose` runs when the
- * person closes it (a pending removal is saved then). Returns the line, which a line with an action
+ * line has a close button, and a plain line also closes on a press anywhere on it; one with an action
+ * does not, so a press that misses Undo saves nothing. `onClose` runs when the person closes it (a
+ * pending removal is saved then). Returns the line, which a line with an action
  * keeps for itself. */
 export function toast(message, { error = false, action = null, ms = 0, onClose = null } = {}) {
   const words = String(message);
@@ -136,7 +137,7 @@ export function toast(message, { error = false, action = null, ms = 0, onClose =
         dropLine(closed);
         onClose?.();
       };
-    line.addEventListener('click', close);
+    if (!action) line.addEventListener('click', close);
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'toast-close';

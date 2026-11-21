@@ -44,6 +44,8 @@ test('every notice a press closes is pressed the same way, never selected', asyn
     assert.match(rule, /(?:^|;)user-select:none/, selector);
     assert.match(rule, /-webkit-user-select:none/, selector);
   }
+  // A notice with Undo closes only by its button, so its words do not look pressable.
+  assert.match(css, /(?:^|\})\.toast>span:has\(\.toast-action\)\{cursor:default;?\}/);
 });
 
 test('panels, controls and cards share restrained corner tokens while switches stay round', async () => {
