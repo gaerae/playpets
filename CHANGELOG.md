@@ -25,6 +25,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In the Wild garden, friends walk all the way back across the meadow left of the pond, where ferns and boulders used to stop them, and look smaller the farther back they go.
 - The outdoor pictures meet the sky in a smooth edge: treetops, hills and the meadow's line no longer show a pale, stepped outline.
 - The little Christmas tree is redrawn in gold and cream, in the yard and on Christmas night. Its ornaments stay on its twelve hooks.
+- A winter trail now ends on the open snow in front, where its bush stands out instead of hiding among the bushes painted in the back. The sparrow and the magpie sit behind the bush's snowy top with their tails up, and the bush and the bare twigs stand in a soft drift of snow.
 
 ### Fixed
 

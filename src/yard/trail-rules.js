@@ -102,6 +102,10 @@ export function trailPath(seed, profile, { taken = [], other = null } = {}) {
   const { left, right, top, bottom } = profile.bounds;
   const bandTop = top + (bottom - top) * 0.15,
     bandHeight = (bottom - top) * 0.7;
+  // The far field runs into the backdrop's own snowy bushes and trees, where the small bush at a
+  // trail's end is lost among them; the trail ends on the near snow instead.
+  const endTop = top + (bottom - top) * 0.5,
+    endHeight = (bottom - top) * 0.35;
   const takenTiles = new Set(taken.map(tileOf));
   for (let attempt = 0; attempt < 20; attempt++) {
     const rng = seeded(seed + attempt);
@@ -114,7 +118,7 @@ export function trailPath(seed, profile, { taken = [], other = null } = {}) {
     let endX;
     if (far) endX = fromLeft ? 0.9 + rng() * 0.04 : 0.06 + rng() * 0.04;
     else endX = 0.25 + rng() * 0.5;
-    const endY = bandTop + rng() * bandHeight;
+    const endY = endTop + rng() * endHeight;
     const count = 5 + Math.floor(rng() * 4);
     let sign = rng() < 0.5 ? 1 : -1;
     const points = [{ x: startX, y: startY }];

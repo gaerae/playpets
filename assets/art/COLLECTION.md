@@ -177,7 +177,7 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
 - Accepted sources, prompts, hashes, cut columns and measured boxes:
   `assets/sources/tracks-2026-11-09/accepted-art.json`.
 - Later: the sparrow, the magpie and the bush's base were redrawn on 2026-11-10
-  (see Season art pass).
+  (see Season art pass) and again on 2026-11-22 (see Winter peeks).
 
 ## Spring shoots (2026-11-09)
 
@@ -236,6 +236,18 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   three quarters of their size (`shootScale`, `endZoom`).
 - Accepted sources, prompts, hashes, processing and measured boxes:
   `assets/sources/season-leftovers-2026-11-10/accepted-art.json`.
+
+## Winter peeks (2026-11-22)
+
+- The sparrow and magpie tails come from new birds sitting behind the bush with
+  their heads bowed out of sight, the tail raised to the upper left; each crop
+  keeps the rows above the face (tail, back, folded wings).
+- The bush and the bare twigs stand in a low, uneven snow drift instead of
+  ending in a straight cut; the snow puff is kept.
+- The bush and twigs crops keep their width and height, so the other tails keep
+  their places against the bush.
+- Accepted sources, prompts, hashes and measured boxes:
+  `assets/sources/winter-peeks-2026-11-22/accepted-art.json`.
 
 ## Eight more flowers (2026-11-15)
 

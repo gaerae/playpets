@@ -1178,10 +1178,9 @@
   --x: 17.5;
   --turn: 3deg;
 }
-/* A bird has dived head first into the bush's top: its tail, feet and rump stand up out of the
-   snow over the middle, its cut along the bottom and the fade before it (--fade of the drawing's
-   height, --h) inside the crown. --x is the drawing's left edge. A bird is small beside the bush,
-   so its drawing is about a third of the bush's width. */
+/* A bird sits behind the bush's top, its head down out of sight: its tail and the round of its back
+   stand up over the crown, the tail out to the left, its cut along the bottom and the fade before
+   it (--fade of the drawing's height, --h) inside the crown. --x is the drawing's left edge. */
 .tail-peek.bird > svg.tail {
   left: calc(var(--x) * var(--u));
   height: calc(var(--h) * var(--u));
@@ -1189,18 +1188,18 @@
   mask-image: linear-gradient(to top, transparent, #000 var(--fade, 30%));
 }
 .tail-peek[data-track="sparrow"] {
-  --x: 17.5;
-  --w: 13;
-  --h: 13.6;
-  --lift: 24.5;
-  --turn: -4deg;
+  --x: 12;
+  --w: 17;
+  --h: 9.3;
+  --lift: 27.5;
+  --turn: 0deg;
 }
 .tail-peek[data-track="magpie"] {
-  --x: 18;
-  --w: 11;
-  --h: 16.8;
-  --lift: 24;
-  --turn: 3deg;
+  --x: 8;
+  --w: 25;
+  --h: 15.6;
+  --lift: 25.3;
+  --turn: 0deg;
   --fade: 20%;
 }
 .tail-peek[data-track="cat"] {

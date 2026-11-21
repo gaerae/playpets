@@ -1,0 +1,85 @@
+{
+  "generated": "2026-11-22",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "sources": [
+    {
+      "name": "birds3",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game asset atlas for a cozy, cute, healing desktop pet game. Style: match the first reference image (ref-tails.png) exactly: softly sculpted miniature, SMOOTH MATTE surfaces (NOT felt, NOT plush), soft painterly shading, muted cozy palette, key light from the UPPER LEFT, rounded silhouettes readable at small size. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO bloom, NO colored edge fringe, NO floor, NO cast shadow, NO snow, NO bush, NO text.\nLandscape 1536x1024 canvas, two equal columns, each object centered with generous padding, nothing crossing the column boundary.\nThe same two birds as in the first reference sheet (row 2: the sparrow and the magpie), each a COMPLETE small chubby bird perched and seen from BEHIND and a little from the left, bending its head far DOWN and forward to peck at something below it, so the head and beak are hidden low in front of the body and only the round back, the folded wings and the tail are on top. The tail is raised DIAGONALLY toward the UPPER LEFT at about 45 degrees, a slim closed tail, NOT fanned out, NOT pointing straight up. Feet tucked under the body, not visible. Like the second reference image (ref-mockup.png), where a sparrow and a magpie peek over a snowy bush showing only their back and tail.\nCOL1: house sparrow, warm brown back with darker streaks, cream belly edge, a short brown tail cocked up-left.\nCOL2: magpie, glossy black back with the white shoulder patch on its folded wing, and a LONG blue-green iridescent black tail reaching far up-left, about as long as its body.",
+      "references": [
+        "assets/sources/tracks-2026-11-09/tails2.png",
+        "a Codex mockup of the two birds over the bush (scratch, not kept)"
+      ],
+      "file": "birds3.png",
+      "sha256": "f164db67824d7dc191d1d9c27816eb81d3bda750af8e643f98d5d3910d75d680",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/winter-tails.png",
+      "acceptedIds": ["tail_sparrow", "tail_magpie"],
+      "notes": "The sparrow and the magpie sitting with their heads bowed out of sight, the tail raised to the upper left. Only the top of each bird is kept (see composed). The magpie's tail tip reaches past x 700 into the sparrow's column."
+    },
+    {
+      "name": "bush3",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game prop atlas for a cozy, cute, healing desktop pet game. Style: match the reference image (ref-bush.png) exactly: softly sculpted miniature, SMOOTH MATTE surfaces (NOT felt, NOT plush), soft painterly shading, muted cozy palette, key light from the UPPER LEFT, rounded silhouettes readable at small size. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO bloom, NO colored edge fringe, NO floor, NO cast shadow, NO text.\nLandscape 1536x1024 canvas, exactly THREE objects in three equal columns, each centered with 10% transparent padding, nothing crossing column boundaries. Keep the same three objects as the reference sheet, the same colors, sizes and snow caps, changing ONLY their bases:\nCOL1: the same low round evergreen shrub heavily topped with soft white snow with a few red winter berries, wider than tall, front view. Its bottom leaves sink into a soft, LOW, uneven snow drift: a few rounded soft lumps of snow of different sizes hugging the foot of the shrub and reaching a little past its sides, their undersides in a cool pale blue shade. The bottom edge of the drift is soft and rounded and bumpy, NEVER a straight line, NOT a flat plate, NOT a platform, NOT a tall mound; the drift is no taller than a fifth of the shrub.\nCOL2: the same small dry winter bush of bare brown twigs dusted with snow, its twigs coming out of the same kind of low, soft, uneven rounded snow drift, never a straight bottom edge.\nCOL3: the same puff of kicked-up powder snow as the reference, unchanged.",
+      "references": ["assets/sources/season-leftovers-2026-11-10/bush2.png"],
+      "file": "bush3.png",
+      "sha256": "d835198aaf85906df3c4f1b7e6ec6318c6bff1bb6d195bc6e96db8d077c0185e",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/winter-bush.png",
+      "acceptedIds": ["bush", "twigs"],
+      "notes": "The same snowy bush and bare twigs as bush2.png, standing in a low, uneven snow drift instead of on a flat cut. Its third column (the puff) is not used."
+    }
+  ],
+  "composed": [
+    {
+      "name": "winter-tails",
+      "file": "assets/art/collection-extension/winter-tails.png",
+      "sha256": "79bfdc61e12708d73dc8a8a46d33190f1088fa7a3290bef435b9639f006b861e",
+      "size": [1536, 1024],
+      "inputs": ["the previous winter-tails.png (assets/sources/season-leftovers-2026-11-10)", "birds3.png"],
+      "runtimeAtlas": "collection-extension/winter-tails.png",
+      "processing": [
+        "The previous atlas with its row 2, column 2 and 3 cells (x 384 to 1151, y 512 to 1023) cleared to transparent: the diving birds, whose upright tail and kicking feet read as a fan or a shell.",
+        "birds3.png with alpha below 50 cleared, split at x 700. Of each bird's alpha >= 50 box (sparrow 74, 329, 579 x 488; magpie 735, 199, 711 x 621) only the rows above 650 are kept: tail, back, folded wings and nape. The face is below the cut.",
+        "Each part scaled by area averaging to 356 pixels wide (sparrow 0.615, magpie 0.501) with its cut on row 982, its top left at [398, 785] and [782, 756]; alpha below 50 cleared again."
+      ]
+    },
+    {
+      "name": "winter-bush",
+      "file": "assets/art/collection-extension/winter-bush.png",
+      "sha256": "2e4a7deffe7ad0af97d4d105c65943e222dc216f1113346cec8ab09c9c54bd83",
+      "size": [1536, 1024],
+      "inputs": ["the previous winter-bush.png (assets/sources/season-leftovers-2026-11-10)", "bush3.png"],
+      "runtimeAtlas": "collection-extension/winter-bush.png",
+      "processing": [
+        "Columns x 0 to 999 replaced by bush3.png's (alpha below 50 cleared); x 1000 to 1535, the puff, kept from the previous atlas."
+      ]
+    }
+  ],
+  "measuredSilhouettes": {
+    "collection-extension/winter-tails.png": [
+      {
+        "id": "tail_sparrow",
+        "box": [398, 785, 356, 197],
+        "crop": [384, 771, 384, 211]
+      },
+      {
+        "id": "tail_magpie",
+        "box": [782, 756, 356, 226],
+        "crop": [768, 742, 384, 240]
+      }
+    ],
+    "collection-extension/winter-bush.png": [
+      {
+        "id": "bush",
+        "box": [53, 381, 443, 335],
+        "crop": [40, 375, 469, 341]
+      },
+      {
+        "id": "twigs",
+        "box": [553, 348, 434, 368],
+        "crop": [539, 337, 461, 380]
+      }
+    ],
+    "note": "Boxes are x, y, width, height of the alpha >= 50 pixels. A bird's crop adds 14 px on the left, top and right and ends at its cut. The bush and twigs crops keep their earlier width and height, so every tail's place against the bush holds; each moved down to take in the drift, leaving 6 and 11 px over the snow."
+  },
+  "review": "Checked against the previous drawings at album size and yard size on light and dark grounds (scratch/art-pass, kept in scratch): the birds read as a sparrow and a magpie behind the crown with no face showing, the bush stands in snow with no straight bottom edge, and the six other tails keep their places."
+}

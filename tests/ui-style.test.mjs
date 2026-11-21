@@ -974,16 +974,20 @@ test('every size of words is a step of the type scale, none under 11px', async (
   }
 });
 
-// A sparrow or a magpie is far smaller than the bush it dives into: its tail and rump stay within
-// about a third of the bush's width (41) and half its height (30), and are centred over it.
-test('a bird diving into the trail bush is drawn to the bush scale', async () => {
+// A sparrow or a magpie sits behind the trail bush's top, small beside it: the drawing stays within
+// about two thirds of the bush's width (41) and half its height (30), its round back (about two
+// thirds of the way across the drawing) over the crown's middle, its tail out to the left, and its
+// cut low enough (--lift) to stay inside the crown, whose top is about 29.5 up.
+test('a bird behind the trail bush is drawn to the bush scale', async () => {
   const css = await styles();
   for (const bird of ['sparrow', 'magpie']) {
     const rule = css.match(new RegExp(`\\.tail-peek\\[data-track="${bird}"\\]\\{([^}]*)\\}`))?.[1] || '';
     const value = name => Number(rule.match(new RegExp(`--${name}:([\\d.]+)`))?.[1]);
-    assert.ok(value('w') <= 14, `${bird}: width ${value('w')}`);
+    assert.ok(value('w') <= 26, `${bird}: width ${value('w')}`);
     assert.ok(value('h') <= 17, `${bird}: height ${value('h')}`);
-    assert.ok(Math.abs(value('x') + value('w') / 2 - 24) <= 1.5, `${bird}: over the crown's middle`);
+    assert.ok(Math.abs(value('x') + value('w') * 0.65 - 24) <= 2, `${bird}: its back over the crown's middle`);
+    assert.ok(value('x') + value('w') <= 44.5, `${bird}: within the bush's right side`);
+    assert.ok(value('lift') <= 28, `${bird}: its cut inside the crown`);
   }
 });
 

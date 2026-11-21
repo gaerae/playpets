@@ -100,6 +100,8 @@ test("a trail ends on ground a friend can dig, away from today's digs and the ot
     assert.ok(p.points.length >= 5 && p.points.length <= 8);
     assert.ok(p.end.x >= 0.06 && p.end.x <= 0.94);
     assert.ok(p.points[0].y >= 0.15 && p.points[0].y <= 0.85);
+    // The bush at the end stands on the near snow, clear of the backdrop's own bushes and trees.
+    assert.ok(p.end.y >= 0.5 && p.end.y <= 0.85, `end ${p.end.y}`);
     let total = 0;
     for (let i = 1; i < p.points.length; i++)
       total += Math.hypot(p.points[i].x - p.points[i - 1].x, p.points[i].y - p.points[i - 1].y);

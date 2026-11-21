@@ -1088,8 +1088,8 @@
     "kind": "tracks",
     "atlas": "collection-extension/winter-tails.webp",
     "atlasSize": [1536, 1024],
-    "crop": [392, 582, 368, 400],
-    "size": [28, 30],
+    "crop": [384, 771, 384, 211],
+    "size": [55, 30],
     "art": "tracks/tail_sparrow.svg"
   },
   {
@@ -1097,8 +1097,8 @@
     "kind": "tracks",
     "atlas": "collection-extension/winter-tails.webp",
     "atlasSize": [1536, 1024],
-    "crop": [816, 528, 288, 454],
-    "size": [19, 30],
+    "crop": [768, 742, 384, 240],
+    "size": [48, 30],
     "art": "tracks/tail_magpie.svg"
   },
   {
@@ -1115,7 +1115,7 @@
     "kind": "tracks",
     "atlas": "collection-extension/winter-bush.webp",
     "atlasSize": [1536, 1024],
-    "crop": [40, 368, 469, 341],
+    "crop": [40, 375, 469, 341],
     "size": [41, 30],
     "art": "tracks/bush.svg"
   },
@@ -1124,7 +1124,7 @@
     "kind": "tracks",
     "atlas": "collection-extension/winter-bush.webp",
     "atlasSize": [1536, 1024],
-    "crop": [539, 335, 461, 380],
+    "crop": [539, 337, 461, 380],
     "size": [41, 34],
     "art": "tracks/twigs.svg"
   },
