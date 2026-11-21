@@ -1396,15 +1396,18 @@ const scenario = `(async()=>{
     if(grownFlower&&!putBack){await playPets.setOnDesktop(grownFlower.id,false);await playPets.pullPlant(grownFlower.id);}
     if(grownTree)await playPets.removeTree(grownTree.id);
     // A treasure found before comes out on its own, in the yard and out on the desktop; the yard draws
-    // its full painting, with no shadow under it.
+    // its full painting, with no shadow under it. The first found card is whichever treasure the real
+    // digs above turned up first in the book's order, so the one out is read back, not assumed.
     $('album-button').click();await until(()=>document.querySelectorAll('.album-card').length>0);
     document.querySelector('.album-tabs [data-book=treasure]').click();
+    const foundTreasures=Object.keys((await playPets.bootstrap()).data.album?.treasures||{});
     (await until(()=>document.querySelector('.album-card:not(.unknown) .album-actions')))?.children[1].click();
-    const shownOut=await until(async()=>{const d=(await playPets.bootstrap()).data,c=d.garden.decor.find(x=>x.kind==='treasure_out');return c?.holds?.join()==='quartz'&&d.desktopLayout.some(i=>i.id===c.id)&&c;},8000);
+    const shownOut=await until(async()=>{const d=(await playPets.bootstrap()).data,c=d.garden.decor.find(x=>x.kind==='treasure_out');return c?.holds?.length===1&&foundTreasures.includes(c.holds[0])&&d.desktopLayout.some(i=>i.id===c.id)&&c;},8000);
     $('close-album').click();
-    const drawnOut=await until(()=>document.querySelector('.decor[data-kind=treasure_out] .held[data-held=quartz] svg use'),5000),
+    const keepsakeOut=shownOut?.holds?.[0];
+    const drawnOut=keepsakeOut&&await until(()=>document.querySelector('.decor[data-kind=treasure_out] .held[data-held="'+keepsakeOut+'"] svg use'),5000),
       shaded=!!document.querySelector('.decor[data-kind=treasure_out] .decor-shade');
-    await L('albumFindOut='+(shownOut&&drawnOut&&!shaded?'on-its-own':'err:'+JSON.stringify({shownOut,drawn:!!drawnOut,shaded,kinds:[...document.querySelectorAll('.decor')].map(d=>d.dataset.kind)})));
+    await L('albumFindOut='+(shownOut&&drawnOut&&!shaded?'on-its-own':'err:'+JSON.stringify({shownOut,drawn:!!drawnOut,shaded,foundTreasures,out:(await playPets.bootstrap()).data.garden.decor.filter(x=>x.kind==='treasure_out'),kinds:[...document.querySelectorAll('.decor')].map(d=>d.dataset.kind)})));
     if(shownOut){await playPets.setOnDesktop(shownOut.id,false);await playPets.putAway(shownOut.id);}
     // Back out again, so the switch below brings everything in rather than sending everyone out.
     await must('friendOut',playPets.setOnDesktop(p1.data.id,true));
@@ -1633,27 +1636,49 @@ try {
 const scenarioFile = path.join(dataDir, 'scenario.js');
 await writeFile(scenarioFile, scenario);
 // When the process started, so the perf lines can count the startup from it, not only from the page's own start.
-const spawnedAt = Date.now();
-const child = spawn(binary, [], {
-  env: {
-    ...process.env,
-    PLAYPETS_DATA: dataDir,
-    CODEX_HOME: codexHome,
-    PLAYPETS_E2E_HOME: agentHome,
-    PLAYPETS_LANG: 'ko',
-    PLAYPETS_E2E_EVAL: scenarioFile,
-  },
-});
+let spawnedAt = Date.now();
 const lines = [];
-let done = false;
-child.stderr.on('data', d => console.log('  [stderr]', d.toString().trim().slice(0, 300)));
-child.on('exit', (code, signal) => {
-  if (!done) console.log('  [exit]', code, signal);
-});
+let done = false,
+  exited = false,
+  relaunched = false;
+// A CI runner sometimes cannot make the window's web view in time (WebView2 0x800705B4): the app
+// stops before its page runs anything. That start, and only that one, is tried once more.
+const NO_WEBVIEW = /failed to create webview/i;
+function launch() {
+  spawnedAt = Date.now();
+  const app = spawn(binary, [], {
+    env: {
+      ...process.env,
+      PLAYPETS_DATA: dataDir,
+      CODEX_HOME: codexHome,
+      PLAYPETS_E2E_HOME: agentHome,
+      PLAYPETS_LANG: 'ko',
+      PLAYPETS_E2E_EVAL: scenarioFile,
+    },
+  });
+  let errors = '';
+  app.stderr.on('data', d => {
+    errors += d;
+    console.log('  [stderr]', d.toString().trim().slice(0, 300));
+  });
+  app.on('exit', (code, signal) => {
+    if (done) return;
+    console.log('  [exit]', code, signal);
+    if (!lines.length && !relaunched && NO_WEBVIEW.test(errors)) {
+      relaunched = true;
+      console.log('  [relaunch] the web view did not start; trying once more');
+      child = launch();
+      return;
+    }
+    exited = true;
+  });
+  app.stdout.setEncoding('utf8');
+  app.stdout.on('data', read);
+  return app;
+}
 // Output comes in pieces of any size: a piece can end inside a line or inside a character.
 let partLine = '';
-child.stdout.setEncoding('utf8');
-child.stdout.on('data', d => {
+function read(d) {
   const pieces = (partLine + d).split('\n');
   partLine = pieces.pop();
   for (const line of pieces) {
@@ -1672,7 +1697,8 @@ child.stdout.on('data', d => {
     if (msg === 'agentConnected=claude') connectedFile();
     if (msg === 'ask=waiting') reportStatus('waiting', '둘째');
   }
-});
+}
+let child = launch();
 function reportStatus(state, pet, message = '') {
   spawnSync(binary, ['status', state, message, '--pet', pet, '--bridge', path.join(dataDir, 'bridge.json')], {
     encoding: 'utf8',
@@ -1751,7 +1777,7 @@ function agentReports() {
     JSON.parse(replies[1]?.result?.content?.[0]?.text || '[]')[0]?.name === '타우리';
 }
 const deadline = Date.now() + 240000;
-while (!done && Date.now() < deadline) await new Promise(r => setTimeout(r, 200));
+while (!done && !exited && Date.now() < deadline) await new Promise(r => setTimeout(r, 200));
 child.kill();
 provider.closeAllConnections?.();
 provider.close();
