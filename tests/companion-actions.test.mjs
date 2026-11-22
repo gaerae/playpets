@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-// The backend's bridge: petActions answers what each test puts here.
+// The backend's bridge: petActions answers what each test puts here, in the bridge's own
+// envelope ({ ok, data } or { ok: false, error }), as every command does.
 const bridge = (globalThis.playPets = {});
 const {
   actionGroundOffset,
@@ -271,7 +272,7 @@ test('poses are asked for once, and only for a pet that has them', async () => {
   const asked = [];
   bridge.petActions = async id => {
     asked.push(id);
-    return { version: 1, outfits: { base: { dig: clip } } };
+    return { ok: true, data: { version: 1, outfits: { base: { dig: clip } } } };
   };
   fresh.setCompanionSeason('spring');
   const plain = view('folder', 'plain', { hasActions: false }).asset;
@@ -293,4 +294,7 @@ test('poses are asked for once, and only for a pet that has them', async () => {
   };
   await fresh.loadCompanionActionsFor([view('folder', 'unreadable').asset]);
   assert.equal(fresh.prepareCompanionAction(view('folder', 'unreadable').asset, 'dig'), null);
+  bridge.petActions = async () => ({ ok: false, error: 'refused' });
+  await fresh.loadCompanionActionsFor([view('folder', 'refused').asset]);
+  assert.equal(fresh.prepareCompanionAction(view('folder', 'refused').asset, 'dig'), null);
 });

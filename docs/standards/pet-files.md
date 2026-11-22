@@ -161,6 +161,7 @@ The reader accepts these optional PlayPets fields; an ordinary import does not n
 
 - A clip that breaks a rule is left out; `cast`, `wait` and `reel` stay or go together.
 - An outfit with no clip left is left out; without `base`, the pet has no poses.
+- The app does not tie a season's poses to a seasonal sheet: draw a season's poses only with that season's sheet, or the friend digs in clothes it does not walk in. The creator kit refuses them without `--season`.
 - The file is read again when the page asks for it, and each image again when served.
 - It holds no text a person reads or an AI sees.
 - The realistic appearance and the desktop overlay play no poses.

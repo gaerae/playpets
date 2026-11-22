@@ -120,7 +120,7 @@ fn clip(name: &str, given: &Value, atlases: &mut Atlases) -> Option<Value> {
         Some(value) => {
             let pair = value.as_array().filter(|p| p.len() == 2)?;
             let (x, y) = (number(&pair[0])?, number(&pair[1])?);
-            if x.abs() > CANVAS.1 as f64 || y.abs() > CANVAS.1 as f64 {
+            if x.abs() > CANVAS.0 as f64 || y.abs() > CANVAS.1 as f64 {
                 return None;
             }
             json!([pair[0], pair[1]])
@@ -141,7 +141,9 @@ fn clip(name: &str, given: &Value, atlases: &mut Atlases) -> Option<Value> {
             .map(Value::as_u64)
             .collect::<Option<_>>()?;
         let [x, y, w, h] = rect[..] else { return None };
-        if (w, h) != canvas || x + w > image_w as u64 || y + h > image_h as u64 {
+        // checked_add: a rect far outside the image must not wrap around into it.
+        let inside = |at: u64, size: u64, side: u32| at.checked_add(size).is_some_and(|end| end <= side as u64);
+        if (w, h) != canvas || !inside(x, w, image_w) || !inside(y, h, image_h) {
             return None;
         }
         let duration = number(frame.get("duration")?).filter(|d| (1.0..=DURATION).contains(d))?;
@@ -274,12 +276,22 @@ mod tests {
 
     #[test]
     fn each_rule_drops_its_clip() {
-        let broken: [(&str, serde_json::Value); 7] = [
+        let broken: [(&str, serde_json::Value); 10] = [
             (
                 "dig",
                 json!({"frames": [{"rect": [1100, 0, 192, 208], "duration": 200}]}),
             ),
+            // So far out that adding the width would wrap around.
+            (
+                "dig",
+                json!({"frames": [{"rect": [u64::MAX - 100, 0, 192, 208], "duration": 200}]}),
+            ),
+            (
+                "dig",
+                json!({"frames": [{"rect": [0, u64::MAX - 100, 192, 208], "duration": 200}]}),
+            ),
             ("dig", json!({"canvas": [400, 208]})),
+            ("dig", json!({"offset": [400, 0]})),
             ("dig", json!({"frames": [{"rect": [0, 0, 192, 208], "duration": 0}]})),
             ("dig", json!({"tossAt": 100})),
             ("dig", json!({"anchor": [300, 199]})),

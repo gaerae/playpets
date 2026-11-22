@@ -2,7 +2,7 @@
 // planting, showing a find and fishing, drawn for each outfit. The backend checks them and hands
 // them over (petActions) once a friend with poses comes into the yard or asks for one, never before
 // the yard is first drawn. Until they come, and for every pet without them, the ordinary sheet plays.
-import { api } from './state.js';
+import { call } from './state.js';
 
 // The poses are drawn for the illustrated sheets; a friend shown realistic keeps its ordinary rows.
 const posed = asset => !!asset?.hasActions && asset?.spriteStyle !== 'realistic';
@@ -57,7 +57,8 @@ export function loadCompanionActionsFor(assets) {
     if (!asked.has(asset.id))
       asked.set(
         asset.id,
-        Promise.resolve(api?.petActions?.(asset.id))
+        // call() opens the bridge's { ok, data } envelope and turns a refusal into a rejection.
+        call('petActions', asset.id)
           .then(value => useCompanionActions(asset.id, value))
           // A pet whose poses cannot be read keeps its ordinary sheet.
           .catch(() => poses.set(asset.id, null)),
