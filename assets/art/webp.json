@@ -904,6 +904,46 @@
     "svg": "38df84ed0eae1a78048568d9af4af227831e5873af0c7bd320a1e1247647ce35",
     "webp": "22e7971f9bb78c2c8f473c929272032ae60dadc64b0ce1553e61b7bd2081a04f"
   },
+  "album/tracks/whole_cat.webp": {
+    "png": "258fd4c291c532963a4db751a8192f840c44f1cb68ff9bd6ce296e2ee3c8a193",
+    "svg": "00c2a66a56f86779965bc98dd7de6f53009ecd59bd5b11df26486672a5b2a69a",
+    "webp": "3babe1dd4d6a47ea1082ba6e81647c0bd39383fce55ab1577a30a365cbed6bc5"
+  },
+  "album/tracks/whole_fox.webp": {
+    "png": "258fd4c291c532963a4db751a8192f840c44f1cb68ff9bd6ce296e2ee3c8a193",
+    "svg": "26f44cdb09e7dc251c64c2cedf63a3387681fe2a572b5e83f89e21911f0a5c9c",
+    "webp": "3ecbccfb05a93d13c7fc6091dc90ff1b8e9d6dd804567b44ec5cf80fb63c37b5"
+  },
+  "album/tracks/whole_hare.webp": {
+    "png": "258fd4c291c532963a4db751a8192f840c44f1cb68ff9bd6ce296e2ee3c8a193",
+    "svg": "3c9c974e95887f9a49120919ce71ce5d48892f20f3e0456af9dae28e5e934f61",
+    "webp": "fbee4a3e55271723671a6cefa24a16c42660726425a7d1b94e1d65d30121eff1"
+  },
+  "album/tracks/whole_magpie.webp": {
+    "png": "258fd4c291c532963a4db751a8192f840c44f1cb68ff9bd6ce296e2ee3c8a193",
+    "svg": "92103ed22ad3cad12139039b98b0691df06caf73b46eb3371c3082bf7d9a3c48",
+    "webp": "30605e505ccf6b11dfdd515bcbdff1e64a459ae5a2a9c2dcd46c023b5bc1df8c"
+  },
+  "album/tracks/whole_raccoon_dog.webp": {
+    "png": "258fd4c291c532963a4db751a8192f840c44f1cb68ff9bd6ce296e2ee3c8a193",
+    "svg": "e9d9a147ac61209efd6a765bd101975268ce70a2ba8aa2f181ff1145980a4220",
+    "webp": "a02c56f5a8e8176538421d2281fcef59e99f5096c188be0c9ecb5caa066650e8"
+  },
+  "album/tracks/whole_sparrow.webp": {
+    "png": "258fd4c291c532963a4db751a8192f840c44f1cb68ff9bd6ce296e2ee3c8a193",
+    "svg": "7c7a3f536adf91c52c1175813309190852db1f8a40db47d974b82e1b4d28cf1e",
+    "webp": "c7d0c8a9a90edfc820c30d4f081acdf2b8114f2fb78e355356419460ec443760"
+  },
+  "album/tracks/whole_squirrel.webp": {
+    "png": "258fd4c291c532963a4db751a8192f840c44f1cb68ff9bd6ce296e2ee3c8a193",
+    "svg": "ee23bd8a53290509f96088918f42ee3f21ed64a82b6a54f86ea20554d77c85ab",
+    "webp": "4cf165e863aafe67a5a80e5246675000b9e5aa7e7cc5c7c28ab24fef79bb9d08"
+  },
+  "album/tracks/whole_water_deer.webp": {
+    "png": "258fd4c291c532963a4db751a8192f840c44f1cb68ff9bd6ce296e2ee3c8a193",
+    "svg": "da8bda5964e918925ecbc170c833a3a76e40740c8175110c375b2ae82d14994d",
+    "webp": "2af00901a7655f18a0e9182d541a506e9f726d5167d030020eb3b73828278847"
+  },
   "album/trees/bamboo-mature.webp": {
     "png": "2308990b8de34e59f5744ec2e426e998480e5cc4629a341ed8b9d045fe8860d5",
     "svg": "3cd1c99f8839a0257664ca2a16cd332799fc88d189bde6a5f5ba569ad5520e2c",
@@ -1155,6 +1195,10 @@
   "collection-extension/wildlife.png": {
     "png": "7303eec4e412ed475ef0b5d636c79483c2e4d93d7b2ad58ef0821451bca812c6",
     "webp": "94db6c03fc8945da7ce4e2f62bcf6d23ff1fd6138d92aaf06121885759972b2d"
+  },
+  "collection-extension/winter-animals.png": {
+    "png": "258fd4c291c532963a4db751a8192f840c44f1cb68ff9bd6ce296e2ee3c8a193",
+    "webp": "ae2c06c1c30157564d4d640ee080d0614e97c24421526d0b146a2229a722edd4"
   },
   "collection-extension/winter-bush.png": {
     "png": "2e4a7deffe7ad0af97d4d105c65943e222dc216f1113346cec8ab09c9c54bd83",

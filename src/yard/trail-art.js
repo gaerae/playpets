@@ -1,8 +1,9 @@
-// How a winter animal is drawn where it is not seen whole: a short run of its prints (the album's
-// clue before it is followed) and its tail peeking from behind a snowy bush (the album once
-// followed, and the end of a trail in the yard). Markup only; the peek's geometry, each tail's
-// place behind the bush, is the stylesheet's (garden.css), so the yard and the album draw it alike.
-import { artHref, artSvg } from './art.js';
+// How a winter animal is drawn: a short run of its prints (the album's clue before it is followed),
+// its tail peeking from behind a snowy bush (the album once followed, and the end of a trail in the
+// yard), and, once followed SEEN_WHOLE times, the whole animal in the album only; the yard never
+// shows more than the tail. Markup only; the peek's geometry, each tail's place behind the bush, is
+// the stylesheet's (garden.css), so the yard and the album draw it alike.
+import { artHref, artSvg, previewSvg } from './art.js';
 import { trailArt } from './catalog.js';
 
 // The album draws prints larger than the yard's, in a 48-unit box. REACH is how far a print's
@@ -11,6 +12,8 @@ const SCALE = 1.6;
 const BOX = 48;
 const REACH = 0.57;
 const round = n => Math.round(n * 10) / 10;
+/** The follow on which an animal turns to look: from then on the album draws it whole. */
+export const SEEN_WHOLE = 3;
 
 /** Three of an animal's prints along a diagonal, lower left to upper right, as it walks. */
 export function printSpecimen(track) {
@@ -36,3 +39,6 @@ export function printSpecimen(track) {
 export function tailPeek(track, bush = 'bush', classes = '') {
   return `<span class="tail-peek${track.bird ? ' bird' : ''} ${classes}" data-track="${track.id}">${artSvg(track.tail, 'class="tail"')}${artSvg(trailArt(bush), 'class="peek-bush"')}</span>`;
 }
+
+/** The whole animal, face and all, as the album draws it once followed SEEN_WHOLE times. */
+export const wholeAnimal = track => previewSvg(track.whole, 'class="whole-animal"');

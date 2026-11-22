@@ -207,6 +207,40 @@ test('a later follow of the same animal shows only the friend line', async t => 
   assert.equal(followed.length, 1);
 });
 
+test('the third follow of the same animal shows it whole on a card, as the album now does', async t => {
+  const { SEEN_WHOLE } = await import('../src/yard/trail-art.js');
+  for (const count of [SEEN_WHOLE - 1, SEEN_WHOLE, SEEN_WHOLE + 1])
+    await t.test(`follow ${count}`, async t => {
+      globalThis.playPets.followTracks = async id => {
+        followed.push(id);
+        return { ok: true, data: { entry: { count }, first: false } };
+      };
+      t.after(() => {
+        globalThis.playPets.followTracks = async id => {
+          followed.push(id);
+          return { ok: true, data: { entry: { count: 1 }, first: true } };
+        };
+      });
+      const y = yard(t);
+      trailsCheck();
+      followTrail(0);
+      walk(y.v);
+      await flush();
+      if (count !== SEEN_WHOLE) {
+        assert.equal(y.cards.length, 0, 'only the friend line');
+        return;
+      }
+      const animal = trackKind(trailAnimal('2026-12-14', 0, ids));
+      assert.equal(y.cards.length, 1);
+      const [svg, name, detail, first, book] = y.cards[0];
+      assert.ok(svg.includes(`art/album/tracks/whole_${animal.id}.webp`), 'the whole animal, not its tail');
+      assert.ok(!svg.includes('tail-peek'));
+      assert.equal(name, say(`track.${animal.id}`));
+      assert.equal(detail, say('album.seen_whole'));
+      assert.deepEqual([first, book], [true, 'track']);
+    });
+});
+
 test('taking the friend away mid-trail leaves the trail to follow again', t => {
   const y = yard(t);
   trailsCheck();

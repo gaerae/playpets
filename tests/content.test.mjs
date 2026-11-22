@@ -387,7 +387,7 @@ test('the snowman has a ball, a stack and three things to wear, all drawn', () =
     assert.ok(arts.includes(art) && existsSync(`src/art/${art}`), art);
 });
 
-test("every animal's prints, tail and finds are in the catalogue", () => {
+test("every animal's prints, tail, whole drawing and finds are in the catalogue", () => {
   assert.deepEqual(
     TRACKS.map(k => k.id),
     ['hare', 'fox', 'water_deer', 'raccoon_dog', 'squirrel', 'sparrow', 'magpie', 'cat'],
@@ -395,7 +395,7 @@ test("every animal's prints, tail and finds are in the catalogue", () => {
   const art = artOf(catalog, events);
   const treasures = catalog.treasures.map(t => t.id);
   for (const k of TRACKS) {
-    for (const path of [k.print, k.tail]) {
+    for (const path of [k.print, k.tail, k.whole]) {
       assert.ok(art.includes(path), `${k.id}: ${path} is named`);
       assert.ok(existsSync(new URL(`../src/art/${path}`, import.meta.url)), `src/art/${path}`);
     }

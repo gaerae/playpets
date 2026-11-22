@@ -3038,6 +3038,7 @@
       "id": "hare",
       "print": "prints/hare.svg",
       "tail": "tracks/tail_hare.svg",
+      "whole": "tracks/whole_hare.svg",
       "bird": false,
       "gait": { "group": true, "step": 30, "side": 0, "size": 18 },
       "finds": ["four_leaf_clover", "felt_mushroom"]
@@ -3046,6 +3047,7 @@
       "id": "fox",
       "print": "prints/fox.svg",
       "tail": "tracks/tail_fox.svg",
+      "whole": "tracks/whole_fox.svg",
       "bird": false,
       "gait": { "group": false, "step": 12, "side": 0, "size": 9 },
       "finds": ["sleeping_fox", "old_key"]
@@ -3054,6 +3056,7 @@
       "id": "water_deer",
       "print": "prints/water_deer.svg",
       "tail": "tracks/tail_water_deer.svg",
+      "whole": "tracks/whole_water_deer.svg",
       "bird": false,
       "gait": { "group": false, "step": 14, "side": 4, "size": 9 },
       "finds": ["sea_glass", "paper_boat"]
@@ -3062,6 +3065,7 @@
       "id": "raccoon_dog",
       "print": "prints/raccoon_dog.svg",
       "tail": "tracks/tail_raccoon_dog.svg",
+      "whole": "tracks/whole_raccoon_dog.svg",
       "bird": false,
       "gait": { "group": false, "step": 12, "side": 5, "size": 10 },
       "finds": ["bottle_cap", "toy_robot", "old_button"]
@@ -3070,6 +3074,7 @@
       "id": "squirrel",
       "print": "prints/squirrel.svg",
       "tail": "tracks/tail_squirrel.svg",
+      "whole": "tracks/whole_squirrel.svg",
       "bird": false,
       "gait": { "group": true, "step": 26, "side": 0, "size": 16 },
       "finds": ["pinecone", "acorn_teacup"]
@@ -3078,6 +3083,7 @@
       "id": "sparrow",
       "print": "prints/sparrow.svg",
       "tail": "tracks/tail_sparrow.svg",
+      "whole": "tracks/whole_sparrow.svg",
       "bird": true,
       "gait": { "group": true, "step": 10, "side": 0, "size": 10 },
       "finds": ["blue_feather", "striped_pebble"]
@@ -3086,6 +3092,7 @@
       "id": "magpie",
       "print": "prints/magpie.svg",
       "tail": "tracks/tail_magpie.svg",
+      "whole": "tracks/whole_magpie.svg",
       "bird": true,
       "gait": { "group": false, "step": 9, "side": 2, "size": 8 },
       "finds": ["old_coin", "glass_marble", "star_fragment", "quartz", "tiny_crown"]
@@ -3094,6 +3101,7 @@
       "id": "cat",
       "print": "prints/cat.svg",
       "tail": "tracks/tail_cat.svg",
+      "whole": "tracks/whole_cat.svg",
       "bird": false,
       "gait": { "group": false, "step": 11, "side": 1.5, "size": 9 },
       "finds": ["spinning_top", "wooden_whale"]

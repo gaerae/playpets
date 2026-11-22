@@ -178,6 +178,8 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   `assets/sources/tracks-2026-11-09/accepted-art.json`.
 - Later: the sparrow, the magpie and the bush's base were redrawn on 2026-11-10
   (see Season art pass) and again on 2026-11-22 (see Winter peeks).
+- Later: from 2026-11-22 the album draws an animal followed three times whole
+  (see Whole winter animals); the yard still shows only its tail.
 
 ## Spring shoots (2026-11-09)
 
@@ -248,6 +250,21 @@ Distinct12 objects only. No neighboring items overlap. All silhouettes clean and
   their places against the bush.
 - Accepted sources, prompts, hashes and measured boxes:
   `assets/sources/winter-peeks-2026-11-22/accepted-art.json`.
+
+## Whole winter animals (2026-11-22)
+
+- `collection-extension/winter-animals` holds the eight trail animals whole
+  (`whole_<id>`), in the tail atlas's order in a 4 by 2 grid of 384 x 512 cells:
+  sitting (the birds perched) in a three-quarter front view, face to the viewer.
+  The album shows one on an animal's card once it has been followed three times.
+- The raccoon dog's cell is a separately generated raccoon dog with a tail of
+  one colour, scaled to the first one's height: the first one's banded tail
+  read as a raccoon, as in the tail atlas.
+- Alpha below 50 is cleared; crops follow measured silhouettes with a 14-pixel
+  margin, stopped halfway to the next animal, since some reach a few pixels past
+  their cell.
+- Accepted sources, prompts, hashes, processing and measured boxes:
+  `assets/sources/winter-animals-2026-11-22/accepted-art.json`.
 
 ## Eight more flowers (2026-11-15)
 

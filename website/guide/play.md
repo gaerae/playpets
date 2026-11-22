@@ -367,7 +367,7 @@ In a winter yard, faint animal footprints cross the snow: one trail a day, plus 
 - Click the prints (or Tab to them and press Enter), and a rested friend follows them, sniffing.
 - At the end, a tail peeks out from behind a bush and is gone. Something small waits there to dig up, and each animal has finds it likes.
 - An hour of new snow covers the prints; the next day they're gone.
-- **Album → Footprints** shows each print until you follow it, then the tail and the name.
+- **Album → Footprints** shows each print until you follow it, then the tail and the name. Follow the same animal three times and it turns to look, so the album shows all of it, face and all.
 
 ### Spring shoots
 

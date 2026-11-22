@@ -30,7 +30,7 @@ import { eventDates, eventScene, giftSeason } from '../yard/events.js';
 import { giftsOut } from '../yard/find-out.js';
 import { treeSpot } from '../yard/planted-trees.js';
 import { SECRETS } from '../yard/secrets.js';
-import { printSpecimen, tailPeek } from '../yard/trail-art.js';
+import { printSpecimen, SEEN_WHOLE, tailPeek, wholeAnimal } from '../yard/trail-art.js';
 import { scene } from '../yard/world.js';
 import { worldFor, worldHasSoil } from '../yard/worlds.js';
 import { findButtons, landing, restoreRowFocus, rowFocus, setOutRow } from './album-actions.js';
@@ -166,16 +166,21 @@ const BOOKS = {
     rare: k => k.rarity === 'uncommon',
     action: (k, entry) => findButtons('treasure', k.id, entry),
   },
-  // Winter animals whose prints a friend followed: the print is the clue, the tail what was seen.
+  // Winter animals whose prints a friend followed: the print is the clue, the tail what was seen,
+  // and, followed often enough, the animal itself, which turned to look.
   track: {
     tab: 'album.tracks',
     kinds: TRACKS,
     list: 'tracks',
     found: () => data.album?.tracks || {},
-    draw: (k, unknown) => (unknown ? printSpecimen(k) : tailPeek(k)),
+    draw: (k, unknown, entry) =>
+      unknown ? printSpecimen(k) : entry.count >= SEEN_WHOLE ? wholeAnimal(k) : tailPeek(k),
     unknown: 'album.whose_prints',
     hint: () => t('album.tracks_hint'),
-    record: entry => t('album.followed', { count: entry.count }),
+    record: ({ count }) =>
+      count >= SEEN_WHOLE
+        ? t('album.followed_met', { count })
+        : t('album.followed_closer', { count, left: SEEN_WHOLE - count }),
   },
   // Spring shoots a friend gathered: shown always, as silhouettes first; the hint says the season.
   shoot: {
@@ -212,7 +217,7 @@ function card(b, kind, entry, index) {
   el.className = `album-card${entry ? '' : ' unknown'}`;
   const stage = document.createElement('div');
   stage.className = 'album-specimen';
-  stage.innerHTML = b.draw(kind, !entry);
+  stage.innerHTML = b.draw(kind, !entry, entry);
   // Its place in the book, as on a collector's page: the gaps between numbers are what is left.
   const number = document.createElement('span');
   number.className = 'album-no';
