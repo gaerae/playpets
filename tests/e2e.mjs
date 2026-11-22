@@ -386,7 +386,7 @@ const scenario = `(async()=>{
     // puts its feet (feet) beside where it is drawn (bottom), so a friend left behind shows. Read in
     // one go, so the numbers belong to the same moment as the check.
     const yardState=await import('./core/state.js'),yardField=await import('./yard/field.js'),hundredths=n=>Math.round(n*100)/100;
-    const yardNow=()=>{const yard=$('yard').getBoundingClientRect();return{window:[innerWidth,innerHeight],yard:[yard.width,yard.height],compact:document.body.classList.contains('compact'),hidden:document.hidden,world:$('yard').dataset.world,environment:$('yard').dataset.environment,field:yardField.field(),friends:[...yardState.views.values()].map(v=>{const g=yardField.geometry(v.pet);return{id:v.pet.id,y:hundredths(v.y),z:v.z,bottom:hundredths(v.button.getBoundingClientRect().bottom-yard.top),feet:hundredths(g.top+v.y*g.h+yardField.petHeight(v.pet)),target:v.target,trip:!!v.trip,doing:!!v.doing,away:!!v.away,drag:!!v.drag};})};};
+    const yardNow=()=>{const yard=$('yard').getBoundingClientRect();return{window:[innerWidth,innerHeight],yard:[yard.width,yard.height],compact:document.body.classList.contains('compact'),hidden:document.hidden,world:$('yard').dataset.world,environment:$('yard').dataset.environment,field:yardField.field(),friends:[...yardState.views.values()].map(v=>{const g=yardField.geometry(v.pet,v.x);return{id:v.pet.id,y:hundredths(v.y),z:v.z,bottom:hundredths(v.button.getBoundingClientRect().bottom-yard.top),feet:hundredths(g.top+v.y*g.h+yardField.petHeight(v.pet)),target:v.target,trip:!!v.trip,doing:!!v.doing,away:!!v.away,drag:!!v.drag};})};};
     // How many frames the page draws in this long, which tells a stalled page from a stuck friend.
     const framesIn=ms=>new Promise(done=>{let frames=0,on=true;const tick=()=>{if(on){frames++;requestAnimationFrame(tick);}};requestAnimationFrame(tick);setTimeout(()=>{on=false;done(frames);},ms);});
     const panelTasks=await import('./panel/tabs.js');
@@ -1227,8 +1227,9 @@ const scenario = `(async()=>{
     panelStops.at(-1).focus();document.dispatchEvent(new KeyboardEvent('keydown',{key:'Tab',bubbles:true,cancelable:true}));
     const tabStays=document.activeElement===panelStops[0],tabNow=[panelStops[0].id,panelStops.at(-1).id,panelStops.length,document.activeElement.id||document.activeElement.tagName];$('message').focus();
     const chatFromSmall=quickPlayFits&&tabStays&&document.body.classList.contains('compact')&&innerWidth<wide&&!$('panel-pet').hidden&&composer.height>0&&composer.bottom<=innerHeight&&sendBox.right<=innerWidth&&sendBox.bottom<=innerHeight;
-    // By where the feet are, since friends of different sizes have their tops elsewhere and a hop lifts the drawing off them.
-    const order=[...yardState.views.values()].map(v=>{const g=yardField.geometry(v.pet);return{y:g.top+v.y*g.h+yardField.petHeight(v.pet),z:Number(v.button.style.zIndex)%200};});
+    // By where the feet are, as the app orders them (the ground's top at each friend's x): friends of
+    // different sizes have their tops elsewhere, and a hop or a glide moves the drawing off them.
+    const order=[...yardState.views.values()].map(v=>{const g=yardField.geometry(v.pet,v.x);return{y:g.top+v.y*g.h+yardField.petHeight(v.pet),z:Number(v.button.style.zIndex)%200};});
     const layered=order.length<2||order.every(a=>order.every(b=>a.y<=b.y-4?a.z<=b.z:true)),orderNow=yardNow();
     // The garden's things share the friends' depth (no layer of their own), and the labels are above both.
     const z=id=>getComputedStyle($(id)).zIndex,labelsOver=z('garden-layer')==='auto'&&Number(z('label-layer'))>Number(z('pet-layer'))&&$('pet-layer').contains($('garden-layer'))&&document.querySelectorAll('.pet-label').length===document.querySelectorAll('.yard-pet').length;
