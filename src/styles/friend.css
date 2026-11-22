@@ -402,7 +402,7 @@ body.compact .empty-panel {
   }
   /* The friend's row already says who is talking, so the panel's title gives its row to the
      conversation and the panel's buttons sit at the end of the friend's row. */
-  body.compact .side-panel:has(#pet-panel:not([hidden])) > .panel-head {
+  body.compact .side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])) > .panel-head {
     position: absolute;
     top: 8px;
     right: 8px;
@@ -412,7 +412,7 @@ body.compact .empty-panel {
     padding: 0;
     border: 0;
   }
-  body.compact .side-panel:has(#pet-panel:not([hidden])) #panel-title {
+  body.compact .side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])) #panel-title {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -420,10 +420,28 @@ body.compact .empty-panel {
     clip-path: inset(50%);
     white-space: nowrap;
   }
-  body.compact .side-panel:has(#pet-panel:not([hidden])) .friend-head {
+  body.compact .side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])) .friend-head {
     padding-right: 116px;
   }
-  body.compact .side-panel:has(#pet-panel:not([hidden])) .menu-anchor {
+  body.compact .side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])) .menu-anchor {
     right: 78px;
+  }
+  /* Opened from Friends & settings, Back joins the buttons, and the friend's menu moves past it. */
+  body.compact
+    .side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])):has(#panel-menu:not([hidden]))
+    .menu-anchor {
+    right: 118px;
+  }
+  body.compact
+    .side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])):has(#panel-menu:not([hidden]))
+    .friend-head {
+    padding-right: 156px;
+  }
+  /* With four buttons the name would end after its first letter; the name says who it is. */
+  body.compact
+    .side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])):has(#panel-menu:not([hidden]))
+    .friend-head
+    .avatar {
+    display: none;
   }
 }

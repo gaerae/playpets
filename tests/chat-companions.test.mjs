@@ -77,3 +77,9 @@ test('who joins in is a button and a panel, not a disclosure with its own dismis
   assert.match(html, /<div id="companion-chips"[^>]*hidden/);
   assert.doesNotMatch(html, /<details id="companions"/);
 });
+
+// It was 23px tall in a wide window and 20px in the smallest one, under the 24px a pointer needs.
+test('the button that brings friends in is at least 24px tall', async () => {
+  const css = (await readFile('src/styles/chat.css', 'utf8')).replace(/\s+/g, ' ');
+  assert.match(css, /\.companion-toggle \{[^}]*min-height: 24px/);
+});

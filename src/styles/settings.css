@@ -487,6 +487,12 @@ body.compact .layout.settings-open .side-panel:has(#settings-home:not([hidden]))
   height: auto;
   max-height: calc(100% - 16px);
 }
+/* The list of sections scrolls when its rows are taller than a small sheet (long names fold). */
+body.compact #settings-home {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
 body.compact .settings-index button {
   min-height: 40px;
   padding: 6px;

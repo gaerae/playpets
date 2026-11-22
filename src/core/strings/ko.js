@@ -171,9 +171,9 @@ export const strings = {
 
   'controls.picnic': '소풍 간식',
   'controls.play': '놀기',
-  'controls.launcher': '배경, 놀기, 친구 열기',
+  'controls.launcher': '놀이터 메뉴',
   'controls.yard': '놀이터',
-  'controls.friends': '친구와 대화',
+  'controls.friends': '친구',
   'controls.window': '창과 바탕화면',
   'controls.play_empty': '친구를 초대하면 함께 놀 수 있어요.',
   'update.collapse': '접어 두기',

@@ -219,6 +219,7 @@
 .companion-toggle {
   display: flex;
   align-items: center;
+  min-height: 24px;
   gap: 4px;
   padding: 4px 8px;
   border-radius: var(--radius-control);

@@ -170,9 +170,9 @@ export const strings = {
 
   'controls.picnic': 'Picnic',
   'controls.play': 'Play',
-  'controls.launcher': 'Open places, play and friends',
+  'controls.launcher': 'Yard menu',
   'controls.yard': 'Yard',
-  'controls.friends': 'Friends & chat',
+  'controls.friends': 'Friends',
   'controls.window': 'Window & desktop',
   'controls.play_empty': 'Invite a friend to start playing together.',
   'update.collapse': 'Keep playing',

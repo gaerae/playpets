@@ -172,9 +172,9 @@ export const strings = {
 
   'controls.picnic': '野餐',
   'controls.play': '玩耍',
-  'controls.launcher': '打开场景、游玩与伙伴',
+  'controls.launcher': '庭院菜单',
   'controls.yard': '庭院',
-  'controls.friends': '伙伴与聊天',
+  'controls.friends': '伙伴',
   'controls.window': '窗口与桌面',
   'controls.play_empty': '邀请伙伴后，就可以一起玩耍了。',
   'update.collapse': '收起并继续玩耍',

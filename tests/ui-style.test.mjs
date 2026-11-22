@@ -202,6 +202,9 @@ test('compact settings reserve height for their scroller and panels clear the do
   const sheet = css.match(/body\.compact \.layout.settings-open \.side-panel\{([^}]*)\}/)?.[1] || '';
   assert.match(sheet, /height:calc\(100% - 16px\)/, 'an absolute sheet has a definite height for its flex body');
   assert.match(sheet, /align-self:stretch/);
+  // At 300 by 210 in Japanese the list of sections is taller than the sheet: it scrolls, so About
+  // stays in reach under its title row.
+  assert.match(css, /body\.compact #settings-home\{[^}]*min-height:0;[^}]*overflow-y:auto/);
 });
 
 test('compact chat keeps its composer visible while the log owns scrolling', async () => {
@@ -224,16 +227,24 @@ test('compact chat keeps its composer visible while the log owns scrolling', asy
 test('the shortest window gives the conversation the row the panel title took', async () => {
   const css = await styles();
   const short = [...css.matchAll(/@media\(max-height:280px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
-  const head = short.match(
-    /body\.compact \.side-panel:has\(#pet-panel:not\(\[hidden\]\)\)>\.panel-head\{([^}]*)\}/,
-  )?.[1];
+  // Only while the friend's own panel shows: #pet-panel stays unhidden inside it when Settings or
+  // Invite opens, and then their title went and the buttons lay over their first rows.
+  const chat = String.raw`body\.compact \.side-panel:has\(#panel-pet:not\(\[hidden\]\)#pet-panel:not\(\[hidden\]\)\)`;
+  const head = short.match(new RegExp(`${chat}>\\.panel-head\\{([^}]*)\\}`))?.[1];
   assert.ok(head, 'a short window lifts the panel head out of the flow while a conversation shows');
   assert.match(head, /position:absolute/);
   assert.match(
     short,
-    /body\.compact \.side-panel:has\(#pet-panel:not\(\[hidden\]\)\)#panel-title\{[^}]*clip-path:inset\(50%\)/,
+    new RegExp(`${chat}#panel-title\\{[^}]*clip-path:inset\\(50%\\)`),
     'the title stays for screen readers',
   );
+  assert.doesNotMatch(css, /:has\(#pet-panel:not\(\[hidden\]\)\)/, 'no rule for the chat reaches another panel');
+  // Opened from Friends & settings, the head has Back too: the friend's menu moves out from under it.
+  const back = String.raw`${chat}:has\(#panel-menu:not\(\[hidden\]\)\)`;
+  assert.match(short, new RegExp(`${back}\\.menu-anchor\\{right:118px;?\\}`));
+  assert.match(short, new RegExp(`${back}\\.friend-head\\{padding-right:156px;?\\}`));
+  // Four buttons leave the name 60px, "D…" for Daisy: the picture gives way, and the name says who.
+  assert.match(short, new RegExp(`${back}\\.friend-head \\.avatar\\{display:none;?\\}`));
   // A select's smallest width is its longest option, so in an auto grid column a long name ran
   // under the friend's menu button instead of ending in an ellipsis.
   assert.match(css, /\.friend-id\{[^}]*grid-template-columns:minmax\(0,1fr\)/);

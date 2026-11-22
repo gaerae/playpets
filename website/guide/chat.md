@@ -38,7 +38,7 @@ Friends play without an AI; to chat, they need one connected. Until then, the ch
 
 ## Making a connection <Since v="0.1.0" />
 
-1. Open the **Friend** panel (**Friends & settings → Friends & chat**) and pick the friend. With several friends, the name turns into a list.
+1. Open the **Friend** panel (**Friends & settings → Friends**) and pick the friend. With several friends, the name turns into a list.
 2. Click **Connect an AI** in the chat, or choose **＋ Connect a new AI…** from the AI list at the bottom left of the message box.
 3. Pick a card under **Kind of AI**. Depending on the kind, enter the server address or API key.
 4. Pick or type the **Model name**.

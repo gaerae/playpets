@@ -146,7 +146,7 @@ description: 语言与启动、伙伴与 AI、关于与应用更新、菜单与�
 
 | 按键 | 作用 |
 |---|---|
-| <kbd>⌘</kbd> <kbd>1</kbd> | 打开伙伴与聊天 |
+| <kbd>⌘</kbd> <kbd>1</kbd> | 打开伙伴 |
 | <kbd>⌘</kbd> <kbd>2</kbd> | 打开邀请伙伴 |
 | <kbd>⌘</kbd> <kbd>,</kbd> | 打开设置 |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>P</kbd> | 打开伙伴与设置 |

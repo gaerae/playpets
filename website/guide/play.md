@@ -32,7 +32,7 @@ The scenery fills the window, and the dock at the bottom opens one panel at a ti
 |---|---|
 | **Place & atmosphere** | **Places** (built-in and imported backgrounds in one gallery, **Import background**, **Background studio**), **Atmosphere** (season, time, weather, **Yard sounds**, **Volume**) |
 | **Play** | Titled for the selected friend, such as **Play with Clover**. **Find**: **Dig**, **Fish**, **Album**. **Garden**: **Plant a seed** (with your seed count), **Plant a tree**, **Picnic**. **Group games**: the four games (**Snowman** only while the yard shows winter), **Flower viewing** while the cherry blossom festival is on, **Let them chat** |
-| **Friends & settings** | **Friends & chat**, **Invite a friend**, **Window & desktop**, **Settings**, **Close window**, **Quit PlayPets** |
+| **Friends & settings** | **Friends**, **Invite a friend**, **Window & desktop**, **Settings**, **Close window**, **Quit PlayPets** |
 
 - **Let them chat** needs two friends connected to an AI. Everything else works without one.
 - A new yard starts on a clear spring day. Choose **Auto** for the season, the time or the weather to let it change on its own. Every choice is saved.

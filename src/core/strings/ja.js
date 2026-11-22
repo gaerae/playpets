@@ -174,9 +174,9 @@ export const strings = {
 
   'controls.picnic': 'おやつ',
   'controls.play': '遊ぶ',
-  'controls.launcher': '景色、遊び、友だちを開く',
+  'controls.launcher': '庭のメニュー',
   'controls.yard': '庭',
-  'controls.friends': '友だちと会話',
+  'controls.friends': '友だち',
   'controls.window': 'ウィンドウとデスクトップ',
   'controls.play_empty': '友だちを招待して、一緒に遊びましょう。',
   'update.collapse': '閉じて遊びを続ける',

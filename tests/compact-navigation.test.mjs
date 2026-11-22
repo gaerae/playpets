@@ -141,6 +141,11 @@ test('window actions live in the window section of the menu, not a disclosure', 
   for (const id of ['always-on-top', 'fullscreen', 'desktop', 'desktop-wander', 'hide-window', 'menu-quit'])
     assert.ok(windowPage.includes(`id="${id}"`));
   assert.doesNotMatch(windowPage, /<details/);
+  // Full screen is a switch like its neighbours, so it is drawn like them, not in the smaller,
+  // bolder type of Close window and Quit below.
+  const section = windowPage.slice(0, windowPage.indexOf('id="window-actions"'));
+  for (const id of ['always-on-top', 'fullscreen', 'desktop'])
+    assert.match(section, new RegExp(`<button id="${id}"[^>]*class="[^"]*\\bview-toggle\\b`), id);
 });
 
 test('importing a pet stays a visible Invite action rather than a hidden search filter', async () => {

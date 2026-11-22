@@ -39,3 +39,32 @@ test('atmosphere auto choices rely on their group headings instead of repeating 
       assert.equal(strings[key], auto, `${lang}.${key}`);
   }
 });
+
+const backend = async lang => {
+  const rs = await readFile(`src-tauri/src/i18n/${lang}.rs`, 'utf8');
+  return key => rs.match(new RegExp(`\\("${key.replace('.', '\\.')}", "([^"]*)"\\)`))?.[1];
+};
+
+// One place has one name: the page's menu said "Friends & chat" where the tray, the menu bar and
+// the panel's own list said "Friends".
+test('the page menu, the tray and the menu bar name the friends’ panel alike', async () => {
+  for (const [lang, strings, rs] of [
+    ['en', en, 'en'],
+    ['ko', ko, 'ko'],
+    ['ja', ja, 'ja'],
+    ['zh', zh, 'zh_hans'],
+  ]) {
+    const t = await backend(rs);
+    assert.equal(strings['controls.friends'], t('tray.friends'), `${lang} tray`);
+    assert.equal(strings['controls.friends'], t('menu.friends'), `${lang} menu bar`);
+  }
+});
+
+// The small window's corner button opens the yard's menu, which holds more than places, play and
+// friends, so it is named for the menu.
+test('the corner button is named for the yard menu it opens', () => {
+  for (const [lang, strings] of Object.entries({ en, ko, ja, zh })) {
+    assert.ok(strings['controls.launcher'].includes(strings['controls.yard']), lang);
+    assert.ok(!strings['controls.launcher'].includes(strings['controls.play']), `${lang} lists no destination`);
+  }
+});

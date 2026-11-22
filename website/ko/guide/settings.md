@@ -145,7 +145,7 @@ macOS에서는 <kbd>⌘</kbd>, Windows와 Linux에서는 <kbd>Ctrl</kbd>이에�
 
 | 키 | 하는 일 |
 |---|---|
-| <kbd>⌘</kbd> <kbd>1</kbd> | 친구와 대화 열기 |
+| <kbd>⌘</kbd> <kbd>1</kbd> | 친구 열기 |
 | <kbd>⌘</kbd> <kbd>2</kbd> | 친구 초대 열기 |
 | <kbd>⌘</kbd> <kbd>,</kbd> | 설정 열기 |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>P</kbd> | 친구와 설정 열기 |

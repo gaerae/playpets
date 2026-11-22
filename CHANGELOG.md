@@ -28,6 +28,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The outdoor pictures meet the sky in a smooth edge: treetops, hills and the meadow's line no longer show a pale, stepped outline.
 - The little Christmas tree is redrawn in gold and cream, in the yard and on Christmas night. Its ornaments stay on its twelve hooks.
 - A winter trail now ends on the open snow in front, where its bush stands out instead of hiding among the bushes painted in the back. The sparrow and the magpie sit behind the bush's snowy top with their tails up, and the bush and the bare twigs stand in a soft drift of snow.
+- The menu calls the friends' panel **Friends**, as the tray and the menu bar do, and **Enter fullscreen** looks like the switches beside it. In a small window the corner button is named **Yard menu** for screen readers.
 
 ### Fixed
 
@@ -35,12 +36,14 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - With the yard full and every everyday gift out or waiting, friends still bring an event's own gift the first time and their memento, which wait in the album as before.
 - **−** on a tree's album card takes back a tree from the place you are looking at first, and a copy you already removed in the yard, its **Undo** still showing, is no longer removed a second time with an error later.
 - The small screen button on a Christmas gift's card waits while the gift is out of sight for the season and says when it shows, as the desktop leaves it out too. One already on the desktop can still come off.
+- In a window 280px tall or less, Settings and Invite keep their title row instead of laying Back, the size button and Close over their first lines, and the list of settings sections scrolls when it is taller than the window. A chat opened from the menu there keeps Back apart from the friend's menu and shows the friend's name. **Bring friends in** is at least 24px tall.
 
 ### Website and docs
 
 - The README and the guide count the album's 213 entries and 41 gifts, and the guide describes the new winter decorations.
 - The site's album guide says a gift that comes while the yard is full waits on its own card, no longer in a gift box.
 - The play guide says an animal followed three times turns to look and shows its face in the footprint book, and can then come out to the yard and the desktop; the desktop guide says it hops when clicked.
+- The chat, play and settings guides call the menu's first item **Friends**, as the app now does.
 
 ## [1.9.0] - 2026-11-20
 
