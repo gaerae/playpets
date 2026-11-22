@@ -212,17 +212,21 @@ def pose_batch(path, label, height, points, batch):
         check(box[0] >= 3 and box[1] >= 3 and box[2] <= 381 and box[3] <= 509, f'{label} tile {index} crosses its tile gutter')
         boxes[index] = (left + box[0], top + box[1], left + box[2], top + box[3])
     scale = height / (boxes[7][3] - boxes[7][1])
+
+    def feet_of(index):
+        if 'feet' in points:
+            return points['feet'][index]
+        # The middle of what touches the ground: the lowest 12px of the figure.
+        left, _, right, bottom = boxes[index]
+        band = opaque_box(source.crop((left, bottom - 12, right, bottom)))
+        return (left + (band[0] + band[2]) / 2, bottom)
+
+    feet = [feet_of(index) for index in range(6)]
     atlas = Image.new('RGBA', (width * 6, depth))
     frames = []
-    for index in range(6):
+    for index, foot in enumerate(feet):
         left, top, right, bottom = boxes[index]
-        if 'feet' in points:
-            foot = points['feet'][index]
-        else:
-            # The middle of what touches the ground: the lowest 12px of the figure.
-            band = opaque_box(source.crop((left, bottom - 12, right, bottom)))
-            foot = (left + (band[0] + band[2]) / 2, bottom)
-        place = lambda x, y: (ax + (x - foot[0]) * scale, ay + (y - foot[1]) * scale)
+        place = lambda x, y, foot=foot: (ax + (x - foot[0]) * scale, ay + (y - foot[1]) * scale)
         (x0, y0), (x1, y1) = place(left, top), place(right, bottom)
         check(x0 >= 1 and y0 >= 1 and x1 <= width - 1 and y1 <= depth - 1,
               f'{label} tile {index} would clip its {width}x{depth} canvas; draw the figure and tool smaller in that tile')
@@ -242,26 +246,24 @@ def pose_batch(path, label, height, points, batch):
     if 'ground' in points:
         at = points['ground']
         index = tile_of(at)
-        left, top, right, bottom = boxes[index]
-        foot = points['feet'][index] if 'feet' in points else None
-        if foot is None:
-            band = opaque_box(source.crop((left, bottom - 12, right, bottom)))
-            foot = (left + (band[0] + band[2]) / 2, bottom)
         # The tool meets the ground on the line the feet stand on, so only its x is taken.
-        ground = [round(ax + (at[0] - foot[0]) * scale), ay]
-        check(0 <= ground[0] <= width, f'{label} ground falls outside its {width}x{depth} canvas')
+        ground = [round(ax + (at[0] - feet[index][0]) * scale), ay]
+        check(0 <= ground[0] <= width,
+              f'{label} ground is measured from tile {index}\'s feet and falls outside its {width}x{depth} canvas; '
+              'a point on a tile\'s edge belongs to the tile right of or below it')
     return atlas, frames, ground
 
 
 def pack_actions(directory, heights):
-    """Packs every outfit folder of DIR into actions/<outfit>/*.png and the actions.json that names them."""
+    """Packs every outfit folder of DIR: the atlases by their path in the pet (actions/<outfit>/*.png),
+    the actions.json that names them, and the files read."""
     root = Path(directory)
     check(root.is_dir(), 'The --actions folder does not exist')
     folders = sorted(path.name for path in root.iterdir() if not path.name.startswith('.'))
     for name in folders:
         check(name in OUTFITS and (root / name).is_dir(), f'Unknown pose folder {name}; use base, spring, summer, autumn or winter')
     check('base' in folders, 'The --actions folder needs base/, the poses every season falls back to')
-    files, outfits, sources = {}, {}, []
+    atlases, outfits, sources = {}, {}, []
     for outfit in [name for name in OUTFITS if name in folders]:
         check(outfit in heights, f'Poses for {outfit} need --season {outfit}=FILE, the sheet that outfit walks in')
         points_path = root / outfit / 'points.json'
@@ -273,7 +275,7 @@ def pack_actions(directory, heights):
             check(path.is_file(), f'{outfit}/{batch}.png is missing; every outfit needs dig, plant, discover and fish')
             sources.append(path)
             packed[batch] = pose_batch(path, f'{outfit} {batch}', heights[outfit], points.get(batch, {}), batch)
-            files[f'actions/{outfit}/{batch}.png'] = png_bytes(packed[batch][0], 8 * MIB)
+            atlases[f'actions/{outfit}/{batch}.png'] = packed[batch][0]
         clips = {}
         for name, batch, tiles, durations, extra in POSE_CLIPS:
             canvas, anchor, offset = POSE_CANVAS[batch]
@@ -285,14 +287,11 @@ def pack_actions(directory, heights):
             clip['frames'] = [{**frames[tile], 'duration': duration} for tile, duration in zip(tiles, durations)]
             clips[name] = clip
         outfits[outfit] = clips
-    files['actions.json'] = (json.dumps({'version': 1, 'outfits': outfits}, indent=2) + '\n').encode()
-    check(len(files['actions.json']) <= 256 * 1024, 'actions.json exceeds 256 KiB')
-    return files, sources
+    return atlases, {'version': 1, 'outfits': outfits}, sources
 
 
 def render_actions(args):
-    files, sources = pack_actions(args.actions, {outfit: args.idle_height for outfit in OUTFITS})
-    actions = json.loads(files['actions.json'])
+    atlases, actions, sources = pack_actions(args.actions, {outfit: args.idle_height for outfit in OUTFITS})
     rows = [(outfit, name, clip) for outfit, clips in actions['outfits'].items() for name, clip in clips.items() if name != 'wait' and name != 'reel']
     width = 24 + 6 * (320 + 12)
     height = 24 + sum(20 + clip['canvas'][1] + 12 for _, _, clip in rows)
@@ -302,7 +301,7 @@ def render_actions(args):
     for outfit, name, clip in rows:
         cw, ch = clip['canvas']
         batch = 'fish' if name == 'cast' else name
-        atlas = Image.open(io.BytesIO(files[clip['image']])).convert('RGBA')
+        atlas = atlases[clip['image']]
         frames = actions['outfits'][outfit]['cast']['frames'] + actions['outfits'][outfit]['wait']['frames'] + \
             actions['outfits'][outfit]['reel']['frames'] if batch == 'fish' else clip['frames']
         draw.text((24, y), f'{outfit} {batch}', fill='#363b43')
@@ -399,11 +398,15 @@ def pet(args):
     for name, path in extra.items():
         sheets[name] = validate_atlas(image(path, (1536, 2288), pet=True))
         files[f'{name}.png'] = png_bytes(sheets[name], 32 * MIB)
-    pose_sources, heights = [], {name: idle_height(picture) for name, picture in sheets.items()}
+    pose_sources, posed = [], []
     if args.actions:
-        poses, pose_sources = pack_actions(args.actions, heights)
-        files.update(poses)
+        heights = {name: idle_height(picture) for name, picture in sheets.items()}
+        atlases, actions, pose_sources = pack_actions(args.actions, heights)
+        files.update((path, png_bytes(atlas, 8 * MIB)) for path, atlas in atlases.items())
+        files['actions.json'] = (json.dumps(actions, indent=2) + '\n').encode()
+        check(len(files['actions.json']) <= 256 * 1024, 'actions.json exceeds 256 KiB')
         manifest['actionsPath'] = 'actions.json'
+        posed = [name for name in OUTFITS if name in actions['outfits']]
     files['pet.json'] = (json.dumps(manifest, ensure_ascii=False, indent=2) + '\n').encode()
     output = io.BytesIO()
     with zipfile.ZipFile(output, 'w', compression=zipfile.ZIP_STORED) as archive:
@@ -418,10 +421,9 @@ def pet(args):
         sources.append(args.frame_map)
     write_output(args.output, output.getvalue(), args.overwrite, sources + pose_sources)
     print('Validated: decoded static images, alpha, dimensions, 73 used cells, cell margins, manifest and ZIP paths. Art review and app playback remain manual.')
-    if args.actions:
-        outfits = ', '.join(name for name in OUTFITS if f'actions/{name}/dig.png' in files)
-        print(f'Packed game poses for {outfits}, each at its sheet\'s idle height '
-              f'({", ".join(f"{name} {heights[name]}px" for name in OUTFITS if f"actions/{name}/dig.png" in files)}). '
+    if posed:
+        print(f'Packed game poses for {", ".join(posed)}, each at its sheet\'s idle height '
+              f'({", ".join(f"{name} {heights[name]}px" for name in posed)}). '
               'Check them with render-actions and in the app.')
 
 

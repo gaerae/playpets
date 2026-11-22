@@ -9,6 +9,7 @@ const {
   beginCompanionAction,
   clearCompanionAction,
   companionAction,
+  companionImage,
   setCompanionSeason,
   useCompanionActions,
 } = await import('../src/core/companion-actions.js');
@@ -297,4 +298,34 @@ test('poses are asked for once, and only for a pet that has them', async () => {
   bridge.petActions = async () => ({ ok: false, error: 'refused' });
   await fresh.loadCompanionActionsFor([view('folder', 'refused').asset]);
   assert.equal(fresh.prepareCompanionAction(view('folder', 'refused').asset, 'dig'), null);
+});
+
+test('a friend switched to its realistic look mid-action stops the poses drawn for the illustrated sheet', () => {
+  seed();
+  const v = view();
+  beginCompanionAction(v, 'dig', 0);
+  v.asset = { ...v.asset, spriteStyle: 'realistic' };
+  assert.equal(companionAction(v, 100), null);
+  assert.equal(beginCompanionAction(v, 'dig', 100), null);
+});
+
+// Pose atlases come from the pet-asset protocol, another origin: without CORS they would taint the
+// friend's canvas and its colour could no longer be read (yard/touches.js).
+test('pose atlases are fetched with CORS so the friend canvas stays readable', () => {
+  const previous = globalThis.Image;
+  const made = [];
+  globalThis.Image = class {
+    constructor() {
+      made.push(this);
+    }
+  };
+  try {
+    seed();
+    const v = view();
+    companionImage(beginCompanionAction(v, 'dig', 0));
+    assert.equal(made.at(-1).crossOrigin, 'anonymous');
+    assert.ok(made.at(-1).src.endsWith('dig.png'));
+  } finally {
+    globalThis.Image = previous;
+  }
 });

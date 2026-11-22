@@ -1,6 +1,5 @@
 // Sprite sheets served to the pages from the pet files on this computer.
 use super::*;
-use crate::pets::actions;
 use std::io::Read;
 use std::path::PathBuf;
 
@@ -35,16 +34,16 @@ pub(super) fn asset_json(asset: &catalog::Asset) -> serde_json::Value {
     if asset.realistic_portrait_path.is_some() {
         value["realisticPortraitUrl"] = json!(format!("{base}?style=realistic&portrait=1"));
     }
-    if asset.actions_path.is_some() {
+    if asset.poses.is_some() {
         value["hasActions"] = json!(true);
     }
     value
 }
 
-/// The pet's poses as they pass now (the file may have changed since the pet was found), each
-/// clip's atlas named by its address; null when it has none.
+/// The pet's poses as they passed when it was found, each clip's atlas named by its address;
+/// null when it has none.
 pub fn pet_actions(asset: &catalog::Asset) -> serde_json::Value {
-    let Some(mut poses) = poses_of(asset).map(|p| p.value) else {
+    let Some(mut poses) = asset.poses.as_ref().map(|p| p.value.clone()) else {
         return serde_json::Value::Null;
     };
     let base = sprite_url(&asset.id);
@@ -60,24 +59,8 @@ pub fn pet_actions(asset: &catalog::Asset) -> serde_json::Value {
     poses
 }
 
-fn poses_of(asset: &catalog::Asset) -> Option<actions::Poses> {
-    actions::read(&asset.folder, asset.actions_path.as_ref()?)
-}
-
-/// The n-th atlas of the pet's poses, read whole through the checks it passed.
-fn read_action(asset: &catalog::Asset, index: &str) -> Option<(Vec<u8>, PathBuf)> {
-    let path = poses_of(asset)?.images.into_iter().nth(index.parse().ok()?)?;
-    let (file, path) = catalog::open_image(&asset.folder, &path, actions::IMAGE_LIMIT).ok()?;
-    let mut bytes = Vec::new();
-    file.take(actions::IMAGE_LIMIT as u64 + 1)
-        .read_to_end(&mut bytes)
-        .ok()?;
-    let (width, height) = catalog::image_size(&bytes).ok()?;
-    (bytes.len() <= actions::IMAGE_LIMIT && width <= actions::IMAGE_SIDE && height <= actions::IMAGE_SIDE)
-        .then_some((bytes, path))
-}
-
 /// A picture of this pet, read whole through the same checks the pet passed when it was found.
+/// `portrait` is any picture held to a portrait's limits: a portrait or a pose atlas.
 fn read_file(asset: &catalog::Asset, path: &std::path::Path, portrait: bool) -> Option<(Vec<u8>, PathBuf)> {
     let limit = if portrait {
         catalog::PORTRAIT_LIMIT
@@ -110,7 +93,8 @@ fn read_sheet(asset: &catalog::Asset, query: Option<&str>) -> Option<(Vec<u8>, P
         })
     };
     if let Some(index) = parameter("action") {
-        return read_action(asset, index);
+        let path = asset.poses.as_ref()?.images.get(index.parse::<usize>().ok()?)?;
+        return read_file(asset, path, true);
     }
     let season = parameter("season").filter(|season| catalog::SEASONS.contains(season));
     let realistic = parameter("style") == Some("realistic");
@@ -406,16 +390,18 @@ mod tests {
     }
 
     #[test]
-    fn served_poses_are_checked_again() {
+    fn poses_are_read_once_and_atlases_checked_when_served() {
         let root = posed_pet(7);
         let asset = catalog::read_pet(&root).unwrap();
-        assert!(asset_json(&asset)["hasActions"].as_bool().unwrap());
-        fs::write(
-            root.join("actions.json"),
-            r#"{"version":1,"outfits":{"base":{"dig":{"image":"actions/dig.png","anchor":[96,199],"frames":[{"rect":[300,0,192,208],"duration":200}]}}}}"#,
-        )
-        .unwrap();
-        assert_eq!(pet_actions(&asset), Value::Null, "the file no longer passes");
+        // The poses passed when the pet was found; a later edit waits for the next scan.
+        fs::write(root.join("actions.json"), "{}").unwrap();
+        assert_eq!(
+            pet_actions(&asset)["outfits"]["base"]["dig"]["url"],
+            json!(format!("{}?action=0", sprite_url(&asset.id)))
+        );
+        assert!(catalog::read_pet(&root).unwrap().poses.is_none());
+        // The atlas itself is read only when drawn, through the checks it passed.
+        fs::write(root.join("actions/dig.png"), b"broken").unwrap();
         assert!(read_sheet(&asset, Some("action=0")).is_none());
     }
 }

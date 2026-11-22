@@ -170,5 +170,7 @@ src-tauri/pets/clover/
   - Canvases: dig 224×224 and plant and discover 192×208 with the feet at [96, 199]; fish 320×256 with the feet at [128, 239] and offset [−32, −40], Pip's base fishing canvas, which leaves room for a raised rod.
   - Scale: each outfit's tile 7 is brought to the idle height measured in the sheet that outfit walks in; `render-actions` takes `--idle-height`.
   - A season's poses need that season's sheet (`--season`), so a friend never digs in clothes it does not walk in.
-  - Poses are re-read when the page asks (`petActions`), not cached on `Asset`.
+  - Poses are read and checked once, when the pet is found, and kept on `Asset` (shared, not copied); `petActions` hands them over without opening a file.
+  - An edited `actions.json` takes effect at the next scan, as an edited `pet.json` does; each atlas is still read through `open_image` and checked again when served.
+  - Atlases are held to a portrait's limits (`PORTRAIT_LIMIT`, `portrait_size`): 8 MiB, at most 4096 px a side.
 - Not done: the studio kit does not add the starter's pose atlases as references; the starter downloads (`playpets-<id>.zip`) carry them.

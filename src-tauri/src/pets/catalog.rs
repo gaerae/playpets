@@ -54,9 +54,10 @@ pub struct Asset {
     pub realistic_portrait_path: Option<PathBuf>,
     #[serde(skip)]
     pub portrait_path: Option<PathBuf>,
-    /// The pet's own game poses (`actionsPath`), when they pass pets/actions.rs.
+    /// The pet's own game poses (`actionsPath`) as they passed pets/actions.rs when the pet was
+    /// found; shared, since the state's pets are cloned for every reply.
     #[serde(skip)]
-    pub actions_path: Option<PathBuf>,
+    pub poses: Option<std::sync::Arc<super::actions::Poses>>,
 }
 
 /// A Codex pet sheet is 8 cells of 192px across and one 208px row per animation.
@@ -236,11 +237,11 @@ pub fn read_pet(folder: &Path) -> Result<Asset, String> {
     let (realistic_sprite_paths, realistic_portrait_path) = realistic_appearance(&root, version, &m);
     let portrait_path = optional_portrait(&root, m.get("portraitPath"));
     // Poses that do not pass leave the ordinary rows playing, as a missing wardrobe does.
-    let actions_path = m
+    let poses = m
         .get("actionsPath")
         .and_then(optional_relative)
-        .map(|rel| root.join(rel))
-        .and_then(|path| super::actions::read(&root, &path).and(dunce::canonicalize(&path).ok()));
+        .and_then(|rel| super::actions::read(&root, &root.join(rel)))
+        .map(std::sync::Arc::new);
     // One line each: a description is read into the AI's prompt, where a line break could
     // pass off the rest as a new instruction.
     let description = tidy(m.get("description").and_then(|v| v.as_str()).unwrap_or(""), 300);
@@ -264,7 +265,7 @@ pub fn read_pet(folder: &Path) -> Result<Asset, String> {
         realistic_sprite_paths,
         realistic_portrait_path,
         portrait_path,
-        actions_path,
+        poses,
     })
 }
 
@@ -344,10 +345,7 @@ pub fn sheet_fits((width, height): (u32, u32), rows: u32) -> bool {
     width == SHEET_WIDTH && height == rows * ROW_HEIGHT
 }
 /// An image file inside `root`, no larger than `limit`, with its width and height.
-pub(crate) fn image_size_of(root: &Path, relative: &str, limit: usize) -> Result<(PathBuf, (u32, u32)), String> {
-    validated_image(root, relative, limit)
-}
-fn validated_image(root: &Path, relative: &str, limit: usize) -> Result<(PathBuf, (u32, u32)), String> {
+pub(crate) fn validated_image(root: &Path, relative: &str, limit: usize) -> Result<(PathBuf, (u32, u32)), String> {
     let (file, sprite_path) = open_image(root, &root.join(relative), limit)?;
     // The size is in the first bytes; the sheet itself (megabytes) is read only when drawn.
     let mut head = Vec::with_capacity(HEAD_BYTES);

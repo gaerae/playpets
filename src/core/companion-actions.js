@@ -6,9 +6,8 @@ import { call } from './state.js';
 
 // The poses are drawn for the illustrated sheets; a friend shown realistic keeps its ordinary rows.
 const posed = asset => !!asset?.hasActions && asset?.spriteStyle !== 'realistic';
-/** Each asset id's poses (null when it has none that pass) and the request for them. */
-const poses = new Map();
-const asked = new Map();
+/** Each asset id's request for its poses and, once they come, the poses (null when none pass). */
+const entries = new Map();
 let season = '';
 let generation = 0;
 const actions = new WeakMap();
@@ -42,28 +41,30 @@ export function actionGroundOffset(clip, width, height) {
 export function useCompanionActions(id, value) {
   // Poses replaced under a friend end what it is playing and the atlases decoded for them; a
   // pet's first poses end nothing, since nothing could play before they came.
-  if (poses.has(id)) {
+  const entry = entries.get(id);
+  if (entry?.poses !== undefined) {
     generation++;
     images.clear();
   }
-  poses.set(id, value?.version === 1 && value.outfits?.base ? value : null);
-  asked.set(id, asked.get(id) ?? Promise.resolve());
+  entries.set(id, {
+    poses: value?.version === 1 && value.outfits?.base ? value : null,
+    ready: entry?.ready ?? Promise.resolve(),
+  });
 }
 /** Asks once for the poses of each of `assets` that has them; resolves when they have come. */
 export function loadCompanionActionsFor(assets) {
   const waits = [];
   for (const asset of assets) {
     if (!posed(asset)) continue;
-    if (!asked.has(asset.id))
-      asked.set(
-        asset.id,
+    if (!entries.has(asset.id))
+      entries.set(asset.id, {
         // call() opens the bridge's { ok, data } envelope and turns a refusal into a rejection.
-        call('petActions', asset.id)
+        ready: call('petActions', asset.id)
           .then(value => useCompanionActions(asset.id, value))
           // A pet whose poses cannot be read keeps its ordinary sheet.
-          .catch(() => poses.set(asset.id, null)),
-      );
-    waits.push(asked.get(asset.id));
+          .catch(() => useCompanionActions(asset.id, null)),
+      });
+    waits.push(entries.get(asset.id).ready);
   }
   return Promise.all(waits);
 }
@@ -78,8 +79,8 @@ function clipFor(asset, name) {
   if (!posed(asset)) return null;
   // A friend that asks before its poses are there plays the ordinary sheet this time, and the
   // asks after it find them.
-  loadCompanionActionsFor([asset]);
-  const outfits = poses.get(asset.id)?.outfits;
+  if (!entries.has(asset.id)) loadCompanionActionsFor([asset]);
+  const outfits = entries.get(asset.id).poses?.outfits;
   // A season's own outfit, else the base one, as with the seasonal sheets; a clip that outfit
   // lacks plays the ordinary rows rather than another outfit's clothes.
   const clip = (outfits?.[season] ?? outfits?.base)?.[name];
@@ -147,6 +148,8 @@ export function companionImage(action) {
   let image = images.get(url);
   if (!image) {
     image = new Image();
+    // The atlas comes from the pet-asset protocol; CORS keeps the friend canvas readable.
+    image.crossOrigin = 'anonymous';
     image.src = url;
     images.set(url, image);
   }

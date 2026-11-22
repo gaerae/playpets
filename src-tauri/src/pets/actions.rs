@@ -2,15 +2,13 @@
 //! planting, showing a find and fishing, drawn for each outfit. Every number is checked here, and
 //! what passes is handed to the page in the shape it draws (src/core/companion-actions.js).
 
-use super::catalog::{image_size_of, optional_relative};
+use super::catalog::{PORTRAIT_LIMIT, open_image, optional_relative, portrait_size, validated_image};
 use serde_json::{Map, Value, json};
-use std::fs;
+use std::io::Read;
 use std::path::{Path, PathBuf};
 
 /// The largest `actions.json` read.
 pub const ACTIONS_LIMIT: usize = 256 * 1024;
-pub const IMAGE_LIMIT: usize = 8 * 1024 * 1024;
-pub const IMAGE_SIDE: u32 = 4096;
 const IMAGES: usize = 24;
 const FRAMES: usize = 64;
 const DURATION: f64 = 10_000.0;
@@ -20,7 +18,8 @@ const CLIPS: [&str; 6] = ["dig", "plant", "discover", "cast", "wait", "reel"];
 /// A cast without a reel would leave the rod in the air, so these come and go together.
 const FISHING: [&str; 3] = ["cast", "wait", "reel"];
 
-/// The poses that passed: the page's clips (each `image` an index) and the atlases they index.
+/// The poses that passed: the page's clips (each `image` an index) and the atlases they index,
+/// which are held to a portrait's limits (catalog::PORTRAIT_LIMIT, catalog::portrait_size).
 #[derive(Debug, Clone)]
 pub struct Poses {
     pub value: Value,
@@ -30,12 +29,14 @@ pub struct Poses {
 /// Reads `file` (inside `root`); `None` when the file is missing, too big, broken or keeps no
 /// `base` poses. A clip that fails a rule is left out, and the rest stay.
 pub fn read(root: &Path, file: &Path) -> Option<Poses> {
-    let path = dunce::canonicalize(file).ok()?;
-    let meta = fs::metadata(&path).ok()?;
-    if !path.starts_with(root) || !meta.is_file() || meta.len() > ACTIONS_LIMIT as u64 {
+    let (file, _) = open_image(root, file, ACTIONS_LIMIT).ok()?;
+    let mut bytes = Vec::new();
+    // No further than the limit, even if the file grew since it was opened.
+    file.take(ACTIONS_LIMIT as u64 + 1).read_to_end(&mut bytes).ok()?;
+    if bytes.len() > ACTIONS_LIMIT {
         return None;
     }
-    let data: Value = serde_json::from_slice(&fs::read(&path).ok()?).ok()?;
+    let data: Value = serde_json::from_slice(&bytes).ok()?;
     if data.get("version")? != 1 {
         return None;
     }
@@ -66,26 +67,32 @@ pub fn read(root: &Path, file: &Path) -> Option<Poses> {
     }
     kept.contains_key("base").then(|| Poses {
         value: json!({"version": 1, "outfits": kept}),
-        images: atlases.found.into_iter().map(|(path, _)| path).collect(),
+        images: atlases.found.into_iter().map(|(_, path, _)| path).collect(),
     })
 }
 
 struct Atlases<'a> {
     root: &'a Path,
-    found: Vec<(PathBuf, (u32, u32))>,
+    /// Each atlas as named, where it resolved, and its size.
+    found: Vec<(String, PathBuf, (u32, u32))>,
 }
 impl Atlases<'_> {
-    /// The atlas's index and size; one file named twice is one entry.
+    /// The atlas's index and size; a name given twice is opened once.
     fn get(&mut self, value: &Value) -> Option<(usize, (u32, u32))> {
-        let (path, size) = image_size_of(self.root, optional_relative(value)?, IMAGE_LIMIT).ok()?;
-        if size.0 > IMAGE_SIDE || size.1 > IMAGE_SIDE {
+        let relative = optional_relative(value)?;
+        if let Some(index) = self.found.iter().position(|(name, ..)| name == relative) {
+            return Some((index, self.found[index].2));
+        }
+        let (path, size) = validated_image(self.root, relative, PORTRAIT_LIMIT).ok()?;
+        if !portrait_size(size) {
             return None;
         }
-        if let Some(index) = self.found.iter().position(|(p, _)| *p == path) {
+        // Two names for one file (a `./`, a link) still make one atlas.
+        if let Some(index) = self.found.iter().position(|(_, p, _)| *p == path) {
             return Some((index, size));
         }
         (self.found.len() < IMAGES).then(|| {
-            self.found.push((path, size));
+            self.found.push((relative.to_owned(), path, size));
             (self.found.len() - 1, size)
         })
     }
@@ -392,14 +399,15 @@ mod tests {
             format!(r#"{{"id":"p","displayName":"P","spriteVersionNumber":2,"spritesheetPath":"sprite.png"{actions}}}"#)
         };
         fs::write(root.join("pet.json"), manifest(r#","actionsPath":"actions.json""#)).unwrap();
+        let pet = crate::pets::catalog::read_pet(&root).unwrap();
         assert_eq!(
-            crate::pets::catalog::read_pet(&root).unwrap().actions_path,
-            Some(path.clone())
+            pet.poses.expect("poses").images,
+            ["dig", "plant", "fish"].map(|name| root.join(format!("actions/{name}.png")))
         );
         fs::write(&path, "{}").unwrap();
         let pet = crate::pets::catalog::read_pet(&root).expect("the pet stays usable");
-        assert_eq!(pet.actions_path, None);
+        assert!(pet.poses.is_none());
         fs::write(root.join("pet.json"), manifest("")).unwrap();
-        assert_eq!(crate::pets::catalog::read_pet(&root).unwrap().actions_path, None);
+        assert!(crate::pets::catalog::read_pet(&root).unwrap().poses.is_none());
     }
 }

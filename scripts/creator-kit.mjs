@@ -5,6 +5,7 @@ import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { dataUrl, dataUrlBytes } from './art-lib.mjs';
+import { builtinPoseImages } from './art-webp-lib.mjs';
 import { launchBrowser } from './browser-lib.mjs';
 import { publicProvenance, validatePng, zipStore } from './creator-bundle-lib.mjs';
 import { STUDIO_REFERENCES, kitEntries, kitPrompts, kitSpec, petManifest } from './creator-specs.mjs';
@@ -247,15 +248,13 @@ export async function petDownloads() {
       // The folder is named for the pet's id, and the pages link the file by the friend's.
       if (file !== `${id}.zip`) throw new Error(`${pet.source}: pet.json id ${id} does not match ${file}`);
       // Its game poses too, so an imported copy plays as the friend does in the app.
-      const poses = actionsPath ? JSON.parse(await readFile(`${root}/${actionsPath}`, 'utf8')) : null,
-        atlases = poses
-          ? new Set(Object.values(poses.outfits).flatMap(clips => Object.values(clips).map(clip => clip.image)))
-          : [];
+      const poses = actionsPath ? await readFile(`${root}/${actionsPath}`) : null,
+        atlases = poses ? builtinPoseImages(poses.toString('utf8')) : [];
       const sheets = await Promise.all(
         [spritesheetPath, ...Object.values(seasonalSpritesheets), ...(poses ? [actionsPath] : []), ...atlases].map(
           async sheet => ({
             name: `${id}/${sheet}`,
-            bytes: await readFile(`${root}/${sheet}`),
+            bytes: sheet === actionsPath ? poses : await readFile(`${root}/${sheet}`),
           }),
         ),
       );

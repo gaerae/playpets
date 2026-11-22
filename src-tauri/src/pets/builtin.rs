@@ -367,8 +367,7 @@ mod tests {
         let root = unpacked("builtin-poses");
         let (assets, _) = scan_pets(root.as_path(), Place::Builtin);
         for asset in &assets {
-            let poses = crate::pets::actions::read(&asset.folder, asset.actions_path.as_ref().expect("poses"))
-                .expect("valid poses");
+            let poses = asset.poses.as_ref().expect("valid poses");
             let outfits = poses.value["outfits"].as_object().unwrap();
             let mut names: Vec<_> = outfits.keys().map(String::as_str).collect();
             names.sort();
