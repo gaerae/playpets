@@ -233,7 +233,13 @@ test('the background cards show small scene copies, and the garden kit shows the
   const { BACKGROUND_REFERENCES } = await import('../scripts/background-specs.mjs');
   assert.deepEqual(Object.keys(BACKGROUND_REFERENCES), ['garden', 'lakeside', 'interior']);
   assert.match(BACKGROUND_REFERENCES.garden, /courtyard-green\.png$/);
-  // Each reference gets the site's small copy too, the interior example included (no place uses it).
+  // The interior kit shows the app's own indoor place, and its panes are the workshop's glass.
+  assert.match(BACKGROUND_REFERENCES.interior, /environments\/workshop\.png$/);
+  const worlds = JSON.parse(await readFile('src/content/worlds.json', 'utf8'));
+  const workshop = (worlds.worlds ?? worlds).find(w => w.id === 'workshop');
+  assert.deepEqual(layoutOptions('interior').windows, workshop.windowPanes);
+  assert.match(creationRequest(kitRequest({ kind: 'background', starter: 'interior' })), /garden workshop[^.]*seats/);
+  // Each reference gets the site's small copy, once.
   const { sceneSources } = await import('../scripts/site-images.mjs');
   const sources = sceneSources(['assets/art/environments/green.png']);
   assert.ok(sources.includes('assets/art/environments/green.png'));

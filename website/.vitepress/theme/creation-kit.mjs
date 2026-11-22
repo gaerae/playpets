@@ -117,7 +117,7 @@ function backgroundSteps({ water, windows = [], sky }, seasons) {
   const regions = water
     ? 'Propose the initial water ellipse and dry fishing stance, then adjust them against the actual generated artwork while keeping a clear continuous floor. This is visual calibration, not automatic water segmentation.'
     : windows.length
-      ? 'Move and resize each glass pane to the window glass in the actual generated artwork while keeping a clear continuous floor.'
+      ? 'The reference is the garden workshop of PlayPets, whose potting tables, tea corner and front bench are seats for friends working with a coding agent; a background has no seats, so friends would walk through them: leave furniture out of the walking floor. Move and resize each glass pane to the window glass in the actual generated artwork while keeping a clear continuous floor.'
       : 'This layout has no water or windows; move the floor line to where the actual generated artwork puts its clear ground.';
   const checks = water
     ? 'Check that the ellipse stays in visible water, the fishing stance stays on dry ground, and the shoreline remains visible at normal and small-window crops.'
