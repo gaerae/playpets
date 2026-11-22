@@ -1,6 +1,7 @@
-// A find out of the album on its own: a fish, a bug or a treasure, with no container and no shadow
-// (catalog.json "findsOut": the book it holds from, the list its kinds are in, how it answers a
-// poke and where in its box the find is drawn). The
+// A find out of the album on its own: a fish, a bug, a treasure or a footprint animal, with no
+// container and no shadow (catalog.json "findsOut": the book it holds from, the list its kinds are
+// in, which of a kind's drawings it shows, how it answers a poke and where in its box the find is
+// drawn). The
 // yard and the desktop draw one the same way: the find's own painting in its slot, and for a fish
 // the bubbles it lets out when it swims. On the desktop each answers a poke in its own way, and a
 // fish is drawn by its length. Design: docs/design/2026-11-19-album-finds-out.md,
@@ -20,6 +21,16 @@ export const giftsOut = decor => (decor || []).filter(d => !findOutKind(d.kind))
 export const findsOut = decor => (decor || []).filter(d => findOutKind(d.kind));
 /** A find of `book` by its id, as the catalogue has it (the find out's `list`), or null. */
 export const heldKind = (book, id) => LISTS[findOutFor(book)?.list]?.find(k => k.id === id) || null;
+// The drawing a find out shows of its find: its painting, or for a footprint animal, the whole animal
+// (`drawing`: "whole"), never the tail the yard's trail shows.
+const drawingOf = (out, found) => found?.[out.drawing || 'art'];
+/** How many of a find its card may set out: as many as the album found, or for a book whose kinds
+ * come out once each (`onceAfter`), one once found that often (a footprint animal seen whole). */
+export function copiesOf(book, entry) {
+  const count = entry?.count ?? 1,
+    after = findOutFor(book)?.onceAfter;
+  return after ? Number(count >= after) : count;
+}
 /** A find's name, as its album card says it. */
 export const heldName = (book, id) => {
   const list = findOutFor(book)?.list;
@@ -65,10 +76,10 @@ export function heldLayers(kind, holds = []) {
   return holds
     .slice(0, out.slots.length)
     .map((id, i) => {
-      const found = heldKind(out.holds, id);
-      if (!found?.art) return '';
+      const art = drawingOf(out, heldKind(out.holds, id));
+      if (!art) return '';
       const [x, y, w, h] = out.slots[i];
-      const held = `<span class="held" data-held="${id}" data-book="${out.holds}" style="left:${share(x)};top:${share(y)};width:${share(w)};height:${share(h)}">${artSvg(found.art)}</span>`;
+      const held = `<span class="held" data-held="${id}" data-book="${out.holds}" style="left:${share(x)};top:${share(y)};width:${share(w)};height:${share(h)}">${artSvg(art)}</span>`;
       return held + (AROUND[pokeOf(out.holds, id)?.motion] || '');
     })
     .join('');
@@ -91,7 +102,7 @@ export function drawHeld(view, holds = []) {
 /** The drawings a find out is drawn from, to load with it. */
 export function heldArt(kind, holds = []) {
   const out = findOutKind(kind);
-  return out ? holds.map(id => heldKind(out.holds, id)?.art).filter(Boolean) : [];
+  return out ? holds.map(id => drawingOf(out, heldKind(out.holds, id))).filter(Boolean) : [];
 }
 /** A find out's effects: a firefly glows from evening, as a lit gift does, but casts no light on the
  * ground, as it casts no shadow. */

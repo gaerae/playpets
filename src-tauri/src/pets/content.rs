@@ -51,9 +51,13 @@ struct Kind {
     /// "on": friends stand on it (a bench, a swing), rather than beside it.
     #[serde(default)]
     stand: Option<String>,
-    /// A find out's album book ("fish", "bug", "treasure"): what it holds, one at a time.
+    /// A find out's album book ("fish", "bug", "treasure", "track"): what it holds, one at a time.
     #[serde(default)]
     holds: Option<String>,
+    /// A find out whose kinds come out once each, when the album has found one this many times
+    /// (a footprint animal, once followed until it turned to look).
+    #[serde(default, rename = "onceAfter")]
+    once_after: Option<u32>,
 }
 #[derive(Deserialize)]
 struct SizedStage {
@@ -394,12 +398,20 @@ impl Catalog {
     pub fn book_of(&self, id: &str) -> Option<&str> {
         self.finds_out.iter().find(|k| k.id == id)?.holds.as_deref()
     }
+    /// For a book whose kinds come out once each: how many times the album must have found one.
+    pub fn once_after(&self, book: &str) -> Option<u32> {
+        self.finds_out
+            .iter()
+            .find(|k| k.holds.as_deref() == Some(book))?
+            .once_after
+    }
     /// Whether this album book has this kind, as a find out can hold it.
     pub fn holds(&self, book: &str, id: &str) -> bool {
         match book {
             "fish" => self.fish_max(id).is_some(),
             "bug" => self.is_bug(id),
             "treasure" => self.treasures.iter().any(|t| t.id == id),
+            "track" => self.is_track(id),
             _ => false,
         }
     }
@@ -500,7 +512,12 @@ mod tests {
     #[test]
     fn each_album_book_with_finds_out_has_one_kind_for_them_and_none_is_a_gift() {
         let c = catalog();
-        for (book, kind) in [("fish", "fish_out"), ("bug", "bug_out"), ("treasure", "treasure_out")] {
+        for (book, kind) in [
+            ("fish", "fish_out"),
+            ("bug", "bug_out"),
+            ("treasure", "treasure_out"),
+            ("track", "track_out"),
+        ] {
             assert_eq!(c.find_out_for(book), Some(kind), "{book}");
             assert_eq!(c.book_of(kind), Some(book), "{kind}");
             assert!(c.is_decor(kind) && !c.is_gift(kind), "{kind}");
@@ -513,6 +530,9 @@ mod tests {
         assert!(c.is_decor("bench"));
         assert!(c.holds("fish", "crucian") && c.holds("bug", "firefly"));
         assert!(c.holds("treasure", "quartz") && !c.holds("flower", "tulip"));
+        assert!(c.holds("track", "fox") && !c.holds("track", "dragon") && !c.holds("track", "quartz"));
+        // A footprint animal comes out once, after its third follow; the others as often as found.
+        assert_eq!((c.once_after("track"), c.once_after("fish")), (Some(3), None));
         assert!(!c.holds("fish", "firefly") && !c.holds("gift", "bench") && !c.holds("flower", "nothing"));
     }
 

@@ -14,7 +14,8 @@ export const strings = {
   'album.gift_rule':
     '友だちと何かをした日に、その友だちが二日に一度プレゼントを持ってきます。仲良くなったときにも届きます。',
   'album.set_out_full': '庭がいっぱいです。飾りを一つ片付けると出せます。',
-  'album.finds_full': '水中の生きもの、虫、小さな発見は図鑑から{limit}個まで出せます。ひとつしまうと、また出せます。',
+  'album.finds_full':
+    '水中の生きもの、虫、小さな発見、足あとの動物は図鑑から{limit}個まで出せます。ひとつしまうと、また出せます。',
   'album.shown_christmas': '11月15日から1月7日までと、庭が冬のときに出ます',
   'album.shown_winter': '庭が冬のときに出ます',
   'album.set_out': '{kind}を庭に出す',
@@ -502,6 +503,11 @@ export const strings = {
   'decor.visit_fish_out': ['{name}、すいすい泳いでね。', '{name}、こんにちは！', '楽しそう。'],
   'decor.visit_bug_out': ['{name}がこっち見てる！', 'やあ、{name}。', 'ちっちゃいなあ！'],
   'decor.visit_treasure_out': ['{name}を見つけた日、覚えてる。', '{name}、いつ見てもきれい。', 'すごい宝物！'],
+  'decor.visit_track_out': [
+    '{name}、また会えたね！',
+    '{name}、今度は逃げないんだね。',
+    '{name}を追いかけた雪の道、思い出すな。',
+  ],
   'bond.title': 'なかよし度',
   'bond.level_1': 'はじめまして',
   'bond.level_2': 'うちとけた仲',

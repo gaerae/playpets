@@ -60,11 +60,12 @@ const buttonsOf = (nodes, index) => {
   return row ? row.children : [];
 };
 
-test('a fish, a bug and a treasure each come out as a bare kind: no drawing, no shadow, one find', () => {
+test('a fish, a bug, a treasure and a footprint animal each come out as a bare kind: no drawing, no shadow, one find', () => {
   for (const [book, kind] of [
     ['fish', 'fish_out'],
     ['bug', 'bug_out'],
     ['treasure', 'treasure_out'],
+    ['track', 'track_out'],
   ]) {
     const out = findOutFor(book);
     assert.equal(out.id, kind);
@@ -75,7 +76,7 @@ test('a fish, a bug and a treasure each come out as a bare kind: no drawing, no 
     assert.equal(giftKind(kind), out, 'set out as a gift is');
     assert.ok(!catalog.gifts.some(g => g.id === kind), `${kind} is not a gift friends bring`);
   }
-  assert.equal(catalog.findsOut.length, 3);
+  assert.equal(catalog.findsOut.length, 4);
   // Each names the album book its kinds are in, so its finds are looked up and named from the data.
   for (const out of catalog.findsOut) assert.ok(ALBUM_BOOKS.includes(out.list), `${out.id}: ${out.list}`);
   assert.equal(findOutFor('flower'), null, 'a flower comes out of its own card');

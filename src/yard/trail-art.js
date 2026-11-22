@@ -1,7 +1,7 @@
 // How a winter animal is drawn: a short run of its prints (the album's clue before it is followed),
 // its tail peeking from behind a snowy bush (the album once followed, and the end of a trail in the
-// yard), and, once followed SEEN_WHOLE times, the whole animal in the album only; the yard never
-// shows more than the tail. Markup only; the peek's geometry, each tail's place behind the bush, is
+// yard), and, once followed SEEN_WHOLE times, the whole animal in the album (and set out from it,
+// find-out.js); a trail's end never shows more than the tail. Markup only; the peek's geometry, each tail's place behind the bush, is
 // the stylesheet's (garden.css), so the yard and the album draw it alike.
 import { artHref, artSvg, previewSvg } from './art.js';
 import { trailArt } from './catalog.js';

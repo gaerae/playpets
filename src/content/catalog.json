@@ -1048,6 +1048,17 @@
       "foot": 0.98,
       "holds": "treasure",
       "slots": [[0, 0, 1, 1]]
+    },
+    {
+      "id": "track_out",
+      "list": "tracks",
+      "drawing": "whole",
+      "onceAfter": 3,
+      "poke": "hop",
+      "size": [56, 56],
+      "foot": 0.97,
+      "holds": "track",
+      "slots": [[0, 0, 1, 1]]
     }
   ],
   "fish": [

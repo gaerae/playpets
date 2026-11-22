@@ -12,7 +12,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
-- In the footprint book, an animal you have followed three times turns to look: its card shows the whole animal, face and all, instead of its tail, and until then the card says how many more follows are left. In the yard it still only shows its tail.
+- In the footprint book, an animal you have followed three times turns to look: its card shows the whole animal, face and all, instead of its tail, and until then the card says how many more follows are left. At a trail's end it still only shows its tail.
+- An animal seen whole in the footprint book comes out of its card once, to the yard and the desktop, like a fish or a keepsake. It hops when you click it, and a friend who visits greets it by name.
 - Ten new winter decorations come with the winter lights, one each gift day after Santa: a coquette ribbon tree and a pastel retro tree, each in a small and a big size, a string-light arch, a stack of gift boxes, a wreath stand, a candy cane star lamp, a gingerbread house and a sundries cart. They show from November 15 to January 7, and whenever the yard shows winter. The trees, the arch, the lamp, the house and the cart light up from evening; on the desktop the arch and the lamp switch off and on with a click, and the wreath can hang from a screen's top. The album now has 213 entries.
 
 ### Changed
@@ -39,7 +40,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - The README and the guide count the album's 213 entries and 41 gifts, and the guide describes the new winter decorations.
 - The site's album guide says a gift that comes while the yard is full waits on its own card, no longer in a gift box.
-- The play guide says an animal followed three times turns to look and shows its face in the footprint book.
+- The play guide says an animal followed three times turns to look and shows its face in the footprint book, and can then come out to the yard and the desktop; the desktop guide says it hops when clicked.
 
 ## [1.9.0] - 2026-11-20
 

@@ -124,6 +124,8 @@ Follow-up (2026-11-20, [Christmas from mid-November](2026-11-20-christmas-from-m
 | Next December | The next year's letter recalls last year's answer to look back on |
 | A friend that left | Its letters stay; the closest friend now brings the answer back |
 
+Follow-up (2026-11-22, later): an animal seen whole comes out of its card once, to the yard and the desktop, drawn whole ([finds out of the album](./2026-11-19-album-finds-out.md)). A trail's end still shows only the tail.
+
 Follow-up (2026-11-22): the footprint book now has a third step. On the third follow of the same animal (`SEEN_WHOLE` in `src/yard/trail-art.js`) it turns to look: a card shows it whole, and from then on its album card draws the whole animal, sitting and facing the viewer, instead of its tail. Before that the card says how many more follows are left. The yard still never shows more than the tail.
 
 Follow-up (2026-11-20): the letter's season is longer. It is written on the first day open from 12-15 to 12-31, read again until 01-15, and the answer comes back on the first day open from 01-01 to 01-15; the backend clears the text after 01-15 by the page's date, or 01-17 by the latest date on Earth. The footprints' one-a-day stretch (12-26 to 01-07) is unchanged.

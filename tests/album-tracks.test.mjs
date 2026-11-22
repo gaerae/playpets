@@ -46,7 +46,12 @@ test('the footprint book shows each print until it is followed, then the tail an
   assert.equal(squirrelName.textContent, translate('track.squirrel'));
   assert.ok(squirrelStage.innerHTML.includes('art/album/tracks/whole_squirrel.webp'), 'its small preview');
   assert.doesNotMatch(squirrelStage.innerHTML, /tail-peek/);
-  assert.equal(squirrel.children.at(-1).textContent, translate('album.followed_met', { count: 3 }));
+  const record = card => card.children.find(c => c.className === 'album-record'),
+    actions = card => card.children.find(c => c.className === 'album-actions');
+  assert.equal(record(squirrel).textContent, translate('album.followed_met', { count: 3 }));
+  // Seen whole, it can come out of its card, once; a tail alone cannot.
+  assert.equal(actions(squirrel)?.dataset.card, 'track:squirrel');
+  assert.equal(actions(fox), undefined);
   assert.ok(hare.classList.contains('unknown'));
   const [hareStage, hareName] = hare.children;
   assert.equal(hareName.textContent, translate('album.whose_prints'));

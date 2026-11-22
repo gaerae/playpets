@@ -181,6 +181,8 @@ const BOOKS = {
       count >= SEEN_WHOLE
         ? t('album.followed_met', { count })
         : t('album.followed_closer', { count, left: SEEN_WHOLE - count }),
+    // Seen whole, it comes out of its card once, to the yard and the desktop (find-out.js copiesOf).
+    action: (k, entry) => findButtons('track', k.id, entry),
   },
   // Spring shoots a friend gathered: shown always, as silhouettes first; the hint says the season.
   shoot: {

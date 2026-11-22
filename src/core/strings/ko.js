@@ -12,7 +12,7 @@ export const strings = {
     '친구와 함께 무언가를 한 날, 그 친구가 이틀에 한 번 선물을 가져와요. 사이가 가까워질 때도 선물이 와요.',
   'album.set_out_full': '놀이터가 가득 찼어요. 소품 하나를 치우면 꺼내 놓을 수 있어요.',
   'album.finds_full':
-    '물속 생물, 곤충, 작은 발견은 도감에서 {limit}개까지 꺼내 놓을 수 있어요. 하나를 들여놓으면 또 꺼낼 수 있어요.',
+    '물속 생물, 곤충, 작은 발견, 발자국 동물은 도감에서 {limit}개까지 꺼내 놓을 수 있어요. 하나를 들여놓으면 또 꺼낼 수 있어요.',
   'album.shown_christmas': '11월 15일부터 1월 7일까지, 그리고 놀이터가 겨울일 때 나와요',
   'album.shown_winter': '놀이터가 겨울일 때 나와요',
   'album.set_out': '{kind:을/를} 놀이터에 꺼내 놓아요',
@@ -499,6 +499,11 @@ export const strings = {
   'decor.visit_fish_out': ['{name:이/가} 헤엄친다~', '안녕, {name}!', '기분 좋아 보여.'],
   'decor.visit_bug_out': ['{name:이/가} 날 보고 있어!', '안녕, {name}!', '진짜 작다!'],
   'decor.visit_treasure_out': ['{name:을/를} 찾던 날 기억나.', '{name:은/는} 언제 봐도 예뻐.', '이거 진짜 보물이다!'],
+  'decor.visit_track_out': [
+    '{name}, 또 만났네!',
+    '{name:이/가} 이번엔 도망 안 가네.',
+    '{name:을/를} 따라갔던 눈길 생각난다.',
+  ],
   'bond.title': '친밀도',
   'bond.level_1': '알아가는 사이',
   'bond.level_2': '편한 사이',
