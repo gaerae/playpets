@@ -67,7 +67,12 @@ export function propButton(className, kind, id) {
 }
 // How long Undo is offered before a taken-away thing is removed for good.
 const UNDO_MS = 6000;
+// What is leaving the yard with its Undo offered: id → { timer, finish }.
 const leaving = new Map();
+/** Whether `id` is leaving the yard, its Undo still offered. */
+export const isLeaving = id => leaving.has(id);
+/** Saves the removal of `id`, leaving with its Undo offered, now, as closing its notice does. */
+export const leaveNow = id => leaving.get(id)?.finish();
 /** Takes a thing on the field away without asking: it leaves at once, a notice offers Undo for a few
  * seconds, and only then is it removed for good (`commit`), or as soon as the notice is closed.
  * Closing the app before then keeps it.
@@ -79,7 +84,7 @@ export function removeWithUndo(id, view, message, commit, restored = () => {}) {
   // Saved when its time is up, or at once when the person closes the notice: closing it says done.
   const finish = async () => {
     if (!leaving.has(id)) return;
-    clearTimeout(leaving.get(id));
+    clearTimeout(leaving.get(id).timer);
     leaving.delete(id);
     // Its Undo goes with it, even with the pointer resting on the notice.
     if (line) dropLine(line);
@@ -91,14 +96,14 @@ export function removeWithUndo(id, view, message, commit, restored = () => {}) {
       toast(spoken(error, t('error.generic')), { error: true });
     }
   };
-  leaving.set(id, setTimeout(finish, UNDO_MS));
+  leaving.set(id, { timer: setTimeout(finish, UNDO_MS), finish });
   line = toast(message, {
     ms: UNDO_MS,
     onClose: finish,
     action: {
       label: t('common.undo'),
       run: () => {
-        clearTimeout(leaving.get(id));
+        clearTimeout(leaving.get(id)?.timer);
         leaving.delete(id);
         view.button.hidden = false;
         restored();

@@ -25,8 +25,9 @@ import { playCompanionAction, prepareCompanionAction } from '../core/companion-a
 import { list, t } from '../core/i18n.js';
 import { pick } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
-import { aiming, data, game, recall, remember, selected, toast, views } from '../core/state.js';
+import { aiming, data, game, recall, remember, views } from '../core/state.js';
 import { artHref } from './art.js';
+import { errands, friendFor } from './errands.js';
 import { depthAt, depthScaleAt, fieldToYard, footOf, footTarget, petHeight, sizeOf, yardToDecor } from './field.js';
 import { groundProfile } from './ground.js';
 import { localDay } from './growth.js';
@@ -44,7 +45,7 @@ import {
   momentTrees,
   pickLine,
 } from './tree-moment-rules.js';
-import { forPerson, ownedBy, release, rest, sendTo } from './trips.js';
+import { release, rest, sendTo } from './trips.js';
 import { thingGone } from './veil.js';
 import { bubble, pose } from './views.js';
 import { holdAtWork, stopWork } from './work.js';
@@ -62,7 +63,7 @@ const made = new Set();
 // The buttons on the yard, by fruit id.
 const shown = new Map();
 // The fruit friends are on their way to or picking up: fruit id → the task ({ v, end }).
-const picks = new Map();
+const picks = errands(shown);
 // Whether the yard is seen (setupFruit).
 let seen = () => true;
 /** How long picked fruit takes to rise toward the friend's paws and fade (garden.css fruit-lift). */
@@ -76,7 +77,7 @@ const PAWS = 0.42;
 const JUMP_MS = Math.round(animationSpec('jump').seconds * 1000);
 
 /** Whether a friend is going for fallen fruit or picking it up (a flower viewing or a visit waits). */
-export const fruitPicking = () => picks.size > 0;
+export const fruitPicking = () => picks.busy();
 
 /** Reads the fallen fruit back from the webview's storage (app.js, before the sky first paints).
  * `visible` says whether the yard is seen: the window shown and not minimized. */
@@ -197,23 +198,13 @@ function update(v, fruit) {
  * over), rather than on its arrival. */
 export function renderFruit(list = here(Date.now())) {
   reconcile(shown, list, create, update);
-  for (const [id, task] of picks) if (!list.some(f => f.id === id)) letGo(task);
+  picks.cancelAll(id => !list.some(f => f.id === id));
 }
-
-// Ends a pick: the friend is let go while the pick is still what it is doing, else (something else
-// took it over) only the pick ends.
-function letGo({ v, end }) {
-  if (ownedBy(v, end)) release(v);
-  else end();
-}
-
-// The button of fallen fruit, marked while a friend goes for it.
-const mark = (id, on) => shown.get(id)?.button.classList.toggle('picking', on);
 
 /** Ends every pick a friend is on its way to or at (a new window size or land): the friend is let go
  * and the fruit stays. */
 export function cancelFruitPicks() {
-  for (const task of picks.values()) letGo(task);
+  picks.cancelAll();
 }
 
 /** Sends a friend to pick up the fallen fruit `id`: the selected friend when it is free, else the
@@ -222,16 +213,9 @@ export function cancelFruitPicks() {
 export function pickFruit(id) {
   const fruit = kept?.out.find(f => f.id === id);
   if (game || aiming || !fruit || picks.has(id)) return false;
-  if (!views.size) {
-    toast(t('moment.fruit_no_friend'));
-    return false;
-  }
   const spot = fieldToYard(fruit),
-    v = forPerson(spot.x, spot.y, views.get(selected));
-  if (!v) {
-    toast(t('catch.busy'));
-    return false;
-  }
+    v = friendFor(spot, 'moment.fruit_no_friend');
+  if (!v) return false;
   const world = scene.world,
     task = { v, end: null };
   let timers = [];
@@ -243,10 +227,7 @@ export function pickFruit(id) {
     timers = [];
     stopWork(v);
     shown.get(id)?.button.classList.remove('lifting');
-    if (picks.get(id) === task) {
-      picks.delete(id);
-      mark(id, false);
-    }
+    picks.finish(id, task);
   };
   task.end = end;
   // Still this pick, by this friend, and the fruit still lying where it was.
@@ -283,7 +264,7 @@ export function pickFruit(id) {
         const said = pickLine(kept, kindUnder(fruit), localDay(new Date()));
         kept = { ...said.kept, out: said.kept.out.filter(f => f.id !== id) };
         save(kept);
-        picks.delete(id);
+        picks.finish(id, task);
         renderFruit();
         bubble(v, pick(list(said.key)), 2600);
         later(Math.max(0, (authored?.duration ?? JUMP_MS) - lift), () => {
@@ -293,7 +274,6 @@ export function pickFruit(id) {
       });
     },
   });
-  picks.set(id, task);
-  mark(id, true);
+  picks.start(id, task);
   return true;
 }

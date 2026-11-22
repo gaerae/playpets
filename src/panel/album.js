@@ -30,7 +30,7 @@ import { eventDates, eventScene, giftSeason } from '../yard/events.js';
 import { giftsOut } from '../yard/find-out.js';
 import { treeSpot } from '../yard/planted-trees.js';
 import { SECRETS } from '../yard/secrets.js';
-import { printSpecimen, tailPeek } from '../yard/trail-art.js';
+import { printSpecimen, SEEN_WHOLE, tailPeek, wholeAnimal } from '../yard/trail-art.js';
 import { scene } from '../yard/world.js';
 import { worldFor, worldHasSoil } from '../yard/worlds.js';
 import { findButtons, landing, restoreRowFocus, rowFocus, setOutRow } from './album-actions.js';
@@ -166,16 +166,23 @@ const BOOKS = {
     rare: k => k.rarity === 'uncommon',
     action: (k, entry) => findButtons('treasure', k.id, entry),
   },
-  // Winter animals whose prints a friend followed: the print is the clue, the tail what was seen.
+  // Winter animals whose prints a friend followed: the print is the clue, the tail what was seen,
+  // and, followed often enough, the animal itself, which turned to look.
   track: {
     tab: 'album.tracks',
     kinds: TRACKS,
     list: 'tracks',
     found: () => data.album?.tracks || {},
-    draw: (k, unknown) => (unknown ? printSpecimen(k) : tailPeek(k)),
+    draw: (k, unknown, entry) =>
+      unknown ? printSpecimen(k) : entry.count >= SEEN_WHOLE ? wholeAnimal(k) : tailPeek(k),
     unknown: 'album.whose_prints',
     hint: () => t('album.tracks_hint'),
-    record: entry => t('album.followed', { count: entry.count }),
+    record: ({ count }) =>
+      count >= SEEN_WHOLE
+        ? t('album.followed_met', { count })
+        : t('album.followed_closer', { count, left: SEEN_WHOLE - count }),
+    // Seen whole, it comes out of its card once, to the yard and the desktop (find-out.js copiesOf).
+    action: (k, entry) => findButtons('track', k.id, entry),
   },
   // Spring shoots a friend gathered: shown always, as silhouettes first; the hint says the season.
   shoot: {
@@ -212,7 +219,7 @@ function card(b, kind, entry, index) {
   el.className = `album-card${entry ? '' : ' unknown'}`;
   const stage = document.createElement('div');
   stage.className = 'album-specimen';
-  stage.innerHTML = b.draw(kind, !entry);
+  stage.innerHTML = b.draw(kind, !entry, entry);
   // Its place in the book, as on a collector's page: the gaps between numbers are what is left.
   const number = document.createElement('span');
   number.className = 'album-no';
@@ -283,7 +290,8 @@ function takeOutButton(kind) {
     return button;
   }
   const room = limit(data, 'decor'),
-    why = !showsNow(kind) ? whenShown(kind) : giftsOut(garden.decor).length >= room ? t('album.set_out_full') : '';
+    unseen = showsNow(kind) ? '' : whenShown(kind),
+    why = unseen || (giftsOut(garden.decor).length >= room ? t('album.set_out_full') : '');
   return setOutRow({
     book: 'gift',
     item: kind,
@@ -291,6 +299,7 @@ function takeOutButton(kind) {
     most: 1,
     room,
     why,
+    unseen,
     setOut: desktop => call('takeOut', kind, ...landing(), desktop),
   });
 }
@@ -393,10 +402,21 @@ export function renderAlbum() {
   $('album-grid').dataset.book = book;
   // A press on a card redraws the book: the focus goes back to the control it was on.
   const was = rowFocus();
-  $('album-grid').replaceChildren(
-    ...b.kinds.filter(k => !b.hidden || have[k.id]).map((k, index) => card(b, k, have[k.id], index)),
+  keepUnchanged(
+    $('album-grid'),
+    b.kinds.filter(k => !b.hidden || have[k.id]).map((k, index) => card(b, k, have[k.id], index)),
   );
   restoreRowFocus($('album-grid'), was);
+}
+// Only the cards that changed take their new drawing: the rest of the book, and the pictures in it,
+// stay as they are. Another book (another count of cards) is drawn whole. A kept card's buttons act
+// on what is out when pressed (album-actions.js setOutRow), so keeping it changes nothing they do.
+function keepUnchanged(grid, cards) {
+  const old = [...grid.children];
+  if (old.length !== cards.length) return grid.replaceChildren(...cards);
+  cards.forEach((fresh, i) => {
+    if (!old[i].isEqualNode(fresh)) old[i].replaceWith(fresh);
+  });
 }
 // Whether a book is there to open: a hidden one once something in it is found.
 const shown = id => {

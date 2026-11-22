@@ -11,6 +11,7 @@ import { scene } from './world.js';
 import { worldFor } from './worlds.js';
 
 const MAX_EXCLUSIONS = 64;
+const LINE_SAMPLES = 33;
 const treeScale = [0.4, 0.65, 1];
 
 // Whether an ellipse reaches the ground things stand on: the field, and below it down to `floor`.
@@ -80,6 +81,14 @@ export function buildGroundProfile({
         y0 = top(x);
       return { x, y: y0 + item.y * (bounds.bottom - y0) };
     };
+  // Where a path raises the field's top, what stands back there is the picture's own (its bushes,
+  // a tree's skirt): the field's own line in field y, at LINE_SAMPLES points across, says how far
+  // back that is (0 where nothing raises it). A trail ends in front of it (trail-rules.js).
+  if (topAt)
+    profile.line = Array.from({ length: LINE_SAMPLES }, (_, i) => {
+      const y0 = top(EDGE + (i / (LINE_SAMPLES - 1)) * width);
+      return clamp((bounds.top - y0) / Math.max(1, bounds.bottom - y0));
+    });
   // A drawing of w x h yard pixels with its foot at `at`, as setDown places it: `foot` is the share
   // of its height at which the drawing ends.
   const body = (at, w, h, foot = 1) => {

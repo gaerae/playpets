@@ -1,4 +1,4 @@
-// A Christmas gift put away goes back into the gift box while the box has room, as a memento does.
+// A Christmas gift put away waits in the album to be set out again, as a memento does.
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
@@ -27,7 +27,7 @@ for (const [boxed, key] of [
   [0, 'decor.memento_put_away'],
   [20, 'decor.memento_put_away'],
 ]) {
-  test(`a Christmas gift put away with ${boxed} in the box says ${key}`, async ctx => {
+  test(`a Christmas gift put away with ${boxed} waiting says ${key}`, async ctx => {
     ctx.mock.timers.enable({ apis: ['setTimeout', 'Date'], now: NOW });
     const season = scene.season;
     scene.season = 'winter';

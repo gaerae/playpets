@@ -5,12 +5,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { catalog } from './support/content.mjs';
-import { element } from './support/dom.mjs';
+import { element, installDom } from './support/dom.mjs';
 
 globalThis.playPets = {};
 const { STRINGS, loadStrings } = await import('../src/core/strings.js');
 const { list, t } = await import('../src/core/i18n.js');
-const { findScale, heldLayers, pokeOf, visitLines } = await import('../src/yard/find-out.js');
+const { drawHeld, findScale, heldLayers, pokeOf, visitLines } = await import('../src/yard/find-out.js');
 const { giftSize } = await import('../src/yard/props.js');
 const { poke } = await import('../src/overlay/poke.js');
 
@@ -117,4 +117,26 @@ test('a friend who visits a find names it, by its book', () => {
   assert.ok(said.some(line => line.includes(t('catch.fish_goldfish'))));
   assert.ok(said.every(line => !line.includes('{')));
   assert.deepEqual(visitLines('bench'), list('decor.visit_bench'), 'a gift keeps its own lines');
+});
+
+test('the yard and the desktop draw what a find out holds with the one helper, only when it changed', ctx => {
+  installDom(ctx);
+  const fish = catalog.fish[0].id,
+    other = catalog.fish[1].id,
+    view = { kind: 'fish_out', button: element('button') };
+  assert.equal(drawHeld(view, [fish]), true);
+  assert.equal(view.button.children.at(-1), view.heldLayer, 'its layer is made once, on the button');
+  assert.equal(view.heldLayer.className, 'held-layer');
+  assert.equal(view.heldLayer.innerHTML, heldLayers('fish_out', [fish]));
+  view.heldLayer.innerHTML = 'kept';
+  assert.equal(drawHeld(view, [fish]), false, 'the same find is not drawn again');
+  assert.equal(view.heldLayer.innerHTML, 'kept');
+  assert.equal(drawHeld(view, [other]), true);
+  assert.equal(view.heldLayer.innerHTML, heldLayers('fish_out', [other]));
+  assert.equal(view.button.children.length, 1);
+  for (const file of ['src/yard/decor.js', 'src/overlay/wear.js']) {
+    const source = readFileSync(file, 'utf8');
+    assert.match(source, /drawHeld\(/, `${file} draws with drawHeld`);
+    assert.doesNotMatch(source, /'held-layer'/, `${file} makes no layer of its own`);
+  }
 });

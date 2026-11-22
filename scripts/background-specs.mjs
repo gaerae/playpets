@@ -40,6 +40,21 @@ export function backgroundSheet({
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024"><rect width="1536" height="1024" fill="#edf2f2"/><path d="M0 256H1536M384 0V1024M768 0V1024M1152 0V1024" stroke="#bacbcc" stroke-dasharray="10 10"/><rect y="${y}" width="1536" height="${1024 - y}" fill="#cce6d0"/><path d="M0 ${y}H1536" stroke="#2b7751" stroke-width="4"/>${region}${stand}<g font-family="sans-serif" fill="#233e40"><text x="40" y="60" font-size="30">PlayPets / ${indoor ? 'Indoor' : 'Outdoor'} layout / 1536 × 1024</text><text x="40" y="110" font-size="22">Guide only — remove guide markings from the finished artwork</text><text x="40" y="${y + 55}" font-size="25">Clear walking floor / y=${floor}</text><text x="40" y="975" font-size="20">Blue: water or glass / Orange: fishing stance / Green: walkable floor</text></g></svg>`;
 }
 
+// The picture each starter layout sends as its style reference, and the studio card shows: the app's
+// own places. The garden is the Wild garden, an open meadow; the interior is the garden workshop.
+export const BACKGROUND_REFERENCES = Object.freeze({
+  garden: 'assets/art/environments/courtyard-green.png',
+  lakeside: 'assets/art/environments/lakeside-spring.png',
+  interior: 'assets/art/environments/workshop.png',
+});
+// The workshop's glass (windowPanes in src/content/worlds.json), so the interior layout and its
+// reference agree on where weather shows.
+const WORKSHOP_PANES = [
+  { x: 0.02, y: 0, width: 0.76, height: 0.12 },
+  { x: 0.4, y: 0.11, width: 0.38, height: 0.25 },
+  { x: 0.79, y: 0.14, width: 0.1, height: 0.24 },
+];
+
 export function backgroundLayout(id) {
   const g = {
     floor: 0.67,
@@ -60,7 +75,7 @@ export function backgroundLayout(id) {
       sky: false,
       ambient: false,
       capabilities: { soil: false },
-      windows: [{ x: 0.26, y: 0.12, width: 0.52, height: 0.36 }],
+      windows: WORKSHOP_PANES.map(pane => ({ ...pane })),
     };
   throw Error('layout');
 }

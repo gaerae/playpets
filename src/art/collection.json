@@ -1088,8 +1088,8 @@
     "kind": "tracks",
     "atlas": "collection-extension/winter-tails.webp",
     "atlasSize": [1536, 1024],
-    "crop": [392, 582, 368, 400],
-    "size": [28, 30],
+    "crop": [384, 771, 384, 211],
+    "size": [55, 30],
     "art": "tracks/tail_sparrow.svg"
   },
   {
@@ -1097,8 +1097,8 @@
     "kind": "tracks",
     "atlas": "collection-extension/winter-tails.webp",
     "atlasSize": [1536, 1024],
-    "crop": [816, 528, 288, 454],
-    "size": [19, 30],
+    "crop": [768, 742, 384, 240],
+    "size": [48, 30],
     "art": "tracks/tail_magpie.svg"
   },
   {
@@ -1111,11 +1111,83 @@
     "art": "tracks/tail_cat.svg"
   },
   {
+    "id": "whole_hare",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-animals.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [30, 19, 331, 463],
+    "size": [29, 40],
+    "art": "tracks/whole_hare.svg"
+  },
+  {
+    "id": "whole_fox",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-animals.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [373, 54, 375, 429],
+    "size": [35, 40],
+    "art": "tracks/whole_fox.svg"
+  },
+  {
+    "id": "whole_water_deer",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-animals.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [780, 54, 322, 425],
+    "size": [30, 40],
+    "art": "tracks/whole_water_deer.svg"
+  },
+  {
+    "id": "whole_raccoon_dog",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-animals.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1145, 73, 387, 413],
+    "size": [37, 40],
+    "art": "tracks/whole_raccoon_dog.svg"
+  },
+  {
+    "id": "whole_squirrel",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-animals.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [27, 565, 350, 405],
+    "size": [35, 40],
+    "art": "tracks/whole_squirrel.svg"
+  },
+  {
+    "id": "whole_sparrow",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-animals.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [387, 612, 351, 354],
+    "size": [40, 40],
+    "art": "tracks/whole_sparrow.svg"
+  },
+  {
+    "id": "whole_magpie",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-animals.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [758, 603, 377, 369],
+    "size": [40, 39],
+    "art": "tracks/whole_magpie.svg"
+  },
+  {
+    "id": "whole_cat",
+    "kind": "tracks",
+    "atlas": "collection-extension/winter-animals.webp",
+    "atlasSize": [1536, 1024],
+    "crop": [1136, 533, 375, 447],
+    "size": [34, 40],
+    "art": "tracks/whole_cat.svg"
+  },
+  {
     "id": "bush",
     "kind": "tracks",
     "atlas": "collection-extension/winter-bush.webp",
     "atlasSize": [1536, 1024],
-    "crop": [40, 368, 469, 341],
+    "crop": [40, 375, 469, 341],
     "size": [41, 30],
     "art": "tracks/bush.svg"
   },
@@ -1124,7 +1196,7 @@
     "kind": "tracks",
     "atlas": "collection-extension/winter-bush.webp",
     "atlasSize": [1536, 1024],
-    "crop": [539, 335, 461, 380],
+    "crop": [539, 337, 461, 380],
     "size": [41, 34],
     "art": "tracks/twigs.svg"
   },

@@ -2,8 +2,8 @@
 // use, and where it covers something it behaves like the browser, so a test reads like page code.
 //
 // - element(tag, props): a node with classList, className, dataset, style, attributes, recorded
-//   listeners (dispatch() calls them), children, focus(), a dialog's showModal()/close(), and a
-//   fixed layout box. Props (an id, `hidden`, `value`, a querySelector hook) replace the defaults.
+//   listeners (dispatch() calls them), children, replaceWith(), isEqualNode(), focus(), a dialog's
+//   showModal()/close(), and a fixed layout box. Props (an id, `hidden`, `value`, a querySelector hook) replace the defaults.
 // - installDom(t, options): a fake document as globalThis.document, put back when the test ends.
 // - installStorage(t, storage): a fakeStorage() as globalThis.localStorage, put back the same way.
 // - keepGlobals(t, ...names): puts other globals (window, Option, matchMedia) back after the test.
@@ -15,6 +15,8 @@
 // more replaces querySelector on the node or the document.
 
 const ZERO_BOX = { x: 0, y: 0, left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 };
+// What isEqualNode leaves out: the tree around a node, its listeners and the fake's own marks.
+const UNCOMPARED = new Set(['parentNode', 'children', 'listeners', 'removed']);
 
 function matchesPart(node, part) {
   if (part.startsWith('.')) return node.classList.contains(part.slice(1));
@@ -143,6 +145,43 @@ export function element(tag = 'div', { rect, ...props } = {}) {
     // Not the browser's: see the note at the top of this file.
     remove() {
       this.removed = true;
+    },
+    replaceWith(item) {
+      const siblings = this.parentNode?.children;
+      if (!siblings) return;
+      item.parentNode?.children.splice(item.parentNode.children.indexOf(item), 1);
+      siblings.splice(siblings.indexOf(this), 1, item);
+      item.parentNode = this.parentNode;
+      this.parentNode = null;
+    },
+    getAttributeNames: () => [...attributes.keys()],
+    /** As the browser's: the same tag, attributes, classes, data, style, own text and the plain
+     * properties a page sets (title, hidden, innerHTML), and equal children in order. Listeners are
+     * not compared, as the browser does not. */
+    isEqualNode(other) {
+      if (!other || typeof other !== 'object' || other.localName !== this.localName) return false;
+      const plain = n =>
+        JSON.stringify(
+          Object.keys(n)
+            .filter(key => !UNCOMPARED.has(key) && ['string', 'number', 'boolean'].includes(typeof n[key]))
+            .sort()
+            .map(key => [key, n[key]]),
+        );
+      const keyed = o =>
+        JSON.stringify(
+          Object.entries(o)
+            .filter(([, v]) => typeof v !== 'function')
+            .sort(),
+        );
+      if (plain(this) !== plain(other) || keyed(this.dataset) !== keyed(other.dataset)) return false;
+      if (keyed(this.style) !== keyed(other.style)) return false;
+      const names = this.getAttributeNames().sort();
+      if (names.join() !== other.getAttributeNames().sort().join()) return false;
+      if (names.some(name => this.getAttribute(name) !== other.getAttribute(name))) return false;
+      if (this.children.length !== other.children.length) return false;
+      return this.children.every((child, i) =>
+        typeof child === 'object' ? child.isEqualNode(other.children[i]) : child === other.children[i],
+      );
     },
     matches(selector) {
       return selector.split(',').some(part => matchesPart(this, part.trim()));

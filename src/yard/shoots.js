@@ -15,11 +15,12 @@
 //   shoot without losing it. A yard with no ground to see (not measured yet) drops none.
 import { list, t } from '../core/i18n.js';
 import { pick } from '../core/math.js';
-import { aiming, call, data, game, guard, recall, remember, selected, toast, views } from '../core/state.js';
+import { aiming, call, data, game, guard, recall, remember, views } from '../core/state.js';
 import { artHref, artSvg } from './art.js';
 import { showCard } from './card.js';
 import { shootKind } from './catalog.js';
 import { behind, groundAllows, treeStage } from './discovery-rules.js';
+import { errands, friendFor } from './errands.js';
 import { depthAt, depthScaleAt, fieldToYard } from './field.js';
 import { groundProfile } from './ground.js';
 import { localDay } from './growth.js';
@@ -36,7 +37,7 @@ import {
   sprouting,
   underBody,
 } from './shoot-rules.js';
-import { forPerson, ownedBy, release } from './trips.js';
+import { release } from './trips.js';
 import { thingGone } from './veil.js';
 import { bubble } from './views.js';
 import { doneDigging, sendToDig, startDig, stopWork } from './work.js';
@@ -54,13 +55,13 @@ const made = new Set();
 const shown = new Map();
 // The shoots friends are on their way to or digging up, or the album is keeping: shoot id → the
 // task ({ v, end, pending }).
-const digs = new Map();
+const digs = errands(shown);
 // What stood in the garden at the last look on soil ({ garden, key, at }); null until the first one
 // after setupShoots, which only notes it (the app may start in the mini window).
 let standing = null;
 
 /** Whether a friend is going for a shoot or digging one up (a flower viewing waits for it). */
-export const shootDigging = () => digs.size > 0;
+export const shootDigging = () => digs.busy();
 
 /** Reads the shoots out back from the webview's storage (app.js, before the sky first paints). */
 export function setupShoots() {
@@ -193,13 +194,11 @@ export function renderShoots() {
 // Whether a shoot is still out where it was, in a yard that shows spring outdoors.
 const stillOut = (id, world) =>
   scene.world === world && shootTime(scene, groundProfile().soil) && !!kept?.out.some(s => s.id === id);
-// The button of a shoot, marked while a friend goes for it.
-const mark = (id, on) => shown.get(id)?.button.classList.toggle('picking', on);
 
 /** Ends every shoot dig a friend is on its way to or at (a new window size or land): the friend is
  * let go and the shoot stays, as when the friend is taken away. */
 export function cancelShootDigs() {
-  for (const { v, end } of digs.values()) if (ownedBy(v, end)) release(v);
+  digs.cancelAll();
 }
 
 /** Sends a friend to dig up the shoot `id` for the album: the selected friend when it is free, else
@@ -207,16 +206,8 @@ export function cancelShootDigs() {
 export function gatherShoot(id) {
   const shoot = kept?.out.find(s => s.id === id);
   if (game || aiming || !shoot || digs.has(id)) return false;
-  if (!views.size) {
-    toast(t('shoot.no_friend'));
-    return false;
-  }
-  const spot = fieldToYard(shoot),
-    v = forPerson(spot.x, spot.y, views.get(selected));
-  if (!v) {
-    toast(t('catch.busy'));
-    return false;
-  }
+  const v = friendFor(fieldToYard(shoot), 'shoot.no_friend');
+  if (!v) return false;
   const kind = shootKind(shoot.kind),
     world = scene.world;
   let dig = null,
@@ -232,10 +223,7 @@ export function gatherShoot(id) {
       stopWork(v);
       dig = null;
     }
-    if (digs.get(id) === task && !task.pending) {
-      digs.delete(id);
-      mark(id, false);
-    }
+    if (!task.pending) digs.finish(id, task);
   };
   task.end = end;
   const ours = () => digs.get(id) === task && views.get(v.pet.id) === v;
@@ -275,17 +263,13 @@ export function gatherShoot(id) {
             );
           } finally {
             task.pending = false;
-            if (digs.get(id) === task) {
-              digs.delete(id);
-              mark(id, false);
-            }
+            digs.finish(id, task);
           }
         }),
         dig.duration,
       );
     },
   });
-  digs.set(id, task);
-  mark(id, true);
+  digs.start(id, task);
   return true;
 }

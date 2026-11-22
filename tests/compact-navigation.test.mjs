@@ -141,6 +141,11 @@ test('window actions live in the window section of the menu, not a disclosure', 
   for (const id of ['always-on-top', 'fullscreen', 'desktop', 'desktop-wander', 'hide-window', 'menu-quit'])
     assert.ok(windowPage.includes(`id="${id}"`));
   assert.doesNotMatch(windowPage, /<details/);
+  // Full screen is a switch like its neighbours, so it is drawn like them, not in the smaller,
+  // bolder type of Close window and Quit below.
+  const section = windowPage.slice(0, windowPage.indexOf('id="window-actions"'));
+  for (const id of ['always-on-top', 'fullscreen', 'desktop'])
+    assert.match(section, new RegExp(`<button id="${id}"[^>]*class="[^"]*\\bview-toggle\\b`), id);
 });
 
 test('importing a pet stays a visible Invite action rather than a hidden search filter', async () => {
@@ -217,4 +222,13 @@ test("Tab goes round a small window's panel instead of on to friends hidden behi
   assert.equal(wrapTab(stops, middle, true), null);
   assert.equal(wrapTab(stops, 'panel title', false), null, 'forward from the title is the first stop already');
   assert.equal(wrapTab([], 'panel title', true), null);
+});
+
+// The head already names the section, so its first row names the app the version belongs to
+// instead of saying App updates a second time.
+test('App updates names its section once', async () => {
+  const html = await read('src/index.html');
+  const section = html.slice(html.indexOf('id="settings-updates"'), html.indexOf('id="update-dialog"'));
+  assert.equal(section.match(/data-i18n="settings\.update"/g)?.length, 1, 'only the heading for screen readers');
+  assert.match(section, /<strong>PlayPets<\/strong><small id="update-note">/);
 });

@@ -191,3 +191,66 @@ test('the studio switch opens the other studio in place, so it points across, no
   assert.doesNotMatch(nav, /↗|target="_blank"/);
   assert.match(nav, /\[aria-current=page\] \.studio-nav-arrow \{ visibility: hidden; \}/);
 });
+
+test('a background request asks only for what its layout has: water by a lake, sky outdoors, panes indoors', () => {
+  const request = starter => creationRequest(kitRequest({ kind: 'background', starter }));
+  const lake = request('lakeside'),
+    garden = request('garden'),
+    room = request('interior');
+  assert.match(lake, /water ellipse/);
+  for (const text of [garden, room]) {
+    assert.doesNotMatch(text, /water ellipse|fishing stance|shoreline/);
+  }
+  assert.match(garden, /real alpha/);
+  assert.doesNotMatch(room, /real alpha|Outdoor sky/);
+  assert.match(room, /Indoor windows bound weather/);
+  assert.doesNotMatch(garden, /Indoor windows/);
+  for (const text of [lake, garden, room]) {
+    // The app's own names: Place & atmosphere → Import background.
+    assert.match(text, /Place & atmosphere → Import background/);
+    assert.doesNotMatch(text, /place selector|Add background/);
+  }
+});
+
+test('the studio copy and the skill send a pet ZIP in by the app menu, without a version history', async () => {
+  const { creationCopy } = await import('../website/.vitepress/theme/creation-copy.js');
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) assert.doesNotMatch(creationCopy[lang].petOutput, /1\.4\.0/, lang);
+  assert.doesNotMatch(creationRequest(kitRequest({ kind: 'pet', starter: 'clover' })), /1\.4\.0|earlier version/i);
+  assert.doesNotMatch(
+    await readFile('assets/creator-skill/playpets-creator/SKILL.md', 'utf8'),
+    /1\.4\.0|earlier version/i,
+  );
+});
+
+test('a name in another script keeps the starter in the kit id, so two kits are told apart', () => {
+  assert.equal(kitRequest({ kind: 'pet', starter: 'clover', name: '클로버' }).id, 'my-clover');
+  assert.equal(kitRequest({ kind: 'background', starter: 'lakeside', name: '湖のほとり' }).id, 'my-lakeside');
+  assert.equal(kitRequest({ kind: 'pet', starter: 'custom', name: '토끼' }).id, 'my-pet');
+  assert.equal(kitRequest({ kind: 'pet', starter: 'clover', name: 'Sunny Day' }).id, 'my-sunny-day');
+});
+
+test('the background cards show small scene copies, and the garden kit shows the Wild garden', async () => {
+  const { BACKGROUND_REFERENCES } = await import('../scripts/background-specs.mjs');
+  assert.deepEqual(Object.keys(BACKGROUND_REFERENCES), ['garden', 'lakeside', 'interior']);
+  assert.match(BACKGROUND_REFERENCES.garden, /courtyard-green\.png$/);
+  // The interior kit shows the app's own indoor place, and its panes are the workshop's glass.
+  assert.match(BACKGROUND_REFERENCES.interior, /environments\/workshop\.png$/);
+  const worlds = JSON.parse(await readFile('src/content/worlds.json', 'utf8'));
+  const workshop = (worlds.worlds ?? worlds).find(w => w.id === 'workshop');
+  assert.deepEqual(layoutOptions('interior').windows, workshop.windowPanes);
+  assert.match(creationRequest(kitRequest({ kind: 'background', starter: 'interior' })), /garden workshop[^.]*seats/);
+  // Each reference gets the site's small copy, once.
+  const { sceneSources } = await import('../scripts/site-images.mjs');
+  const sources = sceneSources(['assets/art/environments/green.png']);
+  assert.ok(sources.includes('assets/art/environments/green.png'));
+  for (const source of Object.values(BACKGROUND_REFERENCES)) {
+    await readFile(source);
+    assert.equal(sources.filter(s => s === source).length, 1, source);
+  }
+  const studio = await readFile('website/.vitepress/theme/CreationStudio.vue', 'utf8');
+  // The 3 MB PNGs go into the kit only; a card is drawn from the scene's WebP copy.
+  assert.doesNotMatch(studio, /<img :src="withBase\(`\/creator-kit\/skill\/\$\{id\}\.png`\)"/);
+  assert.match(studio, /sceneSrcset/);
+  // The note on water and fishing coordinates shows for the layout that has water.
+  assert.match(studio, /v-if="kind==='background'&&request\.layout\?\.water"/);
+});

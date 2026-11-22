@@ -1,5 +1,5 @@
 // A friend's memento in the yard: marked and named as its own, its heart shown for a day after it
-// came, and put back in the gift box when put away while the box has room.
+// came, and waiting in the album when put away.
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
@@ -69,7 +69,7 @@ for (const [boxed, key] of [
   [0, 'decor.memento_put_away'],
   [20, 'decor.memento_put_away'],
 ]) {
-  test(`a memento put away with ${boxed} in the box says ${key}`, async ctx => {
+  test(`a memento put away with ${boxed} waiting says ${key}`, async ctx => {
     const { nodes, buttons } = yard(ctx, {
       // Its own id: one put away a moment ago waits out its Undo (props.js).
       decor: [{ id: `m${boxed}`, kind: 'bench', x: 0.3, y: 0.5, from: 'miso', memento: true }],

@@ -193,18 +193,26 @@ test('the first gift waits five minutes', async t => {
 
 // Gifts wait in the album without a limit of their own: a friend brings none only once every
 // everyday kind is out or waiting already, since one of each waits (garden.rs give).
-test('a full yard sends the gift to wait in the album; with every kind out or waiting none is asked for', async t => {
+async function fullYard(t) {
   const clock = fixture(t);
-  const { GIFTS } = await import('../src/yard/catalog.js');
-  const twelve = () => Array.from({ length: 12 }, (_, id) => ({ id: `${id}`, kind: 'bench', x: 0.5, y: 0.5 }));
-  state.data.garden.decor = twelve();
+  const { GIFTS, eventGifts } = await import('../src/yard/catalog.js');
+  state.data.garden.decor = Array.from({ length: 12 }, (_, id) => ({ id: `${id}`, kind: 'bench', x: 0.5, y: 0.5 }));
   state.data.garden.boxed = GIFTS.filter(g => !g.event && !g.built && g.id !== 'bench').map(g => ({
     id: `w-${g.id}`,
     kind: g.id,
     x: 0.5,
     y: 0.5,
   }));
+  // The fixture's day is in the New Year days: their own gift came already.
+  state.data.garden.received = ['bench', ...eventGifts('newyear')];
   state.data.bonds[pet.id] = { points: 500 };
+  return clock;
+}
+
+test('a full yard sends the gift to wait in the album; with every kind out or waiting none is asked for', async t => {
+  const clock = await fullYard(t);
+  // The friend's memento waits in the album already, so its thanks gift would be an everyday one.
+  state.data.garden.boxed.push({ id: 'm', kind: 'swing', x: 0.5, y: 0.5, from: pet.id, memento: true });
   clock.together();
   const decor = await fresh();
   decor.giftTick();
@@ -221,6 +229,28 @@ test('a full yard sends the gift to wait in the album; with every kind out or wa
   decor.giftTick();
   await flush();
   assert.equal(gifts().length, 1, 'a kind not out or waiting can come');
+});
+
+// What a full yard still takes, as the backend does: an event's own gift not yet received, and a
+// friend's memento when it has none out or waiting (garden.rs gift, thanks).
+test("with every kind out or waiting, an event's new gift and a friend's memento still come", async t => {
+  const clock = await fullYard(t);
+  state.data.garden.received = ['bench'];
+  clock.together();
+  const decor = await fresh();
+  decor.giftTick();
+  clock.advance(20 * MIN);
+  decor.giftTick();
+  await flush();
+  assert.deepEqual(gifts(), [['gift', clock.today, pet.id]]);
+  assert.deepEqual(events, ['newyear']);
+  decor.thanksTick(1e12);
+  decor.thanksTick(2e12);
+  await flush();
+  assert.deepEqual(
+    calls.filter(c => c[0] === 'thanks'),
+    [['thanks', pet.id, 4]],
+  );
 });
 
 test('finds set out from the album leave the gifts their room', async t => {

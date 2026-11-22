@@ -103,7 +103,7 @@ Every album book is a list in `src/content/catalog.json`; its kinds are named by
    | `effects` | See below |
    | `size` | `[width, height]` in catalogue units, in the drawing's shape. Usually its SVG view box; furniture may need a different footprint. The desktop draws the gift at this size too (`gift_size` in `pets/content.rs`) |
    | `event` | An event's id. The gift comes only during that event. Several gifts of one event come in catalogue order, one each time a gift is due |
-   | `shown` | `"christmas"`: shows in the yard and on the desktop from November 15 to January 7, and is hidden with its state kept otherwise, unless its `seasons` show it. It goes back into the gift box when put away. The windows are `SHOWN` in `src/yard/decor-shown.js` |
+   | `shown` | `"christmas"`: shows in the yard and on the desktop from November 15 to January 7, and is hidden with its state kept otherwise, unless its `seasons` show it. Put away, it waits in the album (`boxed`), and its card sets it out again. The windows are `SHOWN` in `src/yard/decor-shown.js` |
    | `seasons` | Shows while the yard shows one of these seasons; never in a place without seasons (`seasonalEffects: false`, the garden workshop). The season the yard shows is `yardSeason` in `src/yard/decor-shown.js`. A kind with both `shown` and `seasons` shows when either says so: the Christmas gifts show from November 15 to January 7 and in any winter yard ([why](../decisions/2026-11-12-scenes-before-dates.md)) |
    | `built` | `true`: never brought by a friend; it comes from building it (the snowman) |
    | `ball` | The drawing a built kind is rolled from |
@@ -296,7 +296,7 @@ pnpm run test:e2e
 ## Troubleshooting
 | Symptom | Cause | Fix |
 |---|---|---|
-| A new gift never comes | Both the yard and the gift box hold 12 (`DECOR_MAX` and `BOX_MAX` in `pets/garden.rs`), no one did anything with a friend today, or not every earlier gift has come yet | Put some away and play with a friend; gifts come in the catalogue's order, every other day ([gifts from friends](../design/2026-10-29-gifts-from-friends.md)) |
+| A new gift never comes | No one did anything with a friend today, the everyday wait (every other day) is not over, or not every earlier gift has come yet. A full yard (`DECOR_MAX` in `pets/garden.rs`) does not stop gifts: they wait in the album (`boxed`), one of each kind | Play with a friend; gifts come in the catalogue's order, every other day ([gifts from friends](../design/2026-10-29-gifts-from-friends.md)) |
 | A new fish is refused (`error.bad_request`) | The backend was built before the catalogue changed | Build the app again: the backend builds the catalogue in |
 | A drawing does not show | The path in `art` does not match the file, or the file has no `viewBox` | `tests/content.test.mjs` names the file |
 | A drawing is black or a single colour | It paints with a colour name the yard does not set | Use the names listed under "Drawings" |

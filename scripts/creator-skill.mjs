@@ -2,7 +2,7 @@
 import { createHash } from 'node:crypto';
 import { cp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
-import { backgroundLayout, backgroundSheet } from './background-specs.mjs';
+import { BACKGROUND_REFERENCES, backgroundLayout, backgroundSheet } from './background-specs.mjs';
 import { zipStore } from './creator-bundle-lib.mjs';
 
 export async function copyCreatorSkill(destination = 'website/public/creator-kit/skill') {
@@ -38,7 +38,7 @@ export async function copyCreatorSkill(destination = 'website/public/creator-kit
     skills: './skills/',
   };
   const revision = createHash('sha256')
-    .update(JSON.stringify({ files, plugin, compatibility }))
+    .update(JSON.stringify({ files, plugin, compatibility, references: BACKGROUND_REFERENCES }))
     .digest('hex')
     .slice(0, 16);
   await mkdir(destination, { recursive: true });
@@ -64,13 +64,7 @@ export async function copyCreatorSkill(destination = 'website/public/creator-kit
       backgroundSheet({ indoor: id === 'interior', ...backgroundLayout(id) }),
     );
   }
-  // The interior example is a daylight room kept with the sources; no place ships it.
-  for (const [id, file] of [
-    ['garden', 'art/environments/green'],
-    ['lakeside', 'art/environments/lakeside-spring'],
-    ['interior', 'sources/environments/studio-cozy-day'],
-  ])
-    await cp(`assets/${file}.png`, `${destination}/${id}.png`);
+  for (const [id, file] of Object.entries(BACKGROUND_REFERENCES)) await cp(file, `${destination}/${id}.png`);
   return revision;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await copyCreatorSkill();

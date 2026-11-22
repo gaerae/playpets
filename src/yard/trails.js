@@ -29,7 +29,7 @@ import { localDay } from './growth.js';
 import { STROLL } from './motion.js';
 import { autoWeather } from './scene.js';
 import { chosenWeather } from './sky.js';
-import { tailPeek } from './trail-art.js';
+import { SEEN_WHOLE, tailPeek, wholeAnimal } from './trail-art.js';
 import {
   coveredAt,
   endZoom,
@@ -496,7 +496,10 @@ function peek(n, trail, follow, still) {
         saved.followed.push(n);
         remember('trails', JSON.stringify(saved));
       }
+      // The first follow puts its tail in the album; the SEEN_WHOLE-th, the animal that turned to look.
       if (result?.first) deps.card(tailPeek(track), name, '', true, 'track');
+      else if (result?.entry?.count === SEEN_WHOLE)
+        deps.card(wholeAnimal(track), name, t('album.seen_whole'), true, 'track');
     })
     .catch(e => toast(spoken(e, t('error.generic')), { error: true }));
   const later = (ms, fn) => follow.timers.push(setTimeout(fn, ms));

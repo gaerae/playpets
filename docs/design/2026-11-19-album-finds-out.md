@@ -69,3 +69,7 @@ Replaces the displays first built on this branch (a fishbowl, a bug jar, a speci
 
 - A card now brings things back too, and sets out no more of a kind than the album found: [Album cards that set out and bring back](./2026-11-20-album-in-and-out.md).
 - Finds out of the album now have their own 12 places, apart from the yard's 12 gifts (`FIND_MAX`): [Hold twelve of every kind in the yard](../decisions/2026-11-20-twelve-of-each.md).
+
+## Follow-up (2026-11-22)
+
+- A footprint animal seen whole comes out too (`track_out`): the whole drawing (`"drawing": "whole"`), never the tail, and once each, after the third follow (`"onceAfter": 3`, the album's `SEEN_WHOLE`; backend `Album::count`). It hops when poked.

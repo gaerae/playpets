@@ -340,8 +340,8 @@ body.window-top .window-buttons,
   display: none;
 }
 /* Each line is a message on the shared surface; a failure stands apart in the dark ink. Every line
-   closes the same way: its close button, or a press anywhere on it, so its words are not for
-   selecting. */
+   has a close button, and a plain one also closes on a press anywhere on it, so its words are not
+   for selecting. */
 .toast > span {
   pointer-events: auto;
   display: inline-flex;
@@ -359,6 +359,10 @@ body.window-top .window-buttons,
   font-size: var(--font-sm);
   line-height: 1.5;
   text-align: center;
+}
+/* A line with Undo closes only by its button: a press that misses Undo must not save the removal. */
+.toast > span:has(.toast-action) {
+  cursor: default;
 }
 /* One action on a notice, such as Undo: a quiet text button that still reads as pressable. */
 .toast-action {

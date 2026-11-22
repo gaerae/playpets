@@ -146,7 +146,7 @@ It opens from the cat in the menu bar or taskbar. Its items, in order:
 
 | Keys | Does |
 |---|---|
-| <kbd>⌘</kbd> <kbd>1</kbd> | Open Friends & chat |
+| <kbd>⌘</kbd> <kbd>1</kbd> | Open Friends |
 | <kbd>⌘</kbd> <kbd>2</kbd> | Open Invite a friend |
 | <kbd>⌘</kbd> <kbd>,</kbd> | Open Settings |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>P</kbd> | Open Friends & settings |

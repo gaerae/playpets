@@ -84,8 +84,9 @@ test('a notice leaves when pressed, and a resting pointer holds it only for a wh
   assert.equal(notice.children.length, 0);
 });
 
-// Every notice closes the same way: its close button or a press anywhere on it. Closing an Undo
-// notice says done; its Undo button is its own press (album-in-and-out.md).
+// Every notice has a close button, and a plain one closes on a press anywhere on it too. A notice
+// with Undo closes only by its button, which says done: a press that misses Undo must not save the
+// removal. Its Undo button is its own press (album-in-and-out.md).
 test('every notice has the same close, and closing one with Undo is not an Undo', async t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const { document, nodes } = installDom(t, { ids: ['toast'] });
@@ -95,6 +96,8 @@ test('every notice has the same close, and closing one with Undo is not an Undo'
   state.toast('Saved');
   assert.ok(closeOf(notice.children[0]), 'a plain notice has one');
   assert.equal(notice.children[0].textContent, 'Saved', 'and it adds no words');
+  await notice.children[0].dispatch('click');
+  assert.equal(notice.children.length, 0, 'a press on its words closes a plain notice');
   const done = [];
   state.toast('Flower pulled', {
     ms: 6000,
@@ -104,6 +107,9 @@ test('every notice has the same close, and closing one with Undo is not an Undo'
   const line = notice.children.at(-1);
   assert.ok(closeOf(line));
   await line.dispatch('click');
+  assert.deepEqual(done, [], 'a press on its words leaves the Undo open');
+  assert.ok(notice.children.includes(line));
+  await closeOf(line).dispatch('click');
   assert.deepEqual(done, ['closed']);
   assert.ok(!notice.children.includes(line));
   state.toast('Tree removed', {

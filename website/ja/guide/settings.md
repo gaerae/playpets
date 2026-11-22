@@ -146,7 +146,7 @@ description: 言語と起動、友だちとAI、PlayPetsについてとアプリ
 
 | キー | 操作 |
 |---|---|
-| <kbd>⌘</kbd> <kbd>1</kbd> | **友だちと会話**を開く |
+| <kbd>⌘</kbd> <kbd>1</kbd> | **友だち**を開く |
 | <kbd>⌘</kbd> <kbd>2</kbd> | **友だちを招待**を開く |
 | <kbd>⌘</kbd> <kbd>,</kbd> | 設定を開く |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>P</kbd> | 友だちと設定を開く |

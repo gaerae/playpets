@@ -134,7 +134,7 @@ pub struct GiftWait {
     pub due_at: u64,
 }
 
-/// Where a gift went: down in the yard, or into the box because the yard was full.
+/// Where a gift went: down in the yard, or to wait in the album because the yard was full.
 #[derive(Serialize, Clone, Debug, PartialEq)]
 pub struct Given {
     #[serde(flatten)]
@@ -927,8 +927,8 @@ impl Garden {
         Ok(decor)
     }
 
-    /// Sets a find from the album (`book`: fish, bug or treasure; `item`, one the album has) out on
-    /// its own at (x, y), one more each time up to the album's count. It is one of the yard's gifts
+    /// Sets a find from the album (`book`: fish, bug, treasure or track; `item`, one the album has)
+    /// out on its own at (x, y), one more each time up to the album's count. It is one of the yard's gifts
     /// and nothing is spent.
     /// Design: docs/design/2026-11-19-album-finds-out.md.
     pub fn take_out_find(
@@ -946,6 +946,7 @@ impl Garden {
                 "fish" => album.fish.contains_key(item),
                 "bug" => album.bugs.contains_key(item),
                 "treasure" => album.treasures.contains_key(item),
+                "track" => album.tracks.contains_key(item),
                 _ => false,
             };
         let (Some(kind), Some((x, y)), true) = (catalog().find_out_for(book), decor_place(x, y), found) else {
@@ -1001,7 +1002,7 @@ impl Garden {
     }
 
     /// Puts a decoration away (a friend may bring it again another day). A memento or a gift shown
-    /// only at a time of year waits in the box instead, its giver and heart kept, for its album card
+    /// only at a time of year waits in the album instead, its giver and heart kept, for its album card
     /// to set it out again.
     pub fn put_away(&mut self, id: &str) -> Result<(), String> {
         let at = self
@@ -1587,6 +1588,28 @@ mod tests {
             "bug_out"
         );
         assert_eq!(g.decor.iter().filter(|d| d.kind == "treasure_out").count(), 2);
+        // A footprint animal comes out once its third follow showed it whole, and only once.
+        album.followed("fox", 1).unwrap();
+        album.followed("fox", 2).unwrap();
+        assert!(
+            g.take_out_find(&album, "track", "fox", 0.5, 0.8, now).is_err(),
+            "two follows show only its tail"
+        );
+        album.followed("fox", 3).unwrap();
+        assert_eq!(
+            g.take_out_find(&album, "track", "fox", 0.5, 0.8, now).unwrap().kind,
+            "track_out"
+        );
+        album.followed("fox", 4).unwrap();
+        assert!(
+            g.take_out_find(&album, "track", "fox", 0.5, 0.8, now).is_err(),
+            "one of each animal"
+        );
+        assert!(
+            g.take_out_find(&album, "track", "hare", 0.5, 0.8, now).is_err(),
+            "never followed"
+        );
+        g.decor.retain(|d| d.kind != "track_out");
         // A flower comes out of its own card, never through here.
         album.flowered("tulip", 1);
         assert!(g.take_out_find(&album, "flower", "tulip", 0.5, 0.8, now).is_err());

@@ -59,7 +59,7 @@ Right-click a gift in the yard, such as the bench or a flowerpot, and choose **S
 - The lantern and the campfire light up from evening, by your computer's clock.
 - A click answers: the pinwheel spins, the wind chime swings and rings, and the lantern switches off and on until the time of day changes. With reduced motion nothing turns, but the light still switches and the chime still rings.
 - Set the wind chime, the hanging pot or the mobile down near the top of a screen and it hangs from there on a cord, swinging when clicked.
-- A fish, bug or keepsake set out from the album goes out like a gift, or straight from its card with the small screen button ([Album](./play.md#album)). Each answers a click its own way: a fish swims a turn with a few bubbles, a butterfly flaps, a firefly blinks and a keepsake sparkles.
+- A fish, bug, keepsake or footprint animal set out from the album goes out like a gift, or straight from its card with the small screen button ([Album](./play.md#album)). Each answers a click its own way: a fish swims a turn with a few bubbles, a butterfly flaps, a firefly blinks, a keepsake sparkles and an animal hops.
 - Putting a gift away in the yard takes it off the desktop too. A gift that came before can be set out again from the album ([Gifts](./play.md#gifts)).
 - The snowman and the Christmas gifts are on the desktop only while the yard shows them ([Seasonal events](./play.md#seasonal-events)). The snowman keeps its scarf, hat and nose and the tree its ornaments.
 - On [Christmas night](./play.md#christmas-night) the tree on the desktop grows along with the one in the yard.

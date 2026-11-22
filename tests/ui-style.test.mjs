@@ -44,6 +44,8 @@ test('every notice a press closes is pressed the same way, never selected', asyn
     assert.match(rule, /(?:^|;)user-select:none/, selector);
     assert.match(rule, /-webkit-user-select:none/, selector);
   }
+  // A notice with Undo closes only by its button, so its words do not look pressable.
+  assert.match(css, /(?:^|\})\.toast>span:has\(\.toast-action\)\{cursor:default;?\}/);
 });
 
 test('panels, controls and cards share restrained corner tokens while switches stay round', async () => {
@@ -200,6 +202,9 @@ test('compact settings reserve height for their scroller and panels clear the do
   const sheet = css.match(/body\.compact \.layout.settings-open \.side-panel\{([^}]*)\}/)?.[1] || '';
   assert.match(sheet, /height:calc\(100% - 16px\)/, 'an absolute sheet has a definite height for its flex body');
   assert.match(sheet, /align-self:stretch/);
+  // At 300 by 210 in Japanese the list of sections is taller than the sheet: it scrolls, so About
+  // stays in reach under its title row.
+  assert.match(css, /body\.compact #settings-home\{[^}]*min-height:0;[^}]*overflow-y:auto/);
 });
 
 test('compact chat keeps its composer visible while the log owns scrolling', async () => {
@@ -222,16 +227,24 @@ test('compact chat keeps its composer visible while the log owns scrolling', asy
 test('the shortest window gives the conversation the row the panel title took', async () => {
   const css = await styles();
   const short = [...css.matchAll(/@media\(max-height:280px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
-  const head = short.match(
-    /body\.compact \.side-panel:has\(#pet-panel:not\(\[hidden\]\)\)>\.panel-head\{([^}]*)\}/,
-  )?.[1];
+  // Only while the friend's own panel shows: #pet-panel stays unhidden inside it when Settings or
+  // Invite opens, and then their title went and the buttons lay over their first rows.
+  const chat = String.raw`body\.compact \.side-panel:has\(#panel-pet:not\(\[hidden\]\)#pet-panel:not\(\[hidden\]\)\)`;
+  const head = short.match(new RegExp(`${chat}>\\.panel-head\\{([^}]*)\\}`))?.[1];
   assert.ok(head, 'a short window lifts the panel head out of the flow while a conversation shows');
   assert.match(head, /position:absolute/);
   assert.match(
     short,
-    /body\.compact \.side-panel:has\(#pet-panel:not\(\[hidden\]\)\)#panel-title\{[^}]*clip-path:inset\(50%\)/,
+    new RegExp(`${chat}#panel-title\\{[^}]*clip-path:inset\\(50%\\)`),
     'the title stays for screen readers',
   );
+  assert.doesNotMatch(css, /:has\(#pet-panel:not\(\[hidden\]\)\)/, 'no rule for the chat reaches another panel');
+  // Opened from Friends & settings, the head has Back too: the friend's menu moves out from under it.
+  const back = String.raw`${chat}:has\(#panel-menu:not\(\[hidden\]\)\)`;
+  assert.match(short, new RegExp(`${back}\\.menu-anchor\\{right:118px;?\\}`));
+  assert.match(short, new RegExp(`${back}\\.friend-head\\{padding-right:156px;?\\}`));
+  // Four buttons leave the name 60px, "D…" for Daisy: the picture gives way, and the name says who.
+  assert.match(short, new RegExp(`${back}\\.friend-head \\.avatar\\{display:none;?\\}`));
   // A select's smallest width is its longest option, so in an auto grid column a long name ran
   // under the friend's menu button instead of ending in an ellipsis.
   assert.match(css, /\.friend-id\{[^}]*grid-template-columns:minmax\(0,1fr\)/);
@@ -972,16 +985,20 @@ test('every size of words is a step of the type scale, none under 11px', async (
   }
 });
 
-// A sparrow or a magpie is far smaller than the bush it dives into: its tail and rump stay within
-// about a third of the bush's width (41) and half its height (30), and are centred over it.
-test('a bird diving into the trail bush is drawn to the bush scale', async () => {
+// A sparrow or a magpie sits behind the trail bush's top, small beside it: the drawing stays within
+// about two thirds of the bush's width (41) and half its height (30), its round back (about two
+// thirds of the way across the drawing) over the crown's middle, its tail out to the left, and its
+// cut low enough (--lift) to stay inside the crown, whose top is about 29.5 up.
+test('a bird behind the trail bush is drawn to the bush scale', async () => {
   const css = await styles();
   for (const bird of ['sparrow', 'magpie']) {
     const rule = css.match(new RegExp(`\\.tail-peek\\[data-track="${bird}"\\]\\{([^}]*)\\}`))?.[1] || '';
     const value = name => Number(rule.match(new RegExp(`--${name}:([\\d.]+)`))?.[1]);
-    assert.ok(value('w') <= 14, `${bird}: width ${value('w')}`);
+    assert.ok(value('w') <= 26, `${bird}: width ${value('w')}`);
     assert.ok(value('h') <= 17, `${bird}: height ${value('h')}`);
-    assert.ok(Math.abs(value('x') + value('w') / 2 - 24) <= 1.5, `${bird}: over the crown's middle`);
+    assert.ok(Math.abs(value('x') + value('w') * 0.65 - 24) <= 2, `${bird}: its back over the crown's middle`);
+    assert.ok(value('x') + value('w') <= 44.5, `${bird}: within the bush's right side`);
+    assert.ok(value('lift') <= 28, `${bird}: its cut inside the crown`);
   }
 });
 

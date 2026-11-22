@@ -386,7 +386,7 @@ const scenario = `(async()=>{
     // puts its feet (feet) beside where it is drawn (bottom), so a friend left behind shows. Read in
     // one go, so the numbers belong to the same moment as the check.
     const yardState=await import('./core/state.js'),yardField=await import('./yard/field.js'),hundredths=n=>Math.round(n*100)/100;
-    const yardNow=()=>{const yard=$('yard').getBoundingClientRect();return{window:[innerWidth,innerHeight],yard:[yard.width,yard.height],compact:document.body.classList.contains('compact'),hidden:document.hidden,world:$('yard').dataset.world,environment:$('yard').dataset.environment,field:yardField.field(),friends:[...yardState.views.values()].map(v=>{const g=yardField.geometry(v.pet);return{id:v.pet.id,y:hundredths(v.y),z:v.z,bottom:hundredths(v.button.getBoundingClientRect().bottom-yard.top),feet:hundredths(g.top+v.y*g.h+yardField.petHeight(v.pet)),target:v.target,trip:!!v.trip,doing:!!v.doing,away:!!v.away,drag:!!v.drag};})};};
+    const yardNow=()=>{const yard=$('yard').getBoundingClientRect();return{window:[innerWidth,innerHeight],yard:[yard.width,yard.height],compact:document.body.classList.contains('compact'),hidden:document.hidden,world:$('yard').dataset.world,environment:$('yard').dataset.environment,field:yardField.field(),friends:[...yardState.views.values()].map(v=>{const g=yardField.geometry(v.pet,v.x);return{id:v.pet.id,y:hundredths(v.y),z:v.z,bottom:hundredths(v.button.getBoundingClientRect().bottom-yard.top),feet:hundredths(g.top+v.y*g.h+yardField.petHeight(v.pet)),target:v.target,trip:!!v.trip,doing:!!v.doing,away:!!v.away,drag:!!v.drag};})};};
     // How many frames the page draws in this long, which tells a stalled page from a stuck friend.
     const framesIn=ms=>new Promise(done=>{let frames=0,on=true;const tick=()=>{if(on){frames++;requestAnimationFrame(tick);}};requestAnimationFrame(tick);setTimeout(()=>{on=false;done(frames);},ms);});
     const panelTasks=await import('./panel/tabs.js');
@@ -641,7 +641,7 @@ const scenario = `(async()=>{
     // The check keeps a far-off day, so today is marked again right after it.
     const viewedOk=(await playPets.markViewed('2027-04-05')).ok&&(await playPets.markViewed('soon')).ok===false&&(await playPets.bootstrap()).data.garden.viewed==='2027-04-05';await L('viewing='+(viewedOk?'day-kept':'err'));
     await playPets.markViewed(todayLocal());
-    // Real saved gifts fill the yard; the next waits in the gift box, putting one away retains its album record and
+    // Real saved gifts fill the yard; the next waits in the album, putting one away retains its album record and
     // frees the capacity, and the boxed one is set out from its own album card.
     const capacityGifts=[];
     for(let day=1;day<=12;day++){
@@ -700,8 +700,8 @@ const scenario = `(async()=>{
     for(const d of thankedState.decor.filter(d=>d.from===fid))await playPets.putAway(d.id);
     await L('thanksGift='+(thankedState.thanked?.[fid]===2&&apart.ok===false&&(!thanks.ok||thanks.data.from===fid)&&thanksAgain.ok===false&&tooHigh.ok===false?'once-a-level-reached':'err:'+JSON.stringify([apart,thanks,thanksAgain,tooHigh,thankedState.thanked])));
     // Pats bring at most a quarter of a day's worth; at Very close (level 4) the thanks gift is the friend's memento,
-    // which goes back into the gift box when put away and comes out of it again. A friend invited for it and sent
-    // away after, so the steps below keep their first friend as it was; its memento stays in the box.
+    // which waits in the album when put away and comes out of it again. A friend invited for it and sent
+    // away after, so the steps below keep their first friend as it was; its memento stays waiting.
     const closeFriend=(await playPets.addPet((await playPets.bootstrap()).data.pets[0].assetId)).data,mid=closeFriend?.id;
     const bondOf=async()=>(await playPets.bootstrap()).data.bonds[mid]||{points:0};
     const beforePats=(await bondOf()).points;for(let k=0;k<15;k++)await playPets.befriend(mid,'pat','2026-01-04');
@@ -1227,8 +1227,9 @@ const scenario = `(async()=>{
     panelStops.at(-1).focus();document.dispatchEvent(new KeyboardEvent('keydown',{key:'Tab',bubbles:true,cancelable:true}));
     const tabStays=document.activeElement===panelStops[0],tabNow=[panelStops[0].id,panelStops.at(-1).id,panelStops.length,document.activeElement.id||document.activeElement.tagName];$('message').focus();
     const chatFromSmall=quickPlayFits&&tabStays&&document.body.classList.contains('compact')&&innerWidth<wide&&!$('panel-pet').hidden&&composer.height>0&&composer.bottom<=innerHeight&&sendBox.right<=innerWidth&&sendBox.bottom<=innerHeight;
-    // By where the feet are (the bottom), since friends of different sizes have their tops elsewhere.
-    const order=[...document.querySelectorAll('.yard-pet')].map(b=>({y:b.getBoundingClientRect().bottom,z:Number(b.style.zIndex)%200}));
+    // By where the feet are, as the app orders them (the ground's top at each friend's x): friends of
+    // different sizes have their tops elsewhere, and a hop or a glide moves the drawing off them.
+    const order=[...yardState.views.values()].map(v=>{const g=yardField.geometry(v.pet,v.x);return{y:g.top+v.y*g.h+yardField.petHeight(v.pet),z:Number(v.button.style.zIndex)%200};});
     const layered=order.length<2||order.every(a=>order.every(b=>a.y<=b.y-4?a.z<=b.z:true)),orderNow=yardNow();
     // The garden's things share the friends' depth (no layer of their own), and the labels are above both.
     const z=id=>getComputedStyle($(id)).zIndex,labelsOver=z('garden-layer')==='auto'&&Number(z('label-layer'))>Number(z('pet-layer'))&&$('pet-layer').contains($('garden-layer'))&&document.querySelectorAll('.pet-label').length===document.querySelectorAll('.yard-pet').length;
@@ -1396,15 +1397,18 @@ const scenario = `(async()=>{
     if(grownFlower&&!putBack){await playPets.setOnDesktop(grownFlower.id,false);await playPets.pullPlant(grownFlower.id);}
     if(grownTree)await playPets.removeTree(grownTree.id);
     // A treasure found before comes out on its own, in the yard and out on the desktop; the yard draws
-    // its full painting, with no shadow under it.
+    // its full painting, with no shadow under it. The first found card is whichever treasure the real
+    // digs above turned up first in the book's order, so the one out is read back, not assumed.
     $('album-button').click();await until(()=>document.querySelectorAll('.album-card').length>0);
     document.querySelector('.album-tabs [data-book=treasure]').click();
+    const foundTreasures=Object.keys((await playPets.bootstrap()).data.album?.treasures||{});
     (await until(()=>document.querySelector('.album-card:not(.unknown) .album-actions')))?.children[1].click();
-    const shownOut=await until(async()=>{const d=(await playPets.bootstrap()).data,c=d.garden.decor.find(x=>x.kind==='treasure_out');return c?.holds?.join()==='quartz'&&d.desktopLayout.some(i=>i.id===c.id)&&c;},8000);
+    const shownOut=await until(async()=>{const d=(await playPets.bootstrap()).data,c=d.garden.decor.find(x=>x.kind==='treasure_out');return c?.holds?.length===1&&foundTreasures.includes(c.holds[0])&&d.desktopLayout.some(i=>i.id===c.id)&&c;},8000);
     $('close-album').click();
-    const drawnOut=await until(()=>document.querySelector('.decor[data-kind=treasure_out] .held[data-held=quartz] svg use'),5000),
+    const keepsakeOut=shownOut?.holds?.[0];
+    const drawnOut=keepsakeOut&&await until(()=>document.querySelector('.decor[data-kind=treasure_out] .held[data-held="'+keepsakeOut+'"] svg use'),5000),
       shaded=!!document.querySelector('.decor[data-kind=treasure_out] .decor-shade');
-    await L('albumFindOut='+(shownOut&&drawnOut&&!shaded?'on-its-own':'err:'+JSON.stringify({shownOut,drawn:!!drawnOut,shaded,kinds:[...document.querySelectorAll('.decor')].map(d=>d.dataset.kind)})));
+    await L('albumFindOut='+(shownOut&&drawnOut&&!shaded?'on-its-own':'err:'+JSON.stringify({shownOut,drawn:!!drawnOut,shaded,foundTreasures,out:(await playPets.bootstrap()).data.garden.decor.filter(x=>x.kind==='treasure_out'),kinds:[...document.querySelectorAll('.decor')].map(d=>d.dataset.kind)})));
     if(shownOut){await playPets.setOnDesktop(shownOut.id,false);await playPets.putAway(shownOut.id);}
     // Back out again, so the switch below brings everything in rather than sending everyone out.
     await must('friendOut',playPets.setOnDesktop(p1.data.id,true));
@@ -1633,27 +1637,49 @@ try {
 const scenarioFile = path.join(dataDir, 'scenario.js');
 await writeFile(scenarioFile, scenario);
 // When the process started, so the perf lines can count the startup from it, not only from the page's own start.
-const spawnedAt = Date.now();
-const child = spawn(binary, [], {
-  env: {
-    ...process.env,
-    PLAYPETS_DATA: dataDir,
-    CODEX_HOME: codexHome,
-    PLAYPETS_E2E_HOME: agentHome,
-    PLAYPETS_LANG: 'ko',
-    PLAYPETS_E2E_EVAL: scenarioFile,
-  },
-});
+let spawnedAt = Date.now();
 const lines = [];
-let done = false;
-child.stderr.on('data', d => console.log('  [stderr]', d.toString().trim().slice(0, 300)));
-child.on('exit', (code, signal) => {
-  if (!done) console.log('  [exit]', code, signal);
-});
+let done = false,
+  exited = false,
+  relaunched = false;
+// A CI runner sometimes cannot make the window's web view in time (WebView2 0x800705B4): the app
+// stops before its page runs anything. That start, and only that one, is tried once more.
+const NO_WEBVIEW = /failed to create webview/i;
+function launch() {
+  spawnedAt = Date.now();
+  const app = spawn(binary, [], {
+    env: {
+      ...process.env,
+      PLAYPETS_DATA: dataDir,
+      CODEX_HOME: codexHome,
+      PLAYPETS_E2E_HOME: agentHome,
+      PLAYPETS_LANG: 'ko',
+      PLAYPETS_E2E_EVAL: scenarioFile,
+    },
+  });
+  let errors = '';
+  app.stderr.on('data', d => {
+    errors += d;
+    console.log('  [stderr]', d.toString().trim().slice(0, 300));
+  });
+  app.on('exit', (code, signal) => {
+    if (done) return;
+    console.log('  [exit]', code, signal);
+    if (!lines.length && !relaunched && NO_WEBVIEW.test(errors)) {
+      relaunched = true;
+      console.log('  [relaunch] the web view did not start; trying once more');
+      child = launch();
+      return;
+    }
+    exited = true;
+  });
+  app.stdout.setEncoding('utf8');
+  app.stdout.on('data', read);
+  return app;
+}
 // Output comes in pieces of any size: a piece can end inside a line or inside a character.
 let partLine = '';
-child.stdout.setEncoding('utf8');
-child.stdout.on('data', d => {
+function read(d) {
   const pieces = (partLine + d).split('\n');
   partLine = pieces.pop();
   for (const line of pieces) {
@@ -1672,7 +1698,8 @@ child.stdout.on('data', d => {
     if (msg === 'agentConnected=claude') connectedFile();
     if (msg === 'ask=waiting') reportStatus('waiting', '둘째');
   }
-});
+}
+let child = launch();
 function reportStatus(state, pet, message = '') {
   spawnSync(binary, ['status', state, message, '--pet', pet, '--bridge', path.join(dataDir, 'bridge.json')], {
     encoding: 'utf8',
@@ -1751,7 +1778,7 @@ function agentReports() {
     JSON.parse(replies[1]?.result?.content?.[0]?.text || '[]')[0]?.name === '타우리';
 }
 const deadline = Date.now() + 240000;
-while (!done && Date.now() < deadline) await new Promise(r => setTimeout(r, 200));
+while (!done && !exited && Date.now() < deadline) await new Promise(r => setTimeout(r, 200));
 child.kill();
 provider.closeAllConnections?.();
 provider.close();
@@ -1976,7 +2003,7 @@ const expect = [
   ],
   [
     /^event=gift-and-label$/,
-    'the winter lights bring the Christmas tree on their days, it goes back into the gift box when put away, and the scene label shows the event on now',
+    'the winter lights bring the Christmas tree on their days, it waits in the album when put away, and the scene label shows the event on now',
   ],
   [/^viewing=day-kept$/, 'the day friends viewed the blossom is kept and an odd day is refused'],
   [
@@ -2001,7 +2028,7 @@ const expect = [
   ],
   [
     /^memento=pats-capped-memento-boxed-and-set-out$/,
-    "pats bring at most a quarter of a day's worth, and at Very close a friend brings its memento, which goes back into the gift box when put away",
+    "pats bring at most a quarter of a day's worth, and at Very close a friend brings its memento, which waits in the album when put away",
   ],
   [
     /^befriendMany=each-friend-once$/,

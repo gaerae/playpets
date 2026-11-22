@@ -84,7 +84,7 @@ export function artOf(catalog, events = { events: [] }) {
     ...catalog.gifts.flatMap(g => [...(g.ball ? [{ art: g.ball }] : []), ...(g.dress || [])]),
     ...(catalog.treasures || []),
     ...(catalog.shoots || []),
-    ...(catalog.tracks || []).flatMap(k => [{ art: k.print }, { art: k.tail }]),
+    ...(catalog.tracks || []).flatMap(k => [{ art: k.print }, { art: k.tail }, { art: k.whole }]),
     ...(catalog.trailArt || []),
     ...(catalog.discoveryTools || []),
     ...(catalog.trees || []).flatMap(tree => [
@@ -112,6 +112,8 @@ export function albumArt(catalog) {
     ...(catalog.trees || []).map(tree => ({ art: grownArt(tree) })),
     ...(catalog.treasures || []),
     ...(catalog.shoots || []),
+    // An animal followed often enough is drawn whole on its card (yard/trail-art.js wholeAnimal).
+    ...(catalog.tracks || []).map(k => ({ art: k.whole })),
   ]
     .map(kind => kind.art)
     .filter(Boolean);

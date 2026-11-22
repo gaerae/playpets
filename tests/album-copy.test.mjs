@@ -3,7 +3,7 @@
 // say so too. The landing and the site's album count from the catalogue themselves.
 
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import { albumEntries, catalog } from './support/content.mjs';
 
@@ -56,5 +56,32 @@ test("the album's numbers in the README, the guide and a friend's facts are the 
       assert.ok(found.length, `${file}: ${pattern} is not there`);
       for (const n of found) assert.equal(n, count, `${file}: ${pattern}`);
     }
+  }
+});
+
+// The gift box above the Gifts book is gone (1.10.0): a gift waiting for room waits on its own
+// card. What a person reads says so; the stack of gift boxes is a decoration, and the release
+// pages of earlier versions keep what those versions did.
+const GIFT_BOX = /gift box(?!es)|\uC120\uBB3C \uC0C1\uC790(?! \uB354\uBBF8)|プレゼント箱|礼物盒(?!堆)/;
+const guides = ['', 'ko/', 'ja/', 'zh-hans/'].flatMap(lang =>
+  readdirSync(new URL(`../website/${lang}guide/`, import.meta.url))
+    .filter(name => name.endsWith('.md'))
+    .map(name => `website/${lang}guide/${name}`),
+);
+const READ = [
+  'README.md',
+  'website/.vitepress/theme/DiscoveryGuide.vue',
+  'src-tauri/src/chat/guide.rs',
+  ...guides,
+  ...['en', 'ko', 'ja', 'zh-hans'].map(lang => `src/core/strings/${lang}.js`),
+];
+
+test('nothing a person reads sends a waiting gift to a gift box', () => {
+  assert.ok(guides.length >= 40, 'every guide page in every language');
+  for (const file of READ) {
+    const line = read(file)
+      .split('\n')
+      .find(l => GIFT_BOX.test(l));
+    assert.equal(line, undefined, `${file} still has the gift box`);
   }
 });

@@ -1,0 +1,98 @@
+{
+  "generated": "2026-11-22",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "sources": [
+    {
+      "name": "animals1",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game asset atlas for a cozy, cute, healing desktop pet game. Style: match the reference image (ref-tails.png) exactly: the SAME eight animals with the same colors and proportions, softly sculpted miniature, SMOOTH MATTE surfaces (NOT felt, NOT plush), soft painterly shading, muted cozy palette, key light from the UPPER LEFT, rounded chubby silhouettes readable at small size. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO bloom, NO colored edge fringe, NO floor, NO cast shadow, NO snow, NO bush, NO text.\nLandscape 1536x1024 canvas, a grid of FOUR equal columns and TWO equal rows (cells 384x512), each animal centered in its cell with generous transparent padding, nothing crossing a cell boundary, all animals at a similar visual size.\nUnlike the reference, where they run away seen from behind, here each animal is calmly SITTING (birds: standing perched), in a three-quarter FRONT view turned slightly to the left, its friendly face clearly visible with bright dark eyes looking at the viewer, its tail visible beside or behind it.\nROW1: COL1 grey hare with long ears and a round white cotton tail; COL2 red fox with a big white-tipped bushy tail curled around its feet; COL3 small tan water deer fawn with cream spots and big ears, sitting with legs folded; COL4 fluffy grey-brown raccoon dog with its dark eye mask and dark legs.\nROW2: COL1 grey squirrel with tufted ears and a big curled tail raised behind it; COL2 house sparrow, brown streaked back, grey crown, cream belly; COL3 magpie, glossy black head and back, white belly and white shoulder patch, long blue-green iridescent tail; COL4 orange striped tabby cat with cream chest and paws, tail wrapped around its feet.",
+      "references": [
+        "assets/art/collection-extension/winter-tails.png (the eight animals running away, seen from behind)"
+      ],
+      "file": "animals1.png",
+      "sha256": "c370a5af2438a85166b19499b42bd7a9eb220929abf615ac0d0b31e4f35129c3",
+      "size": [1536, 1024],
+      "runtimeAtlas": "collection-extension/winter-animals.png",
+      "acceptedIds": [
+        "whole_hare",
+        "whole_fox",
+        "whole_water_deer",
+        "whole_squirrel",
+        "whole_sparrow",
+        "whole_magpie",
+        "whole_cat"
+      ],
+      "notes": "The eight trail animals sitting (the birds perched), three-quarter front, face to the viewer. Its raccoon dog had a light band on its tail and read as a raccoon, so its cell is taken from raccoon-dog2.png."
+    },
+    {
+      "name": "raccoon-dog2",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent game asset for a cozy, cute, healing desktop pet game. Style: match the reference image (rd.png) exactly: the SAME raccoon dog (Korean neoguri, Nyctereutes), same pose, size, colors, fluffy grey-brown coat, dark eye mask, dark legs, same soft painterly shading, key light from the UPPER LEFT. Square 1024x1024 canvas, the animal centered with generous transparent padding. TRUE transparent alpha background with clean antialiased edges: NO painted background, NO haze, NO aura, NO floor, NO cast shadow, NO snow, NO text.\nChange ONLY its tail: a short, bushy tail of ONE even dark grey-brown color with a slightly darker tip, NO light band, NO ring, NO stripe anywhere on the tail, so it never reads as a raccoon. The tail curls beside its hind feet as in the reference.",
+      "references": ["animals1.png's raccoon dog cell, flattened on a light ground (scratch, not kept)"],
+      "file": "raccoon-dog2.png",
+      "sha256": "bcebaacb74c3a4f47202e46c182697e731cdd0b75538bbb972d52ac4ed2b9fd4",
+      "size": [1254, 1254],
+      "runtimeAtlas": "collection-extension/winter-animals.png",
+      "acceptedIds": ["whole_raccoon_dog"],
+      "notes": "The same raccoon dog with a tail of one dark grey-brown, no band."
+    }
+  ],
+  "composed": [
+    {
+      "name": "winter-animals",
+      "file": "assets/art/collection-extension/winter-animals.png",
+      "sha256": "258fd4c291c532963a4db751a8192f840c44f1cb68ff9bd6ce296e2ee3c8a193",
+      "size": [1536, 1024],
+      "inputs": ["animals1.png", "raccoon-dog2.png"],
+      "runtimeAtlas": "collection-extension/winter-animals.png",
+      "processing": [
+        "animals1.png with alpha below 50 cleared.",
+        "Columns x 1100 to 1535 of row 1 cleared; raccoon-dog2.png (alpha below 50 cleared, box 31, 80, 1083 x 1126) scaled by area averaging by 0.342 to the first raccoon dog's height (385), its top left at [1159, 87], on the same foot line.",
+        "Losslessly optimized with assets:optimize."
+      ]
+    }
+  ],
+  "measuredSilhouettes": {
+    "collection-extension/winter-animals.png": [
+      {
+        "id": "whole_hare",
+        "alphaBox": [44, 33, 303, 435],
+        "crop": [30, 19, 331, 463]
+      },
+      {
+        "id": "whole_fox",
+        "alphaBox": [387, 68, 347, 401],
+        "crop": [373, 54, 375, 429]
+      },
+      {
+        "id": "whole_water_deer",
+        "alphaBox": [794, 68, 294, 397],
+        "crop": [780, 54, 322, 425]
+      },
+      {
+        "id": "whole_raccoon_dog",
+        "alphaBox": [1159, 87, 370, 385],
+        "crop": [1145, 73, 387, 413]
+      },
+      {
+        "id": "whole_squirrel",
+        "alphaBox": [41, 579, 322, 377],
+        "crop": [27, 565, 350, 405]
+      },
+      {
+        "id": "whole_sparrow",
+        "alphaBox": [401, 626, 323, 326],
+        "crop": [387, 612, 351, 354]
+      },
+      {
+        "id": "whole_magpie",
+        "alphaBox": [772, 617, 355, 341],
+        "crop": [758, 603, 377, 369]
+      },
+      {
+        "id": "whole_cat",
+        "alphaBox": [1144, 547, 353, 419],
+        "crop": [1136, 533, 375, 447]
+      }
+    ]
+  },
+  "cropRule": "Alpha >= 50 box with a 14-pixel margin, stopped halfway to the next animal in the row (some reach a few pixels past their 384 x 512 cell) and at the row's edge."
+}

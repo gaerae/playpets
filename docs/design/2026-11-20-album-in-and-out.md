@@ -51,3 +51,7 @@
 - A gift kept in the box goes back to the box when put back, as Put away does, and its card sets it out again.
 - Waiting has no limit of its own: one of each kind waits, and each friend's memento. With the yard full of gifts and every kind out or waiting, none is brought twice ([decision](../decisions/2026-11-20-twelve-of-each.md)).
 - The words follow the yard's menus: the desktop button's title says Show on desktop and Take off the desktop, as a thing's own menu does.
+
+## Follow-up (2026-11-21)
+
+- A line with Undo no longer closes on a press anywhere on it: a press that just missed Undo saved the removal at once. It closes only by its close button, which still keeps the removal; a plain line closes either way.

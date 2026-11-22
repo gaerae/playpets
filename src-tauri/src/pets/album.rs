@@ -106,8 +106,10 @@ impl Album {
         }
     }
 
-    /// How many of `item` this book has found (`book`: flower, tree, fish, bug or treasure); 0 for
-    /// one not found and for a book with no copies to set out. A card sets out at most this many.
+    /// How many of `item` this book has to set out (`book`: flower, tree, fish, bug, treasure or
+    /// track); 0 for one not found and for a book with no copies to set out. A card sets out at
+    /// most this many. A footprint animal is one, once followed until it turned to look
+    /// (catalog.json `onceAfter`).
     pub fn count(&self, book: &str, item: &str) -> u32 {
         let found = match book {
             "flower" => &self.flowers,
@@ -115,9 +117,14 @@ impl Album {
             "fish" => &self.fish,
             "bug" => &self.bugs,
             "treasure" => &self.treasures,
+            "track" => &self.tracks,
             _ => return 0,
         };
-        found.get(item).map_or(0, |e| e.count)
+        let count = found.get(item).map_or(0, |e| e.count);
+        match catalog().once_after(book) {
+            Some(after) => u32::from(count >= after),
+            None => count,
+        }
     }
 
     /// Records a flower that bloomed in the garden (the garden says which, garden.rs `bloom`).
@@ -285,6 +292,20 @@ mod tests {
         assert!(a.followed("Fox", 1).is_err());
         let back = Album::restore(Some(&serde_json::to_value(&a).unwrap()));
         assert_eq!(back.tracks["fox"].count, 2, "and they are read back");
+    }
+
+    #[test]
+    fn a_footprint_animal_counts_as_one_to_set_out_once_seen_whole() {
+        let mut a = Album::default();
+        let seen = |a: &Album| a.count("track", "fox");
+        a.followed("fox", 1).unwrap();
+        a.followed("fox", 2).unwrap();
+        assert_eq!(seen(&a), 0, "its tail only");
+        a.followed("fox", 3).unwrap();
+        assert_eq!(seen(&a), 1);
+        a.followed("fox", 4).unwrap();
+        assert_eq!(seen(&a), 1, "one animal, however often followed");
+        assert_eq!(a.count("track", "hare"), 0);
     }
 
     #[test]

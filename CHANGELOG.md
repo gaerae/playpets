@@ -12,23 +12,45 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
+- In the footprint book, an animal you have followed three times turns to look: its card shows the whole animal, face and all, instead of its tail, and until then the card says how many more follows are left. At a trail's end it still only shows its tail.
+- An animal seen whole in the footprint book comes out of its card once, to the yard and the desktop, like a fish or a keepsake. It hops when you click it, and a friend who visits greets it by name.
 - Ten new winter decorations come with the winter lights, one each gift day after Santa: a coquette ribbon tree and a pastel retro tree, each in a small and a big size, a string-light arch, a stack of gift boxes, a wreath stand, a candy cane star lamp, a gingerbread house and a sundries cart. They show from November 15 to January 7, and whenever the yard shows winter. The trees, the arch, the lamp, the house and the cart light up from evening; on the desktop the arch and the lamp switch off and on with a click, and the wreath can hang from a screen's top. The album now has 213 entries.
 
 ### Changed
 
 - An album card now brings back what it set out, from the same place. Found once, **Set out** turns into **Put back**; found more often, **−** and **+** take one in or set one more out, up to how many you found and the yard's room, with how many are out between them. The buttons stay where they are, so pressing again at once, by mouse or keyboard, keeps working. Gift cards work the same way.
 - The small screen button on an album card stays lit while that kind is on the desktop; press it again to take them all off the desktop, and they stay in the yard.
-- Every notice along the bottom of the yard has a close button and closes with a click anywhere on it, including the one with **Undo**. Neither these notices nor the card for something found get their words selected when you drag. Closing an **Undo** notice keeps the removal.
+- Every notice along the bottom of the yard has a close button, and one without **Undo** also closes with a click anywhere on it. A notice with **Undo** closes only from its close button, which keeps the removal, so a click that misses **Undo** saves nothing. Neither these notices nor the card for something found get their words selected when you drag.
 - The gift box above the album's Gifts book is gone: a gift waiting for room is set out from its own card, and a friend's memento shows its heart on the card, with the friend's name when you point at it.
 - The yard holds 12 of every kind: friends, gifts, flowers (was 24), trees (was 6), and fish, bugs and keepsakes set out from the album, which no longer take gifts' places. The desktop shows up to that many of each. Flowers you already planted beyond 12 stay.
 - Gifts that arrive while the yard is full wait in the album without a limit, one of each kind, so friends keep bringing them.
 - In the Wild garden, friends walk all the way back across the meadow left of the pond, where ferns and boulders used to stop them, and look smaller the farther back they go.
 - The outdoor pictures meet the sky in a smooth edge: treetops, hills and the meadow's line no longer show a pale, stepped outline.
 - The little Christmas tree is redrawn in gold and cream, in the yard and on Christmas night. Its ornaments stay on its twelve hooks.
+- A winter trail now ends on the open snow in front, where its bush stands out instead of hiding among the bushes painted in the back. The sparrow and the magpie sit behind the bush's snowy top with their tails up, and the bush and the bare twigs stand in a soft drift of snow.
+- The menu calls the friends' panel **Friends**, as the tray and the menu bar do, and **Enter fullscreen** looks like the switches beside it. In a small window the corner button is named **Yard menu** for screen readers. The first row of **App updates** in Settings says PlayPets and its version, instead of repeating the section's name.
+
+### Fixed
+
+- Every tree that grows counts in the album, so a kind grown twice can be set out twice with **+**, and an album from an earlier version catches up with the trees grown in the yard.
+- With the yard full and every everyday gift out or waiting, friends still bring an event's own gift the first time and their memento, which wait in the album as before.
+- **−** on a tree's album card takes back a tree from the place you are looking at first, and a copy you already removed in the yard, its **Undo** still showing, is no longer removed a second time with an error later.
+- The small screen button on a Christmas gift's card waits while the gift is out of sight for the season and says when it shows, as the desktop leaves it out too. One already on the desktop can still come off.
+- In a window 280px tall or less, Settings and Invite keep their title row instead of laying Back, the size button and Close over their first lines, and the list of settings sections scrolls when it is taller than the window. A chat opened from the menu there keeps Back apart from the friend's menu and shows the friend's name. **Bring friends in** is at least 24px tall.
+
+### Security
+
+- Update url to 2.5.9, so a web address made of nested `blob:` addresses can no longer overflow the stack (RUSTSEC-2026-0592).
 
 ### Website and docs
 
 - The README and the guide count the album's 213 entries and 41 gifts, and the guide describes the new winter decorations.
+- The site's album guide says a gift that comes while the yard is full waits on its own card, no longer in a gift box.
+- The play guide says an animal followed three times turns to look and shows its face in the footprint book, and can then come out to the yard and the desktop; the desktop guide says it hops when clicked.
+- The chat, play and settings guides call the menu's first item **Friends**, as the app now does.
+- The background studio starts from the app's own places: the garden kit from the Wild garden, an open meadow with no house, and the interior kit from the garden workshop, with its glass where the workshop has it, in place of the living room the app no longer has. Its cards load small pictures, about 300 KB for all three instead of about 10 MB.
+- A background kit's request asks only about what its layout has: water and a fishing spot by the lake, a see-through sky outdoors, glass panes indoors. It names the app's own menu, **Place & atmosphere → Import background**.
+- The character studio and its kit say how to import a pet ZIP without the old note on versions before 1.4.0, and a kit named in Korean, Japanese or Chinese is saved under its starter's name, such as `my-clover-creation-kit.zip`, instead of `my-pet`.
 
 ## [1.9.0] - 2026-11-20
 
