@@ -1227,8 +1227,8 @@ const scenario = `(async()=>{
     panelStops.at(-1).focus();document.dispatchEvent(new KeyboardEvent('keydown',{key:'Tab',bubbles:true,cancelable:true}));
     const tabStays=document.activeElement===panelStops[0],tabNow=[panelStops[0].id,panelStops.at(-1).id,panelStops.length,document.activeElement.id||document.activeElement.tagName];$('message').focus();
     const chatFromSmall=quickPlayFits&&tabStays&&document.body.classList.contains('compact')&&innerWidth<wide&&!$('panel-pet').hidden&&composer.height>0&&composer.bottom<=innerHeight&&sendBox.right<=innerWidth&&sendBox.bottom<=innerHeight;
-    // By where the feet are (the bottom), since friends of different sizes have their tops elsewhere.
-    const order=[...document.querySelectorAll('.yard-pet')].map(b=>({y:b.getBoundingClientRect().bottom,z:Number(b.style.zIndex)%200}));
+    // By where the feet are, since friends of different sizes have their tops elsewhere and a hop lifts the drawing off them.
+    const order=[...yardState.views.values()].map(v=>{const g=yardField.geometry(v.pet);return{y:g.top+v.y*g.h+yardField.petHeight(v.pet),z:Number(v.button.style.zIndex)%200};});
     const layered=order.length<2||order.every(a=>order.every(b=>a.y<=b.y-4?a.z<=b.z:true)),orderNow=yardNow();
     // The garden's things share the friends' depth (no layer of their own), and the labels are above both.
     const z=id=>getComputedStyle($(id)).zIndex,labelsOver=z('garden-layer')==='auto'&&Number(z('label-layer'))>Number(z('pet-layer'))&&$('pet-layer').contains($('garden-layer'))&&document.querySelectorAll('.pet-label').length===document.querySelectorAll('.yard-pet').length;

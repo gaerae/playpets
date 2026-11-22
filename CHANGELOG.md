@@ -38,6 +38,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The small screen button on a Christmas gift's card waits while the gift is out of sight for the season and says when it shows, as the desktop leaves it out too. One already on the desktop can still come off.
 - In a window 280px tall or less, Settings and Invite keep their title row instead of laying Back, the size button and Close over their first lines, and the list of settings sections scrolls when it is taller than the window. A chat opened from the menu there keeps Back apart from the friend's menu and shows the friend's name. **Bring friends in** is at least 24px tall.
 
+### Security
+
+- Update url to 2.5.9, so a web address made of nested `blob:` addresses can no longer overflow the stack (RUSTSEC-2026-0592).
+
 ### Website and docs
 
 - The README and the guide count the album's 213 entries and 41 gifts, and the guide describes the new winter decorations.
