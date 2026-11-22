@@ -627,8 +627,8 @@ export function syncViews() {
     }
     v.pet = p;
     v.asset = asset(p);
-    // A bundled companion's authored actions start loading as it comes into the yard, so they are
-    // there before its first game; once they are, this is one check.
+    // A friend's own game poses are asked for as it comes into the yard, so they are there before
+    // its first game; once they are, this is one check.
     loadCompanionActionsFor([v.asset]);
     // A friend at a spot for its agent (the front, a desk) stands away from its own place (duty.js).
     if (!v.drag && !v.target && !v.away && !v.spot) {

@@ -29,7 +29,12 @@ function page(t, { builtin = true, decoded = true } = {}) {
   const pet = { id: 'planter', size: 112 };
   const v = {
     pet,
-    asset: { place: builtin ? 'builtin' : 'folder', sourceId: 'playpets-clover' },
+    asset: {
+      place: builtin ? 'builtin' : 'folder',
+      sourceId: 'playpets-clover',
+      id: 'playpets-clover',
+      hasActions: builtin,
+    },
     px: 100,
     py: 300,
     pose: 'idle',
@@ -42,19 +47,15 @@ function page(t, { builtin = true, decoded = true } = {}) {
   views.set(pet.id, v);
   setSelected(pet.id);
   setData({ pets: [pet], assets: [], garden: { seeds: 1, plants: [] }, statuses: {} });
-  useCompanionActions({
+  useCompanionActions('playpets-clover', {
     version: 1,
-    characters: {
-      'playpets-clover': {
-        variants: {
-          spring: {
-            plant: {
-              url: 'art/companions/clover/plant.png',
-              anchor: [96, 200],
-              ground: [150, 200],
-              frames: [{ rect: [0, 0, 192, 208], foot: [96, 200], duration: 1800 }],
-            },
-          },
+    outfits: {
+      base: {
+        plant: {
+          url: 'art/companions/clover/plant.png',
+          anchor: [96, 200],
+          ground: [150, 200],
+          frames: [{ rect: [0, 0, 192, 208], foot: [96, 200], duration: 1800 }],
         },
       },
     },
@@ -67,7 +68,7 @@ function page(t, { builtin = true, decoded = true } = {}) {
     release(v);
     views.clear();
     setAiming(false);
-    useCompanionActions({ version: 1, characters: {} });
+    useCompanionActions('playpets-clover', null);
   });
   return { nodes, v, click: () => nodes.get('yard').dispatch('click', { clientX: 400, clientY: 450 }) };
 }
@@ -140,10 +141,10 @@ for (const phase of ['walking', 'planting'])
     assert.equal(planted.length, 0);
     assert.equal(companionAction(v, performance.now()), null);
   });
-for (const mode of ['imported', 'decoding'])
+for (const mode of ['poseless', 'decoding'])
   test(`${mode} friends keep the existing direct planting path`, async t => {
     t.mock.timers.enable({ apis: ['setTimeout'] });
-    const { v, click } = page(t, { builtin: mode !== 'imported', decoded: mode !== 'decoding' });
+    const { v, click } = page(t, { builtin: mode !== 'poseless', decoded: mode !== 'decoding' });
     await click();
     assert.equal(planted.length, 1);
     assert.equal(v.trip, undefined);

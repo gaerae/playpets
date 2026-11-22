@@ -1,5 +1,5 @@
 // Makes src/art/**/*.webp from the reviewed PNG exports in assets/art, and the built-in friends'
-// lossless sheets in src-tauri/pets from assets/pets, and checks every sample against the PNG
+// lossless sheets in src-tauri/pets from assets/pets (their game poses near-lossless), and checks every sample against the PNG
 // before keeping it; the place gallery's small previews (PREVIEWS) and the album cards' crops
 // (albumPreviews) are made too. Needs libwebp's
 // cwebp and dwebp; `--check` needs neither.
@@ -23,6 +23,7 @@ import {
   PREVIEW_WIDTH,
   PREVIEWS,
   RUNTIME,
+  builtinActions,
   builtinExports,
   builtinManifest,
   builtinWebpProblems,
@@ -206,6 +207,8 @@ for (const pet of pets) {
   const target = path.join(BUILTIN_RUNTIME, pet.id, 'pet.json');
   await mkdir(path.dirname(target), { recursive: true });
   await writeFile(target, builtinManifest(pet.source));
+  if (pet.actions)
+    await writeFile(path.join(BUILTIN_RUNTIME, pet.id, pet.actions.file), builtinActions(pet.actions.text));
 }
 try {
   for (const name of PREVIEWS.filter(name => pngs.includes(name))) await preview(name);
@@ -213,6 +216,10 @@ try {
   const queue = [
     ...pngs.map(name => [name, art]),
     ...pets.flatMap(pet => pet.sheets.map(sheet => [`${pet.id}/${sheet}`, builtin])),
+    // Game poses were drawn as yard art and keep its near-lossless encoding.
+    ...pets.flatMap(pet =>
+      (pet.actions?.images ?? []).map(image => [`${pet.id}/${image}`, { ...builtin, encoding: nearLossless }]),
+    ),
   ];
   await Promise.all(
     Array.from({ length: Math.max(1, availableParallelism() - 1) }, async () => {

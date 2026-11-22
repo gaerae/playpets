@@ -1,4 +1,36 @@
 {
+  "clover/actions/base/dig.png": {
+    "png": "a9b6990ee67964911bd8bb1d87a0b2be3cba490e848addb67fbf351b85cfc5bf",
+    "webp": "e59d89564ba4db9a7a519671a9a5c191bf1dcdab26a65c4f4125675d6ec07290"
+  },
+  "clover/actions/base/discover.png": {
+    "png": "be21c30af27885f9ef60a91a132c34ed9ef1eab67af6d8623bf8842dcd7d156c",
+    "webp": "3d2da41d271d026cb55c467802e7abcb606cae9cd49eee6e6ec64eae58ca5939"
+  },
+  "clover/actions/base/fish.png": {
+    "png": "26548bcb563f440b140b304be3fe6e4d6db75a5a3c62c97ef6c0e248a1591a76",
+    "webp": "94f28651e3fae3c64538a8f23b301da7661b8fea4d4d31a446b92787688e62b5"
+  },
+  "clover/actions/base/plant.png": {
+    "png": "ae277eab4a61946de06a9495b0646975e4da36dbd2edf681dc891ac753431209",
+    "webp": "5153c517dce7fda717d7d8672f8c957617beded8dc82f5fece2abe8b3b077afe"
+  },
+  "clover/actions/winter/dig.png": {
+    "png": "5fe62617e4b1d61b270df28f2f27e407e95d7a832e089c0c62a5401e9ab990e9",
+    "webp": "edefff4006c55761f877ae0c1eaaa559546dfd808885f67bee436dfd4db71f6f"
+  },
+  "clover/actions/winter/discover.png": {
+    "png": "e56c2f5aec7b6cfa993dc896e768c641862edcdbedd22e266dc91fb922027c1e",
+    "webp": "38c37304ae6fc1b42cffa9760a6aefd7e433031c6274ff354d03c4205a30010a"
+  },
+  "clover/actions/winter/fish.png": {
+    "png": "30ff40e42cdb7e14f6fc26c0d1d1d9969f5583c5d9eecce25d0fe545fabe78a5",
+    "webp": "c1d638c352c9f129ba683d39fe2aa01882a15e6bc88f1fa34dd9a3927db0ee73"
+  },
+  "clover/actions/winter/plant.png": {
+    "png": "3eff41467940005352460b662c99084ba8a911cf04be842378848bb83d92caab",
+    "webp": "92736b2834b8ba012f2e981d6d29407f1f40b9020c7297aebbee465eb4ea2dc7"
+  },
   "clover/seasonal/summer.png": {
     "png": "5358f7f7a9efd77c5e48b925f1179f06bf4d95241cf359e1ab2356a165b0f37c",
     "webp": "b30fd04f36fa7c0b6fbbc51fd4db6f1813fc28a2837d8ad53e22b73eccd70aef"
@@ -10,6 +42,54 @@
   "clover/spritesheet.png": {
     "png": "89395750d2f79f8925a2d1b6448a1215a4a537b1307531b567ad14d819feae2a",
     "webp": "c8cb9828ccac9e21391f8b3e70fde5be860e33af38e29a5fa28a3a2ffe47bbb5"
+  },
+  "daisy/actions/base/dig.png": {
+    "png": "aa74400dcd8b01d63529d885184ffd81940bbefa9c32bf2eb6e0ca72b7ab0e59",
+    "webp": "0bfb7341f7358870865dc56aab44ed01e48cfa3380c00a41ce2e93e36ffa039b"
+  },
+  "daisy/actions/base/discover.png": {
+    "png": "7c4c8107fe90d5bae14b4cf630c24820a1fb69611b5a90a1afddad92bfc7abd3",
+    "webp": "6eec473666e4f42ab28c64ee87fbe9ee138ed7746c4ee17f41943737f49e8866"
+  },
+  "daisy/actions/base/fish.png": {
+    "png": "89686824b55f5f223a7feeec79295dcb5f9087241b8f647b3c8da8a42f5b3b16",
+    "webp": "acb23a7662bf91e8107f63fc047ffaeffecfacc3f785c7f58c31e8f886aaebf0"
+  },
+  "daisy/actions/base/plant.png": {
+    "png": "b138ddfaecdd4f9a2dd8af433fe52db85f6a144cd6e8abd72ce58d59e0ce7139",
+    "webp": "e7e9dcac46c6e7c83bc6616ed408d7fc4140ccfc650b72e7395aa9e4d7c2e029"
+  },
+  "daisy/actions/summer/dig.png": {
+    "png": "cffec246488697d96046e902e1ef2a7e444975f9464628c9b59b4120caedbd0a",
+    "webp": "f2902cc3515996db4eafe4f3ffb971f9371e012361f7d1927b7dae7fabc93341"
+  },
+  "daisy/actions/summer/discover.png": {
+    "png": "867ae8dd7cee2afba88c803885bda64ceb12e9a333af7557d351a3d7ec52b344",
+    "webp": "91f5e36c3540ddab0634f2af79a6795d3b882a4ce83cbcaaf09bb91fbf421580"
+  },
+  "daisy/actions/summer/fish.png": {
+    "png": "725a6a32b87a79a4f046da339f614b29edcc513bc8fbcd4e7e79e2af24e6b35c",
+    "webp": "c96e30c36f6fb67776602886a5030b01102ef2408555abaea48a65cc9d0da504"
+  },
+  "daisy/actions/summer/plant.png": {
+    "png": "469722a6128667be881f19939f99f460d38e375988d3631563e7cc84bb560c1a",
+    "webp": "925b19755a4d7edd5c28ab38ab51526a18d16eb19c20cb7de07887ab4d0481a8"
+  },
+  "daisy/actions/winter/dig.png": {
+    "png": "dbac8f76307eedcc814cc34f8067cba83bbd9293ff4ad820a314f8f41065df84",
+    "webp": "454b91101e640e4ca39f7181f34f7881e7601ff5dcf2327dde04457138a5a6a5"
+  },
+  "daisy/actions/winter/discover.png": {
+    "png": "2e73b98a38431785d7e1e22d271547c59492d32001f2e13271146ce60c3b1a7e",
+    "webp": "b8f3dd0c49c9d5b6f45be64df8f2140e94b32d8b25ff0e318c22bf2829c7a7e2"
+  },
+  "daisy/actions/winter/fish.png": {
+    "png": "8b950a6e3d1e22c5b93aef4f58df998e6a0aee45a02c6180a38603c671874374",
+    "webp": "7d5d3905d7d1447eeec1fda6429757d4695c0a53b5b267f2bd211be0a452d563"
+  },
+  "daisy/actions/winter/plant.png": {
+    "png": "801ef4366f881ca45928668ef02b313330ec81be43052153d627cee9005ae93f",
+    "webp": "d06394bc1de9cdd93d3df526de8ae99dfb21a227c27901744d093fb97ecefc0f"
   },
   "daisy/seasonal/summer.png": {
     "png": "1d02ac40e39534dae020e56707f440d7663105a14bacb4da54fb4b3d932f6ed7",
@@ -23,6 +103,54 @@
     "png": "24edc4edf3ef84a0d1d28b35bafeaed1cedb2011d7d9b5ef66a399d390a98c71",
     "webp": "1a92e234494850e61a43254a73117717e12ff7e5e7fa80772a57510c85b7ee25"
   },
+  "miso/actions/base/dig.png": {
+    "png": "8b206660788a53fa86bd7d78edd790c2873acd045e1580e2b6f618a27f835217",
+    "webp": "9fda4f38d584669e790d651611a585e0f54f5cd8c127af9c27ee88029184b559"
+  },
+  "miso/actions/base/discover.png": {
+    "png": "c1bbafc2644db44697c6f66d3a6f6854a46437c449b04e273b73f1643275da78",
+    "webp": "cf811c59e460efd6886c54a9623ae4b65e60b710889eb2b2cb122a782a74b595"
+  },
+  "miso/actions/base/fish.png": {
+    "png": "36d7d547d6702d84af72ba48e2c67d960c7ba891a9fd0d6d5ada6861e238fc2a",
+    "webp": "509f29dad24be5f9576ffe7631ef995320f0c043cd351d135fd623b25fa4604f"
+  },
+  "miso/actions/base/plant.png": {
+    "png": "b59906e7142c0d6feb8b8f5a1e3c06eaa1d5a161fde81675d711df99b433794e",
+    "webp": "b83012b1fce97767fe674525080962e20abb07804415f32bef59998896df7945"
+  },
+  "miso/actions/summer/dig.png": {
+    "png": "1d9d2a2d541c5ef6a03354c17fd136cdc8569cbfb270c02cde0ba0f87c7b4c0f",
+    "webp": "d99188ce65d782989aafac5fc745543388ebd0177a619d63b2f74c4d97e1c676"
+  },
+  "miso/actions/summer/discover.png": {
+    "png": "4df53740de58d7e63f8b620bd93501167d8e6167edb2411ace99465c47519733",
+    "webp": "97a65ec399a54a75be86ee465ad869e5fdff27fa3eef07aaac4c030d444a4c8e"
+  },
+  "miso/actions/summer/fish.png": {
+    "png": "fc531cf4eb35b5d1f4505dfb50189ccfa771c228366d994cb7be9f32ef07b782",
+    "webp": "f2371f9f8b0bdc1d74b37725a63131f8faa2cfa05212842ecb461de4e64d05b4"
+  },
+  "miso/actions/summer/plant.png": {
+    "png": "b2760acd46ff64ae94b15c9b391940436e3ff74e6df15678cfce42650a35abf0",
+    "webp": "e55416e71ecc2c96bb728d1e38e65880b62d98d54a0d6fc8e852e02442a28d57"
+  },
+  "miso/actions/winter/dig.png": {
+    "png": "ff6f98ea95f55acddcd3331b956d10cfa68f9f886e5f805b76d4916df6ba75fd",
+    "webp": "116a5100b411f7edafa58b20f5befea0df13e692c10509dfe464bdaae0a465f4"
+  },
+  "miso/actions/winter/discover.png": {
+    "png": "988eef1417ab9a6cd03d330da47c617dae1f1a965db3952818662abda3e4cee0",
+    "webp": "9c37ff4f2d463cc69da13a9f2688814e6cf3322f4a90c5d3a80c714a8e89a459"
+  },
+  "miso/actions/winter/fish.png": {
+    "png": "bd898cdc47c80360e91828d24d2c65203c096d6e78580079c049f74cdab57adc",
+    "webp": "0406b2e70cbd51cf9019db986ed386798983caaface94477b9f661a671ef5752"
+  },
+  "miso/actions/winter/plant.png": {
+    "png": "3c43d882f6d3591fc910d19a668e656b7a041e1dbccedcb2aee23998121a13d0",
+    "webp": "6d5d7c088d7d5b789c2d1109c88b636ce6f694de30fac367d3e92c4b02a3128b"
+  },
   "miso/seasonal/summer.png": {
     "png": "c1405797ad276961576cb996aef7a9bc55f1ae26673b089014423d459d294967",
     "webp": "91168f20e275e6fda61e33f03087893f49779325bdd113362ea1bea85298b456"
@@ -34,6 +162,54 @@
   "miso/spritesheet.png": {
     "png": "d168ce8f3bbcc326df222a3397d540fbd0b9a883b151578e0b5850d4e2dd1d0a",
     "webp": "5e44b80f08b2af2ded12efdfadbf691c7b4ac2f40af978545dd9794f83016035"
+  },
+  "pip/actions/base/dig.png": {
+    "png": "df79a0fbf13aceac730e3105808c192732108a68e439cb95ec624b8f43158e2a",
+    "webp": "c04568c86cfab0939cd84913e19a8c2cb16910432f918a9a3d0029e3d4c8deb0"
+  },
+  "pip/actions/base/discover.png": {
+    "png": "9e6a59d9c29e048a5d9e91745318e9c147f55a209dd48f9786f431fe39f03b12",
+    "webp": "2a2e9734fa16d5f842b8428de51fc1f5d3700992715d38851d778f63f7993e18"
+  },
+  "pip/actions/base/fish.png": {
+    "png": "ed8297485aff1575e41fcec650406c77ef699cf07c35ca06ce36ec3b4ca41503",
+    "webp": "908fb075ff5861a8642ec7f7d56688324a7a60acd9840b357d3b0b26d0c0e71f"
+  },
+  "pip/actions/base/plant.png": {
+    "png": "63a07d39d2e09bdb4fec47e2d760a3a12d26f65eba1afe7442400d45b17121de",
+    "webp": "402c9f72f338822bc346f291a9c63ca41b055828247784b88114083a4c4035d9"
+  },
+  "pip/actions/summer/dig.png": {
+    "png": "e532341386b6b0e9df12a29d01c4121e5fd66eb23a866fcb2250aa3f2878301f",
+    "webp": "c6d28391091778db4ffb198e6ddd402018bc844893ad2fd74765e9fb3df462e1"
+  },
+  "pip/actions/summer/discover.png": {
+    "png": "ba91973e82997d95a05ac91b8c4817467362b3b8bee6da3a24850f3bbc4c8e54",
+    "webp": "d2e552aa36d85a69b9dc83ec2ea329303158b79875e505347afcad72494f1e33"
+  },
+  "pip/actions/summer/fish.png": {
+    "png": "ab6b534c81d38da4368eab36e19b95984ddcbb12e4a4a3203faa68ee295da394",
+    "webp": "6caac5fa77c07244177a5069a3cfd731761767ddd6d85583450b5c9e95362d40"
+  },
+  "pip/actions/summer/plant.png": {
+    "png": "2cfbac3fd3467a443c0ed9a6e1d3650c12f8f19650525106ca0bfd9a394b8886",
+    "webp": "ce471788c2ae8d1490c8307722fc9c2a14bef091b22268960f3a1ff6e6ca0fe1"
+  },
+  "pip/actions/winter/dig.png": {
+    "png": "2074ee1e0a22b79b4cc91c3da6345e8b62d977a3c24f8ddb0d3a544d92d0b333",
+    "webp": "4468670afb870b918d38f381709d5def0b732e172b8c01ac4904db494bdbf390"
+  },
+  "pip/actions/winter/discover.png": {
+    "png": "7ea3b16cd9290cc888e6e0c39ce9ddebb1434bc89ba5e10940d875988cac8356",
+    "webp": "072aa23120c35484c0e47314e5b1b1a342b6c2884dc13827cb63d9eeff7e4dee"
+  },
+  "pip/actions/winter/fish.png": {
+    "png": "bbc22e841eac3a02cb578b045374ed68f6bac1cdd141b10c8a5d715e4896b49e",
+    "webp": "b02342b107f863ca60b1723331e65e3c32f5479c84cd129b53e1965e12638d58"
+  },
+  "pip/actions/winter/plant.png": {
+    "png": "b9dc6a9649c6e1780feabbdc37b1cd4876bfd1212054215915f0bad76ec5bba8",
+    "webp": "1aa7647d11a8547f917f23a9794b6414ccf87ec4e47fb34a635e06d7ca596aa3"
   },
   "pip/seasonal/summer.png": {
     "png": "6fca5746dca6615bd8d2d481608f4efeba1032951b6067bf3b4f7d03be6b80df",

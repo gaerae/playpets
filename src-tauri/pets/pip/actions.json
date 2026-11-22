@@ -1,0 +1,1085 @@
+{
+  "version": 1,
+  "outfits": {
+    "base": {
+      "dig": {
+        "image": "actions/base/dig.webp",
+        "canvas": [
+          224,
+          224
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "ground": [
+          164,
+          199
+        ],
+        "contactAt": 540,
+        "tossAt": 1300,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              224,
+              224
+            ],
+            "duration": 260
+          },
+          {
+            "rect": [
+              224,
+              0,
+              224,
+              224
+            ],
+            "duration": 280
+          },
+          {
+            "rect": [
+              448,
+              0,
+              224,
+              224
+            ],
+            "duration": 360
+          },
+          {
+            "rect": [
+              672,
+              0,
+              224,
+              224
+            ],
+            "duration": 400
+          },
+          {
+            "rect": [
+              896,
+              0,
+              224,
+              224
+            ],
+            "duration": 380
+          },
+          {
+            "rect": [
+              1120,
+              0,
+              224,
+              224
+            ],
+            "duration": 320
+          }
+        ]
+      },
+      "plant": {
+        "image": "actions/base/plant.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "ground": [
+          125,
+          199
+        ],
+        "contactAt": 900,
+        "tossAt": 1680,
+        "commitAt": 1680,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 260
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 280
+          },
+          {
+            "rect": [
+              384,
+              0,
+              192,
+              208
+            ],
+            "duration": 360
+          },
+          {
+            "rect": [
+              576,
+              0,
+              192,
+              208
+            ],
+            "duration": 400
+          },
+          {
+            "rect": [
+              768,
+              0,
+              192,
+              208
+            ],
+            "duration": 380
+          },
+          {
+            "rect": [
+              960,
+              0,
+              192,
+              208
+            ],
+            "duration": 320
+          }
+        ]
+      },
+      "discover": {
+        "image": "actions/base/discover.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 180
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 240
+          },
+          {
+            "rect": [
+              384,
+              0,
+              192,
+              208
+            ],
+            "duration": 280
+          },
+          {
+            "rect": [
+              576,
+              0,
+              192,
+              208
+            ],
+            "duration": 340
+          },
+          {
+            "rect": [
+              768,
+              0,
+              192,
+              208
+            ],
+            "duration": 300
+          },
+          {
+            "rect": [
+              960,
+              0,
+              192,
+              208
+            ],
+            "duration": 260
+          }
+        ]
+      },
+      "cast": {
+        "image": "actions/base/fish.webp",
+        "canvas": [
+          320,
+          256
+        ],
+        "anchor": [
+          128,
+          239
+        ],
+        "offset": [
+          -32,
+          -40
+        ],
+        "loop": false,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              320,
+              256
+            ],
+            "duration": 350,
+            "tip": [
+              6,
+              23.5
+            ]
+          },
+          {
+            "rect": [
+              320,
+              0,
+              320,
+              256
+            ],
+            "duration": 450,
+            "tip": [
+              301,
+              55
+            ]
+          }
+        ]
+      },
+      "wait": {
+        "image": "actions/base/fish.webp",
+        "canvas": [
+          320,
+          256
+        ],
+        "anchor": [
+          128,
+          239
+        ],
+        "offset": [
+          -32,
+          -40
+        ],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [
+              640,
+              0,
+              320,
+              256
+            ],
+            "duration": 3200,
+            "tip": [
+              247,
+              64
+            ]
+          },
+          {
+            "rect": [
+              960,
+              0,
+              320,
+              256
+            ],
+            "duration": 200,
+            "tip": [
+              247.5,
+              70
+            ]
+          }
+        ]
+      },
+      "reel": {
+        "image": "actions/base/fish.webp",
+        "canvas": [
+          320,
+          256
+        ],
+        "anchor": [
+          128,
+          239
+        ],
+        "offset": [
+          -32,
+          -40
+        ],
+        "loop": false,
+        "frames": [
+          {
+            "rect": [
+              1280,
+              0,
+              320,
+              256
+            ],
+            "duration": 350,
+            "tip": [
+              245,
+              22
+            ]
+          },
+          {
+            "rect": [
+              1600,
+              0,
+              320,
+              256
+            ],
+            "duration": 450,
+            "tip": [
+              266,
+              36
+            ]
+          }
+        ]
+      }
+    },
+    "summer": {
+      "dig": {
+        "image": "actions/summer/dig.webp",
+        "canvas": [
+          224,
+          224
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "ground": [
+          164,
+          199
+        ],
+        "contactAt": 540,
+        "tossAt": 1300,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              224,
+              224
+            ],
+            "duration": 260
+          },
+          {
+            "rect": [
+              224,
+              0,
+              224,
+              224
+            ],
+            "duration": 280
+          },
+          {
+            "rect": [
+              448,
+              0,
+              224,
+              224
+            ],
+            "duration": 360
+          },
+          {
+            "rect": [
+              672,
+              0,
+              224,
+              224
+            ],
+            "duration": 400
+          },
+          {
+            "rect": [
+              896,
+              0,
+              224,
+              224
+            ],
+            "duration": 380
+          },
+          {
+            "rect": [
+              1120,
+              0,
+              224,
+              224
+            ],
+            "duration": 320
+          }
+        ]
+      },
+      "plant": {
+        "image": "actions/summer/plant.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "ground": [
+          125,
+          199
+        ],
+        "contactAt": 900,
+        "tossAt": 1680,
+        "commitAt": 1680,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 260
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 280
+          },
+          {
+            "rect": [
+              384,
+              0,
+              192,
+              208
+            ],
+            "duration": 360
+          },
+          {
+            "rect": [
+              576,
+              0,
+              192,
+              208
+            ],
+            "duration": 400
+          },
+          {
+            "rect": [
+              768,
+              0,
+              192,
+              208
+            ],
+            "duration": 380
+          },
+          {
+            "rect": [
+              960,
+              0,
+              192,
+              208
+            ],
+            "duration": 320
+          }
+        ]
+      },
+      "discover": {
+        "image": "actions/summer/discover.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 180
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 240
+          },
+          {
+            "rect": [
+              384,
+              0,
+              192,
+              208
+            ],
+            "duration": 280
+          },
+          {
+            "rect": [
+              576,
+              0,
+              192,
+              208
+            ],
+            "duration": 340
+          },
+          {
+            "rect": [
+              768,
+              0,
+              192,
+              208
+            ],
+            "duration": 300
+          },
+          {
+            "rect": [
+              960,
+              0,
+              192,
+              208
+            ],
+            "duration": 260
+          }
+        ]
+      },
+      "cast": {
+        "image": "actions/summer/fish.webp",
+        "canvas": [
+          232,
+          224
+        ],
+        "anchor": [
+          96,
+          207
+        ],
+        "offset": [
+          0,
+          -8
+        ],
+        "loop": false,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              232,
+              224
+            ],
+            "duration": 350,
+            "tip": [
+              167.19,
+              31.38
+            ]
+          },
+          {
+            "rect": [
+              232,
+              0,
+              232,
+              224
+            ],
+            "duration": 450,
+            "tip": [
+              227.51,
+              51.22
+            ]
+          }
+        ]
+      },
+      "wait": {
+        "image": "actions/summer/fish.webp",
+        "canvas": [
+          232,
+          224
+        ],
+        "anchor": [
+          96,
+          207
+        ],
+        "offset": [
+          0,
+          -8
+        ],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [
+              464,
+              0,
+              232,
+              224
+            ],
+            "duration": 3200,
+            "tip": [
+              195.54999999999998,
+              41.65
+            ]
+          },
+          {
+            "rect": [
+              696,
+              0,
+              232,
+              224
+            ],
+            "duration": 200,
+            "tip": [
+              186.44,
+              42.38
+            ]
+          }
+        ]
+      },
+      "reel": {
+        "image": "actions/summer/fish.webp",
+        "canvas": [
+          232,
+          224
+        ],
+        "anchor": [
+          96,
+          207
+        ],
+        "offset": [
+          0,
+          -8
+        ],
+        "loop": false,
+        "frames": [
+          {
+            "rect": [
+              928,
+              0,
+              232,
+              224
+            ],
+            "duration": 350,
+            "tip": [
+              193.01,
+              47.38
+            ]
+          },
+          {
+            "rect": [
+              1160,
+              0,
+              232,
+              224
+            ],
+            "duration": 450,
+            "tip": [
+              186.09,
+              48.03
+            ]
+          }
+        ]
+      }
+    },
+    "winter": {
+      "dig": {
+        "image": "actions/winter/dig.webp",
+        "canvas": [
+          224,
+          224
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "ground": [
+          164,
+          199
+        ],
+        "contactAt": 540,
+        "tossAt": 1300,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              224,
+              224
+            ],
+            "duration": 260
+          },
+          {
+            "rect": [
+              224,
+              0,
+              224,
+              224
+            ],
+            "duration": 280
+          },
+          {
+            "rect": [
+              448,
+              0,
+              224,
+              224
+            ],
+            "duration": 360
+          },
+          {
+            "rect": [
+              672,
+              0,
+              224,
+              224
+            ],
+            "duration": 400
+          },
+          {
+            "rect": [
+              896,
+              0,
+              224,
+              224
+            ],
+            "duration": 380
+          },
+          {
+            "rect": [
+              1120,
+              0,
+              224,
+              224
+            ],
+            "duration": 320
+          }
+        ]
+      },
+      "plant": {
+        "image": "actions/winter/plant.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "ground": [
+          125,
+          199
+        ],
+        "contactAt": 900,
+        "tossAt": 1680,
+        "commitAt": 1680,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 260
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 280
+          },
+          {
+            "rect": [
+              384,
+              0,
+              192,
+              208
+            ],
+            "duration": 360
+          },
+          {
+            "rect": [
+              576,
+              0,
+              192,
+              208
+            ],
+            "duration": 400
+          },
+          {
+            "rect": [
+              768,
+              0,
+              192,
+              208
+            ],
+            "duration": 380
+          },
+          {
+            "rect": [
+              960,
+              0,
+              192,
+              208
+            ],
+            "duration": 320
+          }
+        ]
+      },
+      "discover": {
+        "image": "actions/winter/discover.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 180
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 240
+          },
+          {
+            "rect": [
+              384,
+              0,
+              192,
+              208
+            ],
+            "duration": 280
+          },
+          {
+            "rect": [
+              576,
+              0,
+              192,
+              208
+            ],
+            "duration": 340
+          },
+          {
+            "rect": [
+              768,
+              0,
+              192,
+              208
+            ],
+            "duration": 300
+          },
+          {
+            "rect": [
+              960,
+              0,
+              192,
+              208
+            ],
+            "duration": 260
+          }
+        ]
+      },
+      "cast": {
+        "image": "actions/winter/fish.webp",
+        "canvas": [
+          272,
+          224
+        ],
+        "anchor": [
+          96,
+          207
+        ],
+        "offset": [
+          0,
+          -8
+        ],
+        "loop": false,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              272,
+              224
+            ],
+            "duration": 350,
+            "tip": [
+              171.32,
+              41.04
+            ]
+          },
+          {
+            "rect": [
+              272,
+              0,
+              272,
+              224
+            ],
+            "duration": 450,
+            "tip": [
+              265.6,
+              42.32
+            ]
+          }
+        ]
+      },
+      "wait": {
+        "image": "actions/winter/fish.webp",
+        "canvas": [
+          272,
+          224
+        ],
+        "anchor": [
+          96,
+          207
+        ],
+        "offset": [
+          0,
+          -8
+        ],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [
+              544,
+              0,
+              272,
+              224
+            ],
+            "duration": 3200,
+            "tip": [
+              206.44,
+              55.4
+            ]
+          },
+          {
+            "rect": [
+              816,
+              0,
+              272,
+              224
+            ],
+            "duration": 200,
+            "tip": [
+              209.76,
+              48.2
+            ]
+          }
+        ]
+      },
+      "reel": {
+        "image": "actions/winter/fish.webp",
+        "canvas": [
+          272,
+          224
+        ],
+        "anchor": [
+          96,
+          207
+        ],
+        "offset": [
+          0,
+          -8
+        ],
+        "loop": false,
+        "frames": [
+          {
+            "rect": [
+              1088,
+              0,
+              272,
+              224
+            ],
+            "duration": 350,
+            "tip": [
+              183.84,
+              78.2
+            ]
+          },
+          {
+            "rect": [
+              1360,
+              0,
+              272,
+              224
+            ],
+            "duration": 450,
+            "tip": [
+              178.56,
+              41.2
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

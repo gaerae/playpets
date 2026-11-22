@@ -1,0 +1,429 @@
+{
+  "version": 1,
+  "outfits": {
+    "base": {
+      "dig": {
+        "image": "actions/base/dig.png",
+        "anchor": [91, 199],
+        "ground": [174, 199],
+        "contactAt": 460,
+        "tossAt": 1320,
+        "canvas": [192, 208],
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 180
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 140
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 140
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 160
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 200
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 200
+          },
+          {
+            "rect": [1152, 0, 192, 208],
+            "duration": 160
+          },
+          {
+            "rect": [1344, 0, 192, 208],
+            "duration": 140
+          },
+          {
+            "rect": [1536, 0, 192, 208],
+            "duration": 180
+          },
+          {
+            "rect": [1728, 0, 192, 208],
+            "duration": 160
+          },
+          {
+            "rect": [1920, 0, 192, 208],
+            "duration": 140
+          },
+          {
+            "rect": [2112, 0, 192, 208],
+            "duration": 200
+          }
+        ]
+      },
+      "plant": {
+        "image": "actions/base/plant.png",
+        "anchor": [96, 199],
+        "ground": [149, 199],
+        "contactAt": 660,
+        "tossAt": 1460,
+        "commitAt": 1460,
+        "canvas": [192, 208],
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 170
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 170
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 160
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 160
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 200
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 200
+          },
+          {
+            "rect": [1152, 0, 192, 208],
+            "duration": 200
+          },
+          {
+            "rect": [1344, 0, 192, 208],
+            "duration": 200
+          },
+          {
+            "rect": [1536, 0, 192, 208],
+            "duration": 160
+          },
+          {
+            "rect": [1728, 0, 192, 208],
+            "duration": 160
+          },
+          {
+            "rect": [1920, 0, 192, 208],
+            "duration": 120
+          },
+          {
+            "rect": [2112, 0, 192, 208],
+            "duration": 100
+          }
+        ]
+      },
+      "discover": {
+        "image": "actions/base/discover.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 120
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 120
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 120
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 140
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 160
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 180
+          },
+          {
+            "rect": [1152, 0, 192, 208],
+            "duration": 180
+          },
+          {
+            "rect": [1344, 0, 192, 208],
+            "duration": 160
+          },
+          {
+            "rect": [1536, 0, 192, 208],
+            "duration": 140
+          },
+          {
+            "rect": [1728, 0, 192, 208],
+            "duration": 120
+          },
+          {
+            "rect": [1920, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [2112, 0, 192, 208],
+            "duration": 100
+          }
+        ]
+      },
+      "cast": {
+        "image": "actions/base/fish.png",
+        "canvas": [224, 216],
+        "anchor": [96, 207],
+        "offset": [0, -8],
+        "loop": false,
+        "frames": [
+          {
+            "rect": [0, 0, 224, 216],
+            "duration": 180,
+            "tip": [190.48000000000002, 50.56]
+          },
+          {
+            "rect": [224, 0, 224, 216],
+            "duration": 140,
+            "tip": [189.84000000000003, 54.36000000000001]
+          },
+          {
+            "rect": [448, 0, 224, 216],
+            "duration": 180,
+            "tip": [156.8, 10.240000000000002]
+          },
+          {
+            "rect": [672, 0, 224, 216],
+            "duration": 180,
+            "tip": [219.20000000000002, 50.44]
+          },
+          {
+            "rect": [896, 0, 224, 216],
+            "duration": 160,
+            "tip": [199.20000000000002, 52.800000000000004]
+          },
+          {
+            "rect": [1120, 0, 224, 216],
+            "duration": 200,
+            "tip": [186.76000000000002, 53.36]
+          }
+        ]
+      },
+      "wait": {
+        "image": "actions/base/fish.png",
+        "canvas": [224, 216],
+        "anchor": [96, 207],
+        "offset": [0, -8],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [1344, 0, 224, 216],
+            "duration": 3200,
+            "tip": [189.96, 51.56]
+          },
+          {
+            "rect": [1568, 0, 224, 216],
+            "duration": 200,
+            "tip": [192.52, 54.36]
+          }
+        ]
+      },
+      "reel": {
+        "image": "actions/base/fish.png",
+        "canvas": [224, 216],
+        "anchor": [96, 207],
+        "offset": [0, -8],
+        "loop": false,
+        "frames": [
+          {
+            "rect": [1792, 0, 224, 216],
+            "duration": 180,
+            "tip": [175.8, 44.28]
+          },
+          {
+            "rect": [2016, 0, 224, 216],
+            "duration": 180,
+            "tip": [202.16000000000003, 52.44]
+          },
+          {
+            "rect": [2240, 0, 224, 216],
+            "duration": 180,
+            "tip": [190.44000000000003, 47.52]
+          },
+          {
+            "rect": [2464, 0, 224, 216],
+            "duration": 220,
+            "tip": [188.8, 48.88]
+          }
+        ]
+      }
+    },
+    "winter": {
+      "dig": {
+        "image": "actions/winter/dig.png",
+        "canvas": [224, 224],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "ground": [164, 199],
+        "contactAt": 540,
+        "tossAt": 1300,
+        "frames": [
+          {
+            "rect": [0, 0, 224, 224],
+            "duration": 260
+          },
+          {
+            "rect": [224, 0, 224, 224],
+            "duration": 280
+          },
+          {
+            "rect": [448, 0, 224, 224],
+            "duration": 360
+          },
+          {
+            "rect": [672, 0, 224, 224],
+            "duration": 400
+          },
+          {
+            "rect": [896, 0, 224, 224],
+            "duration": 380
+          },
+          {
+            "rect": [1120, 0, 224, 224],
+            "duration": 320
+          }
+        ]
+      },
+      "plant": {
+        "image": "actions/winter/plant.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "ground": [125, 199],
+        "contactAt": 900,
+        "tossAt": 1680,
+        "commitAt": 1680,
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 260
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 280
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 360
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 400
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 380
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 320
+          }
+        ]
+      },
+      "discover": {
+        "image": "actions/winter/discover.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 180
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 240
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 280
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 340
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 300
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 260
+          }
+        ]
+      },
+      "cast": {
+        "image": "actions/winter/fish.png",
+        "canvas": [320, 256],
+        "anchor": [112, 239],
+        "offset": [-16, -40],
+        "loop": false,
+        "frames": [
+          {
+            "rect": [0, 0, 320, 256],
+            "duration": 350,
+            "tip": [215.8, 18.22]
+          },
+          {
+            "rect": [320, 0, 320, 256],
+            "duration": 450,
+            "tip": [309.28000000000003, 90.42]
+          }
+        ]
+      },
+      "wait": {
+        "image": "actions/winter/fish.png",
+        "canvas": [320, 256],
+        "anchor": [112, 239],
+        "offset": [-16, -40],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [640, 0, 320, 256],
+            "duration": 3200,
+            "tip": [243.08, 72.28]
+          },
+          {
+            "rect": [960, 0, 320, 256],
+            "duration": 200,
+            "tip": [242, 72.2]
+          }
+        ]
+      },
+      "reel": {
+        "image": "actions/winter/fish.png",
+        "canvas": [320, 256],
+        "anchor": [112, 239],
+        "offset": [-16, -40],
+        "loop": false,
+        "frames": [
+          {
+            "rect": [1280, 0, 320, 256],
+            "duration": 350,
+            "tip": [244.44, 12.22]
+          },
+          {
+            "rect": [1600, 0, 320, 256],
+            "duration": 450,
+            "tip": [245.06, 17.68]
+          }
+        ]
+      }
+    }
+  }
+}

@@ -7,6 +7,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { crc32 } from 'node:zlib';
 import {
+  builtinActions,
   builtinManifest,
   builtinWebpProblems,
   exactPixels,
@@ -126,6 +127,60 @@ test('a built-in friend with a stale, missing, unembedded or leftover sheet is r
     'retired friend left behind': [
       { 'src-tauri/pets/moon/pet.json': shipped },
       ['src-tauri/pets/moon is not a built-in friend in src-tauri/src/pets/builtin.rs'],
+    ],
+  };
+  for (const [name, [changes, expected]] of Object.entries(cases)) {
+    const files = { ...current, ...changes, 'assets/pets/webp.json': JSON.stringify(record) };
+    const root = await fixture(Object.fromEntries(Object.entries(files).filter(([, bytes]) => bytes !== null)));
+    t.after(() => rm(root, { recursive: true, force: true }));
+    assert.deepEqual(await builtinWebpProblems(root), expected, name);
+  }
+});
+
+// A friend's game poses ship beside its sheets: actions.json names its atlases as WebP, which keep
+// the near-lossless bytes they had as yard art (2026-11-23 design).
+test('a built-in friend with poses ships its actions file and every atlas it names', async t => {
+  const png = pngHeader(4, 2),
+    webp = webpHeader(4, 2),
+    source = JSON.stringify({ id: 'sun', spritesheetPath: 'spritesheet.png', actionsPath: 'actions.json' }),
+    poses = JSON.stringify({ version: 1, outfits: { base: { dig: { image: 'actions/base/dig.png' } } } }),
+    record = {
+      'sun/spritesheet.png': { png: sha256(png), webp: sha256(webp) },
+      'sun/actions/base/dig.png': { png: sha256(png), webp: sha256(webp) },
+    },
+    embeds = files =>
+      `const PETS: &[Builtin] = &[\n    pet!(\n        "sun"${files.map(f => `,\n        "${f}"`).join('')}\n    ),\n];\n`;
+  const current = {
+    'src-tauri/src/pets/builtin.rs': embeds(['spritesheet.webp', 'actions.json', 'actions/base/dig.webp']),
+    'assets/pets/sun/pet.json': source,
+    'assets/pets/sun/spritesheet.png': png,
+    'assets/pets/sun/actions.json': poses,
+    'assets/pets/sun/actions/base/dig.png': png,
+    'src-tauri/pets/sun/pet.json': builtinManifest(source),
+    'src-tauri/pets/sun/spritesheet.webp': webp,
+    'src-tauri/pets/sun/actions.json': builtinActions(poses),
+    'src-tauri/pets/sun/actions/base/dig.webp': webp,
+  };
+  assert.equal(JSON.parse(builtinActions(poses)).outfits.base.dig.image, 'actions/base/dig.webp');
+  const cases = {
+    current: [{}, []],
+    'atlas missing': [
+      { 'src-tauri/pets/sun/actions/base/dig.webp': null },
+      ['src-tauri/pets/sun/actions/base/dig.webp is missing'],
+    ],
+    'actions file stale': [
+      { 'src-tauri/pets/sun/actions.json': poses },
+      ['src-tauri/pets/sun/actions.json is not made from assets/pets/sun/actions.json'],
+    ],
+    'stray file': [
+      { 'src-tauri/pets/sun/actions/base/old.webp': webp },
+      ['src-tauri/pets/sun/actions/base/old.webp is not made from assets/pets/sun'],
+    ],
+    'not embedded': [
+      { 'src-tauri/src/pets/builtin.rs': embeds(['spritesheet.webp']) },
+      [
+        'src-tauri/src/pets/builtin.rs embeds sun as spritesheet.webp, not spritesheet.webp, actions.json, actions/base/dig.webp',
+      ],
     ],
   };
   for (const [name, [changes, expected]] of Object.entries(cases)) {

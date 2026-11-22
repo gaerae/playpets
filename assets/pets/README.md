@@ -41,7 +41,8 @@
   fallback.
 - Accepted action sources, normalization maps, packing plans and provenance:
   `../sources/companion-actions-2026-10-19/`, grouped by character and outfit.
-- Runtime atlases: `src/art/companions/` at the repository root.
+- Packed atlases: each friend's `actions/<outfit>/`, named by its `actions.json`
+  (`actionsPath` in `pet.json`); they ship near-lossless as `src-tauri/pets/<id>/actions/`.
 - A single fishing atlas supplies separate cast, wait and reel clips.
 - Keep body scale, foot contact, complete held tools and outfit consistent
   across each clip.

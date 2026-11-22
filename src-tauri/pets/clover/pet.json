@@ -5,6 +5,7 @@
   "description": "A gentle cream-and-ginger kitten gardener in teal overalls and a straw hat. Loves growing flowers and sharing small discoveries.",
   "spriteVersionNumber": 2,
   "spritesheetPath": "spritesheet.webp",
+  "actionsPath": "actions.json",
   "seasonalSpritesheets": {
     "summer": "seasonal/summer.webp",
     "winter": "seasonal/winter.webp"

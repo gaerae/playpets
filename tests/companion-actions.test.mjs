@@ -1,13 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {
+
+// The backend's bridge: petActions answers what each test puts here.
+const bridge = (globalThis.playPets = {});
+const {
   actionGroundOffset,
   beginCompanionAction,
   clearCompanionAction,
   companionAction,
   setCompanionSeason,
   useCompanionActions,
-} from '../src/core/companion-actions.js';
+} = await import('../src/core/companion-actions.js');
 
 test('authored ground contact uses the rendered cell scale instead of centering the tool under the feet', () => {
   assert.deepEqual(actionGroundOffset({ anchor: [96, 199], ground: [168, 199] }, 96, 104), { x: 36, y: 0 });
@@ -26,21 +29,30 @@ const clip = {
     { rect: [256, 0, 256, 288], foot: [130, 272], duration: 450 },
   ],
 };
-const view = (place = 'builtin', sourceId = 'playpets-clover') => ({
-  asset: { place, sourceId, id: sourceId, spriteUrl: 'base.png', seasonalSpriteUrls: { summer: 'summer.png' } },
+const view = (place = 'builtin', id = 'playpets-clover', more = {}) => ({
+  asset: {
+    place,
+    sourceId: id,
+    id,
+    hasActions: true,
+    spriteUrl: 'base.png',
+    seasonalSpriteUrls: { summer: 'summer.png' },
+    ...more,
+  },
 });
+const posesOf = (outfits, id = 'playpets-clover') => useCompanionActions(id, { version: 1, outfits });
 function seed() {
-  useCompanionActions({
-    version: 1,
-    characters: { 'playpets-clover': { variants: { spring: { dig: clip }, autumn: { dig: clip } } } },
-  });
+  posesOf({ base: { dig: clip }, summer: { wait: clip } });
   setCompanionSeason('spring');
 }
 
-test('only bundled companions opt into authored action clips', () => {
+test('a pet with poses plays them wherever it came from, and others keep their sheet', () => {
   seed();
-  assert.equal(beginCompanionAction(view('custom'), 'dig', 10), null);
-  assert.equal(beginCompanionAction(view('builtin', 'other'), 'dig', 10), null);
+  posesOf({ base: { dig: clip } }, 'made-in-the-kit');
+  const made = view('folder', 'made-in-the-kit');
+  assert.equal(beginCompanionAction(made, 'dig', 10).duration, 750, 'a pet made in the creator kit');
+  assert.equal(beginCompanionAction(view('folder', 'made-in-the-kit', { hasActions: false }), 'dig', 10), null);
+  assert.equal(beginCompanionAction(view('folder', 'made-in-the-kit', { spriteStyle: 'realistic' }), 'dig', 10), null);
   const v = view();
   assert.equal(beginCompanionAction(v, 'dig', 10).duration, 750);
   assert.deepEqual(companionAction(v, 310).frame.rect, [256, 0, 256, 288]);
@@ -52,7 +64,16 @@ test('season changes cancel an action rather than changing the companion outfit'
   beginCompanionAction(v, 'dig', 0);
   setCompanionSeason('summer');
   assert.equal(companionAction(v, 20), null);
-  assert.equal(beginCompanionAction(v, 'dig', 20), null);
+  assert.equal(beginCompanionAction(v, 'dig', 20), null, "summer's own outfit has no dig, so no base clothes either");
+  assert.ok(beginCompanionAction(v, 'wait', 20), "summer's own clip");
+});
+
+test('a season without its own outfit plays the base poses', () => {
+  seed();
+  for (const season of ['spring', 'autumn', 'winter']) {
+    setCompanionSeason(season);
+    assert.equal(beginCompanionAction(view(), 'dig', 0)?.clip, clip, season);
+  }
 });
 test('cancelled clips cannot continue after the friend is taken away', () => {
   seed();
@@ -63,10 +84,7 @@ test('cancelled clips cannot continue after the friend is taken away', () => {
 });
 test('looping waits repeat while one-shot actions keep their own start clock', () => {
   seed();
-  useCompanionActions({
-    version: 1,
-    characters: { 'playpets-clover': { variants: { spring: { wait: { ...clip, loop: true } } } } },
-  });
+  posesOf({ base: { wait: { ...clip, loop: true } } });
   const v = view();
   beginCompanionAction(v, 'wait', 100);
   assert.deepEqual(companionAction(v, 1150).frame.rect, [256, 0, 256, 288]);
@@ -154,7 +172,7 @@ test('a wide authored tool preserves body scale and restores the portable canvas
       scale: 1,
       frames: [{ rect: [0, 0, 224, 216], foot: [96, 207], duration: 400 }],
     };
-    useCompanionActions({ version: 1, characters: { 'playpets-clover': { variants: { spring: { cast: wide } } } } });
+    posesOf({ base: { cast: wide } });
     setCompanionSeason('spring');
     const v = view();
     const calls = [];
@@ -197,7 +215,7 @@ test('actions sharing an atlas repaint when their first frame rectangles differ'
     const common = { url: 'art/companions/clover/fish.png', anchor: [96, 199], scale: 1 };
     const cast = { ...common, frames: [{ rect: [0, 0, 192, 208], foot: [96, 199], duration: 300 }] };
     const wait = { ...common, frames: [{ rect: [192, 0, 192, 208], foot: [96, 199], duration: 300 }] };
-    useCompanionActions({ version: 1, characters: { 'playpets-clover': { variants: { spring: { cast, wait } } } } });
+    posesOf({ base: { cast, wait } });
     setCompanionSeason('spring');
     const v = view(),
       calls = [];
@@ -220,18 +238,13 @@ test('actions sharing an atlas repaint when their first frame rectangles differ'
   }
 });
 
-test('every imported source ID collision keeps its portable sheet in every season', () => {
-  for (const id of ['playpets-clover', 'playpets-daisy', 'playpets-pip', 'playpets-miso']) {
-    for (const season of ['spring', 'summer', 'autumn', 'winter']) {
-      useCompanionActions({ version: 1, characters: { [id]: { variants: { [season]: { dig: clip } } } } });
-      setCompanionSeason(season);
-      for (const place of ['custom', 'codex', 'community']) {
-        const v = view(place, id);
-        const before = JSON.stringify(v.asset);
-        assert.equal(beginCompanionAction(v, 'dig', 0), null, `${id}/${season}/${place}`);
-        assert.equal(JSON.stringify(v.asset), before);
-      }
-    }
+test('a pet never plays poses it does not carry, whatever its pet file calls it', () => {
+  seed();
+  for (const place of ['custom', 'codex', 'community']) {
+    // Same name as Clover, a folder of its own, and no poses that passed.
+    useCompanionActions(`copy-${place}`, null);
+    const v = view(place, `copy-${place}`, { sourceId: 'playpets-clover' });
+    assert.equal(beginCompanionAction(v, 'dig', 0), null, place);
   }
 });
 
@@ -251,29 +264,33 @@ test('dragging, a replacement trip and absence invalidate an authored action', (
   }
 });
 
-// The authored actions (102 KB) serve four bundled companions only: the yard draws first and they
-// load after, once, and only when a bundled companion is there or asks for one.
-test('the authored actions load once, and only for a bundled companion', async t => {
-  // A module of its own, not yet given any actions.
+// Poses are asked for once per pet, after the yard draws, and only for a pet that has them.
+test('poses are asked for once, and only for a pet that has them', async () => {
+  // A module of its own, not yet given any poses.
   const fresh = await import('../src/core/companion-actions.js?lazy');
   const asked = [];
-  globalThis.fetch = async url => {
-    asked.push(String(url));
-    return {
-      ok: true,
-      json: async () => ({ version: 1, characters: { 'playpets-clover': { variants: { spring: { dig: clip } } } } }),
-    };
+  bridge.petActions = async id => {
+    asked.push(id);
+    return { version: 1, outfits: { base: { dig: clip } } };
   };
-  t.after(() => delete globalThis.fetch);
   fresh.setCompanionSeason('spring');
-  fresh.loadCompanionActionsFor([view('custom').asset, view('builtin', 'other').asset, undefined]);
-  assert.equal(fresh.prepareCompanionAction(view('custom').asset, 'dig'), null);
-  assert.deepEqual(asked, [], 'no bundled companion: nothing loads');
-  assert.equal(fresh.prepareCompanionAction(view().asset, 'dig'), null, 'not loaded on the first ask');
+  const plain = view('folder', 'plain', { hasActions: false }).asset;
+  fresh.loadCompanionActionsFor([
+    plain,
+    view('folder', 'shown-realistic', { spriteStyle: 'realistic' }).asset,
+    undefined,
+  ]);
+  assert.equal(fresh.prepareCompanionAction(plain, 'dig'), null);
+  assert.deepEqual(asked, [], 'no pet with poses: nothing is asked');
+  assert.equal(fresh.prepareCompanionAction(view().asset, 'dig'), null, 'not there on the first ask');
   fresh.loadCompanionActionsFor([view().asset]);
-  assert.equal(asked.length, 1, 'asked once');
-  assert.match(asked[0], /content\/companion-actions\.json$/);
+  assert.deepEqual(asked, ['playpets-clover'], 'asked once');
   await fresh.loadCompanionActionsFor([view().asset]);
   assert.equal(fresh.prepareCompanionAction(view().asset, 'dig'), clip);
   assert.equal(asked.length, 1, 'still once');
+  bridge.petActions = async () => {
+    throw new Error('gone');
+  };
+  await fresh.loadCompanionActionsFor([view('folder', 'unreadable').asset]);
+  assert.equal(fresh.prepareCompanionAction(view('folder', 'unreadable').asset, 'dig'), null);
 });

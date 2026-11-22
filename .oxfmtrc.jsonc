@@ -21,5 +21,7 @@
     "**/*.yaml",
     "**/*.toml",
     "src-tauri/gen",
+    // Made by `pnpm run assets:webp` from assets/pets, which is formatted as source.
+    "src-tauri/pets",
   ],
 }

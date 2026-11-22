@@ -306,23 +306,19 @@ test('bundled digging uses its authored tool and waits for its actual action dur
     complete = true;
     naturalWidth = 1024;
   };
-  v.asset = { place: 'builtin', sourceId: 'playpets-clover' };
-  useCompanionActions({
+  v.asset = { place: 'builtin', sourceId: 'playpets-clover', id: 'playpets-clover', hasActions: true };
+  useCompanionActions('playpets-clover', {
     version: 1,
-    characters: {
-      'playpets-clover': {
-        variants: {
-          spring: {
-            dig: {
-              url: 'art/companions/clover/dig.png',
-              heldTool: true,
-              anchor: [96, 199],
-              ground: [168, 199],
-              contactAt: 500,
-              tossAt: 1500,
-              frames: [{ rect: [0, 0, 192, 208], foot: [96, 200], duration: 2400 }],
-            },
-          },
+    outfits: {
+      base: {
+        dig: {
+          url: 'art/companions/clover/dig.png',
+          heldTool: true,
+          anchor: [96, 199],
+          ground: [168, 199],
+          contactAt: 500,
+          tossAt: 1500,
+          frames: [{ rect: [0, 0, 192, 208], foot: [96, 200], duration: 2400 }],
         },
       },
     },
@@ -351,7 +347,7 @@ test('bundled digging uses its authored tool and waits for its actual action dur
   assert.equal(companionAction(v, performance.now()), null);
   resolveDig({ ok: true, data: { outcome: 'empty' } });
   await pending;
-  useCompanionActions({ version: 1, characters: {} });
+  useCompanionActions('playpets-clover', null);
 });
 
 test('cancelling authored tree placement before contact does not spend a sapling', async t => {
@@ -372,21 +368,17 @@ test('cancelling authored tree placement before contact does not spend a sapling
     complete = true;
     naturalWidth = 192;
   };
-  v.asset = { place: 'builtin', sourceId: 'playpets-clover' };
-  useCompanionActions({
+  v.asset = { place: 'builtin', sourceId: 'playpets-clover', id: 'playpets-clover', hasActions: true };
+  useCompanionActions('playpets-clover', {
     version: 1,
-    characters: {
-      'playpets-clover': {
-        variants: {
-          spring: {
-            plant: {
-              url: 'art/companions/clover/plant.png',
-              anchor: [96, 199],
-              ground: [149, 199],
-              commitAt: 600,
-              frames: [{ rect: [0, 0, 192, 208], foot: [96, 199], duration: 1200 }],
-            },
-          },
+    outfits: {
+      base: {
+        plant: {
+          url: 'art/companions/clover/plant.png',
+          anchor: [96, 199],
+          ground: [149, 199],
+          commitAt: 600,
+          frames: [{ rect: [0, 0, 192, 208], foot: [96, 199], duration: 1200 }],
         },
       },
     },
@@ -402,7 +394,7 @@ test('cancelling authored tree placement before contact does not spend a sapling
   for (const timer of timers) timer();
   await pending;
   assert.equal(planted, 0);
-  useCompanionActions({ version: 1, characters: {} });
+  useCompanionActions('playpets-clover', null);
 });
 
 test('dug soil opens at ground contact behind the friend and uses the selected season', async t => {
@@ -500,23 +492,19 @@ test('authored planting rechecks current ground and ownership at contact before 
       t.after(() => {
         if (previous) state.api.plantTree = previous;
         else delete state.api.plantTree;
-        useCompanionActions({ version: 1, characters: {} });
+        useCompanionActions('playpets-clover', null);
       });
-      v.asset = { place: 'builtin', sourceId: 'playpets-clover' };
-      useCompanionActions({
+      v.asset = { place: 'builtin', sourceId: 'playpets-clover', id: 'playpets-clover', hasActions: true };
+      useCompanionActions('playpets-clover', {
         version: 1,
-        characters: {
-          'playpets-clover': {
-            variants: {
-              spring: {
-                plant: {
-                  url: 'art/companions/clover/plant.png',
-                  anchor: [96, 199],
-                  ground: [149, 199],
-                  commitAt: 600,
-                  frames: [{ rect: [0, 0, 192, 208], foot: [96, 199], duration: 1200 }],
-                },
-              },
+        outfits: {
+          base: {
+            plant: {
+              url: 'art/companions/clover/plant.png',
+              anchor: [96, 199],
+              ground: [149, 199],
+              commitAt: 600,
+              frames: [{ rect: [0, 0, 192, 208], foot: [96, 199], duration: 1200 }],
             },
           },
         },

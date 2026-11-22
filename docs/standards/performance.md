@@ -175,8 +175,8 @@
   - Outside a page (the Node tests, scripts) every table loads: the tests check them all.
   - The four tables are 246 KB. In Chrome, after a collection, the JS heap with `i18n.js` loaded went from 1,232 KB to 999 KB (Korean, which also loads English) and 875 KB (English); the import took 13–15 ms before and after, the files coming in parallel either way.
   - Measured 2026-11-15, Apple M2 Pro, headless Chrome over localhost, medians of 15 runs.
-- The first render waits for the yard's content (`loadContent`), not for the bundled companions' authored actions (`src/content/companion-actions.json`, 102 KB).
-  - A bundled companion asks for them as the yard draws it (`syncViews` in `src/yard/views.js` calls `loadCompanionActionsFor` in `src/core/companion-actions.js`), at the first render or when it comes in later; a yard without one never loads them.
+- The first render waits for the yard's content (`loadContent`), not for the friends' own game poses (`actionsPath` in a pet file, about 25 KB each for the four friends).
+  - A friend with poses asks for them (`petActions`) as the yard draws it (`syncViews` in `src/yard/views.js` calls `loadCompanionActionsFor` in `src/core/companion-actions.js`), once, at the first render or when it comes in later; a pet without poses asks nothing.
   - On its own the file takes about 4 ms to fetch and 0.2 ms to parse in Chrome. Beside the hundred drawings `loadContent` fetches, the time to the content made no measurable difference (medians 105–222 ms either way, noisy); on Windows each request also passes through the window's thread (WebView2), and the start makes one fewer.
 - The content files stay formatted as people edit them: the app has no build step for the page (`frontendDist` is `src/`), and Tauri compresses what it embeds.
 

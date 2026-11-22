@@ -24,7 +24,7 @@ function page(t, { imported = false, decoded = true, tip = true } = {}) {
     fishing.endFishing();
     views.clear();
     reduced.matches = previousReduced;
-    useCompanionActions({ version: 1, characters: {} });
+    useCompanionActions('playpets-clover', null);
   });
   t.mock.timers.enable({ apis: ['setTimeout'] });
   installStorage(t);
@@ -45,7 +45,12 @@ function page(t, { imported = false, decoded = true, tip = true } = {}) {
   const pet = { id: 'angler', size: 112 };
   const v = {
     pet,
-    asset: { place: imported ? 'folder' : 'builtin', sourceId: 'playpets-clover' },
+    asset: {
+      place: imported ? 'folder' : 'builtin',
+      sourceId: 'playpets-clover',
+      id: 'playpets-clover',
+      hasActions: !imported,
+    },
     px: 200,
     py: 300,
     z: 45,
@@ -64,11 +69,9 @@ function page(t, { imported = false, decoded = true, tip = true } = {}) {
     anchor: [96, 199],
     frames: [frame(145, 30), frame(175, 65)],
   };
-  useCompanionActions({
+  useCompanionActions('playpets-clover', {
     version: 1,
-    characters: {
-      'playpets-clover': { variants: { spring: { cast: clip, wait: { ...clip, loop: true }, reel: clip } } },
-    },
+    outfits: { base: { cast: clip, wait: { ...clip, loop: true }, reel: clip } },
   });
   setCompanionSeason('spring');
   requests.length = 0;
@@ -119,10 +122,10 @@ test('reduced motion keeps the line on the first displayed authored frame', t =>
   assert.equal(rod.hasAttribute('hidden'), true);
   assert.ok(line.innerHTML.includes(`M${v.px + (145 * 112) / 192} ${v.py + (30 * 112) / 192}`));
 });
-for (const mode of ['imported', 'decoding', 'missing-tip'])
+for (const mode of ['poseless', 'decoding', 'missing-tip'])
   test(`${mode} fishing keeps the canonical tackle`, t => {
     const { rod } = page(t, {
-      imported: mode === 'imported',
+      imported: mode === 'poseless',
       decoded: mode !== 'decoding',
       tip: mode !== 'missing-tip',
     });
