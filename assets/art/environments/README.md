@@ -64,4 +64,5 @@
 | 2026-11-13 | New outdoor set; the stone courtyard became the Wild garden. The previous outdoor pictures and the retired studio and office sources were removed from the repository; Git history keeps them |
 | 2026-11-21 | Soft sky edges on every outdoor picture (`scripts/soften-sky-edges.mjs`); the Wild garden's left side opened back to the meadow ([provenance](FOUR-PLACES-PROVENANCE.md)) |
 
-- Only `assets/sources/environments/studio-cozy-day.png` remains of the retired rooms: `scripts/creator-skill.mjs` copies it as the creator kit's interior example.
+- Only `assets/sources/environments/studio-cozy-day.png` remains of the retired rooms: it is the creator kit's interior example (`BACKGROUND_REFERENCES` in `scripts/background-specs.mjs`), since its floor stays clear where the interior layout asks.
+- The kit's garden example is `courtyard-green.png` (the Wild garden) and its lakeside example `lakeside-spring.png`. The site shows each one's small WebP copy on the background studio's cards.

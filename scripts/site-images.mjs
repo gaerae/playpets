@@ -5,10 +5,16 @@
 import { readdir, readFile, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { dataUrlBytes } from './art-lib.mjs';
+import { BACKGROUND_REFERENCES } from './background-specs.mjs';
 import { launchBrowser } from './browser-lib.mjs';
 
 const SCENE_QUALITY = 0.82;
 const SMALL_WIDTH = 768;
+
+// The places' scenes and each studio kit's reference, once each: a studio card shows the small copy.
+export function sceneSources(environments) {
+  return [...new Set([...environments, ...Object.values(BACKGROUND_REFERENCES)])].sort();
+}
 
 export function siteImagePlan(sources) {
   return {
@@ -31,7 +37,7 @@ export function siteImagePlan(sources) {
 export async function exportSiteImages(launch = launchBrowser) {
   const folder = 'assets/art/environments';
   const sources = (await readdir(folder)).filter(name => name.endsWith('.png')).map(name => `${folder}/${name}`);
-  const plan = siteImagePlan(sources.sort());
+  const plan = siteImagePlan(sceneSources(sources));
   await mkdir(path.dirname(plan.icon.destination), { recursive: true });
   let browser;
   try {

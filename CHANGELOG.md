@@ -48,6 +48,9 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The site's album guide says a gift that comes while the yard is full waits on its own card, no longer in a gift box.
 - The play guide says an animal followed three times turns to look and shows its face in the footprint book, and can then come out to the yard and the desktop; the desktop guide says it hops when clicked.
 - The chat, play and settings guides call the menu's first item **Friends**, as the app now does.
+- The background studio's garden kit starts from the Wild garden, an open meadow with no house, and its cards load small pictures, about 270 KB for all three instead of about 10 MB.
+- A background kit's request asks only about what its layout has: water and a fishing spot by the lake, a see-through sky outdoors, glass panes indoors. It names the app's own menu, **Place & atmosphere → Import background**.
+- The character studio and its kit say how to import a pet ZIP without the old note on versions before 1.4.0, and a kit named in Korean, Japanese or Chinese is saved under its starter's name, such as `my-clover-creation-kit.zip`, instead of `my-pet`.
 
 ## [1.9.0] - 2026-11-20
 
