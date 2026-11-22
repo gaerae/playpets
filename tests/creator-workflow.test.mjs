@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -572,6 +572,250 @@ for i,source in enumerate([0,1,2,3,4,5,5,5]):
         'a hard link cannot overwrite source pixels',
       );
     }
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+// A pose batch for the tests: a 40×80 figure standing with its feet at (192, 460) in tiles 0–5 and
+// 7 of each 384×512 tile, so tile 7 sets the scale to the sheet's idle height. The plant batch
+// also has a pot on the ground beside the feet, which only a `feet` list in points.json corrects.
+const POSE_FIXTURE = `from PIL import Image,ImageDraw
+import sys,json
+from pathlib import Path
+root=Path(sys.argv[1])
+for outfit in ('base','winter'):
+ (root/outfit).mkdir(parents=True)
+ for batch in ('dig','plant','discover','fish'):
+  im=Image.new('RGBA',(1536,1024)); d=ImageDraw.Draw(im)
+  for col in (0,1,2,3,4,5,7):
+   x=(col%4)*384+172; y=(col//4)*512+380
+   for line in range(80):
+    d.line((x,y+line,x+39,y+line),fill=(60+line,110+col,150,255))
+   if batch=='plant' and col<6:
+    d.rectangle((x+42,y+64,x+56,y+79),fill=(150,90,40,255))
+  im.save(root/outfit/f'{batch}.png')
+ tile=lambda i,dx,dy:[(i%4)*384+192+dx,(i//4)*512+460+dy]
+ (root/outfit/'points.json').write_text(json.dumps({
+  'dig':{'ground':tile(2,50,0)},
+  'plant':{'ground':tile(3,40,0),'feet':[tile(i,0,0) for i in range(6)]},
+  'fish':{'tips':[tile(i,60,-90) for i in range(6)]}}))
+`;
+const pngSize = bytes => [bytes.readUInt32BE(16), bytes.readUInt32BE(20)];
+
+test('offline helper packs game poses for each outfit at the sheet scale with the friends timings', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'creator-poses-'));
+  try {
+    const poses = path.join(dir, 'poses');
+    const generated = spawnSync(python, ['-c', POSE_FIXTURE, poses], { encoding: 'utf8' });
+    assert.equal(generated.status, 0, generated.stderr);
+    const out = path.join(dir, 'pet.zip');
+    const args = [
+      'pack-pet',
+      '--atlas',
+      'assets/pets/clover/spritesheet.png',
+      '--season',
+      'winter=assets/pets/clover/spritesheet.png',
+      '--actions',
+      poses,
+      '--id',
+      'posed',
+      '--name',
+      'Posed',
+      '--kind',
+      'animal',
+      '--output',
+      out,
+    ];
+    const result = run(...args);
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /game poses/);
+    const files = entries(await readFile(out));
+    const atlases = ['dig', 'plant', 'discover', 'fish'];
+    assert.deepEqual(
+      Object.keys(files).sort(),
+      [
+        'actions.json',
+        ...['base', 'winter'].flatMap(outfit => atlases.map(name => `actions/${outfit}/${name}.png`)),
+        'pet.json',
+        'spritesheet.png',
+        'winter.png',
+      ].sort(),
+    );
+    assert.equal(JSON.parse(files['pet.json']).actionsPath, 'actions.json');
+    const actions = JSON.parse(files['actions.json']);
+    assert.equal(actions.version, 1);
+    assert.deepEqual(Object.keys(actions.outfits).sort(), ['base', 'winter']);
+    const durations = {
+      dig: [280, 280, 300, 400, 360, 380],
+      plant: [260, 260, 400, 440, 300, 340],
+      discover: [200, 220, 260, 360, 300, 260],
+      cast: [300, 400],
+      wait: [3200, 200],
+      reel: [320, 420],
+    };
+    for (const [outfit, clips] of Object.entries(actions.outfits)) {
+      assert.deepEqual(Object.keys(clips).sort(), Object.keys(durations).sort());
+      for (const [name, clip] of Object.entries(clips)) {
+        const fishing = ['cast', 'wait', 'reel'].includes(name),
+          [width, height] = pngSize(files[clip.image]);
+        assert.equal(clip.image, `actions/${outfit}/${fishing ? 'fish' : name}.png`);
+        assert.deepEqual(
+          [clip.canvas, clip.anchor, clip.offset],
+          fishing
+            ? [
+                [320, 256],
+                [128, 239],
+                [-32, -40],
+              ]
+            : name === 'dig'
+              ? [
+                  [224, 224],
+                  [96, 199],
+                  [0, 0],
+                ]
+              : [
+                  [192, 208],
+                  [96, 199],
+                  [0, 0],
+                ],
+          name,
+        );
+        assert.deepEqual(
+          clip.frames.map(frame => frame.duration),
+          durations[name],
+        );
+        for (const frame of clip.frames) {
+          const [x, y, w, h] = frame.rect;
+          assert.deepEqual([w, h], clip.canvas);
+          assert.ok(x + w <= width && y + h <= height, `${outfit} ${name} frame inside its atlas`);
+          if (fishing) assert.ok(frame.tip[0] <= w && frame.tip[1] <= h && frame.tip.every(n => n >= 0));
+          else assert.equal(frame.tip, undefined);
+        }
+        assert.equal(clip.loop, fishing ? name === 'wait' : undefined);
+      }
+      assert.deepEqual([clips.dig.contactAt, clips.dig.tossAt, clips.dig.commitAt], [560, 1280, undefined]);
+      assert.deepEqual([clips.plant.contactAt, clips.plant.tossAt, clips.plant.commitAt], [520, 1360, 1360]);
+      assert.deepEqual(
+        [clips.cast, clips.wait, clips.reel].flatMap(clip => clip.frames.map(frame => frame.rect[0])),
+        [0, 320, 640, 960, 1280, 1600],
+      );
+    }
+    // The packed figures stand on the anchor at the sheet's idle height, and every point moved with them.
+    const unpacked = path.join(dir, 'unpacked');
+    await mkdir(path.join(unpacked, 'actions', 'base'), { recursive: true });
+    for (const [name, bytes] of Object.entries(files)) {
+      if (name.startsWith('actions/base/') || name === 'spritesheet.png' || name === 'actions.json')
+        await writeFile(path.join(unpacked, name), bytes);
+    }
+    const measured = spawnSync(
+      python,
+      [
+        '-c',
+        `from PIL import Image
+import sys,json
+from pathlib import Path
+root=Path(sys.argv[1]); clips=json.loads((root/'actions.json').read_text())['outfits']['base']
+box=lambda im:im.getchannel('A').point(lambda a:255 if a>24 else 0).getbbox()
+idle=box(Image.open(root/'spritesheet.png').crop((0,0,192,208))); idle=idle[3]-idle[1]
+scale=idle/80
+for name in ('dig','plant','discover','cast','wait','reel'):
+ clip=clips[name]; atlas=Image.open(root/clip['image']).convert('RGBA')
+ for frame in clip['frames']:
+  x,y,w,h=frame['rect']; cell=atlas.crop((x,y,x+w,y+h))
+  if name=='plant': cell=cell.crop((0,0,clip['anchor'][0]+round(21*scale),h))
+  b=box(cell)
+  assert abs((b[3]-b[1])-idle)<=2,(name,b,idle)
+  assert abs((b[0]+b[2])/2-clip['anchor'][0])<=1.5,(name,b)
+  assert abs(b[3]-clip['anchor'][1])<=1.5,(name,b)
+  if 'tip' in frame:
+   assert abs(frame['tip'][0]-clip['anchor'][0]-60*scale)<=1.5 and abs(clip['anchor'][1]-frame['tip'][1]-90*scale)<=1.5,(name,frame)
+assert clips['dig']['ground']==[round(96+50*scale),199],clips['dig']['ground']
+assert clips['plant']['ground']==[round(96+40*scale),199],clips['plant']['ground']
+`,
+        unpacked,
+      ],
+      { encoding: 'utf8' },
+    );
+    assert.equal(measured.status, 0, measured.stderr);
+
+    // Each refusal names what to fix, and no half-made ZIP is left.
+    const points = path.join(poses, 'base', 'points.json'),
+      given = JSON.parse(await readFile(points, 'utf8'));
+    const refused = async (pattern, change, extra = args) => {
+      const undo = await change();
+      const attempt = run(...extra, '--overwrite');
+      await undo?.();
+      assert.notEqual(attempt.status, 0, String(pattern));
+      assert.match(attempt.stderr, pattern);
+    };
+    const writePoints = value => async () => {
+      await writeFile(points, JSON.stringify(value));
+      return () => writeFile(points, JSON.stringify(given));
+    };
+    await refused(/six rod tips/, writePoints({ ...given, fish: { tips: given.fish.tips.slice(0, 5) } }));
+    await refused(/six rod tips/, writePoints({ ...given, fish: {} }));
+    await refused(/tile 2/, writePoints({ ...given, fish: { tips: given.fish.tips.with(2, [10, 10]) } }));
+    await refused(/Unknown points/, writePoints({ ...given, swim: {} }));
+    await refused(/points.json/, async () => {
+      await rename(points, `${points}.away`);
+      return () => rename(`${points}.away`, points);
+    });
+    await refused(/discover.png/, async () => {
+      const file = path.join(poses, 'winter', 'discover.png');
+      await rename(file, `${file}.away`);
+      return () => rename(`${file}.away`, file);
+    });
+    await refused(/autumn2/, async () => {
+      await mkdir(path.join(poses, 'autumn2'));
+      return () => rm(path.join(poses, 'autumn2'), { recursive: true });
+    });
+    await refused(
+      /--season winter/,
+      () => {},
+      args.filter((_, i) => i < 3 || i > 4),
+    );
+    const blank = spawnSync(
+      python,
+      [
+        '-c',
+        `from PIL import Image
+import sys
+im=Image.open(sys.argv[1]).convert('RGBA'); im.paste((0,0,0,0),(1152,512,1536,1024)); im.save(sys.argv[2])`,
+        path.join(poses, 'base', 'dig.png'),
+        path.join(dir, 'blank.png'),
+      ],
+      { encoding: 'utf8' },
+    );
+    assert.equal(blank.status, 0, blank.stderr);
+    await refused(/standing pose/, async () => {
+      const file = path.join(poses, 'base', 'dig.png');
+      await rename(file, `${file}.away`);
+      await rename(path.join(dir, 'blank.png'), file);
+      return () => rename(`${file}.away`, file);
+    });
+    assert.equal(run(...args, '--overwrite').status, 0);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('offline pose review sheet draws every packed frame without touching its sources', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'creator-pose-sheet-'));
+  try {
+    const poses = path.join(dir, 'poses');
+    const generated = spawnSync(python, ['-c', POSE_FIXTURE, poses], { encoding: 'utf8' });
+    assert.equal(generated.status, 0, generated.stderr);
+    const source = path.join(poses, 'base', 'fish.png'),
+      original = await readFile(source),
+      out = path.join(dir, 'review.png');
+    const result = run('render-actions', '--actions', poses, '--output', out);
+    assert.equal(result.status, 0, result.stderr);
+    const [width, height] = pngSize(await readFile(out));
+    assert.ok(width >= 6 * 320 && height >= 2 * (224 + 208 + 208 + 256), `${width}x${height}`);
+    assert.deepEqual(await readFile(source), original);
+    assert.notEqual(run('render-actions', '--actions', poses, '--output', source, '--overwrite').status, 0);
+    assert.deepEqual(await readFile(source), original);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

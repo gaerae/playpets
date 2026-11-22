@@ -254,3 +254,26 @@ test('the background cards show small scene copies, and the garden kit shows the
   // The note on water and fishing coordinates shows for the layout that has water.
   assert.match(studio, /v-if="kind==='background'&&request\.layout\?\.water"/);
 });
+
+test('a made friend digs, plants, shows a find and fishes: the request, the skill and the studio ask for the poses', async () => {
+  const { creationCopy } = await import('../website/.vitepress/theme/creation-copy.js');
+  for (const seasonal of [false, true]) {
+    const request = creationRequest(kitRequest({ kind: 'pet', starter: 'daisy', seasonal }));
+    for (const pattern of [
+      /dig\.png, plant\.png, discover\.png and fish\.png/,
+      /points\.json/,
+      /--actions/,
+      /render-actions/,
+    ])
+      assert.match(request, pattern);
+    assert.match(request, /actions\.json/);
+    assert.match(request, seasonal ? /poses for every outfit/i : /base poses/i);
+  }
+  assert.doesNotMatch(creationRequest(kitRequest({ kind: 'background', starter: 'garden' })), /--actions/);
+  for (const file of ['SKILL.md', 'references/formats.md']) {
+    const text = await readFile(`assets/creator-skill/playpets-creator/${file}`, 'utf8');
+    for (const pattern of [/--actions/, /render-actions/, /points\.json/, /tile 7/i]) assert.match(text, pattern, file);
+  }
+  const poses = { en: /dig.*fish/i, ko: /땅 파기.*낚시/, ja: /穴掘り.*釣り/, 'zh-hans': /挖土.*钓鱼/ };
+  for (const [lang, pattern] of Object.entries(poses)) assert.match(creationCopy[lang].petOutput, pattern, lang);
+});

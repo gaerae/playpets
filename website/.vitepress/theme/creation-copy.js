@@ -55,7 +55,7 @@ export const creationCopy = {
     capability:
       'The website does not generate images or accept artwork uploads. The skill needs image generation, file execution, Python 3 and Pillow. It does not provide an image model or use your chat subscription automatically. Set up the supported tools in your chosen environment; check any generation costs there.',
     petOutput:
-      'Final output: pet.zip. Choose it with Friends & settings → Invite a friend → Import a pet → Import from a ZIP file on this computer, and the app copies it in. To import an unzipped folder instead, keep it in a permanent location: the app reads it where it is. A reference or one motion row is not a finished pet.',
+      'Final output: pet.zip. Choose it with Friends & settings → Invite a friend → Import a pet → Import from a ZIP file on this computer, and the app copies it in. To import an unzipped folder instead, keep it in a permanent location: the app reads it where it is. A reference or one motion row is not a finished pet. With game poses drawn too, a made friend can dig, plant, show a find and fish like the built-in friends.',
     backgroundOutput:
       'Final output: background.json. Add it with Import background in the app’s Place & atmosphere. The skill checks image dimensions, transparency, geometry and package limits; verify scene alignment in the app.',
     busy: 'Gathering kit files…',
@@ -125,7 +125,7 @@ export const creationCopy = {
     capability:
       '이 웹은 이미지를 생성하거나 그림 파일을 업로드받지 않아요. 스킬을 실행하려면 이미지 생성, 파일 실행, Python 3와 Pillow가 필요해요. 이미지 모델을 제공하거나 채팅 구독을 자동으로 연결하지는 않아요. 사용하는 환경에서 도구를 준비하고 생성 비용도 확인해 주세요.',
     petOutput:
-      '완성 파일은 pet.zip이에요. 친구와 설정 → 친구 초대 → 펫 가져오기 → 내 컴퓨터의 ZIP 파일에서 가져오기로 고르면 앱 안으로 복사돼요. 압축을 푼 폴더로 가져올 때는 앱이 그 자리에서 읽으니, 계속 보관할 위치에 두고 옮기거나 지우지 마세요. 참고 그림이나 동작 한 줄은 완성된 펫이 아니에요.',
+      '완성 파일은 pet.zip이에요. 친구와 설정 → 친구 초대 → 펫 가져오기 → 내 컴퓨터의 ZIP 파일에서 가져오기로 고르면 앱 안으로 복사돼요. 압축을 푼 폴더로 가져올 때는 앱이 그 자리에서 읽으니, 계속 보관할 위치에 두고 옮기거나 지우지 마세요. 참고 그림이나 동작 한 줄은 완성된 펫이 아니에요. 놀이 동작까지 그리면 만든 친구도 기본 친구처럼 땅 파기, 심기, 찾은 것 보여 주기, 낚시를 해요.',
     backgroundOutput:
       '완성 파일은 background.json이에요. 앱의 배경과 분위기에서 배경 가져오기로 추가해요. 스킬이 그림 크기, 투명도, 좌표, 패키지 제한을 검사하며, 실제 풍경과 동선은 앱에서 확인해요.',
     busy: '키트에 자료를 담고 있어요…',
@@ -194,7 +194,7 @@ export const creationCopy = {
     capability:
       'このサイトは画像生成や画像アップロードを行いません。スキルには画像生成、ファイル実行、Python 3とPillowが必要です。画像モデルの提供やチャット契約の自動接続は行いません。利用環境のツールと生成料金を確認してください。',
     petOutput:
-      '完成ファイルはpet.zipです。友だちと設定 → 友だちを招待 → ペットを取り込む → このパソコンのZIPファイルから取り込むで選ぶと、アプリがコピーして取り込みます。解凍したフォルダーから取り込む場合はアプリがその場所のまま読むので、保管する場所に置き、移動や削除はしないでください。参考画像や動作1行だけでは完成ペットになりません。',
+      '完成ファイルはpet.zipです。友だちと設定 → 友だちを招待 → ペットを取り込む → このパソコンのZIPファイルから取り込むで選ぶと、アプリがコピーして取り込みます。解凍したフォルダーから取り込む場合はアプリがその場所のまま読むので、保管する場所に置き、移動や削除はしないでください。参考画像や動作1行だけでは完成ペットになりません。遊びのポーズも描けば、作った友だちも最初からいる友だちと同じように穴掘り、植え付け、見つけた物の披露、釣りをします。',
     backgroundOutput:
       '完成ファイルはbackground.jsonです。アプリの「場所と雰囲気」の「背景を読み込む」から追加します。スキルは画像寸法、透明度、座標、サイズ制限を検証します。実際の配置はアプリで確認します。',
     busy: 'キットの資料を準備中…',
@@ -253,7 +253,7 @@ export const creationCopy = {
     capability:
       '网站不生成图片，也不接收图片上传。技能需要图片生成、文件执行、Python 3和Pillow，不提供图像模型或自动连接聊天订阅。请在所选环境中准备工具并确认生成费用。',
     petOutput:
-      '最终文件为pet.zip。在伙伴与设置 → 邀请伙伴 → 导入宠物 → 从本机 ZIP 文件导入中选择它，应用会复制进来。若改为导入解压后的文件夹，应用会直接在原处读取，请放在长期保存的位置，不要移动或删除。参考图或一行动作不是完整宠物。',
+      '最终文件为pet.zip。在伙伴与设置 → 邀请伙伴 → 导入宠物 → 从本机 ZIP 文件导入中选择它，应用会复制进来。若改为导入解压后的文件夹，应用会直接在原处读取，请放在长期保存的位置，不要移动或删除。参考图或一行动作不是完整宠物。再画上游戏姿势，做好的伙伴也能像自带伙伴一样挖土、种植、展示找到的东西和钓鱼。',
     backgroundOutput:
       '最终文件为background.json。在应用的场景与氛围中用导入背景添加。技能检查图片尺寸、透明度、坐标和资源包限制，实际布局请在应用中确认。',
     busy: '正在收集套件文件…',

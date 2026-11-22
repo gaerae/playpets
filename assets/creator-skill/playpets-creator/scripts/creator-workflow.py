@@ -23,6 +23,22 @@ SEASONS = ('spring', 'summer', 'autumn', 'winter')
 ROWS = ('idle', 'right', 'left', 'wave', 'jump', 'error', 'waiting', 'working', 'done', 'look', 'look')
 COUNTS = (6, 8, 8, 4, 5, 8, 6, 6, 6, 8, 8)
 MIB = 1024 * 1024
+OUTFITS = ('base',) + SEASONS
+POSE_BATCHES = ('dig', 'plant', 'discover', 'fish')
+# Each batch's canvas, the feet in it and where it sits against the 192x208 cell (offset). Digging
+# reaches past the cell's right side; fishing leaves room above and behind for a raised rod.
+POSE_CANVAS = {'dig': ((224, 224), (96, 199), (0, 0)), 'plant': ((192, 208), (96, 199), (0, 0)),
+               'discover': ((192, 208), (96, 199), (0, 0)), 'fish': ((320, 256), (128, 239), (-32, -40))}
+# The clips the app plays, from which tiles of which batch, with the four built-in friends' timings.
+POSE_CLIPS = (
+    ('dig', 'dig', range(6), (280, 280, 300, 400, 360, 380), {'contactAt': 560, 'tossAt': 1280}),
+    ('plant', 'plant', range(6), (260, 260, 400, 440, 300, 340), {'contactAt': 520, 'tossAt': 1360, 'commitAt': 1360}),
+    ('discover', 'discover', range(6), (200, 220, 260, 360, 300, 260), {}),
+    ('cast', 'fish', (0, 1), (300, 400), {'loop': False}),
+    ('wait', 'fish', (2, 3), (3200, 200), {'loop': True}),
+    ('reel', 'fish', (4, 5), (320, 420), {'loop': False}),
+)
+POINT_KEYS = {'dig': {'ground', 'feet'}, 'plant': {'ground', 'feet'}, 'discover': {'feet'}, 'fish': {'tips', 'feet'}}
 
 
 def check(ok, message):
@@ -139,6 +155,179 @@ def pack_rows(directory, target, mapping):
     return validate_atlas(atlas)
 
 
+def opaque_box(picture):
+    return picture.getchannel('A').point(lambda a: 255 if a > 24 else 0).getbbox()
+
+
+def idle_height(sheet):
+    box = opaque_box(sheet.crop((0, 0, 192, 208)))
+    return box[3] - box[1]
+
+
+def picture_point(value, label):
+    check(isinstance(value, list) and len(value) == 2 and all(fraction(n, 0, side) for n, side in zip(value, (1536, 1024))),
+          f'{label} must be [x, y] in the picture\'s pixels')
+    return value
+
+
+def tile_of(point):
+    return int(point[0] // 384) + 4 * int(point[1] // 512)
+
+
+def pose_points(path, outfit):
+    check(path.is_file(), f'{outfit}/points.json is missing; it holds the six rod tips and the tools\' ground points')
+    given = read_json(path)
+    check(not set(given) - set(POINT_KEYS), f'Unknown points in {outfit}/points.json: {", ".join(sorted(set(given) - set(POINT_KEYS)))}')
+    result = {}
+    for batch, value in given.items():
+        check(isinstance(value, dict) and not set(value) - POINT_KEYS[batch], f'Unknown points for {outfit} {batch}')
+        entry = {}
+        if 'ground' in value:
+            entry['ground'] = picture_point(value['ground'], f'{outfit} {batch} ground')
+            check(tile_of(entry['ground']) < 6, f'{outfit} {batch} ground must lie in one of tiles 0-5')
+        for key in ('feet', 'tips'):
+            if key in value:
+                points = value[key]
+                check(isinstance(points, list) and len(points) == 6,
+                      f'{outfit} {batch} {key} needs six {"rod tips" if key == "tips" else "points"}, one per tile 0-5')
+                for index, point in enumerate(points):
+                    check(tile_of(picture_point(point, f'{outfit} {batch} {key}')) == index,
+                          f'{outfit} {batch} {key} point {index} is not in tile {index}')
+                entry[key] = points
+        result[batch] = entry
+    check(len(result.get('fish', {}).get('tips', ())) == 6,
+          f'{outfit}/points.json needs six rod tips (fish.tips), one per fishing tile; without them the line has nowhere to leave from')
+    return result
+
+
+def pose_batch(path, label, height, points, batch):
+    """Packs tiles 0-5 of one batch into a row of canvases at the scale tile 7 sets."""
+    source = image(path, (1536, 1024), pet=True)
+    (width, depth), (ax, ay), _ = POSE_CANVAS[batch]
+    boxes = {}
+    for index in (0, 1, 2, 3, 4, 5, 7):
+        left, top = (index % 4) * 384, (index // 4) * 512
+        box = opaque_box(source.crop((left, top, left + 384, top + 512)))
+        check(box is not None, f'{label} tile {index} is empty' + ('; it needs the standing pose that sets the scale' if index == 7 else ''))
+        check(box[0] >= 3 and box[1] >= 3 and box[2] <= 381 and box[3] <= 509, f'{label} tile {index} crosses its tile gutter')
+        boxes[index] = (left + box[0], top + box[1], left + box[2], top + box[3])
+    scale = height / (boxes[7][3] - boxes[7][1])
+    atlas = Image.new('RGBA', (width * 6, depth))
+    frames = []
+    for index in range(6):
+        left, top, right, bottom = boxes[index]
+        if 'feet' in points:
+            foot = points['feet'][index]
+        else:
+            # The middle of what touches the ground: the lowest 12px of the figure.
+            band = opaque_box(source.crop((left, bottom - 12, right, bottom)))
+            foot = (left + (band[0] + band[2]) / 2, bottom)
+        place = lambda x, y: (ax + (x - foot[0]) * scale, ay + (y - foot[1]) * scale)
+        (x0, y0), (x1, y1) = place(left, top), place(right, bottom)
+        check(x0 >= 1 and y0 >= 1 and x1 <= width - 1 and y1 <= depth - 1,
+              f'{label} tile {index} would clip its {width}x{depth} canvas; draw the figure and tool smaller in that tile')
+        crop = source.crop((left - 2, top - 2, right + 2, bottom + 2))
+        size = (round(crop.width * scale), round(crop.height * scale))
+        corner = place(left - 2, top - 2)
+        cell = Image.new('RGBA', (width, depth))
+        cell.paste(crop.resize(size, Image.Resampling.LANCZOS), (round(corner[0]), round(corner[1])))
+        atlas.paste(cell, (index * width, 0))
+        frame = {'rect': [index * width, 0, width, depth]}
+        if 'tips' in points:
+            tip = place(*points['tips'][index])
+            check(0 <= tip[0] <= width and 0 <= tip[1] <= depth, f'{label} rod tip {index} falls outside its {width}x{depth} canvas')
+            frame['tip'] = [round(tip[0]), round(tip[1])]
+        frames.append(frame)
+    ground = None
+    if 'ground' in points:
+        at = points['ground']
+        index = tile_of(at)
+        left, top, right, bottom = boxes[index]
+        foot = points['feet'][index] if 'feet' in points else None
+        if foot is None:
+            band = opaque_box(source.crop((left, bottom - 12, right, bottom)))
+            foot = (left + (band[0] + band[2]) / 2, bottom)
+        # The tool meets the ground on the line the feet stand on, so only its x is taken.
+        ground = [round(ax + (at[0] - foot[0]) * scale), ay]
+        check(0 <= ground[0] <= width, f'{label} ground falls outside its {width}x{depth} canvas')
+    return atlas, frames, ground
+
+
+def pack_actions(directory, heights):
+    """Packs every outfit folder of DIR into actions/<outfit>/*.png and the actions.json that names them."""
+    root = Path(directory)
+    check(root.is_dir(), 'The --actions folder does not exist')
+    folders = sorted(path.name for path in root.iterdir() if not path.name.startswith('.'))
+    for name in folders:
+        check(name in OUTFITS and (root / name).is_dir(), f'Unknown pose folder {name}; use base, spring, summer, autumn or winter')
+    check('base' in folders, 'The --actions folder needs base/, the poses every season falls back to')
+    files, outfits, sources = {}, {}, []
+    for outfit in [name for name in OUTFITS if name in folders]:
+        check(outfit in heights, f'Poses for {outfit} need --season {outfit}=FILE, the sheet that outfit walks in')
+        points_path = root / outfit / 'points.json'
+        points = pose_points(points_path, outfit)
+        sources.append(points_path)
+        packed = {}
+        for batch in POSE_BATCHES:
+            path = root / outfit / f'{batch}.png'
+            check(path.is_file(), f'{outfit}/{batch}.png is missing; every outfit needs dig, plant, discover and fish')
+            sources.append(path)
+            packed[batch] = pose_batch(path, f'{outfit} {batch}', heights[outfit], points.get(batch, {}), batch)
+            files[f'actions/{outfit}/{batch}.png'] = png_bytes(packed[batch][0], 8 * MIB)
+        clips = {}
+        for name, batch, tiles, durations, extra in POSE_CLIPS:
+            canvas, anchor, offset = POSE_CANVAS[batch]
+            _, frames, ground = packed[batch]
+            clip = {'image': f'actions/{outfit}/{batch}.png', 'canvas': list(canvas), 'anchor': list(anchor), 'offset': list(offset)}
+            if ground is not None:
+                clip['ground'] = ground
+            clip.update(extra)
+            clip['frames'] = [{**frames[tile], 'duration': duration} for tile, duration in zip(tiles, durations)]
+            clips[name] = clip
+        outfits[outfit] = clips
+    files['actions.json'] = (json.dumps({'version': 1, 'outfits': outfits}, indent=2) + '\n').encode()
+    check(len(files['actions.json']) <= 256 * 1024, 'actions.json exceeds 256 KiB')
+    return files, sources
+
+
+def render_actions(args):
+    files, sources = pack_actions(args.actions, {outfit: args.idle_height for outfit in OUTFITS})
+    actions = json.loads(files['actions.json'])
+    rows = [(outfit, name, clip) for outfit, clips in actions['outfits'].items() for name, clip in clips.items() if name != 'wait' and name != 'reel']
+    width = 24 + 6 * (320 + 12)
+    height = 24 + sum(20 + clip['canvas'][1] + 12 for _, _, clip in rows)
+    sheet = Image.new('RGBA', (width, height), '#edf4fc')
+    draw = ImageDraw.Draw(sheet)
+    y = 24
+    for outfit, name, clip in rows:
+        cw, ch = clip['canvas']
+        batch = 'fish' if name == 'cast' else name
+        atlas = Image.open(io.BytesIO(files[clip['image']])).convert('RGBA')
+        frames = actions['outfits'][outfit]['cast']['frames'] + actions['outfits'][outfit]['wait']['frames'] + \
+            actions['outfits'][outfit]['reel']['frames'] if batch == 'fish' else clip['frames']
+        draw.text((24, y), f'{outfit} {batch}', fill='#363b43')
+        y += 20
+        for index, frame in enumerate(frames):
+            x = 24 + index * (cw + 12)
+            fx, fy, fw, fh = frame['rect']
+            sheet.alpha_composite(atlas.crop((fx, fy, fx + fw, fy + fh)), (x, y))
+            draw.rectangle((x, y, x + cw - 1, y + ch - 1), outline='#9aa3ad')
+            ox, oy = clip['offset']
+            draw.rectangle((x - ox, y - oy, x - ox + 191, y - oy + 207), outline='#8a48b8')
+            draw.line((x + clip['anchor'][0] - 8, y + clip['anchor'][1], x + clip['anchor'][0] + 8, y + clip['anchor'][1]), fill='#245c86', width=2)
+            draw.line((x + clip['anchor'][0], y + clip['anchor'][1] - 8, x + clip['anchor'][0], y + clip['anchor'][1] + 8), fill='#245c86', width=2)
+            if 'ground' in clip:
+                gx, gy = clip['ground']
+                draw.ellipse((x + gx - 5, y + gy - 5, x + gx + 5, y + gy + 5), fill='#3c8c3a')
+            if 'tip' in frame:
+                tx, ty = frame['tip']
+                draw.ellipse((x + tx - 5, y + ty - 5, x + tx + 5, y + ty + 5), fill='#d04f34')
+        y += ch + 12
+    write_output(args.output, png_bytes(sheet, 32 * MIB), args.overwrite, sources)
+    print('Rendered: every packed pose on its canvas, with the feet (blue cross), the 192x208 cell (purple), '
+          'ground points (green) and rod tips (red). Check them by eye before packing.')
+
+
 def assemble_row(args):
     source = image(args.image, (1536, 1024), pet=True)
     check(re.fullmatch(r'[0-9]+(?:,[0-9]+){7}', args.frames) is not None,
@@ -206,8 +395,15 @@ def pet(args):
     files = {'spritesheet.png': png_bytes(sheet, 32 * MIB)}
     if extra:
         manifest['seasonalSpritesheets'] = {name: f'{name}.png' for name in extra}
+    sheets = {'base': sheet}
     for name, path in extra.items():
-        files[f'{name}.png'] = png_bytes(validate_atlas(image(path, (1536, 2288), pet=True)), 32 * MIB)
+        sheets[name] = validate_atlas(image(path, (1536, 2288), pet=True))
+        files[f'{name}.png'] = png_bytes(sheets[name], 32 * MIB)
+    pose_sources, heights = [], {name: idle_height(picture) for name, picture in sheets.items()}
+    if args.actions:
+        poses, pose_sources = pack_actions(args.actions, heights)
+        files.update(poses)
+        manifest['actionsPath'] = 'actions.json'
     files['pet.json'] = (json.dumps(manifest, ensure_ascii=False, indent=2) + '\n').encode()
     output = io.BytesIO()
     with zipfile.ZipFile(output, 'w', compression=zipfile.ZIP_STORED) as archive:
@@ -220,8 +416,13 @@ def pet(args):
         sources.append(args.source_json)
     if args.frame_map:
         sources.append(args.frame_map)
-    write_output(args.output, output.getvalue(), args.overwrite, sources)
+    write_output(args.output, output.getvalue(), args.overwrite, sources + pose_sources)
     print('Validated: decoded static images, alpha, dimensions, 73 used cells, cell margins, manifest and ZIP paths. Art review and app playback remain manual.')
+    if args.actions:
+        outfits = ', '.join(name for name in OUTFITS if f'actions/{name}/dig.png' in files)
+        print(f'Packed game poses for {outfits}, each at its sheet\'s idle height '
+              f'({", ".join(f"{name} {heights[name]}px" for name in OUTFITS if f"actions/{name}/dig.png" in files)}). '
+              'Check them with render-actions and in the app.')
 
 
 def fraction(value, lower=0, upper=1):
@@ -328,6 +529,7 @@ def main():
     pets.add_argument('--kind', choices=['animal', 'person', 'other'], required=True)
     pets.add_argument('--description', default='')
     pets.add_argument('--source-json', help='Optional JSON attribution object: name, url, creator, license (metadata only; never fetched)')
+    pets.add_argument('--actions', help='Optional game poses: DIR/<outfit>/dig.png, plant.png, discover.png, fish.png (1536x1024, 4x2) and points.json; outfit folders base, spring, summer, autumn, winter')
     row = commands.add_parser('assemble-row', help='Retile approved 3x2 or 4x2 artwork into a canonical row without changing pixels or scale')
     row.add_argument('--image', required=True, help='1536x1024 transparent PNG or static WebP')
     row.add_argument('--columns', type=int, choices=(3, 4), required=True)
@@ -339,14 +541,18 @@ def main():
     guide = commands.add_parser('render-layout', help='Render layout JSON to a technical PNG guide for image-tool references (not finished art)')
     guide.add_argument('--config', required=True, help='Background layout JSON')
     guide.add_argument('--image', help='Optional 1536x1024 scene to inspect beneath technical guides; never modified')
+    poses = commands.add_parser('render-actions', help='Pack game poses as pack-pet --actions would and draw them with their feet, ground points and rod tips for review')
+    poses.add_argument('--actions', required=True, help='The same folder pack-pet --actions reads')
+    poses.add_argument('--idle-height', type=float, default=163, help='The sheet\'s idle height in pixels; pack-pet reports it for each outfit (default 163)')
     for command in (pets, bg):
         command.add_argument('--season', action='append', default=[], metavar='SEASON=FILE', help='Optional complete seasonal picture; repeat for each season')
-    for command in (pets, bg, guide, row):
+    for command in (pets, bg, guide, row, poses):
         command.add_argument('--output', required=True, help='New output file; parent directory must exist')
         command.add_argument('--overwrite', action='store_true', help='Explicitly replace existing output, never an input')
     args = parser.parse_args()
     try:
-        {'pack-pet': pet, 'pack-background': background, 'render-layout': render_layout, 'assemble-row': assemble_row}[args.command](args)
+        {'pack-pet': pet, 'pack-background': background, 'render-layout': render_layout, 'assemble-row': assemble_row,
+         'render-actions': render_actions}[args.command](args)
     except (OSError, ValueError, TypeError, Image.DecompressionBombError, Image.DecompressionBombWarning) as error:
         parser.exit(1, f'Validation failed: {error}\n')
 
