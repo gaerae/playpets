@@ -9,8 +9,8 @@ use std::path::{Path, PathBuf};
 
 /// The largest `actions.json` read.
 pub const ACTIONS_LIMIT: usize = 256 * 1024;
-const IMAGE_LIMIT: usize = 8 * 1024 * 1024;
-const IMAGE_SIDE: u32 = 4096;
+pub const IMAGE_LIMIT: usize = 8 * 1024 * 1024;
+pub const IMAGE_SIDE: u32 = 4096;
 const IMAGES: usize = 24;
 const FRAMES: usize = 64;
 const DURATION: f64 = 10_000.0;

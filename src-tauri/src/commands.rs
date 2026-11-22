@@ -136,6 +136,7 @@ static COMMANDS: &[Command] = &[
     main("importFolder", |c| import_from_folder(c.app, &c.state)),
     main("importZip", |c| import_from_zip(c.app, &c.state)),
     main("removeAsset", |c| remove_asset(c.app, &c.state, c.text(0))),
+    main("petActions", |c| pet_actions(&c.state, c.text(0))),
     main("importUrl", |c| import_from_url(c.app, &c.state, c.text(0))),
     main("cancelImport", |c| {
         for flag in &lock(&c.state).importing {
