@@ -47,7 +47,8 @@ Steps:
 1. Approve eleven 4 × 2 image batches as the SKILL guides you.
 2. The supplied Python script assembles them into a transparent 1536 × 2288 RGBA v2 atlas.
 3. Check the nine animation rows and sixteen gaze directions.
-4. Import the finished ZIP.
+4. For the games, approve four more batches per outfit (digging, planting, showing a find, fishing) and check them on the review sheet the script draws.
+5. Import the finished ZIP.
 
 | Outfit | Worn in |
 |---|---|
@@ -57,6 +58,7 @@ Steps:
 
 - Every outfit has all nine rows and sixteen gaze directions.
 - Separate spring or autumn outfits are made only when you ask.
+- With its game poses, a friend you made digs, plants, shows a find and fishes like the built-in friends. Without them it plays its ordinary rows for those games.
 - The same SKILL can improve an official friend and keeps its identity and approved movements.
 
 [Import a pet](./import.md), [Pet format reference](/dev/standards/pet-files)

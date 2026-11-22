@@ -161,3 +161,14 @@ src-tauri/pets/clover/
 - How `pack-pet --actions` finds each tile's feet (a `foot` in `points.json`, or the centre of the lowest opaque band).
 - The exact standard canvases for kit poses, as long as they hold the four friends' clips.
 - Whether the poses JSON is cached on `Asset` or re-read on each request, as long as it is validated when served.
+
+## Follow-up: as built
+- The builder's calls on what this record left open:
+  - Feet: the middle of each figure's lowest 12 pixels, or a `feet` list in `points.json` when a tool or pot on the ground pulls that aside.
+  - Points: one `points.json` per outfit folder (`<outfit>/points.json`), in the batch picture's own pixels, not in packed-canvas pixels, so an author reads them off the picture.
+  - Ground points: only their x is kept; y is the feet's line, as in the four friends.
+  - Canvases: dig 224×224 and plant and discover 192×208 with the feet at [96, 199]; fish 320×256 with the feet at [128, 239] and offset [−32, −40], Pip's base fishing canvas, which leaves room for a raised rod.
+  - Scale: each outfit's tile 7 is brought to the idle height measured in the sheet that outfit walks in; `render-actions` takes `--idle-height`.
+  - A season's poses need that season's sheet (`--season`), so a friend never digs in clothes it does not walk in.
+  - Poses are re-read when the page asks (`petActions`), not cached on `Asset`.
+- Not done: the studio kit does not add the starter's pose atlases as references; the starter downloads (`playpets-<id>.zip`) carry them.

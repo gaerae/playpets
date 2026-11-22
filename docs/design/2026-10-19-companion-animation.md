@@ -87,3 +87,11 @@ brief blink loop while waiting for a bite.
 These extra clips belong to built-in identities and matching outfits. Imported
 pets retain their complete canonical sheets and existing activity fallback.
 The portable pet format gains no required action atlas or metadata.
+
+## Follow-up: game poses move into the pet format (2026-11-23)
+
+- The registry (`src/content/companion-actions.json`) and the atlases in `src/art/companions/` are gone.
+- Each friend's clips now live in its own pet folder as `actions.json` with `actions/<outfit>/*.webp`, the same bytes as before.
+- Any pet can carry them through the optional `actionsPath` field, so "imported pets retain their existing activity fallback" now holds only for pets without poses.
+- Outfits are `base` plus the seasons that differ: Daisy, Pip and Miso have `base`, `summer` and `winter`; Clover has `base` and `winter`.
+- Record: [Game poses for every pet](2026-11-23-game-poses-for-every-pet.md); format: [Pet file format](../standards/pet-files.md#game-poses).

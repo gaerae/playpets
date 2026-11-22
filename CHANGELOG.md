@@ -15,6 +15,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - In the footprint book, an animal you have followed three times turns to look: its card shows the whole animal, face and all, instead of its tail, and until then the card says how many more follows are left. At a trail's end it still only shows its tail.
 - An animal seen whole in the footprint book comes out of its card once, to the yard and the desktop, like a fish or a keepsake. It hops when you click it, and a friend who visits greets it by name.
 - Ten new winter decorations come with the winter lights, one each gift day after Santa: a coquette ribbon tree and a pastel retro tree, each in a small and a big size, a string-light arch, a stack of gift boxes, a wreath stand, a candy cane star lamp, a gingerbread house and a sundries cart. They show from November 15 to January 7, and whenever the yard shows winter. The trees, the arch, the lamp, the house and the cart light up from evening; on the desktop the arch and the lamp switch off and on with a click, and the wreath can hang from a screen's top. The album now has 213 entries.
+- Any pet can bring its own drawings for digging, planting, showing a find and fishing, as Daisy, Clover, Pip and Miso do, with a set for each outfit it wears. A friend made in the Character studio, imported from a ZIP or a folder, or found in the Codex folder plays them; a pet without them plays its usual rows, as before.
 
 ### Changed
 
@@ -50,6 +51,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The chat, play and settings guides call the menu's first item **Friends**, as the app now does.
 - The background studio starts from the app's own places: the garden kit from the Wild garden, an open meadow with no house, and the interior kit from the garden workshop, with its glass where the workshop has it, in place of the living room the app no longer has. Its cards load small pictures, about 300 KB for all three instead of about 10 MB.
 - A background kit's request asks only about what its layout has: water and a fishing spot by the lake, a see-through sky outdoors, glass panes indoors. It names the app's own menu, **Place & atmosphere → Import background**.
+- The Character studio, its kit and its guide ask for a friend's game poses too: four more pictures per outfit, which the kit's script packs and draws on a sheet to check. A starter friend downloaded from the site brings its poses, so it plays as it does in the app.
 - The character studio and its kit say how to import a pet ZIP without the old note on versions before 1.4.0, and a kit named in Korean, Japanese or Chinese is saved under its starter's name, such as `my-clover-creation-kit.zip`, instead of `my-pet`.
 
 ## [1.9.0] - 2026-11-20

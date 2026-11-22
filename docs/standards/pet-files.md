@@ -90,7 +90,8 @@ The reader accepts these optional PlayPets fields; an ordinary import does not n
     "summer": "alternate/summer.png",
     "winter": "alternate/winter.png"
   },
-  "realisticPortraitPath": "alternate/portrait.png"
+  "realisticPortraitPath": "alternate/portrait.png",
+  "actionsPath": "actions.json"
 }
 ```
 
@@ -112,21 +113,69 @@ The reader accepts these optional PlayPets fields; an ordinary import does not n
   - An optional baseline PNG/WebP chat portrait, at most 8 MiB, each dimension from 1 to 4096 pixels.
   - An ordinary pet needs no portrait.
 - `realisticPortraitPath` applies the same validation to a legacy alternate portrait.
+- `actionsPath`: the pet's own game poses; see [Game poses](#game-poses).
 - Optional paths stay relative and inside the pet folder, with the same file and symlink checks as the baseline.
 - Invalid optional material is ignored.
 - Serving a sprite checks its files again, because they can change after scanning.
+
+### Game poses
+- `actionsPath` names a JSON file of drawings for four yard games: digging, planting, showing a find and fishing.
+- A pet without it, or with an invalid file, plays its ordinary rows in those games; nothing else about it changes.
+- Read by `pets/actions.rs`, served by the `petActions` command, and played by `src/core/companion-actions.js`.
+- The four bundled pets ship theirs in this format; the creator kit makes them (`pack-pet --actions`).
+- Design: [Game poses for every pet](../design/2026-11-23-game-poses-for-every-pet.md).
+
+```json
+{
+  "version": 1,
+  "outfits": {
+    "base": {
+      "dig": {
+        "image": "actions/base/dig.png",
+        "canvas": [224, 224],
+        "anchor": [96, 199],
+        "ground": [150, 199],
+        "contactAt": 560,
+        "tossAt": 1280,
+        "frames": [{ "rect": [0, 0, 224, 224], "duration": 280 }]
+      }
+    }
+  }
+}
+```
+
+| Field | Rule |
+|---|---|
+| File | At most 256 KiB, inside the folder, `version` 1 |
+| `outfits` | `base` (required), `spring`, `summer`, `autumn`, `winter`; a season plays its own outfit, else `base` |
+| Clips | `dig`, `plant`, `discover`, `cast`, `wait`, `reel`; other names are ignored |
+| `image` | PNG or WebP inside the folder, at most 8 MiB and 4096×4096; at most 24 distinct images |
+| `canvas` | Integers up to 384×416; missing means 192×208 |
+| `anchor` | The feet, inside the canvas |
+| `offset` | Where the canvas sits against the 192×208 cell; missing means [0, 0]; kept as written |
+| `frames` | 1 to 64; `rect` is four integers, the canvas's size, inside the image; `duration` 1 to 10000 ms |
+| `tip` | Every `cast`, `wait` and `reel` frame: the rod tip, inside the canvas |
+| `ground` | `dig` and `plant` only: where the tool meets the ground, inside the canvas |
+| `contactAt`, `tossAt`, `commitAt` | Optional ms within the clip; toss and commit never before contact |
+| `loop` | Optional boolean |
+
+- A clip that breaks a rule is left out; `cast`, `wait` and `reel` stay or go together.
+- An outfit with no clip left is left out; without `base`, the pet has no poses.
+- The file is read again when the page asks for it, and each image again when served.
+- It holds no text a person reads or an AI sees.
+- The realistic appearance and the desktop overlay play no poses.
 
 ### Appearances
 - Switching to a supported alternate appearance keeps the same friend and its chat from the current session.
 - Importing a different pet folder adds another asset.
 - It does not replace an existing friend's look.
 - The runtime currently has nine action states and, in v2, sixteen gaze directions.
-- Extra design poses do not add runtime states.
+- Extra design poses do not add runtime states; game poses play only in the four games above.
 - Appearance IDs that creators name freely are still a proposal in the [companions design](../design/2026-10-11-companions.md).
 
 ### Portable downloads
 - Provide `pet.json` and its canonical baseline sheet as an independent package.
-- PlayPets wardrobes and portraits do not make a pet work in another host.
+- PlayPets wardrobes, portraits and game poses do not make a pet work in another host.
 - For generated materials, keep the source attribution, source images, prompts and packing metadata.
 - Detailed turnaround and face references are design sources, not playable sheets.
 
@@ -148,8 +197,11 @@ Follow these when you can. When you cannot, say why in the PR.
 
 ## Automated checks
 - Rust `pets::catalog::tests`: size per version, rejecting paths outside the folder, required fields, reading the size from the file header alone, and source information.
+- Rust `pets::actions::tests`: each rule of the game poses file, the fishing clips kept together, paths outside the folder, and a broken file leaving the pet usable.
+- Rust `app::sprite::tests`: `hasActions` only with valid poses, and `?action=n` serving only validated images.
 - Rust `pets::importer::tests`: per-site address parsing and the saved result. Real site responses are checked with `pnpm run test:live-import`.
 
 ## Change history
 - 2026-10-01 First version
 - 2026-10-11 Document optional wardrobes, legacy appearances, separate named pets and parked identities
+- 2026-11-23 Add optional game poses (`actionsPath`)
