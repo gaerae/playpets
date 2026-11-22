@@ -28,7 +28,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - The outdoor pictures meet the sky in a smooth edge: treetops, hills and the meadow's line no longer show a pale, stepped outline.
 - The little Christmas tree is redrawn in gold and cream, in the yard and on Christmas night. Its ornaments stay on its twelve hooks.
 - A winter trail now ends on the open snow in front, where its bush stands out instead of hiding among the bushes painted in the back. The sparrow and the magpie sit behind the bush's snowy top with their tails up, and the bush and the bare twigs stand in a soft drift of snow.
-- The menu calls the friends' panel **Friends**, as the tray and the menu bar do, and **Enter fullscreen** looks like the switches beside it. In a small window the corner button is named **Yard menu** for screen readers.
+- The menu calls the friends' panel **Friends**, as the tray and the menu bar do, and **Enter fullscreen** looks like the switches beside it. In a small window the corner button is named **Yard menu** for screen readers. The first row of **App updates** in Settings says PlayPets and its version, instead of repeating the section's name.
 
 ### Fixed
 

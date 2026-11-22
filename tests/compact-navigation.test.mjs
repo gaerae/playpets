@@ -223,3 +223,12 @@ test("Tab goes round a small window's panel instead of on to friends hidden behi
   assert.equal(wrapTab(stops, 'panel title', false), null, 'forward from the title is the first stop already');
   assert.equal(wrapTab([], 'panel title', true), null);
 });
+
+// The head already names the section, so its first row names the app the version belongs to
+// instead of saying App updates a second time.
+test('App updates names its section once', async () => {
+  const html = await read('src/index.html');
+  const section = html.slice(html.indexOf('id="settings-updates"'), html.indexOf('id="update-dialog"'));
+  assert.equal(section.match(/data-i18n="settings\.update"/g)?.length, 1, 'only the heading for screen readers');
+  assert.match(section, /<strong>PlayPets<\/strong><small id="update-note">/);
+});
