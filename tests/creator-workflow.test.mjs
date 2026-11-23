@@ -788,6 +788,35 @@ im=Image.open(sys.argv[1]).convert('RGBA'); im.paste((0,0,0,0),(1152,512,1536,10
       { encoding: 'utf8' },
     );
     assert.equal(blank.status, 0, blank.stderr);
+    // A shovel blade below the paws pulls the guessed feet onto the blade and the figure off its
+    // canvas: the refusal says so and names the `feet` points that fix it.
+    const blade = spawnSync(
+      python,
+      [
+        '-c',
+        `from PIL import Image,ImageDraw
+import sys
+im=Image.open(sys.argv[1]).convert('RGBA'); ImageDraw.Draw(im).rectangle((1152+172+120,380+82,1152+172+180,380+92),fill=(120,120,120,255)); im.save(sys.argv[2])`,
+        path.join(poses, 'base', 'dig.png'),
+        path.join(dir, 'blade.png'),
+      ],
+      { encoding: 'utf8' },
+    );
+    assert.equal(blade.status, 0, blade.stderr);
+    await refused(/tile 3 would clip.*feet were guessed.*dig\.feet/s, async () => {
+      const file = path.join(poses, 'base', 'dig.png');
+      await rename(file, `${file}.away`);
+      await rename(path.join(dir, 'blade.png'), file);
+      return async () => {
+        await rename(file, path.join(dir, 'blade.png'));
+        await rename(`${file}.away`, file);
+      };
+    });
+    const tiles = given.plant.feet;
+    await refused(
+      /plant tile 3 would clip.*feet point 3/s,
+      writePoints({ ...given, plant: { ...given.plant, feet: tiles.with(3, [tiles[3][0] + 120, tiles[3][1]]) } }),
+    );
     await refused(/standing pose/, async () => {
       const file = path.join(poses, 'base', 'dig.png');
       await rename(file, `${file}.away`);

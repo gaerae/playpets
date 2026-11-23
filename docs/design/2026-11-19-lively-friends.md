@@ -62,3 +62,16 @@
 - The lean is the `--lean` custom property on the friend's button (`rotate: var(--lean)`), and the shade turns back by the same angle, so it stays level on the ground while the body leans.
 - A drag the system cancels (`pointercancel`) sets the friend back where it started, with no fall from the lift and no squash: it was never let go over the yard.
 - The site's yard and desktop previews (`WorldPreview.vue`, `HeroDesk.vue`) follow the idle rhythm in CSS (`landing.css` `sprite-rest`): a standing friend plays its idle row in the first 1.1 s of a 6 s cycle and holds the first cell for the rest, each friend from its own point in the cycle. Every gesture plays, not 60% of them: a fixed cycle needs no script.
+
+## Follow-up: the desktop rests while nobody is with its friends (2026-11-23)
+
+- A friend on the desktop plays its idle gesture in 30% of beats (`CALM_SHARE` in `overlay/pace.js`) instead of 60%: about one gesture every 12 s.
+- The gesture itself is unchanged: the same cells, timing and moment in the beat.
+  - The calm gestures are a subset of the yard's (the same draw from the seed), so switching between the two never cuts into a gesture.
+- A friend is as lively as in the yard for a minute (`LIVELY_MS`) after any of these:
+  - it comes out;
+  - the person points at it, holds it or pats it;
+  - it gets a status, a line or a visit.
+- Livening takes effect from the next beat (`liven` in `core/animation.js`), so the beat under way is never cut into.
+- The yard, the panel portrait and the invite previews keep the yard's rhythm.
+- Why: each cell a desktop friend shows redraws its full-screen window. With four friends standing, the idle gestures were most of the overlay's CPU ([performance](../standards/performance.md)).

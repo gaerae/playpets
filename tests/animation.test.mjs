@@ -4,14 +4,17 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   animationSpec,
+  calmRhythm,
   cellLeft,
   directionFrame,
   frameAt,
   headroom,
+  IDLE_BEAT,
   idleCell,
   idleLeft,
   lookAt,
   lookDirection,
+  liven,
   lookFrame,
   renewsClock,
   turnStep,
@@ -138,14 +141,67 @@ test('friends do not gesture together', () => {
   assert.ok(apart > together * 3, `${apart} apart, ${together} together`);
 });
 
-test('the idle rhythm says when its cell changes, and it changes then', () => {
-  for (const seed of [0, 3, 99])
-    for (let at = 0; at < 60_000; at += 41) {
-      const left = idleLeft(at, seed);
-      assert.ok(left > 0 && left <= 20_000, `seed ${seed} at ${at}: ${left}`);
-      assert.deepEqual(idleCell(at + left - 0.5, seed), idleCell(at, seed), `seed ${seed} at ${at}`);
-      assert.notDeepEqual(idleCell(at + left, seed), idleCell(at, seed), `seed ${seed} at ${at}`);
+// The desktop rests more while nobody is with its friends (overlay/pace.js), and is as lively as
+// the yard for a while after someone was: the same gestures at the same moments, fewer of them.
+test('a calm rhythm plays some of the gestures a lively one does, at the same moments', () => {
+  const starts = (seed, rhythm) => {
+    const found = [];
+    let previous = 0;
+    for (let t = 0; t < 1_800_000; t += 10) {
+      const column = idleCell(t, seed, rhythm).column;
+      if (column === 1 && previous === 0) found.push(t);
+      previous = column;
     }
+    return found;
+  };
+  for (const seed of [0, 7, 12345]) {
+    const lively = new Set(starts(seed)),
+      calm = starts(seed, calmRhythm(0.3));
+    assert.ok(
+      calm.every(t => lively.has(t)),
+      `seed ${seed}: each calm gesture is one the lively rhythm plays`,
+    );
+    const mean = 1_800_000 / calm.length;
+    assert.ok(mean > 9000 && mean < 16000, `seed ${seed}: a gesture about every 12 s (${mean})`);
+    assert.ok(calm.length < lively.size * 0.6, `seed ${seed}: ${calm.length} calm against ${lively.size} lively`);
+  }
+});
+
+test('livening makes the beats from the next one on lively for a while, and never cuts into a gesture', () => {
+  for (const seed of [0, 3, 99]) {
+    const rhythm = calmRhythm(0.3);
+    let previous = idleCell(0, seed, rhythm).column;
+    for (let t = 0; t < 300_000; t += 10) {
+      // Someone comes by now and then, sometimes again while the friend is still lively.
+      if (t % 23_330 === 0 || t % 61_110 === 0) liven(rhythm, t, 60_000);
+      const column = idleCell(t, seed, rhythm).column;
+      assert.ok(column === previous || column === (previous + 1) % 6, `seed ${seed} at ${t}: ${previous} to ${column}`);
+      previous = column;
+    }
+  }
+  const rhythm = calmRhythm(0.3);
+  liven(rhythm, 5000, 60_000);
+  assert.equal(rhythm.from, 2 * IDLE_BEAT, 'from the beat after the one under way');
+  assert.equal(rhythm.until, 65_000);
+  for (let t = rhythm.from; t < rhythm.until; t += 10) assert.deepEqual(idleCell(t, 4, rhythm), idleCell(t, 4));
+  liven(rhythm, 40_000, 60_000);
+  assert.equal(rhythm.from, 2 * IDLE_BEAT, 'still lively: the window only grows');
+  assert.equal(rhythm.until, 100_000);
+  liven(rhythm, 200_000, 60_000);
+  assert.equal(rhythm.from, Math.ceil(200_001 / IDLE_BEAT) * IDLE_BEAT, 'calm again: from the next beat');
+});
+
+test('the idle rhythm says when its cell changes, and it changes then', () => {
+  const livened = calmRhythm(0.3);
+  liven(livened, 20_000, 30_000);
+  for (const rhythm of [undefined, calmRhythm(0.3), livened])
+    for (const seed of [0, 3, 99])
+      for (let at = 0; at < 60_000; at += 41) {
+        const left = idleLeft(at, seed, rhythm);
+        assert.ok(left > 0 && left <= 60_000, `seed ${seed} at ${at}: ${left}`);
+        assert.deepEqual(idleCell(at + left - 0.5, seed, rhythm), idleCell(at, seed, rhythm), `seed ${seed} at ${at}`);
+        assert.notDeepEqual(idleCell(at + left, seed, rhythm), idleCell(at, seed, rhythm), `seed ${seed} at ${at}`);
+      }
 });
 
 test('a look turns one direction at a time, the shorter way round', () => {
