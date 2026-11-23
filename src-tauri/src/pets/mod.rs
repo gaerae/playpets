@@ -2,6 +2,7 @@
 //! friends made from them in the yard (model), the garden they grow (garden), the album (album),
 //! friendship (bond), the year-end letters (letters), and what the yard is made of (content, from src/content/catalog.json and
 //! the seasonal events in src/content/events.json).
+pub mod actions;
 pub mod album;
 pub mod bond;
 pub mod builtin;

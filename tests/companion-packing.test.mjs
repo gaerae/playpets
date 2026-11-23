@@ -5,7 +5,6 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { pngFor } from '../scripts/art-webp-lib.mjs';
 import { pngSize } from '../scripts/png-lossless-lib.mjs';
 
 const python = process.env.PLAYPETS_PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
@@ -239,29 +238,26 @@ test('malformed action plans never replace a previous atlas or create partial ou
   }
 });
 
-test('generated companion action registry stays inside canonical transparent atlases', async () => {
-  const registry = JSON.parse(
-    await readFile(new URL('../src/content/companion-actions.json', import.meta.url), 'utf8'),
-  );
-  assert.equal(registry.version, 1);
-  const ids = new Set(['playpets-clover', 'playpets-daisy', 'playpets-pip', 'playpets-miso']);
-  const seasons = new Set(['spring', 'summer', 'autumn', 'winter']);
-  assert.deepEqual(Object.keys(registry.characters).sort(), [...ids].sort(), 'every bundled character owns actions');
+// Each friend's poses are its own actions.json (pet format, docs/standards/pet-files.md).
+test("each friend's poses stay inside canonical transparent atlases", async () => {
   const finitePoint = value => Array.isArray(value) && value.length === 2 && value.every(Number.isFinite);
   const checkedImages = new Set();
-  for (const [id, character] of Object.entries(registry.characters)) {
-    assert.ok(ids.has(id), id);
-    assert.deepEqual(Object.keys(character.variants).sort(), [...seasons].sort(), `${id}: every season`);
-    for (const [season, actions] of Object.entries(character.variants)) {
+  for (const id of ['clover', 'daisy', 'pip', 'miso']) {
+    const pet = JSON.parse(await readFile(new URL(`../assets/pets/${id}/pet.json`, import.meta.url), 'utf8'));
+    assert.equal(pet.actionsPath, 'actions.json', id);
+    const poses = JSON.parse(await readFile(new URL(`../assets/pets/${id}/actions.json`, import.meta.url), 'utf8'));
+    assert.equal(poses.version, 1);
+    assert.ok(poses.outfits.base, `${id}: base poses every season without its own outfit falls back to`);
+    for (const [season, actions] of Object.entries(poses.outfits)) {
       assert.deepEqual(
         Object.keys(actions).sort(),
         ['cast', 'dig', 'discover', 'plant', 'reel', 'wait'],
         `${id}/${season}: complete action set`,
       );
-      assert.ok(seasons.has(season), season);
+      assert.ok(['base', 'spring', 'summer', 'autumn', 'winter'].includes(season), season);
       for (const [name, clip] of Object.entries(actions)) {
         const label = `${id}/${season}/${name}`;
-        const canvas = clip.canvas ?? [192, 208];
+        const canvas = clip.canvas;
         const offset = clip.offset ?? [0, 0];
         assert.ok(
           canvas.length === 2 &&
@@ -273,15 +269,16 @@ test('generated companion action registry stays inside canonical transparent atl
           label,
         );
         assert.ok(finitePoint(offset), label);
-        assert.match(clip.url, /^art\/[a-zA-Z0-9/_-]+\.webp$/, label);
+        assert.match(clip.image, new RegExp(`^actions/${season}/[a-z]+\\.png$`), label);
+        const png = new URL(`../assets/pets/${id}/${clip.image}`, import.meta.url);
         assert.ok(finitePoint(clip.anchor), label);
         assert.ok(
           clip.anchor[0] >= 0 && clip.anchor[0] <= canvas[0] && clip.anchor[1] >= 0 && clip.anchor[1] <= canvas[1],
           label,
         );
-        assert.equal(clip.scale, 1, label);
+        assert.equal(clip.scale, undefined, `${label}: one scale, the cell's`);
         assert.ok(Array.isArray(clip.frames) && clip.frames.length > 0 && clip.frames.length <= 64, label);
-        const bytes = await readFile(new URL(`../${pngFor(clip.url)}`, import.meta.url));
+        const bytes = await readFile(png);
         const size = pngSize(bytes);
         assert.equal(size.height, canvas[1], label);
         assert.equal(size.width % canvas[0], 0, label);
@@ -291,8 +288,8 @@ test('generated companion action registry stays inside canonical transparent atl
             label,
           );
         assert.equal(bytes[25], 6, `${label}: RGBA PNG`);
-        if (!checkedImages.has(clip.url)) {
-          const imagePath = new URL(`../${pngFor(clip.url)}`, import.meta.url);
+        if (!checkedImages.has(png.href)) {
+          const imagePath = png;
           const alpha = spawnSync(
             python,
             [
@@ -306,7 +303,7 @@ test('generated companion action registry stays inside canonical transparent atl
           const [[minimum, maximum], transparent] = JSON.parse(alpha.stdout);
           assert.equal(minimum, 0, `${label}: genuine transparent background`);
           assert.ok(maximum > 24 && transparent > 0, `${label}: visible subject and transparent gutters`);
-          checkedImages.add(clip.url);
+          checkedImages.add(png.href);
         }
         for (const frame of clip.frames) {
           assert.ok(Array.isArray(frame.rect) && frame.rect.length === 4 && frame.rect.every(Number.isInteger), label);
@@ -317,7 +314,7 @@ test('generated companion action registry stays inside canonical transparent atl
           );
           assert.equal(x % canvas[0], 0, `${label}: aligned atlas cell`);
           assert.ok(Number.isFinite(frame.duration) && frame.duration > 0 && frame.duration <= 10000, label);
-          assert.deepEqual(frame.foot, clip.anchor, `${label}: shared ground anchor`);
+          assert.equal(frame.foot, undefined, `${label}: the clip's anchor is every frame's foot`);
           if (frame.tip)
             assert.ok(
               finitePoint(frame.tip) &&

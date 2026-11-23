@@ -22,7 +22,7 @@ mod prefs;
 mod sprite;
 pub use load::load_state;
 pub use prefs::{Prefs, Sound, scene_choice};
-pub use sprite::sprite_response;
+pub use sprite::{pet_actions, sprite_response};
 
 /// The shape of state.json this app writes. Read from a newer app's file, the known fields are
 /// used, the unknown ones are carried along unchanged, and a copy of the file is kept first.

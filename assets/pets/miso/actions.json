@@ -1,0 +1,491 @@
+{
+  "version": 1,
+  "outfits": {
+    "base": {
+      "dig": {
+        "image": "actions/base/dig.png",
+        "canvas": [224, 208],
+        "anchor": [91, 199],
+        "offset": [0, 0],
+        "ground": [145, 199],
+        "contactAt": 560,
+        "tossAt": 1280,
+        "frames": [
+          {
+            "rect": [0, 0, 224, 208],
+            "duration": 280
+          },
+          {
+            "rect": [224, 0, 224, 208],
+            "duration": 280
+          },
+          {
+            "rect": [448, 0, 224, 208],
+            "duration": 300
+          },
+          {
+            "rect": [672, 0, 224, 208],
+            "duration": 400
+          },
+          {
+            "rect": [896, 0, 224, 208],
+            "duration": 360
+          },
+          {
+            "rect": [1120, 0, 224, 208],
+            "duration": 380
+          }
+        ]
+      },
+      "plant": {
+        "image": "actions/base/plant.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "ground": [145, 199],
+        "contactAt": 520,
+        "tossAt": 1360,
+        "commitAt": 1360,
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 260
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 260
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 400
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 440
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 300
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 340
+          }
+        ]
+      },
+      "cast": {
+        "image": "actions/base/fish.png",
+        "canvas": [264, 240],
+        "anchor": [104, 223],
+        "offset": [-8, -24],
+        "loop": false,
+        "frames": [
+          {
+            "rect": [0, 0, 264, 240],
+            "duration": 300,
+            "tip": [18.86, 14.26]
+          },
+          {
+            "rect": [264, 0, 264, 240],
+            "duration": 400,
+            "tip": [253.56, 51.980000000000004]
+          }
+        ]
+      },
+      "wait": {
+        "image": "actions/base/fish.png",
+        "canvas": [264, 240],
+        "anchor": [104, 223],
+        "offset": [-8, -24],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [528, 0, 264, 240],
+            "duration": 3200,
+            "tip": [220.02, 50.540000000000006]
+          },
+          {
+            "rect": [792, 0, 264, 240],
+            "duration": 200,
+            "tip": [230.08, 53.3]
+          }
+        ]
+      },
+      "reel": {
+        "image": "actions/base/fish.png",
+        "canvas": [264, 240],
+        "anchor": [104, 223],
+        "offset": [-8, -24],
+        "loop": false,
+        "frames": [
+          {
+            "rect": [1056, 0, 264, 240],
+            "duration": 320,
+            "tip": [214.36, 9.98]
+          },
+          {
+            "rect": [1320, 0, 264, 240],
+            "duration": 420,
+            "tip": [222.16, 29.76]
+          }
+        ]
+      },
+      "discover": {
+        "image": "actions/base/discover.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 200
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 220
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 260
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 360
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 300
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 260
+          }
+        ]
+      }
+    },
+    "summer": {
+      "dig": {
+        "image": "actions/summer/dig.png",
+        "canvas": [224, 224],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "ground": [143, 199],
+        "contactAt": 560,
+        "tossAt": 1280,
+        "frames": [
+          {
+            "rect": [0, 0, 224, 224],
+            "duration": 280
+          },
+          {
+            "rect": [224, 0, 224, 224],
+            "duration": 280
+          },
+          {
+            "rect": [448, 0, 224, 224],
+            "duration": 300
+          },
+          {
+            "rect": [672, 0, 224, 224],
+            "duration": 400
+          },
+          {
+            "rect": [896, 0, 224, 224],
+            "duration": 360
+          },
+          {
+            "rect": [1120, 0, 224, 224],
+            "duration": 380
+          }
+        ]
+      },
+      "plant": {
+        "image": "actions/summer/plant.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "ground": [123, 199],
+        "contactAt": 520,
+        "tossAt": 1360,
+        "commitAt": 1360,
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 260
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 260
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 400
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 440
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 300
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 340
+          }
+        ]
+      },
+      "cast": {
+        "image": "actions/summer/fish.png",
+        "canvas": [240, 216],
+        "anchor": [96, 207],
+        "offset": [0, -8],
+        "loop": false,
+        "frames": [
+          {
+            "rect": [0, 0, 240, 216],
+            "duration": 300,
+            "tip": [173.31, 23.39]
+          },
+          {
+            "rect": [240, 0, 240, 216],
+            "duration": 400,
+            "tip": [228.92000000000002, 55.01]
+          }
+        ]
+      },
+      "wait": {
+        "image": "actions/summer/fish.png",
+        "canvas": [240, 216],
+        "anchor": [96, 207],
+        "offset": [0, -8],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [480, 0, 240, 216],
+            "duration": 3200,
+            "tip": [178.32, 23.39]
+          },
+          {
+            "rect": [720, 0, 240, 216],
+            "duration": 200,
+            "tip": [192.11, 23.39]
+          }
+        ]
+      },
+      "reel": {
+        "image": "actions/summer/fish.png",
+        "canvas": [240, 216],
+        "anchor": [96, 207],
+        "offset": [0, -8],
+        "loop": false,
+        "frames": [
+          {
+            "rect": [960, 0, 240, 216],
+            "duration": 320,
+            "tip": [209.34, 43.39]
+          },
+          {
+            "rect": [1200, 0, 240, 216],
+            "duration": 420,
+            "tip": [184.47, 28.39]
+          }
+        ]
+      },
+      "discover": {
+        "image": "actions/summer/discover.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 200
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 220
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 260
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 360
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 300
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 260
+          }
+        ]
+      }
+    },
+    "winter": {
+      "dig": {
+        "image": "actions/winter/dig.png",
+        "canvas": [224, 224],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "ground": [152, 199],
+        "contactAt": 560,
+        "tossAt": 1280,
+        "frames": [
+          {
+            "rect": [0, 0, 224, 224],
+            "duration": 280
+          },
+          {
+            "rect": [224, 0, 224, 224],
+            "duration": 280
+          },
+          {
+            "rect": [448, 0, 224, 224],
+            "duration": 300
+          },
+          {
+            "rect": [672, 0, 224, 224],
+            "duration": 400
+          },
+          {
+            "rect": [896, 0, 224, 224],
+            "duration": 360
+          },
+          {
+            "rect": [1120, 0, 224, 224],
+            "duration": 380
+          }
+        ]
+      },
+      "plant": {
+        "image": "actions/winter/plant.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "ground": [140, 199],
+        "contactAt": 520,
+        "tossAt": 1360,
+        "commitAt": 1360,
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 260
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 260
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 400
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 440
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 300
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 340
+          }
+        ]
+      },
+      "cast": {
+        "image": "actions/winter/fish.png",
+        "canvas": [272, 216],
+        "anchor": [96, 207],
+        "offset": [0, -8],
+        "loop": false,
+        "frames": [
+          {
+            "rect": [0, 0, 272, 216],
+            "duration": 300,
+            "tip": [182.72, 28.32]
+          },
+          {
+            "rect": [272, 0, 272, 216],
+            "duration": 400,
+            "tip": [249.44, 26.32]
+          }
+        ]
+      },
+      "wait": {
+        "image": "actions/winter/fish.png",
+        "canvas": [272, 216],
+        "anchor": [96, 207],
+        "offset": [0, -8],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [544, 0, 272, 216],
+            "duration": 3200,
+            "tip": [218.24, 31.8]
+          },
+          {
+            "rect": [816, 0, 272, 216],
+            "duration": 200,
+            "tip": [196.04, 33.56]
+          }
+        ]
+      },
+      "reel": {
+        "image": "actions/winter/fish.png",
+        "canvas": [272, 216],
+        "anchor": [96, 207],
+        "offset": [0, -8],
+        "loop": false,
+        "frames": [
+          {
+            "rect": [1088, 0, 272, 216],
+            "duration": 320,
+            "tip": [202.88, 49.28]
+          },
+          {
+            "rect": [1360, 0, 272, 216],
+            "duration": 420,
+            "tip": [180.12, 28.560000000000002]
+          }
+        ]
+      },
+      "discover": {
+        "image": "actions/winter/discover.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 200
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 220
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 260
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 360
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 300
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 260
+          }
+        ]
+      }
+    }
+  }
+}

@@ -5,6 +5,7 @@ import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { dataUrl, dataUrlBytes } from './art-lib.mjs';
+import { builtinPoseImages } from './art-webp-lib.mjs';
 import { launchBrowser } from './browser-lib.mjs';
 import { publicProvenance, validatePng, zipStore } from './creator-bundle-lib.mjs';
 import { STUDIO_REFERENCES, kitEntries, kitPrompts, kitSpec, petManifest } from './creator-specs.mjs';
@@ -233,7 +234,7 @@ export async function copyCreatorKit(
   }
 }
 
-/** Each starter friend as the app ships it, in one folder named for its id: unzipped into a Codex
+/** Each starter friend as the app ships it (its game poses included), in one folder named for its id: unzipped into a Codex
  * pets folder it is a Codex pet, and PlayPets imports the ZIP as it is. The sheets are the app's
  * lossless WebP copies in src-tauri/pets/, which `pnpm run assets:webp --check` matches pixel
  * for pixel with the PNGs copyCreatorKit checks, at about two thirds of their bytes. */
@@ -242,15 +243,20 @@ export async function petDownloads() {
     LANDING_PETS.map(async pet => {
       const root = `src-tauri/pets/${pet.id}`,
         bytes = await readFile(`${root}/pet.json`),
-        { id, spritesheetPath, seasonalSpritesheets = {} } = JSON.parse(bytes),
+        { id, spritesheetPath, seasonalSpritesheets = {}, actionsPath } = JSON.parse(bytes),
         file = path.basename(petDownload(pet.id));
       // The folder is named for the pet's id, and the pages link the file by the friend's.
       if (file !== `${id}.zip`) throw new Error(`${pet.source}: pet.json id ${id} does not match ${file}`);
+      // Its game poses too, so an imported copy plays as the friend does in the app.
+      const poses = actionsPath ? await readFile(`${root}/${actionsPath}`) : null,
+        atlases = poses ? builtinPoseImages(poses.toString('utf8')) : [];
       const sheets = await Promise.all(
-        [spritesheetPath, ...Object.values(seasonalSpritesheets)].map(async sheet => ({
-          name: `${id}/${sheet}`,
-          bytes: await readFile(`${root}/${sheet}`),
-        })),
+        [spritesheetPath, ...Object.values(seasonalSpritesheets), ...(poses ? [actionsPath] : []), ...atlases].map(
+          async sheet => ({
+            name: `${id}/${sheet}`,
+            bytes: sheet === actionsPath ? poses : await readFile(`${root}/${sheet}`),
+          }),
+        ),
       );
       return { file, entries: [{ name: `${id}/pet.json`, bytes }, ...sheets] };
     }),

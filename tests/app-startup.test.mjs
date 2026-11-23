@@ -158,10 +158,10 @@ test('the answer to windowReady says whether the yard is seen, unless a newer ev
   assert.ok((await start({ booted: false, unreachable: true, ready: false })).includes('seenAs false'));
 });
 
-// The bundled companions' authored actions (about 100 KB) are not needed to draw the yard: the
-// first render waits for the content only. A bundled companion asks for them as its view is made
-// or synced (views.js), so they are on their way before it first plays, whenever it came in.
-test("the companions' actions are asked for by the friends in the yard, not waited for at the start", async () => {
+// A friend's own game poses are not needed to draw the yard: the first render waits for the
+// content only. A friend with poses asks for them as its view is made or synced (views.js), so
+// they are on their way before it first plays, whenever it came in.
+test("friends' poses are asked for by the friends in the yard, not waited for at the start", async () => {
   const source = await readFile('src/app.js', 'utf8');
   assert.match(source, /^await loadContent\(\);$/m);
   assert.doesNotMatch(source, /CompanionActions/);

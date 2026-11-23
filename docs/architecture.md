@@ -303,7 +303,7 @@ What each arrow in the diagram carries, path by path.
 | Area | Commands |
 |---|---|
 | Friends | `addPet`, `updatePet`, `removePet`, `play` |
-| Pet files | `importUrl`, `importZip`, `importFolder`, `removeAsset`, `openFolder` |
+| Pet files | `importUrl`, `importZip`, `importFolder`, `removeAsset`, `openFolder`, `petActions` |
 | AI and chat | `saveProvider`, `chat`, `chatWith` |
 | Yard chatter | `chatter`, `setAutoChatter` |
 | Yard sounds | `setSound` |

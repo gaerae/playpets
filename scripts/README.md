@@ -60,7 +60,8 @@
   it or scaling individual poses differently.
 - Keep accepted source PNGs, plans and provenance together under
   `assets/sources/companion-actions-2026-10-19/`; the packed atlases belong in
-  `assets/art/companions/`, and `pnpm run assets:webp` makes their shipped copies.
+  each friend's `assets/pets/<id>/actions/<outfit>/`, named by its `actions.json`,
+  and `pnpm run assets:webp` makes their shipped copies in `src-tauri/pets/`.
 - A successful pack verifies geometry, not the visual quality of motion.
 
 Linux Docker builds:

@@ -282,12 +282,38 @@ export function builtinManifest(text) {
 
 export const readBuiltinRecords = (root = '.') => readJson(path.join(root, BUILTIN_MANIFEST));
 
-/** Every file each built-in friend ships: its pet.json and the WebP of each sheet it names. */
+/** The PNG atlases an accepted actions.json names, relative to the pet's folder, each once. */
+export const builtinPoseImages = text => [
+  ...new Set(
+    Object.values(JSON.parse(text).outfits ?? {}).flatMap(clips => Object.values(clips).map(clip => clip.image)),
+  ),
+];
+/** The shipped actions.json: the accepted one with its atlases named as WebP. */
+export function builtinActions(text) {
+  const poses = JSON.parse(text);
+  for (const clips of Object.values(poses.outfits ?? {}))
+    for (const clip of Object.values(clips)) clip.image = webpName(clip.image);
+  return `${JSON.stringify(poses, null, 2)}\n`;
+}
+
+/**
+ * Every file each built-in friend ships: its pet.json, the WebP of each sheet it names, and its
+ * game poses (`actions`: the file's name and text, and the atlases, which ship near-lossless as
+ * they did when they were yard art).
+ */
 export async function builtinExports(root = '.') {
   return Promise.all(
     (await builtinPets(root)).map(async pet => {
-      const source = await readFile(path.join(root, BUILTIN_SOURCE, pet.id, 'pet.json'), 'utf8');
-      return { ...pet, source, sheets: builtinSheets(source) };
+      const source = await readFile(path.join(root, BUILTIN_SOURCE, pet.id, 'pet.json'), 'utf8'),
+        file = JSON.parse(source).actionsPath;
+      const actions = file
+        ? await readFile(path.join(root, BUILTIN_SOURCE, pet.id, file), 'utf8').then(text => ({
+            file,
+            text,
+            images: builtinPoseImages(text),
+          }))
+        : null;
+      return { ...pet, source, sheets: builtinSheets(source), actions };
     }),
   );
 }
@@ -303,11 +329,17 @@ export async function builtinWebpProblems(root = '.') {
     expected = new Set();
   for (const pet of pets) {
     const folder = `${BUILTIN_RUNTIME}/${pet.id}`,
-      ships = pet.sheets.map(webpName);
+      images = pet.actions?.images ?? [],
+      ships = [...pet.sheets.map(webpName), ...(pet.actions ? [pet.actions.file] : []), ...images.map(webpName)];
     const shipped = await readFile(path.join(root, folder, 'pet.json'), 'utf8').catch(() => null);
     if (shipped !== builtinManifest(pet.source))
       problems.push(`${folder}/pet.json is not made from ${BUILTIN_SOURCE}/${pet.id}/pet.json`);
-    for (const sheet of pet.sheets) {
+    if (pet.actions) {
+      const poses = await readFile(path.join(root, folder, pet.actions.file), 'utf8').catch(() => null);
+      if (poses !== builtinActions(pet.actions.text))
+        problems.push(`${folder}/${pet.actions.file} is not made from ${BUILTIN_SOURCE}/${pet.id}/${pet.actions.file}`);
+    }
+    for (const sheet of [...pet.sheets, ...images]) {
       const name = `${pet.id}/${sheet}`,
         record = records[name],
         png = await readFile(path.join(root, BUILTIN_SOURCE, name));

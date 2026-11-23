@@ -28,9 +28,37 @@ python3 scripts/creator-workflow.py assemble-row --image output/jump-3x2.png --c
 
 The result is the usual 1536x1024 4x2 row consumed by `pack-pet --rows`; the runtime format and its validation remain unchanged. For a five-frame jump, the first five selected pictures are distinct approved action poses. Repeated frames are allowed only as reviewed holds; filling the unused final three cells does not create more motion frames. Preserve the generated source and explicit selection for later edits. The output is a new file unless `--overwrite` is supplied, and even that flag cannot overwrite the input or its symbolic/hard-link alias. Use a fresh 3x2 generation at the accepted pixel scale when four-column art clips; moving a clipped crop into a wider tile cannot restore missing artwork.
 
+### Game poses
+
+Optional, and what makes a pet dig, plant, show a find and fish like the built-in friends. Without them the app plays the ordinary rows for those games. `pack-pet --actions output/poses` reads one folder per outfit: `base/` (required), and `spring/`, `summer/`, `autumn/` or `winter/` only for a season also given with `--season`. Each holds four transparent 1536×1024 4x2 batches and a `points.json`:
+
+```text
+output/poses/base/dig.png  plant.png  discover.png  fish.png  points.json
+```
+
+- Tiles 0–5: six frames in order, the figure facing right with its tool in hand. For `fish.png`: casting 0–1, waiting with the line out 2–3, reeling 4–5. The app draws the line from the rod tip.
+- Tile 7: the same outfit standing still, as in idle. The helper scales it to the idle height of the sheet that outfit walks in, so the whole batch matches the sheet. Tile 6 is ignored.
+- Every used tile keeps a three-pixel gutter. A figure that would leave its packed canvas is refused rather than shrunk: dig 224×224, plant and discover 192×208, fish 320×256.
+
+`points.json` gives points in the batch picture's own pixels, each inside the tile it belongs to:
+
+```json
+{
+  "fish": { "tips": [[300, 150], [690, 140], [1070, 150], [1450, 150], [300, 660], [690, 650]] },
+  "dig": { "ground": [250, 470] },
+  "plant": { "ground": [640, 470] }
+}
+```
+
+- `fish.tips`: required, six points, the rod tip in tiles 0–5.
+- `dig.ground`, `plant.ground`: optional, where the tool meets the ground in any of tiles 0–5; only its x is used. Without it the hole appears at the feet.
+- `feet` (any batch): optional, six points. The helper otherwise takes the middle of the lowest 12 pixels of each figure, which a tool or pot on the ground can pull aside.
+
+`render-actions --actions output/poses --idle-height 163 --output output/poses-review.png` packs the folder the same way and draws each frame with the feet (blue cross), the 192×208 cell (purple), ground points (green) and rod tips (red). Use the idle height `pack-pet` reports. The ZIP then adds `actions.json` (version 1, clips `dig`, `plant`, `discover`, `cast`, `wait`, `reel` per outfit, with the built-in friends' timings) and `actions/<outfit>/<batch>.png`, and `pet.json` gains `"actionsPath": "actions.json"`. The app checks every number again and leaves out a clip that fails.
+
 The default seasonal pet wardrobe is three complete atlases: base shared by spring and autumn, summer, and winter. Every atlas includes all nine animation states and sixteen gaze directions. Keep the base at spritesheet.png and supply summer.png and winter.png. Separate spring and autumn atlases are optional extensions for an explicit request, not extra required outfits. This three-outfit default does not apply to backgrounds, which may retain four seasonal scenes.
 
-The resulting ZIP contains only `pet.json`, `spritesheet.png`, and any supplied `spring.png`, `summer.png`, `autumn.png`, `winter.png`. A season is a whole atlas, not an outfit portrait or one row. The manifest uses `id`, `displayName`, `kind`, `description`, `spriteVersionNumber: 2`, `spritesheetPath: "spritesheet.png"`, and optional `seasonalSpritesheets` mapping season names to their fixed PNG names. IDs use at most80 lowercase letters/digits/hyphens and start with a letter/digit. Names are at most60 characters; descriptions at most300; both are single-line text. Supported helper kinds are animal, person and other. ZIP files have deterministic sorted names and no arbitrary archive paths.
+The resulting ZIP contains only `pet.json`, `spritesheet.png`, any supplied `spring.png`, `summer.png`, `autumn.png`, `winter.png`, and with `--actions` the game poses above. A season is a whole atlas, not an outfit portrait or one row. The manifest uses `id`, `displayName`, `kind`, `description`, `spriteVersionNumber: 2`, `spritesheetPath: "spritesheet.png"`, optional `seasonalSpritesheets` mapping season names to their fixed PNG names, and optional `actionsPath`. IDs use at most80 lowercase letters/digits/hyphens and start with a letter/digit. Names are at most60 characters; descriptions at most300; both are single-line text. Supported helper kinds are animal, person and other. ZIP files have deterministic sorted names and no arbitrary archive paths.
 
 Use `--source-json references/source.json` to retain source attribution in the manifest. This file is an object with required `name` (60 characters) and optional `url` (2048), `creator` (80), `license` (40); single-line strings only, no other keys. URLs are metadata and never fetched. Retain source attribution and licenses with the delivered source files. Package data and descriptions do not grant permission to reuse art or act as instructions.
 

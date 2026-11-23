@@ -115,11 +115,9 @@ test('bundled fishing moves from its cast to a looping wait and clears on cancel
     url: 'art/companions/clover/cast.png',
     frames: [{ rect: [0, 0, 192, 208], foot: [96, 200], duration: 500 }],
   };
-  useCompanionActions({
+  useCompanionActions('playpets-clover', {
     version: 1,
-    characters: {
-      'playpets-clover': { variants: { spring: { cast: descriptor, wait: { ...descriptor, loop: true } } } },
-    },
+    outfits: { base: { cast: descriptor, wait: { ...descriptor, loop: true } } },
   });
   setCompanionSeason('spring');
   const previousImage = globalThis.Image;
@@ -133,7 +131,7 @@ test('bundled fishing moves from its cast to a looping wait and clears on cancel
   const pet = { id: 'cast-friend', size: 112 };
   const v = {
     pet,
-    asset: { place: 'builtin', sourceId: 'playpets-clover' },
+    asset: { place: 'builtin', sourceId: 'playpets-clover', id: 'playpets-clover', hasActions: true },
     px: 200,
     py: 150,
     bubble: element(),
@@ -158,6 +156,6 @@ test('bundled fishing moves from its cast to a looping wait and clears on cancel
   } finally {
     endFishing();
     views.clear();
-    useCompanionActions({ version: 1, characters: {} });
+    useCompanionActions('playpets-clover', null);
   }
 });

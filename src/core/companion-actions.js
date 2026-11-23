@@ -1,11 +1,13 @@
-// Bundled companions can own extra game poses without changing the portable pet format.
-// Those poses (content/companion-actions.json, about 100 KB) are not waited for before the yard is
-// first drawn: they load once a bundled companion comes into the yard (views.js) or asks for one.
-// Until then, and for every other friend, the ordinary sheet plays.
-const companions = new Set(['playpets-clover', 'playpets-daisy', 'playpets-pip', 'playpets-miso']);
-const bundled = asset => asset?.place === 'builtin' && companions.has(asset.sourceId);
-let registry = { characters: {} };
-let loading = null;
+// A pet's own game poses (`actionsPath` in its pet file, docs/standards/pet-files.md): digging,
+// planting, showing a find and fishing, drawn for each outfit. The backend checks them and hands
+// them over (petActions) once a friend with poses comes into the yard or asks for one, never before
+// the yard is first drawn. Until they come, and for every pet without them, the ordinary sheet plays.
+import { call } from './state.js';
+
+// The poses are drawn for the illustrated sheets; a friend shown realistic keeps its ordinary rows.
+const posed = asset => !!asset?.hasActions && asset?.spriteStyle !== 'realistic';
+/** Each asset id's request for its poses and, once they come, the poses (null when none pass). */
+const entries = new Map();
 let season = '';
 let generation = 0;
 const actions = new WeakMap();
@@ -21,6 +23,7 @@ export function sameCompanionAppearance(a, b) {
     a.place === b.place &&
     a.sourceId === b.sourceId &&
     a.version === b.version &&
+    a.hasActions === b.hasActions &&
     a.spriteStyle === b.spriteStyle &&
     a.spriteUrl === b.spriteUrl &&
     a.seasonalSpriteUrls?.[season] === b.seasonalSpriteUrls?.[season]
@@ -34,24 +37,36 @@ export function actionGroundOffset(clip, width, height) {
   return { x: ((ground[0] - 96) * width) / 192, y: ((ground[1] - 199) * height) / 208 };
 }
 
-export function useCompanionActions(value) {
-  registry = value?.version === 1 ? value : { characters: {} };
-  loading ??= Promise.resolve();
-  generation++;
-  images.clear();
-}
-async function loadCompanionActions() {
-  try {
-    const response = await fetch(new URL('../content/companion-actions.json', import.meta.url));
-    if (response.ok) useCompanionActions(await response.json());
-  } catch {
-    // Missing optional artwork keeps the ordinary pet sheet available.
+/** Keeps `value` as the poses of asset `id` (a test seeds them here instead of asking). */
+export function useCompanionActions(id, value) {
+  // Poses replaced under a friend end what it is playing and the atlases decoded for them; a
+  // pet's first poses end nothing, since nothing could play before they came.
+  const entry = entries.get(id);
+  if (entry?.poses !== undefined) {
+    generation++;
+    images.clear();
   }
+  entries.set(id, {
+    poses: value?.version === 1 && value.outfits?.base ? value : null,
+    ready: entry?.ready ?? Promise.resolve(),
+  });
 }
-/** Starts loading the authored actions, once, when any of `assets` is a bundled companion. */
+/** Asks once for the poses of each of `assets` that has them; resolves when they have come. */
 export function loadCompanionActionsFor(assets) {
-  if (!loading && assets.some(bundled)) loading = loadCompanionActions();
-  return loading ?? Promise.resolve();
+  const waits = [];
+  for (const asset of assets) {
+    if (!posed(asset)) continue;
+    if (!entries.has(asset.id))
+      entries.set(asset.id, {
+        // call() opens the bridge's { ok, data } envelope and turns a refusal into a rejection.
+        ready: call('petActions', asset.id)
+          .then(value => useCompanionActions(asset.id, value))
+          // A pet whose poses cannot be read keeps its ordinary sheet.
+          .catch(() => useCompanionActions(asset.id, null)),
+      });
+    waits.push(entries.get(asset.id).ready);
+  }
+  return Promise.all(waits);
 }
 export function setCompanionSeason(value) {
   if (value !== season) {
@@ -61,11 +76,14 @@ export function setCompanionSeason(value) {
   season = value;
 }
 function clipFor(asset, name) {
-  if (!bundled(asset)) return null;
-  // A companion added after the start asks before its actions are there: this ask plays the
-  // ordinary sheet, and the ones after it find them.
-  loadCompanionActionsFor([asset]);
-  const clip = registry.characters?.[asset.sourceId]?.variants?.[season]?.[name];
+  if (!posed(asset)) return null;
+  // A friend that asks before its poses are there plays the ordinary sheet this time, and the
+  // asks after it find them.
+  if (!entries.has(asset.id)) loadCompanionActionsFor([asset]);
+  const outfits = entries.get(asset.id).poses?.outfits;
+  // A season's own outfit, else the base one, as with the seasonal sheets; a clip that outfit
+  // lacks plays the ordinary rows rather than another outfit's clothes.
+  const clip = (outfits?.[season] ?? outfits?.base)?.[name];
   if (!clip?.frames?.length || !clip.url) return null;
   if (!clip.frames.every(frame => frame.rect?.length === 4 && frame.foot?.length === 2 && frame.duration > 0))
     return null;
@@ -126,10 +144,12 @@ export function companionAction(view, now) {
 /** A failed or undecoded optional atlas always leaves the standard sheet on screen. */
 export function companionImage(action) {
   if (!action || typeof Image === 'undefined') return null;
-  const url = new URL(`../${action.clip.url}`, import.meta.url).href;
+  const url = action.clip.url;
   let image = images.get(url);
   if (!image) {
     image = new Image();
+    // The atlas comes from the pet-asset protocol; CORS keeps the friend canvas readable.
+    image.crossOrigin = 'anonymous';
     image.src = url;
     images.set(url, image);
   }

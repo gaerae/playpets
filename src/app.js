@@ -138,8 +138,8 @@ const booted = await call('bootstrap').catch(() => null);
 setData(booted || data);
 if (windowEvents === eventsBeforeBoot) shown = booted?.windowShown !== false;
 // What the yard is made of (the catalogue, the scenery, the drawings), before anything is drawn.
-// The bundled companions' authored actions are not needed for that: a bundled companion asks for
-// them as the yard draws it (views.js syncViews).
+// A friend's own game poses are not needed for that: a friend that has them asks for them as the
+// yard draws it (views.js syncViews).
 await loadContent();
 // Words first: everything below builds its labels from them.
 apply();

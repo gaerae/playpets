@@ -1467,7 +1467,7 @@ const scenario = `(async()=>{
     const appearanceCanvas=sprites.canvas();
     await until(()=>{sprites.drawSprite(appearanceCanvas,aria);return painted(appearanceCanvas);});
     await L('illustratedChoice='+(independent&&ordinarySettings&&fullPortrait&&miniPortraitAbsent&&painted(appearanceCanvas)?'ordinary-independent':'err'));
-    // Every bundled wardrobe renders authored actions through the real yard canvas.
+    // Every bundled wardrobe renders the poses in its pet folder through the real yard canvas.
     $('close-panel').click();
     const companionUi=await import('./core/companion-actions.js'),companionTrips=await import('./yard/trips.js'),companionViews=await import('./yard/views.js');
     await until(()=>st.views.has(adultB.id));
@@ -1482,6 +1482,8 @@ const scenario = `(async()=>{
       await until(()=>st.views.has(pet.id));
     }
     const authoredViews=[adultA,adultB,...extraCompanions].map(p=>st.views.get(p.id));
+    // Each friend's poses come from its own pet folder (petActions), asked for once.
+    await companionUi.loadCompanionActionsFor(authoredViews.map(v=>v.asset));
     const sourceIdentities=new Map(authoredViews.map(v=>[v.pet.id,JSON.stringify(v.asset)]));
     const authoredClips=['dig','plant','cast','wait','reel','discover'],authoredTrace=[];
     let authoredOk=true,cancellationOk=true;

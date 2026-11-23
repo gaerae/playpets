@@ -34,10 +34,33 @@ pub(super) fn asset_json(asset: &catalog::Asset) -> serde_json::Value {
     if asset.realistic_portrait_path.is_some() {
         value["realisticPortraitUrl"] = json!(format!("{base}?style=realistic&portrait=1"));
     }
+    if asset.poses.is_some() {
+        value["hasActions"] = json!(true);
+    }
     value
 }
 
+/// The pet's poses as they passed when it was found, each clip's atlas named by its address;
+/// null when it has none.
+pub fn pet_actions(asset: &catalog::Asset) -> serde_json::Value {
+    let Some(mut poses) = asset.poses.as_ref().map(|p| p.value.clone()) else {
+        return serde_json::Value::Null;
+    };
+    let base = sprite_url(&asset.id);
+    let outfits = poses["outfits"]
+        .as_object_mut()
+        .into_iter()
+        .flat_map(|o| o.values_mut());
+    for clip in outfits.flat_map(|clips| clips.as_object_mut().into_iter().flat_map(|c| c.values_mut())) {
+        if let Some(index) = clip.as_object_mut().and_then(|c| c.remove("image")) {
+            clip["url"] = json!(format!("{base}?action={index}"));
+        }
+    }
+    poses
+}
+
 /// A picture of this pet, read whole through the same checks the pet passed when it was found.
+/// `portrait` is any picture held to a portrait's limits: a portrait or a pose atlas.
 fn read_file(asset: &catalog::Asset, path: &std::path::Path, portrait: bool) -> Option<(Vec<u8>, PathBuf)> {
     let limit = if portrait {
         catalog::PORTRAIT_LIMIT
@@ -69,6 +92,10 @@ fn read_sheet(asset: &catalog::Asset, query: Option<&str>) -> Option<(Vec<u8>, P
                 .find_map(|(name, value)| (name == key).then_some(value))
         })
     };
+    if let Some(index) = parameter("action") {
+        let path = asset.poses.as_ref()?.images.get(index.parse::<usize>().ok()?)?;
+        return read_file(asset, path, true);
+    }
     let season = parameter("season").filter(|season| catalog::SEASONS.contains(season));
     let realistic = parameter("style") == Some("realistic");
     if parameter("portrait") == Some("1") {
@@ -301,5 +328,80 @@ mod tests {
         fs::write(pet.join("base.png"), b"broken").unwrap();
         assert!(read_sheet(&asset, None).is_none());
         fs::remove_dir_all(root).unwrap();
+    }
+    /// A pet folder whose `actions.json` holds one base dig clip on `actions/dig.png`.
+    fn posed_pet(marker: u8) -> std::path::PathBuf {
+        let root = std::env::temp_dir().join(format!("playpets-poses-{}", uuid::Uuid::new_v4()));
+        fs::create_dir_all(root.join("actions")).unwrap();
+        let png = |w: u32, h: u32| {
+            let mut bytes = vec![0; 25];
+            bytes[..8].copy_from_slice(b"\x89PNG\r\n\x1a\n");
+            bytes[16..20].copy_from_slice(&w.to_be_bytes());
+            bytes[20..24].copy_from_slice(&h.to_be_bytes());
+            bytes[24] = marker;
+            bytes
+        };
+        fs::write(root.join("sprite.png"), png(1536, 2288)).unwrap();
+        fs::write(root.join("actions/dig.png"), png(384, 208)).unwrap();
+        fs::write(
+            root.join("actions.json"),
+            r#"{"version":1,"outfits":{"base":{"dig":{"image":"actions/dig.png","anchor":[96,199],
+                "frames":[{"rect":[0,0,192,208],"duration":200},{"rect":[192,0,192,208],"duration":200}]}}}}"#,
+        )
+        .unwrap();
+        fs::write(root.join("pet.json"), r#"{"id":"posed","displayName":"Posed","spriteVersionNumber":2,"spritesheetPath":"sprite.png","actionsPath":"actions.json"}"#).unwrap();
+        dunce::canonicalize(root).unwrap()
+    }
+
+    #[test]
+    fn has_actions_only_with_valid_poses() {
+        let root = posed_pet(7);
+        let asset = catalog::read_pet(&root).unwrap();
+        assert_eq!(asset_json(&asset)["hasActions"], json!(true));
+        let poses = pet_actions(&asset);
+        let dig = &poses["outfits"]["base"]["dig"];
+        assert_eq!(dig["url"], json!(format!("{}?action=0", sprite_url(&asset.id))));
+        assert!(
+            dig.get("image").is_none(),
+            "the page gets an address, not a path or index"
+        );
+        fs::write(root.join("actions.json"), "{}").unwrap();
+        let plain = catalog::read_pet(&root).unwrap();
+        assert!(asset_json(&plain).get("hasActions").is_none());
+        assert_eq!(pet_actions(&plain), Value::Null);
+    }
+
+    #[test]
+    fn action_images_serve_only_validated_indices() {
+        let root = posed_pet(7);
+        let asset = catalog::read_pet(&root).unwrap();
+        assert_eq!(read_sheet(&asset, Some("action=0")).unwrap().0[24], 7);
+        for query in ["action=1", "action=-1", "action=x", "action=0&action=9"] {
+            let found = read_sheet(&asset, Some(query));
+            assert!(found.is_none() || query == "action=0&action=9", "{query}");
+        }
+        // An atlas grown past its limits after the pet was found is not served.
+        let mut big = vec![0; 25];
+        big[..8].copy_from_slice(b"\x89PNG\r\n\x1a\n");
+        big[16..20].copy_from_slice(&5000u32.to_be_bytes());
+        big[20..24].copy_from_slice(&208u32.to_be_bytes());
+        fs::write(root.join("actions/dig.png"), &big).unwrap();
+        assert!(read_sheet(&asset, Some("action=0")).is_none());
+    }
+
+    #[test]
+    fn poses_are_read_once_and_atlases_checked_when_served() {
+        let root = posed_pet(7);
+        let asset = catalog::read_pet(&root).unwrap();
+        // The poses passed when the pet was found; a later edit waits for the next scan.
+        fs::write(root.join("actions.json"), "{}").unwrap();
+        assert_eq!(
+            pet_actions(&asset)["outfits"]["base"]["dig"]["url"],
+            json!(format!("{}?action=0", sprite_url(&asset.id)))
+        );
+        assert!(catalog::read_pet(&root).unwrap().poses.is_none());
+        // The atlas itself is read only when drawn, through the checks it passed.
+        fs::write(root.join("actions/dig.png"), b"broken").unwrap();
+        assert!(read_sheet(&asset, Some("action=0")).is_none());
     }
 }

@@ -47,7 +47,8 @@ import CreationStudio from "../../.vitepress/theme/CreationStudio.vue";
 1. 按SKILL的引导，确认11张4 × 2原始批次图。
 2. 附带的Python脚本把它们组装成1536 × 2288 RGBA透明v2图集。
 3. 检查9种动作和16个视线方向。
-4. 导入完成的ZIP。
+4. 为游戏姿势（挖土、种植、展示找到的东西、钓鱼）每套服装再确认4张批次图，并用脚本画出的检查图核对。
+5. 导入完成的ZIP。
 
 | 服装 | 穿的季节 |
 |---|---|
@@ -57,6 +58,7 @@ import CreationStudio from "../../.vitepress/theme/CreationStudio.vue";
 
 - 每套都有9种动作和16个视线方向。
 - 春季或秋季专属服装只在你要求时才做。
+- 有了游戏姿势，你做的伙伴也会像自带伙伴一样挖土、种植、展示找到的东西和钓鱼。没有的话，这些游戏里就用平常的动作。
 - 改进官方伙伴也用同一个SKILL，它的外形和已确认的动作都会保留。
 
 [导入宠物](./import.md), [宠物格式规范、英文](/dev/standards/pet-files)

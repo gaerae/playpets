@@ -62,6 +62,16 @@ pub(super) fn add_zip(app: &AppHandle, state: &State<Shared>, file: &std::path::
     register_asset(app, lock(state), asset)
 }
 
+/// A pet's own game poses for the yard (pets/actions.rs), or null; they were read when the pet
+/// was found, so nothing waits on a file here.
+pub(super) fn pet_actions(state: &State<Shared>, id: &str) -> Result<Value, String> {
+    let d = lock(state);
+    Ok(d.assets
+        .iter()
+        .find(|a| a.id == id)
+        .map_or(Value::Null, crate::app::pet_actions))
+}
+
 /// Takes an imported or picked pet off the shelf. An imported one's folder in the data folder goes
 /// with it; a folder picked by hand is the person's and stays.
 pub(super) fn remove_asset(app: &AppHandle, state: &State<Shared>, id: &str) -> Result<Value, String> {

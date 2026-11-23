@@ -28,25 +28,73 @@ const PETS: &[Builtin] = &[
         "daisy",
         "spritesheet.webp",
         "seasonal/summer.webp",
-        "seasonal/winter.webp"
+        "seasonal/winter.webp",
+        "actions.json",
+        "actions/base/dig.webp",
+        "actions/base/plant.webp",
+        "actions/base/fish.webp",
+        "actions/base/discover.webp",
+        "actions/summer/dig.webp",
+        "actions/summer/plant.webp",
+        "actions/summer/fish.webp",
+        "actions/summer/discover.webp",
+        "actions/winter/dig.webp",
+        "actions/winter/plant.webp",
+        "actions/winter/fish.webp",
+        "actions/winter/discover.webp"
     ),
     pet!(
         "clover",
         "spritesheet.webp",
         "seasonal/summer.webp",
-        "seasonal/winter.webp"
+        "seasonal/winter.webp",
+        "actions.json",
+        "actions/base/dig.webp",
+        "actions/base/plant.webp",
+        "actions/base/discover.webp",
+        "actions/base/fish.webp",
+        "actions/winter/dig.webp",
+        "actions/winter/plant.webp",
+        "actions/winter/discover.webp",
+        "actions/winter/fish.webp"
     ),
     pet!(
         "pip",
         "spritesheet.webp",
         "seasonal/summer.webp",
-        "seasonal/winter.webp"
+        "seasonal/winter.webp",
+        "actions.json",
+        "actions/base/dig.webp",
+        "actions/base/plant.webp",
+        "actions/base/discover.webp",
+        "actions/base/fish.webp",
+        "actions/summer/dig.webp",
+        "actions/summer/plant.webp",
+        "actions/summer/discover.webp",
+        "actions/summer/fish.webp",
+        "actions/winter/dig.webp",
+        "actions/winter/plant.webp",
+        "actions/winter/discover.webp",
+        "actions/winter/fish.webp"
     ),
     pet!(
         "miso",
         "spritesheet.webp",
         "seasonal/summer.webp",
-        "seasonal/winter.webp"
+        "seasonal/winter.webp",
+        "actions.json",
+        "actions/base/dig.webp",
+        "actions/base/plant.webp",
+        "actions/base/fish.webp",
+        "actions/base/discover.webp",
+        "actions/summer/dig.webp",
+        "actions/summer/plant.webp",
+        "actions/summer/fish.webp",
+        "actions/summer/discover.webp",
+        "actions/winter/dig.webp",
+        "actions/winter/plant.webp",
+        "actions/winter/fish.webp",
+        "actions/winter/discover.webp"
     ),
 ];
 
@@ -312,6 +360,37 @@ mod tests {
         }
         assert!(other.is_file(), "only the built-in friends' own folders are tidied");
         std::fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn every_friend_has_valid_poses_for_its_outfits() {
+        let root = unpacked("builtin-poses");
+        let (assets, _) = scan_pets(root.as_path(), Place::Builtin);
+        for asset in &assets {
+            let poses = asset.poses.as_ref().expect("valid poses");
+            let outfits = poses.value["outfits"].as_object().unwrap();
+            let mut names: Vec<_> = outfits.keys().map(String::as_str).collect();
+            names.sort();
+            // Clover wears its base clothes all summer, so its summer poses are its base ones.
+            let want: &[&str] = if asset.display_name == "Clover" {
+                &["base", "winter"]
+            } else {
+                &["base", "summer", "winter"]
+            };
+            assert_eq!(names, want, "{}", asset.display_name);
+            for (outfit, clips) in outfits {
+                let mut clips: Vec<_> = clips.as_object().unwrap().keys().map(String::as_str).collect();
+                clips.sort();
+                assert_eq!(
+                    clips,
+                    ["cast", "dig", "discover", "plant", "reel", "wait"],
+                    "{} {outfit}",
+                    asset.display_name
+                );
+            }
+            assert_eq!(poses.images.len(), 4 * outfits.len(), "{}", asset.display_name);
+        }
+        assert_eq!(assets.len(), 4);
     }
 
     #[test]

@@ -65,9 +65,23 @@ test('each starter friend downloads as playpets-<name>.zip, one folder a Codex p
         await readFile(`${shipped}/${sheet}`),
       );
     }
+    // A friend downloaded and imported plays its own game poses, as in the app.
+    assert.equal(manifest.actionsPath, 'actions.json', file);
+    const poses = JSON.parse(await readFile(`${shipped}/actions.json`, 'utf8')),
+      atlases = [
+        ...new Set(Object.values(poses.outfits).flatMap(clips => Object.values(clips).map(clip => clip.image))),
+      ];
+    assert.ok(atlases.length >= 8, file);
+    for (const name of ['actions.json', ...atlases])
+      assert.deepEqual(
+        entries.find(entry => entry.name === `${folder}/${name}`)?.bytes,
+        await readFile(`${shipped}/${name}`),
+        `${file}: ${name}`,
+      );
     assert.deepEqual(
       entries.map(entry => entry.name).sort(),
-      ['pet.json', ...sheets].map(name => `${folder}/${name}`).sort(),
+      ['pet.json', ...sheets, 'actions.json', ...atlases].map(name => `${folder}/${name}`).sort(),
+      'every file its pet.json names, and nothing else',
     );
   }
 });
