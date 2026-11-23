@@ -4,8 +4,8 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { cellLeft, idleCell, idleLeft, TURN_MS } from '../src/core/animation.js';
-import { FOLLOW_MS, nextDraw } from '../src/overlay/pace.js';
+import { calmRhythm, cellLeft, idleCell, idleLeft, liven, TURN_MS } from '../src/core/animation.js';
+import { CALM_SHARE, FOLLOW_MS, LIVELY_MS, nextDraw } from '../src/overlay/pace.js';
 
 const friend = (over = {}) => ({
   asset: { id: 'cat' },
@@ -42,6 +42,30 @@ test('an idle desktop wakes for each cell its friend shows, far less often than 
   }
   assert.ok(wakes <= changes + 2, `${wakes} wakes for ${changes} changes`);
   assert.ok(wakes < 120, `${wakes} wakes in a minute, where cycling the row woke 327 times`);
+});
+
+test('a desktop friend nobody is with rests longer, and wakes the loop as its own rhythm says', () => {
+  const count = rhythm => {
+    const standing = friend({ sprite: { _seed: 11, _rhythm: rhythm } });
+    let wakes = 0;
+    for (let now = 0; now < 600_000; now += nextDraw([standing], now)) {
+      assert.equal(nextDraw([standing], now), Math.max(8, Math.ceil(idleLeft(now, 11, rhythm))), `at ${now}`);
+      wakes++;
+    }
+    return wakes;
+  };
+  const lively = count(undefined),
+    calm = count(calmRhythm(CALM_SHARE));
+  assert.ok(calm < lively * 0.65, `${calm} wakes calm against ${lively} lively in ten minutes`);
+  // Someone was with it: for LIVELY_MS it wakes as often as in the yard.
+  const livened = calmRhythm(CALM_SHARE);
+  liven(livened, 0, LIVELY_MS);
+  assert.ok(LIVELY_MS >= 30_000, 'lively long enough to be seen');
+  for (let now = livened.from; now < livened.until; now += 97)
+    assert.equal(
+      nextDraw([friend({ sprite: { _seed: 11, _rhythm: livened } })], now),
+      nextDraw([friend({ sprite: { _seed: 11 } })], now),
+    );
 });
 
 test('with reduced motion a friend shows one cell, and the loop rests until woken', () => {

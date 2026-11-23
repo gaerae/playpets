@@ -61,29 +61,48 @@ function unit(seed, n) {
   h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
   return ((h ^ (h >>> 16)) >>> 0) / 2 ** 32;
 }
-// Where the gesture of beat `k` starts, as time from the beat's start, or null when it rests.
-function gestureIn(k, seed) {
-  return unit(seed, 2 * k) < IDLE_PLAY ? IDLE_FROM + Math.floor(unit(seed, 2 * k + 1) * IDLE_SPAN) : null;
+// A rhythm that rests more than the yard's: a friend plays its row in `share` of the beats, which
+// are some of the beats it plays in anyway, at the same moments (the same draw from `unit`). The
+// beats that start from `from` until `until` play as the yard's. The desktop rests so while nobody
+// is with its friends (overlay/pace.js): each cell a friend shows there costs a redraw of its window.
+/** A rhythm for a canvas (its `_rhythm`) that gestures in `share` of the beats until livened. */
+export function calmRhythm(share) {
+  return { share, from: 0, until: 0 };
 }
-/** The cell a standing friend shows at `elapsed` (ms) by its canvas's `seed`. */
-export function idleCell(elapsed, seed = 0) {
+/** Lively for `ms` from `now`: the beats that start from the next one on play as the yard's. The
+ * beat under way keeps its gesture or its rest, so a gesture is never cut into or cut short. */
+export function liven(rhythm, now, ms) {
+  if (now >= rhythm.until) rhythm.from = (Math.floor(Math.max(0, now) / IDLE_BEAT) + 1) * IDLE_BEAT;
+  rhythm.until = Math.max(rhythm.until, now + ms);
+}
+function shareOf(k, rhythm) {
+  if (!rhythm) return IDLE_PLAY;
+  const at = k * IDLE_BEAT;
+  return at >= rhythm.from && at < rhythm.until ? IDLE_PLAY : rhythm.share;
+}
+// Where the gesture of beat `k` starts, as time from the beat's start, or null when it rests.
+function gestureIn(k, seed, rhythm) {
+  return unit(seed, 2 * k) < shareOf(k, rhythm) ? IDLE_FROM + Math.floor(unit(seed, 2 * k + 1) * IDLE_SPAN) : null;
+}
+/** The cell a standing friend shows at `elapsed` (ms) by its canvas's `seed` (and `rhythm`, calmRhythm). */
+export function idleCell(elapsed, seed = 0, rhythm = null) {
   const t = Math.max(0, elapsed),
     k = Math.floor(t / IDLE_BEAT),
-    start = gestureIn(k, seed),
+    start = gestureIn(k, seed, rhythm),
     at = t - k * IDLE_BEAT - (start ?? 0);
   return start !== null && at >= 0 && at < idleCycle ? frameAt('idle', at) : REST;
 }
 /** How long the cell idleCell shows at `elapsed` goes on showing: to its gesture's next cell, or
  * through the rest to where the next gesture leaves its first cell (which is the resting one). */
-export function idleLeft(elapsed, seed = 0) {
+export function idleLeft(elapsed, seed = 0, rhythm = null) {
   const t = Math.max(0, elapsed);
   const k = Math.floor(t / IDLE_BEAT);
-  const start = gestureIn(k, seed),
+  const start = gestureIn(k, seed, rhythm),
     at = t - k * IDLE_BEAT - (start ?? 0);
   if (start !== null && at >= 0 && at < idleCycle) return cellLeft('idle', at);
   // Resting: the next gesture shows its second cell where its first one ends.
   for (let next = start !== null && at < 0 ? k : k + 1; next < k + 64; next++) {
-    const from = gestureIn(next, seed);
+    const from = gestureIn(next, seed, rhythm);
     if (from !== null) return next * IDLE_BEAT + from + idleRow[0] - t;
   }
   return IDLE_BEAT;

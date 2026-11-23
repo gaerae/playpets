@@ -12,7 +12,7 @@ class Sheet {
   }
 }
 globalThis.Image = Sheet;
-const { idleCell, LOOK_HOLD, lookFrame, TURN_MS } = await import('../src/core/animation.js');
+const { calmRhythm, idleCell, liven, LOOK_HOLD, lookFrame, TURN_MS } = await import('../src/core/animation.js');
 const sprites = await import('../src/core/sprites.js');
 const { drawSprite } = sprites;
 
@@ -40,6 +40,16 @@ test('a standing friend shows the idle rhythm of its own canvas', () => {
   for (let t = 0; t < 30_000; t += 50) {
     drawSprite(a, pet, 'idle', t, null, null, t);
     assert.deepEqual(last(a), idleCell(t, a._seed), `at ${t}`);
+  }
+});
+
+test('a canvas with a calmer rhythm of its own stands by that rhythm', () => {
+  const a = surface();
+  a._rhythm = calmRhythm(0.3);
+  liven(a._rhythm, 10_000, 20_000);
+  for (let t = 0; t < 60_000; t += 50) {
+    drawSprite(a, pet, 'idle', t, null, null, t);
+    assert.deepEqual(last(a), idleCell(t, a._seed, a._rhythm), `at ${t}`);
   }
 });
 
