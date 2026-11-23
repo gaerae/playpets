@@ -70,6 +70,9 @@ Detailed architecture: [developer docs](https://playpets.gaerae.com/dev/).
 - A newer direct dependency can leave the affected transitive copy in place.
 - This is a compatibility constraint, not a missing application-level version
   bump.
+- Checked again on 2026-11-23: gtk 0.19 (on glib 0.22) is published, but the
+  latest Tauri 2.12.7, Tao 0.37.3, Wry 0.57.3, Muda 0.21.2 and tray-icon 0.26.1
+  still require gtk 0.18.
 
 Official upstream references for the remaining work:
 
@@ -125,8 +128,23 @@ Official upstream references for the remaining work:
   configuration, never from a visitor or a downloaded file.
 - `pnpm audit` leaves out this one advisory (`auditConfig.ignoreGhsas` in
   `pnpm-workspace.yaml`). No package or severity is ignored as a whole.
+- Checked again on 2026-11-23: still no fixed version; 4.0.7 is the latest.
 - Remove the exception in the change that takes a fixed picomatch, or as soon as
   Vite or VitePress stop pulling in an affected version.
+
+### Unmaintained Rust crates (2026-11-23)
+
+- cargo-audit lists these as warnings, not vulnerabilities; none has a
+  replacement version the app can take today.
+
+| Crate | Advisory | Path | When it goes |
+|---|---|---|---|
+| `zvariant`, `zvariant_derive`, `zbus_names` 5 | [RUSTSEC-2026-0370](https://rustsec.org/advisories/RUSTSEC-2026-0370.html), [RUSTSEC-2026-0371](https://rustsec.org/advisories/RUSTSEC-2026-0371.html), [RUSTSEC-2026-0372](https://rustsec.org/advisories/RUSTSEC-2026-0372.html) | zbus 5, Linux only: `tauri-plugin-single-instance` 2.5 and the keyring's Secret Service store | When both move to zbus 6 (`secret-service` 6 already has) |
+| `chrono` 0.4 | [RUSTSEC-2026-0543](https://rustsec.org/advisories/RUSTSEC-2026-0543.html) | Locked through `serde_with` in Tauri's `tauri-utils`; `cargo tree` finds it in no build target | When Tauri drops it, or a maintained fork replaces it |
+| `proc-macro-error` 1 | [RUSTSEC-2024-0370](https://rustsec.org/advisories/RUSTSEC-2024-0370.html) | The GTK 0.18 family | With the GLib update above |
+
+- A yanked crate is not left in the lockfile: `async-executor` 1.14.0 was
+  updated to 1.14.1 on 2026-11-23.
 
 ## Automated security checks
 
