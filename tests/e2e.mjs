@@ -1556,6 +1556,10 @@ const scenario = `(async()=>{
     companionUi.prepareCompanionAction(cloverView.asset,'dig');
     const digAtlas=companionUi.prepareCompanionAction(cloverView.asset,'dig');
     await until(()=>companionUi.companionImage({clip:digAtlas}),10000);
+    // The yard's own frame loop draws the clip (motion.js); these checks read what it drew off the
+    // canvas and never draw it themselves: the index of the clip's frame on the canvas, or -1.
+    const liveFrame=(v,clip)=>{const prefix=v.asset.id+':action:'+clip?.url+':';return clip&&v.canvas._pk?.startsWith(prefix)?clip.frames.findIndex(frame=>frame.rect.join(',')===v.canvas._pk.slice(prefix.length)):-1;};
+    await inView('authoredDig');
     discoveryFlow.sendDiscovery(cloverView,cloverGround,'dig');
     const walkFirst=!!cloverView.target&&companionUi.companionAction(cloverView,performance.now())===null;
     let cloverArrival=null;
@@ -1576,17 +1580,19 @@ const scenario = `(async()=>{
     const soilLayer=!!soilNode&&effect.dataset.soil==='base'&&soilBackground.includes('dug-soil.webp')&&Number(effect.style.zIndex)<Number(cloverView.button.style.zIndex);
     let soilContact=false;
 
-    const bodyFrames=new Set(),startAt=authoredStarted?.since||performance.now();
+    const liveFrames=[],startAt=authoredStarted?.since||performance.now();
     while(companionUi.companionAction(cloverView,performance.now())?.clip===digAtlas&&performance.now()-startAt<digAtlas.frames.reduce((sum,frame)=>sum+frame.duration,0)){
-      const sample=companionUi.companionAction(cloverView,performance.now());
-      if(sample){sprites.drawSprite(cloverView.canvas,cloverView.asset,'idle',0,null,sample);bodyFrames.add(cloverView.canvas._pk);}
+      const index=liveFrame(cloverView,digAtlas);
+      if(index>=0&&liveFrames.at(-1)!==index)liveFrames.push(index);
       soilContact||=!!soilNode&&effect.classList.contains('contact')&&Number(getComputedStyle(soilNode).opacity)>0;
-      await wait(70);
+      await wait(20);
     }
+    // A clip plays once, so the loop shows its frames only forward.
+    const liveForward=liveFrames.every((index,i)=>!i||index>liveFrames[i-1]);
     const cloverSaved=await until(async()=>(await playPets.bootstrap()).data.garden.digs.length===digHistory.length+1,10000);
     if(cloverArrival)await cloverArrival;
     const cloverClean=await until(()=>!document.querySelector('.dig-effect'));
-    await L('authoredDig='+(walkFirst&&authoredStarted&&toolAttached&&bodyFrames.size>=(sprites.reduced.matches?1:4)&&cloverSaved&&cloverClean?'walk-body-tool-save-clean':'err:'+JSON.stringify({walkFirst,started:!!authoredStarted,toolAttached,frames:bodyFrames.size,cloverSaved,cloverClean,digTrace})));
+    await L('authoredDig='+(walkFirst&&authoredStarted&&toolAttached&&liveFrames.length>=(sprites.reduced.matches?1:4)&&liveForward&&cloverSaved&&cloverClean?'walk-live-body-tool-save-clean':'err:'+JSON.stringify({walkFirst,started:!!authoredStarted,toolAttached,liveFrames,cloverSaved,cloverClean,digTrace})));
     await L('authoredSoil='+(soilDecoded&&soilLayer&&soilContact&&cloverClean?'decoded-contact-depth-clean':'err:'+JSON.stringify({soilDecoded:!!soilDecoded,soilLayer,soilContact,cloverClean,soilBackground})));
     discoveryFlow.cancelDiscoveryWork();companionTrips.release(cloverView);companionUi.clearCompanionAction(cloverView);
     // A real fishing trip uses the held rod through cast, wait and reel, then saves and clears it.
@@ -1595,18 +1601,19 @@ const scenario = `(async()=>{
       const clip=companionUi.prepareCompanionAction(cloverView.asset,clipName);
       await until(()=>companionUi.companionImage({clip}),10000);
     }
+    await inView('authoredFishing');
     const authoredFishBefore=await countFish();$('fish-tool').click();
     const fishingWalk=!!cloverView.target&&companionUi.companionAction(cloverView,performance.now())===null;
     if(document.visibilityState==='hidden'&&cloverView.trip){const trip=cloverView.trip;cloverView.trip=null;cloverView.target=null;trip.arrive(cloverView);}
     const authoredField=await import('./yard/field.js'),authoredRod=await import('./yard/fishing-rod.js');
+    // The friend and its line as the frame loop left them: both are drawn in one tick, so the line
+    // leaves the tip of the frame on the canvas.
     const heldPhase=async name=>until(()=>{
-      const now=performance.now();catchModule.syncFishingArtwork(now);
-      const action=companionUi.companionAction(cloverView,now),rod=document.querySelector('.fishing-rod'),line=document.querySelector('.fishing-line path');
-      const decoded=companionUi.companionImage(action);
-      if(action?.clip!==companionUi.prepareCompanionAction(cloverView.asset,name)||!decoded)return false;
-      sprites.drawSprite(cloverView.canvas,cloverView.asset,'idle',0,null,action);
-      const tip=authoredRod.authoredRodTip(action,authoredField.drawnBox(cloverView),sprites.reduced.matches);
-      return rod?.hasAttribute('hidden')&&getComputedStyle(rod).display==='none'&&tip&&line?.getAttribute('d').startsWith('M'+tip.x+' '+tip.y+'Q')&&cloverView.canvas._sheet===decoded&&cloverView.canvas._pk.includes(':action:');
+      const clip=companionUi.prepareCompanionAction(cloverView.asset,name),index=liveFrame(cloverView,clip);
+      const decoded=index>=0&&companionUi.companionImage({clip}),rod=document.querySelector('.fishing-rod'),line=document.querySelector('.fishing-line path');
+      if(!decoded)return false;
+      const tip=authoredRod.authoredRodTip({clip,frame:clip.frames[index]},authoredField.drawnBox(cloverView),sprites.reduced.matches);
+      return rod?.hasAttribute('hidden')&&getComputedStyle(rod).display==='none'&&tip&&line?.getAttribute('d').startsWith('M'+tip.x+' '+tip.y+'Q')&&cloverView.canvas._sheet===decoded;
     },10000);
     const heldCast=await heldPhase('cast'),heldWait=await heldPhase('wait');
     const authoredBite=await until(()=>document.querySelector('.bobber.bite'),12000);
@@ -1838,7 +1845,7 @@ const expect = [
     'all 192 companion action cases decode and change frames at two native sizes while preserving identity, click bounds and imported fallback',
   ],
   [
-    /^authoredDig=walk-body-tool-save-clean$/,
+    /^authoredDig=walk-live-body-tool-save-clean$/,
     'Clover walks, animates its body with one held tool and completes a persisted discovery without leftover effects',
   ],
   [
