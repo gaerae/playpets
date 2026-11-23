@@ -19,6 +19,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Changed
 
+- Friends standing on the desktop rest a little longer between their idle gestures, which halves the CPU those gestures use. For a minute after you point at one, hold it or pat it, or after it gets news, it is as lively as in the yard.
 - An album card now brings back what it set out, from the same place. Found once, **Set out** turns into **Put back**; found more often, **−** and **+** take one in or set one more out, up to how many you found and the yard's room, with how many are out between them. The buttons stay where they are, so pressing again at once, by mouse or keyboard, keeps working. Gift cards work the same way.
 - The small screen button on an album card stays lit while that kind is on the desktop; press it again to take them all off the desktop, and they stay in the yard.
 - Every notice along the bottom of the yard has a close button, and one without **Undo** also closes with a click anywhere on it. A notice with **Undo** closes only from its close button, which keeps the removal, so a click that misses **Undo** saves nothing. Neither these notices nor the card for something found get their words selected when you drag.

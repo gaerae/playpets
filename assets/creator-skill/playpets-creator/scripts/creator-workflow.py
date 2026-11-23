@@ -228,8 +228,13 @@ def pose_batch(path, label, height, points, batch):
         left, top, right, bottom = boxes[index]
         place = lambda x, y, foot=foot: (ax + (x - foot[0]) * scale, ay + (y - foot[1]) * scale)
         (x0, y0), (x1, y1) = place(left, top), place(right, bottom)
+        # A tool reaching below the paws pulls the guessed feet onto the tool, and the figure off
+        # its canvas; say where the feet were taken from, since drawing smaller would not help.
+        cause = (f'check {batch}.feet point {index} in points.json' if 'feet' in points else
+                 f'its feet were guessed at x={round(foot[0])}, the middle of its lowest 12 pixels; if a tool reaches '
+                 f'below the paws, give six {batch}.feet points in points.json')
         check(x0 >= 1 and y0 >= 1 and x1 <= width - 1 and y1 <= depth - 1,
-              f'{label} tile {index} would clip its {width}x{depth} canvas; draw the figure and tool smaller in that tile')
+              f'{label} tile {index} would clip its {width}x{depth} canvas: {cause}, or draw the figure and tool smaller in that tile')
         crop = source.crop((left - 2, top - 2, right + 2, bottom + 2))
         size = (round(crop.width * scale), round(crop.height * scale))
         corner = place(left - 2, top - 2)

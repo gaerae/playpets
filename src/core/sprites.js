@@ -215,7 +215,8 @@ export function drawSprite(
   }
   const frame = reduced.matches
     ? { row: 0, column: 0 }
-    : looking || (state === 'idle' ? idleCell(elapsed, (canvas._seed ??= nextSeed())) : frameAt(state, elapsed));
+    : looking ||
+      (state === 'idle' ? idleCell(elapsed, (canvas._seed ??= nextSeed()), canvas._rhythm) : frameAt(state, elapsed));
   // Animation cells change a few times a second and the loops run more often than that:
   // skip the clear+blit entirely when this canvas already shows the same cell.
   const key = `${asset.id}:${frame.row}:${frame.column}`;

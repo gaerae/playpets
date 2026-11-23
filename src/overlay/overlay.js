@@ -2,7 +2,7 @@
 // the backend places on this monitor and reports presses and drags. Positions, drags and strolls are worked out in
 // overlay.rs; a right click asks the backend for its menu (menu.rs desktop_choices).
 
-import { lookAt, poseClock } from '../core/animation.js';
+import { calmRhythm, liven, lookAt, poseClock } from '../core/animation.js';
 import { styledAsset } from '../core/appearance.js';
 import { follow, language, list, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
@@ -22,7 +22,7 @@ import { ring } from './chime.js';
 import { dressDecor, drawDecor } from './decor-view.js';
 import { glideMs } from './glide.js';
 import { visitKey } from './growing.js';
-import { nextDraw } from './pace.js';
+import { CALM_SHARE, LIVELY_MS, nextDraw } from './pace.js';
 import { poke, showLamp } from './poke.js';
 
 setupInteractions();
@@ -91,6 +91,10 @@ function create(pet) {
   talk.innerHTML = '<span data-icon="chat"></span><span class="talk-name"></span>';
   icons(talk);
   talk.onclick = () => api.openChat(pet.id);
+  // Standing out here all day, a friend rests longer between gestures until someone is with it, and
+  // is as lively as in the yard just after it comes out (pace.js CALM_SHARE).
+  sprite._rhythm = calmRhythm(CALM_SHARE);
+  liven(sprite._rhythm, performance.now(), LIVELY_MS);
   button.append(bubble, sprite);
   wrap.append(button, talk);
   document.getElementById('friends').append(wrap);
@@ -114,6 +118,7 @@ function create(pet) {
   button.onpointerdown = async e => {
     if (e.button !== 0) return;
     view.drag = { x: e.screenX, y: e.screenY, moved: false };
+    liven(sprite._rhythm, performance.now(), LIVELY_MS);
     // Held, it follows the pointer with no glide behind it.
     halt(wrap);
     wrap.classList.remove('named');
@@ -137,6 +142,8 @@ function create(pet) {
       began = !view.look || now - view.lookedAt >= LOOK_MS;
     view.look = lookAt(button.getBoundingClientRect(), e.clientX, e.clientY);
     view.lookedAt = now;
+    // The loop wakes every FOLLOW_MS while it looks, and then by the livelier rhythm.
+    liven(sprite._rhythm, now, LIVELY_MS);
     if (began) drawNow();
   };
   button.onpointerleave = () => {
@@ -392,12 +399,15 @@ api.onEvent(event => {
   }
   if (event.type === 'hover') {
     showName(event.petId);
+    const v = views.get(event.petId);
+    if (v) enliven(v);
     return;
   }
   // Kept for every friend, also one on another monitor now: it may walk over here later.
   if (event.type === 'status') applyStatus(data, event);
   for (const [id, v] of views) {
     if (event.petId && event.petId !== id) continue;
+    if (['visit', 'status', 'say', 'play'].includes(event.type)) enliven(v);
     // A friend that strolled over to a gift, a flower or a tree says something that fits it, as in
     // the yard.
     if (event.type === 'visit') {
@@ -421,6 +431,12 @@ api.onEvent(event => {
     }
   }
 });
+// Someone was with this friend, or it has news: as lively as in the yard for a while. The loop may
+// be resting until a calmer gesture, so it looks again now.
+function enliven(v) {
+  liven(v.sprite._rhythm, performance.now(), LIVELY_MS);
+  drawNow();
+}
 function animate(now) {
   // Nobody on this screen (its window is kept a while, overlay.rs LINGER): no frames until one comes.
   if (!views.size) return Infinity;
