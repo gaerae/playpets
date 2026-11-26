@@ -357,15 +357,19 @@ impl Overlay {
             None => d.bodies.remove(id),
         };
     }
-    /// The page pulled a grass end to `left`/`right` (logical pixels): the grass reaches there now.
-    /// While `dragging` the screen keeps the pointer; once let go, the span to save. None while
-    /// dragging, with no grass out, or without both ends.
-    pub fn set_grass(&self, left: f64, right: f64, dragging: bool) -> Option<Span> {
+    /// The page in window `from` pulled a grass end to `left`/`right` (logical pixels): the grass
+    /// reaches there now. While `dragging` the screen keeps the pointer; once let go, the span to
+    /// save. None while dragging, with no grass out, without both ends, or from a window other
+    /// than the one drawing the grass.
+    pub fn set_grass(&self, from: &str, left: f64, right: f64, dragging: bool) -> Option<Span> {
         if !(left.is_finite() && right.is_finite()) {
             return None;
         }
         let mut d = crate::app::hold(&self.inner);
-        d.grass?;
+        let (mon, _) = ground(&d, &d.mons)?;
+        if from.strip_prefix("overlay") != Some(mon.id.as_str()) {
+            return None;
+        }
         let area = d.mons.first()?.area;
         let span = Span::from_ends(&area, left, right);
         d.grass = Some(span);
@@ -1832,17 +1836,44 @@ mod tests {
         };
         crate::app::hold(&overlay.inner).mons = screen();
         overlay.sync(vec![out("pip", None, None)], true, false, Some(Span::default()));
-        assert_eq!(overlay.set_grass(360.0, 1080.0, true), None, "nothing to save mid-drag");
+        assert_eq!(
+            overlay.set_grass("overlay0", 360.0, 1080.0, true),
+            None,
+            "nothing to save mid-drag"
+        );
         overlay.sync(vec![out("pip", None, None)], true, false, Some(Span::default()));
         assert_eq!(crate::app::hold(&overlay.inner).grass, Some(Span(0.25, 0.75)));
-        assert_eq!(overlay.set_grass(360.0, 1440.0, false), Some(Span(0.25, 1.0)));
+        assert_eq!(
+            overlay.set_grass("overlay0", 360.0, 1440.0, false),
+            Some(Span(0.25, 1.0))
+        );
         assert!(crate::app::hold(&overlay.inner).grass_drag.is_none());
         overlay.sync(vec![out("pip", None, None)], true, false, None);
         assert_eq!(
-            overlay.set_grass(0.0, 100.0, false),
+            overlay.set_grass("overlay0", 0.0, 100.0, false),
             None,
             "switched off: nothing moves"
         );
+    }
+
+    // Only the window drawing the grass moves it: another screen's overlay, or any other page, cannot.
+    #[test]
+    fn only_the_grass_screens_window_moves_the_grass() {
+        let overlay = Overlay {
+            inner: Arc::default(),
+            looper: std::thread::current(),
+        };
+        crate::app::hold(&overlay.inner).mons = screen();
+        overlay.sync(vec![out("pip", None, None)], true, false, Some(Span(0.25, 0.75)));
+        for other in ["overlay1", "main", "overlay"] {
+            assert_eq!(overlay.set_grass(other, 0.0, 1440.0, false), None, "{other}");
+            assert_eq!(
+                crate::app::hold(&overlay.inner).grass,
+                Some(Span(0.25, 0.75)),
+                "{other}"
+            );
+        }
+        assert_eq!(overlay.set_grass("overlay0", 0.0, 1440.0, false), Some(Span(0.0, 1.0)));
     }
 
     // What a page measured of a friend goes with it when it is brought in.
@@ -1875,7 +1906,11 @@ mod tests {
             (360.0, f64::NAN),
             (f64::NEG_INFINITY, f64::INFINITY),
         ] {
-            assert_eq!(overlay.set_grass(left, right, false), None, "{left} {right}");
+            assert_eq!(
+                overlay.set_grass("overlay0", left, right, false),
+                None,
+                "{left} {right}"
+            );
             assert_eq!(crate::app::hold(&overlay.inner).grass, Some(Span(0.25, 0.75)));
         }
     }

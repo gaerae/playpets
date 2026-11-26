@@ -630,13 +630,14 @@ static COMMANDS: &[Command] = &[
         Ok(Value::Null)
     }),
     // (left, right, dragging): an end of the grass along the floor pulled to there, in logical pixels;
-    // kept once let go (overlay.rs set_grass). The overlay lock is let go before the state's is taken.
+    // kept once let go (overlay.rs set_grass), and only from the window drawing the grass. The overlay
+    // lock is let go before the state's is taken.
     overlay("setGrass", |c| {
         let kept = c
             .app
             .state::<OverlayHandle>()
             .0
-            .set_grass(c.float(0), c.float(1), c.flag(2));
+            .set_grass(c.sender, c.float(0), c.float(1), c.flag(2));
         match kept {
             Some(span) => crate::app::keep_grass(c.app, lock(&c.state), span).map(|()| Value::Null),
             None => Ok(Value::Null),
