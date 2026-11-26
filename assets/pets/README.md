@@ -19,8 +19,16 @@
 - Source rows and large/mini playback proofs are kept locally under ignored
   `scratch/adult-companions/` and `scratch/seasonal-companions/`.
 - Do not overwrite accepted originals with weaker generation candidates.
-- Some short walks keep a shuffle-like stride; do not describe them as complete
-  hand-authored locomotion cycles.
+- The four companions' side walks (rows 1 and 2 of every outfit) are full
+  cycles: the legs pass and the arms swing against them. Their walks toward
+  and away from the viewer and their runs are clips in `actions.json`
+  (`walk-front`, `walk-back`, `run-right`, `run-left`; Clover has none in
+  summer, his summer outfit being his base one). Sources in
+  `../sources/walk-2026-11-26/`. Other archived characters' walks may still
+  shuffle.
+- Flowers, bows and bags stay on their own side of the body in every row:
+  walking right shows the right side, walking left the left side
+  (`../sources/walk-2026-11-26/handed-details.json`).
 - The historical flat sample generator is retired. The accepted sheets and
   source records below remain the inputs to the current artwork tools.
 
@@ -70,6 +78,8 @@
   identifies that revision.
 - The current Miso and denim Pip sources live under
   `../sources/companions-2026-10-17/`.
+- Daisy's current sources (her 11–12-year-old face and palette A outfits,
+  2026-11-24) live under `../sources/daisy-2026-11-24/`.
 - Miso: lavender cable-knit vest over an ivory collared shirt and warm-grey
   pleated shorts. Summer lightens the knit and linen. Winter: a fitted
   lavender wool cardigan and full-length warm-grey trousers.
@@ -93,7 +103,7 @@
 
 | Character | Design |
 | --- | --- |
-| Daisy | Chestnut bob, sage daisy beret, ivory blouse, apricot dungaree dress, brown boots and leaf satchel; a curious explorer |
+| Daisy | Chestnut hair past the shoulders, cream daisy beret, cream cardigan over a butter-yellow dress, brown boots and moss-green satchel; a curious explorer of about 11–12 |
 | Clover | Cream-and-ginger kitten, teal linen overalls, embroidered botanical pocket, straw hat with sage ribbon and leaf bow; a gentle gardener |
 | Pip | Caramel floppy-eared puppy, blue jacket, red scarf and leaf mailbag; a cheerful courier |
 

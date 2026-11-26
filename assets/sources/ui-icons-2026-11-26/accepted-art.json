@@ -1,0 +1,25 @@
+{
+  "generated": "2026-11-26",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "references": "assets/art/ui/rain.png, for the style",
+  "sources": [
+    {
+      "name": "sheet-n",
+      "file": "sheet-n.png",
+      "cells": ["weather-auto", null],
+      "reference": "assets/art/ui/rain.png",
+      "prompt": "Exactly 1024x512 pixels, a truly transparent background (transparent_background=true): no backdrop, no shadow field, no text, no letters, no numbers, no labels, no grid lines, no frames. Two separate small objects in one strict row of 2 columns, each centred in its own 512x512 cell with wide empty transparent gutters, never touching or overlapping, both the same visual size (each about 300px across), same soft top-left light. Painted in EXACTLY the same cozy hand-painted watercolour storybook style as the attached rain-cloud icon (fine warm-brown outlines, matte painted colour planes, soft shading), as free-standing weather symbols with NO round sky backdrop, simple bold silhouettes that still read at 22px. Left to right: (1) AUTO WEATHER: a small classic weathervane, a warm copper-brown arrow with a little rooster on top over a tiny cross with plain round knobs (absolutely no letters), on a short dark post; (2) SNOW: a soft pale blue-grey cloud like the reference's with only THREE LARGE bright white six-pointed snowflakes falling under it, each flake big and clearly star-shaped with a thin blue-grey outline so it never reads as a raindrop or a dot.",
+      "note": "The tool returned 1774x887 rather than the asked 1024x512; the two cells are still even columns. Only the weathervane was kept; its snow lost to sheet-o's beside Rain at 22px.",
+      "alternative": "sheet-o's Auto (sun, cloud, rain and a flake) read as Clear at 22px."
+    },
+    {
+      "name": "sheet-o",
+      "file": "sheet-o.png",
+      "cells": [null, "snow"],
+      "reference": "assets/art/ui/rain.png",
+      "prompt": "Exactly 1024x512 pixels, a truly transparent background (transparent_background=true): no backdrop, no shadow field, no text, no letters, no numbers, no labels, no grid lines, no frames. Two separate small objects in one strict row of 2 columns, each centred in its own 512x512 cell with wide empty transparent gutters, never touching or overlapping, both the same visual size (each about 300px across), same soft top-left light. Painted in EXACTLY the same cozy hand-painted watercolour storybook style as the attached rain-cloud icon (fine warm-brown outlines, matte painted colour planes, soft shading), as free-standing weather symbols with NO round sky backdrop, simple bold silhouettes that still read at 22px. Left to right: (1) AUTO WEATHER, 'any weather' as one small cluster: a golden sun half behind a soft white cloud with two small raindrops and one small white snowflake under the cloud; (2) SNOW: a soft pale blue-grey cloud like the reference's wearing a thick white cap of fallen snow on top, with two LARGE bright white six-pointed snowflakes falling under it, each clearly star-shaped with a thin blue-grey outline so it never reads as a raindrop.",
+      "note": "The tool returned 1774x887. Only the snow-capped cloud was kept; it replaces 2026-11-25's snow (sheet-j), whose small flakes read as Rain's drops at 22px."
+    }
+  ],
+  "processing": "Each cell cut from its sheet left to right, top to bottom (scratch tool cut-icon, as for 2026-11-24): its halo cleaned (alpha above 235 kept, a 5px min and max filter, a 1.2px blur), cropped to the opaque box, fitted in 128x128 and saved as assets/art/ui/<cell>.png; pnpm run assets:webp makes src/art/ui/<cell>.webp."
+}

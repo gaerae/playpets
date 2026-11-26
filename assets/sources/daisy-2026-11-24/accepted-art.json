@@ -1,0 +1,44 @@
+{
+  "generated": "2026-11-24",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "design": "docs/design/2026-11-24-the-yard-plays-like-a-game.md (G6): palette A, a white daisy, the face of an 11-12-year-old with the same chibi proportions",
+  "look": {
+    "files": ["look/base.png", "look/summer.png", "look/winter.png"],
+    "note": "The approved look of each outfit; look/summer.png was also the approved face (reference 3 below)."
+  },
+  "outfits": {
+    "base": "a cream felt beret with a pure white daisy (white petals, small yellow centre) and two green leaves, a cream cable-knit cardigan over a white collared blouse and a PLAIN butter-yellow dress with no print or dots, white socks, brown lace-up boots, a moss-green satchel on a thin brown leather strap worn crossbody from her right shoulder to her left hip.",
+    "summer": "no hat: a soft cream fabric headband with one pure white daisy and two small leaves at its side, a sleeveless lemon-yellow sundress with a white peter-pan collar and a small white daisy print, bare arms, white ankle socks, tan strapped shoes, a moss-green satchel on a thin brown leather strap worn crossbody from her right shoulder to her left hip.",
+    "winter": "a cream felt beret with a pure white daisy and two green leaves, a honey-yellow wool coat with toggle buttons, a long cream knitted scarf, dark brown tights, brown fur-trimmed boots, a moss-green satchel on a thin brown leather strap worn crossbody over the coat."
+  },
+  "rows": {
+    "prompt": "Edit the attached original sprite action row (reference 1). Output exactly 1536x1024 PNG with a truly transparent alpha background (transparent_background=true): no backdrop, no shadow field, no text, labels, outlines or grid lines. Preserve its exact eight separate poses in four columns and two rows and their ordering. Each pose stays in its original cell, fully separated by transparent gutters, all extremities safely inside that cell. Preserve each pose's geometry, camera angle, body proportions, head scale, gaze direction, expression, timing cues, hand and accessory sides and the soft painted storybook rendering with fine warm-brown outlines. Do not replace action frames with generic idle frames. Eight poses total, no additional characters.\nChange only these things, matching the approved look (reference 2) and the approved face (reference 3): her face reads about 11-12 years old (slightly smaller irises with fewer sparkle highlights, lighter blush, a slightly longer chin, gentle defined eyebrows, a calm smile), her chestnut hair is a little longer, just past the shoulders, and her outfit is: <outfit> Reference 2 is the approved idle row of this exact outfit and face: match it. This is Daisy's <outfit name> outfit version of the <ROW> row.",
+    "references": [
+      "1: the row of the same name in companions-2026-10-14 (base) or its summer/winter folder",
+      "2: the new 00-idle row of the outfit (look/<outfit>.png for the idle rows themselves)",
+      "3: look/summer.png"
+    ],
+    "files": "<outfit>/00-idle.png ... <outfit>/10-look.png",
+    "redrawn": ["base/01-right (a white halo around every pose)", "base/10-look (washed-out colours)"],
+    "processing": "clean.py drops the low-alpha haze (alpha above 235, opened by a 3px min and max filter, blurred 1px, never raising the original alpha); pack-companion-batches.mjs <outfit> <sheet> 163 with pack-settings.json (summer lands its jump frame 6 at 6px instead of 14 so it stays in its cell)"
+  },
+  "actions": {
+    "prompt": "Edit the attached original sprite action sheet (reference 1). Output exactly 1536x1024 PNG with a truly transparent alpha background (transparent_background=true): no backdrop, no shadow field, no ground, dirt, water, text, labels, outlines or grid lines. Preserve its exact six separate poses in three columns and two rows and their ordering. Each pose stays in its original cell at the same place and size, fully separated by transparent gutters, all extremities and tools safely inside that cell. Preserve each pose's geometry, camera angle, body proportions, head scale, gaze direction, expression, bent knees and arms, and the soft painted storybook rendering with fine warm-brown outlines. Keep every held tool exactly as drawn (the short wood-handled metal spade, the whole wooden fishing rod with its small reel from handle to tip, the tiny two-leaf seedling) and in the same hands. Do not replace action frames with generic idle frames. Six poses total, no additional characters or objects.\nChange only these things, matching the approved look (reference 2) and the approved face (reference 3): her face reads about 11-12 years old (slightly smaller irises with fewer sparkle highlights, lighter blush, a slightly longer chin, gentle defined eyebrows, a calm smile), her chestnut hair is a little longer, just past the shoulders, and her outfit is: <outfit> Reference 2 is the approved idle row of this exact outfit and face: match it.",
+    "references": [
+      "1: the shipped strip laid out by actions/sheets.py, six frames in 512px cells, enlarged",
+      "2: the new 00-idle row of the outfit",
+      "3: look/summer.png"
+    ],
+    "redrawn": [
+      "base dig: the base outfit line said \"a PLAIN butter-yellow dress with no print or dots\" after a first sheet put the summer print on it"
+    ],
+    "processing": "actions/unpack.py cuts each pose back into the shipped strip with one scale per sheet (the median of each pose against the old one) and its feet where the old feet were; actions.json is unchanged"
+  },
+  "kit": {
+    "files": ["../../creator-kit/daisy/turnaround.png", "../../creator-kit/daisy/face-detail.png"],
+    "prompt": "Change only the character's look to match the approved look (reference 2) and approved face (reference 3): her face reads about 11-12 years old (slightly smaller irises with fewer sparkle highlights, lighter blush, a slightly longer chin, gentle defined eyebrows, a calm smile), her chestnut hair is a little longer, just past the shoulders with soft waves, and her outfit is a cream felt beret with a pure white daisy (white petals, small yellow centre) and two green leaves, a cream cable-knit cardigan over a white collared blouse and a butter-yellow dress, white socks, brown lace-up boots, a moss-green satchel on a thin brown leather strap worn crossbody from her right shoulder to her left hip. Keep the same chibi proportions, warm cream backdrop, soft painted storybook rendering with fine warm-brown outlines, and the exact same panel layout, views and English labels spelled exactly as in reference 1.",
+    "references": ["1: the previous sheet of the same name", "2: look/base.png", "3: look/summer.png"]
+  },
+  "rest": "../rest-2026-11-24 (daisy)",
+  "note": "The visible figures are accepted originals; generation is not reproducible."
+}

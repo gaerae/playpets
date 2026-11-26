@@ -1,0 +1,39 @@
+{
+  "rule": "A friend walking right shows its right side, walking left its left side. A detail on the far side is hidden, or at most its edge peeks past the body; it never moves to the near side or to another place. Sides are the character's own, read from the front-facing idle row (the viewer's right there is the character's left).",
+  "friends": {
+    "daisy": {
+      "details": "the white daisy on her beret (summer: on her headband) is on her left side, above her left ear; the moss-green satchel hangs at her left hip on a strap from her right shoulder",
+      "right": "We see her right side. The daisy is on the far side of her head and hidden; at most the tips of one or two petals peek above the top edge of the beret. The satchel is at her far hip, mostly hidden behind her body; the strap crosses her chest from her near shoulder.",
+      "left": "We see her left side. The daisy is on the near side of the beret (summer: the headband), just above her ear, fully visible. The satchel hangs at her near hip in full view, the strap rising across her chest to her far shoulder.",
+      "front": "Walking toward the viewer: as in her front-facing idle row. The daisy is on the viewer's right side of the beret (summer: the headband); the strap runs from the viewer's left shoulder down to the satchel at the viewer's right hip.",
+      "back": "Walking away, seen from behind: the daisy is on the viewer's left side of the beret (summer: the headband), partly hidden by its brim; the strap crosses her back from the viewer's right shoulder to the satchel at the viewer's left hip. Her face is not seen."
+    },
+    "clover": {
+      "details": "the green ribbon bow on his straw hat (winter: the white daisy on his beanie) is on his right side; the small daisy on the overalls' bib pocket is at the centre of his chest",
+      "right": "We see his right side. The bow (winter: the daisy on the beanie) is on the near side of the hat, fully visible.",
+      "left": "We see his left side. The bow (winter: the daisy on the beanie) is on the far side and hidden behind the crown of the hat; at most a sliver of it peeks out.",
+      "front": "Walking toward the viewer: as in his front-facing idle row. The bow (winter: the beanie daisy) is on the viewer's left side of the hat; the bib-pocket daisy is at the centre of his chest.",
+      "back": "Walking away, seen from behind: the bow (winter: the beanie daisy) is on the viewer's right side of the hat; the bib pocket and its daisy are on the front and not seen; the overall straps cross or run down his back; his tail is in full view. His face is not seen."
+    },
+    "pip": {
+      "details": "the small white daisy is on his left chest",
+      "right": "We see his right side. The daisy is on his far chest and hidden: no flower shows on the jacket.",
+      "left": "We see his left side. The daisy is on his near chest, fully visible.",
+      "front": "Walking toward the viewer: as in his front-facing idle row. The daisy is on the viewer's right side of his chest.",
+      "back": "Walking away, seen from behind: the daisy is on his front and not seen; the jacket's back, his ears and tail are in view. His face is not seen."
+    },
+    "miso": {
+      "details": "the small white daisy on his vest is on his left chest (winter: as in his winter idle row)",
+      "right": "We see his right side. The daisy is on his far chest and hidden: no flower shows on the vest.",
+      "left": "We see his left side. The daisy is on his near chest, fully visible.",
+      "front": "Walking toward the viewer: as in his front-facing idle row. The daisy is on the viewer's right side of his chest (winter: as in his winter idle row).",
+      "back": "Walking away, seen from behind: the daisy is on his front and not seen; the vest's back (winter: the cardigan's back) and his tail are in view. His face is not seen."
+    }
+  },
+  "views": {
+    "side": "walking right shows the character's right side, walking left its left side",
+    "front": "the character's left is on the viewer's right",
+    "back": "the character's left is on the viewer's left; anything worn on the front is not seen"
+  },
+  "references": "The creator kit's turnaround.png agrees with this record except two views: Daisy's right profile shows the beret daisy, and Clover's left profile shows the hat bow; both are on the far side there and are redrawn with the kit (Task 11). Back views follow the turnarounds otherwise."
+}

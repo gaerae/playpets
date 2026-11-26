@@ -154,3 +154,35 @@
 | `lakeside-green.png` | `90fd800a149dce29841ea8d87b043341a1e7f60399e383712a96f002d7ac7a81` |
 | `lakeside-autumn.png` | `65a9d7958328fa506d1b90acdef783927e5b5fb15ec8f1a34d1643647bd289ad` |
 | `lakeside-winter.png` | `0fd224676dc3ea103e3726dfa8d21207c967fab7d2e63882a5b1d980c83fdd83` |
+
+## Follow-up: sky between leaves (2026-11-26)
+
+- Small patches of the white the pictures were painted on stayed between leaves and treetops, away from the sky's line, so the 2026-11-21 pass did not reach them.
+- `node scripts/soften-sky-edges.mjs --holes` cleared them in all 12 pictures:
+  - a patch counts when it is paper white and its ring is dark or green: leaves around it, not snow or blossom;
+  - snow's lilac shading and blossom's pink keep every pixel;
+  - only the band next to a cleared patch was softened.
+- Pixels cleared:
+
+| Place | Spring | Summer | Autumn | Winter |
+| --- | --- | --- | --- | --- |
+| Hill garden | 309 | 10 | 3 | 552 |
+| Wild garden | 143 | 7 | 53 | 9 |
+| Lakeside | 403 | 12 | 29 | 324 |
+
+- SHA-256 of the 12 runtime PNGs now:
+
+| Runtime file | SHA-256 |
+| --- | --- |
+| `spring.png` | `022951be42423d0824bb5f794c39b75459b88ebecda7eaeb99810657763b253c` |
+| `green.png` | `71df88392a34a7b3a800561eb8031a2b1486bff65e02629701e26db7b88b40e6` |
+| `autumn.png` | `cb0788de1d445f75f06dc5f8780f697a79a5e57eb94503c8d0e0739126ed90e5` |
+| `winter.png` | `ad5734596596edd82b88a9f155093a311eee13129774554bd5dc52c928c919e7` |
+| `courtyard-spring.png` | `1ce4097cdd5bd5b886d06cd917982c0122fb8a1f0cfb3316b8fd252d15b80900` |
+| `courtyard-green.png` | `3a016ac5f5d3435572c44a766d9009d3c561cfc2137dbc9784b227f52bfa48ac` |
+| `courtyard-autumn.png` | `13ff47f7ba644a395224c86ca089e601c47bf0f217de6c597fed325e211948a0` |
+| `courtyard-winter.png` | `2abc1085ff1a69668a873218203cb720ea7dad2896ef5264a79537a83e6a6e31` |
+| `lakeside-spring.png` | `4be35eaceb528391a3363f4937838676aaaff923cab85451693bbf38194267f4` |
+| `lakeside-green.png` | `efab1830ad140ae5496f7131b52b73293d3420abc70b943fe3dda833375267aa` |
+| `lakeside-autumn.png` | `86968cfcdaeac9bb512ec9abb93a8c2f4bf5fd33846856b1352bb7cc3a87f1c6` |
+| `lakeside-winter.png` | `56f8e2be65bdaf9d8e449283e43d6ca3d6f444de5ea65f84b236a4c4199b327f` |

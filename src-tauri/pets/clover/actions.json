@@ -591,6 +591,474 @@
             ]
           }
         ]
+      },
+      "sit": {
+        "image": "actions/base/rest.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 380
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 1500
+          },
+          {
+            "rect": [
+              384,
+              0,
+              192,
+              208
+            ],
+            "duration": 2600
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 1300
+          },
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 420
+          }
+        ]
+      },
+      "stretch": {
+        "image": "actions/base/rest.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "frames": [
+          {
+            "rect": [
+              576,
+              0,
+              192,
+              208
+            ],
+            "duration": 1000
+          },
+          {
+            "rect": [
+              768,
+              0,
+              192,
+              208
+            ],
+            "duration": 1200
+          },
+          {
+            "rect": [
+              960,
+              0,
+              192,
+              208
+            ],
+            "duration": 700
+          }
+        ]
+      },
+      "walk-front": {
+        "image": "actions/base/walk-front.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              384,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              576,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              768,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              960,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              1152,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              1344,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          }
+        ]
+      },
+      "walk-back": {
+        "image": "actions/base/walk-back.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              384,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              576,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              768,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              960,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              1152,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              1344,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          }
+        ]
+      },
+      "run-right": {
+        "image": "actions/base/run-right.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              384,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              576,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              768,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              960,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              1152,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              1344,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          }
+        ],
+        "stride": 0.96
+      },
+      "run-left": {
+        "image": "actions/base/run-left.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              384,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              576,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              768,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              960,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              1152,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              1344,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          }
+        ],
+        "stride": 0.92
       }
     },
     "winter": {
@@ -951,6 +1419,474 @@
             ]
           }
         ]
+      },
+      "sit": {
+        "image": "actions/winter/rest.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 380
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 1500
+          },
+          {
+            "rect": [
+              384,
+              0,
+              192,
+              208
+            ],
+            "duration": 2600
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 1300
+          },
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 420
+          }
+        ]
+      },
+      "stretch": {
+        "image": "actions/winter/rest.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "frames": [
+          {
+            "rect": [
+              576,
+              0,
+              192,
+              208
+            ],
+            "duration": 1000
+          },
+          {
+            "rect": [
+              768,
+              0,
+              192,
+              208
+            ],
+            "duration": 1200
+          },
+          {
+            "rect": [
+              960,
+              0,
+              192,
+              208
+            ],
+            "duration": 700
+          }
+        ]
+      },
+      "walk-front": {
+        "image": "actions/winter/walk-front.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              384,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              576,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              768,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              960,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              1152,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              1344,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          }
+        ]
+      },
+      "walk-back": {
+        "image": "actions/winter/walk-back.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              384,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              576,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              768,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              960,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              1152,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              1344,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          }
+        ]
+      },
+      "run-right": {
+        "image": "actions/winter/run-right.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              384,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              576,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              768,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              960,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              1152,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              1344,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          }
+        ],
+        "stride": 0.95
+      },
+      "run-left": {
+        "image": "actions/winter/run-left.webp",
+        "canvas": [
+          192,
+          208
+        ],
+        "anchor": [
+          96,
+          199
+        ],
+        "offset": [
+          0,
+          0
+        ],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [
+              0,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              192,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              384,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              576,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              768,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              960,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              1152,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          },
+          {
+            "rect": [
+              1344,
+              0,
+              192,
+              208
+            ],
+            "duration": 100
+          }
+        ],
+        "stride": 0.85
       }
     }
   }

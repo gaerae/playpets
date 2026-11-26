@@ -1,0 +1,485 @@
+{
+  "generated": "2026-11-26",
+  "tool": "Built-in image_gen, through the Codex CLI",
+  "design": "docs/design/2026-11-26-natural-walking.md (B. New art, stage 1: side walks; stage 2: walks toward and away from the viewer)",
+  "handedDetails": "handed-details.json",
+  "guide": "guides/gait-guide.png (side), gait-guide-front.png, gait-guide-back.png and gait-guide-run.png, drawn by guides/gait_guide.py walk|run and gait_guide_front.py front|back",
+  "steps": {
+    "baseRight": {
+      "references": [
+        "1: the friend's shipped 01-right row (its source folder)",
+        "2: the outfit's 00-idle row",
+        "3: guides/gait-guide.png"
+      ],
+      "prompt": "Edit the original walk row: the same character, cells, size and baseline; only the poses change to the guide's eight (1 contact, 2 down, 3 passing, 4 up, 5-8 the other leg), legs crossing and arms swinging against them."
+    },
+    "baseLeft": {
+      "references": [
+        "1: the accepted base right row, each cell mirrored in place (mirror.py)",
+        "2: the friend's shipped 02-left row",
+        "3: the outfit's 00-idle row"
+      ],
+      "prompt": "The mirrored poses kept exactly, facing left; the face and details as seen from this side."
+    },
+    "outfits": {
+      "references": [
+        "1: the accepted base row of the same way",
+        "2: the outfit's shipped row of the same way",
+        "3: the outfit's 00-idle row"
+      ],
+      "prompt": "The poses of reference 1 kept exactly; only the clothes and accessories change to the outfit."
+    },
+    "details": {
+      "references": ["1: the accepted row", "2: the outfit's 00-idle row (front view)"],
+      "prompt": "Every accepted row was edited once more so each detail sits on its own side of the body (handed-details.json); nothing else changed."
+    },
+    "baseFrontBack": {
+      "references": [
+        "1: the outfit's 00-idle row (front view)",
+        "2: the friend's creator-kit turnaround.png, trusted only for the back view",
+        "3: guides/gait-guide-front.png or gait-guide-back.png"
+      ],
+      "prompt": "A walk row toward (or away from) the viewer: the face, proportions and outfit of reference 1, the eight poses of the guide, the details on the sides handed-details.json gives for the view. The back retries (t2) spelled out which leg is forward in cells 1, 3, 5 and 7."
+    },
+    "outfitsFrontBack": {
+      "references": ["1: the accepted base row of the same view", "2: the outfit's 00-idle row"],
+      "prompt": "The poses of reference 1 kept exactly; only the clothes and accessories change to the outfit, the details on their sides. Clover has no summer clips: his summer outfit is his base one."
+    },
+    "baseRunRight": {
+      "references": [
+        "1: the accepted base 01-right walk row",
+        "2: the outfit's 00-idle row",
+        "3: guides/gait-guide-run.png"
+      ],
+      "prompt": "A run row in profile to the right, as fast as a child at play: the face, head size and outfit of reference 1, the guide's eight poses (1 contact, 2 down, 3 push-off, 4 flight, 5-8 the other leg), a slight forward lean, arms pumping, hair and clothes streaming back; the details on the sides handed-details.json gives."
+    },
+    "baseRunLeft": {
+      "references": [
+        "1: the accepted base right run, each cell mirrored in place (mirror.py)",
+        "2: the accepted base 02-left walk row",
+        "3: the outfit's 00-idle row"
+      ],
+      "prompt": "The mirrored poses kept exactly, facing left; the face and details as seen from this side."
+    },
+    "outfitsRun": {
+      "references": [
+        "1: the accepted base run of the same way",
+        "2: the outfit's accepted walk row of the same way",
+        "3: the outfit's 00-idle row"
+      ],
+      "prompt": "The poses of reference 1 kept exactly; only the clothes and accessories change to the outfit, the details on their sides. Clover has no summer runs: his summer outfit is his base one."
+    }
+  },
+  "cleaning": "prep.py: clean.py's haze removal, then alpha >= 245 set to 255",
+  "gate": "gate.py on the packed sheet: heights within 3 % of the idle row, feet on one baseline (+-3 px), passing pair at most 3/4 of the contact pair; then a look at every row for face, outfit and handed details",
+  "rows": {
+    "daisy/base": {
+      "right": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.43
+      },
+      "left": {
+        "pose": "t2a",
+        "tries": ["fx", "t1a", "t1b", "t2a", "t2b"],
+        "passingToContact": 0.42
+      }
+    },
+    "daisy/summer": {
+      "right": {
+        "pose": "t1b",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.43
+      },
+      "left": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.42
+      }
+    },
+    "daisy/winter": {
+      "right": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.48
+      },
+      "left": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.43
+      }
+    },
+    "clover/base": {
+      "right": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.49
+      },
+      "left": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.49
+      }
+    },
+    "clover/summer": {
+      "right": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.5
+      },
+      "left": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.48
+      }
+    },
+    "clover/winter": {
+      "right": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.5
+      },
+      "left": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.5
+      }
+    },
+    "pip/base": {
+      "right": {
+        "pose": "t1b",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.48
+      },
+      "left": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.48
+      }
+    },
+    "pip/summer": {
+      "right": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.48
+      },
+      "left": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.48
+      }
+    },
+    "pip/winter": {
+      "right": {
+        "pose": "t1b",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.49
+      },
+      "left": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.48
+      }
+    },
+    "miso/base": {
+      "right": {
+        "pose": "t2b",
+        "tries": ["fx", "t1a", "t1b", "t2a", "t2b"],
+        "passingToContact": 0.39
+      },
+      "left": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.38
+      }
+    },
+    "miso/summer": {
+      "right": {
+        "pose": "t1b",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.39
+      },
+      "left": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.37
+      }
+    },
+    "miso/winter": {
+      "right": {
+        "pose": "t1b",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.4
+      },
+      "left": {
+        "pose": "t1a",
+        "tries": ["fx", "t1a", "t1b"],
+        "passingToContact": 0.39
+      }
+    }
+  },
+  "clipGate": "pack_clip.py packs a grid into an eight-cell 1536x208 strip at the sheet's idle height (one scale) with the feet at x 96 on the idle baseline; accepted when every cell is within 5 % of the idle height (the art's own bob), nothing clipped, and alternate.py finds cell 5's legs closer to cell 1's mirror than to cell 1 (likewise 7 and 3); then a look at every row for face, outfit and handed details",
+  "clips": {
+    "clover/base": {
+      "front": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.15, 0.78]
+      },
+      "back": {
+        "pose": "t2b",
+        "tries": ["t1a", "t1b", "t2a", "t2b"],
+        "mirrorToDirect": [0.54, 0.14]
+      },
+      "runRight": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.96
+      },
+      "runLeft": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.92
+      }
+    },
+    "clover/winter": {
+      "front": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.14, 0.76]
+      },
+      "back": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.47, 0.18]
+      },
+      "runRight": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.95
+      },
+      "runLeft": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.85
+      }
+    },
+    "daisy/base": {
+      "front": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.19, 0.24]
+      },
+      "back": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.17, 0.09]
+      },
+      "runRight": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.78
+      },
+      "runLeft": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.78
+      }
+    },
+    "daisy/summer": {
+      "front": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.25, 0.82]
+      },
+      "back": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.1, 0.11]
+      },
+      "runRight": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.73
+      },
+      "runLeft": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.69
+      }
+    },
+    "daisy/winter": {
+      "front": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.1, 0.75]
+      },
+      "back": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.17, 0.09]
+      },
+      "runRight": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.84
+      },
+      "runLeft": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.79
+      }
+    },
+    "miso/base": {
+      "front": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.17, 0.85]
+      },
+      "back": {
+        "pose": "t2b",
+        "tries": ["t1a", "t1b", "t2a", "t2b"],
+        "mirrorToDirect": [0.1, 0.16]
+      },
+      "runRight": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.94
+      },
+      "runLeft": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "stride": 1.18
+      }
+    },
+    "miso/summer": {
+      "front": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.3, 0.19]
+      },
+      "back": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.08, 0.1]
+      },
+      "runRight": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.95
+      },
+      "runLeft": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "stride": 1.19
+      }
+    },
+    "miso/winter": {
+      "front": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.23, 0.21]
+      },
+      "back": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.12, 0.1]
+      },
+      "runRight": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "stride": 1.2
+      },
+      "runLeft": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "stride": 1.2
+      }
+    },
+    "pip/base": {
+      "front": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.48, 0.73]
+      },
+      "back": {
+        "pose": "t2a",
+        "tries": ["t1a", "t1b", "t2a", "t2b"],
+        "mirrorToDirect": [0.22, 0.21]
+      },
+      "runRight": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.79
+      },
+      "runLeft": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.81
+      }
+    },
+    "pip/summer": {
+      "front": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.52, 0.17]
+      },
+      "back": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.17, 0.32]
+      },
+      "runRight": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.8
+      },
+      "runLeft": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.8
+      }
+    },
+    "pip/winter": {
+      "front": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.46, 0.76]
+      },
+      "back": {
+        "pose": "t1b",
+        "tries": ["t1a", "t1b"],
+        "mirrorToDirect": [0.1, 0.14]
+      },
+      "runRight": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.83
+      },
+      "runLeft": {
+        "pose": "t1a",
+        "tries": ["t1a", "t1b"],
+        "stride": 0.79
+      }
+    }
+  },
+  "runGate": "pack_run.py packs a grid into an eight-cell 1536x208 strip at one scale, the torso and head centred at x 96, grounded cells on the idle baseline and the flight cells 4 and 8 kept as high as drawn; the scale is the share of the idle height that makes the median head width (headsize.py, the top quarter of the idle height) the walk row's. Accepted when nothing is clipped, no grounded cell was drawn more than 6 px off the baseline and the flight cells are lifted at least 2 px; the clip carries its stride (2 x the widest pair's feet spread, 0.5-1.2); then a look at every row for face, outfit and handed details.",
+  "turnaround": {
+    "why": "The kit turnarounds showed Daisy's flower in her right profile and Clover's bow in his left profile, details on the far side of the body (handed-details.json); the walk prompts trust the turnaround's views.",
+    "how": "Each view cropped (384x1024), edited with the image tool, the edit's figure scaled to the original's height and set on the same feet, only the figure's box replaced with a soft edge and the paper tone matched (turnaround/paste.py). The other three views are untouched.",
+    "daisy": {
+      "view": "right profile (x 1152)",
+      "edit": "turnaround/daisy-right-profile.png",
+      "prompt": "Remove the white daisy flower and leaves from the beret: they are on her left side, the far side from this view; the satchel stays hidden on the far hip, only its strap crossing her chest. Change nothing else.",
+      "tries": ["a", "b"],
+      "pick": "a"
+    },
+    "clover": {
+      "view": "left profile (x 384)",
+      "edit": "turnaround/clover-left-profile.png",
+      "prompt": "Remove the green bow from the hat band: it is on his right side, the far side from this view; continue the plain band. Change nothing else.",
+      "tries": ["a", "b"],
+      "pick": "a"
+    }
+  }
+}

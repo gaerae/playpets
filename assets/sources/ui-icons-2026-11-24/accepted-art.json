@@ -1,0 +1,65 @@
+{
+  "generated": "2026-11-24",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "references": "the app's own painted art (album specimens and decorations) for the style",
+  "sources": [
+    {
+      "name": "sheet-a",
+      "file": "sheet-a.png",
+      "prompt": "Exactly 1536x1024 pixels, a truly transparent background (transparent_background=true): no backdrop, no shadow field, no text, no labels, no grid lines, no frames. Twelve separate small objects laid out in a strict grid of 4 columns and 3 rows, each centred in its own 384x341 cell with wide empty transparent gutters, never touching or overlapping, all the same visual size (each about 220px across), same soft top-left light. Painted in the same cozy hand-painted watercolour storybook style as the attached references (fine warm-brown outlines, matte painted colour planes, soft shading, like the icons in the first reference): simple, readable silhouettes that still read at 32px. Row 1, left to right: a small garden spade stuck in a little mound of soil; a bamboo fishing rod with a red-white bobber on its line; a small open storybook with a pressed flower; a paper seed packet with a sprout picture. Row 2: a young sapling with a small root ball of soil; a woven picnic basket with a checked cloth; two round eyes peeking out of a leafy bush; a short trail of three paw footprints. Row 3: a small pink ribbon flag on a stick; a round cream speech bubble with three dots; a golden sparkle star with two small sparkles; a small cream desktop computer monitor with a green hill on its screen.",
+      "cells": ["dig", "fish", "album", "seeds", "tree", "treat", "hide", "parade", "tag", "chat", "play", "desktop"]
+    },
+    {
+      "name": "sheet-b",
+      "file": "sheet-b.png",
+      "prompt": "Exactly 1536x1024 pixels, a truly transparent background (transparent_background=true): no backdrop, no shadow field, no text, no labels, no grid lines, no frames. Twelve separate small objects laid out in a strict grid of 4 columns and 3 rows, each centred in its own 384x341 cell with wide empty transparent gutters, never touching or overlapping, all the same visual size (each about 220px across), same soft top-left light. Painted in the same cozy hand-painted watercolour storybook style as the attached references (fine warm-brown outlines, matte painted colour planes, soft shading, like the icons in the first reference): simple, readable silhouettes that still read at 32px. Row 1, left to right: a pink tulip; a small blue-grey fish; a yellow-orange butterfly; a red gift box with a gold ribbon. Row 2: a small round green tree; a brass magnifying glass; a single brown paw print; a small green sprout with two leaves in soil. Row 3: a soft knitted cream scarf, loosely folded; a small woven wicker basket with a lid; a little sprout lifted out of the soil showing its roots; a small sapling lifted out of the ground with its root ball.",
+      "cells": [
+        "book-flower",
+        "book-fish",
+        "book-bug",
+        "book-gift",
+        "book-tree",
+        "book-treasure",
+        "book-track",
+        "book-shoot",
+        "dress",
+        "put-away",
+        "pull-plant",
+        "remove-tree"
+      ]
+    },
+    {
+      "name": "sheet-c",
+      "file": "sheet-c.png",
+      "prompt": "Exactly 1536x1024 pixels, a truly transparent background (transparent_background=true): no backdrop, no shadow field, no text, no labels, no grid lines, no frames. Two separate small ornaments, well apart with wide empty transparent space, never touching. Top half, centred: a slender horizontal garden vine flourish about 900px wide and 200px tall: one thin curling green stem with small leaves along it and two or three tiny pale-pink five-petal blossoms, the left end thin and trailing, like the vine beside the title in the second reference. Bottom half, centred: a tiny sprig of two small green leaves on a short curved stem, about 220px across, like the sprigs before the section names in the second reference. Painted in the same cozy hand-painted watercolour storybook style as the first reference (fine warm-brown outlines, matte painted colour planes, soft top-left light).",
+      "references": "sheet-a.png, and the approved Play panel mockup",
+      "cells": ["title-vine", "sprig"],
+      "processing": "Halo cleaned (alpha above 200 kept, a 3px min and max filter, a 1px blur); the top half cropped to title-vine.png at 56px high, the bottom half to sprig.png at 40px high."
+    },
+    {
+      "name": "sheet-d",
+      "file": "sheet-d.png",
+      "prompt": "Exactly 1536x1024 pixels, a truly transparent background (transparent_background=true): no backdrop, no shadow field, no text, no labels, no grid lines, no frames. Four separate small objects laid out in a strict grid of 2 columns and 2 rows, each centred in its own 768x512 cell with wide empty transparent gutters, never touching or overlapping, all the same visual size (each about 260px across), same soft top-left light. Painted in exactly the same cozy hand-painted watercolour storybook style as the attached references (fine warm-brown outlines, matte painted colour planes, soft shading, like the book icons in the first reference): simple, readable silhouettes that still read at 28px. Row 1, left to right: a cream crescent moon holding a small golden five-pointed star at its tip; a small round night-blue glass jar with a cork, glowing with three tiny golden stars inside. Row 2: a small cream envelope closed with a golden star-shaped wax seal; a tiny night-blue wooden keepsake box with its lid slightly open and golden sparkles rising out.",
+      "references": ["sheet-b.png", "assets/art/ui/book-track.png", "assets/art/ui/book-treasure.png"],
+      "cells": [null, null, null, null],
+      "note": "Kept as a style reference for sheet-g. Its moon stood for the secrets at first, but it told of one secret only (wishing on the moon), so the keyhole from sheet-g replaced it."
+    },
+    {
+      "name": "sheet-f",
+      "file": "sheet-f.png",
+      "prompt": "Exactly 1536x1024 pixels, a truly transparent background (transparent_background=true): no backdrop, no shadow field, no glow, no text, no letters, no numbers, no labels, no grid lines, no frames. Four separate small objects laid out in a strict grid of 2 columns and 2 rows, each centred in its own 768x512 cell with wide empty transparent gutters, never touching or overlapping, all the same visual size (each about 280px across), same soft top-left light. Painted in exactly the same cozy hand-painted watercolour storybook style as the attached references (fine warm-brown outlines, matte painted colour planes, soft shading): bold, simple silhouettes with strong value contrast that still read at 22px. Row 1, left to right: a small landscape cream profile card with a rounded pink border, a round portrait of a cute little cat face on its left half and two short thick brown bars on its right half standing in for writing; a round cream name badge with a scalloped pink rim and a tiny portrait of a cute puppy face in its middle, a small pink ribbon hanging below. Row 2: a small cream profile card like the first one but with a short yellow pencil laid across its lower right corner; a small round wooden hand mirror with a pink ribbon on its handle, the mirror face showing a tiny cute cat face reflection.",
+      "references": ["sheet-a.png", "sheet-b.png"],
+      "cells": ["friend-settings", null, null, null],
+      "note": "Only the profile card was accepted, for a friend's settings: at 28px it reads as a friend's own card with its name, where the earlier pencil on a card read as a letter. The mirror told of looks only, and the badge read as a prize."
+    },
+    {
+      "name": "sheet-g",
+      "file": "sheet-g.png",
+      "prompt": "Exactly 1536x1024 pixels, a truly transparent background (transparent_background=true): no backdrop, no shadow field, no glow, no text, no letters, no labels, no grid lines, no frames. Four separate small objects laid out in a strict grid of 2 columns and 2 rows, each centred in its own 768x512 cell with wide empty transparent gutters, never touching or overlapping, all the same visual size (each about 280px across), same soft top-left light. Painted in exactly the same cozy hand-painted watercolour storybook style as the attached references (fine warm-brown outlines, matte painted colour planes, soft shading): bold, simple, light-coloured silhouettes that still read at 28px on a dark night-blue background. Row 1, left to right: a small old-fashioned golden key whose bow (handle) is a five-pointed star, lying diagonally; a small round brass keyhole plate with a dark keyhole and one tiny sparkle at its rim. Row 2: a small clear glass jar with a cork, holding three glowing golden stars, the glass pale and bright; a small closed cream and gold keepsake box with a little golden star-shaped lock on its front.",
+      "references": ["sheet-b.png", "sheet-d.png"],
+      "cells": [null, "book-secret", null, null],
+      "note": "Only the keyhole was accepted, for the secrets' book: a bold round shape that reads as hidden at 28px on the night-blue ribbon, for every secret alike. The star key was thin at that size, and the jar and the box came out small."
+    }
+  ],
+  "processing": "Each cell cut from its sheet left to right, top to bottom, its halo cleaned (alpha above 235 kept, a 5px min and max filter, a 1.2px blur), cropped to the opaque box and saved as assets/art/ui/<cell>.png; pnpm run assets:webp makes src/art/ui/<cell>.webp."
+}

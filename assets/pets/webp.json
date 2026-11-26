@@ -15,6 +15,26 @@
     "png": "ae277eab4a61946de06a9495b0646975e4da36dbd2edf681dc891ac753431209",
     "webp": "5153c517dce7fda717d7d8672f8c957617beded8dc82f5fece2abe8b3b077afe"
   },
+  "clover/actions/base/rest.png": {
+    "png": "facc7fe8adb7a5240d48f2920da4a83589d39ef1a9d91ccbd8b46f41bff2e565",
+    "webp": "1b57fe3524a8894036c4f75fa86a3d3b3d08ae7ccbfcd55f16c1f6c3ecbe74ed"
+  },
+  "clover/actions/base/run-left.png": {
+    "png": "8fe74e8415eb517dced8da86c94210fc363900d7cd85b4d5ee7ed937cf32c78c",
+    "webp": "037a692487209582e45e14ae116c663c87b1e4f0652defe58ae46537274170ad"
+  },
+  "clover/actions/base/run-right.png": {
+    "png": "72cc014a9123401ef1ab3e0fcbad0c6f827f8ccc2e64220d1daceaedf5af25d0",
+    "webp": "28170db71323e3c9976369c72c7ecee21e2c1a75c86d69728285ac7deed568f9"
+  },
+  "clover/actions/base/walk-back.png": {
+    "png": "1696ad53a3ad5ee78cfa5b0f61f9279d0d48c074f25c308130802f17db061882",
+    "webp": "75e55ff47ffcfde5b86a56a8be80a19cb8960ff28569a7002f3a1aa2224f8482"
+  },
+  "clover/actions/base/walk-front.png": {
+    "png": "b63a03b5f3e6c6487a3132c1f0d2205359d6aa8e6f13c7ee6f6b723606e1fb4f",
+    "webp": "cdaae1fd681f83c0433671cf4cb418fffbaac9ac84803178512bb759989a8d42"
+  },
   "clover/actions/winter/dig.png": {
     "png": "5fe62617e4b1d61b270df28f2f27e407e95d7a832e089c0c62a5401e9ab990e9",
     "webp": "edefff4006c55761f877ae0c1eaaa559546dfd808885f67bee436dfd4db71f6f"
@@ -31,77 +51,157 @@
     "png": "3eff41467940005352460b662c99084ba8a911cf04be842378848bb83d92caab",
     "webp": "92736b2834b8ba012f2e981d6d29407f1f40b9020c7297aebbee465eb4ea2dc7"
   },
+  "clover/actions/winter/rest.png": {
+    "png": "fdb4c0b97dc37d6e7f58255b771a24a93a1d610c6ac70afff8cee0040b77793c",
+    "webp": "51f37a2b16ff5e68ba89310d3e2f6667c21a435e7ede3fb875015ec8a929dc09"
+  },
+  "clover/actions/winter/run-left.png": {
+    "png": "38ce589d462c149adac6e0af4dd503446aff066f9d966a7ff127e9123de1440f",
+    "webp": "605ff3349c8f14bcec4935ca39e8bcae5f238cb154e19c08bae583b607fcb4cd"
+  },
+  "clover/actions/winter/run-right.png": {
+    "png": "fd46d2f82fc4daf5a2c6d03b695e104c349b49072ce7f760c55bd0bf2d8c2e4c",
+    "webp": "34f443acf3ce8a48d7ae63bf0d15a19e8824f830693eb02d345627ef8063bb11"
+  },
+  "clover/actions/winter/walk-back.png": {
+    "png": "70df6320c33c1ce6e45180bb03c17427935bf413bc3b47f0ada0518fe59fc967",
+    "webp": "b9ae1f8d90c41d945c91e3fbdb0d07be2180cd70b424bc7aec68260cf70f5a28"
+  },
+  "clover/actions/winter/walk-front.png": {
+    "png": "a78fc562cf169451d70833971d040b1ef7f527095d9a7d29206f23298b24fa6a",
+    "webp": "4a6680ad6503fb10e109281f71aaa9f44e62e8d7534c2fc8bec0e287cee98c40"
+  },
   "clover/seasonal/summer.png": {
-    "png": "5358f7f7a9efd77c5e48b925f1179f06bf4d95241cf359e1ab2356a165b0f37c",
-    "webp": "b30fd04f36fa7c0b6fbbc51fd4db6f1813fc28a2837d8ad53e22b73eccd70aef"
+    "png": "69be0ed74748c2f7a4477de9d1216c35cf3e61c5faf82924ab3191847b61ca2d",
+    "webp": "a7230f4465d53bc937879ce234ceac1b12090dd10d92016d5ba16bc9a7741b3c"
   },
   "clover/seasonal/winter.png": {
-    "png": "b132ee2035937c07abc6ea4533fc4f02d763b5cb00626611d64f6421c84eae2b",
-    "webp": "d5438c3ac80d8433237aa54432f7a8e30b71e99ae04462074ce113dddd2d418b"
+    "png": "0f884cd2e54e66b79fd9eb0c9ec0c6bc3b8d9032fa09e086546ab5a18b49f2d6",
+    "webp": "0a9921c3082990a191763b0f7fa4df36c292c4a5de736cbc8f6980bbb2aa0b02"
   },
   "clover/spritesheet.png": {
-    "png": "89395750d2f79f8925a2d1b6448a1215a4a537b1307531b567ad14d819feae2a",
-    "webp": "c8cb9828ccac9e21391f8b3e70fde5be860e33af38e29a5fa28a3a2ffe47bbb5"
+    "png": "b7ed9880475f5e0498304b57544a3a14e2ac332f0934b4ee461f05ffc2733d84",
+    "webp": "5bcddf35f22dc70f6fec247bba1daf0fed634458dc7eb2f0864e40f4215203c9"
   },
   "daisy/actions/base/dig.png": {
-    "png": "aa74400dcd8b01d63529d885184ffd81940bbefa9c32bf2eb6e0ca72b7ab0e59",
-    "webp": "0bfb7341f7358870865dc56aab44ed01e48cfa3380c00a41ce2e93e36ffa039b"
+    "png": "8063f7c9f563f2cb37dda24b404a5a2e614f958c93942efc6120e721d8b3ee09",
+    "webp": "9b38bfda9215617d5b363e4b81a449f95d61e267f86353244000a0dec1f5211d"
   },
   "daisy/actions/base/discover.png": {
-    "png": "7c4c8107fe90d5bae14b4cf630c24820a1fb69611b5a90a1afddad92bfc7abd3",
-    "webp": "6eec473666e4f42ab28c64ee87fbe9ee138ed7746c4ee17f41943737f49e8866"
+    "png": "f7becade9c88af14c67a70272454a4e6f7cf1929aa8f4285f8fc6cc76ab444dc",
+    "webp": "6ac6aed353c3bad5a2703241ae9c0309a83416aa466fb23384fe94350d2f613b"
   },
   "daisy/actions/base/fish.png": {
-    "png": "89686824b55f5f223a7feeec79295dcb5f9087241b8f647b3c8da8a42f5b3b16",
-    "webp": "acb23a7662bf91e8107f63fc047ffaeffecfacc3f785c7f58c31e8f886aaebf0"
+    "png": "747949323b9681406f5619aa81eeb6851156968a46155296b84890e3253649a9",
+    "webp": "ac4bdcb0404fbad5f8b6c64f91ed0481b4fe7570c5f8c0900b46416c8597c7d1"
   },
   "daisy/actions/base/plant.png": {
-    "png": "b138ddfaecdd4f9a2dd8af433fe52db85f6a144cd6e8abd72ce58d59e0ce7139",
-    "webp": "e7e9dcac46c6e7c83bc6616ed408d7fc4140ccfc650b72e7395aa9e4d7c2e029"
+    "png": "5aadca5a208b9450da582c3021e805d9e0d4cd7c9e2ba4800e8f004d7aca6f73",
+    "webp": "0bc1793cc31dbfaeb735a2c6bd0cd16f7b5e717aabcaa5059706d3c8ce1b8246"
+  },
+  "daisy/actions/base/rest.png": {
+    "png": "e29c902e0d0767a437c20c4fc1a9cad000cff7d166448372295c16bbc36d81fc",
+    "webp": "0ca972263da0b9cb379cdcd719097ad01eda0a94bb6d0f27be8c2054bb6f7620"
+  },
+  "daisy/actions/base/run-left.png": {
+    "png": "74f0e8fef0e6883e43be12bdf661653256fc307748aa9b1fa916a326f7f36dd0",
+    "webp": "e519195848c8c6c4c253c2f24308be40ee128f851976954d44ea155dee56002e"
+  },
+  "daisy/actions/base/run-right.png": {
+    "png": "0af3aeb6b91515bbb0b5a852461b4c9a4ac71d889926e4959029fa84aecd49c8",
+    "webp": "91968f9ff2dbc9c6040c557774db11e0272d2608f9b636766813de118f5d6128"
+  },
+  "daisy/actions/base/walk-back.png": {
+    "png": "86422ff82885676cd94f02169545c9f90a99e78c42740c827b572a09e9c4d406",
+    "webp": "78bcb0ec0dabebc7e42620054f8a2c71276bff0c602b4cbff0d61cc4624c3193"
+  },
+  "daisy/actions/base/walk-front.png": {
+    "png": "9685dfe6ca6e69392cef8b70a125496bd2d927adb29b06d8336a081357728252",
+    "webp": "0455f50d59bb41539c1b442b9725b7bbfb2693433131f0507ee8353a3b748d88"
   },
   "daisy/actions/summer/dig.png": {
-    "png": "cffec246488697d96046e902e1ef2a7e444975f9464628c9b59b4120caedbd0a",
-    "webp": "f2902cc3515996db4eafe4f3ffb971f9371e012361f7d1927b7dae7fabc93341"
+    "png": "d502d879443889c3c1c4deb9b65342d37f0db26ece9ea8ce9b10393916a6c718",
+    "webp": "f039853464d8d6ae3da087994cfd3d594a347d5978264df2b0f67a82b532a8d2"
   },
   "daisy/actions/summer/discover.png": {
-    "png": "867ae8dd7cee2afba88c803885bda64ceb12e9a333af7557d351a3d7ec52b344",
-    "webp": "91f5e36c3540ddab0634f2af79a6795d3b882a4ce83cbcaaf09bb91fbf421580"
+    "png": "6d102b7bc970e3319d55636d9b4ab85ebb3dd7d2d0f575c43338e11dc785e4da",
+    "webp": "fcf9291675fcbb97efb5be422dde97a5c2c515b7b28fd110c9b06b7ce44f7df7"
   },
   "daisy/actions/summer/fish.png": {
-    "png": "725a6a32b87a79a4f046da339f614b29edcc513bc8fbcd4e7e79e2af24e6b35c",
-    "webp": "c96e30c36f6fb67776602886a5030b01102ef2408555abaea48a65cc9d0da504"
+    "png": "d8e1bb0f61138d0b6b48a2cadf3e805a32a1d37b1acc7e61354227cf410f3f5b",
+    "webp": "ed7d38de3554478ead680e3b614b1a8ac70db122a581c4c220547a95ca901c0e"
   },
   "daisy/actions/summer/plant.png": {
-    "png": "469722a6128667be881f19939f99f460d38e375988d3631563e7cc84bb560c1a",
-    "webp": "925b19755a4d7edd5c28ab38ab51526a18d16eb19c20cb7de07887ab4d0481a8"
+    "png": "8f1003b3cc3fd4745b0580e298628df8521bf73514882f7574404afe431e55fe",
+    "webp": "5a1ba6b273cb921e522181f16a5adffe3a7e6a5eabae2addd531d46ed474bdc0"
+  },
+  "daisy/actions/summer/rest.png": {
+    "png": "52892f9a26c3f2691a529365f704fd80732886bb3d0f3d6176226f1684be21e8",
+    "webp": "28cc1e6ecce1bf139660b674e1da9383554b957311db4d0562dc581e7553326f"
+  },
+  "daisy/actions/summer/run-left.png": {
+    "png": "45afc947c356a0b1460d15f1a4513afc25e66a7610c1ccfddf920b410f4106de",
+    "webp": "ee3ec55fed2d012331426f81667c34a05efe6ec6bcbc0cfd88971961a7c52baf"
+  },
+  "daisy/actions/summer/run-right.png": {
+    "png": "7c1acc6bce45e875c714f3d32886874eeebe76cd4defb6d9d384aadb65b68669",
+    "webp": "876e13e6bc105bddcb99bcdcbf2c6009b5ee5a0ff82b73168e58c7005acc16c2"
+  },
+  "daisy/actions/summer/walk-back.png": {
+    "png": "0b0fe86419cbe017e0574ee0fa63825f5561c30056692d6ab04fbcce1161a011",
+    "webp": "9ed88b5ea5d94027f0c46616402fbebf3e074cc80ed617ac597b3ad3f8f5c128"
+  },
+  "daisy/actions/summer/walk-front.png": {
+    "png": "66087434cde71733ee3c49104ff8d33ea4065a6fdd16d080fafabcfb6491b175",
+    "webp": "6e68618295b723547e5dc1c3ce0f96f5958a407e1d94af08812ec1515c4b3b95"
   },
   "daisy/actions/winter/dig.png": {
-    "png": "dbac8f76307eedcc814cc34f8067cba83bbd9293ff4ad820a314f8f41065df84",
-    "webp": "454b91101e640e4ca39f7181f34f7881e7601ff5dcf2327dde04457138a5a6a5"
+    "png": "1cdf50430c3347ec7fcfa3f26a1be0bff92bc04d345dd2243f97c2a41233a49c",
+    "webp": "caa233e9d1b83b9e28e5166fe83c52c9f89cd42d0cb5d8bb9b2b424620e2a95d"
   },
   "daisy/actions/winter/discover.png": {
-    "png": "2e73b98a38431785d7e1e22d271547c59492d32001f2e13271146ce60c3b1a7e",
-    "webp": "b8f3dd0c49c9d5b6f45be64df8f2140e94b32d8b25ff0e318c22bf2829c7a7e2"
+    "png": "4f21c2cc6ba1ece6aa22f9d9acecb27d6f69987ecb9221c32e821da22bd43d74",
+    "webp": "fedaebbcfd68a3b3ad444e1fee9cce2bf414dd2298f1f92cae0be078895e9003"
   },
   "daisy/actions/winter/fish.png": {
-    "png": "8b950a6e3d1e22c5b93aef4f58df998e6a0aee45a02c6180a38603c671874374",
-    "webp": "7d5d3905d7d1447eeec1fda6429757d4695c0a53b5b267f2bd211be0a452d563"
+    "png": "4ebd8f33db07c32b0fc014d1029da95e6149b217507e949d54d6a7eac10bf8c4",
+    "webp": "7b302f991665f2c7b03b1590cbf255185bce976be47b141c0185ac75697409e3"
   },
   "daisy/actions/winter/plant.png": {
-    "png": "801ef4366f881ca45928668ef02b313330ec81be43052153d627cee9005ae93f",
-    "webp": "d06394bc1de9cdd93d3df526de8ae99dfb21a227c27901744d093fb97ecefc0f"
+    "png": "1e4606dbe6e4f8e338a2d97f92432d9ba53699bd625b63af72c67404c6849241",
+    "webp": "10f68a75e9d8139432c89a4d17b8cf3c8557de527775d9cf59378e908e48657c"
+  },
+  "daisy/actions/winter/rest.png": {
+    "png": "4daab1cc8095bb19b289571fd287b6432540e1308f7a4319497cb147ca3d1cc3",
+    "webp": "92c9a93781f8d7d1cd0f3dba875545cc974fd03f1f01d546bd478c53c770ad6f"
+  },
+  "daisy/actions/winter/run-left.png": {
+    "png": "620e59f4ed712d94047e553b9da0dc465616ff6db14a1b24575e8d0f85b7c604",
+    "webp": "95bc8f0924d883324466933c905128347b967d8d6bc512fedda6ea739c13252e"
+  },
+  "daisy/actions/winter/run-right.png": {
+    "png": "9d8903244f06dd3fdabb337e6f429f57c49852ef487e8a01d3c3fd6d995eac66",
+    "webp": "537a82ac674616f51d5e3a44e3a338039f68829f6d2cc28fd856750d2717b110"
+  },
+  "daisy/actions/winter/walk-back.png": {
+    "png": "5edb530d4998da7917f707d76fdcc37280ea4aa7b77e3a3180248b4fd0270e8d",
+    "webp": "a7d80ca8ef807c724ac55710e9e4dd5a18f0a335bd8dacef66dac3b1475dacd5"
+  },
+  "daisy/actions/winter/walk-front.png": {
+    "png": "3962d39898cb64ed9b594c4affd55de7f4e5350878b12865490dea0e699172cb",
+    "webp": "ebcee947bdd44d37bf6988984b2ba2238ced55568cfd64de34bd0deb3c9ba152"
   },
   "daisy/seasonal/summer.png": {
-    "png": "1d02ac40e39534dae020e56707f440d7663105a14bacb4da54fb4b3d932f6ed7",
-    "webp": "371b7a6097c7c409cf25d7f9f437075df8d49bb655d4f71bf3343870e622ada5"
+    "png": "81271bb8d2f7e71bb6c89cb2a5459674276df0f1fcb0a02c2d631003bdea1b14",
+    "webp": "22f64cfae015965f94f1bbb7b0d243f48388466e4944a0af3523786d35fbf32f"
   },
   "daisy/seasonal/winter.png": {
-    "png": "dd2d07918d5e16950fa4ffadab8ee2d7ffc4124aa7241ad024af2c990ea1dcee",
-    "webp": "7e3b33fb1ef1f9844caf8449d6d84b623e89671ba94586d6d413509c4faecc17"
+    "png": "0d859cf816676db7f1e69d1625ab50a63e83a7c47aa245c31af6b0d98b644615",
+    "webp": "f9fe7fc7657d8ad019d1ebdfbc1c158c193e811220dff642331a4606fd3a5714"
   },
   "daisy/spritesheet.png": {
-    "png": "24edc4edf3ef84a0d1d28b35bafeaed1cedb2011d7d9b5ef66a399d390a98c71",
-    "webp": "1a92e234494850e61a43254a73117717e12ff7e5e7fa80772a57510c85b7ee25"
+    "png": "4853158b4c536b7b9fbcb5286e6ce7f11959f7493b67f91035940fffeadaff9b",
+    "webp": "57c613b0924643ebeb81fca193241aaf079850a1e43113ff7a37295a3b13d45d"
   },
   "miso/actions/base/dig.png": {
     "png": "8b206660788a53fa86bd7d78edd790c2873acd045e1580e2b6f618a27f835217",
@@ -119,6 +219,26 @@
     "png": "b59906e7142c0d6feb8b8f5a1e3c06eaa1d5a161fde81675d711df99b433794e",
     "webp": "b83012b1fce97767fe674525080962e20abb07804415f32bef59998896df7945"
   },
+  "miso/actions/base/rest.png": {
+    "png": "3502a47b680891d67f45bc59134cb089d4bd842bbeb53a356717d05677f4b781",
+    "webp": "d3bb4231e154e64701c367ca1e07e5799ec5c7c7d277383f610486d507815d08"
+  },
+  "miso/actions/base/run-left.png": {
+    "png": "d55370242ea1996f84ab02fb7b789ed28fa3ac9271bdd5caa4ec247aae2f9aed",
+    "webp": "49ef9b7b4605187d82bdc0f8da52b7c1dc69811f72c31f1756df503644aa32e5"
+  },
+  "miso/actions/base/run-right.png": {
+    "png": "89adc9881903cb781bc91d64fd100cba2737c77f6131a5fcf3a2ba1fdccd71ce",
+    "webp": "d8a4f069f32b698c10606e8621cc75eb7381e1aab582d16bd41238a9cdc59d18"
+  },
+  "miso/actions/base/walk-back.png": {
+    "png": "c6011ce4c36be8094c2e5c3e4eab547d005fc500cd320c5072b34c43befaacaa",
+    "webp": "e28258f3fbfaf1ac2d12c5431c3d43620c2f839ec72d695ca6986b2d75e3e554"
+  },
+  "miso/actions/base/walk-front.png": {
+    "png": "ad2fd4a4ec44ee5df21cc5a10e43dd70690d49077e3149912461c01c4ab62c69",
+    "webp": "a050c72a00ad7f483a4bf9b28ccdabf77f3919b00346c1663d78ef27d83e5f30"
+  },
   "miso/actions/summer/dig.png": {
     "png": "1d9d2a2d541c5ef6a03354c17fd136cdc8569cbfb270c02cde0ba0f87c7b4c0f",
     "webp": "d99188ce65d782989aafac5fc745543388ebd0177a619d63b2f74c4d97e1c676"
@@ -134,6 +254,26 @@
   "miso/actions/summer/plant.png": {
     "png": "b2760acd46ff64ae94b15c9b391940436e3ff74e6df15678cfce42650a35abf0",
     "webp": "e55416e71ecc2c96bb728d1e38e65880b62d98d54a0d6fc8e852e02442a28d57"
+  },
+  "miso/actions/summer/rest.png": {
+    "png": "0817d0a729ba5f63ecf867b4ecc1b6fbd92767b55f76f0098499d321c8a77c64",
+    "webp": "74e8c9413dd2f4bd3b99c3698740fd590c7ae01f7967acf9915eb5b19aa46dd7"
+  },
+  "miso/actions/summer/run-left.png": {
+    "png": "cadd28ed36505ca88b576df1d350dfd4228fa6a1863a85236b591c846b60232d",
+    "webp": "32f3424f059069dd4af1311c59e62efe08adeb1b81b4f0bb3167d39e8d32ff94"
+  },
+  "miso/actions/summer/run-right.png": {
+    "png": "9d4a5c28b6a4a83d78d2ca20c9a740118ecd25edb309c5edf922ec6e1b269ffa",
+    "webp": "e1528c3bbdc4bd91a87d5257a676a33d2fdf3cc8df1b63d30c3298f03ad4cc76"
+  },
+  "miso/actions/summer/walk-back.png": {
+    "png": "9824b73e2d04a634b047713ec6d8f2204d40fa651a5072dc190c1bbaabc46571",
+    "webp": "5bd40b402d3bf055e6a7e57c0b33d3afe531d476656d217295643556f75c75a4"
+  },
+  "miso/actions/summer/walk-front.png": {
+    "png": "687e07dcf754c4a691097fcae8e1be1e0fa674cf2c173d7661c20327b2f3bf2a",
+    "webp": "62f8be97091edf7ed5caf8e562354b393731d5c18d16d438f616f69fd4165741"
   },
   "miso/actions/winter/dig.png": {
     "png": "ff6f98ea95f55acddcd3331b956d10cfa68f9f886e5f805b76d4916df6ba75fd",
@@ -151,17 +291,37 @@
     "png": "3c43d882f6d3591fc910d19a668e656b7a041e1dbccedcb2aee23998121a13d0",
     "webp": "6d5d7c088d7d5b789c2d1109c88b636ce6f694de30fac367d3e92c4b02a3128b"
   },
+  "miso/actions/winter/rest.png": {
+    "png": "2dff92163087b31d25fee0ce2d11f5abcf6f9b672feff021b31202c37c661d8c",
+    "webp": "1df77945c0a8c067353128d2244a4e2f9246b9356b8b2b8b2a513c198357360c"
+  },
+  "miso/actions/winter/run-left.png": {
+    "png": "4f744ba55ffe24958e4f30b3186189b7c0a6cf5ec5b06d4e449432f117c61417",
+    "webp": "08c6708841a072a4c2da7978e398067ed245b4c55da986c6db7f10d1f4c0e1c2"
+  },
+  "miso/actions/winter/run-right.png": {
+    "png": "706ef1b303a9e93764af1948b694eb23fb432bd0d15fd799017bc047cd2662ff",
+    "webp": "edc8c7c9fd683157a7e99a1c5cbb828d240aa0a4b3e5362438fb7d263162f9a9"
+  },
+  "miso/actions/winter/walk-back.png": {
+    "png": "84bcae8183e6b3990993553bb7403c8cc00042b408db4ca0b010731d0e4f89f2",
+    "webp": "1ada416ea896e8130f1615be085944bd078c91ee4e4d0d4c5aaf746dc0733aff"
+  },
+  "miso/actions/winter/walk-front.png": {
+    "png": "550d99d556ba7301e13196126d3121f81a37936948877f4cf9748b9f57c2263c",
+    "webp": "b5c4527c5d0353d003bfe44e57468c01a9788645ed4d9c95505771b43f439ddd"
+  },
   "miso/seasonal/summer.png": {
-    "png": "c1405797ad276961576cb996aef7a9bc55f1ae26673b089014423d459d294967",
-    "webp": "91168f20e275e6fda61e33f03087893f49779325bdd113362ea1bea85298b456"
+    "png": "b024e95c73f4163ee05deb81b8f681ce7efbc4df420032915c62eae043d05d45",
+    "webp": "48299b0f5e985ab456087783a049eeeef62188f590e1b3eba31e6513f852cfbe"
   },
   "miso/seasonal/winter.png": {
-    "png": "f3980cdae324963d2325a64ef18abd772aed2c0b6ee61aaa6290e19d12ad427a",
-    "webp": "30768450dd8cbd8e032f7332517e7ae504f685e57707f78c4607927db48a144d"
+    "png": "052ee22f80f2bd689c9e1794354a2b6b1ded90972d72c5c7843c5859ecf66ee8",
+    "webp": "5921fde6ce74b8ee76f466ad0185d3296ab0b3cc490dc6a2f1489563cb523f7f"
   },
   "miso/spritesheet.png": {
-    "png": "d168ce8f3bbcc326df222a3397d540fbd0b9a883b151578e0b5850d4e2dd1d0a",
-    "webp": "5e44b80f08b2af2ded12efdfadbf691c7b4ac2f40af978545dd9794f83016035"
+    "png": "014208467a7b488877ef3a4b6188475d16f6707b93d7a3c7a9ae12914578ee0d",
+    "webp": "f3b7be40c5a559478e356fc3130c7c2d6d9481777066eff8ae5f4fe774827b50"
   },
   "pip/actions/base/dig.png": {
     "png": "df79a0fbf13aceac730e3105808c192732108a68e439cb95ec624b8f43158e2a",
@@ -179,6 +339,26 @@
     "png": "63a07d39d2e09bdb4fec47e2d760a3a12d26f65eba1afe7442400d45b17121de",
     "webp": "402c9f72f338822bc346f291a9c63ca41b055828247784b88114083a4c4035d9"
   },
+  "pip/actions/base/rest.png": {
+    "png": "b5e941e345c16949387ae66e2fad645365b90fa2f4ec521448ddd26702aa411f",
+    "webp": "0cbdae2e4772266d36dab5c06563698639b7fc3f3e3e4b9627b9bc0bd283cd52"
+  },
+  "pip/actions/base/run-left.png": {
+    "png": "15f1045a320c67db562826ae0e284343f0fae46550adae861cc5f3d7c2c94485",
+    "webp": "f08621ccf630f404602510e27904c53fa543183081629e31278e5460dc097fe3"
+  },
+  "pip/actions/base/run-right.png": {
+    "png": "44f43529a41ecb565a898c05046cb53f7f0282e3c0f78c99e29b7f8b992de362",
+    "webp": "28c426e661f61cd70f6ee5a22348e22e74f6a85f98a704c9d09563101a54b9fc"
+  },
+  "pip/actions/base/walk-back.png": {
+    "png": "5d59bd16f5a606205e3561f880ee02601e8182b9c449e7dadffd39c371d6559d",
+    "webp": "ec0c6db8719e885d07b2b6581c5f6a9ff994d27f92f4d2f2de90065f420c955b"
+  },
+  "pip/actions/base/walk-front.png": {
+    "png": "0ecc21240e48d0cc028d5b337bda4c12c15dda9c0b4dc80863334e10a8842dea",
+    "webp": "4dcbbb0bebacd3ff279dbd084ac62ec47f0c98c82a6214a1961b6d6f20010e9a"
+  },
   "pip/actions/summer/dig.png": {
     "png": "e532341386b6b0e9df12a29d01c4121e5fd66eb23a866fcb2250aa3f2878301f",
     "webp": "c6d28391091778db4ffb198e6ddd402018bc844893ad2fd74765e9fb3df462e1"
@@ -194,6 +374,26 @@
   "pip/actions/summer/plant.png": {
     "png": "2cfbac3fd3467a443c0ed9a6e1d3650c12f8f19650525106ca0bfd9a394b8886",
     "webp": "ce471788c2ae8d1490c8307722fc9c2a14bef091b22268960f3a1ff6e6ca0fe1"
+  },
+  "pip/actions/summer/rest.png": {
+    "png": "7521546d792c24bdf4154ab4e69b64e2a4c2e21d0fc4f8ebf4807f5dd603034f",
+    "webp": "4e604ba4eeb84ade6a37e381efab954d2413aa77048863b8d864b0ffd9890944"
+  },
+  "pip/actions/summer/run-left.png": {
+    "png": "8b0673c4cc390307b59426ba913209ad556e59f4d78d20d3d050cbae7a67ed12",
+    "webp": "520a266f8ff71a153ba86bb4d51e40de2eab1f23aa4eea8342f25e0d816eb924"
+  },
+  "pip/actions/summer/run-right.png": {
+    "png": "befa084f0fc8be6c9230986cbe4f5ec236874edd3e028bc55743514b9c79b750",
+    "webp": "855bfbd431d5b3f73586183f7cb54f92837a0c26ac452c4b323f4008129cf23d"
+  },
+  "pip/actions/summer/walk-back.png": {
+    "png": "e6e534a80a4c9a55a8b6cb1da0322cdcdae23b5849a18af87f3da5d882db5793",
+    "webp": "0b31d5e5a81322d8b67d9c7a28795f6370771d53764d20057b4cc0dcb7fc594d"
+  },
+  "pip/actions/summer/walk-front.png": {
+    "png": "9bd2698bf74999e43bf14db666459c9e4e6116d1b2371ed18fdb463d5bae6335",
+    "webp": "ef8fbbe01369f134f81d00dd740cf4f023bed864c620df4d427410b5dbceedc0"
   },
   "pip/actions/winter/dig.png": {
     "png": "2074ee1e0a22b79b4cc91c3da6345e8b62d977a3c24f8ddb0d3a544d92d0b333",
@@ -211,16 +411,36 @@
     "png": "b9dc6a9649c6e1780feabbdc37b1cd4876bfd1212054215915f0bad76ec5bba8",
     "webp": "1aa7647d11a8547f917f23a9794b6414ccf87ec4e47fb34a635e06d7ca596aa3"
   },
+  "pip/actions/winter/rest.png": {
+    "png": "a17ffdaac0655265dedac505b5caf33702d1c039e2e62bdbc825cc67b7b5d178",
+    "webp": "4fa2700f2bb753c2ad390aead9aa1e6ec6ae4b7ead588aca0364399d982ee65e"
+  },
+  "pip/actions/winter/run-left.png": {
+    "png": "3392a4c94e0a7eca484ca0a1abfe948c239fd3c3516acd8c781eac7a30d9c309",
+    "webp": "8c718ee10fe5fefed16c33bda4e6059a5f3de91610fe3a822a5a67761e254ca9"
+  },
+  "pip/actions/winter/run-right.png": {
+    "png": "fac9f1ad797f365a62b36060203bd7b0c7adc96425693a8967e5183416e63cdb",
+    "webp": "c41c2d272821dd5f9be36646f30903c248638f1d0a245b99eb56006102d0d8c4"
+  },
+  "pip/actions/winter/walk-back.png": {
+    "png": "4f4053cca8d57a64ad0ddd5f6572cefe6e7f45f609743e99992005fcedca5825",
+    "webp": "898bfe753fe0ad984b3568894f426e1ecd5150488df8e1fa9c7a774adbe291b3"
+  },
+  "pip/actions/winter/walk-front.png": {
+    "png": "f8406e8bd030d8e8dd051760e858cd6e2a4734455e054de69dac6251701fec64",
+    "webp": "037cd0067275ea1688a3ed4d867c134b0ae32a9182db9dfa5d5cb2bb69502116"
+  },
   "pip/seasonal/summer.png": {
-    "png": "6fca5746dca6615bd8d2d481608f4efeba1032951b6067bf3b4f7d03be6b80df",
-    "webp": "b7625c8d88fbfe699db8b13ac33c1d90e399152841ac00c732995635aaf52aa8"
+    "png": "129096de3e422082bc1e5a0ececadb6afbca5ca6f774ff783d1d47e5cdd121d4",
+    "webp": "7ac019df07b1980a2cd59a8fb598b13e82085f2b817a04698a9b95c98eb0f71b"
   },
   "pip/seasonal/winter.png": {
-    "png": "e90272d0c21dc0060fb91606508df53470504d20d6aa9bcfeae8e78d7bcdd1e6",
-    "webp": "ab507fc6e3eb615a2b89b06d11aa615bdaf82d3e3cc4699e54ceced8e8ed73db"
+    "png": "403431948023e0e99435be1235b807fb038d73d3ee8ebeeea204c9d1172995a8",
+    "webp": "fa4ef75363bbb30f19c7d4b741cb22e26b4d3a9cc35be6bf16f35d1c60b969d3"
   },
   "pip/spritesheet.png": {
-    "png": "4af3be1be7d76f78f521c724bc7c93c092c3fb1b8843327c723315db406c31b1",
-    "webp": "c8af97f6ad76f0ce6af14a05cca6132d39695a7c5c6bb8754beb9fc84085f8c4"
+    "png": "fd46b82211a903eb6c6fb9308ef4ffd657ad381f40a9fb4416693a29bc86c2d2",
+    "webp": "bbf33b56ba7ed431b9b793ee367894f9dd947607880c2386a87510557759e7ca"
   }
 }
