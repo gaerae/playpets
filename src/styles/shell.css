@@ -1242,10 +1242,11 @@ body:not(.compact)
 }
 
 /* The menu's three places side by side, their icons over their names, in every window: the menu
-   is as wide in a large window as in a small one, and Close window and Quit below stay in view. */
+   is as wide in a large window as in a small one, and Close window and Quit below stay in view.
+   A name that needs more than a third (Invite a friend in a wider font) widens its own tile. */
 .management-destinations {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 4px;
 }
 .management-destinations .menu-destination {
@@ -1263,4 +1264,8 @@ body:not(.compact)
 .menu-destination-copy strong {
   font-size: var(--font-md);
   font-weight: 600;
+}
+/* A large window keeps each name on one line; a small one may fold it at a space (compact.css). */
+body:not(.compact) .menu-destination-copy strong {
+  white-space: nowrap;
 }

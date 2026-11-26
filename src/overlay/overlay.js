@@ -62,6 +62,9 @@ let data = { pets: [], assets: [], statuses: {} },
   layout = [],
   // The sound setting a wind chime rings by (chime.js).
   sound = null;
+// What came pushed while the first state was on its way: newer than that answer, which the backend
+// read before it (a friend sent out while this window was still opening), so the answer leaves it.
+const pushed = { state: false, layout: false };
 // Runs the next frame now (core/ticker.js every): the loop waits for the cell a friend shows to end
 // (pace.js), so whatever changes a drawing in between (a friend come out, a pose, a status, the
 // season) draws it at once.
@@ -399,6 +402,7 @@ function say(v, message) {
   v.timer = setTimeout(() => (v.bubble.hidden = true), 6000);
 }
 api.onChange(next => {
+  pushed.state = pushed.layout = true;
   data = next;
   layout = next.desktopLayout;
   lawn.show(next.desktopGround);
@@ -409,6 +413,7 @@ api.onChange(next => {
 });
 api.onEvent(event => {
   if (event.type === 'layout') {
+    pushed.layout = true;
     layout = event.layout;
     lawn.show(event.ground);
     render();
@@ -487,12 +492,14 @@ function animate(now) {
 }
 const result = await api.bootstrap();
 if (result.ok) {
-  data = result.data;
+  if (!pushed.state) data = result.data;
   sound = data.sound;
   // A language chosen in the yard reaches this window too (the page starts over in it).
   follow(data.language);
-  layout = data.desktopLayout;
-  lawn.show(data.desktopGround);
+  if (!pushed.layout) {
+    layout = data.desktopLayout;
+    lawn.show(data.desktopGround);
+  }
   // A frame comes when a cell ends (pace.js), or at once when a drawing changes (drawNow).
   drawNow = every(100, animate);
   // Motion turned back on: the friends move again now, not at the next change.

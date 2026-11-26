@@ -14,12 +14,17 @@ async function* files(dir) {
     else if (/\.(js|css|html)$/.test(entry.name)) yield at;
   }
 }
-// What a person never sees: comments, in JS, CSS and HTML.
+// What a person never sees: comments, in JS, CSS and HTML. Taken out until none is left, so one
+// that a removal joins back together goes too.
+const without = (text, pattern, keep = '') => {
+  for (let before; before !== text;) {
+    before = text;
+    text = text.replace(pattern, keep);
+  }
+  return text;
+};
 const uncommented = source =>
-  source
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .replace(/<!--[\s\S]*?-->/g, '')
-    .replace(/(^|[^:'"`\\])\/\/.*$/gm, '$1');
+  without(without(without(source, /\/\*[\s\S]*?\*\//g), /<!--[\s\S]*?-->/g), /(^|[^:'"`\\])\/\/.*$/gm, '$1');
 
 test('no mark is drawn as a character, in the page or in the string tables', async () => {
   const found = [];

@@ -1,7 +1,7 @@
 {
   "generator": "cargo-about 0.9.2",
   "inputs": {
-    "src-tauri/Cargo.lock": "697f36dfbc5f1f8664d0a824c07a0ba47bdd259e57f06a85489a75cbe3a4bf3f",
+    "src-tauri/Cargo.lock": "2a232bacc144cb600bd8b01a2edb003154ce06c574b917f7a5e5fb51cdb6caea",
     "src-tauri/Cargo.toml": "3d8023395b1ffe6c0a6ecb2180cbf44b0a43b47d144830949999fe4c1b5e9ca5",
     "packaging/licenses/about.toml": "419e132450dc0eeeec53dbf9e8f7ecd674c170b248cd316f619037eba1d37dc8",
     "packaging/licenses/rust-supplements.json": "f76f0af8e3969491508ce90c31d5b1eac85c7f12a956096cac5d2cc501611b00",
@@ -34,5 +34,5 @@
     "packaging/licenses/upstream/eb227437252b2a7a.txt": "eb227437252b2a7a9c1fc342c93ade1f3d7ce38cc6dd754f613db07d53ceff0b",
     "packaging/licenses/upstream/fea1d5bf3dd71605.txt": "fea1d5bf3dd71605ce5d7d2ff695c1837e914c77195e523a86b5391716477960"
   },
-  "noticeSha256": "c065628059f9cbed342a153ae7b59badf16b3f5b8fe1d10fe99296d5ae9a2457"
+  "noticeSha256": "785ec5d6ed2808b632c5003bd97de24a1c4112f1a8cae89c9098552aa461070b"
 }

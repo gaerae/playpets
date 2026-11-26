@@ -247,12 +247,12 @@ test('a small window still says how close a friend is, without the bar', async (
 
 // At 760 by 520 the menu's three places as rows left Close window and Quit below its fold, and a
 // tall window showed the same 360px menu as rows where a short one showed tiles. Tiles in every window.
+// Equal thirds broke "Invite a friend" in a wider font (Linux): a name keeps its line in a large
+// window, and its tile takes the width it needs, the other two sharing the rest.
 test('the menu sets its three places side by side in every window, so Close window and Quit stay in view', async () => {
   const css = await styles();
-  assert.match(
-    css,
-    /(?:^|\})\.management-destinations\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/,
-  );
+  assert.match(css, /(?:^|\})\.management-destinations\{display:grid;grid-template-columns:repeat\(3,1fr\)/);
+  assert.match(css, /(?:^|\})body:not\(\.compact\) ?\.menu-destination-copy strong\{[^}]*white-space:nowrap/);
   assert.match(
     css,
     /(?:^|\})\.management-destinations \.menu-destination\{[^}]*flex-direction:column;[^}]*text-align:center/,

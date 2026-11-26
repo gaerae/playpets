@@ -107,7 +107,7 @@ test('the grass wears the season the yard shows: snow in winter, the plain lawn 
   assert.equal(node.dataset.season, 'spring');
   const css = readFileSync(new URL('../src/overlay/overlay.css', import.meta.url), 'utf8');
   const drawn = (selector, art) => {
-    const rule = css.match(new RegExp(`${selector.replace(/[[\]"().:]/g, '\\$&')}\\s*\\{([^}]*)\\}`));
+    const rule = css.match(new RegExp(`${selector.replace(/[[\]\\"().:*+?^${}|]/g, '\\$&')}\\s*\\{([^}]*)\\}`));
     assert.ok(rule, `${selector} has a rule`);
     assert.match(rule[1], new RegExp(`url\\(\\.\\./art/ambient/${art}\\.webp\\)`), selector);
     assert.ok(existsSync(new URL(`../src/art/ambient/${art}.webp`, import.meta.url)), `${art}.webp is there`);

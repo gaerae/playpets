@@ -951,7 +951,9 @@ const scenario = `(async()=>{
       const range=document.createRange();range.selectNodeContents(node);
       const lines=[...range.getClientRects()].filter(rect=>rect.width>0&&rect.height>0);
       const box=node.getBoundingClientRect(),style=getComputedStyle(node);
-      return lines.length===1&&lines[0].height<=(parseFloat(style.lineHeight)||parseFloat(style.fontSize)*1.5)+1&&node.scrollWidth<=Math.max(node.clientWidth,box.width)+1&&parseFloat(style.fontSize)>=12;
+      // A line's box is the font's own height, which Segoe UI and Malgun Gothic make taller than a
+      // tight line-height (1.2): one line is up to one and a half times the font size, two are more.
+      return lines.length===1&&lines[0].height<=Math.max(parseFloat(style.lineHeight)||0,parseFloat(style.fontSize)*1.5)+1&&node.scrollWidth<=Math.max(node.clientWidth,box.width)+1&&parseFloat(style.fontSize)>=12;
     };
     const rewardCatalog=await import('./yard/catalog.js'),rewardState=(await playPets.bootstrap()).data;
     const rareSeed=rewardState.garden.digs.find(dig=>dig.attemptId==='saved-rare-fixture');

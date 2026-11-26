@@ -118,14 +118,18 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Winter trails keep to the near snow, so their prints no longer run up over the bushes and trees painted at the back of the field, and prints farther back are smaller, as friends are.
 - The marks over friends (hearts, sparkles, a question mark) and the checks in menus are drawn pictures, so they look the same on every system instead of in each system's own font.
 - The sky shows through between the leaves and treetops of every outdoor place, where small patches of white were left; snow and blossom stay as they were.
+- A friend sent to the desktop while its window is still opening shows there, instead of staying invisible until it next moves.
+- In a large window the menu keeps **Invite a friend** on one line with wider system fonts, as on Linux.
 
 ### Security
 
 - Update url to 2.5.9, so a web address made of nested `blob:` addresses can no longer overflow the stack (RUSTSEC-2026-0592).
+- Update cookie to 0.18.3, whose private cookie nonces could repeat in processes that fork (RUSTSEC-2026-0594).
 
 ### Website and docs
 
 - The website wears the app's cozy look: cream paper, honey-wood frames and a warm night theme. The landing opens on the yard itself, shows friends stepping out onto the desktop to keep you company while you work, and moves the Codex pet comparison lower as a short block. The link previews and the README banner say the same.
+- The landing's film shows a friend walking to a pressed spot of grass and a game of tag before the dig and the fishing.
 - The character and background studios look like a cozy workshop and walk you through four steps: pick, describe, take the kit to your AI tool, import.
 - The install page lists what each system needs and puts the download in a framed card.
 - The guide uses the app's current button and menu names in every language.
