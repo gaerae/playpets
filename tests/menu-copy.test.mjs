@@ -19,8 +19,9 @@ test('Play labels keep their intrinsic width and wrap whole actions rather than 
   assert.match(css, /\.play-action\s*\{[^}]*flex:\s*1 0 max-content;[^}]*white-space:\s*nowrap/s);
 });
 
-// "데이지의 놀이" read as a thing the friend owns, not "Play with Daisy" as the other languages and
-// the dock's 놀기 say it; and the Japanese album hint named two of its four books.
+// The Korean line read as a game the friend owns ("Daisy's play"), not "Play with Daisy" as the other
+// languages and the dock's own Play button say it; and the Japanese album hint named two of its four
+// books.
 test('playing with a friend and the album say the same in every language', () => {
   assert.equal(ko['controls.play_with'], '{name:과/와} 놀기');
   for (const [lang, strings] of Object.entries({ en, ko, ja, zh })) {

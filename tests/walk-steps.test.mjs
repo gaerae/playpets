@@ -7,10 +7,12 @@ import test from 'node:test';
 import './support/content.mjs';
 import { TURN_MS_CELL, walkCell } from '../src/core/gait.js';
 import { reduced } from '../src/core/sprites.js';
-import { setData, views } from '../src/core/state.js';
-import { geometry, measureYard, sizeOf } from '../src/yard/field.js';
+import { data, setData, views } from '../src/core/state.js';
+import { footOf, geometry, measureYard, sizeOf, yardToField } from '../src/yard/field.js';
+import { groundProfile } from '../src/yard/ground.js';
 import { moveFriends, STROLL, WALK } from '../src/yard/motion.js';
 import { LOOK_FIRST_MS, sendTo } from '../src/yard/trips.js';
+import { strollClear } from '../src/yard/wander.js';
 import { element, installDom, keepGlobals } from './support/dom.mjs';
 import { flatField } from './support/flat-field.mjs';
 
@@ -55,7 +57,7 @@ function yard(t) {
   keepGlobals(t, 'Image');
   globalThis.Image = Sheet;
   flatField(t);
-  setData({ statuses: {} });
+  setData({ statuses: {}, garden: { plants: [], trees: [], decor: [] } });
   measureYard();
   const previous = reduced.matches;
   reduced.matches = false;
@@ -256,4 +258,46 @@ test('a friend sent the other way turns in an arc, not on the spot, and still ar
   assert.equal(v.target, null, 'it gets there');
   assert.ok(Math.abs((v.x - 0.1) * w) < 1 && Math.abs((v.y - 0.5) * h) < 1);
   assert.ok(sizeOf(v.pet) > 0);
+});
+
+// The arc's chord is checked at each step (docs/design/2026-11-26-natural-walking.md, the path): a
+// step of a turn never lands on a flower, a gift or furniture, nor in the water; there the friend
+// heads straight for its stop instead.
+test('a step of a turn never lands where the ground keeps a friend off', t => {
+  yard(t);
+  let clock = 1000;
+  t.mock.method(performance, 'now', () => clock);
+  // Walks right, is sent back left: where its feet land on the field, and whether it was turning.
+  const uTurn = () => {
+    const v = walker(0.4, null);
+    views.set(v.pet.id, v);
+    sendTo(v, { x: 0.95, y: 0.5 }, { save: false });
+    clock += LOOK_FIRST_MS;
+    for (let i = 0; i < 60; i++) moveFriends((clock += 16), 16);
+    const target = { x: 0.1, y: 0.5 };
+    sendTo(v, target, { save: false });
+    const steps = [];
+    for (let i = 0; v.target && i < 2000; i++) {
+      const { w, h } = geometry(v.pet, v.x),
+        want = Math.atan2((target.y - v.y) * h, (target.x - v.x) * w);
+      moveFriends((clock += 16), 16);
+      const at = footOf(v);
+      steps.push({ ...yardToField(at.x, at.y), turning: v.target && Math.abs(v.heading - want) > 1e-6 });
+    }
+    views.delete(v.pet.id);
+    return { v, steps };
+  };
+  const free = uTurn(),
+    line = free.steps[0].y,
+    turns = free.steps.filter(s => s.turning);
+  // A flower where the arc swings out below the line it would walk straight.
+  const out = turns.reduce((a, b) => (b.y > a.y ? b : a));
+  assert.ok(out.y - line > 0.05, 'with nothing in the way it arcs');
+  data.garden.plants = [{ id: 'daisy', kind: 'daisy', x: out.x, y: out.y }];
+  const ground = groundProfile();
+  assert.ok(!strollClear(out, out, ground), 'the flower is there');
+  const kept = uTurn();
+  assert.equal(kept.v.target, null, 'it still gets there');
+  for (const step of kept.steps.filter(s => s.turning))
+    assert.ok(strollClear(step, step, ground), `a turn's step on the flower: ${JSON.stringify(step)}`);
 });

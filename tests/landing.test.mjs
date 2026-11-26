@@ -400,8 +400,9 @@ test('localized landing data has one active contract without removed feature tab
     ['en', 'ko', 'ja', 'zh-hans'].map(lang => import(`../website/.vitepress/theme/landing-${lang}.ts`)),
   );
   for (const locale of locales) {
-    // Every language file has the same exports, so Landing.vue reads them all the same way.
-    assert.deepEqual(Object.keys(locale).sort(), ['copy', 'sections', 'worldCopy']);
+    // Every language file has the same exports, so Landing.vue reads them all the same way, and the
+    // share card's words (scripts/make-og.mjs).
+    assert.deepEqual(Object.keys(locale).sort(), ['card', 'copy', 'sections', 'worldCopy']);
     const { copy, worldCopy } = locale;
     assert.deepEqual(Object.keys(copy).sort(), Object.keys(locales[0].copy).sort());
     assert.deepEqual(Object.keys(worldCopy).sort(), Object.keys(locales[0].worldCopy).sort());

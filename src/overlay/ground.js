@@ -39,6 +39,13 @@ export function setupGround({ api, displayId, reduced }) {
   document.body.insertBefore(ground, document.body.firstChild);
   let view = null;
   let drag = null;
+  // While an end is held the backend is told now and then even with the pointer still, or after
+  // grass.rs DRAG_STALE it would let the screen's clicks through mid-drag.
+  let telling = 0;
+  function letGo() {
+    drag = null;
+    clearInterval(telling);
+  }
   const flurry = setupFlurry({ host: ground, reduced });
   const grips = [...ground.querySelectorAll('.ground-grip')];
 
@@ -82,7 +89,7 @@ export function setupGround({ api, displayId, reduced }) {
   function show(next) {
     view = next && next.displayId === displayId ? next : null;
     if (!view) {
-      drag = null;
+      letGo();
       endDemo();
       ground.classList.remove('ground-resizing', 'ground-see');
       ground.hidden = true;
@@ -116,7 +123,7 @@ export function setupGround({ api, displayId, reduced }) {
   function end(grip, event) {
     if (!drag) return;
     const { left, right } = drag;
-    drag = null;
+    letGo();
     ground.classList.remove('ground-resizing');
     if (event?.pointerId !== undefined && grip.hasPointerCapture?.(event.pointerId))
       grip.releasePointerCapture(event.pointerId);
@@ -140,6 +147,8 @@ export function setupGround({ api, displayId, reduced }) {
       grip.setPointerCapture(event.pointerId);
       ground.classList.add('ground-resizing');
       api.setGrass(view.left, view.right, true);
+      clearInterval(telling);
+      telling = setInterval(() => drag && api.setGrass(drag.left, drag.right, true), TELL_MS);
     };
     grip.onpointermove = event => {
       if (!drag || !view) return;

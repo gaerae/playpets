@@ -343,3 +343,8 @@ export const sections = {
     done: 'Finished the task',
   },
 };
+// The card a link to this page shows (scripts/make-og.mjs): a line, then the one in bold.
+export const card = {
+  title: 'Little friends on your desktop,<b>keeping you company all day</b>',
+  sub: 'Daisy, Clover, Pip and Miso play in a painted yard, step out onto your desktop and stay beside you while you work. Bring your own pets, and connect an AI when you want to talk.',
+};

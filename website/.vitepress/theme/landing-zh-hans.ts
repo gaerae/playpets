@@ -300,3 +300,8 @@ export const sections = {
     done: '任务完成了',
   },
 };
+// The card a link to this page shows (scripts/make-og.mjs): a line, then the one in bold.
+export const card = {
+  title: '住在桌面上的伙伴，<b>整天陪着你</b>',
+  sub: '黛西、三叶草、皮普和米索在画一般的乐园里玩耍，还会走到桌面上，在你工作时陪在身边。也能带来自己的宠物，想聊天时再连接 AI。',
+};

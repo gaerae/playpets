@@ -53,6 +53,11 @@ function dryStroll(v) {
   const allows = groundFor(v);
   return (from, to) => allows(feetAt(v, from), ...feetInYard(v, to));
 }
+// The ground a turning walk keeps to (dryStroll), measured once for each place it heads for.
+function arcGround(v) {
+  if (v.arcGround?.target !== v.target) v.arcGround = { target: v.target, allows: dryStroll(v) };
+  return v.arcGround.allows;
+}
 // The sheet's rows a walk shows (core/animation.js), one way or the other.
 const WALK_CYCLES = new Set(['right', 'left']);
 // A walk cell ending this soon is shown now: the loop wakes once between two paced frames, for the
@@ -226,19 +231,27 @@ export function moveFriends(now, dt) {
         // and the last body length go straight.
         const { w, h } = geometry(v.pet, v.x),
           want = Math.atan2(dy * h, dx * w);
+        const walked = Math.min(left, span * v.vel),
+          size = sizeOf(v.pet),
+          toward = heading => ({
+            x: clamp(v.x + (Math.cos(heading) * walked * size) / w),
+            y: clamp(v.y + (Math.sin(heading) * walked * size) / h),
+          });
         v.heading =
           v.speed || !was || left <= 1 || v.heading == null ? want : turnToward(v.heading, want, TURN_RATE * span);
-        const ahead = Math.cos(v.heading) >= 0 ? 1 : -1,
-          walked = Math.min(left, span * v.vel);
-        if (span > 0) tilt = ahead * LEAN.accel * clamp(((v.vel - was) / span) * (RAMP_MS / pace), -1, 1);
-        if (walked >= left) {
-          v.x = v.target.x;
-          v.y = v.target.y;
-        } else {
-          const size = sizeOf(v.pet);
-          v.x = clamp(v.x + (Math.cos(v.heading) * walked * size) / w);
-          v.y = clamp(v.y + (Math.sin(v.heading) * walked * size) / h);
+        let next = walked >= left ? v.target : toward(v.heading);
+        // An arc leaves the line its stroll was checked on, so each of its steps is checked (the
+        // arc's chord), and the straight way on from where it lands: one onto water, a flower, a gift
+        // or furniture heads straight there instead, on the way the step before checked.
+        const allows = next !== v.target && v.heading !== want && arcGround(v);
+        if (allows && !(allows({ x: v.x, y: v.y }, next) && allows(next, v.target))) {
+          v.heading = want;
+          next = toward(want);
         }
+        const ahead = Math.cos(v.heading) >= 0 ? 1 : -1;
+        if (span > 0) tilt = ahead * LEAN.accel * clamp(((v.vel - was) / span) * (RAMP_MS / pace), -1, 1);
+        v.x = next.x;
+        v.y = next.y;
         const side = sideOf(v, Math.cos(v.heading), Math.sin(v.heading), now);
         stepLegs(v, walked, span, left - walked, was);
         pose(v, side, 150);

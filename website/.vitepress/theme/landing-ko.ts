@@ -334,3 +334,8 @@ export const sections = {
     done: '작업을 마쳤어요',
   },
 };
+// The card a link to this page shows (scripts/make-og.mjs): a line, then the one in bold.
+export const card = {
+  title: '바탕화면에 사는 친구들이<b>하루 종일 곁에 있어요</b>',
+  sub: '데이지, 클로버, 핍, 미소가 그림 같은 놀이터에서 놀다가 바탕화면으로 나와 내 작업 곁을 지켜요. 내 펫도 데려오고, 이야기하고 싶을 때 AI를 연결해요.',
+};

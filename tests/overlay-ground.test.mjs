@@ -98,6 +98,25 @@ test('a dragged end stays on the screen and the least width away, and the backen
   assert.deepEqual(told.at(-1), [100, 1540, false], 'a double click spreads it across the floor');
 });
 
+test('an end held still is still told about, so the backend keeps the pointer until it is let go', async t => {
+  t.mock.timers.enable({ apis: ['setInterval', 'setTimeout'] });
+  const { ground, grips, told } = await lawn(t);
+  ground.show(VIEW);
+  const [left] = grips;
+  left.onpointerdown({ button: 0, pointerId: 1, timeStamp: 0 });
+  left.onpointermove({ clientX: 300, timeStamp: 500 });
+  const before = told.length;
+  // Held there longer than the backend waits (grass.rs DRAG_STALE, 8 s) without a move.
+  t.mock.timers.tick(9000);
+  assert.ok(told.length - before >= 9, 'told while it is held');
+  assert.deepEqual(told.at(-1), [300, 1440, true]);
+  left.onpointerup({ pointerId: 1 });
+  const ended = told.length;
+  t.mock.timers.tick(5000);
+  assert.equal(told.length, ended, 'nothing more once it is let go');
+  assert.deepEqual(told.at(-1), [300, 1440, false]);
+});
+
 test('the grass wears the season the yard shows: snow in winter, the plain lawn otherwise', async t => {
   const { ground, node } = await lawn(t);
   ground.show(VIEW);
@@ -146,6 +165,7 @@ test('the bare grass thins under the pointer, but not while an end is pulled', a
   grips[0].onpointerdown({ button: 0, pointerId: 1, timeStamp: 0 });
   ground.see(true);
   assert.ok(!node.classList.contains('ground-see'));
+  grips[0].onpointerup({ pointerId: 1 });
 });
 
 // Right on the desktop, the grass can be put away or spread across the floor again: a right click on

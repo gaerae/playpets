@@ -1509,12 +1509,15 @@ const scenario = `(async()=>{
         await until(()=>world.scene.season===season&&sceneState.data.scene?.season===season);await wait(80);
         for(const v of authoredViews){
           companionTrips.release(v);companionViews.pose(v,'idle',Infinity);v.nextWander=Infinity;
-          const canonicalBox=v.button.getBoundingClientRect(),canonicalHeight=v.canvas.style.height;
           for(const clipName of authoredClips){
-            const clip=companionUi.prepareCompanionAction(v.asset,clipName);
-            let clipOk=!!clip&&clip.frames.length>=2;
+            const clip=companionUi.prepareCompanionAction(v.asset,clipName),fails=[];
+            if(!clip||clip.frames.length<2)fails.push('clip');
             if(clip){
               const decoded=await until(()=>companionUi.companionImage({clip}),10000);
+              // Read from the ordinary drawing after the wait and checked without another one: a friend
+              // still settling after the season change (its size follows its depth) cannot move between.
+              sprites.drawSprite(v.canvas,v.asset,'idle',0);
+              const canonicalBox=v.button.getBoundingClientRect(),canonicalHeight=v.canvas.style.height;
               const action=companionUi.beginCompanionAction(v,clipName),hashes=[];
               let elapsed=0;
               for(const frame of clip.frames){
@@ -1525,14 +1528,14 @@ const scenario = `(async()=>{
               const after=v.button.getBoundingClientRect(),offset=clip.offset||[0,0];
               const cell=clip.canvas||[192,208],motionFrames=sprites.reduced.matches?1:Math.min(3,clip.frames.length);
               const overscanOk=cell[0]>=192&&cell[0]<=384&&cell[1]>=208&&cell[1]<=416&&clip.frames.every(frame=>frame.rect[2]===cell[0]&&frame.rect[3]===cell[1])&&(!offset.some(Boolean)||(clip.anchor[0]+offset[0]===96&&clip.anchor[1]+offset[1]===199));
-              clipOk&&=!!decoded&&new Set(hashes).size>=motionFrames&&v.canvas.width===cell[0]&&v.canvas.height===cell[1]&&v.canvas.style.height===canonicalHeight&&Math.abs(after.width-canonicalBox.width)<1&&Math.abs(after.height-canonicalBox.height)<1&&overscanOk&&v.canvas._pk.includes(':action:');
+              for(const [name,ok] of Object.entries({decoded:!!decoded,motion:new Set(hashes).size>=motionFrames,cell:v.canvas.width===cell[0]&&v.canvas.height===cell[1],height:v.canvas.style.height===canonicalHeight,box:Math.abs(after.width-canonicalBox.width)<1&&Math.abs(after.height-canonicalBox.height)<1,overscan:overscanOk,drawn:v.canvas._pk.includes(':action:')}))if(!ok)fails.push(name);
               const motionDescriptor=Object.getOwnPropertyDescriptor(sprites.reduced,'matches');
               try{
                 Object.defineProperty(sprites.reduced,'matches',{configurable:true,value:true});
                 sprites.drawSprite(v.canvas,v.asset,'idle',0,null,companionUi.companionAction(v,action.since));
                 const stillHash=pixelHash(v.canvas);
                 sprites.drawSprite(v.canvas,v.asset,'idle',0,null,companionUi.companionAction(v,action.since+elapsed-1));
-                clipOk&&=pixelHash(v.canvas)===stillHash;
+                if(pixelHash(v.canvas)!==stillHash)fails.push('still');
               }finally{
                 if(motionDescriptor)Object.defineProperty(sprites.reduced,'matches',motionDescriptor);
                 else delete sprites.reduced.matches;
@@ -1540,7 +1543,7 @@ const scenario = `(async()=>{
               companionUi.clearCompanionAction(v);
               cancellationOk&&=companionUi.companionAction(v,performance.now())===null;
             }
-            authoredOk&&=clipOk;authoredTrace.push([innerWidth,season,v.asset.sourceId,clipName,clipOk]);
+            authoredOk&&=!fails.length;authoredTrace.push([innerWidth,season,v.asset.sourceId,clipName,fails.join('+')||true]);
           }
           const identity=JSON.stringify(v.asset)===sourceIdentities.get(v.pet.id);
           authoredOk&&=identity;

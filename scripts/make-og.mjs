@@ -4,6 +4,10 @@
 // Needs Google Chrome or Playwright's Chromium (browser-lib.mjs drives it headless).
 
 import { readFile, writeFile } from 'node:fs/promises';
+import { card as en } from '../website/.vitepress/theme/landing-en.ts';
+import { card as ja } from '../website/.vitepress/theme/landing-ja.ts';
+import { card as ko } from '../website/.vitepress/theme/landing-ko.ts';
+import { card as zh } from '../website/.vitepress/theme/landing-zh-hans.ts';
 import { castMarkup, fittedCastHeight, loadEnvironment, loadSheets } from './art-lib.mjs';
 import { launchBrowser } from './browser-lib.mjs';
 
@@ -54,32 +58,28 @@ try {
     console.log(`Wrote ${file}`);
   };
   const english = {
-    title: 'Little friends on your desktop,<b>keeping you company all day</b>',
-    sub: 'Daisy, Clover, Pip and Miso play in a painted yard, step out onto your desktop and stay beside you while you work. Bring your own pets, and connect an AI when you want to talk.',
+    ...en,
     url: address(''),
   };
   await render('website/public/og.png', { width: 1200, height: 630, ...english, scale: 1 });
   await render('website/public/og-ko.png', {
     width: 1200,
     height: 630,
-    title: '바탕화면에 사는 친구들이<b>하루 종일 곁에 있어요</b>',
-    sub: '데이지, 클로버, 핍, 미소가 그림 같은 놀이터에서 놀다가 바탕화면으로 나와 내 작업 곁을 지켜요. 내 펫도 데려오고, 이야기하고 싶을 때 AI를 연결해요.',
+    ...ko,
     url: address('ko/'),
     scale: 1,
   });
   await render('website/public/og-ja.png', {
     width: 1200,
     height: 630,
-    title: 'デスクトップに住む友だちが、<b>一日じゅうそばにいます</b>',
-    sub: 'デイジー、クローバー、ピップ、ミソが絵のような庭で遊び、デスクトップに出てきて作業のそばにいてくれます。自分のペットも招待でき、話したいときはAIをつなげます。',
+    ...ja,
     url: address('ja/'),
     scale: 1,
   });
   await render('website/public/og-zh-hans.png', {
     width: 1200,
     height: 630,
-    title: '住在桌面上的伙伴，<b>整天陪着你</b>',
-    sub: '黛西、三叶草、皮普和米索在画一般的乐园里玩耍，还会走到桌面上，在你工作时陪在身边。也能带来自己的宠物，想聊天时再连接 AI。',
+    ...zh,
     url: address('zh-hans/'),
     scale: 1,
   });

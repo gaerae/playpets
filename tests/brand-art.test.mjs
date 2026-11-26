@@ -100,6 +100,12 @@ test('installer casts fit their fixed native artwork areas', async () => {
   for (let i = 0; i < sidebar.length; i += 2)
     assert.ok(sidebar.slice(i, i + 2).reduce((sum, pet) => sum + 192 * pet.scale, 4) <= 146);
   assert.throws(() => fittedCastHeight(0, 40), /cast/);
+  // Each card's words are the site's own, in its language (landing-<language>.ts card), not the script's.
   const og = await readFile('scripts/make-og.mjs', 'utf8');
-  for (const name of ['Miso', '미소', 'ミソ', '米索']) assert.ok(og.includes(name), name);
+  assert.doesNotMatch(og, /[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7a3]/u);
+  for (const [lang, name] of Object.entries({ en: 'Miso', ko: '미소', ja: 'ミソ', 'zh-hans': '米索' })) {
+    const { card } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    assert.ok(card.sub.includes(name), `${lang} names Miso`);
+    assert.match(card.title, /^[^<]+<b>[^<]+<\/b>$/, `${lang}: a line, then the bold one`);
+  }
 });

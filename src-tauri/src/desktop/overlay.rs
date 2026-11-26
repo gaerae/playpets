@@ -309,6 +309,7 @@ impl Overlay {
         d.news |= !grown.is_empty();
         d.resized.extend(grown);
         d.roams.retain(|k, _| ids.contains(k));
+        d.bodies.retain(|k, _| ids.contains(k));
         if d.drag.as_ref().map(|g| !ids.contains(&g.id)).unwrap_or(false) {
             d.drag = None;
         }
@@ -358,8 +359,11 @@ impl Overlay {
     }
     /// The page pulled a grass end to `left`/`right` (logical pixels): the grass reaches there now.
     /// While `dragging` the screen keeps the pointer; once let go, the span to save. None while
-    /// dragging, or with no grass out.
+    /// dragging, with no grass out, or without both ends.
     pub fn set_grass(&self, left: f64, right: f64, dragging: bool) -> Option<Span> {
+        if !(left.is_finite() && right.is_finite()) {
+            return None;
+        }
         let mut d = crate::app::hold(&self.inner);
         d.grass?;
         let area = d.mons.first()?.area;
@@ -1839,5 +1843,40 @@ mod tests {
             None,
             "switched off: nothing moves"
         );
+    }
+
+    // What a page measured of a friend goes with it when it is brought in.
+    #[test]
+    fn a_friend_brought_in_leaves_no_measured_body_behind() {
+        let overlay = Overlay {
+            inner: Arc::default(),
+            looper: std::thread::current(),
+        };
+        overlay.sync(vec![out("pip", None, None), out("miso", None, None)], true, false, None);
+        overlay.set_body("pip", Some([0.2, 0.3, 0.8, 1.0]));
+        overlay.set_body("miso", Some([0.2, 0.3, 0.8, 1.0]));
+        overlay.sync(vec![out("miso", None, None)], true, false, None);
+        let d = crate::app::hold(&overlay.inner);
+        assert_eq!(d.bodies.keys().collect::<Vec<_>>(), ["miso"]);
+    }
+
+    // A call without both ends (the page's numbers lost on the way) moves nothing and saves nothing,
+    // rather than reading as the whole floor.
+    #[test]
+    fn a_grass_end_with_no_number_moves_nothing() {
+        let overlay = Overlay {
+            inner: Arc::default(),
+            looper: std::thread::current(),
+        };
+        crate::app::hold(&overlay.inner).mons = screen();
+        overlay.sync(vec![out("pip", None, None)], true, false, Some(Span(0.25, 0.75)));
+        for (left, right) in [
+            (f64::NAN, 1080.0),
+            (360.0, f64::NAN),
+            (f64::NEG_INFINITY, f64::INFINITY),
+        ] {
+            assert_eq!(overlay.set_grass(left, right, false), None, "{left} {right}");
+            assert_eq!(crate::app::hold(&overlay.inner).grass, Some(Span(0.25, 0.75)));
+        }
     }
 }

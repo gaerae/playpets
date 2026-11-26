@@ -347,3 +347,8 @@ export const sections = {
     done: '作業が終わりました',
   },
 };
+// The card a link to this page shows (scripts/make-og.mjs): a line, then the one in bold.
+export const card = {
+  title: 'デスクトップに住む友だちが、<b>一日じゅうそばにいます</b>',
+  sub: 'デイジー、クローバー、ピップ、ミソが絵のような庭で遊び、デスクトップに出てきて作業のそばにいてくれます。自分のペットも招待でき、話したいときはAIをつなげます。',
+};
