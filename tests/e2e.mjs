@@ -822,10 +822,12 @@ const scenario = `(async()=>{
     document.querySelector('[data-game=tag]').click();await wait(400);
     const tagger=document.querySelectorAll('.yard-pet.tagger').length;
     const gameState=await import('./core/state.js'),gamePlay=await import('./yard/play.js');
+    // Pressing whoever is it holds it still; pressing a runner only shakes it. Who is it is read,
+    // pressed and checked with no wait in between: on a slow runner the friends were already running
+    // and it could pass to someone during a wait, so the press landed on the wrong one.
     const previousIt=gameState.game.it,catcher=gameState.views.get(previousIt),caught=[...gameState.views.values()].find(v=>v.pet.id!==previousIt);
-    // Pressing whoever is it holds it still; pressing a runner only shakes it.
-    press(caught.button);await wait(80);const runnerShook=caught.button.classList.contains('missed')&&!caught.frozen;
-    press(catcher.button);await wait(80);const tagHeld=catcher.frozen&&catcher.frozenUntil>performance.now();
+    press(caught.button);const runnerShook=caught.button.classList.contains('missed')&&!caught.frozen;
+    press(catcher.button);const tagHeld=catcher.frozen&&catcher.frozenUntil>performance.now();
     await L('tagHold='+(runnerShook&&tagHeld?'it-held-runner-shook':'err:'+runnerShook+':'+tagHeld));
     caught.px=catcher.px;caught.py=catcher.py;gamePlay.judge(Math.max(performance.now(),gameState.game.safeUntil,catcher.frozenUntil)+1);
     const transferred=gameState.game.it===caught.pet.id&&caught.frozen&&caught.button.classList.contains('tagger');
