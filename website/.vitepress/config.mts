@@ -75,7 +75,9 @@ export default defineConfig({
     ['link', { rel: 'shortcut icon', type: 'image/x-icon', href: `${base}favicon.ico?v=${iconRevision}` }],
     ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: `${base}favicon.png?v=${iconRevision}` }],
     ['link', { rel: 'icon', type: 'image/png', sizes: '96x96', href: `${base}icon.png?v=${iconRevision}` }],
-    ['meta', { name: 'theme-color', content: '#244d43' }],
+    // The site's cream paper by day and its warm night by dark, so the browser's bar matches the page.
+    ['meta', { name: 'theme-color', media: '(prefers-color-scheme: light)', content: '#fdf8ec' }],
+    ['meta', { name: 'theme-color', media: '(prefers-color-scheme: dark)', content: '#211a14' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'PlayPets' }],
     ['meta', { property: 'og:image:width', content: '1200' }],
@@ -103,7 +105,7 @@ export default defineConfig({
       label: 'English',
       lang: 'en-US',
       description:
-        'Free, open-source desktop pet app, a cozy Desktop Companion and Idler to leave running: four friends come with it, any Codex pet can join, and up to 12 chat with each other and react to Claude Code, Codex and other coding agents.',
+        'Free, open-source desktop pet app where little friends live on your desktop and keep you company all day, a cozy Desktop Companion and Idler to leave running: four friends come with it, any Codex pet can join, and up to 12 chat with each other and react to Claude Code, Codex and other coding agents.',
       themeConfig: {
         nav: [
           { text: 'Home', link: '/', activeMatch: '^/$' },
@@ -149,7 +151,7 @@ export default defineConfig({
       lang: 'ko-KR',
       link: '/ko/',
       description:
-        '플레이펫츠(PlayPets)는 펫 친구들이 바탕화면에 사는 무료 데스크톱 펫 앱이에요. 켜 두고 지내는 데스크톱 컴패니언이자 아이들러이고, 기본 친구 넷이 함께 와요. Codex 펫도 데려올 수 있고, 12명까지 서로 이야기하며 Claude Code, Codex 같은 코딩 에이전트에 반응해요.',
+        '플레이펫츠(PlayPets)는 펫 친구들이 바탕화면에 살며 하루 종일 곁에 있어 주는 무료 데스크톱 펫 앱이에요. 켜 두고 지내는 데스크톱 컴패니언이자 아이들러이고, 기본 친구 넷이 함께 와요. Codex 펫도 데려올 수 있고, 12명까지 서로 이야기하며 Claude Code, Codex 같은 코딩 에이전트에 반응해요.',
       themeConfig: {
         nav: [
           { text: '홈', link: '/ko/', activeMatch: '^/ko/$' },
@@ -204,7 +206,7 @@ export default defineConfig({
       lang: 'ja-JP',
       link: '/ja/',
       description:
-        'プレイペッツ（PlayPets）は、ペットの友だちがデスクトップで暮らす無料アプリ。つけたままにしておくデスクトップコンパニオンで、放置で楽しめます。はじめから4人いて、Codexのペットも迎えられます。12人まで一緒に遊び、友だち同士で話し、Claude CodeやCodexなどのコーディングエージェントに反応します。',
+        'プレイペッツ（PlayPets）は、ペットの友だちがデスクトップで暮らし、一日じゅうそばにいてくれる無料アプリ。つけたままにしておくデスクトップコンパニオンで、放置で楽しめます。はじめから4人いて、Codexのペットも迎えられます。12人まで一緒に遊び、友だち同士で話し、Claude CodeやCodexなどのコーディングエージェントに反応します。',
       themeConfig: {
         nav: [
           { text: 'ホーム', link: '/ja/', activeMatch: '^/ja/$' },
@@ -262,7 +264,7 @@ export default defineConfig({
       lang: 'zh-Hans',
       link: '/zh-hans/',
       description:
-        '宠物伙伴住在桌面上的免费桌面宠物（桌宠）应用，一款开着就好的桌面伴侣、挂机游戏：自带四位伙伴，Codex 宠物也能加入；最多 12 位一起玩、互相聊天，还会对 Claude Code、Codex 等编码代理做出反应。',
+        '宠物伙伴住在桌面上、整天陪着你的免费桌面宠物（桌宠）应用，一款开着就好的桌面伴侣、挂机游戏：自带四位伙伴，Codex 宠物也能加入；最多 12 位一起玩、互相聊天，还会对 Claude Code、Codex 等编码代理做出反应。',
       themeConfig: {
         nav: [
           { text: '首页', link: '/zh-hans/', activeMatch: '^/zh-hans/$' },

@@ -3,6 +3,8 @@ import { withBase } from 'vitepress';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { LANDING_PETS, PREVIEW_PLACES } from '../../../scripts/site-content.mjs';
 import { lookFrame } from '../../../src/core/animation.js';
+import grass from '../../../src/art/ambient/desktop-grass.webp';
+import grassWinter from '../../../src/art/ambient/desktop-grass-winter.webp';
 import { whenDecoded } from './site-runtime.mjs';
 import { sceneryUrl } from './scenery';
 import { sheetFor } from './sprite-sheet';
@@ -10,7 +12,6 @@ import VisibleSprite from './VisibleSprite.vue';
 
 const props = defineProps<{
   words: {
-    worldsTitle: string;
     worldsLead: string;
     viewLabel: string;
     views: string[];
@@ -177,7 +178,7 @@ onBeforeUnmount(() => {
 <template>
   <div class="world-preview">
     <div class="world-picker">
-      <div><h2>{{ words.worldsTitle }}</h2><p>{{ words.worldsLead }}</p></div>
+      <p class="world-hint">{{ words.worldsLead }}</p>
       <!-- The site's own controls stay outside the pretend screen. -->
       <div class="world-controls">
         <div class="choice-group view-choices" role="group" :aria-label="words.viewLabel"><button v-for="(name, index) in words.views" :key="name" type="button" :aria-pressed="view === index" @click="view = index">{{ name }}</button></div>
@@ -196,6 +197,8 @@ onBeforeUnmount(() => {
       <div class="living-friends">
         <button v-for="(pet, index) in LANDING_PETS" :key="pet.id" :ref="element => { friendElements[index] = element as HTMLElement }" type="button" class="living-friend" :class="[`friend-${index}`, { 'friend-selected': selected === pet.id }]" :style="{ left: `${spots[index]}%`, transitionDuration: `${strides[index]}s` }" :aria-label="`${pet.displayName}, ${words.greet}`" :aria-pressed="selected === pet.id" @click="greet(pet.id)"><span v-if="greeted === pet.id" class="living-bubble" aria-hidden="true">{{ words.greetings[pet.id] }}</span><VisibleSprite equal-height :pet="pet.id" :season="['spring', 'summer', 'autumn', 'winter'][season]" :state="poseOf(pet.id).state" :frame="poseOf(pet.id).frame" :scale="0.46" /><span class="living-name">{{ pet.displayName }}</span></button>
       </div>
+      <!-- On the desktop the friends walk the app's own strip of grass along the bottom of the screen. -->
+      <div class="world-grass" aria-hidden="true" :style="{ '--grass': `url(${season === 3 ? grassWinter : grass})` }" />
       <div class="desk-bar" aria-hidden="true"><i /><img :src="withBase('/icon.png')" alt="" width="24" height="24" /><i /><i /></div>
     </div>
     <!-- One dock under the scene: the first row picks the world, the second plays with a friend. -->

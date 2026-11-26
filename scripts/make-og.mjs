@@ -15,15 +15,15 @@ const address = folder => `${homepage.replace(/^https?:\/\//, '')}${folder}`.rep
 
 const page = ({ width, height, title, sub, url, scale }) => `<!doctype html><meta charset="utf-8"><style>
   html,body{margin:0;width:${width}px;height:${height}px;overflow:hidden;font-family:'Pretendard Variable',Pretendard,-apple-system,system-ui,sans-serif}
-  .card{position:relative;width:100%;height:100%;background:#d9eaf3;color:#244d43}
+  .card{position:relative;width:100%;height:100%;background:#fdf8ec;color:#4a3523}
   .environment{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center bottom}
-  .text{position:absolute;left:${40 * scale}px;top:${44 * scale}px;max-width:${470 * scale}px;padding:${24 * scale}px;border-radius:${24 * scale}px;background:#fbfcf5f5;box-shadow:0 18px 50px #244d4312}
-  .eyebrow{font:600 ${15 * scale}px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.04em;color:#42675b;margin:0 0 ${18 * scale}px}
+  .text{position:absolute;left:${40 * scale}px;top:${44 * scale}px;max-width:${470 * scale}px;padding:${24 * scale}px;border-radius:${24 * scale}px;background:#fffaf0f2;border:${4 * scale}px solid #d6a476;box-shadow:0 18px 50px #4a352322}
+  .eyebrow{font:600 ${15 * scale}px/1 'JetBrains Mono',ui-monospace,monospace;letter-spacing:.04em;color:#8a5a38;margin:0 0 ${18 * scale}px}
   h1{font-size:${50 * scale}px;line-height:1.08;letter-spacing:-.03em;font-weight:800;margin:0 0 ${18 * scale}px;word-break:keep-all}
-  h1 b{color:#244d43;font-weight:800;display:block}
-  p{font-size:${19 * scale}px;line-height:1.5;margin:0;color:#42675b;word-break:keep-all}
-  .url{position:absolute;left:${64 * scale}px;bottom:${40 * scale}px;font:600 ${16 * scale}px 'JetBrains Mono',ui-monospace,monospace;color:#42675b;display:flex;align-items:center;gap:${10 * scale}px;background:#fbfcf5f5;padding:${10 * scale}px ${14 * scale}px;border-radius:${12 * scale}px}
-  .url i{display:inline-block;width:${22 * scale}px;height:${22 * scale}px;border-radius:50%;background:#879d78}
+  h1 b{color:#a8432b;font-weight:800;display:block}
+  p{font-size:${19 * scale}px;line-height:1.5;margin:0;color:#5c4330;word-break:keep-all}
+  .url{position:absolute;left:${64 * scale}px;bottom:${40 * scale}px;font:600 ${16 * scale}px 'JetBrains Mono',ui-monospace,monospace;color:#8a5a38;display:flex;align-items:center;gap:${10 * scale}px;background:#fffaf0f2;padding:${10 * scale}px ${14 * scale}px;border-radius:${12 * scale}px}
+  .url i{display:inline-block;width:${22 * scale}px;height:${22 * scale}px;border-radius:50%;background:#c45237}
   .pets{position:absolute;right:${56 * scale}px;bottom:${54 * scale}px;display:flex;align-items:flex-end;gap:${6 * scale}px}
 </style><div class="card">
   <img class="environment" src="${environment}" alt="">
@@ -54,32 +54,32 @@ try {
     console.log(`Wrote ${file}`);
   };
   const english = {
-    title: 'A little world<b>beside your work</b>',
-    sub: 'Meet Daisy, Clover, Pip and Miso. Find your favorite place, enjoy the seasons, and bring your own pets. Connect an AI when you want to talk.',
+    title: 'Little friends on your desktop,<b>keeping you company all day</b>',
+    sub: 'Daisy, Clover, Pip and Miso play in a painted yard, step out onto your desktop and stay beside you while you work. Bring your own pets, and connect an AI when you want to talk.',
     url: address(''),
   };
   await render('website/public/og.png', { width: 1200, height: 630, ...english, scale: 1 });
   await render('website/public/og-ko.png', {
     width: 1200,
     height: 630,
-    title: '책상 위에 펼쳐지는<b>친구들의 작은 세계</b>',
-    sub: '데이지, 클로버, 핍, 미소와 좋아하는 풍경에서 계절을 즐겨요. 내 펫도 데려오고, 이야기하고 싶을 때 AI를 연결해요.',
+    title: '바탕화면에 사는 친구들이<b>하루 종일 곁에 있어요</b>',
+    sub: '데이지, 클로버, 핍, 미소가 그림 같은 놀이터에서 놀다가 바탕화면으로 나와 내 작업 곁을 지켜요. 내 펫도 데려오고, 이야기하고 싶을 때 AI를 연결해요.',
     url: address('ko/'),
     scale: 1,
   });
   await render('website/public/og-ja.png', {
     width: 1200,
     height: 630,
-    title: 'デスクトップに広がる<b>友だちの小さな世界</b>',
-    sub: 'デイジー、クローバー、ピップ、ミソと好きな場所で季節を楽しみましょう。自分のペットも招待でき、話したいときはAIをつなげます。',
+    title: 'デスクトップに住む友だちが、<b>一日じゅうそばにいます</b>',
+    sub: 'デイジー、クローバー、ピップ、ミソが絵のような庭で遊び、デスクトップに出てきて作業のそばにいてくれます。自分のペットも招待でき、話したいときはAIをつなげます。',
     url: address('ja/'),
     scale: 1,
   });
   await render('website/public/og-zh-hans.png', {
     width: 1200,
     height: 630,
-    title: '桌面上的<b>伙伴小世界</b>',
-    sub: '和黛西、三叶草、皮普、米索在喜欢的风景里享受四季。也能带来自己的宠物，想聊天时再连接 AI。',
+    title: '住在桌面上的伙伴，<b>整天陪着你</b>',
+    sub: '黛西、三叶草、皮普和米索在画一般的乐园里玩耍，还会走到桌面上，在你工作时陪在身边。也能带来自己的宠物，想聊天时再连接 AI。',
     url: address('zh-hans/'),
     scale: 1,
   });

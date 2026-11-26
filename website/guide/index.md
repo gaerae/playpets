@@ -1,6 +1,8 @@
 # Guide
 
-PlayPets is a shared yard for companions who talk to you and to each other. Invite a starter or import a compatible community pet file, then give it a name, a personality and a relationship. You don't need Codex itself.
+PlayPets is a painted yard where friends live, talk to you and to each other, and step out onto your desktop to play. Leave it running while you work: a friend also reacts while your coding agent works.
+
+Invite a starter friend or import a community pet file, then give it a name, a personality and a relationship. You don't need Codex itself.
 
 ## What you can do
 
@@ -8,7 +10,7 @@ PlayPets is a shared yard for companions who talk to you and to each other. Invi
 |---|---|---|
 | Invite friends | Four starter friends come with the app, any Codex pet can join, up to 12 at once | [Your first friend](./first-friend.md) |
 | Chat | A friend needs a local model, a signed-in CLI or another AI connection | [Talking with friends](./chat.md) |
-| Play in the yard | The first yard opens on a sunny spring day. Pick the season, time and weather, or leave them on Auto. Friends stroll, eat treats and play four games (one only in winter) | [The yard and games](./play.md) |
+| Play in the yard | The first yard opens on a sunny spring day. Pick the place, season, time and weather, or leave them on Auto. Friends stroll, rest, have picnics and play four games (one only in winter) | [The yard and games](./play.md) |
 | Grow and collect | Digging turns up flower seeds and saplings. Grow flowers, fish and catch bugs to fill the album | [The yard and games](./play.md) |
 | Gifts and closeness | Friends you play with bring gifts: one every other day for the whole yard, and another each time a friend grows closer | [Gifts](./play.md#gifts) |
 | Keep it beside your work | Resize the window, or switch to desktop mode and let friends roam over your other windows | [Desktop mode](./desktop.md) |
@@ -36,8 +38,8 @@ PlayPets is built with Tauri, so it uses your operating system's webview instead
 
 1. Install PlayPets ([Install](./install.md)) and open it. The yard asks **Who would you like to play with?**
 2. Click one of the four friends. It comes into the yard and waves. Click it again to pat it: it jumps and shows a heart.
-3. Connect an AI. If Claude Code or Codex CLI is on this computer, press **Connect now** on the **Next up** card. Otherwise follow [Making a connection](./chat.md#making-a-connection). Then click the friend's name tag and say hello: the answer shows in the chat and as a speech bubble in the yard.
-4. Optional: open **Friends & settings → Settings → Coding tools**, press **Connect** next to the tool you use and confirm. Start a new session in the agent. While it works, the dot on your friend's name tag, beside its name, pulses orange ([Coding agent hooks](./agents.md)).
+3. Connect an AI. If Claude Code or Codex CLI is on this computer, press **Connect now** on the **Next up** card. Otherwise follow [Making a connection](./chat.md#making-a-connection). Then point at the friend, click the name tag under it and say hello: the answer shows in the chat and as a speech bubble in the yard.
+4. Optional: open **Friends & settings → Settings → Coding tools**, press **Connect** next to the tool you use and confirm. Start a new session in the agent. While it works, your friend gets busy, and when you point at it the dot on its name tag, beside its name, pulses orange ([Coding agent hooks](./agents.md)).
 
 Something not working? See [the table in the FAQ](./faq.md#troubleshooting).
 

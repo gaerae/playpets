@@ -147,3 +147,27 @@ onBeforeUnmount(() => {
     <p v-if="!compact" class="dl-free">{{ words.free }}</p>
   </div>
 </template>
+<style scoped>
+/* On a guide or release page the buttons sit on a framed card of the app's paper, so the way to get
+   PlayPets stands apart from the instructions around it. The landing draws its own section. */
+.VPDoc .downloads {
+  display: grid;
+  gap: 12px;
+  max-width: 680px;
+  padding: 20px 22px;
+  border: var(--pp-frame-border, 1px solid var(--vp-c-divider));
+  border-radius: 16px;
+  background: var(--pp-frame, var(--vp-c-bg-soft));
+  box-shadow: var(--pp-frame-shadow, none);
+}
+.VPDoc .downloads .dl-free {
+  padding-top: 10px;
+  border-top: 1px dashed var(--pp-line, var(--vp-c-divider));
+}
+@media (max-width: 640px) {
+  .VPDoc .downloads {
+    padding: 16px;
+    border-radius: 12px;
+  }
+}
+</style>

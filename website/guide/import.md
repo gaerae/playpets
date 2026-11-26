@@ -10,9 +10,9 @@ The starter pets and the pets in Codex's pet folder (`~/.codex/pets`) show up in
 | From | Use | Kept in |
 |---|---|---|
 | An **Open in PlayPets** link on a gallery | Click it and say yes | `pets/` in the data folder |
-| A pet page address or a GitHub pet folder | **Import a pet → Pet page address → Import** | `pets/` in the data folder |
-| A folder on this computer | **Import from a folder on this computer** | Where it is; not copied |
-| A ZIP file on this computer | **Import from a ZIP file on this computer** | `pets/` in the data folder |
+| A pet page address or a GitHub pet folder | **Import → Pet page address → Import** | `pets/` in the data folder |
+| A folder on this computer | **Import → From a folder** | Where it is; not copied |
+| A ZIP file on this computer | **Import → From a ZIP file** | `pets/` in the data folder |
 :::
 
 ## One-click import from a link <Since v="0.1.0" />
@@ -29,13 +29,13 @@ playpets://import?url=https%3A%2F%2Fpetdex.dev%2Fpets%2Fboba
 
 ## The Import a pet window <Since v="0.1.0" />
 
-Click **Import a pet** at the top of **Invite a friend**. There are three ways to bring a pet in:
+Click **Import** at the top of **Invite a friend**. The **Import a pet** window has three ways to bring a pet in:
 
 | Way | How |
 |---|---|
 | From an address | Paste the address of a pet page on a community site, or of a GitHub pet folder, into **Pet page address** and click **Import** |
-| From a folder on this computer | Click **Import from a folder on this computer** and pick a pet folder |
-| From a ZIP file on this computer | Click **Import from a ZIP file on this computer** and pick a pet ZIP, such as one from the creator kit |
+| From a folder on this computer | Click **From a folder** and pick a pet folder |
+| From a ZIP file on this computer | Click **From a ZIP file** and pick a pet ZIP, such as one from the creator kit |
 
 - When the import finishes, the pet joins the yard as a friend right away, with the notice "Imported a new pet and invited it into the yard."
 - Address imports fetch files over https only, and only from the pasted address's site (and its subdomains).
@@ -45,7 +45,7 @@ Click **Import a pet** at the top of **Invite a friend**. There are three ways t
 
 ## Supported sites <Since v="0.1.0" />
 
-1. Expand **Find more pets**. It starts collapsed so the address field and import buttons stay easy to find; inside are compact site rows with import guidance.
+1. Expand **Find more pets**, under the import buttons. It starts folded and lists the sites.
 2. Click a site to open it in your browser.
 3. Copy a pet page address into the field above.
 
@@ -57,14 +57,14 @@ Click **Import a pet** at the top of **Invite a friend**. There are three ways t
 | Codex Pets | codex-pets.net |
 
 - The sites above have dedicated import support.
-- Places without a chip work too: a pet folder on GitHub (a folder containing `pet.json`) and pet page addresses on sites built with codex-pet-share.
+- Places not on the list work too: a pet folder on GitHub (a folder containing `pet.json`) and pet page addresses on sites built with codex-pet-share.
 - An entry marked **(browse only)** has no dedicated importer. You can still open it in your browser, and a compatible generic pet page may import when you paste its address. Listing a new site doesn't add import support by itself.
 
 These are community links, and listing a site doesn't mean a partnership. The pets on them are made and shared by other people, not by PlayPets; to report one, use the site it came from.
 
 ## A folder on your computer <Since v="0.1.0" />
 
-A folder you pick with **Import from a folder on this computer** isn't copied into app storage. The app reads the pet right where it is, so it shows up in Invite a friend under **Pets picked from this computer**, with the folder name.
+A folder you pick with **From a folder** isn't copied into app storage. The app reads the pet right where it is, so it shows up in Invite a friend under **Pets picked from this computer**, with the folder name.
 
 - Keep a folder you pick in a permanent location.
 - A ZIP from the creator kit doesn't need extracting: import it as a [ZIP file](#zip-file) instead.
@@ -77,7 +77,7 @@ It isn't removed, though. It waits with its closeness kept, and a notice tells y
 
 ## A ZIP file <Since v="1.4.0" /> {#zip-file}
 
-A ZIP you pick with **Import from a ZIP file on this computer** is copied into the app, so you can move or delete the ZIP afterwards. It shows up in Invite a friend under **Pets imported from an address or ZIP**.
+A ZIP you pick with **From a ZIP file** is copied into the app, so you can move or delete the ZIP afterwards. It shows up in Invite a friend under **Pets imported from an address or ZIP**.
 
 - A ZIP from the creator kit or a friend's `playpets-<name>.zip` from the home page works, and so does a pet folder you compressed yourself.
 - `pet.json` sits at the top of the ZIP or inside its one folder.
@@ -90,7 +90,8 @@ A pet imported from an address or a ZIP is saved as one folder in `pets/` in the
 | Group in Invite a friend | Its folder |
 |---|---|
 | **Pets imported from an address or ZIP** | **Open folder** opens it right away |
-| **PlayPets starter pets**, **Codex pet folder** | **Open folder** too |
+| **Codex pet folder** | **Open folder** too |
+| **PlayPets starter pets** | No button; they ship inside the app |
 | **Pets picked from this computer** | No button; each card shows its folder name |
 
 An imported pet's `pet.json` records where it came from, and its card shows the site, creator and license on one line, like "Petdex, creator, CC BY-NC 4.0". Community pets are their creators' work, so check the license before you use one.
@@ -130,5 +131,6 @@ A pet is one folder with a `pet.json` and one sprite sheet (PNG or WebP). It use
 | v2 | 11 rows (2288px): two more rows of 16-direction gaze, so the pet follows the mouse with its eyes on the desktop |
 
 - `description` becomes a new friend's first personality.
+- Optional game poses for digging, planting, showing a find and fishing come in a file of their own. Without it, the pet plays its usual rows: [Game poses](/dev/standards/pet-files#game-poses) in the developer docs.
 - Each row's animation and the validation rules: [Pet file format](/dev/standards/pet-files) in the developer docs.
-- When your folder is ready, invite it right away with **Import from a folder on this computer**.
+- When your folder is ready, invite it right away with **Import → From a folder**.

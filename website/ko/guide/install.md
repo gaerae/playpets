@@ -4,7 +4,7 @@ description: Microsoft Store, winget, Homebrew, 운영체제에 맞는 파일로
 
 # 설치하기
 
-아래 버튼은 지금 쓰는 운영체제에 맞는 설치 방법을 보여 줘요. 다른 파일은 그 아래 목록에 있어요.
+PlayPets는 무료예요. 아래 버튼이 지금 쓰는 운영체제를 알아보고 맞는 설치 방법을 보여 줘요. 다른 파일과 설치 방법은 그 아래 목록에 있어요.
 
 <Downloads />
 
@@ -14,11 +14,24 @@ description: Microsoft Store, winget, Homebrew, 운영체제에 맞는 파일로
 | Windows에 설치 | [Microsoft Store](#microsoft-store)(추천, Microsoft 서명), [winget](#winget), [GitHub 설치 파일](#installer-from-github) |
 | macOS에 설치 | [Homebrew](#homebrew), [GitHub dmg](#dmg-from-github) |
 | Linux에 설치 | [AppImage 또는 deb](#linux) |
+| 내 컴퓨터에서 돌아가는지 확인 | [필요한 환경](#requirements) |
 | 처음 실행할 때 뜨는 경고 넘기기 | [Windows SmartScreen](#installer-from-github), [macOS 1.2.0 이하](#dmg-from-github), [Linux FUSE](#linux) |
 | 업데이트 | [업데이트](#updates) |
 | PlayPets 지우기 | [제거](#uninstall) |
 | 친구와 설정이 저장된 곳 찾기 | [데이터 폴더](#data-folder) |
 :::
+
+## 필요한 환경 {#requirements}
+
+| 운영체제 | 돌아가는 환경 |
+|---|---|
+| macOS | Apple Silicon과 Intel Mac 모두에서 도는 앱 하나 |
+| Windows | Windows 10, 11의 일반 PC(x64)와 ARM PC. Microsoft Store 패키지는 Windows 10 버전 2004 이상이 필요해요 |
+| Linux | x64, arm64. Ubuntu 22.04와 같거나 더 새로운 배포판. AppImage는 FUSE 2가 필요해요 |
+
+- AI 연결은 없어도 돼요. 친구들은 AI 없이도 놀고, 정원을 가꾸고, 낚시하고, 바탕화면에 나와요.
+- 대화하려면 하나를 연결해요. 이 컴퓨터에 로그인한 Claude Code나 Codex CLI, Ollama, API 키 가운데 하나면 돼요([연결 만들기](./chat.md#connect)).
+- 운영체제에 들어 있는 웹 화면을 그대로 써서 내려받는 파일이 작아요.
 
 ## Windows <Since v="0.1.0" /> {#windows}
 
@@ -143,7 +156,7 @@ chmod +x PlayPets_*.AppImage
 
 | 설치한 곳 | 업데이트를 설치하는 쪽 |
 |---|---|
-| Microsoft Store, winget | Store가 해요. 새 버전이 나오면 놀이터와 설정에서 알려 주고, **Microsoft Store에서 받기**를 누르면 Store의 PlayPets 페이지가 열려요. 테스트용 MSIX도 패키지로 업데이트해요 |
+| Microsoft Store, winget | Store가 해요. 새 버전이 나오면 놀이터와 설정에서 알려 주고, **Microsoft Store로 업데이트**를 누르면 진행 상황을 보여 주며 설치하고, PlayPets가 잠깐 닫혔다가 다시 열려요. 테스트용 MSIX도 패키지로 업데이트해요 |
 | 그 밖의 설치본 | 내가 고를 때만 PlayPets가 직접 해요(아래) |
 
 - 업데이트한 뒤 처음 켜면 몇 버전이 됐는지 알려 줘요.

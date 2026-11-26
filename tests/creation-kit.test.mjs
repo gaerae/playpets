@@ -277,3 +277,18 @@ test('a made friend digs, plants, shows a find and fishes: the request, the skil
   const poses = { en: /dig.*fish/i, ko: /땅 파기.*낚시/, ja: /穴掘り.*釣り/, 'zh-hans': /挖土.*钓鱼/ };
   for (const [lang, pattern] of Object.entries(poses)) assert.match(creationCopy[lang].petOutput, pattern, lang);
 });
+
+test('a made friend can walk toward and away and run: the request and the studio ask for the walks', async () => {
+  const { creationCopy } = await import('../website/.vitepress/theme/creation-copy.js');
+  for (const seasonal of [false, true]) {
+    const request = creationRequest(kitRequest({ kind: 'pet', starter: 'daisy', seasonal }));
+    for (const pattern of [
+      /walk-front\.png, walk-back\.png, run-right\.png and run-left\.png/,
+      /render-gait-guide/,
+      /walking right shows the character's right side/i,
+    ])
+      assert.match(request, pattern);
+  }
+  const walks = { en: /walk.*toward.*run/i, ko: /걸어.*달려/, ja: /歩.*走/, 'zh-hans': /走.*跑/ };
+  for (const [lang, pattern] of Object.entries(walks)) assert.match(creationCopy[lang].petOutput, pattern, lang);
+});

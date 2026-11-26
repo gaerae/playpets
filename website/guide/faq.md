@@ -62,7 +62,7 @@ Something else? Tell us in an [issue](https://github.com/gaerae/playpets/issues)
 ## Can I make my own pet?
 
 - Yes. One folder with a `pet.json` and a sprite sheet is a pet, in the same format as Codex pets.
-- Invite it right away with **Import from a folder on this computer** in **Import a pet**.
+- Invite it right away with **From a folder** in the **Import a pet** window (**Invite a friend → Import**).
 - To have an AI tool draw one with you, use the [Character studio](./creator-kit.md).
 - Full rules: [Import a pet](./import.md#make-your-own) and [Pet file format](/dev/standards/pet-files) in the developer docs.
 

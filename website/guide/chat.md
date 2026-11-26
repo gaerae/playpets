@@ -9,7 +9,7 @@ Friends play without an AI; to chat, they need one connected. Until then, the ch
 ::: tip At a glance
 | To | Do this | More |
 |---|---|---|
-| Start chatting | **Connect an AI** in the chat, or **Connect now** on the yard's starting card | [Making a connection](#making-a-connection) |
+| Start chatting | **Connect an AI** in the chat, or **Connect now** on the **Next up** card | [Making a connection](#making-a-connection) |
 | Chat offline, with no hosted fees | Pick a downloaded local Ollama model | [Kinds of AI connections](#kinds-of-ai-connections) |
 | Change how a friend talks | Write its personality, or tell it in the chat | [Setting a personality](#personality) |
 | Choose who a friend is to you | The relationship chip beside its name | [Setting a relationship](#setting-a-relationship) |
@@ -17,7 +17,7 @@ Friends play without an AI; to chat, they need one connected. Until then, the ch
 | Hear about a coding agent's work | Ask "what were you doing?" | ["What were you doing?"](#agent-work) |
 :::
 
-<Shot name="friend-chat" caption="Chat with a friend (click its name tag). The AI and the friends who join in are at the bottom of the message box." />
+<Shot name="friend-chat" caption="Chat with a friend (point at it and click its name tag). The friends who join in are at the bottom of the message box." />
 
 ## Kinds of AI connections <Since v="0.1.0" />
 
@@ -30,7 +30,7 @@ Friends play without an AI; to chat, they need one connected. Until then, the ch
 | Grok API | Connects to Grok with an xAI API key | Conversations are sent to xAI, and API fees may apply |
 | OpenAI-compatible server | You enter the server address yourself, and an API key if the server asks for one | Conversations are sent to that server, and fees may apply |
 
-- The connection window shows each kind as a card that says what it needs.
+- The **Connect an AI** window shows each kind as a card that says what it needs.
 - Claude Code, Codex CLI or Ollama found on this computer: its card is marked **Installed** and already picked. None found: nothing is picked, and the fields appear once you choose a card.
 - API keys stay only in this computer's secure storage (macOS Keychain, Windows Credential Manager, Linux Secret Service), never in the settings file.
 - Subscription sign-in has no separate API bill for CLI chat. It uses the same allowance as your other CLI work, plan limits apply, and optional purchased credits can cost extra.
@@ -38,7 +38,7 @@ Friends play without an AI; to chat, they need one connected. Until then, the ch
 
 ## Making a connection <Since v="0.1.0" />
 
-1. Open the **Friend** panel (**Friends & settings → Friends**) and pick the friend. With several friends, the name turns into a list.
+1. Point at the friend in the yard and click its name tag, or open **Friends & settings → Friends** and pick the friend. With several friends, the name turns into a list.
 2. Click **Connect an AI** in the chat, or choose **＋ Connect a new AI…** from the AI list at the bottom left of the message box.
 3. Pick a card under **Kind of AI**. Depending on the kind, enter the server address or API key.
 4. Pick or type the **Model name**.
@@ -53,7 +53,7 @@ Friends play without an AI; to chat, they need one connected. Until then, the ch
 | **Connect now** | Claude Code or Codex CLI is on this computer the first time you start PlayPets | The yard's starting card names it. One press attaches it to every friend, with no key. With two or more friends, they start talking among themselves right after |
 | **Sign in with browser** | Claude Code or Codex CLI is installed but not signed in | A **Sign in to Claude Code** card shows above the message box. Finish signing in on the page that opens and PlayPets connects by itself. If Claude's page shows a code, paste it into the card. No terminal needed; the message box opens once you're signed in |
 
-A connection isn't tied to one friend. Other friends can use one you made, or each can pick its own from its AI list.
+A connection isn't tied to one friend. A friend without an AI picks one you already made from its AI list. Once it has one, the list hides.
 
 | To edit or delete a connection | What it does |
 |---|---|
@@ -67,6 +67,7 @@ A connection isn't tied to one friend. Other friends can use one you made, or ea
 - Type in the field at the bottom and press Enter. Shift+Enter makes a new line.
 - Before your first talk with a friend that has an AI, it offers a few first lines, such as "What did you do today?". Pick one to send it in one click.
 - Each of the friend's turns opens with its picture, as in a messenger. While you wait, a "Thinking" bubble shows, and the ■ button stops it.
+- The keyboard hint under the message box shows until your first message.
 - The answer also floats as a speech bubble above the friend in the yard.
 - **Clear chat** in the **⋯** menu by the friend's name deletes the whole conversation with this friend. Name and personality stay.
 - Chat history lives only in memory: it's gone when you quit the app and is never saved to a file.
@@ -79,13 +80,13 @@ A personality is the tone and attitude your friend answers with.
 | Way | How |
 |---|---|
 | **Write it in Friend settings** | Something like "Acts tough but melts at a compliment. Keeps answers short." is enough. Applies from the next chat once saved |
-| **Say it in the chat** | Say something like "be more casual from now on". Your friend saves it as the personality, a "Saved your friend's personality" notice appears, and it shows in Friend settings |
+| **Say it in the chat** | Say something like "be more casual from now on". Your friend saves it as the personality, a notice such as "Saved Clover’s personality" appears, and it shows in Friend settings |
 
 ## Setting a relationship <Since v="0.1.0" />
 
 **Relationship** in Friend settings is what this friend is to you: Friend (the default), Partner, Dependable mentor or Playful younger sibling. Each card says the voice it brings.
 
-- To change it in one click, press the relationship chip beside the friend's name in the Friend panel. The same cards open.
+- To change it in one click, press the relationship chip under the friend's name in the **Friends** panel. The same cards open.
 - It shapes how your friend talks to you, what it calls you and how it asks about your day. Friends chatting together know each other's relationship.
 - A partner, a mentor and a younger sibling have voices of their own even without an AI: when they welcome you back, grow closer or tell you what you mean to them.
 - Write "honey" or your name in **What it calls you**, and your friend calls you that. The example in the box changes with the relationship.
@@ -95,14 +96,13 @@ A personality is the tone and attitude your friend answers with.
 
 Once two or more friends have an AI, **Bring friends in** appears at the bottom of the message box.
 
-1. Click it, then click the friends to chat with. Up to 3.
+1. Click it, then click the friends to chat with. Up to 3. A chosen friend's pill fills in.
 2. Send a message. The current friend answers first, then the picked friends one after another, each with its own AI and personality.
 3. To let them carry on without a new message, press **Let them chat** in **Play → Group games**. Friends with an AI talk for a round about the time and the weather, as speech bubbles in the yard.
 
-- The small chip under a friend's name shows which coding agents report to it (Reports from, Claude Code).
 
 ## "What were you doing?" <Since v="0.1.0" /> {#agent-work}
 
-- With [Coding agent hooks](./agents.md) set up, your friend remembers what the agent did recently.
+- With [Coding agent hooks](./agents.md) set up, your friend remembers what the agent did recently. The chip under its name in the **Friends** panel names the agents, such as "Brings news from Claude Code".
 - Ask "what were you doing?" in the chat, and it tells you about that work in its own words.
 - The hooks work separately from the AI connection your friend chats through.

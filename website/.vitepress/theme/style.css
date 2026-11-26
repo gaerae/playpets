@@ -1,35 +1,110 @@
-/* The site's own look on top of VitePress. Colors are the app's: paper, meadow, sky and Clover’s sage hat
-   and ginger fur. Display type is Gowun Dodum (round, friendly, one weight: hierarchy comes from size),
-   body is Pretendard, code is JetBrains Mono. */
+/* The site's own look on top of VitePress: the app's game surfaces (src/styles/base.css, garden.css):
+   cream paper in a honey-wood frame, brown ink, honey for the way in and the yard's terracotta for
+   links. After dark it is the same paper by lamplight. Display type is Gowun Dodum (round, friendly,
+   one weight: hierarchy comes from size), body is Pretendard, code is JetBrains Mono. */
 :root {
   --vp-font-family-base: "Pretendard Variable", Pretendard, -apple-system, system-ui, "Segoe UI", sans-serif;
   --vp-font-family-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
   --pp-display: "Gowun Dodum", var(--vp-font-family-base);
+  /* Clover's fur and stripes, the ear's pink: small marks of the friends themselves */
   --pp-fur: #f1b47b;
   --pp-stripe: #ea8434;
-  --pp-ink: #244d43;
   --pp-ear: #f587a0;
-  --pp-paper: #fbfcf5;
-  --pp-moss: #d9e5cb;
-  --pp-line: #dbe5d8;
-  --pp-shadow: rgba(36, 77, 67, 0.23);
-  --pp-meadow: #bfe0a2;
-  --pp-meadow-deep: #6fae5a;
+  /* the paper, its ink and its lines */
+  --pp-ink: #4a3523;
+  --pp-paper: #fdf8ec;
+  --pp-paper-deep: #f3e6c9;
+  --pp-moss: #eef0dc;
+  --pp-moss-ink: #56662a;
+  --pp-line: #e3cfa6;
+  --pp-shadow: rgba(90, 61, 31, 0.2);
+  /* the yard's own colours, for the painted parts of a page */
+  --pp-meadow: #c9e2a4;
+  --pp-meadow-deep: #5f8f3e;
   --pp-sky: #d7ebf7;
-  --pp-terminal: #1e2227;
-  --vp-c-brand-1: #315d4b;
-  --vp-c-brand-2: #647f65;
-  --vp-c-brand-3: #879d78;
-  --vp-c-brand-soft: rgba(135, 157, 120, 0.18);
-  --vp-button-brand-bg: #4d6655;
-  --vp-button-brand-hover-bg: #3c5543;
-  --vp-button-brand-active-bg: #304735;
-  --vp-c-bg: #fbfcf5;
-  --vp-c-bg-alt: #f3f6ec;
-  --vp-c-bg-soft: #eef3e8;
-  --vp-c-text-1: #263e35;
-  --vp-c-text-2: #52665b;
-  --vp-c-text-3: #6c7c71;
+  --pp-terminal: #2a231c;
+  /* the honey-wood of the app's frames (garden.css --wood) and the honey of its main button */
+  --pp-wood: #b98257;
+  --pp-wood-hi: #d6a476;
+  --pp-wood-lo: #8a5a38;
+  --pp-wood-edge: #8a5c2c;
+  --pp-wood-grain: linear-gradient(175deg, #efc887, #d9a35c 38%, #c48c48 72%, #a97338);
+  --pp-honey: #f4c44f;
+  --pp-honey-deep: #e2a92e;
+  --pp-honey-light: #f7d67e;
+  --pp-on-honey: #3f2b17;
+  --pp-accent: #c45237;
+  --pp-heart: #e0586e;
+  /* A framed surface takes the app's three parts: `border: var(--pp-frame-border)`,
+     `background: var(--pp-frame)` and `box-shadow: var(--pp-frame-shadow)`. */
+  --pp-frame-border: 6px solid transparent;
+  --pp-frame: linear-gradient(var(--pp-paper), var(--pp-paper)) padding-box, var(--pp-wood-grain) border-box;
+  --pp-frame-shadow:
+    0 0 0 1px var(--pp-wood-edge), 0 10px 26px rgba(90, 61, 31, 0.2), inset 0 0 0 1px rgba(154, 106, 52, 0.4),
+    inset 0 1px 0 1px #fff9ec, inset 0 0 22px rgba(234, 212, 166, 0.4);
+  /* VitePress's own surfaces, warm: its greys are the paper's creases */
+  --vp-c-gray-1: #e0cba3;
+  --vp-c-gray-2: #e9d9ba;
+  --vp-c-gray-3: #f1e5cd;
+  --vp-c-gray-soft: rgba(138, 90, 56, 0.12);
+  --vp-c-green-1: #4f6b26;
+  --vp-c-green-2: #5f8f3e;
+  --vp-c-green-3: #78a352;
+  --vp-c-green-soft: rgba(120, 163, 82, 0.16);
+  --vp-c-yellow-1: #855512;
+  --vp-c-yellow-2: #9c6a14;
+  --vp-c-yellow-3: #b98a2a;
+  --vp-c-yellow-soft: rgba(244, 196, 79, 0.2);
+  --vp-c-red-1: #a8432b;
+  --vp-c-red-2: #c45237;
+  --vp-c-red-3: #d4674b;
+  --vp-c-red-soft: rgba(196, 82, 55, 0.14);
+  --vp-c-brand-1: #a8432b;
+  --vp-c-brand-2: #c45237;
+  --vp-c-brand-3: #d6a476;
+  --vp-c-brand-soft: rgba(214, 164, 118, 0.24);
+  --vp-c-tip-1: var(--vp-c-green-1);
+  --vp-c-tip-2: var(--vp-c-green-2);
+  --vp-c-tip-3: var(--vp-c-green-3);
+  --vp-c-tip-soft: var(--vp-c-green-soft);
+  --vp-c-note-1: var(--vp-c-text-2);
+  --vp-c-note-soft: var(--vp-c-gray-soft);
+  --vp-c-important-1: #8a4a6a;
+  --vp-c-important-soft: rgba(224, 88, 110, 0.12);
+  --vp-c-bg: #fdf8ec;
+  --vp-c-bg-alt: #f7eedb;
+  --vp-c-bg-elv: #fffcf4;
+  --vp-c-bg-soft: #f3e6c9;
+  --vp-c-border: #e3cfa6;
+  --vp-c-divider: #ead9b8;
+  --vp-c-gutter: #f0e3c8;
+  --vp-c-text-1: #4a3523;
+  --vp-c-text-2: #6b5038;
+  --vp-c-text-3: #7a5c40;
+  --vp-c-neutral: #4a3523;
+  --vp-c-neutral-inverse: #fdf8ec;
+  --vp-button-brand-border: var(--pp-wood-edge);
+  --vp-button-brand-text: var(--pp-on-honey);
+  --vp-button-brand-bg: var(--pp-honey);
+  --vp-button-brand-hover-border: var(--pp-wood-edge);
+  --vp-button-brand-hover-text: var(--pp-on-honey);
+  --vp-button-brand-hover-bg: var(--pp-honey-light);
+  --vp-button-brand-active-border: var(--pp-wood-edge);
+  --vp-button-brand-active-text: var(--pp-on-honey);
+  --vp-button-brand-active-bg: var(--pp-honey-deep);
+  --vp-code-color: #8a3a24;
+  --vp-code-bg: rgba(214, 164, 118, 0.2);
+  --vp-code-block-bg: #f6ebd3;
+  --vp-code-copy-code-bg: #f3e6c9;
+  --vp-code-tab-bg: #f6ebd3;
+  --vp-code-tab-divider: #e3cfa6;
+  --vp-nav-bg-color: var(--vp-c-bg);
+  --vp-local-nav-bg-color: var(--vp-c-bg);
+  --vp-sidebar-bg-color: var(--vp-c-bg-alt);
+  --vp-input-bg-color: var(--vp-c-bg-elv);
+  --vp-input-border-color: var(--vp-c-border);
+  --vp-badge-tip-text: var(--vp-c-green-1);
+  --vp-badge-tip-bg: var(--vp-c-green-soft);
 }
 /* Chinese pages: the Korean faces have no Han glyphs, so body and headings take the system's. */
 html[lang^="zh"] {
@@ -44,24 +119,70 @@ html[lang^="ja"] {
     "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", "Meiryo", "Noto Sans CJK JP", system-ui, sans-serif;
   --pp-display: var(--vp-font-family-base);
 }
+/* After dark: the app's lamplit paper (base.css dark garden tokens), warm wood and honey by night. */
 .dark {
-  --pp-paper: #16221e;
-  --pp-moss: #314a3c;
-  --pp-line: #35493e;
-  --pp-shadow: rgba(0, 0, 0, 0.4);
-  --pp-sky: #22303a;
-  --pp-meadow: #2f4a2e;
-  --pp-meadow-deep: #8fc77a;
-  --pp-ink: #e8efdf;
-  --vp-c-brand-1: #b8d2a5;
-  --vp-c-brand-2: #647f65;
-  --vp-c-brand-3: #879d78;
-  --vp-c-bg: #16221e;
-  --vp-c-bg-alt: #1b2a23;
-  --vp-c-bg-soft: #22342a;
-  --vp-c-text-1: #e5ecdf;
-  --vp-c-text-2: #b4c6b5;
-  --vp-c-text-3: #9caf9f;
+  --pp-ink: #f6ead4;
+  --pp-paper: #2a2119;
+  --pp-paper-deep: #352a20;
+  --pp-moss: #34331f;
+  --pp-moss-ink: #c9d49a;
+  --pp-line: #4f4030;
+  --pp-shadow: rgba(0, 0, 0, 0.45);
+  --pp-meadow: #3a4a26;
+  --pp-meadow-deep: #a6c97f;
+  --pp-sky: #1f2a3a;
+  --pp-terminal: #17120d;
+  --pp-wood-edge: #20160d;
+  --pp-wood-grain: linear-gradient(175deg, #b98a4f, #9a7040 40%, #7f5a31 75%, #694a29);
+  --pp-honey: #e0b04a;
+  --pp-honey-deep: #c8962f;
+  --pp-honey-light: #e8c46a;
+  --pp-on-honey: #2b1f12;
+  --pp-accent: #efa888;
+  --pp-heart: #ea7586;
+  --pp-frame-shadow:
+    0 0 0 1px var(--pp-wood-edge), 0 10px 26px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 1px rgba(255, 255, 255, 0.08), inset 0 0 22px rgba(42, 33, 26, 0.5);
+  --vp-c-gray-1: #5c4a37;
+  --vp-c-gray-2: #4a3c2d;
+  --vp-c-gray-3: #3a2f24;
+  --vp-c-gray-soft: rgba(220, 199, 166, 0.12);
+  --vp-c-green-1: #b9d28c;
+  --vp-c-green-2: #8fb466;
+  --vp-c-green-3: #6f9248;
+  --vp-c-green-soft: rgba(143, 180, 102, 0.16);
+  --vp-c-yellow-1: #f0d399;
+  --vp-c-yellow-2: #e0b04a;
+  --vp-c-yellow-3: #c8962f;
+  --vp-c-yellow-soft: rgba(224, 176, 74, 0.16);
+  --vp-c-red-1: #f2a68d;
+  --vp-c-red-2: #e58a6c;
+  --vp-c-red-3: #c96a4d;
+  --vp-c-red-soft: rgba(239, 168, 136, 0.14);
+  --vp-c-brand-1: #efa888;
+  --vp-c-brand-2: #e0b04a;
+  --vp-c-brand-3: #9a7442;
+  --vp-c-brand-soft: rgba(224, 176, 74, 0.16);
+  --vp-c-important-1: #f2b5c6;
+  --vp-c-important-soft: rgba(234, 117, 134, 0.14);
+  --vp-c-bg: #211a14;
+  --vp-c-bg-alt: #1b1510;
+  --vp-c-bg-elv: #2a2119;
+  --vp-c-bg-soft: #2e251c;
+  --vp-c-border: #4f4030;
+  --vp-c-divider: #3d3226;
+  --vp-c-gutter: #15100c;
+  --vp-c-text-1: #f6ead4;
+  --vp-c-text-2: #dcc7a6;
+  --vp-c-text-3: #c4ab86;
+  --vp-c-neutral: #f6ead4;
+  --vp-c-neutral-inverse: #211a14;
+  --vp-code-color: #f2b99f;
+  --vp-code-bg: rgba(224, 176, 74, 0.14);
+  --vp-code-block-bg: #1a140f;
+  --vp-code-copy-code-bg: #2e251c;
+  --vp-code-tab-bg: #1a140f;
+  --vp-code-tab-divider: #3d3226;
 }
 .VPNavBarTitle .title {
   font-family: var(--pp-display);
@@ -147,33 +268,35 @@ h3,
   font-size: 14px;
   line-height: 1.4;
 }
+/* The way in is the app's Play button: honey with a wood edge, brightening under the pointer. */
 .downloads .dl-primary {
-  background: #244d43;
-  color: #fffdf7;
-  border: 1px solid #244d43;
-  box-shadow: 0 5px 12px -8px #244d43;
-  transition: background 0.15s;
+  background: linear-gradient(180deg, var(--pp-honey), var(--pp-honey-deep));
+  color: var(--pp-on-honey);
+  border: 1.5px solid var(--pp-wood-edge);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 214, 0.7),
+    0 3px 0 var(--pp-wood-lo),
+    0 8px 16px -8px var(--pp-shadow);
+  font-weight: 750;
+  transition:
+    background 0.15s,
+    transform 0.15s;
 }
 .downloads .dl-primary:hover {
-  background: #193c32;
-  color: #fffdf7;
+  background: linear-gradient(180deg, var(--pp-honey-light), var(--pp-honey));
+  color: var(--pp-on-honey);
+  text-decoration: none;
+}
+.downloads .dl-primary:active {
+  transform: translateY(2px);
 }
 .landing .dl-secondary {
-  border: 1px solid var(--pp-line);
-  background: var(--vp-c-bg);
+  border: 1.5px solid var(--pp-line);
+  background: var(--vp-c-bg-elv);
   color: var(--vp-c-text-1);
 }
 .landing .dl-secondary:hover {
   border-color: var(--vp-c-brand-1);
-}
-.dark .downloads .dl-primary {
-  background: #b8d3a6;
-  color: #1b342b;
-  border-color: #b8d3a6;
-}
-.dark .downloads .dl-primary:hover {
-  background: #cee3c0;
-  color: #1b342b;
 }
 .dl-primary small {
   font-weight: 400;
@@ -278,9 +401,23 @@ html[lang^="ko"] .vp-doc :is(td, th) {
   margin: 0;
 }
 
-/* Supporting guides share the world's palette, with restrained reading surfaces. */
+/* Every page wears the app's frame: the bar under the menu is a strip of honey wood, the side
+   navigation sits on deeper paper behind a thin wood line. */
 .VPNavBar {
   background: var(--vp-c-bg);
+}
+.VPNav::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -3px;
+  height: 3px;
+  background: var(--pp-wood-grain);
+  box-shadow: 0 1px 0 var(--pp-wood-edge);
+  pointer-events: none;
+}
+.VPNavBar.has-sidebar .divider-line,
+.VPNavBar:not(.home) .divider-line {
+  background-color: transparent;
 }
 .VPNavBarTitle .logo {
   width: 30px;
@@ -292,16 +429,37 @@ html[lang^="ko"] .vp-doc :is(td, th) {
 .VPSidebar {
   border-right: 1px solid var(--pp-line);
 }
+.VPNavBarTitle .title {
+  color: var(--pp-ink);
+}
+/* VitePress's own buttons (the 404 page, a hero) take the honey pill. */
+.VPButton.brand {
+  border-width: 1.5px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 214, 0.7),
+    0 2px 0 var(--pp-wood-lo);
+}
+.vp-doc blockquote {
+  border-left-color: var(--pp-wood-hi);
+}
+.vp-doc :not(pre) > code {
+  border-radius: 6px;
+}
+.vp-doc kbd {
+  border-color: var(--pp-line);
+  background: var(--vp-c-bg-elv);
+  box-shadow: 0 2px 0 var(--pp-line);
+}
 
-/* Where am I: the page in the side navigation and the section in the outline are a tinted pill
-   with Clover's ginger bar, the one warm mark in a green frame, so the eye finds them at once. */
+/* Where am I: the page in the side navigation and the section in the outline are a honey pill
+   with a wood bar, the way the app marks a chosen tab, so the eye finds them at once. */
 :root {
-  --pp-here: #c4621a;
-  --pp-here-bg: color-mix(in srgb, var(--vp-c-brand-3) 22%, var(--vp-c-bg));
+  --pp-here: #b4742f;
+  --pp-here-bg: color-mix(in srgb, var(--pp-honey) 26%, var(--vp-c-bg));
 }
 .dark {
-  --pp-here: #f1b47b;
-  --pp-here-bg: color-mix(in srgb, var(--vp-c-brand-3) 26%, var(--vp-c-bg));
+  --pp-here: #e0b04a;
+  --pp-here-bg: color-mix(in srgb, var(--pp-honey) 18%, var(--vp-c-bg));
 }
 .VPSidebar .group .VPSidebarItem.level-1 > .item {
   margin-inline: -10px;
@@ -538,6 +696,9 @@ html[lang^="ko"] .vp-doc :is(td, th) {
 @media (prefers-reduced-motion: reduce) {
   .downloads .dl-primary {
     transition: none;
+  }
+  .downloads .dl-primary:active {
+    transform: none;
   }
 }
 

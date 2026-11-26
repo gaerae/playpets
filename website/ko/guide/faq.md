@@ -4,8 +4,8 @@
 
 ## PlayPets는 어떤 앱인가요?
 
-- PlayPets는 펫 친구들이 바탕화면에 사는 무료 오픈소스 데스크톱 펫 앱이에요. 기본 친구 넷이 함께 오고, 갖고 있는 Codex 펫도 데려올 수 있어요. 한 번에 12명까지 함께 지내요. macOS, Windows, Linux에서 써요.
-- 펫들은 한 놀이터에서 지내고, 바탕화면으로 나올 수도 있어요. ChatGPT 데스크톱 앱은 고른 펫 하나만 보여 줘요([OpenAI 안내](https://learn.chatgpt.com/docs/pets), 2026년 10월 기준).
+- PlayPets는 macOS, Windows, Linux에서 쓰는 무료 오픈소스 데스크톱 펫 앱이에요. 기본 친구 넷이 함께 오고, 갖고 있는 Codex 펫도 데려올 수 있어요. 한 번에 12명까지 함께 지내요.
+- 친구들은 그림 같은 놀이터에서 지내고, 바탕화면으로 나와 놀기도 해요. ChatGPT 데스크톱 앱은 고른 펫 하나만 보여 줘요([OpenAI 안내](https://learn.chatgpt.com/docs/pets), 2026년 10월 기준).
 - 연결한 AI로 나와 이야기하고 친구끼리도 수다를 떨어요. Claude Code, Codex, Gemini CLI, Cursor, Grok Build, Qoder, Kimi Code가 일할 때 반응해요.
 
 ## Codex 펫도 쓸 수 있나요?
@@ -62,7 +62,7 @@
 ## 펫을 직접 만들 수 있나요?
 
 - 네. `pet.json`과 스프라이트 시트가 든 폴더 하나가 펫이에요. 형식은 Codex 펫과 같아요.
-- 만든 폴더는 **펫 가져오기**의 **내 컴퓨터의 폴더에서 가져오기**로 바로 초대해요.
+- 만든 폴더는 **친구 초대 → 가져오기 → 폴더에서**로 바로 초대해요.
 - AI 도구와 함께 그리고 싶으면 [캐릭터 제작실](./creator-kit.md)을 써요.
 - 자세한 규칙: [펫 가져오기](./import.md#make-your-own), 개발자 문서 [펫 파일 형식](/dev/standards/pet-files)
 

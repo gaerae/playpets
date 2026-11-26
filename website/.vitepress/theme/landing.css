@@ -1,8 +1,15 @@
-/* A quiet game invitation: scenery first, companions next, setup on request. */
+/* A cozy game's front page: the yard under its sky first, the friends out on a desktop next, then
+   everything there is to do, on the app's cream paper with its honey-wood frames (style.css). */
 .landing {
-  --world-ink: #28443d;
-  --world-paper: #f6f8f3;
-  --world-lilac: #e7eddf;
+  --world-ink: var(--pp-ink);
+  --world-paper: var(--vp-c-bg);
+  /* a card on the page: the app's deeper paper */
+  --world-lilac: #f7ecd5;
+  --world-card: #fffaef;
+  --world-rim: var(--pp-line);
+  --world-shade: rgba(90, 61, 31, 0.14);
+  /* the day sky the app paints behind its pictures (scenery.css), warming toward the paper */
+  --world-sky: linear-gradient(#86c3ec, #b8def4 38%, #e7f1e6 72%, var(--world-paper));
   color: var(--world-ink);
   background: var(--world-paper);
   overflow: clip;
@@ -18,32 +25,45 @@ html[lang^="ja"] .landing {
     word-break: auto-phrase;
   }
 }
+/* After dark: lamplit paper under a night sky. */
 .dark .landing {
-  --world-ink: #e2eee7;
-  --world-paper: #172522;
-  --world-lilac: #22342f;
+  --world-lilac: #2c231a;
+  --world-card: #31271d;
+  --world-shade: rgba(0, 0, 0, 0.4);
+  --world-sky: linear-gradient(#18203a, #262a40 40%, #2e2a2c 72%, var(--world-paper));
 }
 .landing p {
   line-height: 1.85;
   text-wrap: pretty;
 }
+/* Headings in the round display face, one weight: size makes the hierarchy, as in the app's title. */
 .landing h1,
 .landing h2,
 .landing h3 {
-  letter-spacing: -0.045em;
-  line-height: 1.2;
+  font-family: var(--pp-display);
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
   text-wrap: balance;
 }
+/* Japanese and Chinese headings use the system face, which has real bold weights. */
+html[lang^="ja"] .landing :is(h1, h2, h3),
+html[lang^="zh"] .landing :is(h1, h2, h3) {
+  font-weight: 700;
+  letter-spacing: 0;
+}
 .landing h2 {
-  font-size: clamp(30px, 4vw, 48px);
+  font-size: clamp(30px, 4vw, 46px);
 }
 .landing h3 {
-  font-size: 25px;
+  font-size: 24px;
 }
 .landing figure {
   margin: 0;
 }
 .landing a {
+  color: var(--vp-c-brand-1);
   text-underline-offset: 5px;
 }
 .landing a:hover {
@@ -58,10 +78,16 @@ html[lang^="ja"] .landing {
   outline: 3px solid #a7773a;
   outline-offset: 5px;
 }
+.dark .landing :is(a, button, summary):focus-visible,
+.dark .downloads :is(a, button, summary):focus-visible {
+  outline-color: #ffe7ad;
+}
 .landing .eyebrow {
   font-size: 13px;
-  letter-spacing: 0.12em;
-  margin: 0 0 24px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin: 0 0 18px;
+  color: var(--vp-c-text-2);
   text-wrap: balance;
 }
 /* Wide tracking suits Latin capitals; Korean, Japanese and Chinese read better close set. */
@@ -70,29 +96,97 @@ html:lang(ja) .landing .eyebrow,
 html:lang(zh-Hans) .landing .eyebrow {
   letter-spacing: 0.04em;
 }
-.hero {
-  padding: 32px max(24px, calc((100vw - 1440px) / 2)) 0;
-  display: grid;
-  grid-template-columns: minmax(260px, 0.85fr) minmax(0, 2fr);
+/* A title's painted vine (the app's own, art/ui/title-vine.webp) over a section's heading. */
+.title-vine {
+  display: block;
+  width: 150px;
+  height: auto;
+  margin: 0 0 10px;
+  user-select: none;
+}
+.dark .title-vine {
+  opacity: 0.85;
+}
+/* A honey pill, the app's Play button: the way in. */
+.landing :is(.world-button, .pet-create, .demo-button) {
+  display: inline-flex;
   align-items: center;
-  gap: 36px;
+  border: 1.5px solid var(--pp-wood-edge);
+  border-radius: 100px;
+  background: linear-gradient(180deg, var(--pp-honey), var(--pp-honey-deep));
+  color: var(--pp-on-honey);
+  font-weight: 750;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 246, 214, 0.7),
+    0 3px 0 var(--pp-wood-lo),
+    0 8px 16px -8px var(--pp-shadow);
+  transition:
+    background 0.15s,
+    transform 0.15s;
+}
+.landing :is(.world-button, .pet-create, .demo-button):hover {
+  background: linear-gradient(180deg, var(--pp-honey-light), var(--pp-honey));
+  color: var(--pp-on-honey);
+  text-decoration: none;
+}
+.landing :is(.world-button, .pet-create, .demo-button):active {
+  transform: translateY(2px);
+}
+
+/* ---- the first screen: the yard itself, big, under a painted sky ---- */
+.hero {
+  position: relative;
+  padding: 36px max(24px, calc((100vw - 1400px) / 2)) 92px;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.72fr) minmax(0, 2fr);
+  align-items: center;
+  gap: 40px;
   text-align: left;
   background:
-    radial-gradient(ellipse at 12% 15%, #dceef480, transparent 55%),
-    radial-gradient(ellipse at 90% 45%, #e6efd480, transparent 55%);
+    var(--cloud) no-repeat left max(8px, calc((100vw - 1400px) / 2 - 40px)) top 6px / 170px auto,
+    var(--cloud) no-repeat left max(250px, calc((100vw - 1400px) / 2 + 250px)) top 64px / 120px auto,
+    var(--world-sky);
+}
+.dark .hero {
+  background:
+    radial-gradient(circle at 12% 18%, #ffe7ad22, transparent 18%),
+    radial-gradient(1.5px 1.5px at 20% 12%, #fff8, transparent),
+    radial-gradient(1.5px 1.5px at 38% 26%, #fff6, transparent),
+    radial-gradient(1.5px 1.5px at 64% 9%, #fff8, transparent),
+    radial-gradient(1.5px 1.5px at 82% 22%, #fff6, transparent), var(--world-sky);
+}
+/* The app's desktop grass along the foot of the first screen: where the friends will walk. */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 56px;
+  background: var(--grass) repeat-x left bottom / auto 100%;
+  pointer-events: none;
+}
+.hero-intro {
+  position: relative;
+  z-index: 1;
 }
 .hero h1 {
-  font-size: clamp(38px, 3.5vw, 56px);
+  font-size: clamp(36px, 3.3vw, 52px);
+  line-height: 1.2;
   max-width: 1000px;
-  margin: 0 0 22px;
+  margin: 0 0 20px;
+  color: var(--pp-ink);
 }
 .hero h1 span {
   display: block;
 }
+/* Japanese and Chinese lines run longer per letter, so the two lines keep whole phrases at full width. */
+html[lang^="ja"] .hero h1,
+html[lang^="zh"] .hero h1 {
+  font-size: clamp(30px, 2.6vw, 42px);
+}
 .hero .lead {
-  max-width: 620px;
+  max-width: 560px;
   margin: 0;
-  font-size: 16px;
+  font-size: 17px;
 }
 .hero-actions {
   display: flex;
@@ -100,17 +194,17 @@ html:lang(zh-Hans) .landing .eyebrow {
   align-items: center;
   gap: 18px;
   flex-wrap: wrap;
-  margin: 30px 0 10px;
-  font-size: 14px;
+  margin: 28px 0 10px;
+  font-size: 15px;
 }
 .world-button {
-  background: #284d46;
-  color: #fff;
-  border-radius: 100px;
-  padding: 15px 26px;
-  display: inline-flex;
-  gap: 24px;
-  align-items: center;
+  gap: 18px;
+  min-height: 54px;
+  padding: 0 26px;
+  font-size: 16px;
+}
+.hero-more {
+  font-weight: 650;
 }
 /* What a visitor checks before downloading, in one glance under the actions. */
 .hero-facts {
@@ -118,7 +212,7 @@ html:lang(zh-Hans) .landing .eyebrow {
   flex-wrap: wrap;
   gap: 6px 18px;
   list-style: none;
-  margin: 24px 0 0;
+  margin: 22px 0 0;
   padding: 0;
 }
 .hero-facts li {
@@ -128,27 +222,33 @@ html:lang(zh-Hans) .landing .eyebrow {
   align-items: center;
   gap: 7px;
 }
-/* Facts, not buttons: a small leaf-green mark instead of a pill outline. */
+/* Facts, not buttons: a small leaf mark instead of a pill outline. */
 .hero-facts li::before {
   content: "";
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #6f9a5b;
+  background: var(--pp-meadow-deep);
 }
 /* The coding agents a friend reacts to, the app's difference, on the first screen. */
 .hero-agents {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 20px;
+  margin-top: 18px;
   color: inherit;
   text-decoration: none;
+}
+.landing .hero-agents {
+  color: inherit;
 }
 .hero-agents span {
   flex-basis: 100%;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 650;
+}
+.hero-agents:hover {
+  text-decoration: none;
 }
 .hero-agents:hover span {
   text-decoration: underline;
@@ -161,69 +261,90 @@ html:lang(zh-Hans) .landing .eyebrow {
 }
 .hero-agents b {
   font-size: 13px;
-  font-weight: 600;
-  padding: 4px 10px;
+  font-weight: 650;
+  padding: 3px 10px;
+  border: 1px solid var(--world-rim);
   border-radius: 9px;
-  background: var(--world-lilac);
+  background: color-mix(in srgb, var(--world-card) 82%, transparent);
 }
 .world-preview {
+  position: relative;
+  z-index: 1;
   width: 100%;
   min-width: 0;
-  max-width: 1100px;
   margin: 0;
 }
 
-/* ---- the first screen (HeroDesk.vue): one moment on a desktop ---- */
-/* The friends in the yard's window, and a coding agent's terminal over its top left corner, where
-   it covers only sky. Only the wallpaper and the dock are scenery; every window holds real content. */
-.hero-desk {
-  --dock: 44px;
+/* ---- the desktop story (DeskStory.vue): the friends out on someone's working desktop ---- */
+.desk-story {
+  max-width: 1180px;
+  margin: 96px auto 0;
+  padding: 0 32px;
+}
+.desk-story header {
+  max-width: 760px;
+  margin: 0 auto 34px;
+  text-align: center;
+}
+.desk-story header .title-vine {
+  margin-inline: auto;
+}
+.desk-story h2 {
+  margin: 0 0 16px;
+}
+/* A whole screen in a honey-wood frame: the wallpaper, a page and a terminal, the grass along the
+   bottom with the friends on it, and a taskbar. Only the wallpaper and the dock are scenery. */
+.desk-stage {
+  --dock: 40px;
+  --grass-height: 46px;
   position: relative;
+  aspect-ratio: 2.1;
   min-width: 0;
-  aspect-ratio: 1.5;
-  border-radius: 22px 22px 8px 8px;
   overflow: hidden;
   isolation: isolate;
+  border: var(--pp-frame-border);
+  border-radius: 24px;
+  background:
+    radial-gradient(ellipse 60% 70% at 85% 10%, #ffe9c4, transparent 70%),
+    radial-gradient(ellipse 70% 70% at 10% 0%, #cfe6f2, transparent 70%),
+    linear-gradient(#e8eef0, #f3e9d8) padding-box,
+    var(--pp-wood-grain) border-box;
+  box-shadow: var(--pp-frame-shadow);
   font-size: 13px;
-  background:
-    radial-gradient(ellipse 70% 60% at 14% 100%, #b9d7c9, transparent 70%),
-    radial-gradient(ellipse 60% 55% at 94% 92%, #f1d8c3, transparent 70%),
-    radial-gradient(ellipse 80% 70% at 70% 0%, #d6e3ef, transparent 70%), #e5ece6;
 }
-.dark .hero-desk {
+.dark .desk-stage {
   background:
-    radial-gradient(ellipse 70% 60% at 14% 100%, #2c4a40, transparent 70%),
-    radial-gradient(ellipse 60% 55% at 94% 92%, #4a3a35, transparent 70%),
-    radial-gradient(ellipse 80% 70% at 70% 0%, #26364a, transparent 70%), #18221f;
+    radial-gradient(ellipse 60% 70% at 85% 10%, #4a3a5a, transparent 70%),
+    radial-gradient(ellipse 70% 70% at 10% 0%, #22324a, transparent 70%),
+    linear-gradient(#1c2233, #2a2230) padding-box,
+    var(--pp-wood-grain) border-box;
 }
-.desk-yard,
-.desk-terminal {
+.desk-window {
   position: absolute;
   display: flex;
   flex-direction: column;
   border-radius: 12px;
-}
-.desk-yard {
-  inset: 12% 4% calc(var(--dock) + 5%) 21%;
   overflow: hidden;
-  background: var(--world-paper);
-  box-shadow:
-    0 0 0 1px #17382b14,
-    0 24px 60px #17382b38;
 }
-.desk-scene {
-  position: relative;
-  min-height: 0;
-  flex: 1;
+.desk-page {
+  top: 9%;
+  right: 6%;
+  width: 34%;
+  height: 50%;
+  background: #fffdf8;
+  box-shadow: 0 14px 40px rgba(90, 61, 31, 0.18);
 }
-.desk-scene img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 62%;
-  user-select: none;
-  -webkit-user-select: none;
+.desk-page p {
+  height: 7px;
+  margin: 12px 18px 0;
+  border-radius: 4px;
+  background: rgba(74, 53, 35, 0.12);
+}
+.dark .desk-page {
+  background: #2f2a30;
+}
+.dark .desk-page p {
+  background: rgba(246, 234, 212, 0.12);
 }
 .desk-titlebar {
   display: flex;
@@ -238,21 +359,25 @@ html:lang(zh-Hans) .landing .eyebrow {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: color-mix(in srgb, currentColor 26%, transparent);
+  background: color-mix(in srgb, currentColor 30%, transparent);
+}
+.desk-page .desk-titlebar {
+  color: var(--pp-ink);
+  background: rgba(74, 53, 35, 0.05);
 }
 .desk-titlebar span {
   margin-left: 6px;
   font-weight: 600;
-  opacity: 0.75;
+  opacity: 0.8;
 }
 .desk-terminal {
-  top: 5%;
-  left: 3%;
-  width: 37%;
+  top: 6%;
+  left: 5%;
+  width: 46%;
   z-index: 1;
-  background: #1d2926;
-  color: #d8e6de;
-  box-shadow: 0 22px 50px #17382b47;
+  background: #2a231c;
+  color: #efe3cc;
+  box-shadow: 0 22px 50px rgba(60, 38, 18, 0.35);
 }
 .dark .desk-terminal {
   box-shadow:
@@ -260,14 +385,13 @@ html:lang(zh-Hans) .landing .eyebrow {
     0 22px 50px #0007;
 }
 .desk-terminal .desk-titlebar {
-  border-radius: 12px 12px 0 0;
-  background: #263633;
-  color: #9fb5ab;
+  background: #362c22;
+  color: #d6c3a2;
 }
 .desk-log {
-  padding: 10px 14px 12px;
+  padding: 10px 14px 14px;
   font-family: var(--vp-font-family-mono);
-  font-size: 11.5px;
+  font-size: 12px;
   line-height: 1.75;
 }
 .desk-prompt {
@@ -275,7 +399,7 @@ html:lang(zh-Hans) .landing .eyebrow {
   color: #f2d39b;
 }
 .desk-pass {
-  color: #8fc27a;
+  color: #a9d48f;
 }
 /* Lines still to come keep their room, so the terminal never grows or jumps as they arrive. */
 .desk-line,
@@ -292,42 +416,72 @@ html:lang(zh-Hans) .landing .eyebrow {
   margin-top: 4px;
   color: #fff;
   font-family: var(--vp-font-family-base);
-  font-size: 12px;
+  font-size: 12.5px;
   line-height: 1.5;
 }
-/* On the grass along the yard's foot; the agent's friend first, nearest the terminal. */
+/* The strip of grass desktop mode lays along the bottom of the screen, in front of every window,
+   tufts at its ends and a pebble where it can be dragged. */
+.desk-grass {
+  position: absolute;
+  inset: auto 0 var(--dock);
+  z-index: 2;
+  height: var(--grass-height);
+  background: var(--grass) repeat-x left bottom / auto 100%;
+}
+.desk-tuft {
+  position: absolute;
+  bottom: 0;
+  width: auto;
+  height: 150%;
+}
+.desk-tuft.left {
+  left: -4px;
+}
+.desk-tuft.right {
+  right: -4px;
+}
+.desk-pebble {
+  position: absolute;
+  right: 12%;
+  bottom: 18%;
+  width: auto;
+  height: 34%;
+}
+/* On the grass, in front of the windows; the agent's friend first, nearest the terminal. */
 .desk-friend {
   position: absolute;
-  bottom: 9%;
+  z-index: 3;
+  bottom: calc(var(--dock) + var(--grass-height) * 0.35);
   display: grid;
   justify-items: center;
   translate: -50% 0;
-  filter: drop-shadow(0 5px 3px #33493025);
+  filter: drop-shadow(0 5px 3px #5a3d1f30);
 }
 .desk-friend-0 {
-  left: 16%;
+  left: 18%;
 }
 .desk-friend-1 {
-  left: 40%;
+  left: 42%;
 }
 .desk-friend-2 {
-  left: 63%;
+  left: 64%;
 }
 .desk-friend-3 {
-  left: 85%;
+  left: 84%;
 }
 .desk-bubble {
   position: absolute;
   bottom: calc(100% - 6px);
   left: 30%;
   padding: 7px 12px;
+  border: 1.5px solid var(--pp-line);
   border-radius: 16px 16px 16px 4px;
-  background: #fffffff5;
-  color: #28443d;
-  font-size: 12.5px;
+  background: #fffaef;
+  color: #4a3523;
+  font-size: 13px;
   line-height: 1.45;
   white-space: nowrap;
-  box-shadow: 0 6px 18px #17382b24;
+  box-shadow: 0 6px 18px rgba(90, 61, 31, 0.2);
   transition:
     opacity 0.25s ease,
     scale 0.25s ease;
@@ -337,36 +491,37 @@ html:lang(zh-Hans) .landing .eyebrow {
   opacity: 0;
   scale: 0.9;
 }
+/* Names stay hidden on the desktop until pointed at; here one shows, as a tag under each friend. */
 .desk-name {
-  margin-top: -2px;
+  margin-top: -4px;
   padding: 1px 9px;
   border-radius: 100px;
-  background: #ffffffeb;
-  color: #28443d;
-  font-size: 10.5px;
+  background: #fffaefeb;
+  color: #4a3523;
+  font-size: 11px;
   line-height: 1.6;
   white-space: nowrap;
 }
 .desk-dock {
   position: absolute;
   inset: auto 0 0;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 8px;
   height: var(--dock);
-  background: #ffffffa6;
-  box-shadow: 0 -1px 0 #17382b14;
+  background: #fffaefcc;
+  box-shadow: 0 -1px 0 rgba(90, 61, 31, 0.12);
 }
 .dark .desk-dock {
-  background: #0d1513b3;
+  background: #1b1510cc;
   box-shadow: 0 -1px 0 #ffffff14;
 }
 .desk-dock i,
 .desk-dock img {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 7px;
 }
 .desk-dock i {
@@ -375,19 +530,78 @@ html:lang(zh-Hans) .landing .eyebrow {
 .desk-dock img {
   box-shadow: 0 5px 0 -3px var(--world-ink);
 }
-/* A phone's column: the terminal over the top, the yard filling the rest with the friends in it. */
-@media (max-width: 640px) {
-  .hero-desk {
-    --dock: 36px;
-    aspect-ratio: 0.92;
+/* What being out on the desktop is like, each with the app's painted icon. */
+.desk-points {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.desk-points li {
+  margin: 0;
+  padding: 18px 18px 16px;
+  border: 1.5px solid var(--world-rim);
+  border-radius: 18px;
+  background: var(--world-card);
+  box-shadow: 0 3px 0 var(--world-rim);
+}
+.desk-points img {
+  display: block;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 10px;
+  object-fit: contain;
+}
+.desk-points h3 {
+  margin: 0 0 6px;
+  font-size: 19px;
+}
+.desk-points p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--vp-c-text-2);
+}
+.desk-kind {
+  max-width: 720px;
+  margin: 26px auto 0;
+  font-size: 16px;
+  text-align: center;
+}
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding-top: 28px;
   }
-  .desk-yard {
-    inset: 34% 3% calc(var(--dock) + 3%);
+  .desk-points {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+/* A phone's column: the terminal over the top, the friends along the grass under it. */
+@media (max-width: 640px) {
+  .desk-story {
+    margin-top: 72px;
+    padding: 0 16px;
+  }
+  .desk-stage {
+    --dock: 34px;
+    --grass-height: 34px;
+    aspect-ratio: 0.95;
+    border-radius: 20px;
+  }
+  .desk-page {
+    top: 30%;
+    right: 5%;
+    width: 52%;
+    height: 32%;
   }
   .desk-terminal {
-    top: 3%;
-    left: 4%;
-    width: 80%;
+    top: 4%;
+    left: 5%;
+    width: 84%;
   }
   .desk-log {
     padding: 8px 12px 10px;
@@ -397,46 +611,82 @@ html:lang(zh-Hans) .landing .eyebrow {
     font-size: 11px;
   }
   .desk-friend .sprite {
-    --display-scale: 0.36;
+    --display-scale: 0.34;
   }
   .desk-friend-0 {
-    left: 14%;
+    left: 15%;
   }
   .desk-friend-1 {
-    left: 38%;
+    left: 39%;
   }
   .desk-friend-2 {
     left: 62%;
   }
   .desk-friend-3 {
-    left: 86%;
+    left: 85%;
+  }
+  .desk-bubble {
+    font-size: 12px;
   }
   .desk-name {
     font-size: 9.5px;
   }
+  .desk-points {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .desk-points li {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    column-gap: 14px;
+    padding: 14px;
+  }
+  .desk-points img {
+    grid-row: span 2;
+    width: 48px;
+    height: 48px;
+    margin: 0;
+  }
+  .desk-points h3 {
+    font-size: 17px;
+  }
 }
+@media (prefers-reduced-motion: reduce) {
+  .landing :is(.world-button, .pet-create, .demo-button) {
+    transition: none;
+  }
+  .landing :is(.world-button, .pet-create, .demo-button):active {
+    transform: none;
+  }
+  .desk-line,
+  .desk-reply,
+  .desk-bubble {
+    transition: none;
+  }
+}
+/* The page's own controls over the scene: a hint at the left, the view switch and pause at the right. */
 .world-picker {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 12px 20px;
   text-align: left;
   padding: 0 4px;
+  margin-bottom: 12px;
 }
-.world-picker h2 {
-  font-size: 17px;
-  letter-spacing: -0.01em;
-  margin: 0 0 4px;
-}
-.world-picker p {
+.world-hint {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.landing .world-hint {
+  line-height: 1.5;
 }
 .scene-caption {
   text-align: left;
   font-size: 12px;
-  opacity: 0.75;
-  margin: 12px 4px 0;
+  color: var(--vp-c-text-2);
+  margin: 10px 4px 0;
   min-height: 24px;
 }
 .pet-gallery {
@@ -494,7 +744,9 @@ html:lang(zh-Hans) .landing .eyebrow {
   grid-template-columns: 1fr 1fr;
   min-height: 360px;
   align-items: center;
-  background: var(--world-lilac);
+  border: var(--pp-frame-border);
+  background: var(--pp-frame);
+  box-shadow: var(--pp-frame-shadow);
   border-radius: 28px;
   padding: 32px;
   gap: 30px;
@@ -527,54 +779,72 @@ html:lang(zh-Hans) .landing .eyebrow {
 .no-motion .sprite i {
   animation-play-state: paused;
 }
-/* A Codex pet's own features beside PlayPets': one panel answering the hero, a real table so every row reads as a
-   pair, the PlayPets column lifted onto paper. One grey pet stands over the Codex column, the cast
-   over ours. */
+/* A Codex pet's own features beside PlayPets': a compact block for people who know ChatGPT's pets,
+   the words on the left and a real table on the right, so every row reads as a pair, the PlayPets
+   column lifted onto paper. One grey pet stands over the Codex column, the cast over ours. */
 .codex-plus {
   box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.3fr);
+  grid-template-rows: auto auto 1fr;
+  column-gap: 40px;
+  align-items: start;
   width: min(1100px, 100% - 48px);
-  margin: 90px auto 0;
-  padding: 44px 48px 36px;
-  border-radius: 28px;
+  margin: 100px auto 0;
+  padding: 34px 36px 30px;
+  border: 1.5px solid var(--world-rim);
+  border-radius: 24px;
   background: var(--world-lilac);
 }
 .codex-plus header {
-  max-width: 760px;
-  margin-bottom: 26px;
+  grid-column: 1;
+  grid-row: 1;
+}
+.codex-plus .codex-compare {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+}
+.codex-plus .codex-source {
+  grid-column: 1;
+  grid-row: 2;
+}
+.codex-plus .codex-note {
+  grid-column: 1;
+  grid-row: 3;
 }
 .codex-plus h2 {
   margin: 0 0 14px;
-  font-size: clamp(28px, 3.2vw, 40px);
+  font-size: clamp(26px, 2.6vw, 34px);
 }
 .codex-plus h2 span {
   display: inline-block;
 }
 .codex-plus .section-lead {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
 }
 .codex-compare {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 15px;
-  line-height: 1.55;
+  font-size: 14px;
+  line-height: 1.5;
 }
 .codex-compare th,
 .codex-compare td {
-  padding: 13px 18px;
+  padding: 9px 14px;
   text-align: left;
   vertical-align: top;
 }
 .codex-compare thead th {
   vertical-align: bottom;
-  font-size: 18px;
-  font-weight: 800;
-  padding-top: 18px;
+  font-size: 16px;
+  font-weight: 750;
+  padding-top: 14px;
 }
 .codex-compare tbody th,
 .codex-compare tbody td {
-  border-top: 1px solid #80999040;
+  border-top: 1px solid var(--world-rim);
 }
 .codex-compare tbody th {
   width: 22%;
@@ -585,7 +855,7 @@ html:lang(zh-Hans) .landing .eyebrow {
   color: var(--vp-c-text-2);
 }
 .codex-compare .ours {
-  background: var(--world-paper);
+  background: var(--world-card);
 }
 .codex-compare thead .ours {
   border-radius: 18px 18px 0 0;
@@ -616,6 +886,14 @@ html:lang(zh-Hans) .landing .eyebrow {
   font-weight: 600;
   color: inherit;
   white-space: nowrap;
+}
+@media (max-width: 900px) {
+  .codex-plus {
+    display: block;
+  }
+  .codex-plus header {
+    margin-bottom: 20px;
+  }
 }
 @media (max-width: 600px) {
   .codex-plus {
@@ -682,32 +960,6 @@ html:lang(zh-Hans) .landing .eyebrow {
     padding: 0 6px;
   }
 }
-/* The comparison's moving row, as the app shows it on the desktop. */
-.compare-shot {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-  gap: 24px;
-  align-items: center;
-  margin: 28px 0 0;
-}
-.compare-shot img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 18px;
-  box-shadow: 0 18px 50px #17382b14;
-  background: var(--world-paper);
-}
-.compare-shot figcaption {
-  font-size: 15px;
-  line-height: 1.6;
-}
-.compare-shot figcaption a {
-  display: block;
-  margin-top: 8px;
-  font-weight: 600;
-  color: inherit;
-}
 .codex-plus .codex-note a + a {
   margin-left: 12px;
 }
@@ -734,12 +986,18 @@ html:lang(zh-Hans) .landing .eyebrow {
 }
 .play-reel video {
   display: block;
+  box-sizing: border-box;
   width: 100%;
   height: auto;
   aspect-ratio: 1280 / 846;
-  border-radius: 16px;
-  box-shadow: 0 18px 50px #17382b14;
-  background: var(--world-lilac);
+  border: 6px solid transparent;
+  border-radius: 20px;
+  background:
+    linear-gradient(var(--world-lilac), var(--world-lilac)) padding-box,
+    var(--pp-wood-grain) border-box;
+  box-shadow:
+    0 0 0 1px var(--pp-wood-edge),
+    0 18px 50px var(--world-shade);
 }
 .play-reel figcaption {
   margin-top: 12px;
@@ -776,9 +1034,14 @@ html:lang(zh-Hans) .landing .eyebrow {
   display: block;
   aspect-ratio: 1180 / 780;
   overflow: hidden;
+  border: 4px solid transparent;
   border-radius: 16px;
-  box-shadow: 0 18px 50px #17382b14;
-  background: var(--world-lilac);
+  background:
+    linear-gradient(var(--world-lilac), var(--world-lilac)) padding-box,
+    var(--pp-wood-grain) border-box;
+  box-shadow:
+    0 0 0 1px var(--pp-wood-edge),
+    0 14px 34px var(--world-shade);
 }
 .play-frame img {
   display: block;
@@ -818,7 +1081,6 @@ html:lang(zh-Hans) .landing .eyebrow {
   color: var(--vp-c-text-2);
 }
 @media (max-width: 900px) {
-  .compare-shot,
   .play-shots li:first-child figure {
     grid-template-columns: minmax(0, 1fr);
     gap: 14px;
@@ -873,11 +1135,16 @@ html:lang(zh-Hans) .landing .eyebrow {
 .place-art {
   overflow: hidden;
   aspect-ratio: 3 / 2;
+  border: 5px solid transparent;
   border-radius: 20px;
-  box-shadow: 0 18px 50px #17382b14;
+  box-shadow:
+    0 0 0 1px var(--pp-wood-edge),
+    0 14px 34px var(--world-shade);
   /* The pictures leave the sky clear for the app's live one, so the site shows the day sky, as the
-     preview does. */
-  background: linear-gradient(#74b6e6, #b0daf2 34%, #eef6ef 60%);
+     preview does, inside the app's wood frame. */
+  background:
+    linear-gradient(#74b6e6, #b0daf2 34%, #eef6ef 60%) padding-box,
+    var(--pp-wood-grain) border-box;
 }
 .place-art img {
   display: block;
@@ -995,8 +1262,10 @@ html:lang(zh-Hans) .landing .eyebrow {
 .album-books li {
   margin: 0;
   padding: 18px 18px 16px;
+  border: 1.5px solid var(--world-rim);
   border-radius: 18px;
-  background: var(--world-lilac);
+  background: var(--world-card);
+  box-shadow: 0 3px 0 var(--world-rim);
 }
 .book-art {
   display: flex;
@@ -1043,6 +1312,7 @@ html:lang(zh-Hans) .landing .eyebrow {
   --season: #f3bfd0;
   margin: 0;
   padding: 18px 18px 16px;
+  border: 1.5px solid color-mix(in srgb, var(--season) 60%, var(--world-rim));
   border-radius: 18px;
   background: color-mix(in srgb, var(--season) 30%, var(--world-paper));
 }
@@ -1094,6 +1364,7 @@ html:lang(zh-Hans) .landing .eyebrow {
 .moments-list li {
   margin: 0;
   padding: 18px 18px 16px;
+  border: 1.5px solid color-mix(in srgb, #bcd6f0 50%, var(--world-rim));
   border-radius: 18px;
   background: color-mix(in srgb, #bcd6f0 28%, var(--world-paper));
 }
@@ -1308,7 +1579,15 @@ html:lang(zh-Hans) .landing .eyebrow {
 .feature-shot {
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 18px 50px #17382b14;
+  box-shadow: 0 18px 50px var(--world-shade);
+}
+/* The live scenes and the captures sit in the app's honey-wood frame. */
+.chat-stage,
+.chat-shot {
+  border: 5px solid transparent;
+  background:
+    linear-gradient(var(--world-lilac), var(--world-lilac)) padding-box,
+    var(--pp-wood-grain) border-box;
 }
 .feature-shot img,
 .chat-shot img {
@@ -1354,7 +1633,7 @@ html:lang(zh-Hans) .landing .eyebrow {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #6f9a5b;
+  background: var(--pp-meadow-deep);
 }
 .feature .work-note {
   font-size: 13px;
@@ -1398,7 +1677,9 @@ html:lang(zh-Hans) .landing .eyebrow {
 .chat-shot {
   overflow: hidden;
   border-radius: 24px;
-  box-shadow: 0 18px 50px #17382b14;
+  box-shadow:
+    0 0 0 1px var(--pp-wood-edge),
+    0 18px 50px var(--world-shade);
 }
 .creator-story {
   display: grid;
@@ -1407,8 +1688,8 @@ html:lang(zh-Hans) .landing .eyebrow {
   align-items: center;
   padding-top: 50px;
   padding-bottom: 50px;
-  border-top: 1px solid #80999040;
-  border-bottom: 1px solid #80999040;
+  border-top: 1px solid var(--world-rim);
+  border-bottom: 1px solid var(--world-rim);
 }
 .creator-friend {
   display: flex;
@@ -1454,10 +1735,36 @@ html:lang(zh-Hans) .landing .eyebrow {
   padding-bottom: 12px;
 }
 .landing-download {
+  position: relative;
   text-align: center;
-  padding: 100px 24px 80px;
+  padding: 100px 24px 0;
   margin-top: 40px;
-  background: linear-gradient(transparent, var(--world-lilac));
+  background: linear-gradient(transparent, var(--world-lilac) 40%, #dcebd0);
+}
+.dark .landing-download {
+  background: linear-gradient(transparent, var(--world-lilac) 40%, #26301f);
+}
+/* The page ends where the desktop does: the four friends waving from the app's strip of grass. */
+.download-cast {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: clamp(8px, 4vw, 48px);
+  margin-top: 40px;
+  padding-bottom: 22px;
+  isolation: isolate;
+}
+.download-cast > .sprite {
+  filter: drop-shadow(0 5px 3px #5a3d1f30);
+}
+.download-cast::after {
+  content: "";
+  position: absolute;
+  inset: auto calc(50% - 50vw) 0;
+  z-index: -1;
+  height: 52px;
+  background: var(--grass) repeat-x left bottom / auto 100%;
 }
 .landing-download h2 {
   margin: 0 0 35px;
@@ -1527,11 +1834,6 @@ html:lang(zh-Hans) .landing .eyebrow {
   }
 }
 @media (max-width: 900px) {
-  .hero {
-    grid-template-columns: 1fr;
-    gap: 24px;
-    padding-top: 28px;
-  }
   .hero-intro {
     max-width: 640px;
   }
@@ -1540,10 +1842,6 @@ html:lang(zh-Hans) .landing .eyebrow {
   }
   .hero h1 span + span::before {
     content: " ";
-  }
-  .world-picker {
-    flex-direction: column;
-    align-items: flex-start;
   }
   .pet-shelf {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1560,15 +1858,21 @@ html:lang(zh-Hans) .landing .eyebrow {
 }
 @media (max-width: 600px) {
   .hero {
-    padding: 24px 18px 0;
+    padding: 24px 16px 64px;
     gap: 0;
+    background:
+      var(--cloud) no-repeat right -30px top -12px / 120px auto,
+      var(--world-sky);
   }
-  /* The friends right under the download button, so a phone's first screen shows them with it;
+  .hero::after {
+    height: 40px;
+  }
+  /* The yard right under the download button, so a phone's first screen shows them with it;
      the facts and the agents follow the scene. */
   .hero-intro {
     display: contents;
   }
-  .hero-desk {
+  .world-preview {
     order: 1;
     margin-top: 20px;
   }
@@ -1604,18 +1908,12 @@ html:lang(zh-Hans) .landing .eyebrow {
   .hero h1 {
     margin-bottom: 14px;
   }
-  .world-picker p {
-    display: none;
-  }
-  .world-picker h2 {
-    font-size: 20px;
-  }
-  .world-preview {
-    margin-top: 0;
+  .world-hint {
+    font-size: 13px;
   }
   .world-picker {
     padding-top: 0;
-    gap: 18px;
+    gap: 10px;
   }
   .pet-gallery,
   .feature,
@@ -1679,6 +1977,9 @@ html:lang(zh-Hans) .landing .eyebrow {
     padding-top: 70px;
     margin-top: 40px;
   }
+  .download-cast .sprite {
+    --display-scale: 0.3;
+  }
 }
 
 .pet-actions {
@@ -1688,11 +1989,7 @@ html:lang(zh-Hans) .landing .eyebrow {
   flex-wrap: wrap;
 }
 .pet-create {
-  display: inline-flex;
-  border-radius: 100px;
-  padding: 11px 18px;
-  background: #284d46;
-  color: #fff;
+  padding: 10px 18px;
   font-size: 13px;
 }
 /* Taking the friend home is the quieter button beside it: the same pill, drawn in outline. */
@@ -1710,28 +2007,33 @@ html:lang(zh-Hans) .landing .eyebrow {
   color: var(--vp-c-text-2);
 }
 
-/* The page opens onto a computer screen in miniature, so visitors see what they would install:
-   a wallpaper, a work window and a taskbar, with the yard as an app window on top. On the
-   desktop the window steps aside and the friends stand on the taskbar, as they do in the app. */
+/* The first screen's stage is a computer screen in a honey-wood frame, so visitors see what they
+   would install: a wallpaper, work windows and a taskbar, with the yard as an app window filling
+   most of it. On the desktop the window steps aside and the friends walk the app's strip of grass
+   in front of the windows, as they do in the app. */
 .living-world {
-  --desk-bar: 44px;
+  --desk-bar: 40px;
+  --grass-height: 44px;
   --perch: 0.62;
   position: relative;
-  aspect-ratio: 1.6;
-  margin-top: 16px;
-  border-radius: 22px 22px 8px 8px;
+  aspect-ratio: 1.62;
   overflow: hidden;
   isolation: isolate;
+  border: var(--pp-frame-border);
+  border-radius: 24px;
   background:
-    radial-gradient(ellipse 70% 60% at 14% 100%, #b9d7c9, transparent 70%),
-    radial-gradient(ellipse 60% 55% at 94% 92%, #f1d8c3, transparent 70%),
-    radial-gradient(ellipse 80% 70% at 70% 0%, #d6e3ef, transparent 70%), #e5ece6;
+    radial-gradient(ellipse 60% 70% at 85% 10%, #ffe9c4, transparent 70%),
+    radial-gradient(ellipse 70% 70% at 10% 0%, #cfe6f2, transparent 70%),
+    linear-gradient(#e8eef0, #f3e9d8) padding-box,
+    var(--pp-wood-grain) border-box;
+  box-shadow: var(--pp-frame-shadow);
 }
 .dark .living-world {
   background:
-    radial-gradient(ellipse 70% 60% at 14% 100%, #2c4a40, transparent 70%),
-    radial-gradient(ellipse 60% 55% at 94% 92%, #4a3a35, transparent 70%),
-    radial-gradient(ellipse 80% 70% at 70% 0%, #26364a, transparent 70%), #18221f;
+    radial-gradient(ellipse 60% 70% at 85% 10%, #4a3a5a, transparent 70%),
+    radial-gradient(ellipse 70% 70% at 10% 0%, #22324a, transparent 70%),
+    linear-gradient(#1c2233, #2a2230) padding-box,
+    var(--pp-wood-grain) border-box;
 }
 /* Someone's own work, left open behind the yard: the friends live beside it, not instead of it. */
 .desk-work {
@@ -1742,8 +2044,8 @@ html:lang(zh-Hans) .landing .eyebrow {
   height: 34%;
   overflow: hidden;
   border-radius: 12px;
-  background: #1d2926;
-  box-shadow: 0 14px 40px #17382b2e;
+  background: #2a231c;
+  box-shadow: 0 14px 40px rgba(60, 38, 18, 0.28);
 }
 .desk-work div {
   display: flex;
@@ -1757,24 +2059,24 @@ html:lang(zh-Hans) .landing .eyebrow {
   top: 14%;
   width: 34%;
   height: 30%;
-  background: #fbfcf9;
+  background: #fffdf8;
 }
 .desk-note p,
 .desk-note i {
-  background: #28443d1f;
+  background: rgba(74, 53, 35, 0.12);
 }
 .dark .desk-work {
-  background: #0c1311;
+  background: #17120d;
   box-shadow:
     0 0 0 1px #ffffff1f,
     0 14px 40px #0006;
 }
 .dark .desk-note {
-  background: #24322e;
+  background: #2f2a30;
 }
 .dark .desk-note p,
 .dark .desk-note i {
-  background: #e2eee71f;
+  background: rgba(246, 234, 212, 0.12);
 }
 .desk-work i,
 .yard-titlebar i {
@@ -1787,19 +2089,20 @@ html:lang(zh-Hans) .landing .eyebrow {
   height: 6px;
   margin: 9px 16px 0;
   border-radius: 3px;
-  background: #9fb5ab4d;
+  background: rgba(214, 195, 162, 0.32);
 }
+/* The yard's window takes the screen, its cream title bar the app's own. */
 .yard-window {
   position: absolute;
-  inset: 5% 4% calc(var(--desk-bar) + 4%) 25%;
+  inset: 3% 2.5% calc(var(--desk-bar) + 3%);
   display: flex;
   flex-direction: column;
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
-  background: var(--world-paper);
+  background: var(--pp-paper);
   box-shadow:
-    0 0 0 1px #17382b14,
-    0 24px 60px #17382b40;
+    0 0 0 1px rgba(90, 61, 31, 0.16),
+    0 24px 60px rgba(60, 38, 18, 0.3);
   transform-origin: 60% 100%;
   transition:
     opacity 0.3s ease,
@@ -1810,19 +2113,26 @@ html:lang(zh-Hans) .landing .eyebrow {
   display: flex;
   align-items: center;
   gap: 5px;
-  height: 24px;
+  height: 26px;
   flex: none;
-  padding: 0 10px;
+  padding: 0 11px;
   font-size: 11px;
-  color: var(--world-ink);
+  color: #4a3523;
+  background: #fbf4e3;
+  box-shadow: inset 0 -1px 0 #e3cfa6;
+}
+.dark .yard-titlebar {
+  color: #f6ead4;
+  background: #3b3127;
+  box-shadow: inset 0 -1px 0 #5c4a36;
 }
 .yard-titlebar i {
-  background: color-mix(in srgb, var(--world-ink) 22%, transparent);
+  background: color-mix(in srgb, currentColor 26%, transparent);
 }
 .yard-titlebar span {
   margin-left: 6px;
-  font-weight: 600;
-  opacity: 0.7;
+  font-weight: 650;
+  opacity: 0.8;
 }
 .living-scenery {
   display: block;
@@ -1830,6 +2140,7 @@ html:lang(zh-Hans) .landing .eyebrow {
   min-height: 0;
   flex: 1;
   object-fit: cover;
+  object-position: 50% 70%;
   /* The rooms' glass is clear: the app draws its live sky behind it, so the site shows the day sky
      (scenery.css). Pictures with a painted sky cover it. */
   background: linear-gradient(#74b6e6, #b0daf2 34%, #eef6ef 60%);
@@ -1841,10 +2152,28 @@ html:lang(zh-Hans) .landing .eyebrow {
   scale: 0.94;
   visibility: hidden;
 }
-/* The friends stand inside the window's picture, or along the top of the taskbar. */
+/* The app's desktop grass (Grass on desktop), shown once the friends are out. */
+.world-grass {
+  position: absolute;
+  inset: auto 0 var(--desk-bar);
+  z-index: 1;
+  height: var(--grass-height);
+  background: var(--grass) repeat-x left bottom / auto 100%;
+  opacity: 0;
+  translate: 0 30%;
+  transition:
+    opacity 0.3s ease,
+    translate 0.3s ease;
+}
+.view-desktop .world-grass {
+  opacity: 1;
+  translate: 0 0;
+}
+/* The friends stand inside the window's picture, or on the grass above the taskbar. */
 .living-friends {
   position: absolute;
-  inset: calc(5% + 24px) 4% calc(var(--desk-bar) + 4%) 25%;
+  z-index: 2;
+  inset: calc(3% + 26px) 2.5% calc(var(--desk-bar) + 3%);
 }
 .view-desktop .living-friends {
   inset: 0 3% var(--desk-bar);
@@ -1855,7 +2184,7 @@ html:lang(zh-Hans) .landing .eyebrow {
   padding: 0;
   border-radius: 50%;
   transform: translateX(-50%);
-  filter: drop-shadow(0 5px 3px #33493025);
+  filter: drop-shadow(0 5px 3px #5a3d1f30);
 }
 .living-friend:hover {
   transform: translateX(-50%) translateY(-3px);
@@ -1905,12 +2234,15 @@ html:lang(zh-Hans) .landing .eyebrow {
 :is(.friend-3, .desk-friend-3) .sprite i {
   animation-delay: -1.2s;
 }
-.view-desktop .living-friend .sprite {
+.living-friend .sprite {
   --display-scale: 0.52;
 }
-/* Room under each friend for its name, as the app keeps on the desktop. */
+.view-desktop .living-friend .sprite {
+  --display-scale: 0.5;
+}
+/* On the grass, with room under each friend for its name, as the app keeps on the desktop. */
 .view-desktop .living-friend {
-  bottom: 16px;
+  bottom: calc(var(--grass-height) * 0.4);
 }
 /* One friend has wandered up in front of the terminal: on the desktop they stay above every window.
    The share of the screen's height is measured from the bottom, past the taskbar. */
@@ -1926,17 +2258,17 @@ html:lang(zh-Hans) .landing .eyebrow {
   align-items: center;
   gap: 8px;
   height: var(--desk-bar);
-  background: #ffffffa6;
-  box-shadow: 0 -1px 0 #17382b14;
+  background: #fffaefcc;
+  box-shadow: 0 -1px 0 rgba(90, 61, 31, 0.12);
 }
 .dark .desk-bar {
-  background: #0d1513b3;
+  background: #1b1510cc;
   box-shadow: 0 -1px 0 #ffffff14;
 }
 .desk-bar i,
 .desk-bar img {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 7px;
 }
 .desk-bar i {
@@ -1955,8 +2287,8 @@ html:lang(zh-Hans) .landing .eyebrow {
   line-height: 1.6;
   padding: 2px 10px;
   border-radius: 100px;
-  background: #ffffffeb;
-  color: #28443d;
+  background: #fffaefeb;
+  color: #4a3523;
   opacity: 0;
 }
 .friend-selected .living-name,
@@ -1970,25 +2302,26 @@ html:lang(zh-Hans) .landing .eyebrow {
   align-items: center;
   gap: 8px;
 }
-/* On the page's own paper the switch needs the dock's track to read as one control. */
-.world-controls .choice-group {
-  background: var(--world-lilac);
-}
 .world-motion {
   padding: 0 14px;
+  border: 1.5px solid var(--world-rim);
   border-radius: 100px;
   color: var(--world-ink);
-  background: var(--world-lilac);
+  background: var(--world-card);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 650;
   min-height: 38px;
 }
-/* Every choice on the page is the same control: a soft track of equal chips, the chosen one
-   inked. The dock under the scene holds the world's choices on top and the friend's below. */
+/* Every choice on the page is the same control: a paper track of equal chips, the chosen one in
+   honey, as the app's dock marks it. The dock under the scene is the app's wooden dock: the
+   world's choices on top, the friend's below. */
 .world-dock {
-  margin-top: 6px;
-  border-radius: 8px 8px 24px 24px;
-  background: var(--world-lilac);
+  margin-top: 10px;
+  border: var(--pp-frame-border);
+  border-width: 4px;
+  border-radius: 20px;
+  background: var(--pp-frame);
+  box-shadow: var(--pp-frame-shadow);
 }
 .dock-row {
   display: flex;
@@ -1996,14 +2329,14 @@ html:lang(zh-Hans) .landing .eyebrow {
   align-items: center;
   justify-content: space-between;
   gap: 10px 16px;
-  padding: 12px 14px;
+  padding: 10px 12px;
 }
 /* The right-hand group keeps to the right edge even when it wraps, so both rows line up. */
 .dock-row > :last-child {
   margin-left: auto;
 }
 .dock-row + .dock-row {
-  border-top: 1px solid color-mix(in srgb, var(--world-ink) 12%, transparent);
+  border-top: 1px dashed var(--world-rim);
 }
 /* Fills the row, so the right-edge rule for the last group leaves it at the left. */
 .dock-note {
@@ -2012,11 +2345,14 @@ html:lang(zh-Hans) .landing .eyebrow {
   font-size: 13px;
   line-height: 1.5;
 }
+.landing .dock-note,
+.landing .dock-friend {
+  line-height: 1.5;
+}
 .dock-friend {
   flex: 1 1 220px;
   margin: 0;
   font-size: 13px;
-  line-height: 1.5;
 }
 .dock-friend strong {
   margin-right: 8px;
@@ -2026,25 +2362,29 @@ html:lang(zh-Hans) .landing .eyebrow {
   flex-wrap: wrap;
   gap: 2px;
   padding: 3px;
+  border: 1px solid var(--world-rim);
   border-radius: 22px;
-  background: var(--world-paper);
+  background: var(--world-lilac);
 }
 .choice-group button {
   min-height: 38px;
   padding: 0 14px;
+  border: 1.5px solid transparent;
   border-radius: 19px;
   font-size: 13px;
   color: inherit;
 }
 @media (hover: hover) {
   .choice-group button:hover:not(:disabled, [aria-pressed="true"]) {
-    background: color-mix(in srgb, var(--world-ink) 8%, transparent);
+    background: color-mix(in srgb, var(--pp-honey) 22%, transparent);
   }
 }
 .choice-group button[aria-pressed="true"] {
-  font-weight: 600;
-  color: var(--world-paper);
-  background: var(--world-ink);
+  font-weight: 700;
+  color: var(--pp-on-honey);
+  border-color: var(--pp-wood-edge);
+  background: linear-gradient(180deg, var(--pp-honey), var(--pp-honey-deep));
+  box-shadow: inset 0 1px 0 rgba(255, 246, 214, 0.6);
 }
 .choice-group button:focus-visible {
   outline-offset: 2px;
@@ -2056,9 +2396,10 @@ html:lang(zh-Hans) .landing .eyebrow {
 }
 @media (max-width: 600px) {
   .living-world {
-    --desk-bar: 52px;
+    --desk-bar: 44px;
+    --grass-height: 34px;
     --perch: 0.6;
-    border-radius: 20px 20px 8px 8px;
+    border-radius: 20px;
     aspect-ratio: 1.05;
   }
   /* On a phone the yard window takes the width, with the work window peeking out above it. */
@@ -2073,18 +2414,22 @@ html:lang(zh-Hans) .landing .eyebrow {
     top: 8%;
     right: 4%;
   }
+  .world-picker {
+    flex-direction: column;
+    align-items: flex-start;
+  }
   .world-controls {
     width: 100%;
     justify-content: flex-start;
   }
   .yard-window {
-    inset: 15% 4% calc(var(--desk-bar) + 4%);
+    inset: 3% 3% calc(var(--desk-bar) + 3%);
   }
   .living-friends {
-    inset: calc(15% + 24px) 4% calc(var(--desk-bar) + 4%);
+    inset: calc(3% + 26px) 3% calc(var(--desk-bar) + 3%);
   }
   .living-friend .sprite {
-    --display-scale: 0.28;
+    --display-scale: 0.3;
   }
   .view-desktop .living-friend .sprite {
     --display-scale: 0.32;
@@ -2093,13 +2438,16 @@ html:lang(zh-Hans) .landing .eyebrow {
     font-size: 11px;
   }
   .dock-row {
-    padding: 8px 10px;
+    padding: 8px;
   }
   .choice-group {
     display: grid;
     grid-auto-flow: column;
     grid-auto-columns: minmax(0, 1fr);
     width: 100%;
+  }
+  .choice-group button {
+    padding: 0 6px;
   }
   .place-choices {
     grid-auto-flow: row;
@@ -2138,18 +2486,6 @@ html:lang(zh-Hans) .landing .eyebrow {
     --display-scale: 0.36;
   }
 }
-/* The mini captures carry a light desktop margin around the window; in the dark theme
-   that margin glows, so only the window itself is shown. */
-.dark .mini-story .feature-shot img {
-  width: 112.17%;
-  max-width: none;
-  margin: -6.09% 0 -6.09% -6.09%;
-}
-/* The version line sits over the cropped margin, so it brings the page's own colour. */
-.dark .mini-story .feature-shot figcaption {
-  position: relative;
-  background: var(--world-paper);
-}
 @media (max-width: 640px) {
   .dark .chat-shot img {
     width: 112.17%;
@@ -2168,11 +2504,11 @@ html:lang(zh-Hans) .landing .eyebrow {
 .agent-bubble {
   width: max-content;
   border-radius: 16px;
-  background: #fffffff5;
-  color: #28443d;
+  background: #fffaef;
+  color: #4a3523;
   line-height: 1.45;
   text-align: left;
-  box-shadow: 0 6px 18px #17382b24;
+  box-shadow: 0 6px 18px rgba(90, 61, 31, 0.2);
   animation: bubble-in 0.28s ease-out;
 }
 @keyframes bubble-in {
@@ -2215,8 +2551,9 @@ html:lang(zh-Hans) .landing .eyebrow {
   border-radius: 24px;
   overflow: hidden;
   isolation: isolate;
-  background: var(--world-lilac);
-  box-shadow: 0 18px 50px #17382b14;
+  box-shadow:
+    0 0 0 1px var(--pp-wood-edge),
+    0 18px 50px var(--world-shade);
 }
 .chat-scenery {
   position: absolute;
@@ -2233,14 +2570,14 @@ html:lang(zh-Hans) .landing .eyebrow {
   display: grid;
   justify-items: center;
   transform: translateX(-50%);
-  filter: drop-shadow(0 5px 3px #33493025);
+  filter: drop-shadow(0 5px 3px #5a3d1f30);
 }
 .chat-name {
   margin-top: -6px;
   padding: 1px 9px;
   border-radius: 100px;
-  background: #ffffffe0;
-  color: #28443d;
+  background: #fffaefe0;
+  color: #4a3523;
   font-size: 11px;
 }
 /* Bubbles stack from just above the friends' heads, the newest lowest. */
@@ -2288,12 +2625,8 @@ html:lang(zh-Hans) .landing .eyebrow {
 }
 .demo-button {
   min-height: 40px;
-  padding: 9px 18px;
-  border-radius: 100px;
-  background: #284d46;
-  color: #fff;
+  padding: 0 18px;
   font-size: 13px;
-  font-weight: 600;
 }
 .demo-button:disabled {
   opacity: 0.45;
@@ -2311,13 +2644,16 @@ html:lang(zh-Hans) .landing .eyebrow {
   min-height: 40px;
   padding: 8px 14px;
   border-radius: 100px;
-  border: 1px solid #80999060;
+  border: 1.5px solid var(--world-rim);
+  background: var(--world-card);
+  color: var(--world-ink);
   font-size: 13px;
 }
 .agent-tabs button[aria-pressed="true"] {
-  color: #fff;
-  background: #284d46;
-  border-color: #284d46;
+  font-weight: 700;
+  color: var(--pp-on-honey);
+  background: linear-gradient(180deg, var(--pp-honey), var(--pp-honey-deep));
+  border-color: var(--pp-wood-edge);
 }
 .agent-desk {
   position: relative;
@@ -2330,7 +2666,7 @@ html:lang(zh-Hans) .landing .eyebrow {
   z-index: 1;
   display: grid;
   justify-items: end;
-  filter: drop-shadow(0 5px 3px #33493025);
+  filter: drop-shadow(0 5px 3px #5a3d1f30);
 }
 .agent-bubble {
   position: relative;
@@ -2350,16 +2686,16 @@ html:lang(zh-Hans) .landing .eyebrow {
   margin-top: -8px;
   padding: 2px 10px;
   border-radius: 100px;
-  background: #ffffffeb;
-  color: #28443d;
+  background: #fffaefeb;
+  color: #4a3523;
   font-size: 11px;
 }
 .agent-window {
   border-radius: 18px;
   overflow: hidden;
-  background: #1d2926;
-  color: #d8e6de;
-  box-shadow: 0 18px 50px #17382b24;
+  background: #2a231c;
+  color: #efe3cc;
+  box-shadow: 0 18px 50px rgba(90, 61, 31, 0.2);
 }
 .dark .agent-window {
   box-shadow: 0 0 0 1px #ffffff14;
@@ -2369,15 +2705,15 @@ html:lang(zh-Hans) .landing .eyebrow {
   align-items: center;
   gap: 6px;
   padding: 10px 14px;
-  background: #263633;
-  color: #9fb5ab;
+  background: #362c22;
+  color: #d6c3a2;
   font-size: 12px;
 }
 .agent-bar i {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #3e544e;
+  background: #54453a;
 }
 .agent-bar span {
   margin-left: 8px;
@@ -2420,7 +2756,7 @@ html:lang(zh-Hans) .landing .eyebrow {
   padding: 3px 14px;
   border-radius: 100px;
   background: #8fc27a;
-  color: #14231e;
+  color: #1d2a12;
   font-size: 12px;
   font-weight: 700;
   animation: allow-pulse 1.4s ease-in-out infinite;
