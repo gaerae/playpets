@@ -4,9 +4,12 @@
 // Each part as seconds around the take's marks: [part, from mark, offset, to mark, offset].
 // The dig is the last one tried, the one that found something.
 const EDITS = {
-  // The landing's film: the garden, a find, a cast and its catch, a chat, then the show at night.
+  // The landing's film: the garden, a friend walking where the grass is pressed, a game of tag
+  // from the Play panel, a find, a cast and its catch, a chat, then the show at night.
   site: [
     ['garden', 'garden', 0.5, 'garden', 3.5],
+    ['walk', 'walk', 0.2, 'walk', 7.2],
+    ['tag', 'tag', 0, 'tag', 6.0],
     ['dig', 'dig', 0, 'found', 2.4],
     ['cast', 'fish', 0, 'fish', 2.6],
     ['catch', 'bite', -1, 'caught', 2.4],

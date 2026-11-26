@@ -364,9 +364,25 @@ function playScenario(lang) {
       const mark=m=>L('video-mark '+m);
       const bite=async()=>{if(!await until(()=>document.querySelector('.bobber.bite'),16000))throw new Error('No bite');await mark('bite');await wait(500);document.querySelector('.bobber').click();};
       const card=async name=>{if(!await until(()=>!$('catch-card').hidden,10000))throw new Error('No catch card');await mark(name);await wait(2600);await until(()=>$('catch-card').hidden,12000);};
+      // A seasonal event's card shows once, a moment after the yard opens: closed before filming.
+      if(await until(()=>!$('catch-card').hidden,3500)){$('catch-card').click();await wait(600);}
       clearFocus(document);await wait(350);
       await L('video-start '+JSON.stringify((await inv('e2eWindow',['main'])).data));await wait(2500);
       await mark('garden');await wait(5000);
+      // A press on open ground: the nearest friend walks there, over a ring of bent grass.
+      await hold();await wait(300);
+      await mark('walk');
+      for(const [fx,fy] of [[0.86,0.74],[0.14,0.66],[0.5,0.9]]){
+        const r=$('yard').getBoundingClientRect(),o={bubbles:true,cancelable:true,button:0,pointerId:3,clientX:r.left+r.width*fx,clientY:r.top+r.height*fy,detail:1};
+        window.dispatchEvent(new PointerEvent('pointerdown',o));$('yard').dispatchEvent(new PointerEvent('pointerup',o));$('yard').dispatchEvent(new MouseEvent('click',o));
+        await wait(2700);
+      }
+      // Tag from the Play panel: the friends run.
+      await hold();await wait(300);
+      await mark('tag');$('play-button').click();await wait(1200);
+      document.querySelector('#games-menu [data-game=tag]').click();await wait(5500);
+      const tagging=document.querySelector('[data-game].playing');if(tagging)tagging.click();
+      if(!$('play-panel').hidden)$('close-play').click();await wait(800);
       await hold();await wait(400);
       const {autoDig}=await import('./yard/discovery.js');
       // A dig can come up empty: the film keeps the first one that finds something for the album.
@@ -617,7 +633,9 @@ async function captureAll(lang) {
   if (onSite && (playOnly || reelOnly || !process.env.SHOT_SCENE)) {
     const playData = path.join(dataDir, 'play');
     await mkdir(playData, { recursive: true });
-    await writeFile(path.join(playData, 'state.json'), JSON.stringify(playGarden(Date.now())));
+    // The winter question is answered (the season kept), so it never asks over a picture or the film.
+    const answered = { winterAsked: { year: new Date().getFullYear(), previous: null } };
+    await writeFile(path.join(playData, 'state.json'), JSON.stringify({ ...playGarden(Date.now()), ...answered }));
     await pass(playData, playScenario(lang));
   }
   if (onSite) await toWebp(outDir);
