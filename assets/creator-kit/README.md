@@ -38,6 +38,7 @@ node scripts/creator-kit.mjs
 
 - Needs Google Chrome.
 - Never changes or generates the high-resolution turnaround and face references.
+- Daisy's right profile and Clover's left profile in their turnarounds were edited on 2026-11-27 so the flower and the bow on the far side of the body are hidden; the record is in `../sources/walk-2026-11-26/` (`accepted-art.json` `turnaround`).
 
 After changing the spec or approved source images, refresh tracked metadata:
 

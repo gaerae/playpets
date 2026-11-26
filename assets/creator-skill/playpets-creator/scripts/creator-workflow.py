@@ -7,6 +7,7 @@ import json
 import math
 from pathlib import Path
 import re
+import statistics
 import sys
 import unicodedata
 import warnings
@@ -39,6 +40,15 @@ POSE_CLIPS = (
     ('reel', 'fish', (4, 5), (320, 420), {'loop': False}),
 )
 POINT_KEYS = {'dig': {'ground', 'feet'}, 'plant': {'ground', 'feet'}, 'discover': {'feet'}, 'fish': {'tips', 'feet'}}
+# The walks toward and away from the viewer and the runs: each batch is one eight-cell loop of
+# 192x208 cells at 100 ms, the feet on (96, 199), as the four built-in friends' walks.
+WALK_BATCHES = ('walk-front', 'walk-back', 'run-right', 'run-left')
+# A running body bends, so its grounded poses stand at this share of the idle height.
+RUN_SHARE = 0.95
+# The run's flight cells (4 and 8), where both feet are off the ground.
+FLIGHT = (3, 7)
+# The app opens at most this many pose pictures for one pet and leaves out the clips past it.
+POSE_PICTURES = 32
 
 
 def check(ok, message):
@@ -79,7 +89,7 @@ def image(path, size, pet=False):
     if pet:
         alpha = result.getchannel('A')
         hist = alpha.histogram()
-        check(hist[0] >= size[0] * size[1] * 0.01, 'Pet needs true transparent background')
+        check(hist[0] >= size[0] * size[1] * 0.01, f'Pet needs true transparent background (fully clear pixels, not a faint haze): {path}')
         check(sum(hist[25:]) > 0, 'Pet has no visible pixels')
     return result
 
@@ -200,17 +210,24 @@ def pose_points(path, outfit):
     return result
 
 
+def tile_boxes(source, label, indices, hints=None):
+    """The visible box of each tile of a 4x2 batch, in the picture's pixels; an empty tile or one
+    reaching its three-pixel gutter is refused."""
+    boxes = {}
+    for index in indices:
+        left, top = (index % 4) * 384, (index // 4) * 512
+        box = opaque_box(source.crop((left, top, left + 384, top + 512)))
+        check(box is not None, f'{label} tile {index} is empty' + (hints or {}).get(index, ''))
+        check(box[0] >= 3 and box[1] >= 3 and box[2] <= 381 and box[3] <= 509, f'{label} tile {index} crosses its tile gutter')
+        boxes[index] = (left + box[0], top + box[1], left + box[2], top + box[3])
+    return boxes
+
+
 def pose_batch(path, label, height, points, batch):
     """Packs tiles 0-5 of one batch into a row of canvases at the scale tile 7 sets."""
     source = image(path, (1536, 1024), pet=True)
     (width, depth), (ax, ay), _ = POSE_CANVAS[batch]
-    boxes = {}
-    for index in (0, 1, 2, 3, 4, 5, 7):
-        left, top = (index % 4) * 384, (index // 4) * 512
-        box = opaque_box(source.crop((left, top, left + 384, top + 512)))
-        check(box is not None, f'{label} tile {index} is empty' + ('; it needs the standing pose that sets the scale' if index == 7 else ''))
-        check(box[0] >= 3 and box[1] >= 3 and box[2] <= 381 and box[3] <= 509, f'{label} tile {index} crosses its tile gutter')
-        boxes[index] = (left + box[0], top + box[1], left + box[2], top + box[3])
+    boxes = tile_boxes(source, label, (0, 1, 2, 3, 4, 5, 7), {7: '; it needs the standing pose that sets the scale'})
     scale = height / (boxes[7][3] - boxes[7][1])
 
     def feet_of(index):
@@ -259,45 +276,146 @@ def pose_batch(path, label, height, points, batch):
     return atlas, frames, ground
 
 
-def pack_actions(directory, heights):
-    """Packs every outfit folder of DIR: the atlases by their path in the pet (actions/<outfit>/*.png),
-    the actions.json that names them, and the files read."""
-    root = Path(directory)
+def gait_batch(path, label, height, batch):
+    """Packs the eight poses of a walk or a run into one row of 192x208 cells, the feet on (96, 199).
+    A walk is scaled so its median pose is the idle height and each pose's feet are centred; a run
+    so its grounded poses' median is RUN_SHARE of it, the torso and head centred, the flight cells
+    as high above their row's ground as drawn. Returns the atlas, its frames and a run's stride."""
+    source = image(path, (1536, 1024), pet=True)
+    boxes = tile_boxes(source, label, range(8))
+    run = batch.startswith('run')
+    tall = {index: box[3] - box[1] for index, box in boxes.items()}
+    grounded = [index for index in range(8) if not run or index not in FLIGHT]
+    scale = (RUN_SHARE if run else 1) * height / statistics.median(tall[index] for index in grounded)
+    # Each row of the picture may stand on its own line; a run's flight is measured from its row's.
+    ground = {row: statistics.median(boxes[index][3] for index in grounded if index // 4 == row) for row in (0, 1)}
+    atlas = Image.new('RGBA', (1536, 208))
+    spreads = []
+    for index in range(8):
+        left, top, right, bottom = boxes[index]
+        if run:
+            upper = opaque_box(source.crop((left, top, right, top + max(1, round(tall[index] * 0.55)))))
+            middle = left + (upper[0] + upper[2]) / 2
+            lift = (ground[index // 4] - bottom) * scale
+            if index in FLIGHT:
+                check(lift >= 2, f'{label} tile {index} is a flight pose and needs both feet off the ground: it is {round(lift)} px '
+                      f'above the ground of its row\'s other poses once packed, and a flight needs at least 2')
+                feet_line = ground[index // 4]
+            else:
+                check(abs(lift) <= 6, f'{label} tile {index} stands {abs(round(lift))} px off the ground of its row\'s other '
+                      'grounded poses once packed; draw every grounded pose on one line (at most 6 px apart)')
+                feet_line = bottom
+        else:
+            off = tall[index] * scale / height - 1
+            check(abs(off) <= 0.05, f'{label} tile {index} is {round(off * 100):+d}% off the idle height once the batch is scaled; '
+                  'keep every pose within 5% of it (the walk\'s own bob) by drawing all eight at one size')
+            # The middle of what touches the ground: the lowest ninth of the figure, at least 4 pixels.
+            band = opaque_box(source.crop((left, bottom - max(4, round(tall[index] / 9)), right, bottom)))
+            middle, feet_line = left + (band[0] + band[2]) / 2, bottom
+        place = lambda x, y, middle=middle, feet_line=feet_line: (96 + (x - middle) * scale, 199 + (y - feet_line) * scale)
+        (x0, y0), (x1, y1) = place(left, top), place(right, bottom)
+        check(x0 >= 1 and y0 >= 1 and x1 <= 191 and y1 <= 207,
+              f'{label} tile {index} would clip its 192x208 cell with its ' + ('torso' if run else 'feet') + ' centred. The '
+              'batch is scaled to the idle height, so drawing it smaller does not help: draw that pose more compact (limbs, '
+              'tail or anything held nearer the body' + (', a flight lower' if run else '') + ')')
+        crop = source.crop((left - 2, top - 2, right + 2, bottom + 2))
+        corner = place(left - 2, top - 2)
+        cell = Image.new('RGBA', (192, 208))
+        cell.paste(crop.resize((round(crop.width * scale), round(crop.height * scale)), Image.Resampling.LANCZOS),
+                   (round(corner[0]), round(corner[1])))
+        atlas.paste(cell, (index * 192, 0))
+        # How far apart the feet reach: the lowest 12% of the packed figure, at least 3 pixels.
+        rows = max(1, round(max(3, round(tall[index] * scale * 0.12)) / scale))
+        feet = opaque_box(source.crop((left, bottom - rows, right, bottom)))
+        spreads.append((feet[2] - feet[0]) * scale / 192)
+    frames = [{'rect': [index * 192, 0, 192, 208], 'duration': 100} for index in range(8)]
+    # The ground one cycle covers, in 192 px cell widths: two steps of the widest pair's mean reach.
+    stride = round(min(1.2, max(0.5, 2 * max((spreads[i] + spreads[i + 4]) / 2 for i in range(4)))), 2) if run else None
+    return atlas, frames, stride
+
+
+def pose_folders(root):
+    """Which outfit folders DIR has, and in each whether the game set is given and which walks."""
     check(root.is_dir(), 'The --actions folder does not exist')
     folders = sorted(path.name for path in root.iterdir() if not path.name.startswith('.'))
     for name in folders:
         check(name in OUTFITS and (root / name).is_dir(), f'Unknown pose folder {name}; use base, spring, summer, autumn or winter')
     check('base' in folders, 'The --actions folder needs base/, the poses every season falls back to')
-    atlases, outfits, sources = {}, {}, []
+    known = {f'{name}.png' for name in POSE_BATCHES + WALK_BATCHES}
+    plan = {}
     for outfit in [name for name in OUTFITS if name in folders]:
+        folder = root / outfit
+        for path in sorted(folder.iterdir()):
+            # A misspelt walk would be left out without a word, so every picture has to be one we read.
+            check(path.name.startswith('.') or path.suffix.lower() not in ('.png', '.webp', '.jpg', '.jpeg') or path.name in known,
+                  f'Unknown pose picture {outfit}/{path.name}; use dig, plant, discover, fish, walk-front, walk-back, run-right '
+                  'or run-left, each a .png')
+        game = (folder / 'points.json').exists() or any((folder / f'{batch}.png').exists() for batch in POSE_BATCHES)
+        walks = [batch for batch in WALK_BATCHES if (folder / f'{batch}.png').exists()]
+        check(game or walks, f'{outfit}/ has no poses; give dig, plant, discover and fish with points.json, '
+              'or any of walk-front, walk-back, run-right and run-left')
+        plan[outfit] = (game, walks)
+    count = sum(len(POSE_BATCHES) * game + len(walks) for game, walks in plan.values())
+    check(count <= POSE_PICTURES, f'{count} pose pictures are given, and the app opens at most {POSE_PICTURES} for one pet; '
+          'leave out the walks or the game poses of an outfit that can use the base ones')
+    return plan
+
+
+def pack_actions(directory, heights):
+    """Packs every outfit folder of DIR: the atlases by their path in the pet (actions/<outfit>/*.png),
+    the actions.json that names them, and the files read. The game set (dig, plant, discover, fish
+    and points.json) comes whole or not at all; each walk and run is its own choice."""
+    root = Path(directory)
+    plan = pose_folders(root)
+    atlases, outfits, sources = {}, {}, []
+    for outfit, (game, walks) in plan.items():
         check(outfit in heights, f'Poses for {outfit} need --season {outfit}=FILE, the sheet that outfit walks in')
-        points_path = root / outfit / 'points.json'
-        points = pose_points(points_path, outfit)
-        sources.append(points_path)
-        packed = {}
-        for batch in POSE_BATCHES:
-            path = root / outfit / f'{batch}.png'
-            check(path.is_file(), f'{outfit}/{batch}.png is missing; every outfit needs dig, plant, discover and fish')
-            sources.append(path)
-            packed[batch] = pose_batch(path, f'{outfit} {batch}', heights[outfit], points.get(batch, {}), batch)
-            atlases[f'actions/{outfit}/{batch}.png'] = packed[batch][0]
         clips = {}
-        for name, batch, tiles, durations, extra in POSE_CLIPS:
-            canvas, anchor, offset = POSE_CANVAS[batch]
-            _, frames, ground = packed[batch]
-            clip = {'image': f'actions/{outfit}/{batch}.png', 'canvas': list(canvas), 'anchor': list(anchor), 'offset': list(offset)}
-            if ground is not None:
-                clip['ground'] = ground
-            clip.update(extra)
-            clip['frames'] = [{**frames[tile], 'duration': duration} for tile, duration in zip(tiles, durations)]
-            clips[name] = clip
+        if game:
+            clips.update(pack_game(root, outfit, heights[outfit], atlases, sources))
+        for batch in walks:
+            path = root / outfit / f'{batch}.png'
+            sources.append(path)
+            atlas, frames, stride = gait_batch(path, f'{outfit} {batch}', heights[outfit], batch)
+            atlases[f'actions/{outfit}/{batch}.png'] = atlas
+            clip = {'image': f'actions/{outfit}/{batch}.png', 'canvas': [192, 208], 'anchor': [96, 199], 'offset': [0, 0], 'loop': True}
+            if stride is not None:
+                clip['stride'] = stride
+            clip['frames'] = frames
+            clips[batch] = clip
         outfits[outfit] = clips
     return atlases, {'version': 1, 'outfits': outfits}, sources
+
+
+def pack_game(root, outfit, height, atlases, sources):
+    """The digging, planting, find and fishing clips of one outfit, its atlases added to `atlases`."""
+    points_path = root / outfit / 'points.json'
+    points = pose_points(points_path, outfit)
+    sources.append(points_path)
+    packed = {}
+    for batch in POSE_BATCHES:
+        path = root / outfit / f'{batch}.png'
+        check(path.is_file(), f'{outfit}/{batch}.png is missing; game poses come as dig, plant, discover and fish together')
+        sources.append(path)
+        packed[batch] = pose_batch(path, f'{outfit} {batch}', height, points.get(batch, {}), batch)
+        atlases[f'actions/{outfit}/{batch}.png'] = packed[batch][0]
+    clips = {}
+    for name, batch, tiles, durations, extra in POSE_CLIPS:
+        canvas, anchor, offset = POSE_CANVAS[batch]
+        _, frames, ground = packed[batch]
+        clip = {'image': f'actions/{outfit}/{batch}.png', 'canvas': list(canvas), 'anchor': list(anchor), 'offset': list(offset)}
+        if ground is not None:
+            clip['ground'] = ground
+        clip.update(extra)
+        clip['frames'] = [{**frames[tile], 'duration': duration} for tile, duration in zip(tiles, durations)]
+        clips[name] = clip
+    return clips
 
 
 def render_actions(args):
     atlases, actions, sources = pack_actions(args.actions, {outfit: args.idle_height for outfit in OUTFITS})
     rows = [(outfit, name, clip) for outfit, clips in actions['outfits'].items() for name, clip in clips.items() if name != 'wait' and name != 'reel']
+    # Six fishing canvases are the widest row; a walk's eight 192 px cells fit within it.
     width = 24 + 6 * (320 + 12)
     height = 24 + sum(20 + clip['canvas'][1] + 12 for _, _, clip in rows)
     sheet = Image.new('RGBA', (width, height), '#edf4fc')
@@ -309,7 +427,7 @@ def render_actions(args):
         atlas = atlases[clip['image']]
         frames = actions['outfits'][outfit]['cast']['frames'] + actions['outfits'][outfit]['wait']['frames'] + \
             actions['outfits'][outfit]['reel']['frames'] if batch == 'fish' else clip['frames']
-        draw.text((24, y), f'{outfit} {batch}', fill='#363b43')
+        draw.text((24, y), f'{outfit} {batch}' + (f'  stride {clip["stride"]}' if 'stride' in clip else ''), fill='#363b43')
         y += 20
         for index, frame in enumerate(frames):
             x = 24 + index * (cw + 12)
@@ -330,6 +448,154 @@ def render_actions(args):
     write_output(args.output, png_bytes(sheet, 32 * MIB), args.overwrite, sources)
     print('Rendered: every packed pose on its canvas, with the feet (blue cross), the 192x208 cell (purple), '
           'ground points (green) and rod tips (red). Check them by eye before packing.')
+    for outfit, name, clip in rows:
+        if 'stride' in clip:
+            print(f'{outfit} {name}: stride {clip["stride"]} cell widths a cycle')
+
+
+# The gait guides: grey mannequins of a gait's eight poses, limb positions only, four columns and two
+# rows in 384x512 tiles, drawn at twice the size and reduced. They are the same pictures the four
+# built-in friends' walks were drawn from. Side views face right with the near limbs dark and the
+# far limbs light; front and back views show the character's right limbs dark and its left light.
+GUIDE_SCALE = 2
+GUIDE_DARK, GUIDE_LIGHT, GUIDE_BODY = (96, 96, 104, 255), (176, 176, 184, 255), (138, 138, 146, 255)
+GUIDE_FLOOR = (200, 200, 206, 255)
+# Each side pose: body drop (px, + is lower), torso lean (deg), and per limb (upper, lower) angles
+# from straight down, + toward the front. Poses 5-8 are 1-4 with the legs and the arms swapped.
+GUIDE_SIDE = {
+    'walk': (
+        # 1 contact: near leg forward on its heel, far leg back on its toe; far arm forward
+        dict(drop=0, lean=3, near_leg=(28, 18), far_leg=(-22, -40), near_arm=(-28, -40), far_arm=(30, 55)),
+        # 2 down: weight onto the near leg, its knee bent; far foot leaves the ground behind
+        dict(drop=8, lean=4, near_leg=(16, -8), far_leg=(-24, -75), near_arm=(-18, -30), far_arm=(20, 45)),
+        # 3 passing: near leg straight under the body, far knee lifted passing it; arms at the sides
+        dict(drop=0, lean=3, near_leg=(0, -2), far_leg=(18, -60), near_arm=(-4, -12), far_arm=(4, 15)),
+        # 4 up: on the near toes, highest; far leg reaching forward
+        dict(drop=-8, lean=3, near_leg=(-16, -22), far_leg=(32, 8), near_arm=(16, 40), far_arm=(-16, -28)),
+    ),
+    'run': (
+        # 1 contact: the near foot lands just ahead of the hips; far leg trailing high; arms bent, pumping
+        dict(drop=4, lean=12, near_leg=(22, 10), far_leg=(-40, -100), near_arm=(-40, 40), far_arm=(40, 110)),
+        # 2 down: weight on the bent near leg, lowest; far knee swinging through
+        dict(drop=14, lean=12, near_leg=(8, -30), far_leg=(-6, -95), near_arm=(-20, 60), far_arm=(25, 100)),
+        # 3 push-off: near leg straight behind, pushing; far knee driven high in front
+        dict(drop=0, lean=14, near_leg=(-30, -36), far_leg=(55, -20), near_arm=(35, 110), far_arm=(-40, 40)),
+        # 4 flight: both feet off the ground, highest; near leg folding up behind, far leg reaching to land
+        dict(drop=-20, lean=12, near_leg=(-35, -110), far_leg=(40, 12), near_arm=(40, 110), far_arm=(-40, 40)),
+    ),
+}
+# Each front or back pose: body drop, the right and the left leg's (forward reach, lift) and the right
+# and the left arm's forward swing. From in front a foot set forward is lower on the page.
+GUIDE_FACING = (
+    dict(drop=0, legs=((1, 0), (-1, 6)), arms=(-1, 1)),  # 1 contact: right foot forward, left arm forward
+    dict(drop=8, legs=((0.6, 0), (-1, 22)), arms=(-0.7, 0.7)),  # 2 down
+    dict(drop=0, legs=((0, 0), (0.1, 34)), arms=(-0.1, 0.1)),  # 3 passing: left knee lifted
+    dict(drop=-8, legs=((-0.6, 8), (0.8, 10)), arms=(0.6, -0.6)),  # 4 up: on the right toes, left reaching
+    dict(drop=0, legs=((-1, 6), (1, 0)), arms=(1, -1)),  # 5-8: the other leg
+    dict(drop=8, legs=((-1, 22), (0.6, 0)), arms=(0.7, -0.7)),
+    dict(drop=0, legs=((0.1, 34), (0, 0)), arms=(0.1, -0.1)),
+    dict(drop=-8, legs=((0.8, 10), (-0.6, 8)), arms=(-0.6, 0.6)),
+)
+
+
+def capsule(draw, a, b, width, fill):
+    draw.line([a, b], fill=fill, width=width)
+    for p in (a, b):
+        draw.ellipse([p[0] - width / 2, p[1] - width / 2, p[0] + width / 2, p[1] + width / 2], fill=fill)
+
+
+def side_guide(draw, gait):
+    S = GUIDE_SCALE
+    thigh, shin, upper, fore, limb_width = 58, 56, 44, 42, 26
+    poses = list(GUIDE_SIDE[gait]) + [dict(p, near_leg=p['far_leg'], far_leg=p['near_leg'], near_arm=p['far_arm'],
+                                          far_arm=p['near_arm']) for p in GUIDE_SIDE[gait]]
+
+    def toward(x, y, length, angle):
+        a = math.radians(angle)
+        return x + math.sin(a) * length, y + math.cos(a) * length
+
+    def limb(start, angles, lengths, fill, foot=False):
+        knee = toward(*start, lengths[0], angles[0])
+        end = toward(*knee, lengths[1], angles[0] + (angles[1] - angles[0]))
+        capsule(draw, start, knee, limb_width * S, fill)
+        capsule(draw, knee, end, limb_width * S, fill)
+        if foot:
+            capsule(draw, end, (end[0] + 26 * S, end[1] + 2 * S), int(limb_width * 0.9) * S, fill)
+
+    for i, p in enumerate(poses):
+        col, row = i % 4, i // 4
+        cx, ground = (col * 384 + 184) * S, (row * 512 + 470) * S
+        hip = (cx, ground - (thigh + shin + 12) * S + p['drop'] * S)
+        shoulder = (hip[0] + math.sin(math.radians(p['lean'])) * 78 * S, hip[1] - 78 * S)
+        head = (shoulder[0] + 6 * S, shoulder[1] - 62 * S)
+        legs, arms = (thigh * S, shin * S), (upper * S, fore * S)
+        limb(hip, p['far_leg'], legs, GUIDE_LIGHT, foot=True)
+        limb((shoulder[0], shoulder[1] + 10 * S), p['far_arm'], arms, GUIDE_LIGHT)
+        capsule(draw, hip, shoulder, 58 * S, GUIDE_BODY)
+        draw.ellipse([head[0] - 56 * S, head[1] - 56 * S, head[0] + 56 * S, head[1] + 56 * S], fill=GUIDE_BODY)
+        # The nose marks the way it faces.
+        draw.ellipse([head[0] + 44 * S, head[1] - 4 * S, head[0] + 64 * S, head[1] + 16 * S], fill=GUIDE_BODY)
+        limb(hip, p['near_leg'], legs, GUIDE_DARK, foot=True)
+        limb((shoulder[0], shoulder[1] + 10 * S), p['near_arm'], arms, GUIDE_DARK)
+        draw.line([(col * 384 + 40) * S, ground + 2 * S, (col * 384 + 344) * S, ground + 2 * S], fill=GUIDE_FLOOR, width=2 * S)
+
+
+def facing_guide(draw, view):
+    S = GUIDE_SCALE
+    toward = 1 if view == 'front' else -1
+    for i, p in enumerate(GUIDE_FACING):
+        col, row = i % 4, i // 4
+        cx, ground = (col * 384 + 192) * S, (row * 512 + 470) * S
+        hip_y = ground - 126 * S + p['drop'] * S
+        shoulder_y = hip_y - 80 * S
+        head_y = shoulder_y - 62 * S
+        # The character's right side is on the viewer's left from in front, on the viewer's right from behind.
+        order = []
+        for k, (side, colour) in enumerate(((-1 * toward, GUIDE_DARK), (1 * toward, GUIDE_LIGHT))):
+            reach, lift = p['legs'][k]
+            foot = (cx + side * 22 * S, ground + toward * reach * 12 * S - lift * S)
+            hip = (cx + side * 20 * S, hip_y)
+            knee = ((hip[0] + foot[0]) / 2 + side * 2 * S, (hip[1] + foot[1]) / 2 - lift * 0.4 * S)
+            swing = p['arms'][k]
+            shoulder = (cx + side * 34 * S, shoulder_y + 8 * S)
+            hand = (cx + side * 44 * S, shoulder_y + (78 + toward * swing * 10) * S)
+            # What swings toward the viewer is drawn over the body, what swings away under it.
+            order.append((toward * reach, 'leg', hip, knee, foot, colour))
+            order.append((toward * swing, 'arm', shoulder, None, hand, colour))
+
+        def limb(item):
+            _, kind, a, middle, b, colour = item
+            if kind == 'leg':
+                capsule(draw, a, middle, 26 * S, colour)
+                capsule(draw, middle, b, 26 * S, colour)
+                capsule(draw, b, (b[0], b[1] + toward * 6 * S), 30 * S, colour)
+            else:
+                capsule(draw, a, b, 22 * S, colour)
+        for item in order:
+            if item[0] < 0:
+                limb(item)
+        capsule(draw, (cx, hip_y), (cx, shoulder_y), 70 * S, GUIDE_BODY)
+        draw.ellipse([cx - 58 * S, head_y - 58 * S, cx + 58 * S, head_y + 58 * S], fill=GUIDE_BODY)
+        if view == 'front':
+            for ex in (-20, 20):
+                draw.ellipse([cx + (ex - 7) * S, head_y - 7 * S, cx + (ex + 7) * S, head_y + 7 * S], fill=(110, 110, 118, 255))
+        for item in order:
+            if item[0] >= 0:
+                limb(item)
+        draw.line([(col * 384 + 40) * S, ground + 14 * S, (col * 384 + 344) * S, ground + 14 * S], fill=GUIDE_FLOOR, width=2 * S)
+
+
+def render_gait_guide(args):
+    picture = Image.new('RGBA', (1536 * GUIDE_SCALE, 1024 * GUIDE_SCALE), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(picture)
+    if args.gait in GUIDE_SIDE:
+        side_guide(draw, args.gait)
+    else:
+        facing_guide(draw, args.gait)
+    picture = picture.resize((1536, 1024), Image.LANCZOS)
+    write_output(args.output, png_bytes(picture, 6 * MIB), args.overwrite, [])
+    print(f'Rendered: the {args.gait} guide, eight grey mannequin poses in a 1536x1024 4x2 grid. Give it to the image tool '
+          'for limb positions only; the figures drawn from it keep the pet\'s own look, and the guide never goes into the pet.')
 
 
 def assemble_row(args):
@@ -411,7 +677,7 @@ def pet(args):
         files['actions.json'] = (json.dumps(actions, indent=2) + '\n').encode()
         check(len(files['actions.json']) <= 256 * 1024, 'actions.json exceeds 256 KiB')
         manifest['actionsPath'] = 'actions.json'
-        posed = [name for name in OUTFITS if name in actions['outfits']]
+        posed = [(name, actions['outfits'][name]) for name in OUTFITS if name in actions['outfits']]
     files['pet.json'] = (json.dumps(manifest, ensure_ascii=False, indent=2) + '\n').encode()
     output = io.BytesIO()
     with zipfile.ZipFile(output, 'w', compression=zipfile.ZIP_STORED) as archive:
@@ -427,9 +693,12 @@ def pet(args):
     write_output(args.output, output.getvalue(), args.overwrite, sources + pose_sources)
     print('Validated: decoded static images, alpha, dimensions, 73 used cells, cell margins, manifest and ZIP paths. Art review and app playback remain manual.')
     if posed:
-        print(f'Packed game poses for {", ".join(posed)}, each at its sheet\'s idle height '
-              f'({", ".join(f"{name} {heights[name]}px" for name in posed)}). '
-              'Check them with render-actions and in the app.')
+        def kinds(clips):
+            given = (['game poses'] if 'dig' in clips else []) + [name for name in WALK_BATCHES if name in clips]
+            return ', '.join(name + (f' (stride {clips[name]["stride"]})' if 'stride' in clips.get(name, {}) else '') for name in given)
+        print('Packed poses at each sheet\'s idle height: ' +
+              '; '.join(f'{name} {heights[name]}px: {kinds(clips)}' for name, clips in posed) +
+              '. Check them with render-actions and in the app.')
 
 
 def fraction(value, lower=0, upper=1):
@@ -536,7 +805,9 @@ def main():
     pets.add_argument('--kind', choices=['animal', 'person', 'other'], required=True)
     pets.add_argument('--description', default='')
     pets.add_argument('--source-json', help='Optional JSON attribution object: name, url, creator, license (metadata only; never fetched)')
-    pets.add_argument('--actions', help='Optional game poses: DIR/<outfit>/dig.png, plant.png, discover.png, fish.png (1536x1024, 4x2) and points.json; outfit folders base, spring, summer, autumn, winter')
+    pets.add_argument('--actions', help='Optional poses in DIR/<outfit>/ (base, spring, summer, autumn, winter), each 1536x1024 4x2: '
+                      'the game set dig.png, plant.png, discover.png, fish.png with points.json, and any of walk-front.png, '
+                      'walk-back.png, run-right.png, run-left.png')
     row = commands.add_parser('assemble-row', help='Retile approved 3x2 or 4x2 artwork into a canonical row without changing pixels or scale')
     row.add_argument('--image', required=True, help='1536x1024 transparent PNG or static WebP')
     row.add_argument('--columns', type=int, choices=(3, 4), required=True)
@@ -548,18 +819,21 @@ def main():
     guide = commands.add_parser('render-layout', help='Render layout JSON to a technical PNG guide for image-tool references (not finished art)')
     guide.add_argument('--config', required=True, help='Background layout JSON')
     guide.add_argument('--image', help='Optional 1536x1024 scene to inspect beneath technical guides; never modified')
-    poses = commands.add_parser('render-actions', help='Pack game poses as pack-pet --actions would and draw them with their feet, ground points and rod tips for review')
+    poses = commands.add_parser('render-actions', help='Pack poses as pack-pet --actions would and draw them with their feet, ground points and rod tips for review')
     poses.add_argument('--actions', required=True, help='The same folder pack-pet --actions reads')
     poses.add_argument('--idle-height', type=float, default=163, help='The sheet\'s idle height in pixels; pack-pet reports it for each outfit (default 163)')
     for command in (pets, bg):
         command.add_argument('--season', action='append', default=[], metavar='SEASON=FILE', help='Optional complete seasonal picture; repeat for each season')
-    for command in (pets, bg, guide, row, poses):
+    gait = commands.add_parser('render-gait-guide', help='Draw the grey mannequin guide of a walk or run batch\'s eight poses, for image-tool references (not pet art)')
+    gait.add_argument('--gait', required=True, choices=('walk', 'front', 'back', 'run'),
+                      help='walk: walking right (side view); front: walking toward the viewer; back: walking away; run: running right')
+    for command in (pets, bg, guide, row, poses, gait):
         command.add_argument('--output', required=True, help='New output file; parent directory must exist')
         command.add_argument('--overwrite', action='store_true', help='Explicitly replace existing output, never an input')
     args = parser.parse_args()
     try:
         {'pack-pet': pet, 'pack-background': background, 'render-layout': render_layout, 'assemble-row': assemble_row,
-         'render-actions': render_actions}[args.command](args)
+         'render-actions': render_actions, 'render-gait-guide': render_gait_guide}[args.command](args)
     except (OSError, ValueError, TypeError, Image.DecompressionBombError, Image.DecompressionBombWarning) as error:
         parser.exit(1, f'Validation failed: {error}\n')
 

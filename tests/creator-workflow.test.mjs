@@ -849,3 +849,324 @@ test('offline pose review sheet draws every packed frame without touching its so
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+// Walk and run batches for the tests, in DIR/<outfit>/ for each comma-separated outfit. A walk
+// toward or away is eight figures standing at (192, 460) of their 384×512 tiles, 79–81 px tall (the
+// art's own bob), the body set off to the right of the feet so only a feet-centred packer puts the
+// feet at x 96. A run is eight 76 px figures with the torso centred on x 192 and the feet ahead of
+// it; tiles 3 and 7 are in flight, 10 px above their row's ground, and tiles 0 and 4 reach widest.
+const WALK_FIXTURE = `from PIL import Image,ImageDraw
+import sys
+from pathlib import Path
+root=Path(sys.argv[1])
+for outfit in sys.argv[2].split(','):
+ (root/outfit).mkdir(parents=True,exist_ok=True)
+ for clip in ('walk-front','walk-back'):
+  im=Image.new('RGBA',(1536,1024)); d=ImageDraw.Draw(im)
+  for i,h in enumerate((80,79,81,80,80,79,81,80)):
+   x=(i%4)*384+192; y=(i//4)*512+460
+   d.rectangle((x-10,y-h,x+29,y-11),fill=(70,110,150,255))
+   d.rectangle((x-16,y-10,x+15,y-1),fill=(40,60,90+i,255))
+  im.save(root/outfit/f'{clip}.png')
+ for clip in ('run-right','run-left'):
+  im=Image.new('RGBA',(1536,1024)); d=ImageDraw.Draw(im)
+  for i in range(8):
+   x=(i%4)*384+192; y=(i//4)*512+460-(10 if i%4==3 else 0); w=40 if i%4==0 else 20
+   d.rectangle((x-15,y-76,x+14,y-11),fill=(150,90,60,255))
+   d.rectangle((x-5,y-10,x-6+w,y-1),fill=(90,50,30+i,255))
+  im.save(root/outfit/f'{clip}.png')
+`;
+const WALKS = ['walk-front', 'walk-back', 'run-right', 'run-left'];
+function py(code, ...args) {
+  const result = spawnSync(python, ['-c', code, ...args], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  return result.stdout;
+}
+
+test('offline helper packs walks toward and away and runs into eight-cell clips at the sheet scale', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'creator-walks-'));
+  try {
+    const poses = path.join(dir, 'poses');
+    py(POSE_FIXTURE, poses);
+    py(WALK_FIXTURE, poses, 'base,winter');
+    const out = path.join(dir, 'pet.zip');
+    const args = [
+      'pack-pet',
+      '--atlas',
+      'assets/pets/clover/spritesheet.png',
+      '--season',
+      'winter=assets/pets/clover/spritesheet.png',
+      '--actions',
+      poses,
+      '--id',
+      'walker',
+      '--name',
+      'Walker',
+      '--kind',
+      'animal',
+      '--output',
+      out,
+    ];
+    const result = run(...args);
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /walk-front/);
+    const files = entries(await readFile(out));
+    const actions = JSON.parse(files['actions.json']);
+    for (const outfit of ['base', 'winter']) {
+      const clips = actions.outfits[outfit];
+      assert.deepEqual(
+        Object.keys(clips).sort(),
+        ['cast', 'dig', 'discover', 'plant', 'reel', 'wait', ...WALKS].sort(),
+        outfit,
+      );
+      for (const name of WALKS) {
+        const clip = clips[name];
+        const { frames, stride, ...rest } = clip;
+        assert.deepEqual(rest, {
+          image: `actions/${outfit}/${name}.png`,
+          canvas: [192, 208],
+          anchor: [96, 199],
+          offset: [0, 0],
+          loop: true,
+        });
+        assert.deepEqual(
+          frames,
+          Array.from({ length: 8 }, (_, i) => ({ rect: [i * 192, 0, 192, 208], duration: 100 })),
+        );
+        assert.deepEqual(pngSize(files[clip.image]), [1536, 208]);
+        if (name.startsWith('run')) {
+          // 2 × the widest pair's mean feet spread: tiles 0 and 4, 40 px at the run's scale.
+          const scale = (0.95 * 168) / 76;
+          assert.ok(Math.abs(stride - Math.round(((2 * 40 * scale) / 192) * 100) / 100) <= 0.02, `${stride}`);
+          assert.ok(stride >= 0.5 && stride <= 1.2);
+        } else assert.equal(stride, undefined);
+      }
+    }
+    // Every walking figure's feet are on the anchor at the idle height; a run is 0.95 of it, its
+    // torso on x 96, the grounded cells on the baseline and the flight cells as high as drawn.
+    const unpacked = path.join(dir, 'unpacked');
+    await mkdir(path.join(unpacked, 'actions', 'base'), { recursive: true });
+    for (const [name, bytes] of Object.entries(files))
+      if (name.startsWith('actions/base/') || name === 'spritesheet.png')
+        await writeFile(path.join(unpacked, name), bytes);
+    py(
+      `from PIL import Image
+import sys
+from pathlib import Path
+root=Path(sys.argv[1])
+box=lambda im:im.getchannel('A').point(lambda a:255 if a>24 else 0).getbbox()
+idle=box(Image.open(root/'spritesheet.png').crop((0,0,192,208))); idle=idle[3]-idle[1]
+for name in ('walk-front','walk-back'):
+ strip=Image.open(root/'actions/base'/f'{name}.png').convert('RGBA'); scale=idle/80
+ for i,h in enumerate((80,79,81,80,80,79,81,80)):
+  cell=strip.crop((i*192,0,i*192+192,208)); b=box(cell)
+  assert abs(b[3]-199)<=1,(name,i,b)
+  assert abs((b[3]-b[1])-h*scale)<=3,(name,i,b)
+  feet=box(cell.crop((0,b[3]-round(6*scale),192,b[3])))
+  assert abs((feet[0]+feet[2])/2-96)<=1.5,(name,i,feet)
+for name in ('run-right','run-left'):
+ strip=Image.open(root/'actions/base'/f'{name}.png').convert('RGBA'); scale=0.95*idle/76
+ for i in range(8):
+  cell=strip.crop((i*192,0,i*192+192,208)); b=box(cell)
+  lift=round(10*scale) if i%4==3 else 0
+  assert abs(b[3]-(199-lift))<=1,(name,i,b,lift)
+  assert abs((b[3]-b[1])-76*scale)<=3,(name,i,b)
+  torso=box(cell.crop((0,b[1],192,b[1]+round(40*scale))))
+  assert abs((torso[0]+torso[2])/2-96)<=1.5,(name,i,torso)
+`,
+      unpacked,
+    );
+
+    // Each refusal names the batch, the tile and what to fix.
+    const edit = (name, code) => async () => {
+      const file = path.join(poses, 'base', name),
+        original = await readFile(file);
+      py(
+        `from PIL import Image,ImageDraw
+import sys
+im=Image.open(sys.argv[1]).convert('RGBA'); d=ImageDraw.Draw(im)
+${code}
+im.save(sys.argv[1])`,
+        file,
+      );
+      return () => writeFile(file, original);
+    };
+    const refused = async (pattern, change) => {
+      const undo = await change();
+      const attempt = run(...args, '--overwrite');
+      await undo?.();
+      assert.notEqual(attempt.status, 0, String(pattern));
+      assert.match(attempt.stderr, pattern);
+    };
+    await refused(/Expected 1536x1024.*walk-back/, edit('walk-back.png', `im=Image.new('RGBA',(1024,1024))`));
+    // A generated picture with a faint haze over its whole background names the picture to clean.
+    await refused(
+      /true transparent background.*run-left\.png/,
+      edit('run-left.png', `im.putalpha(im.getchannel('A').point(lambda a:max(a,6)))`),
+    );
+    await refused(
+      /walk-front tile 2 crosses its tile gutter/,
+      edit('walk-front.png', `d.rectangle((768,300,800,320),fill=(9,9,9,255))`),
+    );
+    await refused(/walk-front tile 5 is empty/, edit('walk-front.png', `im.paste((0,0,0,0),(384,512,768,1024))`));
+    await refused(
+      /walk-back tile 1 would clip its 192x208 cell/,
+      edit('walk-back.png', `d.rectangle((384+192-150,400,384+192+29,410),fill=(9,9,9,255))`),
+    );
+    await refused(
+      /walk-front tile 6 .*19 ?% .*within 5 ?%/,
+      edit('walk-front.png', `d.rectangle((768+192-10,512+460-95,768+192+29,512+460-11),fill=(70,110,150,255))`),
+    );
+    await refused(
+      /run-right tile 1 .*off the ground/,
+      edit(
+        'run-right.png',
+        `im.paste((0,0,0,0),(384,0,768,512)); im.paste(Image.open(sys.argv[1]).crop((0,0,384,512)).transform((384,512),Image.AFFINE,(1,0,0,0,1,10)),(384,0))`,
+      ),
+    );
+    await refused(
+      /run-left tile 3 .*both feet off the ground/,
+      edit(
+        'run-left.png',
+        `t=im.crop((1152,0,1536,512)); im.paste((0,0,0,0),(1152,0,1536,512)); im.paste(t,(1152,10))`,
+      ),
+    );
+    await refused(/Unknown pose picture base\/walkfront\.png/, async () => {
+      const file = path.join(poses, 'base', 'walkfront.png');
+      await writeFile(file, await readFile(path.join(poses, 'base', 'walk-front.png')));
+      return () => rm(file);
+    });
+    assert.equal(run(...args, '--overwrite').status, 0);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('a pose folder may hold only walks, adds only the clips given, and still refuses half a game set', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'creator-walks-only-'));
+  try {
+    const poses = path.join(dir, 'poses');
+    py(WALK_FIXTURE, poses, 'base');
+    await rm(path.join(poses, 'base', 'walk-back.png'));
+    await rm(path.join(poses, 'base', 'run-left.png'));
+    const out = path.join(dir, 'pet.zip');
+    const args = [
+      'pack-pet',
+      '--atlas',
+      'assets/pets/clover/spritesheet.png',
+      '--actions',
+      poses,
+      '--id',
+      'walker',
+      '--name',
+      'Walker',
+      '--kind',
+      'animal',
+      '--output',
+      out,
+      '--overwrite',
+    ];
+    const result = run(...args);
+    assert.equal(result.status, 0, result.stderr);
+    const files = entries(await readFile(out));
+    assert.deepEqual(Object.keys(files).sort(), [
+      'actions.json',
+      'actions/base/run-right.png',
+      'actions/base/walk-front.png',
+      'pet.json',
+      'spritesheet.png',
+    ]);
+    assert.equal(JSON.parse(files['pet.json']).actionsPath, 'actions.json');
+    assert.deepEqual(Object.keys(JSON.parse(files['actions.json']).outfits.base).sort(), ['run-right', 'walk-front']);
+
+    // One game batch asks for the rest, as before.
+    await writeFile(path.join(poses, 'base', 'dig.png'), await readFile(path.join(poses, 'base', 'walk-front.png')));
+    let attempt = run(...args);
+    assert.notEqual(attempt.status, 0);
+    assert.match(attempt.stderr, /points\.json is missing/);
+    await writeFile(path.join(poses, 'base', 'points.json'), JSON.stringify({ fish: { tips: [] } }));
+    attempt = run(...args);
+    assert.notEqual(attempt.status, 0);
+    assert.match(attempt.stderr, /six rod tips/);
+    await rm(path.join(poses, 'base', 'dig.png'));
+    await rm(path.join(poses, 'base', 'points.json'));
+
+    // A folder with nothing to pack says so.
+    await mkdir(path.join(poses, 'winter'));
+    attempt = run(...args, '--season', 'winter=assets/pets/clover/spritesheet.png');
+    assert.notEqual(attempt.status, 0);
+    assert.match(attempt.stderr, /winter\/ has no poses/);
+    await rm(path.join(poses, 'winter'), { recursive: true });
+
+    // The app opens at most 32 pose pictures a pet: five outfits of eight would lose some.
+    py(POSE_FIXTURE, path.join(dir, 'full'));
+    py(WALK_FIXTURE, path.join(dir, 'full'), 'base,spring,summer,autumn,winter');
+    for (const outfit of ['spring', 'summer', 'autumn'])
+      for (const name of ['dig', 'plant', 'discover', 'fish', 'points'])
+        await writeFile(
+          path.join(dir, 'full', outfit, `${name}.${name === 'points' ? 'json' : 'png'}`),
+          await readFile(path.join(dir, 'full', 'base', `${name}.${name === 'points' ? 'json' : 'png'}`)),
+        );
+    attempt = run('render-actions', '--actions', path.join(dir, 'full'), '--output', path.join(dir, 'full.png'));
+    assert.notEqual(attempt.status, 0);
+    assert.match(attempt.stderr, /40 pose pictures.*at most 32/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('the pose review sheet draws the walks and runs too, eight cells a row', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'creator-walk-sheet-'));
+  try {
+    const poses = path.join(dir, 'poses');
+    py(POSE_FIXTURE, poses);
+    py(WALK_FIXTURE, poses, 'base,winter');
+    const out = path.join(dir, 'review.png');
+    const result = run('render-actions', '--actions', poses, '--output', out);
+    assert.equal(result.status, 0, result.stderr);
+    // Per outfit: dig 224, plant 208, discover 208 and fishing 256 high, then four 208-high walks,
+    // each row with a 20 px label and a 12 px gap.
+    const [width, height] = pngSize(await readFile(out));
+    assert.equal(height, 24 + 2 * (32 * 8 + 224 + 208 + 208 + 256 + 4 * 208));
+    assert.ok(width >= 24 + 8 * (192 + 12), `${width}`);
+    // The last row (winter run-left) shows a figure in its eighth cell.
+    py(
+      `from PIL import Image
+import sys
+im=Image.open(sys.argv[1]).convert('RGB'); x=24+7*204; y=im.height-12-208
+assert any(im.getpixel((x+96+dx,y+150))!=(237,244,252) for dx in range(-8,9)),'eighth run cell is empty'`,
+      out,
+    );
+    assert.match(result.stdout, /stride/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('the skill draws the gait guides the kit uses, as grey mannequins on a transparent picture', async () => {
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'creator-guides-'));
+  try {
+    const guides = { walk: 'gait-guide', front: 'gait-guide-front', back: 'gait-guide-back', run: 'gait-guide-run' };
+    for (const [gait, name] of Object.entries(guides)) {
+      const out = path.join(dir, `${gait}.png`);
+      const result = run('render-gait-guide', '--gait', gait, '--output', out);
+      assert.equal(result.status, 0, result.stderr);
+      assert.deepEqual(pngSize(await readFile(out)), [1536, 1024]);
+      // The same picture the maintainers drew the four friends' walks with.
+      py(
+        `from PIL import Image,ImageChops
+import sys
+a=Image.open(sys.argv[1]).convert('RGBA'); b=Image.open(sys.argv[2]).convert('RGBA')
+assert a.getchannel('A').getextrema()[0]==0
+diff=ImageChops.difference(a,b); total=sum(i*n for i,n in enumerate(diff.convert('L').histogram()))
+assert total/(1536*1024)<0.5,total`,
+        out,
+        `assets/sources/walk-2026-11-26/guides/${name}.png`,
+      );
+      assert.notEqual(run('render-gait-guide', '--gait', gait, '--output', out).status, 0, 'never replaced silently');
+    }
+    assert.notEqual(run('render-gait-guide', '--gait', 'hop', '--output', path.join(dir, 'hop.png')).status, 0);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});

@@ -10,14 +10,20 @@
     "motion-reference.png",
     "wardrobe-reference.png"
   ],
+  "guides": [
+    "guides/gait-guide.png",
+    "guides/gait-guide-front.png",
+    "guides/gait-guide-back.png",
+    "guides/gait-guide-run.png"
+  ],
   "availability": {
     "detail": "available",
     "seasons": ["summer", "winter"]
   },
   "files": {
     "turnaround.png": {
-      "bytes": 1807971,
-      "sha256": "10a813c9a6046a5ff09652a459a91fafd41f57bf72d7d48035fce2200e03b6b1"
+      "bytes": 1655717,
+      "sha256": "d1a1423485be29bec6841e427c3114184e005be9ab7df65a507d5fc512047b8e"
     },
     "face-detail.png": {
       "bytes": 2103932,
@@ -40,16 +46,32 @@
       "sha256": "d1f2216c4af75a6695d0a54af82079e67eaac444a3f30b1fa544023197acd8e9"
     },
     "spritesheet.png": {
-      "bytes": 4174353,
-      "sha256": "89395750d2f79f8925a2d1b6448a1215a4a537b1307531b567ad14d819feae2a"
+      "bytes": 3690938,
+      "sha256": "b7ed9880475f5e0498304b57544a3a14e2ac332f0934b4ee461f05ffc2733d84"
     },
     "summer.png": {
-      "bytes": 4163858,
-      "sha256": "5358f7f7a9efd77c5e48b925f1179f06bf4d95241cf359e1ab2356a165b0f37c"
+      "bytes": 3680670,
+      "sha256": "69be0ed74748c2f7a4477de9d1216c35cf3e61c5faf82924ab3191847b61ca2d"
     },
     "winter.png": {
-      "bytes": 3966543,
-      "sha256": "b132ee2035937c07abc6ea4533fc4f02d763b5cb00626611d64f6421c84eae2b"
+      "bytes": 3555118,
+      "sha256": "0f884cd2e54e66b79fd9eb0c9ec0c6bc3b8d9032fa09e086546ab5a18b49f2d6"
+    },
+    "guides/gait-guide.png": {
+      "bytes": 126104,
+      "sha256": "41b40e99b993771b25c2d98624b5634b3b83c7bf82cb3cf787b10f4d5ff4faa2"
+    },
+    "guides/gait-guide-front.png": {
+      "bytes": 98017,
+      "sha256": "7915a92e785c98adc7a994697668a8cb96fb1d59bed0ff886f0a6296ddaaa03b"
+    },
+    "guides/gait-guide-back.png": {
+      "bytes": 96871,
+      "sha256": "a22b35c2aeb3cc42d7488e3525f195b7d02193f3c0361979c1344179bf590e28"
+    },
+    "guides/gait-guide-run.png": {
+      "bytes": 149461,
+      "sha256": "001e1209a41783a938e825c6252b1924a5e20f4d178e9fdd8e5fd313294fdcfd"
     },
     "identity.json": {
       "bytes": 3063,
@@ -68,8 +90,8 @@
       "sha256": "ea20c4a12de057222721d90a63a7e284af9487c4672d3bee35387b2205c1afa9"
     },
     "prompts/04-state-row.txt": {
-      "bytes": 2681,
-      "sha256": "048d5bb9fa957417dccc63178ad22caab075cb85f6dffea3e1574396b898817a"
+      "bytes": 3225,
+      "sha256": "46b100e5708798c68506aebf6f74066171d169f6e1af217f1a113307207f7179"
     },
     "prompts/05-canonical-export.txt": {
       "bytes": 2539,
@@ -80,16 +102,16 @@
       "sha256": "e7d91d84ee2c6b38c3339fe6adc63aa8e45188e8c8789459304b5df4d8c50d06"
     },
     "provenance/turnaround.generation.txt": {
-      "bytes": 6764,
-      "sha256": "3cf6a3601c4913661ff3474114e338746265b1e6811fe4377264740968601855"
+      "bytes": 7022,
+      "sha256": "12894bcbcf37f284b0ac8de8e3113de206006d573ac6c13939ab68a7c42fb12b"
     },
     "provenance/face-detail.generation.txt": {
       "bytes": 5074,
       "sha256": "8bd38371f099830a0f61909e6e02294dc442ec17c36788e907f7ee68b5cf2e1b"
     },
     "README.txt": {
-      "bytes": 959,
-      "sha256": "41f4a9b4d257bff252fb126ba30920a07a12d2959588d1c359db626f0bf1a72f"
+      "bytes": 1074,
+      "sha256": "7266b0c0a0f97dba651dda860398508ea4c8ee3dde8fcaf3338df5045c84a85a"
     }
   }
 }
