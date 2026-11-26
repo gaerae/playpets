@@ -25,7 +25,7 @@ test('a bubble that would cover another rises above it, stays its reading time a
   t.after(() => views.clear());
   bubble(daisy, 'Look, a ladybug!');
   bubble(pip, 'Where?');
-  assert.equal(pip.bubble.style['--bubble-lift'], '54px', 'Pip rises clear of Daisy, with a small gap');
+  assert.equal(pip.bubble.style['--bubble-lift'], '60px', 'Pip rises clear of Daisy, its tail clear of her too');
   assert.equal(daisy.bubble.style['--bubble-lift'], undefined, 'the first one stays');
   assert.equal(document.getElementById('friend-speech').textContent, 'Pip: Where?');
   t.mock.timers.tick(2999);
@@ -148,4 +148,36 @@ test('a lone bubble that would start above the window comes down inside it', t =
   bubble(pip, 'Up here!');
   assert.equal(pip.bubble.style['--bubble-lift'], '-46px', 'its top six pixels inside the window');
   t.mock.timers.tick(10_000);
+});
+
+// A dock panel open over a friend cut its bubble (2026-11-24 review, G5): the bubble slides out to
+// the panel's left, beside its friend's head, or rises above the panel when there is no room there.
+test('a bubble a dock panel would cover moves out beside the panel', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { document } = installDom(t, { anyId: true });
+  for (const id of ['scene-menu', 'yard-controls-panel']) document.getElementById(id).hidden = true;
+  const play = document.getElementById('play-panel');
+  play.hidden = false;
+  play.getBoundingClientRect = () => ({ left: 800, right: 1170, top: 440, bottom: 790, width: 370, height: 350 });
+  const pip = friend('Pip', { left: 760, right: 880, top: 560, bottom: 600 });
+  views.clear();
+  views.set('pip', pip);
+  setData({ pets: [pip.pet], assets: [] });
+  t.after(() => views.clear());
+  bubble(pip, 'Over here!');
+  assert.equal(pip.bubble.style['--bubble-shift'], '-84px', 'its right edge 4px left of the panel');
+  assert.equal(pip.bubble.style['--bubble-lift'], undefined);
+  t.mock.timers.tick(10_000);
+  // Too near the yard's left side to slide over: it rises above the panel instead.
+  play.getBoundingClientRect = () => ({ left: 40, right: 400, top: 440, bottom: 790, width: 360, height: 350 });
+  const kit = friend('Kit', { left: 60, right: 180, top: 560, bottom: 600 });
+  views.set('kit', kit);
+  bubble(kit, 'Hello!');
+  assert.equal(kit.bubble.style['--bubble-shift'], undefined);
+  assert.equal(kit.bubble.style['--bubble-lift'], '164px', 'its bottom 4px above the panel');
+  // A panel that is closed covers nothing.
+  t.mock.timers.tick(10_000);
+  play.hidden = true;
+  bubble(kit, 'Hello again!');
+  assert.equal(kit.bubble.style['--bubble-lift'], undefined);
 });

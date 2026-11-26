@@ -176,9 +176,20 @@ fn sprite_url(id: &str) -> String {
     }
 }
 
+/// Brings the overlay up to date with what is out on the desktop, how it roams and the grass
+/// under it. Asks nothing of the main thread, so it is called with the state held.
+pub fn sync_overlay(overlay: &overlay::Overlay, d: &AppData) {
+    overlay.sync(desktop_items(d), desktop_on(d), d.prefs.wander, desktop_grass(d));
+}
+
 /// What the desktop overlay draws: the friends and decorations out there.
-pub fn desktop_items(d: &AppData) -> Vec<overlay::Item> {
+fn desktop_items(d: &AppData) -> Vec<overlay::Item> {
     crate::desktop::items::items(&d.pets, &d.garden, d.hidden_decor.as_deref())
+}
+
+/// The grass the overlay draws under what is out, while its switch is on (desktop/grass.rs).
+fn desktop_grass(d: &AppData) -> Option<crate::desktop::grass::Span> {
+    d.prefs.grass.then_some(d.prefs.grass_span)
 }
 
 /// Whether anything is out on the desktop: what the menus' switch shows.
@@ -324,6 +335,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         .try_state::<OverlayHandle>()
         .map(|o| o.0.layout())
         .unwrap_or_default();
+    let ground = app.try_state::<OverlayHandle>().map_or(Value::Null, |o| o.0.ground());
     let mut state = json!({
         "pets": d.pets,
         "agentPets": live_agent_pets(d),
@@ -347,6 +359,7 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
         "statuses": d.statuses,
         "busy": d.talks.busy_ids().collect::<Vec<_>>(),
         "desktopLayout": layout,
+        "desktopGround": ground,
         "desktop": desktop_on(d),
         "nightDecor": d.night_decor,
         "communities": importer::communities_json(),
@@ -362,13 +375,15 @@ pub fn public_state(app: &AppHandle, d: &AppData) -> Value {
 /// What an overlay window reads of the state (overlay.js and the modules it imports); the rest is
 /// the yard window's. tests/overlay-slice.test.mjs runs the overlay page on this list and fails on
 /// a key it reads that is not here, or one here it never reads.
-pub const OVERLAY_KEYS: [&str; 10] = [
+pub const OVERLAY_KEYS: [&str; 11] = [
     "pets",
     "assets",
     "statuses",
     "garden",
     "nightDecor",
     "desktopLayout",
+    // The grass along the first screen's floor, where the overlay page draws it (overlay.rs ground).
+    "desktopGround",
     "language",
     "scene",
     "ownsWebviewStorage",
@@ -460,7 +475,7 @@ pub fn push_event(app: &AppHandle, payload: &Value) {
 /// Call after any change to the state: the overlay and every page are brought up to date.
 pub fn changed(app: &AppHandle, d: &AppData) {
     if let Some(o) = app.try_state::<OverlayHandle>() {
-        o.0.sync(desktop_items(d), desktop_on(d), d.prefs.wander);
+        sync_overlay(&o.0, d);
     }
     crate::tray::refresh(app, crate::tray::snapshot(d));
     let state = public_state(app, d);
@@ -488,7 +503,7 @@ pub fn desktop_items_changed(app: &AppHandle, d: &AppData, was_on: bool) {
         return changed(app, d);
     }
     if let Some(o) = app.try_state::<OverlayHandle>() {
-        o.0.sync(desktop_items(d), desktop_on(d), d.prefs.wander);
+        sync_overlay(&o.0, d);
         o.0.wake();
     }
 }
@@ -765,10 +780,35 @@ pub fn toggle_desktop(app: &AppHandle, mut d: MutexGuard<'_, AppData>) -> Result
 }
 
 /// Friends out on the desktop roam it, or stay where they are put.
-pub fn toggle_wander(app: &AppHandle, mut d: MutexGuard<'_, AppData>) -> Result<bool, String> {
-    d.prefs.wander = !d.prefs.wander;
-    let now = d.prefs.wander;
+pub fn toggle_wander(app: &AppHandle, d: MutexGuard<'_, AppData>) -> Result<bool, String> {
+    flip_pref(app, d, |p| &mut p.wander)
+}
+
+/// The grass under what is out on the desktop, or none.
+pub fn toggle_grass(app: &AppHandle, d: MutexGuard<'_, AppData>) -> Result<bool, String> {
+    flip_pref(app, d, |p| &mut p.grass)
+}
+
+/// Turns one switch in the settings over, shows it and saves it. What it reads now.
+fn flip_pref(
+    app: &AppHandle,
+    mut d: MutexGuard<'_, AppData>,
+    switch: fn(&mut Prefs) -> &mut bool,
+) -> Result<bool, String> {
+    let on = switch(&mut d.prefs);
+    *on = !*on;
+    let now = *on;
     show_and_save(app, d).map(|()| now)
+}
+
+/// The grass's ends were let go where the person pulled them: kept for the next run.
+pub fn keep_grass(
+    app: &AppHandle,
+    mut d: MutexGuard<'_, AppData>,
+    span: crate::desktop::grass::Span,
+) -> Result<(), String> {
+    d.prefs.grass_span = span;
+    show_and_save(app, d)
 }
 
 /// Sends one friend or decoration out to the desktop, or brings it in: shown first, written after

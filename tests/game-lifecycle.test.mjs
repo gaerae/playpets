@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { reduced } from '../src/core/sprites.js';
 import { game, setData, setGame, setSelected, views } from '../src/core/state.js';
-import { PARADE_MS, TAG_MS } from '../src/yard/games.js';
+import { PARADE_MS, TAG_FREEZE_AGAIN_MS, TAG_FREEZE_MS, TAG_MS } from '../src/yard/games.js';
 import { endGame, gameTap, judge, playGame, setupPlay } from '../src/yard/play.js';
 import { installDom, installStorage } from './support/dom.mjs';
 
@@ -83,7 +83,7 @@ test('hide feedback from a cancelled round cannot clear a later discovery', t =>
   assert.equal(views.get('a').button.classList.contains('found'), false);
 });
 
-test('two quick wrong guesses still bring back who is hiding', t => {
+test('two quick wrong guesses shake the friend twice and leave who is hiding on the banner', t => {
   const { nodes, start, advance } = yard(t);
   start('hide');
   hideAll();
@@ -92,10 +92,13 @@ test('two quick wrong guesses still bring back who is hiding', t => {
   assert.ok(hiding);
   const wrong = [...views.values()].find(v => v.pet.id !== game.target);
   gameTap(wrong);
-  advance(500);
+  advance(300);
   gameTap(wrong);
-  assert.notEqual(sub.textContent, hiding, 'a miss says so');
+  advance(300);
+  assert.ok(wrong.button.classList.contains('missed'), 'the second miss shakes it again');
+  assert.equal(sub.textContent, hiding);
   advance(3000);
+  assert.equal(wrong.button.classList.contains('missed'), false);
   assert.equal(sub.textContent, hiding);
 });
 
@@ -122,6 +125,8 @@ test('a completed hide round returns everyone home and removes game presentation
   advance(1600);
   assert.equal(game, null);
   assert.equal(nodes.get('game-banner').hidden, true);
+  // Its players cheer where they stand first (game-rewards.test.mjs), then walk home.
+  advance(1200);
   for (const v of views.values()) {
     assert.equal(v.button.classList.contains('hiding'), false);
     assert.equal(v.button.classList.contains('found'), false);
@@ -144,6 +149,30 @@ test('tag and parade finish and can be replayed without a lingering tagger', t =
   assert.equal(game, null);
   start('tag');
   assert.equal(game.kind, 'tag');
+});
+
+// Tag was only watched; the person's one move is to press whoever is it, which holds it still a
+// moment so the others get away, and only now and then, so the chase still happens.
+test('pressing the friend who is it holds it still for a moment, and not again at once', t => {
+  const { start, advance } = yard(t);
+  start('tag');
+  const it = views.get('a'),
+    runner = views.get('b');
+  gameTap(runner);
+  assert.ok(!runner.frozen, 'a runner pressed is not held');
+  assert.ok(runner.button.classList.contains('missed'), 'it shakes its head: press whoever is it');
+  gameTap(it);
+  assert.equal(it.frozen, true, 'whoever is it stands still');
+  judge(performance.now() + 100);
+  assert.equal(game.it, 'a', 'and catches nobody while it stands');
+  advance(TAG_FREEZE_MS);
+  playGame(performance.now(), 16);
+  assert.equal(it.frozen, false, 'then it runs again');
+  gameTap(it);
+  assert.equal(it.frozen, false, 'pressed again too soon, it keeps running');
+  advance(TAG_FREEZE_AGAIN_MS - TAG_FREEZE_MS);
+  gameTap(it);
+  assert.equal(it.frozen, true, 'later it can be held again');
 });
 
 test('tag transfer pauses the new tagger and protects the previous tagger', t => {

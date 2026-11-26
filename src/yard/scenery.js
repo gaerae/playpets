@@ -17,7 +17,7 @@ import { createAmbientArt, WING_BEAT, wingSpread } from './ambient-art.js';
 import { bugChances, weighted, wildlifeGroup } from './catalog.js';
 import { environmentFrame, weatherPanes } from './environment.js';
 import { boostOf } from './events.js';
-import { drawMeteors, drawSparks, drawStars, lightYard } from './light-art.js';
+import { drawMeteors, drawSparks, drawStars, letGlowsGo, lightYard } from './light-art.js';
 import { shower as showerOf, wish } from './meteors.js';
 import { dropCount, fallerCount, fireflyCount, spawnDrop, spawnFaller, stepDrops, stepFallers } from './scene.js';
 import { createWeatherArt } from './weather-art.js';
@@ -416,6 +416,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
     // A new scene takes what was crossing its sky with it; a resize keeps it (populate).
     meteors = [];
     sparks = [];
+    letGlowsGo();
     populate();
     paint(performance.now());
     paintStars(performance.now());
@@ -676,6 +677,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
           meteors = [];
           sparks = [];
           paintStars(now);
+          letGlowsGo();
         }
         wishFrom = null;
         flaring = null;
@@ -742,7 +744,7 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       if (wishFrom) {
         const sent = wish(wishFrom, w, h, now);
         meteors.push(sent.meteor);
-        sparks.push(...sent.dust);
+        sparks.push(sent.glow, ...sent.dust);
       }
       if (now >= nextStreak) {
         // On an ordinary night one star now and then; in a shower one to three every few seconds.
@@ -758,6 +760,8 @@ export function createScenery(canvas, reduced, artOptions, ambientOptions, starC
       moved = true;
     }
     if (lit || meteors.length || sparks.length) paintStars(now);
+    // The sky is dark again: the glows it was lit with are let go.
+    if (lit && !meteors.length && !sparks.length) letGlowsGo();
     if (moved) paint(now);
   }
   // Whether the canvas will change on the next frame (app.js runs the yard faster while it does).

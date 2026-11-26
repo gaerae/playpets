@@ -86,6 +86,7 @@
   | Tiniest | `max-width: 400px`, `max-height: 280px` | notes, pictures and suggestions give way to the controls |
   | Narrowest | `max-width: 360px` | icons beside names give way |
   | Wide | `max-width: 1100px`, `min-width: 640px` | the header's subtitle; the empty yard's four picks |
+  | Short | `max-height: 720px` | the scene panel's places keep to one row, the menu's three places sit side by side and the album's large picture is smaller, so Weather, Sound, Quit and a kind's hint still fit |
 
 - A new tier changes the list in `tests/ui-style.test.mjs` and this table together.
 
@@ -250,7 +251,7 @@ All of these run with `pnpm test` and `pnpm run lint`, and CI runs the same comm
 ### Always on top and fullscreen
 - Always on top is an independent saved switch in the pointer menu, Window tab, tray and macOS menu bar.
 - Cmd/Ctrl+Shift+M toggles it without resizing.
-- Fullscreen and Return to previous size are in Window.
+- Fullscreen is a switch in Window; its name stays the same while it is on.
 - Esc dismisses open surfaces before leaving fullscreen.
 - Returning to the previous size restores the normal bounds and pinning.
 - Transparent targets along the top and the edges move and resize the window.

@@ -121,5 +121,7 @@ export function giftSeason(id) {
   const event = eventById(id);
   return event && !event.fixed ? event.scene?.seasons?.[0] || null : null;
 }
+/** The drawing an event is shown by, if it has one of its own (catalog.json). */
+export const eventArt = id => eventById(id)?.art ?? null;
 /** How much an event adds to a kind of small life (1 when it adds nothing). */
 export const boostOf = (id, what) => eventById(id)?.boost?.[what] ?? 1;

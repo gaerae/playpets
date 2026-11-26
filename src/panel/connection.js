@@ -1,6 +1,6 @@
 // Connecting an AI: one dialog for every kind of provider.
 import { confirmAction, keepEdits, showFormError } from '../core/confirm.js';
-import { t } from '../core/i18n.js';
+import { joinSentences, t } from '../core/i18n.js';
 import { $, call, data, guard, providerLabel, recall, remember, selected, toast } from '../core/state.js';
 import { cliChoice, focusSignIn, renderSignIn, signedOut, startSignIn } from './cli-login.js';
 
@@ -170,6 +170,9 @@ export function openConnectionDialog(current, onChange = () => {}, { forFriend =
   $('save-provider').textContent = current ? t('connection.save_edit') : t('connection.save_new');
   updateProviderForm();
   rememberConnectionForm();
+  // In Settings the section's own lead already says what the dialog's does.
+  const lead = $('connection-form').querySelector('.dialog-description');
+  if (lead) lead.hidden = !!inline;
   if (inline) {
     inlineHost = inline;
     inline.append($('connection-form'));
@@ -351,9 +354,9 @@ export function setupConnection({ first = () => {} } = {}) {
     const label = providerLabel(provider) || 'AI';
     const sure = await confirmAction({
       title: t('connection.delete_confirm', { name: label }),
-      body: [t('connection.delete_body'), uses ? t('connection.delete_uses', { count: uses }) : '']
-        .filter(Boolean)
-        .join(' '),
+      body: joinSentences(
+        [t('connection.delete_body'), uses ? t('connection.delete_uses', { count: uses }) : ''].filter(Boolean),
+      ),
       action: t('connection.delete'),
       danger: true,
     });

@@ -99,7 +99,7 @@ test("a trail ends on ground a friend can dig, away from today's digs and the ot
     assert.ok(p.points[0].x === 0 || p.points[0].x === 1);
     assert.ok(p.points.length >= 5 && p.points.length <= 8);
     assert.ok(p.end.x >= 0.06 && p.end.x <= 0.94);
-    assert.ok(p.points[0].y >= 0.15 && p.points[0].y <= 0.85);
+    assert.ok(p.points[0].y >= 0.35 && p.points[0].y <= 0.85, `start ${p.points[0].y}`);
     // The bush at the end stands on the near snow, clear of the backdrop's own bushes and trees.
     assert.ok(p.end.y >= 0.5 && p.end.y <= 0.85, `end ${p.end.y}`);
     let total = 0;
@@ -136,6 +136,30 @@ test("a trail's end is measured from the field's own line, not from a path reach
     assert.ok(p.end.y >= 0.4 + 0.6 * 0.5 - 1e-9, `seed ${seed}: end ${p.end.y} at ${p.end.x}`);
   }
   assert.ok(right > 20, `ends on the right ${right}`);
+});
+
+// The far field runs into the backdrop's own snowy bushes and trees: prints laid over them seem to
+// float. A whole trail keeps to the near snow, as its end does, measured from the field's own line.
+test('no part of a trail runs up among the backdrop, where its prints would seem to float', () => {
+  const line = Array.from({ length: 33 }, (_, i) => (i / 32 >= 0.6 ? 0.4 : 0.1)),
+    back = x => line[Math.round(Math.min(Math.max(x, 0), 1) * 32)];
+  let made = 0;
+  for (let seed = 1; seed <= 300; seed++) {
+    const p = trailPath(seed, { ...profile, line });
+    if (!p) continue;
+    made++;
+    for (let i = 1; i < p.points.length; i++) {
+      const a = p.points[i - 1],
+        b = p.points[i];
+      for (let k = 0; k <= 40; k++) {
+        const x = a.x + ((b.x - a.x) * k) / 40,
+          y = a.y + ((b.y - a.y) * k) / 40,
+          share = (y - back(x)) / (1 - back(x));
+        assert.ok(share >= 0.3, `seed ${seed}: ${share.toFixed(2)} down the near snow at ${x.toFixed(2)}`);
+      }
+    }
+  }
+  assert.ok(made >= 280, `trails made ${made}`);
 });
 
 test("the second trail's end never shares the first one's dig tile", () => {
@@ -178,6 +202,28 @@ test('prints alternate for walkers and keep in line for bounders', () => {
   const small = stamps(line, { group: false, step: 10, side: 3, size: 9 }, 0.5);
   assert.equal(small.length, 41);
   assert.equal(small[0].size, 4.5);
+});
+
+// A print far up the field drew at the size and spacing of one at its front edge, so it read as
+// floating over the snow: like the friends (field.js depthScaleAt), prints shrink and close up
+// with their depth, by `scaleAt` at each print.
+test('prints shrink and close up with the depth they lie at', () => {
+  const line = [
+    { x: 0, y: 0 },
+    { x: 200, y: 0 },
+  ];
+  const far = stamps(line, { group: true, step: 10, side: 3, size: 9 }, 1, () => 0.5);
+  assert.equal(far.length, 41, 'half the gap');
+  assert.ok(
+    far.every(s => s.size === 4.5),
+    'half the size',
+  );
+  const walk = stamps(line, { group: false, step: 10, side: 4, size: 9 }, 1, () => 0.5);
+  assert.deepEqual(
+    walk.slice(0, 2).map(s => s.y),
+    [2, -2],
+    'and the feet closer together',
+  );
 });
 
 test('prints fade over the day', () => {

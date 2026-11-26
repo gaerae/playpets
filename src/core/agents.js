@@ -29,3 +29,13 @@ export function linkView(link) {
       return {};
   }
 }
+
+/** The coding agents a person uses, in `kinds` order: linked (even with an older setting), with a
+ * problem the row explains, or reporting to a friend still in the yard (a tool set up by copying has
+ * no link to read). With none of those, the first one, which the list recommends. */
+export function agentsInUse(kinds, links, chosen, petIds) {
+  const used = kinds.filter(
+    kind => ['on', 'outdated', 'taken', 'unreadable'].includes(links[kind]) || petIds.includes(chosen[kind]),
+  );
+  return used.length ? used : kinds.slice(0, 1);
+}

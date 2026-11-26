@@ -23,7 +23,9 @@ test('the Invite shelf fits readable portraits and names in compact desktop rows
     name = await rule('invite', '.asset-info strong'),
     rows = await rule('invite', '.shelf-group');
   assert.ok(parseFloat(card['min-height']) >= 56 && parseFloat(card['min-height']) <= 60);
-  assert.ok(parseFloat(portrait.width) >= 40 && parseFloat(portrait.width) <= 44);
+  // A portrait large enough to tell the pets apart by their look.
+  assert.equal(portrait.width, '56px');
+  assert.equal(portrait.height, '60px');
   assert.ok(parseFloat(name['font-size']) >= 13);
   assert.ok(parseFloat(rows.gap) >= 6 && parseFloat(rows.gap) <= 8);
 });

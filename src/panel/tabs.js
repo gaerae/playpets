@@ -1,6 +1,6 @@
 // Management opens one task at a time; play never needs to pass through it.
 
-import { closeControls, closeScene, closeUpdateDetails, openControls } from '../core/controls.js';
+import { closeControls, closeScene, closeUpdateDetails, OVER_YARD, openControls } from '../core/controls.js';
 import { t } from '../core/i18n.js';
 import { composing } from '../core/keys.js';
 import { release } from '../core/sprites.js';
@@ -69,9 +69,6 @@ function showSettingsHome() {
 }
 let panelOpener = null;
 let beforePanelOpen = () => {};
-// In a small window each of these lies over the yard, so Tab goes round inside it instead of on to
-// friends hidden behind. Its Close and Esc are the way out.
-const SHEETS = ['side-panel', 'yard-controls-panel', 'play-panel', 'scene-menu'];
 const TAB_STOPS =
   'a[href], button, select, textarea, summary, [tabindex="0"], input:not([type="hidden"], [type="radio"]:not(:checked))';
 export const tabStops = sheet =>
@@ -176,7 +173,11 @@ export function setupTabs({ beforeOpen = () => {} } = {}) {
   document.addEventListener('keydown', e => {
     // Settings is a sheet over the yard at any size; the other panels only in a small window.
     if (e.key !== 'Tab' || (sideBySide() && !$('layout').classList.contains('settings-open'))) return;
-    const sheet = SHEETS.map(id => $(id)).find(node => node && !node.hidden && node.contains(document.activeElement));
+    // In a small window each panel lies over the yard, so Tab goes round inside it instead of on to
+    // friends hidden behind. Its Close and Esc are the way out.
+    const sheet = OVER_YARD.map(id => $(id)).find(
+      node => node && !node.hidden && node.contains(document.activeElement),
+    );
     if (!sheet) return;
     const next = wrapTab(tabStops(sheet), document.activeElement, e.shiftKey);
     if (next) {

@@ -3,7 +3,8 @@ import test from 'node:test';
 import './support/content.mjs';
 import { element, installDom, installStorage, keepGlobals } from './support/dom.mjs';
 
-const commands = [];
+const commands = [],
+  bonds = [];
 let resolveDig;
 globalThis.playPets = {
   dig: async (...args) => {
@@ -11,6 +12,10 @@ globalThis.playPets = {
     return new Promise(resolve => {
       resolveDig = resolve;
     });
+  },
+  befriend: async (...args) => {
+    bonds.push(args.slice(0, 2));
+    return { ok: true, data: {} };
   },
 };
 const { sendDiscovery, setupDiscovery, beginDiscovery, cancelDiscovery, syncDiscovery } =
@@ -55,6 +60,7 @@ function fixture(t) {
   });
   setSelected(pet.id);
   commands.length = 0;
+  bonds.length = 0;
   return { v, timers };
 }
 
@@ -786,4 +792,42 @@ test("Let them dig on keeps off the end of a winter trail not yet followed; the 
   // Out of winter, the trail goes and leaves nothing for the next test.
   scene.season = 'spring';
   trailsCheck();
+});
+
+// A dig the person asked for is something done together (bond.rs `dig`); one a friend chose itself is not.
+for (const own of [false, true])
+  test(`a dig ${own ? 'a friend chose itself' : 'the person asked for'} ${own ? 'does not count' : 'counts'} toward closeness once it is told`, async t => {
+    const { v, timers } = fixture(t);
+    sendDiscovery(v, { x: 0.5, y: 0.5 }, 'dig', undefined, own);
+    const arrive = v.trip.arrive;
+    v.trip = null;
+    v.target = null;
+    const pending = arrive();
+    resolveDig({ ok: true, data: { outcome: 'seed', attemptId: `bond-${own}` } });
+    await pending;
+    assert.deepEqual(bonds, [], 'not before the friend shows what it found');
+    timers.at(-1)();
+    await Promise.resolve();
+    assert.deepEqual(bonds, own ? [] : [['friend', 'dig']]);
+    // However it was asked for (the tool, or Dig here from the yard's menu), the hand stops teaching it.
+    assert.equal(state.recall('shown-dig') === '1', !own);
+  });
+
+test('a rare treasure dug up for the first time wears the Rare tag on its card', async t => {
+  const { catalog } = await import('./support/content.mjs');
+  const rare = catalog.treasures.find(item => item.rarity === 'uncommon');
+  const { v, timers } = fixture(t);
+  const card = document.getElementById('catch-card');
+  Object.assign(card, { hidden: true, querySelector: () => element() });
+  sendDiscovery(v, { x: 0.5, y: 0.5 }, 'dig');
+  const arrive = v.trip.arrive;
+  v.trip = null;
+  v.target = null;
+  const pending = arrive();
+  resolveDig({ ok: true, data: { outcome: 'keepsake', kind: rare.id, attemptId: 'rare' } });
+  await pending;
+  timers.at(-1)();
+  assert.equal(card.hidden, false);
+  assert.ok(card.classList.contains('rare'));
+  assert.ok(card.classList.contains('first'));
 });

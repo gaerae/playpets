@@ -28,9 +28,10 @@ body {
   padding: 0;
   border: 0;
 }
+/* One switch everywhere: the dock's rows, Settings, the dialogs. */
 .wander-switch {
-  width: 32px;
-  height: 19px;
+  width: 30px;
+  height: 18px;
   border-radius: 10px;
   background: var(--line);
   position: relative;
@@ -40,10 +41,10 @@ body {
 .wander-switch::after {
   content: "";
   position: absolute;
-  top: 2.5px;
-  left: 2.5px;
-  width: 14px;
-  height: 14px;
+  top: 3px;
+  left: 3px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: var(--knob);
   box-shadow: 0 1px 2px var(--ink-20);
@@ -53,7 +54,7 @@ body {
   background: var(--accent);
 }
 .wander-toggle input:checked ~ .wander-switch::after {
-  transform: translateX(13px);
+  transform: translateX(12px);
 }
 .wander-toggle input:focus-visible ~ .wander-switch {
   outline: var(--focus-ring);
@@ -113,12 +114,10 @@ body {
   display: flex;
   gap: 2px;
   padding: 2px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  background: var(--dock-surface);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-  box-shadow: 0 3px 14px var(--ink-12);
+  border: var(--garden-message-border);
+  border-radius: var(--radius-garden);
+  background: var(--garden-frame);
+  box-shadow: var(--message-shadow);
   transform: translateX(-50%);
   opacity: 0;
   pointer-events: none;
@@ -247,12 +246,13 @@ body.window-top .window-buttons,
 .panel-tab.has-update::after {
   content: "";
   position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 7px;
-  height: 7px;
+  top: 5px;
+  right: 5px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--accent);
+  box-shadow: 0 0 0 2px var(--menu-surface);
 }
 /* Keep the About wordmark compact on narrower windows. */
 @media (max-width: 1100px) {
@@ -268,9 +268,9 @@ body.window-top .window-buttons,
   width: max-content;
   max-width: min(420px, calc(100% - 24px));
   padding: 6px;
-  border: 1px solid var(--message-line);
-  border-radius: var(--radius-panel);
-  background: var(--message-surface);
+  border: var(--garden-message-border);
+  border-radius: var(--radius-garden);
+  background: var(--garden-frame);
   color: var(--ink);
   box-shadow: var(--message-shadow);
 }
@@ -351,9 +351,9 @@ body.window-top .window-buttons,
   user-select: none;
   -webkit-user-select: none;
   cursor: pointer;
-  border: 1px solid var(--message-line);
-  border-radius: var(--radius-panel);
-  background: var(--message-surface);
+  border: var(--garden-message-border);
+  border-radius: var(--radius-garden);
+  background: var(--garden-frame);
   color: var(--ink);
   box-shadow: var(--message-shadow);
   font-size: var(--font-sm);
@@ -375,8 +375,7 @@ body.window-top .window-buttons,
   font-weight: 650;
   cursor: pointer;
 }
-.toast-action:hover,
-.toast-close:hover {
+.toast-action:hover {
   background: var(--control-hover);
 }
 .toast-close {
@@ -387,14 +386,39 @@ body.window-top .window-buttons,
   flex: none;
   padding: 0;
   border: 0;
-  border-radius: var(--radius-control);
+  border-radius: 50%;
   background: transparent;
-  color: inherit;
+  color: var(--muted);
   cursor: pointer;
 }
+.toast-close:hover {
+  background: var(--control-hover);
+  color: var(--ink);
+}
+@media (pointer: coarse) {
+  .toast-close {
+    width: 44px;
+    height: 44px;
+  }
+}
 .toast-close svg {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
+  stroke-width: 2px;
+}
+/* A how-to shown in pictures: each gesture over its one word, side by side. */
+.toast-clues {
+  display: inline-flex;
+  gap: 14px;
+  padding: 2px 0;
+}
+.toast-clues .clue {
+  font-weight: 650;
+  white-space: nowrap;
+}
+.toast-clues .clue > i {
+  width: 32px;
+  height: 32px;
 }
 .toast > span.error {
   border-color: transparent;
@@ -446,20 +470,19 @@ body.compact .toast > span {
   gap: 0;
   padding: 2px;
   max-width: calc(100% - 24px);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  background: var(--dock-surface);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-  box-shadow: 0 3px 14px var(--ink-12);
+  border: var(--garden-frame-border);
+  border-radius: var(--radius-garden);
+  background: var(--garden-frame);
+  box-shadow: var(--shadow-garden);
 }
 .yard-dock > .update-pill {
   flex: none;
   min-height: 36px;
   padding: 0 11px;
+  margin-right: 2px;
   border: 0;
-  border-right: 1px solid var(--line);
-  border-radius: var(--radius-control) 0 0 var(--radius-control);
+  /* its tint sets it apart, rounded as the dock's other parts are */
+  border-radius: var(--radius-control);
   background: color-mix(in srgb, var(--accent) 12%, var(--dock-surface));
   color: var(--accent);
   font-size: var(--font-sm);
@@ -485,8 +508,8 @@ body.compact .toast > span {
   gap: 6px;
   min-height: 36px;
   padding: 0 12px;
-  border-left: 1px solid var(--line);
-  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  /* rounded all round, as the place's button is: with no line beside Play, a square side met it */
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--ink);
   font-size: var(--font-sm);
@@ -513,11 +536,9 @@ body.compact .toast > span {
   flex-direction: column;
   gap: 6px;
   padding: 8px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  background: var(--menu-surface);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
+  border: var(--garden-frame-border);
+  border-radius: var(--radius-garden);
+  background: var(--garden-frame);
   box-shadow: var(--shadow-dock);
 }
 .yard-controls-panel[hidden] {
@@ -535,16 +556,74 @@ body.compact .toast > span {
   padding-left: 6px;
 }
 .dock-panel-head strong {
+  flex: 0 1 auto;
   min-width: 0;
-  font-size: var(--font-md);
+  font-size: var(--font-lg);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.dock-panel-head .icon-button {
+/* On the paper a panel's title is in a heavier ink, and Close is a small round wooden button, as on
+   the approved mockups (docs/design/2026-11-24-the-yard-plays-like-a-game.md). */
+.dock-panel-head strong,
+.panel-head h2 {
+  font-weight: 800;
+  letter-spacing: -0.2px;
+}
+/* A painted vine trails after the title into the room before Close, and is cut where it runs out. */
+:is(.dock-panel-head, .panel-head)::after {
+  content: "";
+  order: 1;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 22px;
+  background: url("../art/ui/title-vine.webp") left center / auto 100% no-repeat;
+}
+:is(.dock-panel-head, .panel-head) > :is(button, .button) {
+  order: 2;
+}
+/* Back goes where it leads, before the title, and away from Close. */
+.panel-head > #panel-menu {
+  order: -1;
+}
+.dock-panel .dock-section-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dock-panel .dock-section-label::before {
+  content: "";
+  width: 22px;
+  height: 14px;
+  flex: none;
+  background: url("../art/ui/sprig.webp") center / contain no-repeat;
+}
+/* A Close at a panel's or a dialog's corner is the same round wooden button, and so are a small
+   window's two corner buttons (compact.css, dialog.css). One inside a notice or a card, which has a
+   frame of its own, is the bare × (.toast-close, play.css). */
+:is(.corner-close, #compact-launcher, #update-compact) {
+  border: 2px solid var(--garden-rim);
+  border-radius: 50%;
+  background: var(--garden-paper-deep);
+  color: var(--garden-ink);
+  box-shadow:
+    inset 0 1px 0 var(--garden-rim-light),
+    0 1px 2px var(--garden-honey-shadow);
+}
+:is(.corner-close, #compact-launcher, #update-compact):hover {
+  background: var(--garden-hover);
+}
+/* One size and one weight of × at every corner; a touch screen still gets its larger target
+   (base.css). The side panel's Close is named so this outranks the size its head gives every other
+   button (panel.css .panel-head .icon-button). */
+:is(.corner-close, #close-panel) {
   width: 32px;
   height: 32px;
-  flex: none;
+}
+:is(.corner-close, #close-panel) svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2px;
 }
 .dock-panel-body {
   display: flex;
@@ -642,39 +721,70 @@ body.compact .toast > span {
   align-items: center;
   gap: 6px;
   flex: none;
+  /* the dock's height: its honey marks it as the way in, so it need not stand over the rim */
   min-height: 36px;
-  padding: 0 12px;
-  border-left: 1px solid var(--line);
-  background: transparent;
-  color: var(--ink);
-  font-size: var(--font-md);
-  font-weight: 600;
+  margin: 0 2px;
+  padding: 0 14px 0 8px;
+  border: 1.5px solid var(--garden-rim-edge);
+  border-radius: var(--radius-pill);
+  background: linear-gradient(180deg, var(--garden-honey), var(--garden-honey-deep));
+  color: var(--garden-on-honey);
+  font-size: var(--font-lg);
+  font-weight: 800;
+  box-shadow:
+    inset 0 1px 0 var(--garden-honey-shine),
+    0 2px 4px var(--garden-honey-shadow);
+  transition: transform 160ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* Play is the dock's main button: the painted icon is larger than the line icons beside it. */
+.yard-play-toggle > [data-icon] {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
 }
 .yard-play-toggle svg {
   width: 16px;
   height: 16px;
 }
+/* The pointer brightens Play where it stands: lifted, the pill left the dock's line and seemed to
+   float. */
 .yard-play-toggle:hover,
 .yard-play-toggle[aria-expanded="true"] {
-  background: var(--control-hover);
+  background: linear-gradient(180deg, var(--garden-honey-light), var(--garden-honey));
+}
+.yard-play-toggle:hover {
+  box-shadow:
+    inset 0 1px 0 var(--garden-honey-shine),
+    0 2px 4px var(--garden-honey-shadow),
+    0 0 0 3px color-mix(in srgb, var(--garden-honey) 28%, transparent);
+}
+.yard-play-toggle:active {
+  transform: scale(0.96);
+}
+@media (prefers-reduced-motion: reduce) {
+  .yard-play-toggle:is(:hover, :active) {
+    transform: none;
+  }
 }
 .yard-controls-panel .panel-tab > span {
   min-width: 0;
   line-height: 1.35;
 }
+/* As wide as its longest choice, so no language leaves a word's last letter on a line of its own. */
 .yard-context-menu {
   position: fixed;
   z-index: 40;
-  width: min(224px, calc(100vw - 16px));
+  width: max-content;
+  min-width: 200px;
+  max-width: calc(100vw - 16px);
   max-height: calc(100dvh - 16px);
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 6px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  background: var(--menu-surface);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
+  border: var(--garden-frame-border);
+  border-radius: var(--radius-garden);
+  background: var(--garden-frame);
   box-shadow: var(--shadow-dock);
 }
 .yard-context-menu[hidden] {
@@ -688,6 +798,7 @@ body.compact .toast > span {
   min-height: 36px;
   padding: 8px;
   text-align: left;
+  white-space: nowrap;
   border-radius: var(--radius-control);
   background: transparent;
   color: var(--ink);
@@ -715,11 +826,366 @@ body.compact .toast > span {
 [role="menuitemcheckbox"][aria-checked="true"] > .context-check {
   visibility: visible;
 }
+/* The tick is a line icon (icons.js), in the menu's ink rather than the muted icons beside it. */
+.yard-context-menu .context-check > svg {
+  color: inherit;
+}
 
+/* Inside the yard's play surfaces the page's ink and lines take the paper's colours. */
+.yard-dock,
+.dock-panel,
+.yard-context-menu,
+.startup-notice,
+.toast > span,
+.game-banner,
+.catch-card,
+.dress-tray,
+.discovery-target,
+.window-buttons,
+.empty-yard {
+  --ink: var(--garden-ink);
+  --muted: var(--garden-muted);
+  --line: var(--garden-line);
+  --control-hover: var(--garden-hover);
+  --control-selected: var(--garden-selected);
+  --card-hover: var(--garden-hover);
+  --soft: var(--garden-paper-deep);
+  --white: var(--garden-field);
+  --ink-8: var(--garden-ink-8);
+  --ink-12: var(--garden-ink-12);
+  --ink-20: var(--garden-ink-20);
+  --green-soft: var(--garden-selected);
+  --green-ink: var(--garden-ink);
+  --green-line: var(--garden-rim);
+  --done-mark: var(--garden-check);
+  --done-line: var(--garden-check);
+}
+/* A colour is inherited as it was computed, so the surfaces that set none take the paper's ink too. */
+.yard-dock,
+.dock-panel,
+.yard-context-menu,
+.catch-card,
+.window-buttons {
+  color: var(--ink);
+}
+
+/* Where people play, an action shows its painted picture in place of its line icon; the label
+   beside it stays. Settings and the window's own controls keep the line icons. */
+:is(.play-board, .yard-dock, .discovery-tools, .yard-context-menu > :not([data-context-for="yard"])) [data-icon] {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+:is(.play-board, .yard-dock, .discovery-tools, .yard-context-menu > :not([data-context-for="yard"]))
+  [data-icon]:is(
+    [data-icon="shovel"],
+    [data-icon="fish"],
+    [data-icon="book"],
+    [data-icon="sprout"],
+    [data-icon="tree"],
+    [data-icon="treat"],
+    [data-icon="eye"],
+    [data-icon="paw"],
+    [data-icon="dash"],
+    [data-icon="chat"],
+    [data-icon="spark"],
+    [data-icon="monitor"]
+  )
+  > svg {
+  visibility: hidden;
+}
+:is(.play-board, .yard-dock, .discovery-tools, .yard-context-menu > :not([data-context-for="yard"]))
+  [data-icon="shovel"] {
+  background-image: url("../art/ui/dig.webp");
+}
+:is(.play-board, .yard-dock, .discovery-tools, .yard-context-menu > :not([data-context-for="yard"]))
+  [data-icon="fish"] {
+  background-image: url("../art/ui/fish.webp");
+}
+:is(.play-board, .yard-dock, .discovery-tools, .yard-context-menu > :not([data-context-for="yard"]))
+  [data-icon="book"] {
+  background-image: url("../art/ui/album.webp");
+}
+:is(.play-board, .yard-dock, .discovery-tools, .yard-context-menu > :not([data-context-for="yard"]))
+  [data-icon="sprout"] {
+  background-image: url("../art/ui/seeds.webp");
+}
+:is(.play-board, .yard-dock, .discovery-tools, .yard-context-menu > :not([data-context-for="yard"]))
+  [data-icon="tree"] {
+  background-image: url("../art/ui/tree.webp");
+}
+:is(.play-board, .yard-dock, .discovery-tools, .yard-context-menu > :not([data-context-for="yard"]))
+  [data-icon="treat"] {
+  background-image: url("../art/ui/treat.webp");
+}
+:is(.play-board, .yard-dock, .discovery-tools, .yard-context-menu > :not([data-context-for="yard"])) [data-icon="eye"] {
+  background-image: url("../art/ui/hide.webp");
+}
+:is(.play-board, .yard-dock, .discovery-tools, .yard-context-menu > :not([data-context-for="yard"])) [data-icon="paw"] {
+  background-image: url("../art/ui/parade.webp");
+}
+:is(.play-board, .yard-dock, .discovery-tools, .yard-context-menu > :not([data-context-for="yard"]))
+  [data-icon="dash"] {
+  background-image: url("../art/ui/tag.webp");
+}
+:is(.play-board, .yard-dock, .discovery-tools, .yard-context-menu > :not([data-context-for="yard"]))
+  [data-icon="chat"] {
+  background-image: url("../art/ui/chat.webp");
+}
+:is(.play-board, .yard-dock, .discovery-tools, .yard-context-menu > :not([data-context-for="yard"]))
+  [data-icon="spark"] {
+  background-image: url("../art/ui/play.webp");
+}
+:is(.play-board, .yard-dock, .discovery-tools, .yard-context-menu > :not([data-context-for="yard"]))
+  [data-icon="monitor"] {
+  background-image: url("../art/ui/desktop.webp");
+}
+/* A thing's own choices that share a line icon get pictures of their own. */
+.yard-context-menu
+  > :is(
+    [data-context-action="put-away"],
+    [data-context-action="pull-plant"],
+    [data-context-action="remove-tree"],
+    [data-context-action="settings-friend"]
+  )
+  [data-icon]
+  > svg {
+  visibility: hidden;
+}
+.yard-context-menu > [data-context-action="put-away"] [data-icon] {
+  background-image: url("../art/ui/put-away.webp");
+}
+.yard-context-menu > [data-context-action="pull-plant"] [data-icon] {
+  background-image: url("../art/ui/pull-plant.webp");
+}
+.yard-context-menu > [data-context-action="remove-tree"] [data-icon] {
+  background-image: url("../art/ui/remove-tree.webp");
+}
+.yard-context-menu > [data-context-action="dress-decor"] [data-icon] {
+  background-image: url("../art/ui/dress.webp");
+}
+.yard-context-menu > [data-context-action="settings-friend"] [data-icon] {
+  background-image: url("../art/ui/friend-settings.webp");
+}
+
+/* A thing's menu: one row of choices over the thing, its name on a plate on the far side and a notch
+   pointing at it (controls.js placeBar). It grows out of the notch and its choices follow one after
+   another; reduced motion keeps it still (base.css). */
+.yard-context-menu.thing-bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: max-content;
+  max-width: calc(100vw - 16px);
+  overflow: visible;
+  padding: 5px;
+  border-radius: 24px;
+  transform-origin: var(--notch, 50%) calc(100% + 12px);
+  animation: thing-bar-in 220ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+.yard-context-menu.thing-bar[data-side="below"] {
+  transform-origin: var(--notch, 50%) -12px;
+}
+.thing-bar > button {
+  flex: none;
+  width: auto;
+  min-height: 40px;
+  padding: 6px 12px 6px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  font-weight: 600;
+  animation: thing-choice-in 180ms ease-out backwards;
+  animation-delay: calc(var(--order, 0) * 30ms + 60ms);
+}
+.thing-bar > button:active {
+  transform: scale(0.96);
+}
+.thing-bar [data-icon] {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+}
+.thing-bar > button > svg,
+.thing-bar [data-icon] > svg {
+  width: 18px;
+  height: 18px;
+}
+.thing-bar .context-check {
+  margin-left: 2px;
+  color: var(--garden-honey-deep);
+}
+/* A list keeps an unticked check's slot so its rows line up; a bar has no column to keep, and the
+   slot left a wider gap after Show on desktop than between any other two choices. */
+.thing-bar [aria-checked="false"] > .context-check {
+  display: none;
+}
+/* The notch is the rim's wood pointing at the thing: a square turned on its corner, centred on the
+   bar's outer edge, of which only the half outside the bar is drawn (the clip, with room for its dark
+   edge). It paints nothing inside the bar, whose paper and rim shade differently from a small box. */
+.thing-bar::after {
+  content: "";
+  position: absolute;
+  left: var(--notch, 50%);
+  bottom: calc(-1 * var(--garden-rim-width) - 7px);
+  width: 14px;
+  height: 14px;
+  border-bottom-right-radius: 3px;
+  background: var(--garden-wood-foot);
+  box-shadow: 1px 1px 0 var(--garden-rim-edge);
+  clip-path: polygon(calc(100% + 2px) -2px, calc(100% + 2px) calc(100% + 2px), -2px calc(100% + 2px));
+  transform: translateX(-50%) rotate(45deg);
+}
+.thing-bar[data-side="below"]::after {
+  top: calc(-1 * var(--garden-rim-width) - 7px);
+  bottom: auto;
+  background: var(--garden-wood-head);
+  transform: translateX(-50%) rotate(225deg);
+}
+.thing-plate {
+  display: none;
+}
+/* The plate stands on the bar's rim as a tab of the same frame: a positioned child is measured from
+   inside the rim, so its foot (100%) is where the bar's paper begins. Its wood is the rim's own colour
+   where they meet, and the clip cuts its dark edge where the bar begins, so no line crosses the rim. */
+.thing-bar > .thing-plate:not([hidden]) {
+  position: absolute;
+  left: 18px;
+  bottom: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 36px);
+  padding: 3px 14px 4px;
+  border: var(--garden-frame-border);
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
+  background:
+    linear-gradient(var(--garden-paper), var(--garden-paper)) padding-box,
+    var(--garden-wood-head) border-box;
+  /* the frame's dark edge on the three sides that stand off the bar */
+  box-shadow:
+    0 -1px 0 var(--garden-rim-edge),
+    -1px 0 0 var(--garden-rim-edge),
+    1px 0 0 var(--garden-rim-edge);
+  clip-path: polygon(
+    -2px -2px,
+    calc(100% + 2px) -2px,
+    calc(100% + 2px) calc(100% - var(--garden-rim-width)),
+    100% calc(100% - var(--garden-rim-width)),
+    100% calc(100% + 3px),
+    0 calc(100% + 3px),
+    0 calc(100% - var(--garden-rim-width)),
+    -2px calc(100% - var(--garden-rim-width))
+  );
+  color: var(--ink);
+  font-size: var(--font-md);
+  font-weight: 750;
+  white-space: nowrap;
+}
+.thing-bar[data-side="below"] > .thing-plate:not([hidden]) {
+  top: 100%;
+  bottom: auto;
+  border-top: 0;
+  border-bottom: var(--garden-frame-border);
+  border-radius: 0 0 14px 14px;
+  background:
+    linear-gradient(var(--garden-paper), var(--garden-paper)) padding-box,
+    var(--garden-wood-foot) border-box;
+  box-shadow:
+    0 1px 0 var(--garden-rim-edge),
+    -1px 0 0 var(--garden-rim-edge),
+    1px 0 0 var(--garden-rim-edge);
+  clip-path: polygon(
+    0 -3px,
+    100% -3px,
+    100% var(--garden-rim-width),
+    calc(100% + 2px) var(--garden-rim-width),
+    calc(100% + 2px) calc(100% + 2px),
+    -2px calc(100% + 2px),
+    -2px var(--garden-rim-width),
+    0 var(--garden-rim-width)
+  );
+}
+/* Its paper runs on over the bar's inner edge (its crease and light line), so the two read as one piece. */
+.thing-bar > .thing-plate:not([hidden])::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 3px;
+  background: var(--garden-paper);
+}
+.thing-bar[data-side="below"] > .thing-plate:not([hidden])::after {
+  top: auto;
+  bottom: 100%;
+}
+.thing-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.thing-hearts:not([hidden]) {
+  display: inline-flex;
+  gap: 2px;
+}
+/* Closeness, 1 to 5, as hearts filled up to the level and the rest as outlines, all in the heart's
+   colour so the five read as five; the level's words are its label. */
+.thing-hearts > i {
+  width: 12px;
+  height: 11px;
+  background: var(--garden-heart);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 11'%3E%3Cpath d='M6 10.6 1.2 5.9A3 3 0 0 1 6 2a3 3 0 0 1 4.8 3.9Z' fill='none' stroke='%23000' stroke-width='1.3' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.thing-hearts[data-level="1"] > i:nth-child(-n + 1),
+.thing-hearts[data-level="2"] > i:nth-child(-n + 2),
+.thing-hearts[data-level="3"] > i:nth-child(-n + 3),
+.thing-hearts[data-level="4"] > i:nth-child(-n + 4),
+.thing-hearts[data-level="5"] > i {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 11'%3E%3Cpath d='M6 10.6 1.2 5.9A3 3 0 0 1 6 2a3 3 0 0 1 4.8 3.9Z'/%3E%3C/svg%3E");
+}
+/* A dock panel grows up out of the dock with a little overshoot; it closes at once, faster than it
+   opened. Reduced motion shows it still (base.css). */
+.dock-panel:not([hidden]) {
+  transform-origin: 85% 100%;
+  animation: dock-panel-in 220ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+@keyframes dock-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.94);
+  }
+}
+@keyframes thing-bar-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+@keyframes thing-choice-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* The yard takes focus (discovery.js) so its keys work while a tool is in hand; the field is not a
+   control, so it shows no ring for a press, and only a soft one inside its edge for the keyboard. */
+#yard:focus {
+  outline: none;
+}
+#yard:focus-visible {
+  outline: var(--focus-ring);
+  outline-color: color-mix(in srgb, var(--focus) 40%, transparent);
+  outline-offset: -4px;
+}
 /* Everything the yard says to the person (a warning, what a game asks, a find, a notice) shares one
    lane just above the dock, where play starts and the eyes already are, newest nearest the ground.
-   It rises above the tool strip while a tool is in hand (the strip is at most 98px from the bottom in
-   every language); the friends' own words stay over their heads. */
+   While a tool is in hand it goes up over the sky: the friends walk on the band above the strip, and
+   a card there covered the one being aimed at and took the click. The friends' own words stay over
+   their heads. */
 .yard-feedback {
   position: absolute;
   inset: auto 12px 64px;
@@ -740,7 +1206,9 @@ body.compact .toast > span {
   flex: 1 0 0;
 }
 .yard-frame:has(#discovery-target:not([hidden])) .yard-feedback {
-  bottom: 106px;
+  inset: 12px 12px auto;
+  /* the sky's share of the yard, so a long lane scrolls before it reaches the ground */
+  max-height: 40%;
 }
 body.compact .yard-feedback {
   inset: auto 52px 8px 8px;
@@ -749,19 +1217,44 @@ body.compact .yard-feedback {
 /* A small window's strip is up in the sky (compact.css), so the lane stays at the foot, below the
    ground, where the corner button was. */
 body.compact .yard-frame:has(#discovery-target:not([hidden])) .yard-feedback {
-  right: 8px;
-  bottom: 8px;
+  inset: auto 8px 8px;
+  max-height: calc(100% - 16px);
 }
 .yard-feedback > :is(.startup-notice, .game-banner, .catch-card) {
   flex-shrink: 0;
   pointer-events: auto;
 }
+/* A large window's card is a find's picture and name; the sentence under them shows under the pointer
+   or the keyboard and is still read out from the card's live region. Words the caller keeps stay
+   (card.js `keep`: a fish's size, a bug's count, a letter's quote): they are what the card is about.
+   A small window shows the name and a short New
+   only (compact.css). */
+body:not(.compact)
+  .catch-card:not(.keep-detail, :hover, :focus-within)
+  .catch-copy
+  > small:not(.catch-new, .catch-new-short) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
-.menu-destination {
+/* The menu's three places side by side, their icons over their names, in every window: the menu
+   is as wide in a large window as in a small one, and Close window and Quit below stay in view. */
+.management-destinations {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+.management-destinations .menu-destination {
   width: 100%;
-  justify-content: flex-start;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
   padding: 8px;
-  text-align: left;
+  text-align: center;
 }
 .menu-destination-copy {
   display: grid;

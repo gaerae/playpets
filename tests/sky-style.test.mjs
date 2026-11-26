@@ -14,6 +14,22 @@ test('rainbows stop immediately when night or precipitation begins', async () =>
   }
 });
 
+test('a rainbow brightens the sky inside it and has a faint second bow outside, its colours turned over', async () => {
+  const css = (await readFile('src/styles/scenery.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const body = [...css.matchAll(/([^{}]+)\{([^{}]+)\}/g)].find(([, selectors]) => selectors.trim() === '.rainbow')[2];
+  const bows = [...body.matchAll(/radial-gradient\(([^;]*?)\)(?=,\s*radial-gradient|;)/gs)].map(m => m[1]);
+  // Each colour's ring, as the share of the circle where its stop sits.
+  const rings = bow =>
+    [...bow.matchAll(/#([0-9a-f]{6})[0-9a-f]{0,2}\s+([\d.]+)%/g)].map(([, hex, at]) => ({ hex, at: +at }));
+  const [first, second] = bows.map(rings).filter(r => r.length >= 5);
+  assert.ok(first && second, 'two bows');
+  const order = bow => bow.map(r => r.hex).filter(h => ['ac9cd7', 'eebca0'].includes(h));
+  assert.deepEqual(order(first).slice(0, 1), ['ac9cd7'], 'violet inside the first');
+  assert.deepEqual(order(second).slice(0, 1), ['eebca0'], 'red inside the second');
+  assert.ok(Math.min(...second.map(r => r.at)) > Math.max(...first.map(r => r.at)), 'outside it');
+  assert.match(body, /#fff[0-9a-f]{3,5}\s+0\s+[\d.]+%,\s*#fff[0-9a-f]{3,5}\s+6[0-2]/, 'the sky inside it lit');
+});
+
 // A cloud crosses the yard in minutes, about a pixel at a time: moved smoothly, WebView2 composited
 // the yard 60 times a second while nothing else moved. WebKit moves steps on the page's own thread,
 // which costs more there, so only WebView2 takes them (docs/standards/performance.md).

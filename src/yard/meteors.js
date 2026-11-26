@@ -1,11 +1,15 @@
 // Shooting stars for the sky layer (scenery.js): now and then one on a clear night, in a meteor
 // shower one to three at a time, every one coming from the same point above the sky, and a wish
 // that falls from the moon, long and slow, and leaves glittering dust behind it. meteorAt says
-// where a star's head is and how long its tail; scenery draws them.
+// where a star's head is and how long its tail; light-art.js draws them, each head in a glow
+// (`halo`, its radius).
 
 // The point a shower's stars seem to come from, as a share of the sky: high on the left, above it.
 const RADIANT = { x: 0.14, y: -0.18 };
-const DUST = '#fff3d6';
+const DUST = ['#fff3d6', '#ffe2a8', '#fff8ec'];
+// How many motes of dust a wish leaves, and the light round the moon as it goes.
+const MOTES = 48;
+const MOON_GLOW = '#ffe7b0';
 
 /** One to three shooting stars from the shower's radiant, close together, from `now` on. */
 export function shower(w, h, now, rng = Math.random) {
@@ -29,11 +33,13 @@ export function shower(w, h, now, rng = Math.random) {
         radiant,
       };
     since += 120 + rng() * 260;
+    star.halo = star.width * 2.6;
     return star;
   });
 }
 
-/** A star that leaves the moon at `from` for the middle of the sky, and the dust it lets go. */
+/** A star that leaves the moon at `from` for the middle of the sky, the dust it lets go, and the
+ * glow round the moon as it leaves. */
 export function wish(from, w, h, now, rng = Math.random) {
   const side = Math.sign(w / 2 - from.x) || 1,
     length = w * (0.42 + rng() * 0.08),
@@ -47,26 +53,42 @@ export function wish(from, w, h, now, rng = Math.random) {
       since: now,
       life: 1700,
       width: 3.2,
+      halo: 16,
       wish: true,
     };
-  const dust = Array.from({ length: 30 }, (_, i) => {
-    const k = (i + rng() * 0.5) / 30,
+  // The dust drifts down slowly, each mote shimmering in its own phase (fireworks.js twinkle).
+  const dust = Array.from({ length: MOTES }, (_, i) => {
+    const k = (i + rng() * 0.5) / MOTES,
       cx = meteor.x + meteor.dx * k,
       cy = meteor.y + meteor.dy * k;
     return {
       cx,
       cy,
-      tx: cx + (rng() - 0.5) * 14,
-      ty: cy + 6 + rng() * 14,
-      fall: 6,
+      tx: cx + (rng() - 0.5) * 16,
+      ty: cy + 8 + rng() * 18,
+      fall: 10,
+      drag: 2.5,
       since: now + k * meteor.life,
-      life: 900 + rng() * 1100,
-      color: DUST,
+      life: 1400 + rng() * 1400,
+      color: DUST[i % DUST.length],
       glitter: true,
-      trail: 40,
+      trail: 50,
+      phase: rng() * Math.PI * 2,
     };
   });
-  return { meteor, dust };
+  const glow = {
+    cx: from.x,
+    cy: from.y,
+    tx: from.x,
+    ty: from.y,
+    fall: 0,
+    since: now,
+    life: 1600,
+    color: MOON_GLOW,
+    glow: true,
+    r: 46,
+  };
+  return { meteor, dust, glow };
 }
 
 /** Where a star's head is at `now`, which way it flies, how long its tail and how bright, or null

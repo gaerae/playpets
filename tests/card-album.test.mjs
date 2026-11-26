@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { element, installDom, installStorage } from './support/dom.mjs';
 
-const { albumSeen, setupCard, showCard } = await import('../src/yard/card.js');
+const { albumSeen, bookSeen, newBooks, setupCard, showCard } = await import('../src/yard/card.js');
 
 test('a find in the album offers one press to its book and marks Play until the album is opened', async t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
@@ -27,6 +27,25 @@ test('a find in the album offers one press to its book and marks Play until the 
   const before = links();
   showCard('<svg></svg>', 'Event', 'Started', false);
   assert.equal(links(), before, 'cards about something outside the album add no link');
+});
+
+test('each find marks its own book, the latest last, until that book is opened', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  installDom(t, { anyId: true });
+  installStorage(t);
+  Object.assign(document.getElementById('catch-card'), { hidden: true, querySelector: () => element() });
+  setupCard();
+  showCard('<svg></svg>', 'A wish on the moon', 'Seven taps', 'You found a secret!', 'secret');
+  // the next two wait behind the first card, and are kept all the same
+  showCard('<svg></svg>', 'Pond snail', 'A new one', true, 'fish');
+  showCard('<svg></svg>', 'Round and round', 'Three spins', 'You found another secret!', 'secret');
+  assert.deepEqual(newBooks(), ['fish', 'secret']);
+  showCard('<svg></svg>', 'Carp', 'Caught again', false, 'fish');
+  assert.deepEqual(newBooks(), ['fish', 'secret'], 'one met before is no news');
+  albumSeen();
+  assert.deepEqual(newBooks(), ['fish', 'secret'], 'opening the album leaves each book its mark');
+  bookSeen('secret');
+  assert.deepEqual(newBooks(), ['fish']);
 });
 
 test('a find shows in the lane of messages, not apart above whoever found it', async t => {

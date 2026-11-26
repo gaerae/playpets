@@ -70,3 +70,28 @@ test('an image is decoded once per address, and a failed one is null', async t =
   assert.equal(await decodeImage('../art/test/broken.png'), null);
   assert.equal(made.length, 2);
 });
+
+// The bugs and petals on the scenery canvas are cut from atlases up to 2172 pixels wide, drawn
+// every frame while they fly: drawn from the image, WebKit decodes the atlas again for each (see
+// src/core/pixels.js). A decoded picture is handed out as an ImageBitmap where there is one.
+test('a decoded picture is handed out as one bitmap of it, or the image where none can be made', async t => {
+  keepGlobals(t, 'Image', 'createImageBitmap');
+  globalThis.Image = class {
+    decode() {
+      return Promise.resolve();
+    }
+  };
+  const made = [];
+  globalThis.createImageBitmap = async image => {
+    if (image.src.endsWith('refused.png')) throw new Error('refused');
+    const bitmap = { of: image.src, width: 384, height: 128 };
+    made.push(bitmap);
+    return bitmap;
+  };
+  const bitmap = await decodeImage('../art/test/atlas.png');
+  assert.equal(bitmap.of, new URL('../art/test/atlas.png', new URL('../src/yard/', import.meta.url)).href);
+  assert.equal(await decodeImage('../art/test/atlas.png'), bitmap);
+  assert.equal(made.length, 1);
+  const image = await decodeImage('../art/test/refused.png');
+  assert.ok(image instanceof globalThis.Image, 'a bitmap refused leaves the image');
+});

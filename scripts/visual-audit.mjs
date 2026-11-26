@@ -406,10 +406,10 @@ try {
             for (const kind of ['tit', 'trill', 'warble', 'dove']) scape.bird(kind, 0.5, 0, 1);
             scape.splash(0.5);
             scape.plip(0.5);
-            scape.lap(0.2);
-            scape.gust(0.3);
-            scape.chirp(0.5, 4300, -0.5, 0.022);
-            scape.chirp(0.5, 4750, 0.55, 0.022);
+            scape.cicada(0.3, -0.4);
+            scape.geese(0.4);
+            scape.frog(0.5, 0.3);
+            scape.crickets(0.5, -0.5);
             scape.drop(0.5, 0.06);
             const buffer = await ctx.startRendering();
             let peak = 0,

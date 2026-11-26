@@ -7,12 +7,14 @@ import { closeOnBackdrop } from '../core/confirm.js';
 import { joinList, joinSentences, language, t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { systemSouth } from '../core/season.js';
-import { $, call, data, name } from '../core/state.js';
-import { previewSvg } from '../yard/art.js';
-import { albumSeen } from '../yard/card.js';
+import { $, call, data, name, recall, remember } from '../core/state.js';
+import { previewSvg, sharpen } from '../yard/art.js';
+import { albumSeen, bookSeen, newBooks, rareKind, showCard } from '../yard/card.js';
 import {
   BUGS,
+  bugChances,
   FISH,
+  fishHere,
   FLOWERS,
   GIFTS,
   giftKind,
@@ -28,12 +30,16 @@ import { decorShown, yardSeason } from '../yard/decor-shown.js';
 import { rareReadyAt } from '../yard/discovery-rewards.js';
 import { eventDates, eventScene, giftSeason } from '../yard/events.js';
 import { giftsOut } from '../yard/find-out.js';
+import { seasonFlowers } from '../yard/growth.js';
+import { hint as showNext } from '../yard/hint.js';
 import { treeSpot } from '../yard/planted-trees.js';
 import { SECRETS } from '../yard/secrets.js';
+import { learn } from '../yard/show-how.js';
 import { printSpecimen, SEEN_WHOLE, tailPeek, wholeAnimal } from '../yard/trail-art.js';
 import { scene } from '../yard/world.js';
-import { worldFor, worldHasSoil } from '../yard/worlds.js';
+import { worldAllows, worldFor, worldHasSoil } from '../yard/worlds.js';
 import { findButtons, landing, restoreRowFocus, rowFocus, setOutRow } from './album-actions.js';
+import { clueRow, clues } from './album-clues.js';
 
 // When and where a fish or a bug is found: "Summer, Evening, Night, at the lake".
 function when(kind, where) {
@@ -59,8 +65,8 @@ const eventSceneHint = k =>
     dates: eventDates(k.event, systemSouth()),
     scene: eventScene(k.event),
   });
-// What comes only on certain dates is rare, whatever its weight.
-const rare = k => k.rarity === 'rare' || !!k.event;
+// What comes only on certain dates is rare, whatever its weight; the find's card says the same (card.js).
+const rare = k => rareKind('fish', k);
 // A tree or a keepsake: how it is found (`how`), then what makes it likelier, each on its own.
 const favored = how => kind => {
   const conditions = [
@@ -74,7 +80,8 @@ const favored = how => kind => {
   ]);
 };
 // A card draws its kind from a small preview (src/art/album/), not from the painted sheet the yard
-// uses: decoding a book's 1536 x 1024 sheets for 112-pixel cards held up its first open.
+// uses: decoding a book's 1536 x 1024 sheets for 112-pixel cards held up its first open. The left
+// page, larger, then draws the one chosen from its sheet (art.js sharpen).
 const specimen = (art, unknown) => previewSvg(art, unknown ? 'class="unknown-art"' : '');
 const caughtLine = (entry, size) =>
   size && entry.best
@@ -85,8 +92,8 @@ const caughtLine = (entry, size) =>
 // catalog.js NAME_KEYS unless it has its own `name`), what has been found, and how a card draws and
 // describes a kind (`unknown`: what a card not found yet says, when not "not met yet"). A kind
 // added to the catalogue shows up in its book; a new book is one more entry here (its tab is made
-// from it) and one in NAME_KEYS. A `hidden` book shows only what has been found, is not there at all before that, and
-// stays out of the album's count; `note` is what its status line says.
+// from it) and one in NAME_KEYS. A `sealed` book shows only what has been found, one sealed card before that (its
+// tab a ?), and stays out of the album's count; `note` is what its status line says.
 const BOOKS = {
   flower: {
     tab: 'catch.tab_flowers',
@@ -96,6 +103,8 @@ const BOOKS = {
     draw: (k, unknown) => specimen(k.art, unknown),
     unknown: 'catch.unknown_flower',
     hint: k => t('catch.flower_hint', { season: t(`catch.season_${k.season}`) }),
+    // A seed planted now (garden.js plantAt) grows into one of the season's flowers.
+    now: () => seasonFlowers(scene.season),
     record: entry => t('catch.grown', { count: entry.count }),
     action: (k, entry) => growingButtons('flower', k.id, entry),
   },
@@ -111,6 +120,8 @@ const BOOKS = {
         when(k, 'catch.where_lake'),
         ...(k.rain > 1 ? [t('catch.rain_hint')] : []),
       ]),
+    // What bites in this season, time and event, where there is water (catch.js bite).
+    now: () => (worldAllows(scene.world, 'fishing') ? fishHere(scene.season, scene.period, scene.event) : []),
     record: entry => caughtLine(entry, true),
     rare,
     action: (k, entry) => findButtons('fish', k.id, entry),
@@ -127,6 +138,9 @@ const BOOKS = {
         when(k, ['beetle', 'cricket'].includes(k.kind) ? 'catch.where_ground' : 'catch.where_air'),
         t('catch.bug_clear'),
       ]),
+    // What flies or crawls in the yard now (scenery.js spawnLife), where there is wildlife.
+    now: () =>
+      worldAllows(scene.world, 'wildlife') ? bugChances(scene.season, scene.period, scene.weather, scene.event) : [],
     record: entry => caughtLine(entry, false),
     rare,
     action: (k, entry) => findButtons('bug', k.id, entry),
@@ -163,7 +177,7 @@ const BOOKS = {
     draw: (k, unknown) => specimen(k.art, unknown),
     hint: favored('album.treasure_how'),
     record: entry => caughtLine(entry, false),
-    rare: k => k.rarity === 'uncommon',
+    rare: k => rareKind('treasure', k),
     action: (k, entry) => findButtons('treasure', k.id, entry),
   },
   // Winter animals whose prints a friend followed: the print is the clue, the tail what was seen,
@@ -205,41 +219,75 @@ const BOOKS = {
       t('album.secret_found', {
         date: new Date(entry.first).toLocaleDateString(language(), { year: 'numeric', month: 'long', day: 'numeric' }),
       }),
-    hidden: true,
-    note: () => t('album.secret_more'),
+    sealed: true,
+    note: () => t(SECRETS.some(k => data.album?.secrets?.[k.id]) ? 'album.secret_more' : 'album.secret_none'),
   },
 };
 let book = 'flower';
+// The kind each book shows on its left page, once a card was pressed; until then its first find.
+const chosen = {};
 let rareTimer;
 /** The line under a found entry in a book: what was done with it (caught, grown, received). */
 export const recordLine = (id, entry) => BOOKS[id].record(entry);
 
-function card(b, kind, entry, index) {
-  const el = document.createElement('div');
-  el.className = `album-card${entry ? '' : ' unknown'}`;
+// What a card or the left page calls a kind: its name once found, the book's "not yet" before.
+const kindName = (b, kind, entry) =>
+  entry ? (b.name ? b.name(kind) : t(nameKey(b.list, kind.id))) : t(b.unknown || 'catch.unknown');
+// A kind's drawing with its place in the book, as on a collector's page: the gaps between numbers
+// are what is left. A card and the left page show the same.
+function specimenStage(b, kind, entry, index) {
   const stage = document.createElement('div');
   stage.className = 'album-specimen';
   stage.innerHTML = b.draw(kind, !entry, entry);
-  // Its place in the book, as on a collector's page: the gaps between numbers are what is left.
   const number = document.createElement('span');
   number.className = 'album-no';
   number.setAttribute('aria-hidden', 'true');
   number.textContent = String(index + 1).padStart(2, '0');
   stage.append(number);
+  return stage;
+}
+// How `kind` is found, in pictures where they can say it (album-clues.js), their sentence heard,
+// else in its sentence written in a `tag`; `className` says where it stands.
+function hintFor(b, kind, tag, className) {
+  const how = clues(book, kind),
+    el = how ? clueRow(how, b.hint(kind)) : document.createElement(tag);
+  el.classList.add(className);
+  if (!how) el.textContent = b.hint(kind);
+  return el;
+}
+// The Rare tag, on a card and in the left page's picture alike.
+function rareTag() {
+  const rare = document.createElement('span');
+  rare.className = 'album-rare';
+  rare.textContent = t('catch.rare');
+  return rare;
+}
+function card(b, kind, entry, index, current, now) {
+  const el = document.createElement('div');
+  el.className = `album-card${entry ? '' : ' unknown'}`;
+  el.dataset.kind = kind.id;
+  // The one the left page shows.
+  if (current) el.setAttribute('aria-current', 'true');
+  const stage = specimenStage(b, kind, entry, index);
   el.append(stage);
+  // Where to look, as the left page shows it: a small window, which has no left page, shows it on
+  // the card.
   const name = document.createElement('strong'),
-    hint = document.createElement('small');
-  name.textContent = entry ? (b.name ? b.name(kind) : t(nameKey(b.list, kind.id))) : t(b.unknown || 'catch.unknown');
-  hint.className = 'album-hint';
-  hint.textContent = b.hint(kind);
+    hint = hintFor(b, kind, 'small', 'album-hint');
+  name.textContent = kindName(b, kind, entry);
   el.append(name, hint);
   // A kind that comes seldom, or only on certain dates, says so, found or not, so it is worth waiting for.
   if (b.rare?.(kind)) {
-    const rare = document.createElement('span');
-    rare.className = 'album-rare';
-    rare.textContent = t('catch.rare');
-    el.append(rare);
+    el.append(rareTag());
     el.classList.add('rare');
+  }
+  // One not found yet that the yard could give this minute says so, so the next find is in sight.
+  if (now) {
+    const tag = document.createElement('span');
+    tag.className = 'album-now';
+    tag.textContent = t('album.now');
+    el.append(tag);
+    el.classList.add('now');
   }
   if (entry) {
     const mark = b.mark?.(kind);
@@ -269,7 +317,6 @@ function mementoHeart(kind) {
   heart.setAttribute('role', 'img');
   heart.title = from ? t('album.memento', { name: name(from) }) : t('album.memento_plain');
   heart.setAttribute('aria-label', heart.title);
-  heart.textContent = '♥';
   return heart;
 }
 // A gift that came before can always come back out of its card (garden.rs take_out), and back in.
@@ -338,7 +385,7 @@ function takeOutGrowing(tree, kind, desktop) {
 export function renderAlbum() {
   clearTimeout(rareTimer);
   if (!$('album-dialog').open) return;
-  if (!shown(book)) book = 'flower';
+  bookSeen(book);
   const now = Date.now(),
     readyAt = rareReadyAt(data.garden?.digs, TREASURES, now),
     capabilities = worldFor(scene.world).capabilities,
@@ -374,8 +421,8 @@ export function renderAlbum() {
     const have = b.found(),
       count = b.kinds.filter(k => have[k.id]).length,
       tally = document.querySelector(`[data-count="${id}"]`);
-    if (b.hidden) {
-      tally.textContent = String(count);
+    if (b.sealed) {
+      tally.textContent = count ? String(count) : '?';
       continue;
     }
     found += count;
@@ -386,9 +433,14 @@ export function renderAlbum() {
   if ($('album-select')) listBooks($('album-select'));
   $('album-total').textContent = t('catch.total', { caught: found, total });
   $('album-total').style.setProperty('--album-found', found / total);
+  const news = newBooks();
   for (const tab of document.querySelectorAll('.album-tabs [data-book]')) {
-    const active = tab.dataset.book === book;
-    tab.hidden = !shown(tab.dataset.book);
+    const active = tab.dataset.book === book,
+      fresh = news.includes(tab.dataset.book);
+    // A book with a find not looked at yet carries a dot until it is opened.
+    tab.classList.toggle('has-new', fresh);
+    if (fresh) tab.setAttribute('aria-description', t('catch.new_short'));
+    else tab.removeAttribute('aria-description');
     // How full each book is, as a thin line under its name; a book with every kind found is marked.
     tab.style.setProperty('--album-found', share[tab.dataset.book] ?? 0);
     tab.classList.toggle('complete', share[tab.dataset.book] === 1);
@@ -402,11 +454,81 @@ export function renderAlbum() {
   $('album-grid').dataset.book = book;
   // A press on a card redraws the book: the focus goes back to the control it was on.
   const was = rowFocus();
+  const kinds = b.kinds.filter(k => !b.sealed || have[k.id]),
+    showing = kinds.find(k => k.id === chosen[book]) || kinds.find(k => have[k.id]) || kinds[0];
+  if (!kinds.length) {
+    // Nothing found in a sealed book: its seal, on the card and on the page, and no word of what.
+    $('album-grid').replaceChildren(sealedCard());
+    $('album-detail')?.replaceChildren(sealedStage());
+    if ($('album-detail')) delete $('album-detail').dataset.kind;
+    return fitTabs();
+  }
+  const there = new Set((b.now?.() || []).map(k => k.id));
   keepUnchanged(
     $('album-grid'),
-    b.kinds.filter(k => !b.hidden || have[k.id]).map((k, index) => card(b, k, have[k.id], index)),
+    kinds.map((k, index) => card(b, k, have[k.id], index, k === showing, !have[k.id] && there.has(k.id))),
   );
   restoreRowFocus($('album-grid'), was);
+  leftPage(b, showing, showing && have[showing.id], kinds.indexOf(showing));
+  fitTabs();
+}
+// Every book's tab stays in the one row: where their names do not fit (a window just above the
+// compact one, a longer language) each shows its picture and count, and
+// keeps its name for a pointer (title) and a reader.
+function fitTabs() {
+  const row = $('album-tabs');
+  if (!row?.getClientRects?.().length) return;
+  row.classList.remove('tight');
+  row.classList.toggle('tight', row.scrollWidth > row.clientWidth);
+}
+// A sealed book's seal: a picture only, so it says something is there and nothing of what.
+function sealedStage() {
+  const stage = document.createElement('div');
+  stage.className = 'album-specimen album-seal';
+  stage.setAttribute('aria-hidden', 'true');
+  stage.addEventListener('animationend', () => stage.classList.remove('rattle'));
+  return stage;
+}
+// Pressed, a seal rattles like a lock that will not open yet (dialog.css .album-seal.rattle).
+const rattle = seal => seal.classList.add('rattle');
+function sealedCard() {
+  const el = document.createElement('div');
+  el.className = 'album-card unknown sealed';
+  el.append(sealedStage());
+  return el;
+}
+// The book's left page: the chosen kind's drawing, large, its name and its record, or where to look
+// for one not found yet. In a small window the book is one page and this one is not shown (dialog.css).
+function leftPage(b, kind, entry, index) {
+  const page = $('album-detail');
+  if (!page) return;
+  if (!kind) {
+    delete page.dataset.kind;
+    return page.replaceChildren();
+  }
+  page.dataset.kind = kind.id;
+  // On its book's own ground, as its card is (dialog.css).
+  page.dataset.book = book;
+  page.classList.toggle('unknown', !entry);
+  const stage = specimenStage(b, kind, entry, index);
+  const title = document.createElement('strong');
+  title.className = 'album-detail-name';
+  title.textContent = kindName(b, kind, entry);
+  let line;
+  if (entry) {
+    line = document.createElement('p');
+    line.className = 'album-detail-line';
+    line.textContent = b.record(entry);
+  } else line = hintFor(b, kind, 'p', 'album-detail-line');
+  // Rare in the picture's corner, opposite its number, as on its card.
+  if (b.rare?.(kind)) stage.append(rareTag());
+  const parts = [stage, title, line];
+  // Found, it still says where more of it are.
+  if (entry) parts.push(hintFor(b, kind, 'small', 'album-detail-hint'));
+  page.replaceChildren(...parts);
+  // Large, the card's preview would blur: it turns into the drawing once its sheet is decoded. A
+  // small window shows no left page, and decodes nothing for it.
+  if (page.getClientRects?.().length) sharpen(stage);
 }
 // Only the cards that changed take their new drawing: the rest of the book, and the pictures in it,
 // stay as they are. Another book (another count of cards) is drawn whole. A kept card's buttons act
@@ -418,15 +540,22 @@ function keepUnchanged(grid, cards) {
     if (!old[i].isEqualNode(fresh)) old[i].replaceWith(fresh);
   });
 }
-// Whether a book is there to open: a hidden one once something in it is found.
-const shown = id => {
-  const b = BOOKS[id];
-  return !!b && (!b.hidden || b.kinds.some(k => b.found()[k.id]));
-};
-// The compact chooser holds only the books there are to open: a select's popup may offer a hidden
-// option all the same.
+// A book opens where the next find is: its first card available now near the top of the page, else
+// at its top. Only the page scrolls; the keyboard stays where it was.
+function toFirstNow() {
+  const grid = $('album-grid'),
+    first = [...grid.children].find(card => card.classList.contains('now'));
+  if (!first) return (grid.scrollTop = 0);
+  grid.scrollTop = Math.max(
+    0,
+    first.getBoundingClientRect().top - grid.getBoundingClientRect().top + grid.scrollTop - 8,
+  );
+}
+// Whether `id` names a book (a saved or asked-for one may not, any more).
+const isBook = id => Object.hasOwn(BOOKS, id);
+// The compact chooser holds every book, as the row of tabs does.
 function listBooks(picker) {
-  const ids = Object.keys(BOOKS).filter(shown);
+  const ids = Object.keys(BOOKS);
   if (picker.dataset.books !== ids.join()) {
     picker.dataset.books = ids.join();
     picker.replaceChildren(
@@ -445,20 +574,64 @@ function listBooks(picker) {
   }
   picker.value = book;
 }
+// The books whose every kind has been found, so far as this yard has seen; books full before it
+// first looked count as seen, so an old yard is not told about them late.
+const DONE = 'album-books-done';
+// What booksDone last looked from: the finds, the gifts and the books already told. A push that
+// leaves them as they were (most do: a scene echoed back, a chat's status) fills no book.
+let doneFrom = '';
+/** A book just filled gets a card of its own, once, after the card of the find that filled it, with
+ * the drawing of that last find and how many it holds, kept in view. Called after every change of state (app.js drawPushed). */
+export function booksDone() {
+  const from = JSON.stringify([data.album ?? null, data.garden?.received ?? null, recall(DONE)]);
+  if (from === doneFrom) return;
+  doneFrom = from;
+  const full = Object.entries(BOOKS).filter(([, b]) => {
+    const have = b.found();
+    return b.kinds.length > 0 && b.kinds.every(k => have[k.id]);
+  });
+  const seen = recall(DONE);
+  if (seen === null) return remember(DONE, full.map(([id]) => id).join());
+  const told = new Set(seen.split(',').filter(Boolean)),
+    fresh = full.filter(([id]) => !told.has(id));
+  if (!fresh.length) return;
+  remember(DONE, [...told, ...fresh.map(([id]) => id)].join());
+  for (const [id, b] of fresh) {
+    const have = b.found(),
+      last = b.kinds.reduce((a, k) => ((have[k.id].first || 0) >= (have[a.id].first || 0) ? k : a));
+    showCard(
+      b.draw(last, false, have[last.id]),
+      t('album.book_done', { book: t(b.tab) }),
+      t('album.book_done_detail', { count: b.kinds.length }),
+      false,
+      id,
+      null,
+      { keep: true },
+    );
+  }
+}
 /** Opens the album (the tools' button), at a given book when a card asks for it. */
 export function openAlbum(open = null) {
-  if (open && shown(open)) {
+  // From its own button, at the latest book with something new in it.
+  open ??= newBooks().findLast(isBook);
+  if (open && isBook(open)) {
     book = open;
     if ($('album-select')) $('album-select').value = open;
   }
   $('album-dialog').showModal();
   renderAlbum();
+  toFirstNow();
+  // At the book's tab, so a keyboard starts among the books rather than at Close.
+  [...document.querySelectorAll('.album-tabs [data-book]')].find(tab => tab.dataset.book === book)?.focus();
   albumSeen();
+  // Opened once, the hand that pointed at Album is done (hint.js).
+  learn('album');
 }
 /** Wires the album's button, tabs and dialog. Called once, by app.js. */
 export function setupAlbum() {
   $('album-dialog').addEventListener('close', () => {
     clearTimeout(rareTimer);
+    showNext();
     // The button it opened from went with the Play panel.
     if (document.activeElement === document.body)
       $(document.body.classList.contains('compact') ? 'yard' : 'play-button').focus();
@@ -467,10 +640,10 @@ export function setupAlbum() {
   if (picker) {
     listBooks(picker);
     picker.onchange = () => {
-      if (!shown(picker.value)) return;
+      if (!isBook(picker.value)) return;
       book = picker.value;
       renderAlbum();
-      $('album-grid').scrollTop = 0;
+      toFirstNow();
     };
   }
   $('album-tabs').replaceChildren(
@@ -485,15 +658,31 @@ export function setupAlbum() {
       tab.dataset.book = id;
       const meter = document.createElement('i');
       name.textContent = t(b.tab);
+      tab.title = t(b.tab);
       count.dataset.count = id;
       meter.className = 'album-meter';
       meter.setAttribute('aria-hidden', 'true');
-      // A hidden book counts only what is found, so it has no line to fill.
-      tab.append(name, count, ...(b.hidden ? [] : [meter]));
+      // A sealed book counts only what is found, so it has no line to fill.
+      tab.append(name, count, ...(b.sealed ? [] : [meter]));
       return tab;
     }),
   );
+  // A press on a card (not on one of its buttons) shows it on the left page.
+  $('album-grid').addEventListener('click', e => {
+    if (e.target.closest('button, a, input, select')) return;
+    const seal = e.target.closest('.album-seal');
+    if (seal) return rattle(seal);
+    const picked = e.target.closest('.album-card');
+    if (!picked?.dataset.kind) return;
+    chosen[book] = picked.dataset.kind;
+    renderAlbum();
+  });
+  $('album-detail')?.addEventListener('click', e => {
+    const seal = e.target.closest('.album-seal');
+    if (seal) rattle(seal);
+  });
   $('album-button').onclick = () => openAlbum();
+  globalThis.window?.addEventListener('resize', () => $('album-dialog').open && fitTabs());
   $('close-album').onclick = () => $('album-dialog').close();
   closeOnBackdrop($('album-dialog'));
   const tabs = [...document.querySelectorAll('.album-tabs [data-book]')];
@@ -501,22 +690,20 @@ export function setupAlbum() {
     tab.onclick = () => {
       book = tab.dataset.book;
       renderAlbum();
-      $('album-grid').scrollTop = 0;
+      toFirstNow();
     };
     tab.onkeydown = e => {
-      // Among the tabs there are: a hidden book's appears only once something in it is found.
-      const open = tabs.filter(other => !other.hidden),
-        index = open.indexOf(tab),
+      const index = tabs.indexOf(tab),
         next = {
-          ArrowRight: (index + 1) % open.length,
-          ArrowLeft: (index + open.length - 1) % open.length,
+          ArrowRight: (index + 1) % tabs.length,
+          ArrowLeft: (index + tabs.length - 1) % tabs.length,
           Home: 0,
-          End: open.length - 1,
+          End: tabs.length - 1,
         }[e.key];
       if (next === undefined) return;
       e.preventDefault();
-      open[next].onclick();
-      open[next].focus();
+      tabs[next].onclick();
+      tabs[next].focus();
     };
   }
 }

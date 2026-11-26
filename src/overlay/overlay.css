@@ -12,7 +12,7 @@ body {
   font-family:
     system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Noto Sans CJK KR",
     sans-serif;
-  color: #213e43;
+  color: #4a3523;
   user-select: none;
 }
 :root:lang(ja) body {
@@ -46,7 +46,7 @@ body {
   cursor: grabbing;
 }
 .decor:focus-visible {
-  outline: 3px solid #527c68;
+  outline: 3px solid #756451;
   border-radius: 12px;
 }
 .decor svg {
@@ -297,7 +297,7 @@ body {
   cursor: grabbing;
 }
 .friend:focus-visible {
-  outline: 3px solid #527c68;
+  outline: 3px solid #756451;
   border-radius: 16px;
 }
 canvas {
@@ -318,7 +318,7 @@ canvas {
   padding: 0;
   border: 8px solid transparent;
   background: #ffffffee;
-  box-shadow: 0 0 0 1px #d3ddd3;
+  box-shadow: 0 0 0 1px #e3cfa6;
   font-size: 11px;
   line-height: 1.5;
   /* three lines at most, ending in an ellipsis rather than cut through a line */
@@ -345,8 +345,8 @@ canvas {
   border: 0;
   border-radius: 11px;
   background: #fffffff2;
-  color: #213e43;
-  box-shadow: 0 2px 8px #213e4333;
+  color: #4a3523;
+  box-shadow: 0 2px 8px #4a352333;
   font: inherit;
   font-size: 11px;
   font-weight: 650;
@@ -374,14 +374,16 @@ canvas {
 }
 .talk:hover {
   background: #fff;
-  color: #2c6e57;
+  color: #c45237;
 }
 /* hearts rise from a petted friend, as in the yard */
 .heart {
   position: absolute;
   bottom: 50%;
-  color: #e8798f;
-  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  background: url("../art/ambient/heart.svg") center / contain no-repeat;
+  filter: drop-shadow(0 1px 1px #5c344530);
   pointer-events: none;
   animation: rise 1.2s ease-out both;
 }
@@ -401,5 +403,326 @@ canvas {
 @media (prefers-reduced-motion: reduce) {
   .talk {
     transition: none;
+  }
+}
+/* The grass along the floor of the first screen (desktop/grass.rs, overlay/ground.js): behind
+   everything out there, its blades round the feet of friends who stand in it (grass.rs FLOOR_GAP). */
+.ground {
+  position: absolute;
+  bottom: 0;
+  /* As tall as the backend takes the pointer over it, from its view (grass.rs view, ground.js). */
+  height: var(--ground-height, 56px);
+  pointer-events: none;
+  --fade-left: 36px;
+  --fade-right: 36px;
+}
+.ground[hidden] {
+  display: none;
+}
+/* Across the whole floor, an end runs off the screen with no fade. */
+.ground.ground-edge-left {
+  --fade-left: 0px;
+}
+.ground.ground-edge-right {
+  --fade-right: 0px;
+}
+.ground.ground-rise {
+  animation: ground-rise 1100ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+@keyframes ground-rise {
+  from {
+    translate: 0 100%;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+.ground-turf {
+  position: absolute;
+  inset: 0;
+  background: url(../art/ambient/desktop-grass.webp) center bottom / auto var(--ground-height, 56px) repeat-x;
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 var(--fade-left),
+    #000 calc(100% - var(--fade-right)),
+    transparent
+  );
+  transition: opacity 600ms ease 150ms;
+}
+/* Winter's snow lies on the grass as it does on the yard's lawn (environments/); the other seasons
+   keep the plain lawn, and show in what falls around a friend (flurry.js). The lawn tiles as itself
+   and its mirror image, so it has no seam. */
+.ground[data-season="winter"] .ground-turf {
+  background-image: url(../art/ambient/desktop-grass-winter.webp);
+}
+.ground[data-season="winter"] .ground-grip::after {
+  background-image: url(../art/ambient/desktop-pebble-winter.webp);
+}
+/* A few of the season's petals, leaves or flakes drift down around a friend someone was just with
+   and settle on the grass (flurry.js), behind the friends. Each takes one of a few fixed paths that
+   move only transform and opacity and read no variable, so the compositor carries them and nothing
+   is painted again while they fall; the size differs outside the animation. */
+.flurry {
+  position: absolute;
+  inset: auto 0 0;
+  height: 190px;
+  pointer-events: none;
+}
+.flurry-bit {
+  position: absolute;
+  top: 0;
+  left: var(--x);
+  /* a kind sets only its size; each bit grows by its own --scale and stays centred on --x */
+  --size: 15px;
+  width: calc(var(--size) * var(--scale));
+  height: calc(var(--size) * var(--scale));
+  margin-left: calc(var(--size) * var(--scale) / -2);
+  background: url(../art/ambient/desktop-fall-spring.webp) 0 0 / 400% 100% no-repeat;
+  opacity: 0;
+  animation: var(--ms) cubic-bezier(0.4, 0.1, 0.6, 1) var(--delay) both;
+}
+.flurry-bit[data-path="0"] {
+  animation-name: flurry-fall-0;
+}
+.flurry-bit[data-path="1"] {
+  animation-name: flurry-fall-1;
+}
+.flurry-bit[data-path="2"] {
+  animation-name: flurry-fall-2;
+}
+.flurry-bit[data-path="3"] {
+  animation-name: flurry-fall-3;
+}
+.flurry-leaf .flurry-bit {
+  --size: 17px;
+  background-image: url(../art/ambient/desktop-fall-autumn.webp);
+}
+.flurry-bit[data-look="1"] {
+  background-position-x: 33.333%;
+}
+.flurry-bit[data-look="2"] {
+  background-position-x: 66.667%;
+}
+.flurry-bit[data-look="3"] {
+  background-position-x: 100%;
+}
+.flurry-snow .flurry-bit {
+  --size: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0 36%, rgb(206 212 238 / 0.9) 54%, rgb(206 212 238 / 0) 74%);
+}
+@keyframes flurry-fall-0 {
+  0% {
+    opacity: 0;
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  10% {
+    opacity: 1;
+  }
+  35% {
+    transform: translate(24px, 52px) rotate(105deg);
+  }
+  65% {
+    transform: translate(-40px, 104px) rotate(210deg);
+  }
+  82% {
+    opacity: 1;
+    transform: translate(-20px, 152px) rotate(300deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-20px, 152px) rotate(300deg);
+  }
+}
+@keyframes flurry-fall-1 {
+  0% {
+    opacity: 0;
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  10% {
+    opacity: 1;
+  }
+  35% {
+    transform: translate(-20.4px, 52px) rotate(-133deg);
+  }
+  65% {
+    transform: translate(34px, 104px) rotate(-266deg);
+  }
+  82% {
+    opacity: 1;
+    transform: translate(17px, 152px) rotate(-380deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(17px, 152px) rotate(-380deg);
+  }
+}
+@keyframes flurry-fall-2 {
+  0% {
+    opacity: 0;
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  10% {
+    opacity: 1;
+  }
+  35% {
+    transform: translate(-27.6px, 52px) rotate(77deg);
+  }
+  65% {
+    transform: translate(46px, 104px) rotate(154deg);
+  }
+  82% {
+    opacity: 1;
+    transform: translate(23px, 152px) rotate(220deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(23px, 152px) rotate(220deg);
+  }
+}
+@keyframes flurry-fall-3 {
+  0% {
+    opacity: 0;
+    transform: translate(0px, 0px) rotate(0deg);
+  }
+  10% {
+    opacity: 1;
+  }
+  35% {
+    transform: translate(15.6px, 52px) rotate(-91deg);
+  }
+  65% {
+    transform: translate(-26px, 104px) rotate(-182deg);
+  }
+  82% {
+    opacity: 1;
+    transform: translate(-13px, 152px) rotate(-260deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-13px, 152px) rotate(-260deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flurry {
+    display: none;
+  }
+}
+/* The pointer over the bare grass: it thins at once, so what is behind shows, and grows back
+   slowly once the pointer leaves. */
+.ground-see .ground-turf {
+  opacity: 0.22;
+  transition: opacity 220ms ease;
+}
+/* Each end is a mossy pebble to pull: always there, so it is plain what to grab. The window takes
+   the pointer only once it has rested on one (grass.rs DWELL), so it lifts then. */
+.ground-grip {
+  position: absolute;
+  z-index: 3;
+  bottom: 4px;
+  width: var(--grip-width, 48px);
+  height: 44px;
+  pointer-events: auto;
+  cursor: ew-resize;
+}
+.ground-grip[data-end="left"] {
+  left: 0;
+}
+.ground-grip[data-end="right"] {
+  right: 0;
+}
+.ground-grip::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 46px;
+  height: 30px;
+  translate: -50% 0;
+  transform-origin: 50% 100%;
+  background: url(../art/ambient/desktop-pebble.webp) center bottom / contain no-repeat;
+  transition:
+    translate 200ms cubic-bezier(0.3, 1.6, 0.5, 1),
+    scale 200ms cubic-bezier(0.3, 1.6, 0.5, 1),
+    filter 200ms ease;
+}
+.ground-grip:hover::after {
+  translate: -50% -3px;
+  scale: 1.08;
+  filter: drop-shadow(0 0 5px rgb(255 248 205)) drop-shadow(0 3px 2px rgb(74 53 35 / 0.3));
+}
+.ground-resizing .ground-grip::after {
+  translate: -50% -6px;
+  scale: 1.12;
+  filter: drop-shadow(0 5px 3px rgb(74 53 35 / 0.3));
+}
+@media (prefers-reduced-motion: reduce) {
+  .ground-turf,
+  .ground-grip::after {
+    transition: none;
+  }
+}
+/* The first few times the grass comes (ground.js demo): the yard's painted hand presses the right
+   pebble, pulls it in and lets it spring back, twice, after the strip has risen; then it goes. The
+   hand is mirrored, reaching from the grass's side, so at the screen's corner none of it is cut off;
+   its fingertip (then at the picture's top right) is on the pebble's top. Only transform and opacity
+   move. */
+.ground-hand {
+  position: absolute;
+  left: -12px;
+  top: 2px;
+  width: 46px;
+  height: 46px;
+  pointer-events: none;
+  background: url(../art/ui/hand.webp) center / contain no-repeat;
+  filter: drop-shadow(0 0 1.5px rgb(255 250 240)) drop-shadow(0 3px 4px rgb(74 53 35 / 0.3));
+  transform: scaleX(-1);
+  animation: ground-hand-pull 2s ease-in-out 1.2s 2 both;
+}
+.ground-demo .ground-grip[data-end="right"]::after {
+  animation: ground-pebble-pull 2s ease-in-out 1.2s 2;
+}
+@keyframes ground-hand-pull {
+  0% {
+    opacity: 0;
+    transform: translateX(-10px) scaleX(-1);
+  }
+  15%,
+  30% {
+    opacity: 1;
+    transform: scale(-0.92, 0.92);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(-64px) scale(-0.92, 0.92);
+  }
+  85% {
+    opacity: 1;
+    transform: translateX(-64px) scaleX(-1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-74px) scaleX(-1);
+  }
+}
+@keyframes ground-pebble-pull {
+  0%,
+  30% {
+    transform: none;
+  }
+  70%,
+  80% {
+    transform: translateX(-64px);
+  }
+  100% {
+    transform: none;
+  }
+}
+/* With motion turned down the hand rests on the pebble for its moment, and nothing slides. */
+@media (prefers-reduced-motion: reduce) {
+  .ground-hand,
+  .ground-demo .ground-grip[data-end="right"]::after {
+    animation: none;
   }
 }

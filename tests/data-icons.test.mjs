@@ -12,3 +12,12 @@ test('every data-icon in index.html is a key of icons.js', async () => {
   assert.ok(keys.size > 20 && names.size > 5, 'both lists were read');
   for (const name of names) assert.ok(keys.has(name), `${name} is drawn in icons.js`);
 });
+
+// Settings and its first section, Language & startup, drew the same sliders, so the section read as
+// Settings again. An icon names one thing.
+test('Settings and its Language & startup section have their own icons', async () => {
+  const html = await readFile('src/index.html', 'utf8');
+  const icon = id => html.match(new RegExp(`<button id="${id}"[^>]*>\\s*<span data-icon="([^"]+)"`))?.[1];
+  assert.equal(icon('menu-settings'), 'gear');
+  assert.equal(icon('settings-general-task'), 'globe');
+});

@@ -6,12 +6,6 @@
 body.compact .pet-tag {
   font-size: var(--font-sm);
   padding: 2px 6px;
-  visibility: hidden;
-}
-body.compact .pet-label.pointing .pet-tag,
-body.compact .pet-label.focused .pet-tag,
-body.compact .pet-tag:hover {
-  visibility: visible;
 }
 body.compact .yard-dock {
   display: none;
@@ -25,11 +19,10 @@ body.compact .compact-launcher {
   right: 8px;
   bottom: 8px;
   z-index: 25;
-  display: inline-flex;
+  /* the icon button's centred grid (base.css): a flex row put its dots 6px left of the middle */
+  display: grid;
   width: 36px;
   height: 36px;
-  border: 1px solid var(--line);
-  background: var(--menu-surface);
   transition: opacity 0.2s;
 }
 /* A small window kept on the desktop shows only the yard: the corner buttons (this one, and an
@@ -48,35 +41,6 @@ body.compact .discovery-target {
   right: 8px;
   bottom: auto;
   width: auto;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 4px;
-}
-/* The instruction stays for screen readers; the tools, Close and the marker on the ground say the
-   rest. */
-body.compact .discovery-target-heading {
-  display: contents;
-}
-body.compact #discovery-target-label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-body.compact .discovery-tools {
-  grid-row: 1;
-  grid-column: 1;
-  padding-top: 0;
-}
-body.compact #discovery-cancel {
-  grid-row: 1;
-  grid-column: 2;
-}
-body.compact :is(#discovery-tree-picker, #discovery-find-saplings) {
-  grid-column: 1 / -1;
 }
 body.compact .tree-picker {
   padding-top: 0;
@@ -137,34 +101,28 @@ body.compact .dock-section + .dock-section,
 body.compact .dock-panel-body > .window-actions {
   padding-top: 6px;
 }
-body.compact .management-destinations {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 4px;
-}
-body.compact .management-destinations .menu-destination {
-  flex-direction: column;
-  justify-content: center;
-  gap: 2px;
-  text-align: center;
-}
 /* Three tiles a row in every group, so a name stays whole on one line in each language: six games
    in one row were too narrow and broke their names inside the word. A font that draws a name wider
    than its tile cuts it with an ellipsis, never a break. The games take two rows, so the tiles are
    close set (the icon over the name, the seed count in the corner above it, small gaps) and the
-   panel stays under two thirds of a 320px window. */
+   panel stays under two thirds of a 320px window. A group's last row gathers in the middle, so a
+   fourth game is not left alone at the left. */
 body.compact .play-actions {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 2px;
 }
 body.compact .play-board .dock-panel-body {
   gap: 3px;
 }
+/* The groups' names are hidden here, so a line marks where one ends. */
 body.compact .play-board .dock-section + .dock-section {
+  border-top: 1px solid var(--line);
   padding-top: 3px;
 }
 body.compact .play-action {
+  flex: 0 0 calc((100% - 4px) / 3);
   min-width: 0;
   min-height: 0;
   gap: 1px;
@@ -206,7 +164,8 @@ body.compact .play-action > .tool-count {
 body.compact .background-gallery {
   grid-template-columns: none;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(96px, 31%);
+  /* the four built-in places side by side, as in a short window (caption.css) */
+  grid-auto-columns: minmax(72px, calc((100% - 24px) / 4));
   overflow-x: auto;
   overscroll-behavior-x: contain;
 }
@@ -221,17 +180,6 @@ body.compact .menu-destination-copy strong {
   font-weight: 500;
 }
 
-body.compact .window-quick-actions > #always-on-top,
-body.compact .window-quick-actions > #fullscreen {
-  grid-column: auto;
-  min-width: 0;
-  padding: 0 4px;
-  gap: 6px;
-  font-size: var(--font-sm);
-}
-body.compact #always-on-top > [data-icon] {
-  display: none;
-}
 body.compact .window-actions {
   padding-top: 0;
   border-top: 0;

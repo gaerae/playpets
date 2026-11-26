@@ -193,7 +193,7 @@ fn start_overlay(app: &tauri::App) {
     {
         let state = app.state::<Shared>();
         let d = lock(&state);
-        overlay.sync(app::desktop_items(&d), app::desktop_on(&d), d.prefs.wander);
+        app::sync_overlay(&overlay, &d);
     }
     // A flower out there stands taller once it buds, by the clock alone, which changes nothing
     // saved: its box (desktop/items.rs plant_box) is looked at again each minute while one is out,
@@ -206,7 +206,7 @@ fn start_overlay(app: &tauri::App) {
             let state = handle.state::<Shared>();
             let d = lock(&state);
             if d.garden.plants.iter().any(|p| p.on_desktop) {
-                again.sync(app::desktop_items(&d), app::desktop_on(&d), d.prefs.wander);
+                app::sync_overlay(&again, &d);
             }
         }
     });

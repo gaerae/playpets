@@ -8,7 +8,6 @@
   /* the ink as a shadow or a faint line, by how strong (most box shadows use these) */
   --ink-8: #213e4314;
   --ink-12: #213e431f;
-  --ink-15: #213e4326;
   --ink-20: #213e4333;
   /* words that warn: an error, sending a friend away */
   --danger: #a3422c;
@@ -16,31 +15,79 @@
   --shell: #f7f9f8;
   --panel-surface: #f7f8f3;
   --field-surface: #fffefa;
-  --floating: #fffffff0;
   /* Every message on the yard (a notice, a card, a banner, the startup notes, the tool strip) has
-     one surface: the floating fill, a hairline and one soft shadow (shell.css, play.css, garden.css). */
-  --message-surface: var(--floating);
-  --message-line: var(--line);
-  --message-shadow: 0 6px 20px var(--ink-12);
+     one edge and one soft shadow (shell.css, play.css, garden.css). */
+  --message-line: var(--garden-rim);
+  --message-shadow: var(--shadow-garden);
   /* A dialog's shadow and the dim behind it; dark mode deepens both so they still read. */
-  --dialog-shadow: #152e432b;
-  --dialog-backdrop: #20394055;
+  --dialog-shadow: #3a24102b;
+  --dialog-backdrop: #2e1e0f55;
   /* The yard's own labels (a friend's bubble and name tag) belong to the painted scene, which stays a
      daylight painting in dark mode, so they keep one light look in both schemes (friends.css). */
   --scene-label: #fffffff2;
   --scene-label-soft: #ffffffb8;
-  --scene-ink: #2c4440;
-  --scene-line: #213e4326;
-  --scene-shadow: #213e4314;
-  --scene-green: #2c6e57;
+  --scene-ink: #4a3523;
+  --scene-line: #4a352326;
+  --scene-shadow: #4a352314;
   --scene-agent: #2f6a92;
   --scene-accent: #c45237;
   --scene-on-accent: #fff;
   /* The edge of a focused field. */
   --field-focus: #88a392;
-  --dock-surface: var(--panel-surface);
-  --menu-surface: var(--panel-surface);
-  --glass-blur: none;
+  /* The yard's play surfaces are garden things: cream paper in a honey-wood rim, with words in
+     the paper's brown ink (docs/design/2026-11-24-the-yard-plays-like-a-game.md). */
+  --garden-paper: #fbf4e3;
+  --garden-paper-deep: #f3e6c9;
+  --garden-hover: #f0deb8;
+  --garden-selected: #ead3a2;
+  --garden-rim: #c9995a;
+  --garden-rim-light: #fff9ec;
+  --garden-line: #e3cfa6;
+  --garden-ink: #4a3523;
+  --garden-muted: #6b5038;
+  --garden-honey: #f4c44f;
+  --garden-honey-deep: #e2a92e;
+  --garden-on-honey: #3f2b17;
+  --garden-honey-light: #f7d67e;
+  --garden-honey-shine: #fff6d6b3;
+  --garden-honey-shadow: #8a5a1a40;
+  --garden-heart: #e0586e;
+  /* a field on the paper, and an ink-filled button under the pointer */
+  --garden-field: #fffaef;
+  --garden-ink-hover: #654a32;
+  /* the paper's ink as a shadow or a faint line, as --ink-8…--ink-20 are the page's */
+  --garden-ink-8: #4a352314;
+  --garden-ink-12: #4a35231f;
+  --garden-ink-15: #4a352326;
+  --garden-ink-20: #4a352333;
+  /* a filled mark under a white tick: a step of the first-run list that is done */
+  --garden-check: #4a3523;
+  /* another friend's line in a group chat: a leaf-green tint of the paper, its name in leaf ink */
+  --garden-peer: #eef0dc;
+  --garden-peer-ink: #5d6b2e;
+  --garden-border: 2px solid var(--garden-rim);
+  --radius-garden: 14px;
+  /* A surface's honey-wood frame: a transparent border the wood shows through, lit from above, with
+     a dark outer edge, a crease where it meets the paper and the paper warming toward its edges.
+     A framed surface takes all three: `border: var(--garden-frame-border)`,
+     `background: var(--garden-frame)` and `box-shadow: var(--shadow-garden)`. */
+  --garden-rim-width: 6px;
+  --garden-frame-border: var(--garden-rim-width) solid transparent;
+  /* A message on the yard (a notice, a card, a banner, a tool strip) has a lighter rim than a panel. */
+  --garden-message-border: 4px solid transparent;
+  /* The wood's two ends, named so a piece set against a rim (a bar's notch) takes the rim's colour. */
+  --garden-wood-head: #efc887;
+  --garden-wood-foot: #a97338;
+  --garden-wood: linear-gradient(175deg, var(--garden-wood-head), #d9a35c 38%, #c48c48 72%, var(--garden-wood-foot));
+  --garden-rim-edge: #8a5c2c;
+  --garden-crease: #9a6a3466;
+  --garden-glow: #ead4a666;
+  --garden-frame: linear-gradient(var(--garden-paper), var(--garden-paper)) padding-box, var(--garden-wood) border-box;
+  --shadow-garden:
+    0 0 0 1px var(--garden-rim-edge), 0 8px 20px #5a3d1f33, 0 2px 4px #5a3d1f26, inset 0 0 0 1px var(--garden-crease),
+    inset 0 1px 0 1px var(--garden-rim-light), inset 0 0 22px var(--garden-glow);
+  --dock-surface: var(--garden-paper);
+  --menu-surface: var(--garden-paper);
   --soft: #eef3eb;
   /* the keyboard focus ring: one ring everywhere; on dark paint (water, the tree at night) the same
      ring in candlelight, which reads there */
@@ -53,13 +100,9 @@
   --ink-hover: #31575e;
   /* what a friend's picture stands on, in the panel's head and on the invite shelf */
   --portrait: #edf2e7;
-  /* a switch that is on, as the tray's check mark says */
-  --pressed: #e3efe6;
   --control-hover: #e1ece4;
   --control-selected: #cfe5d4;
-  --segment-track: #e8eee7;
-  --segment-active: #fffefa;
-  --settings-scrim: #1d2f2a2e;
+  --settings-scrim: #3a24102e;
   /* a small green mark that something is there: the seeds on a tool, an AI found on this computer */
   --green-soft: #e3f2ea;
   --green-ink: #2c6e57;
@@ -97,8 +140,12 @@
   --heart: #ec7d96;
   --heart-deep: #c9576f;
   --gold: #d9b25e;
+  /* The gold of what comes seldom, a little brighter after dark: a rare find's tag and frame, in the
+     album (dialog.css) and on a catch's card (play.css). */
+  --rare-gold: #c99a2e;
+  --rare-gold-soft: #fbefd2;
+  --rare-gold-ink: #8a6417;
   --knob: #fff;
-  --agent-blue: #4a9bd6;
   color-scheme: light;
   --radius-panel: 8px;
   --radius-control: 5px;
@@ -116,10 +163,10 @@
   --font-display: 18px;
   /* How far each kind of surface stands off the yard: a dock panel or the right-click menu, a menu
      opened from a control, a sheet beside the yard, Settings over it. */
-  --shadow-dock: 0 8px 24px var(--ink-12);
-  --shadow-menu: 0 12px 32px var(--ink-15);
-  --shadow-sheet: 0 12px 36px var(--ink-20);
-  --shadow-settings: 0 18px 48px #1d2f2a40;
+  --shadow-dock: var(--shadow-garden);
+  --shadow-menu: 0 12px 32px var(--garden-ink-15);
+  --shadow-sheet: var(--shadow-garden), 0 12px 36px var(--garden-ink-20);
+  --shadow-settings: var(--shadow-garden), 0 18px 48px #3a241040;
   /* Three kinds of surface, one size each wherever they are opened from: a dock panel above the dock
      (Place & atmosphere, Play, Friends & settings), a sheet beside the yard (a friend, Invite), and
      Settings over the yard, small enough that a short section does not leave most of it empty. */
@@ -146,18 +193,14 @@
     --shell: #1b2520;
     --panel-surface: #202c27;
     --field-surface: #293a31;
-    --floating: #202c27f0;
     --soft: #384937;
     --focus: #d6c7af;
     --sheet: var(--panel-surface);
     --ink-hover: #cadcc1;
     --portrait: #384937;
-    --pressed: #384937;
     --control-hover: #35453a;
     --control-selected: #465d49;
-    --segment-track: #17231d;
-    --segment-active: #465d49;
-    --settings-scrim: #07140e8c;
+    --settings-scrim: #0d08048c;
     --green-soft: #384937;
     --green-ink: #d1e8c2;
     --pink-soft: #49323c;
@@ -183,16 +226,93 @@
     --done-line: #87a574;
     /* The painted scene stays daylight, but a white tag on the light accent would not read. */
     --scene-accent: #a3422c;
-    --shadow-settings: 0 18px 48px #00000080;
+    --rare-gold: #d8b25e;
+    --rare-gold-soft: #493e29;
+    --rare-gold-ink: #f0d399;
+    --shadow-settings: var(--shadow-garden), 0 18px 48px #00000080;
     --ink-8: #00000024;
     --ink-12: #00000033;
-    --ink-15: #00000040;
     --ink-20: #00000052;
     --dialog-shadow: #00000080;
-    --dialog-backdrop: #050c0999;
+    --dialog-backdrop: #0a060399;
     --field-focus: #91b08b;
+    /* lamplit paper: the same garden things after dark */
+    --garden-paper: #3b3127;
+    --garden-paper-deep: #463a2c;
+    --garden-hover: #524331;
+    --garden-selected: #5e4c36;
+    --garden-rim: #9a7442;
+    --garden-rim-light: #ffffff14;
+    --garden-line: #5c4a36;
+    --garden-ink: #f6ead4;
+    --garden-muted: #dcc7a6;
+    --garden-honey: #e0b04a;
+    --garden-honey-deep: #c8962f;
+    --garden-on-honey: #2b1f12;
+    --garden-honey-light: #e8c46a;
+    --garden-honey-shine: #ffe9a840;
+    --garden-honey-shadow: #00000066;
+    --garden-heart: #ea7586;
+    --garden-field: #46392b;
+    --garden-ink-hover: #e6d3b3;
+    --garden-ink-8: #00000024;
+    --garden-ink-12: #00000033;
+    --garden-ink-15: #00000040;
+    --garden-ink-20: #00000052;
+    --garden-check: #9a7442;
+    --garden-peer: #3d3a2a;
+    --garden-peer-ink: #c9d49a;
+    --garden-wood-head: #b98a4f;
+    --garden-wood-foot: #694a29;
+    --garden-wood: linear-gradient(175deg, var(--garden-wood-head), #9a7040 40%, #7f5a31 75%, var(--garden-wood-foot));
+    --garden-rim-edge: #20160d;
+    --garden-crease: #00000066;
+    --garden-glow: #2a211a80;
+    --garden-frame:
+      linear-gradient(var(--garden-paper), var(--garden-paper)) padding-box, var(--garden-wood) border-box;
+    --shadow-garden:
+      0 0 0 1px var(--garden-rim-edge), 0 8px 20px #00000066, 0 2px 4px #00000040, inset 0 0 0 1px var(--garden-crease),
+      inset 0 1px 0 1px var(--garden-rim-light), inset 0 0 22px var(--garden-glow);
     color-scheme: dark;
   }
+}
+/* A system surface (a friend's sheet, Invite, Settings, every dialog) keeps its controls and layout
+   and takes the play surfaces' paper in their honey-wood frame
+   (docs/design/2026-11-24-the-yard-plays-like-a-game.md). */
+.side-panel,
+dialog {
+  --ink: var(--garden-ink);
+  --muted: var(--garden-muted);
+  --line: var(--garden-line);
+  --line-strong: var(--garden-rim);
+  --panel-surface: var(--garden-paper);
+  --sheet: var(--garden-paper);
+  --field-surface: var(--garden-field);
+  --soft: var(--garden-paper-deep);
+  --portrait: var(--garden-paper-deep);
+  --control-hover: var(--garden-hover);
+  --control-selected: var(--garden-selected);
+  --card-hover: var(--garden-hover);
+  --bubble-friend: var(--garden-paper-deep);
+  --bubble-user: var(--garden-ink);
+  /* another friend's line in a group chat: the paper's green-brown, not the page's blue-grey */
+  --bubble-peer: var(--garden-peer);
+  --peer-ink: var(--garden-peer-ink);
+  --ink-hover: var(--garden-ink-hover);
+  --on-ink: var(--garden-paper);
+  --white: var(--garden-field);
+  --ink-8: var(--garden-ink-8);
+  --ink-12: var(--garden-ink-12);
+  --ink-20: var(--garden-ink-20);
+  --code-surface: var(--garden-ink-8);
+  --field-focus: var(--garden-rim);
+  --icon-soft: var(--garden-rim);
+  --done-mark: var(--garden-check);
+  --done-line: var(--garden-check);
+  /* the marks the page draws in its green: a count, a found or connected stamp, a picked card */
+  --green-soft: var(--garden-selected);
+  --green-ink: var(--garden-ink);
+  --green-line: var(--garden-rim);
 }
 /* Korean keeps words whole across lines; Japanese and Chinese keep their closing marks and small
    kana off the start of a line. */
@@ -327,11 +447,16 @@ button:active:not(:disabled) {
   min-height: 28px;
   font-size: var(--font-xs);
 }
+/* No padding: the engine's own (uneven, and wider than a small button's room) would push the icon
+   off the middle of a round Close. Nor does it shrink in a row short of room, which would make it
+   an oval. */
 .icon-button {
   width: 36px;
   height: 36px;
   display: grid;
+  flex: none;
   place-items: center;
+  padding: 0;
   border: 1px solid transparent;
   border-radius: var(--radius-control);
   background: transparent;
@@ -348,7 +473,8 @@ button:active:not(:disabled) {
   margin: 0;
   border: 1px solid var(--line);
   border-radius: var(--radius-control);
-  background: var(--white);
+  /* the fields' surface, so on the paper a card is the same cream as the box beside it */
+  background: var(--field-surface);
   cursor: pointer;
   transition:
     border-color 0.15s,
@@ -374,6 +500,11 @@ button:active:not(:disabled) {
   padding: 0;
   border: 0;
 }
+/* A Japanese title (the AI kinds) breaks between phrases, and a word wider than the card still may. */
+:lang(ja) .choice-card strong {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
 .choice-card small {
   margin: 0;
   line-height: 1.5;
@@ -386,7 +517,7 @@ button:active:not(:disabled) {
 .eyebrow {
   font-size: var(--font-xs);
   font-weight: 750;
-  letter-spacing: 1.65px;
+  letter-spacing: 0.3px;
   color: var(--muted);
   margin-bottom: 12px;
 }
@@ -449,6 +580,94 @@ select:focus {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+/* A picture with its one word under it (core/dom.js clue): a how-to notice's gestures (shell.css),
+   the album's ways to find a kind (dialog.css), each of which sizes the picture. */
+.clue {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.clue > i {
+  /* longhands, so the picture each [data-clue] below names is kept */
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+[data-clue="tap-name"] {
+  background-image: url("../art/ui/tap-name.webp");
+}
+[data-clue="drag"] {
+  background-image: url("../art/ui/drag.webp");
+}
+[data-clue="right-click"] {
+  background-image: url("../art/ui/right-click.webp");
+}
+[data-clue="dig"] {
+  background-image: url("../art/ui/dig.webp");
+}
+[data-clue="seeds"] {
+  background-image: url("../art/ui/seeds.webp");
+}
+[data-clue="tree"] {
+  background-image: url("../art/ui/tree.webp");
+}
+[data-clue="fish"] {
+  background-image: url("../art/ui/fish.webp");
+}
+[data-clue="calendar"] {
+  background-image: url("../art/ui/calendar.webp");
+}
+[data-clue="play"] {
+  background-image: url("../art/ui/play.webp");
+}
+[data-clue="gift"] {
+  background-image: url("../art/ui/gift.webp");
+}
+[data-clue="hourglass"] {
+  background-image: url("../art/ui/hourglass.webp");
+}
+[data-clue="rain"] {
+  background-image: url("../art/ui/rain.webp");
+}
+[data-clue="clear"] {
+  background-image: url("../art/ui/clear.webp");
+}
+[data-clue="snow"] {
+  background-image: url("../art/ui/snow.webp");
+}
+[data-clue="spring"] {
+  background-image: url("../art/ui/spring.webp");
+}
+[data-clue="summer"] {
+  background-image: url("../art/ui/summer.webp");
+}
+[data-clue="autumn"] {
+  background-image: url("../art/ui/autumn.webp");
+}
+[data-clue="winter"] {
+  background-image: url("../art/ui/winter.webp");
+}
+[data-clue="morning"] {
+  background-image: url("../art/ui/morning.webp");
+}
+[data-clue="day"] {
+  background-image: url("../art/ui/day.webp");
+}
+[data-clue="evening"] {
+  background-image: url("../art/ui/evening.webp");
+}
+[data-clue="night"] {
+  background-image: url("../art/ui/night.webp");
+}
+/* Rare's painted star, the same as the one on a found rare card's corner: on the album's tag
+   (dialog.css .album-rare) and on a find's card (play.css .catch-rare). */
+:is(.album-rare, .catch-rare)::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  background: url("../art/ui/rare.webp") center / contain no-repeat;
 }
 /* Three dots that say an answer is on its way: in the chat, and over the friend in the yard. */
 .waiting-dots {
@@ -513,7 +732,7 @@ select:focus {
 select {
   -webkit-appearance: none;
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%235c6f70' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%236b5038' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 11px 8px;
@@ -539,6 +758,10 @@ select {
   .eyebrow {
     color: var(--muted);
   }
+  /* the chevron in the dark paper's muted ink */
+  select {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23dcc7a6' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
   .button.remove {
     color: var(--muted);
     border-color: var(--line);
@@ -552,22 +775,6 @@ select {
 /* Pointer activation needs no keyboard ring; Tab restores the normal focus treatment. */
 html.pointer-input :is(button, a, input, textarea, select, summary):focus {
   outline: none;
-}
-
-/* Frosting is limited to scenery controls; long-form panels remain solid. */
-@supports (backdrop-filter: blur(16px)) or (-webkit-backdrop-filter: blur(16px)) {
-  :root {
-    --dock-surface: color-mix(in srgb, var(--panel-surface) 76%, transparent);
-    --menu-surface: color-mix(in srgb, var(--panel-surface) 90%, transparent);
-    --glass-blur: blur(16px) saturate(110%);
-  }
-}
-@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  :root {
-    --dock-surface: var(--panel-surface);
-    --menu-surface: var(--panel-surface);
-    --glass-blur: none;
-  }
 }
 
 /* Mouse controls stay compact; a touch device keeps a larger target. */

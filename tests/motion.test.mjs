@@ -6,7 +6,7 @@ import { reduced } from '../src/core/sprites.js';
 import { setData, views } from '../src/core/state.js';
 import { geometry, measureYard, sizeOf } from '../src/yard/field.js';
 import { moveFriends, STROLL, WALK } from '../src/yard/motion.js';
-import { release, sendTo } from '../src/yard/trips.js';
+import { LOOK_FIRST_MS, release, sendTo } from '../src/yard/trips.js';
 import { GLIDE_MS, place } from '../src/yard/views.js';
 import { element, installDom } from './support/dom.mjs';
 import { flatField } from './support/flat-field.mjs';
@@ -53,7 +53,9 @@ test('trip arrivals use the destination pixels, including reduced-motion jumps',
   }
 });
 
-test('a friend bobs while it walks, more slowly on a stroll, and stops bobbing where it arrives', t => {
+// The bob of a walk is drawn with its steps (walk-steps.test.mjs); what is left on the button is the
+// settle at the stop.
+test('a friend settles where it arrives, once, by scale alone', t => {
   installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
   setData({ statuses: {} });
   const previousReduced = reduced.matches;
@@ -73,25 +75,13 @@ test('a friend bobs while it walks, more slowly on a stroll, and stops bobbing w
     views.clear();
     views.set('friend', friend);
     moveFriends(100, 50);
-    assert.ok(friend.button.classList.contains('walking'));
-    assert.ok(friend.button.classList.contains('strolling'));
-    friend.trip = { save: false };
-    moveFriends(150, 50);
-    assert.ok(friend.button.classList.contains('walking'));
-    assert.ok(!friend.button.classList.contains('strolling'), 'an errand is a quicker step');
+    assert.ok(!friend.button.classList.contains('walking'), 'no style keeps a walk of its own time');
     friend.x = 0.795;
     moveFriends(200, 50);
     assert.equal(friend.target, null);
-    assert.ok(!friend.button.classList.contains('walking'), 'standing still, it stops bobbing');
     // It settles by scale alone, so a spin or a tilt on the canvas (transform) goes on through it.
     assert.equal(settled.length, 1, 'it settles as it stops');
     for (const frame of settled[0]) assert.deepEqual(Object.keys(frame), ['scale']);
-    reduced.matches = true;
-    friend.target = { x: 0.2, y: 0.5 };
-    friend.trip = { save: false };
-    friend.x = 0.6;
-    moveFriends(250, 50);
-    assert.ok(!friend.button.classList.contains('walking'), 'with reduced motion a friend never bobs');
   } finally {
     views.clear();
     reduced.matches = previousReduced;
@@ -277,14 +267,19 @@ test('the first step of a walk counts from when the friend set off', t => {
     // ramps up from a stand (core/physics.js).
     const body = sizeOf(friend.pet) / geometry(friend.pet).w,
       far = 0.6 / body;
+    // It looks that way first (trips.js LOOK_FIRST_MS), then sets off.
     sendTo(friend, { x: 0.8, y: 0.5 }, { save: false });
-    clock = 1010;
-    moveFriends(1010, 120);
+    const off = 1000 + LOOK_FIRST_MS;
+    clock = off - 10;
+    moveFriends(clock, 50);
+    assert.equal(friend.x, 0.2, 'looking, it has not stepped');
+    clock = off + 10;
+    moveFriends(clock, 120);
     const first = friend.x - 0.2,
       setOff = rampPace(0, WALK, far, 10);
     assert.ok(Math.abs(first - 10 * setOff * body) < 1e-9, `it walked for 10 ms, not 120 (${first})`);
-    clock = 1060;
-    moveFriends(1060, 50);
+    clock = off + 60;
+    moveFriends(clock, 50);
     const next = rampPace(setOff, WALK, far - first / body, 50);
     assert.ok(Math.abs(friend.x - 0.2 - first - 50 * next * body) < 1e-9, 'then a whole frame each, quicker');
     assert.ok(next > setOff);
@@ -367,7 +362,7 @@ test('a walk cut short and started again ramps up from a stand', t => {
     views.set('friend', friend);
     measureYard();
     sendTo(friend, { x: 0.9, y: 0.5 }, { save: false });
-    for (clock = 1050; clock <= 1600; clock += 50) moveFriends(clock, 50);
+    for (clock = 1050 + LOOK_FIRST_MS; clock <= 1600 + LOOK_FIRST_MS; clock += 50) moveFriends(clock, 50);
     assert.equal(friend.vel, WALK, 'at its pace');
     // Let go and sent off again at once, with no frame between.
     release(friend);
@@ -423,10 +418,10 @@ test('a friend keeps its pace in body lengths, whatever the window’s size and 
     views.set('friend', friend);
     clock = 1000;
     sendTo(friend, to, { save: false, ...trip });
-    for (clock = 1050; clock <= 1250; clock += 50) moveFriends(clock, 50);
+    for (clock = 1050 + LOOK_FIRST_MS; clock <= 1250 + LOOK_FIRST_MS; clock += 50) moveFriends(clock, 50);
     const at = { x: friend.x, y: friend.y };
-    clock = 1300;
-    moveFriends(1300, 50);
+    clock = 1300 + LOOK_FIRST_MS;
+    moveFriends(clock, 50);
     assert.ok(friend.target, 'still on its way');
     const { w, h } = geometry(friend.pet, at.x);
     return { px: Math.hypot((friend.x - at.x) * w, (friend.y - at.y) * h) * 20, body: sizeOf(friend.pet) };
@@ -471,7 +466,7 @@ test('a friend keeps its pace in body lengths, whatever the window’s size and 
 // its own time and not 100 or 150 ms, a limp. Walks share one clock, as standing does, so several
 // friends walking change cells together: one wake for all. A friend that stands or makes a gesture
 // keeps to the loop's pace.
-test('a walking friend tells the loop when its step ends, on the clock all walks share', t => {
+test('a walking friend tells the loop when its next cell is due, and one standing does not', t => {
   installDom(t, { anyId: true, props: { rect: { width: 800, height: 560 } } });
   setData({ statuses: {} });
   const previousReduced = reduced.matches;
@@ -497,15 +492,14 @@ test('a walking friend tells the loop when its step ends, on the clock all walks
     // Standing, the loop's pace is enough.
     moveFriends(1000, 50);
     for (const v of [a, b, still]) assert.equal(v.cellEnds, Infinity);
-    // Two set off 37 ms apart and step on the shared clock: 2000 ms is 100 ms into the walk's last,
-    // 220 ms cell, which ends at 2120.
+    // Two set off 37 ms apart: each wakes the loop for its own next cell, by the ground it has walked.
     sendTo(a, { x: 0.9, y: 0.5 }, { save: false });
     clock = 1037;
     sendTo(b, { x: 0.1, y: 0.5 }, { save: false });
-    clock = 2000;
-    moveFriends(2000, 50);
-    assert.equal(a.cellEnds, 2120);
-    assert.equal(b.cellEnds, 2120, 'their steps end together');
+    clock = 1300;
+    moveFriends(1300, 120);
+    for (const v of [a, b]) assert.ok(v.cellEnds > 1300 && Number.isFinite(v.cellEnds), `${v.cellEnds}`);
+    assert.notEqual(a.cellEnds, b.cellEnds, 'their steps fall where their own legs are');
     assert.equal(still.cellEnds, Infinity, 'the one standing keeps to the pace');
     // A gesture keeps to the loop's pace too.
     Object.assign(still, { pose: 'jump', since: 2000, until: 4000 });
@@ -561,7 +555,7 @@ test('a walking friend leans into its start, back into its stop, and stands upri
     assert.equal(friend.button.style['--lean'], undefined, 'upright, with nothing left written');
     // The other way, it leans the other way.
     sendTo(friend, { x: 0.2, y: 0.5 }, { save: false });
-    clock += 50;
+    clock += LOOK_FIRST_MS + 50;
     moveFriends(clock, 50);
     clock += 50;
     moveFriends(clock, 50);

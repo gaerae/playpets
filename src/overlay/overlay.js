@@ -10,7 +10,16 @@ import { setupInteractions } from '../core/interactions.js';
 import { pick } from '../core/math.js';
 import { displayName } from '../core/names.js';
 import { setupSeason, systemSouth } from '../core/season.js';
-import { canvas, crown, drawSprite, reduced, setSpriteSeason, sheetReady } from '../core/sprites.js';
+import {
+  bodyOf,
+  canvas,
+  cellHeight,
+  crown,
+  drawSprite,
+  reduced,
+  setSpriteSeason,
+  sheetReady,
+} from '../core/sprites.js';
 import { sceneValue } from '../core/state.js';
 import { applyStatus, fadedBetween, stateOf } from '../core/status.js';
 import { plain } from '../core/text.js';
@@ -21,7 +30,9 @@ import { periodFor } from '../yard/scene.js';
 import { ring } from './chime.js';
 import { dressDecor, drawDecor } from './decor-view.js';
 import { glideMs } from './glide.js';
+import { setupGround } from './ground.js';
 import { visitKey } from './growing.js';
+import { legsKey, legsOf, legsWalk, stepDesktop } from './legs.js';
 import { CALM_SHARE, LIVELY_MS, nextDraw } from './pace.js';
 import { poke, showLamp } from './poke.js';
 
@@ -33,6 +44,8 @@ const api = window.playPets,
   // Gifts, flowers and planted trees out on the desktop: nothing on them moves; a flower or a tree
   // is drawn again when it grows, and what a gift wears changes with the garden.
   decorations = new Map();
+// The grass along the floor, on the screen friends first come out on.
+const lawn = setupGround({ api, displayId, reduced });
 // The catalogue the yard draws gifts, flowers and trees by, and what gifts wear.
 const catalogue = fetch('content/catalog.json')
   .then(r => r.json())
@@ -54,10 +67,13 @@ let data = { pets: [], assets: [], statuses: {} },
 // season) draws it at once.
 let drawNow = () => {};
 // What a friend's drawing shows, apart from where: when it changes, the friend is drawn now.
-const drawing = v => `${v.asset?.id}|${v.asset?.spriteUrl}|${v.status}|${performance.now() < v.until ? v.pose : ''}`;
+const drawing = v => {
+  const now = performance.now();
+  return `${v.asset?.id}|${v.asset?.spriteUrl}|${v.status}|${now < v.until ? v.pose : ''}|${legsKey(v, now)}`;
+};
 const nameOf = v => displayName(v.pet, v.asset, t('friend.default'));
 const south = systemSouth();
-// The season the yard shows, which a grown tree wears here too.
+// The season the yard shows, which a grown tree and the grass wear here too.
 let season = null;
 const seasonChanged = setupSeason({
   // As the yard reads it (yard/sky.js): a season the app could not save is still in the webview.
@@ -65,6 +81,7 @@ const seasonChanged = setupSeason({
   apply: next => {
     const turned = next !== season;
     season = next;
+    lawn.season(next);
     if (setSpriteSeason(next) || turned) {
       render();
       drawNow();
@@ -318,14 +335,12 @@ function render() {
       [position.x - position.origin.x, position.y - position.origin.y],
       glideMs(v, position, reduced.matches),
     );
-    // Roaming pets face the way they walk (positions stream in via layout events).
-    if (v.lastX !== undefined && Math.abs(position.x - v.lastX) > 0.5 && !v.drag) {
-      v.pose = position.x >= v.lastX ? 'right' : 'left';
-      v.until = performance.now() + 220;
-    }
-    v.lastX = position.x;
+    // Roaming pets face the way they walk, their legs keeping time with the ground they cover
+    // (legs.js; positions stream in via layout events).
+    stepDesktop(v, position, performance.now());
+    v.mid = position.x + position.width / 2;
     if (drawing(v) !== was) drawNow();
-    const height = (pet.size * 208) / 192;
+    const height = cellHeight(pet.size);
     // How much screen there is above the sprite: near the top edge the bubble slides down over
     // the sprite rather than off the screen.
     const room = Math.max(0, Math.round(position.y - position.origin.y + position.height - FOOT - height));
@@ -368,8 +383,8 @@ function hearts(v) {
   if (reduced.matches) return;
   for (let i = 0; i < 3; i++) {
     const heart = document.createElement('span');
+    // A picture, as in the yard (overlay.css .heart), not a character each system draws its own way.
     heart.className = 'heart';
-    heart.textContent = '♥';
     heart.style.left = `${50 + (i - 1) * 12}%`;
     heart.style.setProperty('--dx', `${(Math.random() - 0.5) * 30}px`);
     heart.style.animationDelay = `${i * 90}ms`;
@@ -386,6 +401,7 @@ function say(v, message) {
 api.onChange(next => {
   data = next;
   layout = next.desktopLayout;
+  lawn.show(next.desktopGround);
   sound = next.sound;
   seasonChanged();
   render();
@@ -394,7 +410,12 @@ api.onChange(next => {
 api.onEvent(event => {
   if (event.type === 'layout') {
     layout = event.layout;
+    lawn.show(event.ground);
     render();
+    return;
+  }
+  if (event.type === 'grass') {
+    lawn.see(event.over);
     return;
   }
   if (event.type === 'hover') {
@@ -408,6 +429,9 @@ api.onEvent(event => {
   for (const [id, v] of views) {
     if (event.petId && event.petId !== id) continue;
     if (['visit', 'status', 'say', 'play'].includes(event.type)) enliven(v);
+    // The person was just with it: now and then the season falls around it (flurry.js). Not for an
+    // agent's status or news, which come while the person works.
+    if (event.petId && event.type === 'play' && !v.drag) lawn.fall(v.mid);
     // A friend that strolled over to a gift, a flower or a tree says something that fits it, as in
     // the yard.
     if (event.type === 'visit') {
@@ -448,8 +472,16 @@ function animate(now) {
     // change cells at all (core/animation.js idleCell); a pose runs from when it began.
     const elapsed = now - v.since;
     const clock = now < v.until ? (Number.isFinite(v.until) ? poseClock(state, elapsed) : elapsed) : now;
-    drawSprite(v.sprite, v.asset, state, clock, look, null, now);
-    crown(v.button, v.asset, (v.pet.size * 208) / 192); // the cell is 192×208
+    const walk = legsWalk(v, now) ? legsOf(v, state, now) : null;
+    drawSprite(v.sprite, v.asset, walk?.state ?? state, clock, look, null, now, walk?.legs);
+    // The backend takes the pointer only where the friend is drawn (overlay.rs hovered): it hears
+    // each pose's row once, when the drawing moves to another.
+    const body = bodyOf(v.sprite);
+    if (body !== v.body) {
+      v.body = body;
+      api.setBody(v.pet.id, body);
+    }
+    crown(v.button, v.asset, cellHeight(v.pet.size));
   }
   return nextDraw(views.values(), now, { reduced: reduced.matches, lookMs: LOOK_MS });
 }
@@ -460,6 +492,7 @@ if (result.ok) {
   // A language chosen in the yard reaches this window too (the page starts over in it).
   follow(data.language);
   layout = data.desktopLayout;
+  lawn.show(data.desktopGround);
   // A frame comes when a cell ends (pace.js), or at once when a drawing changes (drawNow).
   drawNow = every(100, animate);
   // Motion turned back on: the friends move again now, not at the next change.

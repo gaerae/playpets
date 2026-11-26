@@ -4,12 +4,13 @@
 // when it ends. Adding a game is one such object, a button with data-game in index.html and its
 // strings; this file moves the friends and keeps the toolbar in step.
 
-import { put } from '../core/dom.js';
+import { put, replay } from '../core/dom.js';
 import { joinList, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
 import { shuffle } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { $, aiming, data, game, name, selected, setGame, toast, views } from '../core/state.js';
+import { befriendAll } from './bond.js';
 import { setAimingMode } from './care.js';
 import { syncFishingAction } from './catch.js';
 import { bodiesApart, petHeight, sizeOf } from './field.js';
@@ -25,13 +26,16 @@ import {
   paradePositions,
   pickTarget,
   seek,
+  TAG_FREEZE_AGAIN_MS,
+  TAG_FREEZE_MS,
   TAG_MS,
   touching,
 } from './games.js';
 import { hint } from './hint.js';
 import { STROLL } from './motion.js';
 import { snowmanGame } from './snowman.js';
-import { release, rest, sendTo } from './trips.js';
+import { cue } from './sound.js';
+import { release, rest, sendTo, setDoing } from './trips.js';
 import { friendAt } from './veil.js';
 import { syncViewingAction } from './viewing.js';
 import { bubble, effect, labelTag, place, pose } from './views.js';
@@ -73,15 +77,14 @@ function say(text) {
   game.hint = text;
   hint();
 }
+// What a game says without words on screen (a miss, how it ended) is still read aloud, in the
+// yard's spoken line (index.html #friend-speech).
+function announce(text) {
+  const said = $('friend-speech');
+  if (said) said.textContent = text;
+}
 // The game's line in the lane above the dock says what a game is asking for; without a title it goes away.
-// `bannerSub` is the line a wrong guess covers for a moment, kept apart so a second miss cannot
-// take the first miss's words for it.
-let missTimer,
-  bannerSub = '';
 function banner(label, title, sub = '') {
-  clearTimeout(missTimer);
-  bannerSub = sub;
-  $('game-banner').classList.remove('miss');
   $('game-banner').hidden = !title;
   $('banner-label').textContent = label;
   $('banner-title').textContent = title || '';
@@ -100,19 +103,13 @@ function tell(note = '') {
     where = others.length ? t('hide.still_hidden', { names: joinList(others) }) : t('hide.last');
   banner(t('hide.find_label'), called(game.target), joinList([note, where].filter(Boolean)));
 }
-// A wrong guess only says so; the friend stays hidden and the same name is still asked for.
-function miss() {
-  $('banner-sub').textContent = t('hide.miss');
-  $('banner-sub').hidden = false;
-  $('game-banner').classList.remove('miss');
-  void $('game-banner').offsetWidth;
-  $('game-banner').classList.add('miss');
-  clearTimeout(missTimer);
-  missTimer = setTimeout(() => {
-    $('game-banner').classList.remove('miss');
-    $('banner-sub').textContent = bannerSub;
-    $('banner-sub').hidden = !bannerSub;
-  }, 2400);
+// A wrong guess: the friend pressed shakes its head with a ?, stays hidden, and the same name is
+// still asked for (play.css .missed).
+const MISS_MS = 450;
+function miss(v) {
+  replay(v.button, 'missed', MISS_MS);
+  effect(v, 'question');
+  announce(t('hide.miss'));
 }
 const hide = {
   icon: 'eye',
@@ -151,7 +148,7 @@ const hide = {
     const id = v.pet.id;
     if (!game.target || !v.button.classList.contains('hiding')) return;
     const result = seek(game.hidden, game.target, id);
-    if (result === 'wrong') return miss();
+    if (result === 'wrong') return miss(v);
     if (result !== 'found') return;
     game.hidden.delete(id);
     v.button.classList.remove('hiding');
@@ -159,7 +156,7 @@ const hide = {
     friendAt(v);
     after(900, () => v.button.classList.remove('found'));
     pose(v, 'jump', 1200);
-    effect(v, '!');
+    effect(v, 'notice');
     bubble(v, t('hide.found_bubble'), 2500);
     after(900, () => send(v, { x: v.x, y: 0.35 + Math.random() * 0.55 }, GAME_PACE.run));
     if (game.hidden.size) ask(t('hide.found', { name: called(id) }));
@@ -253,11 +250,22 @@ const tag = {
       v.frozen = true;
       v.frozenUntil = now + 900;
       pose(v, 'jump', 900);
-      effect(v, '!');
+      effect(v, 'notice');
       bubble(v, t('tag.im_it'), 2000);
       say(t('tag.it_is', { name: name(v.pet) }));
       break;
     }
+  },
+  // A press on whoever is it holds it still a moment, so the others get away; pressed again too
+  // soon, or a runner pressed, it only shakes, as a wrong guess in hide and seek does.
+  tap(v) {
+    const now = performance.now();
+    if (v.pet.id !== game.it || now < (game.freezeAgain || 0)) return replay(v.button, 'missed', MISS_MS);
+    game.freezeAgain = now + TAG_FREEZE_AGAIN_MS;
+    v.frozen = true;
+    v.frozenUntil = now + TAG_FREEZE_MS;
+    effect(v, 'spark');
+    bubble(v, t('tag.held'), TAG_FREEZE_MS);
   },
   frame(now, _dt, players) {
     if (now >= game.until) return endGame(t('tag.done'));
@@ -303,28 +311,67 @@ export function startGame(kind, lead = null) {
   $('yard').classList.add('playing');
   syncGameUi();
 }
+// Home again, or taken on the way (a press, a treat): either way it is no longer away.
+function goHome(v) {
+  const home = () => (v.away = false);
+  sendTo(v, { x: v.pet.x, y: v.pet.y }, { save: false, arrive: home, cancel: home });
+}
+// A game played to its end: its players jump where they stand with hearts over them and the
+// level-up chime (bond.js celebrate), then walk home; the game counts toward closeness (bond.rs
+// `play`). The beat is each player's doing, so whatever takes it first (a new game, a press, a
+// treat) ends the beat and the walk home with it (trips.js release).
+const BEAT_MS = 1200;
+function cheer(players) {
+  befriendAll(
+    players.map(v => v.pet.id),
+    'play',
+  );
+  cue('level');
+  for (const v of players) {
+    pose(v, 'jump', BEAT_MS);
+    effect(v, 'heart');
+    let timer = 0;
+    const beat = {
+      end() {
+        clearTimeout(timer);
+        v.away = false;
+      },
+    };
+    setDoing(v, beat, false);
+    timer = setTimeout(() => {
+      if (v.doing !== beat || views.get(v.pet.id) !== v) return;
+      v.doing = null;
+      goHome(v);
+    }, BEAT_MS);
+  }
+}
+/** Ends the game being played. `message` says how a game played to its end went (read aloud; its
+ * players cheer on screen); a game stopped half way has none. */
 export function endGame(message) {
   if (!game) return;
   const over = game;
   setGame(null);
   for (const timer of over.timers) clearTimeout(timer);
   banner('', '');
+  const players = message ? over.ids.map(id => views.get(id)).filter(v => v?.away) : [];
   for (const v of views.values()) {
     v.frozen = false;
     v.frozenUntil = 0;
-    v.button.classList.remove('hiding', 'found');
+    v.button.classList.remove('hiding', 'found', 'missed');
     friendAt(v);
     tagger(v, false);
-    // Home again, or taken on the way (a press, a treat): either way it is no longer away.
-    const home = () => (v.away = false);
-    if (v.away) sendTo(v, { x: v.pet.x, y: v.pet.y }, { save: false, arrive: home, cancel: home });
+    if (players.includes(v)) {
+      release(v);
+      v.speed = 0;
+    } else if (v.away) goHome(v);
     else v.speed = 0;
     rest(v);
   }
   RULES[over.kind]?.end?.(over, message);
   $('yard').classList.remove('playing');
   syncGameUi();
-  if (message) toast(message);
+  if (players.length) cheer(players);
+  if (message) announce(message);
 }
 // A game cannot go on without one of its players.
 export function endGameIfSomeoneLeft() {

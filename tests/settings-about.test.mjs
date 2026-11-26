@@ -73,10 +73,16 @@ test('About groups its pages and keeps the license note last', async () => {
     'id="open-data"',
     'about.project',
     'data-link="releases"',
-    'about.policies',
+    'data-link="privacy"',
     'data-link="license"',
     'about.lead',
   ].map(s => about.indexOf(s));
+  // Two groups only, so every page fits a large window without scrolling; the version sits on the
+  // name's row rather than on a line of its own.
+  assert.equal(about.match(/class="settings-group"/g).length, 2);
+  assert.ok(!about.includes('about.policies'));
+  const head = about.slice(about.indexOf('class="about-head"'), about.indexOf('about.help'));
+  assert.ok(head.includes('class="brand"') && head.includes('id="app-version"'), 'the version is on the name row');
   assert.ok(
     order.every(at => at > 0),
     JSON.stringify(order),

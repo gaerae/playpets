@@ -27,6 +27,7 @@ function audio() {
   const source = () => {
     const result = {
       ...node(),
+      loop: false,
       stops: [],
       starts: [],
       start(at) {
@@ -54,12 +55,15 @@ function audio() {
   return { ctx, sources, scape: createSoundscape(ctx, node()) };
 }
 
-test('entering a silent indoor scene cancels already scheduled wildlife while preserving activity cues', () => {
+test('entering a silent scene cancels already scheduled wildlife while preserving activity cues', () => {
   const { ctx, sources, scape } = audio();
-  scape.setMix({ breeze: 1, birds: 8, crickets: 1 });
+  scape.setMix({ birds: 8, crickets: 1, indoors: false });
   const first = sources.length;
   scape.bird('dove', 11, 0, 0.5);
-  scape.chirp(12, 4300, 0, 0.022);
+  scape.crickets(12, 0);
+  scape.frog(12, 0);
+  scape.cicada(12, 0);
+  scape.geese(12);
   scape.drop(11, 0.04);
   const wildlife = sources.slice(first);
   scape.cue('pat');
@@ -67,7 +71,7 @@ test('entering a silent indoor scene cancels already scheduled wildlife while pr
   scape.splash();
   const cues = sources.slice(first + wildlife.length);
   const stops = cues.map(source => [...source.stops]);
-  scape.setMix({ breeze: 0, leaves: 0, water: 0, rain: 0, birds: 0, crickets: 0 });
+  scape.setMix({ birds: 0, cicadas: 0, geese: 0, frogs: 0, crickets: 0, drops: 0, indoors: false });
   assert.ok(wildlife.length > 0);
   for (const source of wildlife) assert.equal(source.stops.at(-1), ctx.currentTime);
   assert.deepEqual(
@@ -89,7 +93,7 @@ test('a shell bursts with a thump and crackles after it, and a quiet scene does 
     'crackles come after the thump',
   );
   const stops = voices.map(source => [...source.stops]);
-  scape.setMix({ breeze: 0, leaves: 0, water: 0, rain: 0, birds: 0, crickets: 0 });
+  scape.setMix({ birds: 0, cicadas: 0, geese: 0, frogs: 0, crickets: 0, drops: 0, indoors: false });
   assert.deepEqual(
     voices.map(source => source.stops),
     stops,
@@ -102,4 +106,32 @@ test('a perfume bottle sprays once', () => {
   const before = sources.length;
   scape.cue('spritz');
   assert.equal(sources.length - before, 1);
+});
+
+// The breeze, the leaves, the lake and the rain looped noise without end; the yard plays nothing
+// until a call or a cue comes.
+test('the yard starts nothing that runs on its own', () => {
+  const { sources } = audio();
+  assert.deepEqual(
+    sources.filter(source => source.loop || (source.starts.length && !source.stops.length)),
+    [],
+    'no loop and no wobble',
+  );
+});
+
+// Each call is a few seconds at most, so the audio can rest between them (sound.js).
+test('every call says how long it lasts', () => {
+  const { scape } = audio();
+  for (const [name, ...args] of [
+    ['bird', 'tit', 11, 0, 0.5],
+    ['bird', 'dove', 11, 0, 0.5],
+    ['cicada', 11, 0],
+    ['geese', 11],
+    ['frog', 11, 0],
+    ['crickets', 11, 0],
+    ['drop', 11, 0.04],
+  ]) {
+    const seconds = scape[name](...args);
+    assert.ok(seconds > 0 && seconds <= 8, `${name}: ${seconds}`);
+  }
 });

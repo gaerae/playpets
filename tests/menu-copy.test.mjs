@@ -19,6 +19,18 @@ test('Play labels keep their intrinsic width and wrap whole actions rather than 
   assert.match(css, /\.play-action\s*\{[^}]*flex:\s*1 0 max-content;[^}]*white-space:\s*nowrap/s);
 });
 
+// "데이지의 놀이" read as a thing the friend owns, not "Play with Daisy" as the other languages and
+// the dock's 놀기 say it; and the Japanese album hint named two of its four books.
+test('playing with a friend and the album say the same in every language', () => {
+  assert.equal(ko['controls.play_with'], '{name:과/와} 놀기');
+  for (const [lang, strings] of Object.entries({ en, ko, ja, zh })) {
+    assert.match(strings['controls.play_with'], /\{name(?::[^}]+)?\}/, lang);
+    assert.ok(strings['controls.play_with'].includes(strings['controls.play']), `${lang}: the dock's own word`);
+  }
+  for (const book of ['花', 'プレゼント', '水中の生きもの', '虫'])
+    assert.ok(ja['catch.album_title'].includes(book), book);
+});
+
 test('compact management destinations reserve width for every localized label', async () => {
   const css = await readFile('src/styles/compact.css', 'utf8');
   assert.match(css, /body\.compact \.menu-destination\s*\{[^}]*padding:\s*4px;[^}]*font-size:\s*var\(--font-sm\)/s);
@@ -46,8 +58,23 @@ const backend = async lang => {
 };
 
 // One place has one name: the page's menu said "Friends & chat" where the tray, the menu bar and
-// the panel's own list said "Friends".
-test('the page menu, the tray and the menu bar name the friends’ panel alike', async () => {
+// the panel's own list said "Friends", and the menu bar's English capitalised what the page did not.
+// A native item may add "…" when it opens something to fill in.
+test('the tray and the menu bar name every place and switch as the page does', async () => {
+  const pairs = {
+    'menu.friends': 'controls.friends',
+    'menu.invite': 'controls.invite',
+    'menu.play': 'controls.play',
+    'menu.scene': 'controls.scene',
+    'menu.controls': 'controls.menu',
+    'menu.sound': 'sound.label',
+    'menu.update': 'settings.update_check',
+    'tray.desktop': 'desktop.show',
+    'tray.wander': 'desktop.wander',
+    'tray.grass': 'desktop.grass',
+    'tray.alwaysOnTop': 'win.always_on_top',
+    'tray.fit': 'win.fit',
+  };
   for (const [lang, strings, rs] of [
     ['en', en, 'en'],
     ['ko', ko, 'ko'],
@@ -55,8 +82,17 @@ test('the page menu, the tray and the menu bar name the friends’ panel alike',
     ['zh', zh, 'zh_hans'],
   ]) {
     const t = await backend(rs);
-    assert.equal(strings['controls.friends'], t('tray.friends'), `${lang} tray`);
-    assert.equal(strings['controls.friends'], t('menu.friends'), `${lang} menu bar`);
+    for (const [native, page] of Object.entries(pairs))
+      assert.equal(t(native)?.replace(/…$/, ''), strings[page], `${lang} ${native}`);
+  }
+});
+
+// A place keeps its name when it opens: Friends & settings said "Invite a friend" and the panel it
+// opened added a verb in Korean and Japanese, and said "Friend" in English.
+test('a panel is titled by the name the menu gives it', () => {
+  for (const [lang, strings] of Object.entries({ en, ko, ja, zh })) {
+    assert.equal(strings['tabs.friend'], strings['controls.friends'], `${lang} Friends`);
+    assert.equal(strings['invite.title'], strings['controls.invite'], `${lang} Invite a friend`);
   }
 });
 
@@ -66,5 +102,14 @@ test('the corner button is named for the yard menu it opens', () => {
   for (const [lang, strings] of Object.entries({ en, ko, ja, zh })) {
     assert.ok(strings['controls.launcher'].includes(strings['controls.yard']), lang);
     assert.ok(!strings['controls.launcher'].includes(strings['controls.play']), `${lang} lists no destination`);
+  }
+});
+
+// On a friend's bar its plate names the friend, so Friend settings is said in a word that fits
+// beside the others; a Japanese bar in the narrowest window ran out of room with the full name.
+test("a friend's bar says its settings no longer than the panel does", () => {
+  for (const [lang, strings] of Object.entries({ en, ko, ja, zh })) {
+    assert.ok(strings['friend.edit_short'], `${lang} has a short name`);
+    assert.ok(strings['friend.edit_short'].length <= strings['friend.edit'].length, lang);
   }
 });

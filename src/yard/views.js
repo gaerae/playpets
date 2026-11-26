@@ -3,10 +3,11 @@
 import { agentsOf } from '../core/agents.js';
 import { lookAt, renewsClock } from '../core/animation.js';
 import { loadCompanionActionsFor } from '../core/companion-actions.js';
+import { DOCK_PANELS } from '../core/controls.js';
 import { put, putAttribute } from '../core/dom.js';
 import { joinList, list, t } from '../core/i18n.js';
 import { icons } from '../core/icons.js';
-import { clamp, pick } from '../core/math.js';
+import { clamp, percent, pick } from '../core/math.js';
 import { fallMs } from '../core/physics.js';
 import { canvas, reduced } from '../core/sprites.js';
 import {
@@ -54,19 +55,21 @@ const agentState = p => agentStateOf(data, p.id);
 // What a press on a friend means is decided above the yard (by a game, or the panel);
 // setupViews hands it in, so the yard needs nothing from those modules.
 let on = { gameTap() {}, select() {}, openChat() {}, friendMenu: null, patted() {}, resized() {} };
-// A little burst above the friend: hearts for a pat, sparkles for a treat, one mark for a game.
-// Each piece drifts its own way (--dx, --rot) and starts a beat after the last.
-const BURST = { '♥': 3, '✦': 3 };
-export function effect(view, text) {
+// A little burst above the friend: hearts for a pat, sparkles for a treat, one mark for a game (a
+// notice, or a question for a wrong guess). Each is a picture (friends.css .particle), never a
+// character, which each system's font would draw its own way. Each piece drifts its own way
+// (--dx, --rot) and starts a beat after the last.
+const BURST = { heart: 3, spark: 3 };
+/** Shows the mark `kind` (heart, spark, notice or question) above `view`. */
+export function effect(view, kind) {
   if (reduced.matches) return;
-  const count = BURST[text] || 1;
+  const count = BURST[kind] || 1;
   for (let i = 0; i < count; i++) {
     const node = document.createElement('span');
     node.className = 'particle';
-    node.dataset.kind = text === '♥' ? 'heart' : text === '✦' ? 'spark' : text === '!' ? 'notice' : 'mark';
-    node.textContent = node.dataset.kind === 'mark' ? text : '';
+    node.dataset.kind = kind;
     node.setAttribute('aria-hidden', 'true');
-    const origin = node.dataset.kind === 'notice' ? sizeOf(view.pet) + 10 : sizeOf(view.pet) / 2;
+    const origin = kind === 'notice' ? sizeOf(view.pet) + 10 : sizeOf(view.pet) / 2;
     node.style.left = `${view.px + origin + (i - (count - 1) / 2) * 14}px`;
     node.style.top = `${Math.max(4, view.py - 12)}px`;
     node.style.setProperty('--dx', `${(Math.random() - 0.5) * 36}px`);
@@ -114,8 +117,11 @@ export function gaze(v, look, ms) {
   }, ms);
 }
 // Bubbles show plain words: an answer's Markdown marks are taken out.
-// Space kept between two bubbles when one rises above the other.
+// Space kept between a bubble and a panel it moves out of the way of.
 const BUBBLE_GAP = 4;
+// Space kept between two bubbles when one rises above the other: the upper one's tail (7px,
+// friends.css) hangs into it and must not touch the lower one.
+const STACK_GAP = 10;
 // A bubble that would cover a friend's bubble already showing rises just above it (--bubble-lift,
 // friends.css), so two friends talking at once both stay readable. Where there is no room above (a
 // small window, friends near its top) the newer line takes the place of the ones it would cover,
@@ -134,7 +140,7 @@ function clearOthers(v) {
     if (theirs.right <= mine.left || theirs.left >= mine.right) continue;
     if (mine.bottom - lift <= theirs.top || mine.top - lift >= theirs.bottom) continue;
     covered.push(other);
-    lift = mine.bottom - theirs.top + BUBBLE_GAP;
+    lift = mine.bottom - theirs.top + STACK_GAP;
   }
   if (covered.length && mine.top - lift < top) {
     const wait = Math.max(...covered.map(heldFor));
@@ -142,9 +148,29 @@ function clearOthers(v) {
     for (const other of covered) hush(other);
     lift = 0;
   }
+  // A dock panel open over it: out to the panel's left, beside its friend's head, or above the panel
+  // where the yard's side leaves no room for that.
+  const under = panelOver(mine.left, mine.right, mine.top - lift, mine.bottom - lift);
+  if (under) {
+    const slide = under.left - BUBBLE_GAP - mine.right,
+      side = (globalThis.document && $('yard'))?.getBoundingClientRect?.().left || 0;
+    if (mine.left + slide >= side + BUBBLE_EDGE)
+      v.bubble.style?.setProperty('--bubble-shift', `${Math.round((v.bubbleShift || 0) + slide)}px`);
+    else lift = Math.max(lift, mine.bottom - under.top + BUBBLE_GAP);
+  }
   if (mine.top - lift < top) lift = mine.top - top;
   if (lift) v.bubble.style?.setProperty('--bubble-lift', `${Math.round(lift)}px`);
   return 0;
+}
+function panelOver(left, right, top, bottom) {
+  if (!globalThis.document) return null;
+  for (const id of DOCK_PANELS) {
+    const panel = $(id);
+    if (!panel || panel.hidden) continue;
+    const r = panel.getBoundingClientRect?.();
+    if (r?.width && r.left < right && r.right > left && r.top < bottom && r.bottom > top) return r;
+  }
+  return null;
 }
 // How much longer a showing bubble keeps its place: a pressable one all its time, any other half
 // its reading time.
@@ -158,6 +184,7 @@ function hush(v) {
   v.bubble.hidden = true;
   v.bubble.style?.removeProperty('--bubble-lift');
   v.bubble.style?.removeProperty('--bubble-shift');
+  v.bubbleShift = 0;
 }
 // Room kept between a bubble and either side of the yard.
 const BUBBLE_EDGE = 6;
@@ -182,6 +209,7 @@ function keepInside(v) {
   const width = v.bubble.offsetWidth;
   if (!(width > 0)) return;
   const shift = bubbleShift(v.px + sizeOf(v.pet) / 2, width, field().width);
+  v.bubbleShift = shift;
   if (shift) v.bubble.style?.setProperty('--bubble-shift', `${shift}px`);
   else v.bubble.style?.removeProperty('--bubble-shift');
 }
@@ -241,12 +269,25 @@ function show(v, message, duration, onPress) {
   v.bubbleTimer = setTimeout(() => hush(v), v.bubbleFor);
   return 0;
 }
-/** A friend's reaction to something it did: a pose, a mark above it (✦, ♥ or none) and one of the
- * lines under `lines` in the string tables. */
-export function cheer(v, lines, { as = 'jump', ms = 1100, mark = '✦', say = 3000 } = {}) {
+/** A friend's reaction to something it did: a pose, a mark above it (effect: spark, heart or none)
+ * and one of the lines under `lines` in the string tables. */
+export function cheer(v, lines, { as = 'jump', ms = 1100, mark = 'spark', say = 3000 } = {}) {
   pose(v, as, ms);
   if (mark) effect(v, mark);
   bubble(v, pick(list(lines)), say);
+}
+/** Sets a friend's hit area to `box` (core/sprites.js bodyOf: shares of its cell), the whole cell while
+ * it is not known. Written only when the box changed, a few times a minute. */
+export function fitHit(v, box) {
+  if (box === v.hitBox || !v.hit) return;
+  v.hitBox = box;
+  const [left, top, right, bottom] = box ?? [0, 0, 1, 1];
+  Object.assign(v.hit.style, {
+    left: percent(left),
+    top: percent(top),
+    width: percent(right - left),
+    height: percent(bottom - top),
+  });
 }
 // Sizes a friend's body, canvas and label for its size, and stands it where it is. The sizes are
 // written only when the size changed or the yard was resized (`resized`): a push that leaves them
@@ -389,6 +430,9 @@ function createView(p) {
   talkMark.innerHTML = '<span data-icon="spark"></span>';
   icons(talkMark);
   tagName.className = 'tag-name';
+  // A friend's coding agents are a small plug after its name, not a tool's name on a pet's tag.
+  agents.innerHTML = '<span data-icon="plug"></span>';
+  icons(agents);
   agents.hidden = true;
   tag.append(talkMark, tagName, dot, agents);
   dot.className = 'pet-state-dot';
@@ -404,7 +448,10 @@ function createView(p) {
   label.setAttribute('aria-hidden', 'true');
   body.className = 'label-body';
   label.append(bubble, thinking, body, tag);
-  button.append(c);
+  // The button lets presses through to what is beside the drawing; its hit area takes the ones on it.
+  const hit = document.createElement('span');
+  hit.className = 'yard-hit';
+  button.append(c, hit);
   $('pet-layer').append(button);
   $('label-layer').append(label);
   const v = {
@@ -412,6 +459,8 @@ function createView(p) {
     label,
     body,
     canvas: c,
+    hit,
+    hitBox: undefined,
     tag,
     tagName,
     agents,
@@ -536,7 +585,13 @@ function createView(p) {
   both('contextmenu', e => {
     e.preventDefault();
     on.select(p.id);
-    (on.friendMenu || ((id, _point) => on.openChat(id)))(p.id, { x: e.clientX, y: e.clientY });
+    // Its bar sits over the friend and its tag, which it must not cover, nor the line it is saying (controls.js).
+    (on.friendMenu || ((id, _point) => on.openChat(id)))(p.id, {
+      x: e.clientX,
+      y: e.clientY,
+      from: [button, tag],
+      clear: [v.bubble],
+    });
   });
   button.addEventListener(
     'keydown',
@@ -560,7 +615,7 @@ function createView(p) {
         e.preventDefault();
         on.select(p.id);
         const { left, bottom } = button.getBoundingClientRect();
-        on.friendMenu(p.id, { x: left, y: bottom });
+        on.friendMenu(p.id, { x: left, y: bottom, from: [button, tag], clear: [v.bubble] });
       }
       if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
         e.preventDefault();
@@ -580,13 +635,11 @@ function createView(p) {
 // What a friend's body and label say: its name, its agents, its agent's state, whether it is the one
 // talked with or answering. Written only where it differs.
 function labelView(v, p) {
-  // One agent is named on the tag; more are counted. The full list is the tooltip, also for one
-  // agent whose name the tag cuts.
+  // The plug says agents report to it; which ones is its tooltip, in the Friend tab's words.
   const agents = agentsOf(data, p.id);
   labelTag(v);
-  put(v.agents, 'textContent', agents.length > 1 ? `${agents[0]} +${agents.length - 1}` : agents[0] || '');
   put(v.agents, 'hidden', !agents.length);
-  put(v.agents, 'title', joinList(agents));
+  put(v.agents, 'title', t('friend.agent_chip', { agents: joinList(agents) }));
   put(v.tag, 'title', t('friend.talk', { name: name(p) }));
   const state = agentState(p);
   // The dot's colour is said in words too, for anyone who cannot see it.
@@ -599,7 +652,10 @@ function labelView(v, p) {
   );
   v.button.classList.toggle('selected', p.id === selected);
   v.button.classList.toggle('thinking', data.busy.includes(p.id));
-  if (state === 'done' && v.dot.dataset.state && v.dot.dataset.state !== 'done') effect(v, '✦');
+  // An agent waiting for the person or stopped by an error shows the friend's tag, dot and all,
+  // which the yard otherwise keeps hidden until it is wanted (friends.css).
+  v.button.classList.toggle('calling', state === 'waiting' || state === 'error');
+  if (state === 'done' && v.dot.dataset.state && v.dot.dataset.state !== 'done') effect(v, 'spark');
   put(v.dot, 'hidden', state === 'idle');
   put(v.dot.dataset, 'state', state);
   put(v.dot, 'title', state === 'idle' ? '' : labels[state] || '');

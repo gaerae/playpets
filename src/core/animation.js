@@ -143,12 +143,39 @@ export function lookAt(rect, clientX, clientY) {
 }
 // A pose restarts its animation only when it is a new pose, or the old one had already run out.
 export const renewsClock = (current, next, until, now) => current !== next || now >= until;
+/** The alpha above which a pixel counts as part of the drawing, for every measure of the art. */
+export const SOLID_ALPHA = 24;
 // How much of a cell is empty above the sprite, as a share of its height: sprites rarely fill the
 // 192×208 cell, and a bubble drawn at the cell's top would hang in the air. `rgba` is the cell's pixels.
 export function headroom(rgba, width, height) {
   for (let y = 0; y < height; y++) {
     const row = y * width * 4;
-    for (let x = 3; x < width * 4; x += 4) if (rgba[row + x] > 24) return y / height;
+    for (let x = 3; x < width * 4; x += 4) if (rgba[row + x] > SOLID_ALPHA) return y / height;
   }
   return 0;
+}
+/** How many cells row `row` of a sheet plays: a standard row's frames, or a look row's 8 directions. */
+export function cellsIn(row) {
+  for (const [at, durations] of Object.values(rows)) if (at === row) return durations.length;
+  return 8;
+}
+// Where a row of a sprite is drawn in its cell, as shares of the cell [left, top, right, bottom]:
+// around every opaque pixel of the row's `cells` cells (each `cell` wide and `height` tall, side by
+// side in `rgba`), laid over each other, so every frame of the pose is inside. Null for an empty row.
+export function bodyBox(rgba, cells, cell, height) {
+  const width = cells * cell;
+  let left = cell,
+    top = height,
+    right = -1,
+    bottom = -1;
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      if (rgba[(y * width + x) * 4 + 3] <= SOLID_ALPHA) continue;
+      const column = x % cell;
+      if (column < left) left = column;
+      if (column > right) right = column;
+      if (y < top) top = y;
+      bottom = y;
+    }
+  return right < 0 ? null : [left / cell, top / height, (right + 1) / cell, (bottom + 1) / height];
 }

@@ -124,6 +124,22 @@ test('a double-click on a friend is two pats, and talking is on its menu, not a 
   assert.deepEqual(opened, [['menu', pet.id]], 'the right-click menu has Talk to');
 });
 
+test("a friend's menu keeps clear of what it is saying, and its notch still points at the friend", async t => {
+  const { pet } = yard(t);
+  const points = [];
+  setupViews({ select() {}, patted() {}, openChat() {}, friendMenu: (_id, point) => points.push(point) });
+  syncViews();
+  const v = views.get(pet.id);
+  await v.button.fire('contextmenu', { preventDefault() {}, clientX: 10, clientY: 10 });
+  await v.button.fire('keydown', { key: 'F10', shiftKey: true, preventDefault() {} });
+  await flush();
+  assert.equal(points.length, 2, 'the right-click and Shift+F10');
+  for (const point of points) {
+    assert.deepEqual(point.from, [v.button, v.tag], 'the notch is for the friend and its tag');
+    assert.deepEqual(point.clear, [v.bubble], 'its line is kept clear, above it');
+  }
+});
+
 for (const moved of [false, true])
   test(`cancelling a ${moved ? 'drag' : 'press'} neither pats nor saves the friend`, async t => {
     const { pet } = yard(t);

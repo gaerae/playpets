@@ -1,35 +1,38 @@
 // One frame of yard life: friends walk to where they are headed, idle ones entertain themselves.
 // What happens when a friend arrives belongs to whoever sent it (views.js sendTo).
 
-import { cellLeft, poseClock } from '../core/animation.js';
-import { clearCompanionAction, companionAction } from '../core/companion-actions.js';
+import { poseClock } from '../core/animation.js';
+import { clearCompanionAction, companionAction, gaitClip } from '../core/companion-actions.js';
+import {
+  advance,
+  cellLeftMs,
+  DRAWN_GAIT,
+  facingOf,
+  liftOf,
+  restPhase,
+  restToward,
+  SIDE_ROWS,
+  TURN_MS_CELL,
+  walkCell,
+} from '../core/gait.js';
 import { t } from '../core/i18n.js';
 import { between, clamp } from '../core/math.js';
 import { LEAN, leanStep, RAMP_MS, rampPace, settled } from '../core/physics.js';
-import { crown, drawSprite, reduced } from '../core/sprites.js';
+import { bodyOf, crown, drawSprite, gaitOf, reduced } from '../core/sprites.js';
 import { aiming, call, data, game, toast, views } from '../core/state.js';
 import { stateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
 import { decorTarget } from './decor.js';
 import { keepDuty } from './duty.js';
-import {
-  bodiesApart,
-  bodyInField,
-  dockBox,
-  EDGE,
-  geometry,
-  petHeight,
-  sizeOf,
-  underDock,
-  yardToField,
-} from './field.js';
+import { bodiesApart, bodyInField, EDGE, geometry, petHeight, sizeOf, yardToField } from './field.js';
+import { GAME_PACE } from './games.js';
 import { visitTarget } from './garden.js';
-import { groundProfile } from './ground.js';
 import { loungeTarget, sitOut } from './lounge.js';
-import { sendTo } from './trips.js';
-import { followPointer, place, pose, reachOf, settle } from './views.js';
-import { idleAction, strollClear, WANDER_DELAY, wanderTarget } from './wander.js';
-import { blocked } from './workspace.js';
+import { paceOf, pastime, restOf } from './pastimes.js';
+import { endLookFirst, sendTo } from './trips.js';
+import { fitHit, followPointer, place, pose, settle } from './views.js';
+import { groundFor } from './walk-here.js';
+import { WANDER_DELAY, wanderTarget } from './wander.js';
 
 // How far a friend walks in a millisecond, in its own body lengths: strolling, and going somewhere.
 // In the yard's width instead, friends raced across a wide window (three bodies a second on a full
@@ -45,29 +48,95 @@ const feetInYard = (v, at) => {
   const { w, h, top } = geometry(v.pet, at.x);
   return [EDGE + at.x * w + sizeOf(v.pet) / 2, top + at.y * h + petHeight(v.pet)];
 };
-// A stroll the ground allows: around the lake, not onto a tree, a flower, a gift or a workspace's
-// furniture, and not to a stop behind the dock, name tag and all. The dock and the friend's reach
-// (reachOf) are measured once for all the tries.
+// A stroll the ground allows (walk-here.js groundFor), between two places the friend may stand.
 function dryStroll(v) {
-  const ground = groundProfile(),
-    dock = dockBox(),
-    reach = reachOf(v);
-  return (from, to) => {
-    const feet = feetInYard(v, to);
-    return !underDock(...feet, reach, dock) && !blocked(...feet) && strollClear(feetAt(v, from), feetAt(v, to), ground);
-  };
-}
-// A walking friend bobs at each step (friends.css .walking), more slowly on a stroll. Written only
-// when it changes; with reduced motion a friend does not walk, it is set down where it goes.
-function stepping(v, walking, strolling) {
-  if (v.walking === walking && v.strolling === strolling) return;
-  v.walking = walking;
-  v.strolling = strolling;
-  v.button.classList.toggle('walking', walking);
-  v.button.classList.toggle('strolling', walking && strolling);
+  const allows = groundFor(v);
+  return (from, to) => allows(feetAt(v, from), ...feetInYard(v, to));
 }
 // The sheet's rows a walk shows (core/animation.js), one way or the other.
 const WALK_CYCLES = new Set(['right', 'left']);
+// A walk cell ending this soon is shown now: the loop wakes once between two paced frames, for the
+// walker due first, and every other walker this close takes its next cell then (app.js interval).
+const EARLY_MS = 25;
+// A friend with only a side walk strolls within this angle of across, where its walk looks right.
+const ACROSS = (35 * Math.PI) / 180;
+// A pet's own walk or run (companion-actions.js gaitClip) is drawn in order, a cycle a stride.
+const clipGaits = new WeakMap();
+function clipGait(clip) {
+  if (!clipGaits.has(clip))
+    clipGaits.set(clip, { ...DRAWN_GAIT, stride: clip.stride ?? DRAWN_GAIT.stride, ownBob: true });
+  return clipGaits.get(clip);
+}
+// The legs' timing for the way a friend is drawn walking now: its own clip's, else its sheet row's.
+const gaitFor = v => (v.walkClip ? clipGait(v.walkClip) : (gaitOf(v.asset, SIDE_ROWS[v.side]) ?? DRAWN_GAIT));
+// The clip a way is drawn with, when the pet has one: toward and away from the viewer, and a game's
+// run across.
+function wayClip(v, way) {
+  if (way === 'front' || way === 'back') return gaitClip(v.asset, `walk-${way}`);
+  return v.speed >= GAME_PACE.run ? gaitClip(v.asset, `run-${way}`) : null;
+}
+// A pet that walks toward and away from the viewer too strolls any way; one with a side walk only,
+// across.
+const strollAcross = v => (gaitClip(v.asset, 'walk-front') && gaitClip(v.asset, 'walk-back') ? null : ACROSS);
+// Which side a walking friend shows: the way it goes across the screen, kept while it walks nearly
+// straight up or down (core/gait.js facingOf), so a path near the vertical does not flicker. Up or
+// down it is drawn toward or away from the viewer when the pet has those walks (`v.way`,
+// `v.walkClip`). A change of the way drawn while walking is a turn (`v.turnUntil`).
+function sideOf(v, sx, sy, now) {
+  v.facing = facingOf(sx, sy, v.facing);
+  const side = v.facing === 'side' || !v.side ? (sx >= 0 ? 'right' : 'left') : v.side;
+  const turned = v.facing === 'side' ? null : wayClip(v, v.facing);
+  const way = turned ? v.facing : side;
+  if (v.way && way !== v.way) v.turnUntil = now + TURN_MS_CELL;
+  v.side = side;
+  v.way = way;
+  v.walkClip = turned ?? wayClip(v, side);
+  return side;
+}
+// The heading `from` turned toward `to` (screen radians) by at most `most`.
+function turnToward(from, to, most) {
+  const diff = Math.atan2(Math.sin(to - from), Math.cos(to - from));
+  const next = Math.abs(diff) <= most ? to : from + Math.sign(diff || 1) * most;
+  return Math.atan2(Math.sin(next), Math.cos(next));
+}
+// How fast a walk's heading turns, in screen radians a millisecond: half a turn a second, so a new
+// way is taken in an arc. Within a body length of the stop it heads straight there.
+const TURN_RATE = Math.PI / 1000;
+// The legs' place in the cycle (`v.phase`, core/gait.js) after `walked` body lengths: by the
+// distance, from a passing cell when it sets off from a stand. In the last half-stride before a stop
+// it eases to the next passing cell, reached as it arrives (`v.rest`), so it stops with its feet
+// together; a walk that only passes through goes on.
+function stepLegs(v, walked, span, remaining, was) {
+  const gait = gaitFor(v);
+  if (!was) {
+    v.phase = 0;
+    v.rest = null;
+  }
+  if (v.trip?.through || remaining >= gait.stride / 2) {
+    v.rest = null;
+    v.phase = advance(v.phase ?? 0, walked, span, gait.stride);
+    return;
+  }
+  if (v.rest?.target !== v.target)
+    v.rest = { ...restToward(v.phase ?? 0, remaining + walked, gait.stride), target: v.target };
+  v.phase = restPhase(v.rest, remaining);
+}
+// The walk cell to draw now and its lift (cell pixels; none where the art bobs by itself), and when
+// the next one is due (`v.cellEnds`, for the loop to wake then). A cell ending within EARLY_MS is
+// drawn already.
+function legsShown(v, now) {
+  const gait = gaitFor(v),
+    phase = v.phase ?? 0;
+  let shown = phase,
+    left = cellLeftMs(phase, v.vel, gait.stride);
+  if (left <= EARLY_MS) {
+    shown = (Math.floor(phase * 8) + 1) / 8;
+    left += cellLeftMs(shown, v.vel, gait.stride);
+  }
+  v.cellEnds = now + left;
+  const cell = walkCell(gait, shown);
+  return { cell, lift: liftOf(gait, cell) };
+}
 // The body (the friend's button, about its feet; `--lean`, friends.css) tilts toward `target`
 // degrees on a spring. Only a lean still moving keeps the loop at its busy pace (`v.leaning`,
 // app.js pace): one held toward a pointer stays written, and an upright one is let go. Written only
@@ -106,10 +175,12 @@ export function moveFriends(now, dt) {
     keepDuty(v);
     const walking = !!v.target && !v.drag && !v.frozen && !reduced.matches;
     // Held, frozen in a game or with nowhere to go, it stands: its next step sets off from a stand.
-    if (!walking) v.vel = 0;
+    if (!walking) {
+      v.vel = 0;
+      v.side = v.facing = v.way = v.walkClip = null;
+    }
     // Where the body leans this frame: set by a walk's change of pace, a pull or a look below.
     let tilt = 0;
-    stepping(v, walking, !!v.trip?.slow && !v.speed);
     if (v.target && !v.drag && !v.frozen) {
       const dx = v.target.x - v.x,
         dy = v.target.y - v.y;
@@ -120,6 +191,9 @@ export function moveFriends(now, dt) {
         v.y = v.target.y;
         v.target = null;
         v.trip = null;
+        // The last step may fall short of the stop's passing cell by less than a cell's ground.
+        if (v.rest && !trip?.through) v.phase = v.rest.to;
+        v.rest = null;
         // Only places a friend chose or was given are saved; game positions and the walk home are not.
         if (trip?.save !== false)
           call('updatePet', id, { x: v.x, y: v.y }).catch(e => toast(spoken(e, t('error.generic')), { error: true }));
@@ -128,33 +202,46 @@ export function moveFriends(now, dt) {
         place(v, { glide: walking });
         // A stop on the way (sendTo `through`) is walked through: no stop, and the next trip its
         // arrival sends it on goes on at the walk's pace.
-        if (!trip?.through) {
-          stepping(v, false, false);
-          settle(v);
-        }
+        if (!trip?.through) settle(v);
         v.passing = !!trip?.through;
         try {
           trip?.arrive?.(v, now);
         } finally {
           v.passing = false;
         }
-      } else {
-        // The first step counts from when the friend set off (trips.js sendTo), not from the frame
-        // before, which may be long ago in a calm yard.
-        const span = Math.min(dt, Math.max(0, now - (v.leftAt ?? -Infinity)));
+      } else if (now >= (v.leftAt ?? -Infinity)) {
+        // The first step counts from when the friend set off (trips.js sendTo), after its look that
+        // way, not from the frame before, which may be long ago in a calm yard.
+        const span = Math.min(dt, now - (v.leftAt ?? -Infinity));
+        endLookFirst(v);
         // A pace is in body lengths, a friend's own and a game's or a trail's (`v.speed`) alike, so
         // a walk looks as quick in any window and any way it goes. It speeds up from a stand and
         // slows into its stop (core/physics.js), unless it only passes through, and the body leans
         // with the change.
         const left = bodiesApart(v.pet, v, v.target),
-          pace = v.speed || (v.trip?.slow ? STROLL : WALK),
+          pace = v.speed || (v.trip?.slow ? STROLL * (v.own ? paceOf(v) : 1) : WALK),
           was = v.vel ?? 0;
         v.vel = rampPace(was, pace, v.trip?.through ? Infinity : left, span);
-        const step = Math.min(1, (span * v.vel) / left);
-        if (span > 0) tilt = (dx >= 0 ? 1 : -1) * LEAN.accel * clamp(((v.vel - was) / span) * (RAMP_MS / pace), -1, 1);
-        v.x += dx * step;
-        v.y += dy * step;
-        pose(v, dx >= 0 ? 'right' : 'left', 150);
+        // It heads the way it goes on the screen, turning toward a new way in an arc; a game's run
+        // and the last body length go straight.
+        const { w, h } = geometry(v.pet, v.x),
+          want = Math.atan2(dy * h, dx * w);
+        v.heading =
+          v.speed || !was || left <= 1 || v.heading == null ? want : turnToward(v.heading, want, TURN_RATE * span);
+        const ahead = Math.cos(v.heading) >= 0 ? 1 : -1,
+          walked = Math.min(left, span * v.vel);
+        if (span > 0) tilt = ahead * LEAN.accel * clamp(((v.vel - was) / span) * (RAMP_MS / pace), -1, 1);
+        if (walked >= left) {
+          v.x = v.target.x;
+          v.y = v.target.y;
+        } else {
+          const size = sizeOf(v.pet);
+          v.x = clamp(v.x + (Math.cos(v.heading) * walked * size) / w);
+          v.y = clamp(v.y + (Math.sin(v.heading) * walked * size) / h);
+        }
+        const side = sideOf(v, Math.cos(v.heading), Math.sin(v.heading), now);
+        stepLegs(v, walked, span, left - walked, was);
+        pose(v, side, 150);
         place(v, { glide: walking });
       }
     } else if (
@@ -168,13 +255,20 @@ export function moveFriends(now, dt) {
       now >= v.nextWander
     ) {
       const quiet = document.body.classList.contains('compact');
-      const action = idleAction(Math.random, quiet);
-      if (action.type === 'pose') pose(v, action.pose, 1200);
-      else if (!loungeTarget(v, now) && !visitTarget(v) && !decorTarget(v)) {
-        const target = wanderTarget({ x: v.x, y: v.y }, Math.random, dryStroll(v), bodyInField(v.pet, v.x));
+      // A friend's own pastime (pastimes.js), else a seat, a flower, a decoration or a stroll; each
+      // friend waits its own while before the next (Miso long, Pip short).
+      if (
+        !pastime(v, now, { quiet, clear: dryStroll }) &&
+        !loungeTarget(v, now) &&
+        !visitTarget(v) &&
+        !decorTarget(v)
+      ) {
+        const target = wanderTarget({ x: v.x, y: v.y }, Math.random, dryStroll(v), bodyInField(v.pet, v.x), {
+          across: strollAcross(v),
+        });
         if (target) sendTo(v, target, { slow: true, own: true });
       }
-      v.nextWander = now + between(Math.random, WANDER_DELAY) * (quiet ? 1.8 : 1);
+      v.nextWander = now + between(Math.random, WANDER_DELAY) * (quiet ? 1.8 : 1) * restOf(v);
     }
     // Read as the dot and the overlay read it: an agent's done or error fades after a while.
     const status = stateOf(data, id);
@@ -189,11 +283,26 @@ export function moveFriends(now, dt) {
     followPointer(v);
     const look = state === 'idle' ? v.look : null,
       action = companionAction(v, now);
-    // When a step of the walk drawn ends, for the loop to wake then (app.js): a 120 ms step would
-    // otherwise show for 100 or 150 ms, a limp. Only a walk: standing and gestures keep to the loop's
-    // pace, as the performance standard counts it. A companion's own action has no step.
-    v.cellEnds = walk && !action && !reduced.matches ? now + cellLeft(state, clock) : Infinity;
-    drawSprite(v.canvas, v.asset, state, clock, look, action, now);
+    // A walk draws the cell its legs are at, and tells the loop when the next is due (app.js), so a
+    // cell does not show for a frame too long, a limp. Only a walk: standing and gestures keep to the
+    // loop's pace, as the performance standard counts it. A companion's own action has no step; its
+    // own walk or run is drawn as one, a cell of the clip for each cell of the legs.
+    let shown = state,
+      legs = null,
+      drawn = action;
+    v.cellEnds = Infinity;
+    if (walk && !action && !reduced.matches) {
+      if (now < (v.turnUntil ?? -Infinity)) {
+        shown = 'idle';
+        legs = { cell: 0, lift: 0 };
+        v.cellEnds = v.turnUntil;
+      } else {
+        legs = legsShown(v, now);
+        if (v.walkClip) drawn = { asset: v.asset, clip: v.walkClip, frame: v.walkClip.frames[legs.cell] };
+      }
+    }
+    drawSprite(v.canvas, v.asset, shown, clock, look, drawn, now, legs);
+    fitHit(v, bodyOf(v.canvas));
     crown(v.label, v.asset, petHeight(v.pet));
     // A carried friend hangs from where it is held, so its feet trail the pull and its top leads;
     // one looking at the pointer leans a little toward it.

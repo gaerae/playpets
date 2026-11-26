@@ -1,7 +1,7 @@
 //! Friendship: how close each friend has grown to the person, from time together in the yard and
-//! what they do together (pats, treats, watering, catching, gifts, chats). The page says what
-//! happened; what it is worth, how much a day can bring and the levels are kept here, so the page
-//! cannot hand out points of its own. What each level opens is the page's
+//! what they do together (pats, treats, watering, catching, digging, games, gifts, chats). The page
+//! says what happened; what it is worth, how much a day can bring and the levels are kept here, so
+//! the page cannot hand out points of its own. What each level opens is the page's
 //! (src/yard/bond.js). Design: docs/design/2026-10-09-a-yard-that-grows.md.
 use crate::i18n;
 use serde::{Deserialize, Serialize};
@@ -31,6 +31,10 @@ fn worth(reason: &str) -> Option<u32> {
         "chat" => 2,
         "water" => 3,
         "catch" => 3,
+        // A dig the person asked for; the dig's own cooldown spaces them (discovery.rs).
+        "dig" => 1,
+        // A game played to its end (play.js), not one stopped half way.
+        "play" => 3,
         "gift" => 5,
         _ => return None,
     })
@@ -283,6 +287,21 @@ mod tests {
             b.befriend("a", "pat", "2026-10-10", next).unwrap().0,
             TIME_DAILY + DAILY + 3
         );
+    }
+
+    #[test]
+    fn a_game_played_and_a_dig_asked_for_are_done_together() {
+        let mut b = Bonds::default();
+        assert_eq!(b.befriend("a", "play", "2026-10-09", 0), Ok((3, 1, false)));
+        assert!(b.together_on("a", "2026-10-09"), "a game opens the day's gift");
+        assert_eq!(b.befriend("b", "dig", "2026-10-09", 0), Ok((1, 1, false)));
+        assert!(b.together_on("b", "2026-10-09"), "so does a dig");
+        // Both count toward the same day's worth as everything else.
+        for _ in 0..DAILY {
+            b.befriend("a", "play", "2026-10-09", 0).unwrap();
+            b.befriend("b", "dig", "2026-10-09", 0).unwrap();
+        }
+        assert_eq!((b.0["a"].points, b.0["b"].points), (DAILY, DAILY));
     }
 
     #[test]

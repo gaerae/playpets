@@ -11,9 +11,11 @@
   align-items: center;
   gap: 10px;
   padding: 22px 28px;
-  border-radius: var(--radius-panel);
-  background: var(--floating);
-  box-shadow: 0 10px 30px var(--ink-12);
+  /* the play surfaces' paper in its honey-wood frame, as the first thing a person reads */
+  border: var(--garden-frame-border);
+  border-radius: var(--radius-garden);
+  background: var(--garden-frame);
+  box-shadow: var(--shadow-garden);
   color: var(--ink);
   text-align: center;
   width: max-content;
@@ -42,8 +44,19 @@
 .next-steps[hidden] {
   display: none;
 }
+/* The title trails the painted vine, as a panel's does (shell.css). */
 .welcome-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: var(--font-xl);
+}
+.welcome-title::after {
+  content: "";
+  flex: none;
+  width: 78px;
+  height: 22px;
+  background: url("../art/ui/title-vine.webp") left center / auto 100% no-repeat;
 }
 .starter-picks {
   display: grid;
@@ -59,9 +72,10 @@
   gap: 2px;
   width: 100%;
   padding: 8px 6px 10px;
-  border: 1.5px solid transparent;
-  border-radius: var(--radius-card);
-  background: var(--soft);
+  /* a card on the paper with an edge of its own, lifted a little under the pointer */
+  border: 1.5px solid var(--garden-line);
+  border-radius: var(--radius-garden);
+  background: var(--garden-field);
   color: var(--ink);
   font: inherit;
   font-size: var(--font-md);
@@ -77,8 +91,8 @@
   height: 95px;
 }
 .starter:hover {
-  background: var(--white);
-  border-color: var(--accent);
+  background: var(--garden-hover);
+  border-color: var(--garden-rim);
   transform: translateY(-2px);
 }
 .starter:active {
@@ -93,11 +107,12 @@
     grid-template-columns: repeat(4, minmax(0, 112px));
   }
 }
-.welcome .button.text {
+/* See other pets: a secondary button under the starters, smaller than they are. */
+.welcome #welcome-more {
+  margin-top: 4px;
   font-size: var(--font-sm);
-  color: var(--muted);
-  min-height: 28px;
-  padding: 4px 8px;
+  min-height: 30px;
+  padding: 4px 14px;
 }
 /* once friends are in the yard the card steps aside, small, up in the sky where nobody walks */
 /* The next steps sit under the scene label's chip, clear of it. */

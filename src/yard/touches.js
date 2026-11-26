@@ -133,7 +133,7 @@ function celebrate(yard) {
         for (const { v } of who) {
           if (views.get(v.pet.id) !== v) continue;
           pose(v, 'jump', 900);
-          if (b.by < 0) effect(v, '♥');
+          if (b.by < 0) effect(v, 'heart');
         }
       }, wait);
     }
@@ -148,7 +148,7 @@ function wished(yard) {
   setTimeout(() => {
     if (yard.classList.contains('playing') || views.get(v.pet.id) !== v) return;
     pose(v, 'jump', 1100);
-    effect(v, '✦');
+    effect(v, 'spark');
   }, 900);
 }
 

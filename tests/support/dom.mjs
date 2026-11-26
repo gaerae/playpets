@@ -87,6 +87,11 @@ export function element(tag = 'div', { rect, ...props } = {}) {
     getAttribute: name => attributes.get(name) ?? null,
     removeAttribute: name => attributes.delete(name),
     hasAttribute: name => attributes.has(name),
+    toggleAttribute: (name, force = !attributes.has(name)) => {
+      if (force) attributes.set(name, '');
+      else attributes.delete(name);
+      return force;
+    },
     /** Listeners by event type, in the order they were added. */
     listeners: new Map(),
     addEventListener(type, listener) {

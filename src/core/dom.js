@@ -9,6 +9,27 @@ export function span(className, hidden = false) {
   return node;
 }
 
+/** A picture with its one word under it (base.css .clue), as a how-to notice shows a gesture and
+ * the album a way to find a kind: `icon` names a painted picture ([data-clue]), `svg` is a drawing
+ * and `image` a thumbnail's url, both made by the page itself, never text from outside. */
+export function clue({ icon, svg, image, text }) {
+  const el = document.createElement('span'),
+    picture = document.createElement('i'),
+    words = document.createElement('span');
+  el.className = 'clue';
+  if (svg) {
+    picture.className = 'clue-art';
+    picture.innerHTML = svg;
+  } else if (icon) picture.dataset.clue = icon;
+  else {
+    picture.className = 'clue-place';
+    picture.style.backgroundImage = `url("${image}")`;
+  }
+  words.textContent = text;
+  el.append(picture, words);
+  return el;
+}
+
 /** Sets `node[key]` (its text, a title, `hidden`, a dataset entry) only when it differs. The same
  * value written again still counts as a change: the page works out its styles again, and an
  * observer hears of it. The backend pushes its whole state often with little changed. */
@@ -18,6 +39,21 @@ export function put(node, key, value) {
 /** Sets an attribute only when it differs, for the same reason as put. */
 export function putAttribute(node, name, value) {
   if (node.getAttribute(name) !== value) node.setAttribute(name, value);
+}
+
+// The timer that takes each replayed class off again, by node, so a replay restarts it.
+const replays = new WeakMap();
+/** Plays the short CSS animation that `className` starts on `node` again from its start, and takes
+ * the class off after `ms` (a wrong guess's shake, a float reeled too soon). */
+export function replay(node, className, ms) {
+  node.classList.remove(className);
+  void node.offsetWidth;
+  node.classList.add(className);
+  clearTimeout(replays.get(node));
+  replays.set(
+    node,
+    setTimeout(() => node.classList.remove(className), ms),
+  );
 }
 
 /** Calls `fn` each time the screen's density (devicePixelRatio) changes: the window moved to another

@@ -78,10 +78,15 @@ const TEXT_LIMITS: [(&str, usize); 6] = [
     ("callMe", 24),
 ];
 
+/// The settings' size steps (index.html size-range): a size is always one of them.
+const SIZE_STEP: f64 = 32.0;
+
 fn set_number(pet: &mut Pet, key: &str, value: f64, (min, max): (f64, f64)) {
     let value = value.clamp(min, max);
     match key {
-        "size" => pet.size = value,
+        // Between two steps the slider shows one name and the yard draws another size; the old
+        // first-friend size, 112, went that way. A tie goes to the larger, as the label rounds.
+        "size" => pet.size = min + ((value - min) / SIZE_STEP).round() * SIZE_STEP,
         "x" => pet.x = value,
         _ => pet.y = value,
     }
@@ -125,7 +130,8 @@ pub fn create_pet(asset_id: &str, pets: &[Pet]) -> Result<Pet, String> {
         asset_id: asset_id.into(),
         name: String::new(),
         visual_style: VisualStyle::Illustrated,
-        size: 112.0,
+        // Medium on the settings' size slider (index.html size-range).
+        size: 128.0,
         x: 0.18 + (pets.len() % 4) as f64 * 0.2,
         y: 0.3 + (n / 4.0).floor() * 0.22,
         provider_id: String::new(),
@@ -289,6 +295,32 @@ pub fn parked_user(parked: &[Value], asset_id: &str, fallback: &str) -> Option<S
 mod tests {
     use super::*;
     use serde_json::json;
+
+    // The settings' size slider goes 64 to 192 in steps of 32 (index.html size-range), and its
+    // label names the step. A friend's size is always one of those steps: a new friend starts on
+    // Medium, and a size saved between steps (112, the first friends' old size) or sent in a patch
+    // goes to the nearest step, a tie to the larger, so no friend is drawn between two names.
+    #[test]
+    fn a_friend_is_always_on_a_step_of_the_size_slider() {
+        let pet = create_pet("cat", &[]).unwrap();
+        assert_eq!(pet.size, 128.0);
+        let saved = |size: Value| {
+            restore_pets(
+                &json!({"pets": [{"id": "a", "assetId": "cat", "size": size}]}),
+                &["cat".into()],
+            )[0]
+            .size
+        };
+        assert_eq!(saved(json!(null)), 128.0, "no size saved");
+        assert_eq!(saved(json!(112)), 128.0, "the old size goes to Medium");
+        assert_eq!(saved(json!(96)), 96.0, "a step is kept");
+        assert_eq!(saved(json!(100)), 96.0);
+        assert_eq!(saved(json!(999)), 192.0);
+        let mut pets = vec![pet];
+        let id = pets[0].id.clone();
+        update_pet(&mut pets, &id, &json!({"size": 150})).unwrap();
+        assert_eq!(pets[0].size, 160.0, "a patch lands on a step too");
+    }
 
     #[test]
     fn invitation_options_are_validated_before_a_friend_can_be_added() {
@@ -506,6 +538,6 @@ mod tests {
         let mut pets = vec![create_pet("cat", &[]).unwrap()];
         let id = pets[0].id.clone();
         assert!(update_pet(&mut pets, &id, &json!({"size": 150, "persona": 5})).is_err());
-        assert_eq!(pets[0].size, 112.0);
+        assert_eq!(pets[0].size, 128.0);
     }
 }

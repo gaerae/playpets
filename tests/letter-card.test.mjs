@@ -249,3 +249,14 @@ test('Markdown marks in an AI letter are taken out of what the paper shows', t =
   openLetter(2026);
   assert.equal($('letter-text').textContent, 'Dear you,\n\n\u2022 we had fun');
 });
+
+// A red word beside the note read like a warning on a letter: deleting is a quiet trash icon, named in
+// its tooltip and to screen readers.
+test("the letter's delete is a trash icon named by its title", async () => {
+  const html = await readFile(new URL('../src/index.html', import.meta.url), 'utf8');
+  const button = html.match(/<button[^>]*id="letter-delete"[^>]*>.*?<\/button>/)?.[0] || '';
+  assert.match(button, /class="icon-button"/);
+  assert.match(button, /data-i18n-title="letter\.delete"/);
+  assert.match(button, /data-i18n-aria-label="letter\.delete"/);
+  assert.match(button, /<span data-icon="trash"><\/span>/);
+});

@@ -129,7 +129,7 @@ test('the overlay page reads exactly the keys its windows are sent', async t => 
   };
   await import('../src/overlay/overlay.js');
   change(watched(full(language())));
-  for (const type of [...OVERLAY_EVENTS, 'hover'])
+  for (const type of [...OVERLAY_EVENTS, 'hover', 'grass'])
     event({
       type,
       petId: 'a',
@@ -156,9 +156,9 @@ async function overlayFiles() {
 test('an overlay window is sent the events the overlay acts on, and the yard the rest', async () => {
   const overlay = (await overlayFiles()).join('\n');
   const acted = new Set([...overlay.matchAll(/event\.type === '([\w-]+)'/g)].map(m => m[1]));
-  // `layout` and `hover` go to each window on its own (overlay.rs sync_windows).
+  // `layout`, `hover` and `grass` go to each window on its own (overlay.rs sync_windows).
   assert.deepEqual(
-    [...acted].filter(type => !['layout', 'hover'].includes(type)).sort(),
+    [...acted].filter(type => !['layout', 'hover', 'grass'].includes(type)).sort(),
     [...OVERLAY_EVENTS].sort(),
     'OVERLAY_EVENTS lists what overlay.js acts on',
   );

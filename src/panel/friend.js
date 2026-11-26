@@ -80,8 +80,11 @@ export function renderPanel() {
     put($('friend-select'), 'value', p.id);
   }
   put($('instance-id'), 'textContent', t('friend.id', { id: p.id }));
+  // The ID is for an agent's hooks; a friend no agent reports to has no use for it.
+  put($('instance-id'), 'hidden', !agents.length);
 }
-// How close the friend is, under its name, and what the next level brings.
+// How close the friend is, under its name, and what the next level brings. The bar shows how far
+// along it is; a count of points would read like a score.
 function renderCloseness(p) {
   const { level, share, left } = progressOf(p.id);
   put($('bond-row'), 'hidden', false);
@@ -91,7 +94,7 @@ function renderCloseness(p) {
     $('bond-next'),
     'textContent',
     left
-      ? t('bond.next', { level: t(`bond.level_${level + 1}`), left, unlock: t(`bond.unlock_${level + 1}`) })
+      ? t('bond.next', { level: t(`bond.level_${level + 1}`), unlock: t(`bond.unlock_${level + 1}`) })
       : t('bond.max'),
   );
 }

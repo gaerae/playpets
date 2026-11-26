@@ -33,7 +33,6 @@ function page(t) {
   const { document, nodes } = installDom(t);
   for (const id of [
     'fullscreen',
-    'fullscreen-label',
     'always-on-top',
     'window-drag',
     'hide-window',
@@ -131,20 +130,20 @@ test('every frameless edge starts native resize only with the primary pointer', 
   );
 });
 
-test('fullscreen toggles the shared menu label and Escape preserves other dismissals', async t => {
+// Fullscreen is a switch like its neighbours: its name stays, and the switch says whether it is on.
+test('fullscreen keeps its name while its switch turns, and Escape preserves other dismissals', async t => {
   const { document, nodes } = page(t);
   windowUi.setupWindow();
   await nodes.get('fullscreen').onclick();
   assert.deepEqual(calls.at(-1), ['windowFullscreen', true]);
   assert.equal(nodes.get('fullscreen').getAttribute('aria-pressed'), 'true');
   assert.equal(document.body.classList.contains('fullscreen'), true);
-  const restoreLabel = nodes.get('fullscreen-label').textContent;
   await window.dispatch('keydown', { key: 'Escape', defaultPrevented: true });
   assert.deepEqual(calls.at(-1), ['windowFullscreen', true]);
   await window.dispatch('keydown', { key: 'Escape' });
   assert.deepEqual(calls.at(-1), ['windowFullscreen', false]);
   assert.equal(document.body.classList.contains('fullscreen'), false);
-  assert.notEqual(nodes.get('fullscreen-label').textContent, restoreLabel);
+  assert.equal(nodes.get('fullscreen').getAttribute('aria-pressed'), 'false');
   assert.equal(
     calls.some(([name]) => name === 'windowAlwaysOnTop'),
     false,

@@ -2,7 +2,9 @@
 
 import { prepareCompanionAction } from './companion-actions.js';
 import { t } from './i18n.js';
+import { clamp } from './math.js';
 import { dropdown, menuNavigation } from './menu.js';
+import { canvas, drawStill } from './sprites.js';
 import { $, aiming, call, data, game, guard, name, recall, remember, selected, toast, views } from './state.js';
 
 let surfaces = [];
@@ -11,7 +13,33 @@ let showPlay = null;
 let showFriendMenu = null;
 let showDecorMenu = null;
 let showGrowingMenu = null;
+// A thing's bar sits this far from the thing (room for its notch), and its notch keeps this far from
+// the bar's ends.
+const BAR_GAP = 12,
+  BAR_NOTCH = 18;
 const yardFocus = button => (document.body.classList.contains('compact') ? $('yard') : button);
+
+// The panels that open over the yard, by what each is for, so a panel added here is known to every
+// module that has to keep clear of it.
+/** The panels the dock opens over the yard. */
+export const DOCK_PANELS = ['play-panel', 'yard-controls-panel', 'scene-menu'];
+/** Everything a person works in over the yard: the side panel (Settings, a chat) and the dock's. */
+export const OVER_YARD = ['side-panel', ...DOCK_PANELS];
+// The dock's menus closeControls puts away, each with the button it opened from (the scene menu
+// has closeScene).
+const MENU_OPENERS = {
+  'yard-controls-panel': 'yard-controls-toggle',
+  'play-panel': 'play-button',
+  'yard-context-menu': 'yard-controls-toggle',
+};
+/** The dock's menus closeControls puts away. */
+export const CONTROL_MENUS = Object.keys(MENU_OPENERS);
+/** Calls `fn` each time one of the panels `ids` opens or shuts. */
+export function onPanelToggle(ids, fn) {
+  if (!globalThis.MutationObserver) return;
+  const observer = new MutationObserver(fn);
+  for (const id of ids) if ($(id)) observer.observe($(id), { attributes: true, attributeFilter: ['hidden'] });
+}
 
 // Each panel opens in its one place above the dock, however it was reached (the dock, the right-click
 // menu, a shortcut), so a person always finds it where it was last time.
@@ -22,7 +50,7 @@ export function openControls() {
 export function openPlay() {
   showPlay?.();
 }
-/** A friend's own right-click menu at a point in the window: talk, or play with it. */
+/** A friend's own right-click menu at a point in the window: talk, play, dig, the desktop, or its settings. */
 export function openFriendMenu(id, point) {
   showFriendMenu?.(id, point);
 }
@@ -44,7 +72,13 @@ export function desktopTip() {
   remember('desktop-tip', '1');
   // Said once, so not under the panel the switch sits in.
   closeControls(false);
-  toast(t('toast.desktop_tip'));
+  toast(t('toast.desktop_tip'), {
+    pictures: [
+      { icon: 'tap-name', text: t('toast.desktop_chat') },
+      { icon: 'drag', text: t('toast.desktop_move') },
+      { icon: 'right-click', text: t('toast.desktop_off') },
+    ],
+  });
 }
 // One friend, gift, flower or planted tree, out to the desktop or back in (desktop/items.rs).
 const sendOut = guard(async (id, on) => {
@@ -63,11 +97,7 @@ export function closeUpdateDetails(focus = false) {
 }
 export function closeControls(focus = true) {
   let target = null;
-  for (const [id, button] of [
-    ['yard-controls-panel', 'yard-controls-toggle'],
-    ['play-panel', 'play-button'],
-    ['yard-context-menu', 'yard-controls-toggle'],
-  ]) {
+  for (const [id, button] of Object.entries(MENU_OPENERS)) {
     const panel = $(id);
     if (!panel || panel.hidden) continue;
     const surface = surfaces.find(item => item.panel === panel);
@@ -93,11 +123,13 @@ export function setupControls({
   canDigAt = () => false,
   digAt = () => {},
   digWith = () => {},
+  friendSettings = () => {},
   putAway = () => {},
   pullPlant = () => {},
   removeTree = () => {},
   dress = () => {},
   canDress = () => false,
+  closeness = () => 0,
   letterReadable = () => false,
   openLetter = () => {},
 } = {}) {
@@ -146,7 +178,22 @@ export function setupControls({
     const pet = data.pets.find(p => p.id === selected) || data.pets[0];
     const asset = pet && views.get(pet.id)?.asset;
     for (const action of ['dig', 'plant', 'cast', 'wait', 'reel', 'discover']) prepareCompanionAction(asset, action);
-    $('play-title').textContent = pet ? t('controls.play_with', { name: name(pet) }) : t('controls.play');
+    // The board is Play for all of it (the album, the picnic and the games are not one friend's);
+    // the friend who digs, fishes and plants is the picture and the small name beside it.
+    const who = $('play-who');
+    if (who) {
+      who.hidden = !pet;
+      who.textContent = pet ? name(pet) : '';
+    }
+    const portrait = $('play-portrait');
+    if (portrait) {
+      portrait.hidden = !asset;
+      if (asset) {
+        const still = canvas();
+        portrait.replaceChildren(still);
+        drawStill(still, asset);
+      }
+    }
     $('play-empty').hidden = !!pet;
     $('play-sections').hidden = !pet;
     // Dig and Plant a tree also need soil; syncDiscovery (discovery.js) keeps those.
@@ -184,16 +231,36 @@ export function setupControls({
       for (const item of context.querySelectorAll('[data-context-for]'))
         item.hidden = item.dataset.contextFor !== forWhat;
       const pet = id && data.pets.find(p => p.id === id);
+      // A thing's menu is a bar over it with its name on a plate; the scenery's stays a list at the
+      // pointer, and so does every menu in a small window, where a row would not fit.
+      const bar = forWhat !== 'yard' && !document.body.classList.contains('compact') && !!point.from;
+      context.classList.toggle('thing-bar', bar);
+      context.setAttribute('aria-orientation', bar ? 'horizontal' : 'vertical');
+      const plate = [...context.children].find(child => child.classList?.contains('thing-plate'));
+      const title = pet ? name(pet) : [point.from].flat()[0]?.dataset?.name || '';
+      if (plate) plate.hidden = !bar || !title;
+      if (plate && bar && title) {
+        plate.querySelector('.thing-name').textContent = title;
+        context.setAttribute('aria-label', title);
+        const hearts = plate.querySelector('.thing-hearts'),
+          level = pet ? closeness(id) : 0;
+        hearts.hidden = !level;
+        if (level) {
+          hearts.dataset.level = String(level);
+          hearts.setAttribute('aria-label', t(`bond.level_${level}`));
+        }
+      } else context.setAttribute('aria-label', t('controls.yard'));
+      // On the bar the plate names the friend, so its choices say only what they do; the list says
+      // whom each is with.
       if (pet) {
-        context.querySelector('[data-context-action="talk"] .context-label').textContent = t('friend.talk', {
-          name: name(pet),
-        });
-        context.querySelector('[data-context-action="play-friend"] .context-label').textContent = t(
-          'controls.play_with',
-          { name: name(pet) },
-        );
-        const dig = context.querySelector('[data-context-action="dig-friend"] .context-label');
-        if (dig) dig.textContent = t('discovery.dig_with', { name: name(pet) });
+        const label = action => context.querySelector(`[data-context-action="${action}"] .context-label`),
+          who = { name: name(pet) };
+        label('talk').textContent = bar ? t('friend.talk_short') : t('friend.talk', who);
+        label('play-friend').textContent = bar ? t('controls.play') : t('controls.play_with', who);
+        const dig = label('dig-friend');
+        if (dig) dig.textContent = bar ? t('discovery.dig_ask') : t('discovery.dig_with', who);
+        const edit = label('settings-friend');
+        if (edit) edit.textContent = t(bar ? 'friend.edit_short' : 'friend.edit');
       }
       const out = forWhat === 'friend' ? pet : ownList(forWhat)?.find(d => d.id === id);
       const check = [...context.querySelectorAll('[data-context-for]')].find(
@@ -207,15 +274,52 @@ export function setupControls({
       if (forWhat === 'decor')
         for (const item of context.querySelectorAll('[data-context-for]'))
           if (item.dataset.contextAction === 'dress-decor') item.hidden = !canDress(id);
+      // Its choices come in one after another (shell.css).
+      let order = 0;
+      for (const item of context.querySelectorAll('[data-context-for]'))
+        if (!item.hidden) item.style.setProperty('--order', String(order++));
     };
     const place = () => {
       if (context.hidden) return;
       context.style.removeProperty('max-height');
       const { width, height } = context.getBoundingClientRect();
-      context.style.left = `${Math.max(8, Math.min(point.x, innerWidth - width - 8))}px`;
-      const top = Math.max(8, Math.min(point.y, innerHeight - height - 8));
+      if (context.classList.contains('thing-bar')) return placeBar(width, height);
+      context.style.left = `${clamp(point.x, 8, innerWidth - width - 8)}px`;
+      const top = clamp(point.y, 8, innerHeight - height - 8);
       context.style.top = `${top}px`;
       context.style.setProperty('max-height', `${innerHeight - top - 8}px`);
+    };
+    // Over the thing and its name tag, centred, with room for the notch; below them near the top,
+    // slid in at the sides with the notch still pointing at the thing.
+    const placeBar = (width, height) => {
+      const plate = [...context.children].find(child => child.classList?.contains('thing-plate')),
+        tall = plate && !plate.hidden ? plate.getBoundingClientRect().height : 0;
+      const boxes = [point.from].flat().map(node => node.getBoundingClientRect());
+      // What it must also not cover (a friend's line over its head), above and below only: the notch
+      // points at the thing. A line not showing measures nothing.
+      const clear = [point.clear ?? []]
+        .flat()
+        .map(node => node?.getBoundingClientRect())
+        .filter(b => b?.width > 0 && b.height > 0);
+      const around = {
+        left: Math.min(...boxes.map(b => b.left)),
+        right: Math.max(...boxes.map(b => b.right)),
+        top: Math.min(...[...boxes, ...clear].map(b => b.top)),
+        bottom: Math.max(...[...boxes, ...clear].map(b => b.bottom)),
+      };
+      const centre = (around.left + around.right) / 2,
+        left = clamp(centre - width / 2, 8, innerWidth - width - 8);
+      // The plate rides on the side away from the thing.
+      let top = around.top - height - BAR_GAP;
+      context.dataset.side = 'above';
+      if (top - tall < 8) {
+        top = Math.min(around.bottom + BAR_GAP, innerHeight - height - tall - 8);
+        context.dataset.side = 'below';
+      }
+      context.style.left = `${Math.round(left)}px`;
+      context.style.top = `${Math.round(top)}px`;
+      const notch = clamp(centre - left, BAR_NOTCH, width - BAR_NOTCH);
+      context.style.setProperty('--notch', `${Math.round(notch)}px`);
     };
     const box = dropdown(
       yard,
@@ -303,6 +407,7 @@ export function setupControls({
       else if (action === 'talk') openChat(friend);
       else if (action === 'play-friend') openPlay();
       else if (action === 'dig-friend') digWith(friend);
+      else if (action === 'settings-friend') friendSettings(friend);
       else if (action === 'desktop-friend') sendOut(friend, !data.pets.find(p => p.id === friend)?.onDesktop);
       else if (['desktop-decor', 'desktop-plant', 'desktop-tree'].includes(action)) {
         const thing = ownList(action.slice('desktop-'.length))?.find(d => d.id === friend);

@@ -213,7 +213,7 @@ export function movable(view, { current, show, save, menu, remove, settle, allow
   button.addEventListener('contextmenu', event => {
     event.preventDefault();
     event.stopPropagation();
-    if (!aiming && !game) menu({ x: event.clientX, y: event.clientY });
+    if (!aiming && !game) menu({ x: event.clientX, y: event.clientY, from: button });
   });
   button.addEventListener('keydown', event => {
     const item = current();
@@ -229,7 +229,7 @@ export function movable(view, { current, show, save, menu, remove, settle, allow
     if (event.key === 'ContextMenu' || (event.key === 'F10' && event.shiftKey)) {
       event.preventDefault();
       const r = button.getBoundingClientRect();
-      return menu({ x: r.left, y: r.bottom });
+      return menu({ x: r.left, y: r.bottom, from: button });
     }
     if (event.key === 'Delete' || event.key === 'Backspace') {
       event.preventDefault();

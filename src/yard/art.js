@@ -68,7 +68,50 @@ const previewHref = path => `art/album/${path.replace(/\.svg$/, '.webp')}`;
  * decoding the whole painted sheet would cost more than the card shows. */
 export function previewSvg(path, attrs = '') {
   const [w, h] = artSize(path);
-  return `<svg viewBox="0 0 ${w} ${h}" ${attrs} aria-hidden="true"><image href="${previewHref(path)}" width="${w}" height="${h}" preserveAspectRatio="${aligns.get(path) || 'xMidYMid meet'}"/></svg>`;
+  return `<svg viewBox="0 0 ${w} ${h}" data-art="${path}" ${attrs} aria-hidden="true"><image href="${previewHref(path)}" width="${w}" height="${h}" preserveAspectRatio="${aligns.get(path) || 'xMidYMid meet'}"/></svg>`;
+}
+// The sheets decoded so far: a drawing on one of them is drawn sharp with no blurred frame first.
+// One still decoding is asked for once, however often the left page is drawn meanwhile (each press
+// and each push of the state redraws it); one that failed is tried again next time.
+const decodedSheets = new Set(),
+  decoding = new Map();
+const decodeSheet = href => {
+  if (!decoding.has(href)) {
+    const image = new Image();
+    image.src = href;
+    decoding.set(
+      href,
+      image.decode().then(
+        () => decodedSheets.add(href),
+        error => {
+          decoding.delete(href);
+          throw error;
+        },
+      ),
+    );
+  }
+  return decoding.get(href);
+};
+/** The previews in `root` drawn larger than a card (the album's left page) become their drawings
+ * once the painted sheets they were cut from are decoded: a preview is cut for a card, and drawn
+ * two to three times that size it blurs. Until then, or if a sheet does not decode, it stays. */
+export function sharpen(root) {
+  for (const svg of root.querySelectorAll('svg[data-art]')) {
+    const symbol = document.getElementById(idOf(svg.dataset.art)),
+      sheets = [...(symbol?.querySelectorAll('image') || [])].map(image => image.getAttribute('href'));
+    if (!sheets.length) continue;
+    const swap = () => {
+      const use = document.createElementNS(NS, 'use');
+      use.setAttribute('href', artHref(svg.dataset.art));
+      svg.replaceChildren(use);
+    };
+    if (sheets.every(href => decodedSheets.has(href))) swap();
+    else
+      Promise.all(sheets.filter(href => !decodedSheets.has(href)).map(decodeSheet)).then(
+        () => svg.isConnected && swap(),
+        () => {},
+      );
+  }
 }
 /** The custom properties that colour a drawing (a flower's petals), as a style attribute's value. */
 export const colorStyle = colors =>

@@ -12,6 +12,7 @@ globalThis.playPets = {
 };
 const invite = await import('../src/panel/invite.js');
 const { setData } = await import('../src/core/state.js');
+const { t: t2 } = await import('../src/core/i18n.js');
 const { setupSettings } = await import('../src/panel/settings.js');
 
 test('type and search intersect without hiding the humanoid starter or animal starters', async () => {
@@ -354,4 +355,27 @@ test('a ZIP import brings the pet in like a folder, and a cancelled pick changes
   await nodes.get('import-zip').onclick();
   assert.deepEqual(added, [['zipped', { visualStyle: 'illustrated' }]]);
   assert.equal(nodes.get('import-dialog').open, false);
+});
+
+// A line under every card the yard already had ("one more") crowded the shelf: the + says it as its
+// tooltip. The built-in pets ship inside the app, so their group has no folder to open.
+test('the + mark says a card brings one more, and only folders a person can use open', t => {
+  const nodes = page(t);
+  setData({
+    assets: [
+      { id: 'cat', place: 'builtin', displayName: 'Cat' },
+      { id: 'fox', place: 'codex', displayName: 'Fox' },
+    ],
+    pets: [{ id: 'c1', assetId: 'cat' }],
+  });
+  invite.renderShelf();
+  const shelf = nodes.get('shelf');
+  const [cat, fox] = shelf.querySelectorAll('.asset-card');
+  assert.equal(shelf.querySelectorAll('.asset-hint').length, 0, 'no line under a card');
+  assert.equal(cat.querySelector('.add-mark').title, t2('invite.one_more'));
+  assert.equal(fox.querySelector('.add-mark').title, t2('invite.add_aria', { name: 'Fox' }));
+  const groups = shelf.children;
+  assert.equal(groups[0].dataset.place, 'builtin');
+  assert.equal(groups[0].querySelectorAll('.shelf-open').length, 0);
+  assert.equal(groups[1].querySelectorAll('.shelf-open').length, 1);
 });

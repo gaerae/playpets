@@ -15,6 +15,32 @@ test('a game speaks first, then the tool in hand, then what there is still to le
   assert.equal(hintKey({ ...base, friends: 0 }), null, 'no friend, nothing to press');
 });
 
+// Past the lake there is still the dock to learn, one tile at a time and each only once: Dig until
+// the first dig, Plant a seed once a seed is found until the first is planted, then the Album once
+// something is in it until it has been opened. A place with no soil skips what needs soil.
+test('after the first fishing trip the line teaches the dock, one step at a time', () => {
+  const learned = { game: null, aiming: false, friends: 2, patted: true, fished: true, soil: true };
+  assert.deepEqual(hintKey({ ...learned, dug: false }), { key: 'hint.dig' });
+  assert.equal(hintKey({ ...learned, dug: false, soil: false }), null, 'no soil, nothing to dig');
+  assert.equal(hintKey({ ...learned, dug: true, seeds: 0, planted: false }), null, 'no seed yet, nothing to plant');
+  assert.deepEqual(hintKey({ ...learned, dug: true, seeds: 2, planted: false }), { key: 'hint.sow' });
+  assert.equal(hintKey({ ...learned, dug: true, seeds: 2, planted: true }), null, 'planted once');
+  assert.deepEqual(
+    hintKey({ ...learned, dug: true, seeds: 2, planted: false, found: true, opened: false }),
+    { key: 'hint.sow' },
+    'the garden before the album',
+  );
+  assert.deepEqual(hintKey({ ...learned, dug: true, found: true, opened: false }), { key: 'hint.album' });
+  assert.deepEqual(
+    hintKey({ ...learned, soil: false, found: true, opened: false }),
+    { key: 'hint.album' },
+    'the album needs no soil',
+  );
+  assert.equal(hintKey({ ...learned, dug: true, found: true, opened: true }), null, 'opened once');
+  assert.equal(hintKey({ ...learned, dug: false, fished: false, patted: true }).key, 'hint.fish', 'the lake first');
+  assert.equal(hintKey({ ...learned, dug: false, aiming: 'dig' }), null, 'the strip speaks while a tool is in hand');
+});
+
 test('one busy friend is named with its state; none says nothing', () => {
   const friends = [
       { id: 'a', n: 'Tabby' },

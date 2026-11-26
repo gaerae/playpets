@@ -1,6 +1,6 @@
 // The desktop's ring (src/overlay/chime.js): the audio rests a moment after a ring, and a ring
 // in that moment keeps it awake to the end. It rings with the cues alone (createCueVoice in
-// src/yard/soundscape.js), not the yard's beds, and each cue sounds as it does in the yard.
+// src/yard/soundscape.js), not the yard's calls, and each cue sounds as it does in the yard.
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { catalog } from './support/content.mjs';
@@ -117,7 +117,7 @@ test('a ring while the audio is going to rest is not cut off', async t => {
   assert.equal(suspended, 1, 'and the audio rests after it');
 });
 
-test('the desktop rings with the cues alone, without the yard beds and breezes', async t => {
+test('the desktop rings with the cues alone, and nothing runs on after them', async t => {
   t.mock.timers.enable({ apis: ['setTimeout'] });
   globalThis.AudioContext = FakeAudio;
   t.after(() => delete globalThis.AudioContext);
@@ -129,7 +129,7 @@ test('the desktop rings with the cues alone, without the yard beds and breezes',
   assert.deepEqual(
     ofKind(ctx, 'bufferSource').filter(source => source.loop),
     [],
-    'no bed loops',
+    'no loops',
   );
   assert.deepEqual(
     ofKind(ctx, 'oscillator').filter(o => o.started && !o.stopped),
@@ -137,7 +137,7 @@ test('the desktop rings with the cues alone, without the yard beds and breezes',
     'no wobble runs on',
   );
   assert.ok(ofKind(ctx, 'convolver').length <= 1, 'one room at most, for the tines to ring in');
-  // White noise for a hiss (1 s) and the room's air (1.6 s), not the yard's 13 s of beds.
+  // White noise for a hiss (1 s) and the room's air (1.6 s), nothing more.
   assert.ok(bufferSeconds(ctx) <= 2.6 + 1e-9, `${bufferSeconds(ctx)} s of buffers`);
 });
 

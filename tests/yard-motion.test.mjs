@@ -58,20 +58,6 @@ test('a friend farther back stands smaller, down to a set size at the ridge', ()
   assert.equal(depthScale(2), 1);
 });
 
-test('a walking friend bobs on the compositor, and not with reduced motion', async () => {
-  const css = uncommented(await readFile('src/styles/friends.css', 'utf8'));
-  const walking = blocks(css, /\.yard-pet\.walking\s*>\s*canvas\s*(?=\{)/g);
-  assert.ok(
-    walking.some(b => /animation:\s*stroll\b/.test(b.body)),
-    'a walking friend runs the stroll',
-  );
-  compositorOnly(keyframes(css, 'stroll'));
-  // A step moves the parts of a transform, so a press (transform) still squashes a walking friend.
-  for (const { body } of keyframes(css, 'stroll'))
-    assert.doesNotMatch(body, /(^|[\s;{])transform\s*:/, 'the stroll leaves transform to a press');
-  assert.match(reducedRules(css), /\.yard-pet\.walking\s*>\s*canvas\s*\{[^}]*animation:\s*none/);
-});
-
 // The frame loops move a friend in steps (the yard's every BUSY_MS, the desktop's every TICK). While
 // one moves, a linear glide a little longer than a step carries it to each new place, so a step
 // that comes late never shows a stop and the friend never falls far behind where it is.

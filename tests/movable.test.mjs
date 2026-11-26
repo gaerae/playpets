@@ -70,9 +70,10 @@ test('the arrow keys move it, the menu key opens its menu below it, and Delete t
   ]);
   await button.dispatch('keydown', { key: 'F10', shiftKey: true });
   await button.dispatch('contextmenu', { clientX: 12, clientY: 34 });
+  // Each names the thing too, which its bar is placed over (controls.js).
   assert.deepEqual(seen.menus, [
-    { x: 300, y: 275 },
-    { x: 12, y: 34 },
+    { x: 300, y: 275, from: button },
+    { x: 12, y: 34, from: button },
   ]);
   await button.dispatch('keydown', { key: 'Delete' });
   assert.equal(seen.removed, 1);

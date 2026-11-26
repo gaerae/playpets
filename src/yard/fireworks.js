@@ -1,7 +1,9 @@
 // Fireworks for the sky layer (scenery.js flare). Each friend sends up a shell in its own colour
 // from where it stands, then the finale fills the sky, and one heart closes the show. A shell
-// climbs, bursts with a flash, and its stars fly out fast, slow in the air, droop and burn out one
-// by one. sparkAt says where a spark is; scenery draws it, and its tail.
+// climbs, bursts with a flash that leaves a soft glow of its colour hanging in the sky, and its
+// stars fly out fast, slow in the air, droop and burn out one by one, shimmering as they go. The
+// heart lets its light go as glitter drifting down, so the show ends softly. sparkAt says where a
+// spark is and twinkle how it shimmers; light-art.js draws it, and its tail.
 
 const PALETTE = ['#ffd27a', '#ff9db0', '#9fd8ff', '#c5f2a2', '#e0b8ff', '#ffb38a'];
 const GOLD = '#ffcf6b';
@@ -9,6 +11,14 @@ const GOLD = '#ffcf6b';
 const RISE = 900;
 // How fast a star slows in the air: the larger, the sooner it hangs.
 const DRAG = 4;
+const TAU = Math.PI * 2;
+// One shimmer of a star, in ms: at least six of the yard's frames while a show is drawn (66 ms), so
+// it reads as a shimmer and not as a flicker.
+const TWINKLE_MS = 480;
+// The glow a burst leaves, as wide as its stars fly and a little more, and how long it hangs.
+const GLOW_SPREAD = 1.3,
+  GLOW_MS = 2200,
+  HEART_GLOW_MS = 3200;
 
 /** A friend's colour (an average of its picture) as a firework's: its hue, bright and clear. */
 export function brightColor(r, g, b) {
@@ -52,6 +62,39 @@ export function sparkAt(s, now) {
   const age = (now - s.since) / s.life;
   if (age < 0 || age >= 1) return null;
   return { ...pointAt(s, age), alpha: age < 0.55 ? 1 : ((1 - age) / 0.45) ** 1.5 };
+}
+
+/** How bright a star shimmers at `now`, 0 to 1, on top of its fade (sparkAt): glitter all along, a
+ * plain star only as it burns out, each in its own phase so a burst never blinks as one. */
+export function twinkle(s, now) {
+  const wave = 0.5 + 0.5 * Math.sin((TAU * (now - s.since)) / TWINKLE_MS + (s.phase ?? 0));
+  if (s.glitter) return 0.35 + 0.65 * wave;
+  const age = (now - s.since) / s.life;
+  if (age < 0.55) return 1;
+  return 1 - Math.min(1, (age - 0.55) / 0.3) * 0.45 * (1 - wave);
+}
+
+// The heart lets its light go: from every other star, as it burns out, glitter drifts down.
+function heartDust(stars, b, h, rng) {
+  return stars
+    .filter((_, i) => i % 2 === 0)
+    .map(s => {
+      const end = pointAt(s, 1);
+      return {
+        cx: end.x,
+        cy: end.y,
+        tx: end.x + (rng() - 0.5) * b.r * 0.15,
+        ty: end.y + b.r * (0.25 + rng() * 0.25),
+        fall: h * 0.02,
+        drag: 2,
+        since: s.since + s.life * 0.75 + rng() * 400,
+        life: 1800 + rng() * 1000,
+        color: rng() < 0.5 ? '#fff3d6' : b.color,
+        glitter: true,
+        dust: true,
+        trail: 60,
+      };
+    });
 }
 
 // The stars of each kind of shell, bursting at the burst's (x, y) at `at` with its radius `r`.
@@ -105,13 +148,14 @@ const KINDS = {
   },
   heart(b, h, rng) {
     const { r } = b;
-    return Array.from({ length: 76 }, (_, i) => {
+    const stars = Array.from({ length: 76 }, (_, i) => {
       const t = (i / 76) * Math.PI * 2,
         u = 16 * Math.sin(t) ** 3,
         v = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
       // it hangs longer than any other shell, the last thing in the sky
       return star(b, (u / 17) * r, (v / 17) * r, h * 0.015, 3900 + rng() * 300, b.color, { trail: 200 });
     });
+    return [...stars, ...heartDust(stars, b, h, rng)];
   },
 };
 function star(b, dx, dy, fall, life, color, more = {}) {
@@ -182,7 +226,21 @@ export function fireworks(w, h, now, launchers = [], rng = Math.random) {
       rise: true,
     },
     { cx: b.x, cy: b.y, tx: b.x, ty: b.y, fall: 0, since: b.at, life: 320, color: b.color, flash: true },
+    // the soft glow it leaves, sinking a little as smoke does
+    {
+      cx: b.x,
+      cy: b.y,
+      tx: b.x,
+      ty: b.y + h * 0.03,
+      fall: 0,
+      since: b.at + 40,
+      life: b.kind === 'heart' ? HEART_GLOW_MS : GLOW_MS,
+      color: b.color,
+      glow: true,
+      r: b.r * GLOW_SPREAD,
+    },
     ...KINDS[b.kind](b, h, rng),
   ]);
+  for (const s of sparks) s.phase = rng() * TAU;
   return { sparks, bursts };
 }

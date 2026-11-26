@@ -48,10 +48,13 @@ test('the season before comes back from January 8 of the next year', () => {
   assert.equal(winterOver(d(2027, 2, 10), { year: 2026, previous: null }), false);
 });
 
+// The panels and the tool strip a person works in; the question waits while one is open.
+const PANELS = ['side-panel', 'scene-menu', 'play-panel', 'yard-controls-panel', 'discovery-target'];
 // A yard on the given date, with fakes for the question and for showing a season.
 function yard(t, { now, answer = true, world = 'woodland', asked = null, visible }) {
   t.mock.timers.enable({ apis: ['Date'], now: now.getTime() });
-  const { document } = installDom(t);
+  const { document, nodes } = installDom(t, { ids: PANELS });
+  for (const id of PANELS) nodes.get(id).hidden = true;
   scene.world = world;
   state.setData({ ...state.data, winterAsked: asked });
   answers.length = 0;
@@ -198,6 +201,21 @@ test('nothing is asked while the person types or another dialog is open', async 
   typing.check();
   await flush();
   assert.equal(typing.asks.length, 1, 'asked once the person is free');
+});
+
+test('nothing is asked while a panel, the menu or a tool is open, and it is asked once they close', async t => {
+  const busy = yard(t, { now: d(2026, 12, 5) });
+  for (const id of PANELS) {
+    busy.document.getElementById(id).hidden = false;
+    busy.check();
+    busy.check();
+    await flush();
+    assert.equal(busy.asks.length, 0, `not over ${id}`);
+    busy.document.getElementById(id).hidden = true;
+  }
+  busy.check();
+  await flush();
+  assert.equal(busy.asks.length, 1, 'asked once the person is back in the yard');
 });
 
 test('a person typing still gets the season back on January 8', async t => {

@@ -251,8 +251,21 @@ test("each friend's poses stay inside canonical transparent atlases", async () =
     for (const [season, actions] of Object.entries(poses.outfits)) {
       assert.deepEqual(
         Object.keys(actions).sort(),
-        ['cast', 'dig', 'discover', 'plant', 'reel', 'wait'],
-        `${id}/${season}: complete action set`,
+        [
+          'cast',
+          'dig',
+          'discover',
+          'plant',
+          'reel',
+          'run-left',
+          'run-right',
+          'sit',
+          'stretch',
+          'wait',
+          'walk-back',
+          'walk-front',
+        ],
+        `${id}/${season}: complete action set, with the sit and the stretch of its rest sheet, both walks and both runs`,
       );
       assert.ok(['base', 'spring', 'summer', 'autumn', 'winter'].includes(season), season);
       for (const [name, clip] of Object.entries(actions)) {
@@ -269,7 +282,7 @@ test("each friend's poses stay inside canonical transparent atlases", async () =
           label,
         );
         assert.ok(finitePoint(offset), label);
-        assert.match(clip.image, new RegExp(`^actions/${season}/[a-z]+\\.png$`), label);
+        assert.match(clip.image, new RegExp(`^actions/${season}/[a-z-]+\\.png$`), label);
         const png = new URL(`../assets/pets/${id}/${clip.image}`, import.meta.url);
         assert.ok(finitePoint(clip.anchor), label);
         assert.ok(

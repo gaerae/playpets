@@ -1,10 +1,13 @@
 // Where friends are headed and what they are busy with: a trip (`v.target`, `v.trip`) and a task
 // where a friend stands (`v.doing`). Each belongs to whoever started it, which hears when it ends.
 import { between } from '../core/math.js';
+import { reduced } from '../core/sprites.js';
 import { views } from '../core/state.js';
-import { footOf } from './field.js';
+import { footOf, geometry } from './field.js';
 import { WANDER_DELAY } from './wander.js';
 
+/** How long a friend setting off from a stand looks where it is going first. */
+export const LOOK_FIRST_MS = 220;
 /** A friend that just did something waits a while before it wanders again. */
 export const rest = v => {
   v.nextWander = performance.now() + between(Math.random, WANDER_DELAY);
@@ -26,21 +29,35 @@ export function sendTo(
   { arrive, cancel, save = true, slow = false, speed = 0, own = false, yields = false, through = false } = {},
 ) {
   // When it sets off (motion.js measures its first step from it, and its pace ramps up from a
-  // stand); one already walking, or passing through a stop (`v.passing`), goes on at its pace.
+  // stand); one already walking, or passing through a stop (`v.passing`), goes on at its pace. From
+  // a stand it looks that way first, as a person does; in a game it is off at once.
+  const looks = !v.target && !v.passing && !speed && !reduced.matches;
   if (!v.target) {
-    v.leftAt = performance.now();
+    v.leftAt = performance.now() + (looks ? LOOK_FIRST_MS : 0);
     if (!v.passing) v.vel = 0;
   }
   release(v);
+  // The look lasts until it sets off (motion.js) or something else takes it (release).
+  if (looks) {
+    const { w, h } = geometry(v.pet, v.x);
+    v.look = v.lookFirst = { x: (target.x - v.x) * w, y: (target.y - v.y) * h };
+  }
   v.target = target;
   v.trip = { arrive, cancel, save, slow, yields, through };
   v.speed = speed;
   v.own = own;
 }
+/** Ends the look a friend gave the way it was sent (sendTo), unless another look took its place. */
+export function endLookFirst(v) {
+  if (!v.lookFirst) return;
+  if (v.look === v.lookFirst) v.look = null;
+  v.lookFirst = null;
+}
 /** Lets go of whatever a friend was on its way to or doing, telling their owners. Whatever moves it
  * goes through here, so a petal resting on its head (petals.js) falls off too. */
 export function release(v) {
   brushPetal(v);
+  endLookFirst(v);
   const { trip, doing } = v;
   v.target = null;
   v.trip = null;
@@ -65,8 +82,8 @@ const lounging = v => !v.drag && !v.away && !!v.spot?.idle;
 // friends start on their own, but what the person starts may take it, and the gathering or the visit
 // lets it go. The visit's marker is on its trip and its doing, so whatever takes either takes it.
 const yields = v => !v.drag && (!!v.gathered || !!v.trip?.yields || !!v.doing?.yields);
-// The friend nearest a point in the yard, by its feet, among those `ok` allows.
-function nearest(px, py, ok) {
+/** The friend nearest a point in the yard, by its feet, among those `ok` allows. */
+export function nearest(px, py, ok) {
   let best = null,
     bestD = Infinity;
   for (const v of views.values()) {

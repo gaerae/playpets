@@ -1,7 +1,6 @@
 // One frameless window: its size and its always-on-top switch are independent.
-import { closeControls, closeScene } from './core/controls.js';
+import { CONTROL_MENUS, closeControls, closeScene } from './core/controls.js';
 import { putAttribute } from './core/dom.js';
-import { t } from './core/i18n.js';
 import { onEscape, onShortcut } from './core/keys.js';
 import { $, call, data, guard } from './core/state.js';
 
@@ -12,12 +11,6 @@ function renderFullscreen(on) {
   fullscreen = !!on;
   document.body.classList.toggle('fullscreen', fullscreen);
   $('fullscreen')?.setAttribute('aria-pressed', String(fullscreen));
-  const label = $('fullscreen-label');
-  if (label) {
-    const key = fullscreen ? 'win.restore_size' : 'win.fullscreen';
-    label.setAttribute('data-i18n', key);
-    label.textContent = t(key);
-  }
 }
 
 export async function setFullscreen(on) {
@@ -53,9 +46,7 @@ export async function quitApp() {
 function fitWindow() {
   const compact = innerWidth <= 640 || innerHeight <= 480;
   const changed = document.body.classList.contains('compact') !== compact;
-  const focused =
-    changed &&
-    ['yard-controls-panel', 'play-panel', 'yard-context-menu'].some(id => $(id)?.contains(document.activeElement));
+  const focused = changed && CONTROL_MENUS.some(id => $(id)?.contains(document.activeElement));
   document.body.classList.toggle('compact', compact);
   if (changed && $('play-panel')?.hidden !== false) closeControls(focused);
 }
@@ -118,7 +109,7 @@ export function setupWindow() {
         return;
       }
       if ($('side-panel')?.hidden === false) return;
-      if (['yard-controls-panel', 'play-panel', 'yard-context-menu'].some(id => $(id) && !$(id).hidden)) {
+      if (CONTROL_MENUS.some(id => $(id) && !$(id).hidden)) {
         event.preventDefault();
         closeControls();
         return;

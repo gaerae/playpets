@@ -27,17 +27,20 @@ pub fn act(app: &AppHandle, id: &str) {
         "settings" => open(json!({"type": "open-panel", "panel": "settings"})),
         "friends" => open(json!({"type": "open-panel", "panel": "pet"})),
         "invite" => open(json!({"type": "open-panel", "panel": "invite"})),
+        "play" => open(json!({"type": "open-play"})),
+        "scene" => open(json!({"type": "open-scene"})),
         "about" => open(json!({"type": "open-panel", "panel": "settings", "section": "about"})),
         // The page shows the update when one was found, and checks on its Settings tab otherwise.
         "update" => open(json!({"type": "check-update"})),
         // The switches save to disk, which the main loop (where menu callbacks run) never waits for.
-        "desktop" | "wander" | "sound" => {
+        "desktop" | "wander" | "grass" | "sound" => {
             let (app, id) = (app.clone(), id.to_string());
             tauri::async_runtime::spawn_blocking(move || {
                 let state = app.state::<Shared>();
                 let flipped = match id.as_str() {
                     "desktop" => crate::app::toggle_desktop(&app, lock(&state)).map(drop),
                     "wander" => crate::app::toggle_wander(&app, lock(&state)).map(drop),
+                    "grass" => crate::app::toggle_grass(&app, lock(&state)).map(drop),
                     _ => crate::app::commit(&app, &state, |d| {
                         d.prefs.sound.on = !d.prefs.sound.on;
                         Ok(Value::Null)
@@ -104,6 +107,15 @@ fn choices_for(
     out.then(|| vec![take_in])
 }
 
+/// What a right click on a grass end offers, as (menu id, label): the whole floor again, or none.
+pub fn grass_choices() -> Vec<(String, String)> {
+    use crate::i18n::t;
+    vec![
+        ("grass-full".to_string(), t("desktop.grass_full")),
+        ("grass-off".to_string(), t("desktop.grass_off")),
+    ]
+}
+
 /// Shows `choices` where the pointer is, over the overlay window `label`.
 pub fn pop_desktop_menu(app: &AppHandle, label: &str, choices: &[(String, String)]) -> tauri::Result<()> {
     use tauri::menu::{Menu, MenuItem};
@@ -130,6 +142,25 @@ fn desktop_act(app: &AppHandle, id: &str) {
             if let Err(e) = crate::app::put_on_desktop(&app, lock(&state), &item, false) {
                 warn(&app, &mut lock(&state), e);
             }
+        });
+    } else if id == "grass-full" || id == "grass-off" {
+        let (app, full) = (app.clone(), id == "grass-full");
+        tauri::async_runtime::spawn_blocking(move || {
+            let state = app.state::<Shared>();
+            let d = lock(&state);
+            // The menu stayed open a while: only what is still true is done.
+            if !d.prefs.grass {
+                return;
+            }
+            let done = if full {
+                crate::app::keep_grass(&app, d, crate::desktop::grass::Span::default())
+            } else {
+                crate::app::toggle_grass(&app, d).map(drop)
+            };
+            if let Err(e) = done {
+                warn(&app, &mut lock(&state), e);
+            }
+            crate::tray::rebuild(&app);
         });
     }
 }
@@ -194,6 +225,8 @@ pub fn app_menu(
             &line()?,
             &item("friends", "menu.friends", Some("CmdOrCtrl+1"))?,
             &item("invite", "menu.invite", Some("CmdOrCtrl+2"))?,
+            &item("play", "menu.play", Some("CmdOrCtrl+3"))?,
+            &item("scene", "menu.scene", Some("CmdOrCtrl+4"))?,
             &line()?,
             &CheckMenuItem::with_id(
                 app,
@@ -227,6 +260,16 @@ mod tests {
     use super::*;
     use crate::pets::garden::{Decor, Garden};
     use crate::pets::model::create_pet;
+
+    #[test]
+    fn a_right_click_on_the_grass_spreads_it_again_or_rolls_it_up() {
+        let choices = grass_choices();
+        let ids: Vec<&str> = choices.iter().map(|(id, _)| id.as_str()).collect();
+        assert_eq!(ids, ["grass-full", "grass-off"]);
+        for (id, label) in &choices {
+            assert!(!label.starts_with("desktop."), "{id} has its words");
+        }
+    }
 
     #[test]
     fn a_right_click_on_the_desktop_talks_to_a_friend_or_takes_a_thing_off_it() {

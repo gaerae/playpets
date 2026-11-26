@@ -58,9 +58,9 @@ const PAPER_TINT = 16;
 // wide, and white that runs on down (a snowy ridge, foam) is painted.
 const PAPER_DEPTH = 4;
 
-/** Turns the patches of paper white no lower than PAPER_DEPTH under the sky's lowest point in each
- * column into sky, in place; returns how many pixels changed. */
-export function clearPaper(pixels, width, height) {
+// Each patch of paper white no lower than PAPER_DEPTH under the sky's lowest point in its column,
+// with the land round it (not paper, not sky), for `keep` to choose from.
+function paperPatches(pixels, width, height, keep) {
   const size = width * height,
     sky = i => pixels[i * 4 + 3] < LAND;
   const paper = i => {
@@ -72,11 +72,12 @@ export function clearPaper(pixels, width, height) {
   };
   const lowest = new Int32Array(width).fill(-1);
   for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) if (sky(y * width + x)) lowest[x] = y;
-  const seen = new Uint8Array(size);
-  let cleared = 0;
+  const seen = new Uint8Array(size),
+    chosen = [];
   for (let start = 0; start < size; start++) {
     if (seen[start] || !paper(start)) continue;
-    const patch = [start];
+    const patch = [start],
+      ring = new Set();
     seen[start] = 1;
     let above = true;
     for (let k = 0; k < patch.length; k++) {
@@ -92,17 +93,46 @@ export function clearPaper(pixels, width, height) {
       ]) {
         if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
         const q = ny * width + nx;
-        if (!seen[q] && paper(q)) {
-          seen[q] = 1;
-          patch.push(q);
-        }
+        if (paper(q)) {
+          if (!seen[q]) {
+            seen[q] = 1;
+            patch.push(q);
+          }
+        } else if (!sky(q)) ring.add(q);
       }
     }
-    if (!above) continue;
-    for (const p of patch) pixels[p * 4 + 3] = 0;
-    cleared += patch.length;
+    if (above && keep(ring)) chosen.push(...patch);
   }
-  return cleared;
+  for (const p of chosen) pixels[p * 4 + 3] = 0;
+  return chosen;
+}
+
+/** Turns the patches of paper white no lower than PAPER_DEPTH under the sky's lowest point in each
+ * column into sky, in place; returns how many pixels changed. */
+export function clearPaper(pixels, width, height) {
+  return paperPatches(pixels, width, height, () => true).length;
+}
+
+// A hole the sky shows through between leaves has leaves round it: darker than this (the mean of
+// red, green and blue), or green, with more green than blue by HOLE_GREEN. Snow's shading is light
+// and lilac, a blossom's pink.
+const HOLE_RING = 200;
+const HOLE_GREEN = 12;
+
+/** For a picture that keeps its white (snow, blossom): turns into sky only the patches of paper
+ * white, no lower than PAPER_DEPTH under the sky in their column, that leaves surround; in place.
+ * Returns the pixels cleared, for softenSkyEdge to soften round them alone. */
+export function clearHoles(pixels, width, height) {
+  return paperPatches(pixels, width, height, ring => {
+    if (!ring.size) return false;
+    let light = 0,
+      green = 0;
+    for (const j of ring) {
+      light += (pixels[j * 4] + pixels[j * 4 + 1] + pixels[j * 4 + 2]) / 3;
+      green += pixels[j * 4 + 1] - pixels[j * 4 + 2];
+    }
+    return light / ring.size < HOLE_RING || green / ring.size > HOLE_GREEN;
+  });
 }
 
 /** Whether a picture's edge is soft already: most land that touches the sky is part clear. A cut
@@ -119,14 +149,24 @@ export function softened(pixels, width, height) {
   return edge > 0 && soft * 2 > edge;
 }
 
-/** Softens the line where a picture's land meets its clear sky, in place (8-bit RGBA). */
-export function softenSkyEdge(pixels, width, height) {
+/** Softens the line where a picture's land meets its clear sky, in place (8-bit RGBA). With `only`
+ * (pixels just cleared, clearHoles), only the land round those is softened, so the rest of the
+ * line, soft already, is not worn down. */
+export function softenSkyEdge(pixels, width, height, only = null) {
   const d = skyDistance(pixels, width, height),
     out = new Uint8Array(pixels);
+  // Distance to the pixels just cleared alone: the land farther from them than BAND is left be.
+  let near = null;
+  if (only) {
+    const mask = new Uint8Array(width * height * 4).fill(255);
+    for (const p of only) mask[p * 4 + 3] = 0;
+    near = skyDistance(mask, width, height);
+  }
   for (let y = 0; y < height; y++)
     for (let x = 0; x < width; x++) {
       const i = y * width + x,
         o = i * 4;
+      if (near && near[i] > BAND) continue;
       if (!d[i]) {
         out[o] = out[o + 1] = out[o + 2] = out[o + 3] = 0;
         continue;

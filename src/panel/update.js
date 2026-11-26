@@ -1,4 +1,4 @@
-// App updates: the version waiting, its download and install, the Store's page for a Store copy,
+// App updates: the version waiting, its download and install (by Microsoft Store for a Store copy),
 // and the note after an update. The controls sit in Settings and as a pill beside the places.
 
 import { closeUpdateDetails } from '../core/controls.js';
@@ -148,17 +148,23 @@ export function updateStatus(status) {
 }
 async function install() {
   if (installing || !found) return;
-  // The Store downloads and installs it; this only opens PlayPets' page there.
-  if (data.updateChannel === 'store') return call('installUpdate');
   installing = true;
   updateStage = { phase: 'downloading' };
   updateError = '';
   renderUpdate();
   paintUpdateDetails();
-  remember(RESTART_KEY, JSON.stringify({ version: found.version, from: data.version }));
+  // A Store copy is reopened by Windows, and the version after boot tells it (LAST_KEY).
+  if (data.updateChannel !== 'store')
+    remember(RESTART_KEY, JSON.stringify({ version: found.version, from: data.version }));
   try {
-    // On success the app restarts and this never returns, unless the download was called off.
-    if ((await call('installUpdate'))?.cancelled) stopInstalling();
+    // The app's own update restarts it, so this returns only when it was called off. The Store's
+    // returns too when the Store could only open its page, or installed it with this copy still open.
+    const result = await call('installUpdate');
+    if (result?.installed) {
+      found = null;
+      toast(t('update.store_reopen'));
+    }
+    if (result) stopInstalling();
   } catch (error) {
     updateError = error.message;
     stopInstalling();

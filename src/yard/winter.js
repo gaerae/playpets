@@ -4,6 +4,7 @@
 // another season was picked by hand since. Only an outdoor place asks: a room shows no yard to snow on.
 
 import { confirmAction } from '../core/confirm.js';
+import { OVER_YARD } from '../core/controls.js';
 import { t } from '../core/i18n.js';
 import { selectedSeason, systemSouth } from '../core/season.js';
 import { call, data } from '../core/state.js';
@@ -27,12 +28,20 @@ export function winterOver(date, asked) {
   return !!asked?.previous && date >= new Date(asked.year + 1, 0, 8);
 }
 
-/** Whether the person is busy with something else: typing in a field, or in another dialog. The
- * question waits for a later minute, so a key meant for that field never answers it. */
+// Where a person works with something else open over the yard: a side panel (Settings, a chat), a
+// dock panel, or a tool's strip.
+const BUSY_PANELS = [...OVER_YARD, 'discovery-target'];
+/** Whether the person is busy with something else: typing in a field, in another dialog, or in a
+ * panel or tool. The question waits for a later minute, so a key meant for that field never answers
+ * it and it never lands on Settings half done. */
 export function occupied(doc = globalThis.document) {
   const at = doc?.activeElement;
   const typing = !!at && (at.localName === 'input' || at.localName === 'textarea' || !!at.isContentEditable);
-  return typing || [...(doc?.querySelectorAll?.('dialog') ?? [])].some(dialog => dialog.open);
+  const panel = BUSY_PANELS.some(id => {
+    const el = doc?.getElementById?.(id);
+    return !!el && !el.hidden;
+  });
+  return typing || panel || [...(doc?.querySelectorAll?.('dialog') ?? [])].some(dialog => dialog.open);
 }
 
 /** A season the person picked by hand during the lights is this year's answer, when it is not

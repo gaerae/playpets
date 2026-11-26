@@ -53,7 +53,11 @@ export function openFriendSettings(focus) {
         ? t('pet.persona_help_chat')
         : t('pet.persona_help');
   $('use-intro').hidden = !intro || $('pet-persona').value.includes(intro);
-  relation().value = p.relation || '';
+  // A friend is the card with no value, which a radio list's own value setter never checks; a
+  // relationship no card offers is a friend too, as the Friend tab's chip says.
+  const cards = [...relation()],
+    chosen = cards.some(card => card.value === p.relation) ? p.relation : '';
+  for (const card of cards) card.checked = card.value === chosen;
   callMeHint();
   $('pet-call-me').value = p.callMe || '';
   const original = data.assets.find(a => a.id === p.assetId);

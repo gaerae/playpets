@@ -3,9 +3,10 @@
 // as the backend keeps it) and yard pixels.
 
 import { clamp } from '../core/math.js';
+import { cellHeight } from '../core/sprites.js';
 import { $ } from '../core/state.js';
 import { environmentFrame, environmentLake } from './environment.js';
-import { composition } from './layout.js';
+import { composition, lakeShape, trace } from './layout.js';
 import { scene } from './world.js';
 import { worldAllows, worldFor, worldHasSoil } from './worlds.js';
 
@@ -134,7 +135,7 @@ export function depthScaleAt(px, py) {
   const top = edgeShape()?.far ?? topAt(px);
   return depthScale((py - top) / Math.max(1, yardSize.height - TAG_ROOM - top));
 }
-export const petHeight = p => (sizeOf(p) * 208) / 192;
+export const petHeight = p => cellHeight(sizeOf(p));
 /** Where a friend's feet are in the yard: the middle of its bottom edge. */
 export const footOf = v => ({ x: v.px + sizeOf(v.pet) / 2, y: v.py + petHeight(v.pet) });
 /** Where a friend's drawing is in the yard, shrunk by its depth about its feet (views.js place):
@@ -198,6 +199,23 @@ export function field() {
   if (!yardSize.width) measureYard();
   const { width, height } = yardSize;
   return { width, height, top: height * fieldTop(), bottom: height - footRoom() };
+}
+// The lake as it lies in the yard now: the same shape the painter draws (layout.js lakeShape), or the
+// picture's own water once the illustrated yard shows; made again only when the yard changes.
+let lakeKey = '',
+  lakeArea = null;
+/** The lake in yard pixels, as drawn now (fishing, catch.js; the hand on the water, show-how.js). */
+export function lakeNow() {
+  const { width, height } = field(),
+    illustrated = $('yard').dataset.environment === 'illustrated',
+    key = `${width}x${height}:${illustrated}:${scene.world}`;
+  if (key !== lakeKey) {
+    lakeKey = key;
+    lakeArea = illustrated
+      ? environmentLake(width, height, scene)
+      : lakeShape(width, height, trace(composition.curves[composition.lake.under], width, height));
+  }
+  return lakeArea;
 }
 /** The box a friend's place (0 to 1 each way) spans, in yard pixels: its width, and its top and
  * height at the field's line, or, given the place's `x`, where the field begins at its feet. */

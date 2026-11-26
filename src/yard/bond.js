@@ -48,7 +48,7 @@ function celebrate(id, level) {
   if (!v) return;
   pose(v, 'jump', 1300);
   cue('level');
-  for (let k = 0; k < 3; k++) setTimeout(() => views.has(id) && effect(v, '♥'), k * 220);
+  for (let k = 0; k < 3; k++) setTimeout(() => views.has(id) && effect(v, 'heart'), k * 220);
   bubble(v, lineFor(v.pet, 'bond.up_line'), 3200);
   showCard(
     heartSvg(level),
@@ -57,7 +57,8 @@ function celebrate(id, level) {
     false,
   );
 }
-/** Something done together with a friend: `reason` is time, pat, treat, chat, water, catch or gift. */
+/** Something done together with a friend: `reason` is time, pat, treat, chat, water, catch, dig, play
+ * or gift. */
 export function befriend(id, reason) {
   if (!id) return;
   call('befriend', id, reason, localDay(new Date()))
