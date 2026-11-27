@@ -1,7 +1,7 @@
 // Faint footprint trails cross the winter yard and fade (src/yard/trails.js): drawn once as static
 // marks, checked with the scene, remembered for the day in webview storage.
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import test from 'node:test';
 import './support/content.mjs';
 import { installDom, installStorage } from './support/dom.mjs';
@@ -227,6 +227,37 @@ test("the prints are the snowman trail's shade by day, deeper at night", async (
     /\.period-night \.trail,\s*\.period-night \.trail-end\s*\{[^}]*--snow-print:\s*([^;]+);/,
   )?.[1];
   assert.ok(night && night.trim() !== day, 'night has its own, deeper shade');
+});
+
+// The prints' svg spans the yard but draws a band across it. A CSS blur() there is cut off at the
+// prints' own box, and after some resizes WebKit paints a magenta line along that box's edge. The blur
+// is an SVG filter over the whole box instead, as the -drawing filters are, with the same softness.
+test('the prints are softened over the whole yard, never by a blur fitted to the prints', async () => {
+  const css = await readFile('src/styles/garden.css', 'utf8'),
+    html = await readFile('src/index.html', 'utf8');
+  const rule = css.match(/\n\.trail\s*\{([^}]*)\}/)?.[1] ?? '';
+  assert.doesNotMatch(rule, /blur\(/);
+  assert.match(rule, /filter:\s*var\(--print-soft\);/);
+  for (const [period, selector, deviation] of [
+    ['day', '\\.trail,\\s*\\.trail-end', '0.45'],
+    ['evening', '\\.period-evening \\.trail,\\s*\\.period-evening \\.trail-end', '0.5'],
+    ['night', '\\.period-night \\.trail,\\s*\\.period-night \\.trail-end', '0.4'],
+  ]) {
+    const id = css.match(new RegExp(`${selector}\\s*\\{[^}]*--print-soft:\\s*url\\(#([\\w-]+)\\);`))?.[1];
+    assert.ok(id, `${period} names its filter`);
+    const filter = html
+      .match(new RegExp(`<filter id="${id}"([^>]*)>(.*?)</filter>`))
+      ?.slice(1)
+      .join('');
+    assert.ok(filter, `${period}: #${id} is in the page`);
+    assert.match(filter, /filterUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%"/, period);
+    assert.match(filter, new RegExp(`<feGaussianBlur stdDeviation="${deviation}"/>`), period);
+  }
+  // No other svg is blurred by a CSS function either.
+  for (const file of await readdir('src/styles'))
+    for (const [, selector, body] of (await readFile(`src/styles/${file}`, 'utf8')).matchAll(/([^{}]+)\{([^}]*)\}/g))
+      if (/\bsvg\b|\.trail(?![\w-])/.test(selector))
+        assert.doesNotMatch(body, /filter:[^;]*blur\(/, `${file}: ${selector.trim()}`);
 });
 
 test('a new size lays the trail out again, the same friend', t => {

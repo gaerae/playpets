@@ -1579,23 +1579,25 @@
 /* ---- footprint trails across the winter yard (yard/trails.js) ---- */
 /* The prints are the snow's own cool shadow, the shade the snowman's rolling ball leaves
    (snow-trail.js TRAIL_RGB), softened and blurred; at night a deeper blue, a little stronger and
-   sharper, so they stay faint but can still be found on the darker snow. */
+   sharper, so they stay faint but can still be found on the darker snow. The blur is an SVG filter
+   over the whole yard (index.html #print-soft): a CSS blur() is cut off at the prints' own box, and
+   after a resize WebKit can leave a magenta line along that box's edge. */
 .trail,
 .trail-end {
   --snow-print: rgb(150 176 214);
   --print-strength: 1.7;
-  --print-blur: 0.45px;
+  --print-soft: url(#print-soft);
 }
 .period-evening .trail,
 .period-evening .trail-end {
   --snow-print: rgb(112 132 176);
-  --print-blur: 0.5px;
+  --print-soft: url(#print-soft-evening);
 }
 .period-night .trail,
 .period-night .trail-end {
   --snow-print: rgb(42 52 86);
   --print-strength: 1.05;
-  --print-blur: 0.4px;
+  --print-soft: url(#print-soft-night);
 }
 /* The bush keeps its shape at night and loses its daylight toward the night's blue, as the gifts do. */
 .period-night .trail-end svg {
@@ -1609,7 +1611,7 @@
   overflow: visible;
   color: var(--snow-print);
   opacity: calc(var(--trail-opacity, 0.6) * var(--print-strength));
-  filter: blur(var(--print-blur));
+  filter: var(--print-soft);
   pointer-events: none;
   transition: opacity 3s;
 }

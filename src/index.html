@@ -148,6 +148,10 @@
                 <filter id="rain-light-drawing" filterUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.418 0.117 0.012 0 0.107 0.035 0.5 0.012 0 0.142 0.035 0.117 0.394 0 0.174 0 0 0 1 0"/></filter>
                 <filter id="morning-rain-light-drawing" filterUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.459 0.171 0.017 0 0.169 0.051 0.579 0.017 0 0.142 0.051 0.171 0.425 0 0.109 0 0 0 1 0"/></filter>
                 <filter id="evening-rain-light-drawing" filterUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.318 0.135 0.014 0 0.248 0.04 0.413 0.014 0 0.172 0.04 0.135 0.291 0 0.127 0 0 0 1 0"/></filter>
+                <!-- The footprints' softness (garden.css --print-soft), over the whole yard: a CSS blur() is cut off at the prints' own box. -->
+                <filter id="print-soft" filterUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%"><feGaussianBlur stdDeviation="0.45"/></filter>
+                <filter id="print-soft-evening" filterUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%"><feGaussianBlur stdDeviation="0.5"/></filter>
+                <filter id="print-soft-night" filterUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%"><feGaussianBlur stdDeviation="0.4"/></filter>
                 <!-- Christmas night's sleigh over the moon (scenery.css): its shape in the night sky's darkest blue. -->
                 <filter id="sleigh-silhouette" color-interpolation-filters="sRGB"><feFlood flood-color="#161e36"/><feComposite in2="SourceAlpha" operator="in"/></filter>
               </defs></svg>
