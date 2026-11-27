@@ -435,7 +435,7 @@ fn lawn_view((mon, ends): (&Mon, (f64, f64))) -> Value {
 }
 
 /// Whether the grass's screen takes the pointer for the grass (`lawn`, as `ground` gives it) at
-/// `now`: anywhere on it while an end is dragged (until the page stops telling,
+/// `now`: wherever the pointer is while an end is dragged (until the page stops telling,
 /// grass::DRAG_STALE), else on an end the pointer has rested on (grass::DWELL).
 fn grass_takes(d: &mut Inner, lawn: Option<(&Mon, (f64, f64))>, cursor: Option<(f64, f64)>, now: Instant) -> bool {
     let (Some((mon, ends)), Some(c)) = (lawn, cursor) else {
@@ -445,7 +445,9 @@ fn grass_takes(d: &mut Inner, lawn: Option<(&Mon, (f64, f64))>, cursor: Option<(
     };
     let area = mon.area;
     match d.grass_drag {
-        Some(at) if now.saturating_duration_since(at) < grass::DRAG_STALE => return area.contains(c),
+        // Off the work area too: a pull that drifts down onto the Dock or the taskbar, or past the
+        // screen's side, keeps its window and its cursor until it is let go.
+        Some(at) if now.saturating_duration_since(at) < grass::DRAG_STALE => return true,
         Some(_) => d.grass_drag = None,
         None => {}
     }
@@ -1884,6 +1886,9 @@ mod tests {
         );
         d.grass_drag = Some(t0);
         assert!(takes(&mut d, Some((900.0, 300.0)), t0), "a drag takes the whole screen");
+        // The work area ends at 825, above the Dock: pulled down onto it mid-drag, the pull goes on.
+        assert!(takes(&mut d, Some((900.0, 870.0)), t0), "past the work area too");
+        assert!(takes(&mut d, Some((2000.0, 300.0)), t0), "or off the screen's side");
         assert!(
             !takes(&mut d, Some((900.0, 300.0)), t0 + grass::DRAG_STALE),
             "a drag unheard of ends by itself"
