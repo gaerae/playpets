@@ -24,7 +24,7 @@ import { stateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
 import { decorTarget } from './decor.js';
 import { keepDuty } from './duty.js';
-import { bodiesApart, bodyInField, EDGE, geometry, petHeight, sizeOf, yardToField } from './field.js';
+import { bodiesApart, bodyInField, EDGE, footTarget, geometry, petHeight, sizeOf, yardToField } from './field.js';
 import { GAME_PACE } from './games.js';
 import { visitTarget } from './garden.js';
 import { loungeTarget, sitOut } from './lounge.js';
@@ -33,25 +33,44 @@ import { endLookFirst, sendTo } from './trips.js';
 import { fitHit, followPointer, place, pose, settle } from './views.js';
 import { groundFor } from './walk-here.js';
 import { WANDER_DELAY, wanderTarget } from './wander.js';
+import { crossesFurniture, wayAround } from './workspace.js';
 
 // How far a friend walks in a millisecond, in its own body lengths: strolling, and going somewhere.
 // In the yard's width instead, friends raced across a wide window (three bodies a second on a full
 // screen); in body lengths they step the same in any window.
 export const STROLL = 0.0008;
 export const WALK = 0.002;
-// Where a friend's feet are when it stands at a place (0 to 1 each way), as the ground measures
-// the water and what stands on the field.
-function feetAt(v, at) {
-  return yardToField(...feetInYard(v, at));
-}
+// Where a friend's feet are in the yard, in pixels, when it stands at a place (0 to 1 each way).
 const feetInYard = (v, at) => {
   const { w, h, top } = geometry(v.pet, at.x);
   return [EDGE + at.x * w + sizeOf(v.pet) / 2, top + at.y * h + petHeight(v.pet)];
 };
-// A stroll the ground allows (walk-here.js groundFor), between two places the friend may stand.
+// A stroll the ground allows (walk-here.js groundFor), between two places the friend may stand,
+// and not over a workspace's furniture.
 function dryStroll(v) {
   const allows = groundFor(v);
-  return (from, to) => allows(feetAt(v, from), ...feetInYard(v, to));
+  return (from, to) => {
+    const a = feetInYard(v, from),
+      b = feetInYard(v, to);
+    return allows(yardToField(...a), ...b) && !crossesFurniture({ x: a[0], y: a[1] }, { x: b[0], y: b[1] });
+  };
+}
+// Where a friend heads now on its way to its target: the next point around a workspace's furniture
+// (workspace.js wayAround), or the target. The way is measured once for each target, and a point is
+// passed once the friend is there.
+function aimOf(v) {
+  if (v.around?.for !== v.target) {
+    const feet = at => {
+      const [x, y] = feetInYard(v, at);
+      return { x, y };
+    };
+    // About half its body clear of the furniture.
+    const points = wayAround(feet(v), feet(v.target), sizeOf(v.pet) * (v.depth ?? 1) * 0.3);
+    v.around = { for: v.target, points: points.map(p => footTarget(v, p.x, p.y, 0)) };
+  }
+  const { points } = v.around;
+  while (points.length && Math.hypot(points[0].x - v.x, points[0].y - v.y) < 0.012) points.shift();
+  return points[0] ?? v.target;
 }
 // The ground a turning walk keeps to (dryStroll), measured once for each place it heads for.
 function arcGround(v) {
@@ -187,10 +206,13 @@ export function moveFriends(now, dt) {
     // Where the body leans this frame: set by a walk's change of pace, a pull or a look below.
     let tilt = 0;
     if (v.target && !v.drag && !v.frozen) {
-      const dx = v.target.x - v.x,
-        dy = v.target.y - v.y;
+      // With reduced motion it is set down where it goes, so there is no way to walk.
+      const aim = reduced.matches ? v.target : aimOf(v),
+        on = aim !== v.target;
+      const dx = aim.x - v.x,
+        dy = aim.y - v.y;
       const distance = Math.hypot(dx, dy);
-      if (distance < 0.012 || reduced.matches) {
+      if ((distance < 0.012 && !on) || reduced.matches) {
         const trip = v.trip;
         v.x = v.target.x;
         v.y = v.target.y;
@@ -223,10 +245,12 @@ export function moveFriends(now, dt) {
         // a walk looks as quick in any window and any way it goes. It speeds up from a stand and
         // slows into its stop (core/physics.js), unless it only passes through, and the body leans
         // with the change.
-        const left = bodiesApart(v.pet, v, v.target),
+        const left = bodiesApart(v.pet, v, aim),
           pace = v.speed || (v.trip?.slow ? STROLL * (v.own ? paceOf(v) : 1) : WALK),
           was = v.vel ?? 0;
-        v.vel = rampPace(was, pace, v.trip?.through ? Infinity : left, span);
+        // A point on the way round is walked past at its pace, as a stop passed through is.
+        const past = v.trip?.through || on;
+        v.vel = rampPace(was, pace, past ? Infinity : left, span);
         // It heads the way it goes on the screen, turning toward a new way in an arc; a game's run
         // and the last body length go straight.
         const { w, h } = geometry(v.pet, v.x),
@@ -239,12 +263,12 @@ export function moveFriends(now, dt) {
           });
         v.heading =
           v.speed || !was || left <= 1 || v.heading == null ? want : turnToward(v.heading, want, TURN_RATE * span);
-        let next = walked >= left ? v.target : toward(v.heading);
+        let next = walked >= left ? aim : toward(v.heading);
         // An arc leaves the line its stroll was checked on, so each of its steps is checked (the
         // arc's chord), and the straight way on from where it lands: one onto water, a flower, a gift
         // or furniture heads straight there instead, on the way the step before checked.
-        const allows = next !== v.target && v.heading !== want && arcGround(v);
-        if (allows && !(allows({ x: v.x, y: v.y }, next) && allows(next, v.target))) {
+        const allows = next !== aim && v.heading !== want && arcGround(v);
+        if (allows && !(allows({ x: v.x, y: v.y }, next) && allows(next, aim))) {
           v.heading = want;
           next = toward(want);
         }
@@ -253,7 +277,7 @@ export function moveFriends(now, dt) {
         v.x = next.x;
         v.y = next.y;
         const side = sideOf(v, Math.cos(v.heading), Math.sin(v.heading), now);
-        stepLegs(v, walked, span, left - walked, was);
+        stepLegs(v, walked, span, past ? Infinity : left - walked, was);
         pose(v, side, 150);
         place(v, { glide: walking });
       }

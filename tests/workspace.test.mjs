@@ -10,14 +10,14 @@ globalThis.playPets = { updatePet: async () => ({ ok: true, data: null }) };
 const { reduced } = await import('../src/core/sprites.js');
 const { setData, views } = await import('../src/core/state.js');
 const { FADE_MS } = await import('../src/core/status.js');
-const { DEPTH_FAR, depthScale, EDGE, field, footTarget, geometry, measureYard, sizeOf, yardZoom } =
+const { DEPTH_FAR, depthScale, EDGE, field, footOf, footTarget, geometry, measureYard, sizeOf, yardZoom } =
   await import('../src/yard/field.js');
 const { moveFriends } = await import('../src/yard/motion.js');
 const { scene } = await import('../src/yard/world.js');
 const { useWorlds, worldHasSoil, worlds } = await import('../src/yard/worlds.js');
-const { blocked, frontsIn, stationAt } = await import('../src/yard/workspace.js');
+const { blocked, crossesFurniture, frontsIn, stationAt, wayAround } = await import('../src/yard/workspace.js');
 const { loungeTarget, sitOut } = await import('../src/yard/lounge.js');
-const { forPerson, release, rest } = await import('../src/yard/trips.js');
+const { forPerson, release, rest, sendTo } = await import('../src/yard/trips.js');
 const { dutyAfresh, station } = await import('../src/yard/duty.js');
 
 // A picture of 1536 by 1024 in a yard of the same size: its fractions are the yard's.
@@ -352,6 +352,57 @@ test('furniture blocks the end of a stroll, as a tree does', t => {
   assert.equal(blocked(1536 * 0.3 + 1536 * 0.059, 1024 * 0.58), true);
   assert.equal(blocked(1536 * 0.5, 1024 * 0.58), false);
   assert.equal(blocked(1536 * 0.3, 1024 * 0.62), false);
+});
+
+// Feedback: in the garden workshop friends walked over the tables, as only a stroll's end kept off
+// them. A walk across furniture goes around it, and into or out of a seat behind it from behind.
+const P = (x, y) => ({ x: 1536 * x, y: 1024 * y });
+const clearAll = path => path.slice(1).every((p, i) => !crossesFurniture(path[i], p));
+test('a walk across furniture goes around it; one clear of it goes straight', t => {
+  inRoom(t);
+  assert.equal(crossesFurniture(P(0.3, 0.7), P(0.3, 0.5)), true);
+  assert.equal(crossesFurniture(P(0.5, 0.7), P(0.5, 0.5)), false);
+  // Set down on it, a friend walks off it.
+  assert.equal(crossesFurniture(P(0.3, 0.6), P(0.3, 0.7)), false);
+  assert.deepEqual(wayAround(P(0.5, 0.7), P(0.5, 0.5)), []);
+  const way = wayAround(P(0.3, 0.7), P(0.3, 0.5));
+  assert.ok(way.length >= 2, 'by a front corner and a back one');
+  assert.ok(clearAll([P(0.3, 0.7), ...way, P(0.3, 0.5)]));
+  for (const p of way) assert.equal(blocked(p.x, p.y), false);
+});
+
+test('a friend goes to a seat behind furniture from behind it, and leaves it the same way', t => {
+  inRoom(t);
+  const seat = P(0.3, 0.57),
+    back = 1024 * (0.58 - 0.03);
+  assert.equal(blocked(seat.x, seat.y), true, 'the seat is on the furniture, under its front');
+  const into = wayAround(P(0.3, 0.75), seat);
+  assert.ok(into.at(-1).y < back, 'the last step in comes from behind');
+  assert.ok(clearAll([P(0.3, 0.75), ...into]));
+  const out = wayAround(seat, P(0.3, 0.75));
+  assert.ok(out[0].y < back, 'the first step out goes behind');
+  assert.ok(clearAll([...out, P(0.3, 0.75)]));
+  // Already behind it, a friend sits straight down.
+  assert.deepEqual(wayAround(P(0.3, 0.45), seat), []);
+});
+
+test('a friend sent across furniture walks around it and arrives', t => {
+  inRoom(t);
+  const a = friend('a');
+  Object.assign(a, at(a, 0.3, 0.72));
+  const { w, h, top } = geometry(a.pet, a.x);
+  a.px = EDGE + a.x * w;
+  a.py = top + a.y * h;
+  let arrived = 0;
+  sendTo(a, at(a, 0.3, 0.46), { save: false, arrive: () => arrived++ });
+  a.leftAt = 0;
+  let now = 1000;
+  for (let i = 0; i < 2000 && !arrived; i++) {
+    moveFriends((now += 16), 16);
+    const feet = footOf(a);
+    assert.equal(blocked(feet.x, feet.y), false, `step ${i} at ${Math.round(feet.x)},${Math.round(feet.y)}`);
+  }
+  assert.equal(arrived, 1);
 });
 
 test("a desk's front is drawn over a friend whose feet are behind its foot line", async t => {
