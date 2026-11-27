@@ -12,21 +12,25 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ### Added
 
-- Tulips, cosmos, sunflowers, lavender, hydrangeas and camellias bloom as a patch outdoors and on the desktop. Their menu offers **One bloom** or **A patch**, so each flower can be a single stem again; in the garden workshop they stay one bloom in a pot.
+- Every flower can bloom as a patch outdoors and on the desktop. Its menu offers **One bloom** or **A patch**, so each one can be a single stem again; in the garden workshop flowers stay one bloom in a pot.
 - A flower, a tree or a gift answers a press, in the yard and on the desktop: a flower bobs and drops a few of its petals, a tree rustles and lets a few leaves go in its season's colours (snow in winter), and a gift bobs. Nothing moves with reduced motion.
+- A gift or a find set out in the yard answers a press as it does on the desktop: a pinwheel spins, a wind chime swings, a lamp switches, and a fish swims, a bug flutters or a treasure twinkles. As it moves, each album book's finds let out their own bits: bubbles, glints, sparkles or hearts.
 - Now and then a friend standing near what you pressed says something about it, in the yard and on the desktop.
 - Something sent to the desktop while PlayPets runs arrives: a friend drops in from above, lands in a puff of dust and waves, and a gift, a flower or a tree pops up from its foot while the nearest friend hops over to greet it. Nothing moves with reduced motion.
 
 ### Changed
 
-- Choosing where to plant a tree shows its sapling standing on a patch of soil at the spot, at the size it will grow from; where it cannot go, the sapling greys and leans with a small "no" sign beside it.
+- Digging, planting a tree and planting seeds choose a spot the same way: a patch of soil under the pointer holds a see-through sapling or seed at the size it will be (indoors, the pot a seed goes in); where nothing can go it greys and leans with a small "no" sign beside it.
+- The tool strip shows what is in hand as a picture, a name and a count, and each sapling in its menu has its picture. With no seeds left the seed tool stays in hand, says where seeds come from and offers digging, as the tree tool does with no saplings; with the field full it says so before anyone walks off.
+- A click on the grass marks where a friend is walking with a small star pin bobbing over the spot, instead of a ring of bent grass. It is as big as a friend standing there, and smaller farther back.
+- Seven pictures that were easy to misread are drawn again: the freshwater pearl, the field cricket, the pond snail, the damselfly, the water deer, the morel and the wild garlic.
 - When a change cannot be saved, PlayPets tries again a few times at once, and its notice no longer blames the disk unless the disk really is full. If it keeps happening, Settings > About PlayPets > Copy problem report copies what went wrong since the app opened, failed saves and every other error, to paste into a report.
 
 ### Fixed
 
 - A friend walking toward you grows steadily, instead of shrinking and growing again on the woodland and lakeside places, whose far edge curves.
+- A friend strolling on its own walks straight across a place whose far edge rises, instead of bending up toward it and shrinking.
 - In the garden workshop friends walk around the tables, the shelves and the bench instead of over them, and reach a desk from behind it.
-- In a small window the ring a click on the grass leaves is as small as the friends, and smaller farther back.
 - Resizing the window in winter no longer leaves a thin pink line across the snow beside a footprint trail.
 - Opening **Play** no longer shows a sideways scrollbar on Windows.
 - Album cards stand the same height in every row, found or not, and can be chosen with the keyboard: arrow keys move between them, Enter or Space chooses one.

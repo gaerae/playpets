@@ -128,6 +128,7 @@ Flower seeds and saplings both come from [digging](#digging), never from friends
 1. Choose **Play → Garden → Plant a seed**. The number beside it is how many seeds you have.
 2. Click a spot on the field. Keep clicking to plant several; press **Esc** or the tool again to stop.
 
+- Under the pointer the seed shows in its soil (indoors, in its pot); where it can't go, it greys with a small no sign. The strip shows how many seeds are left, and with none outdoors it offers **Dig**.
 - Keyboard: press **Plant a seed** with Enter or Space, then again to plant beside the selected friend, as with the picnic.
 - With a tool in hand, keys 1, 2 and 3 switch to **Dig**, **Plant a tree** and **Plant a seed**. They do nothing while you type in a field.
 
@@ -152,7 +153,7 @@ What blooms depends on the season you planted in:
 | Click | It bobs and drops a few petals, and the nearest friend walks over to water it. Friends also visit flowers on their own, and now and then one standing near says something about it |
 | Drag, or arrow keys | Moves it; it keeps growing there |
 | Right-click → **Pull up**, or **Delete** or **Backspace** | Gone at once, no question. **Undo** in the notice brings it back for about six seconds; after that it's gone for good. If the app closes first, it stays. The seed doesn't come back |
-| Right-click → **One bloom** or **A patch** | Tulips, cosmos, sunflowers, lavender, hydrangeas and camellias bloom outdoors as a patch; this switches between the patch and a single stem. In the garden workshop they stand as one bloom in a pot |
+| Right-click → **One bloom** or **A patch** | Every flower can bloom outdoors as a patch; this switches between the patch and a single stem. In the garden workshop they stand as one bloom in a pot |
 | Right-click → **Show on desktop** | It grows on your desk too ([Desktop mode](./desktop.md#flowers-and-trees-on-the-desktop)) |
 
 - Limits: 20 seeds and 12 plants. A yard that had more before keeps them.

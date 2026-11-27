@@ -292,3 +292,11 @@ The rest of the desktop-first spike, and what a review and a tester found:
 - **Walking around furniture** (`workspace.js` `wayAround`): a walk that would cross a workspace's furniture passes its corners, the shortest way; a seat on its back half is reached and left from behind. The way is measured once per target (`motion.js` `aimOf`), and strolls over furniture are not chosen.
 - **Sizes follow the friend:** the walk ring scales by the friend's size and depth, and a patch takes its own width of ground (`growth.js` `plantBreadth`), so strolls and the waterer stay out of it.
 - **Saving:** a failed write is retried five times, 80 ms apart, unless the disk is full or read-only, and each failure is kept in the run's problem report (`problems.rs`), in memory, which Settings > About copies. The notice names a full disk only when it is one.
+
+## Follow-up: one ground tool (2026-11-27)
+Digging, a tree and a seed chose a spot three ways; they are one tool now (`discovery.js`, the seed's rules in `garden.js`):
+- **One marker.** Every tool marks the spot with soil and a see-through look of what goes in: nothing for a dig, the sapling, or the seed as it lies planted (`seedLook`). Indoors a seed shows the pot it goes in.
+- **One rule.** The marker and the press ask the same thing: ground for a dig or a tree, `seedSpot` for a seed, plus seeds in hand and room in the field (`noRoomForSeed`, as `noRoomForTree`).
+- **One hand row.** The strip shows what is spent as a picture, a name and a count: the sapling in hand, or the seed packet (a planted seed is a speck at 22 px). Each sapling in the menu has its picture. A dig spends nothing, so it has no row.
+- **Out of stock.** With no seeds the tool stays in hand, as a tree with no sapling, says where seeds come from and offers Dig; a room offers no dig it would refuse. A full field refuses the tool as a full yard of trees does.
+- The seed's flower stays a surprise chosen by the season.
