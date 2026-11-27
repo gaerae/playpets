@@ -5,6 +5,7 @@ import test from 'node:test';
 import './support/content.mjs';
 import { FLOWERS } from '../src/yard/catalog.js';
 import {
+  plantBreadth,
   FIRST_GIFT,
   flowerFor,
   GIFT_WAIT,
@@ -94,6 +95,16 @@ test('a flower with a patch blooms as its planted patch outdoors, unless set to 
   assert.deepEqual(plantLook({ kind: 'tulip' }, 'bloom', { outdoors: false }), { art: tulip.art, tall: 1, foot: 1 });
   assert.equal(hasPatch('tulip'), true);
   assert.equal(hasPatch('daffodil'), false);
+});
+
+test("a plant is as wide as it is drawn: its patch's width, or one bloom's times its stature", () => {
+  const tulip = FLOWERS.find(f => f.id === 'tulip'),
+    sunflower = FLOWERS.find(f => f.id === 'sunflower');
+  assert.equal(plantBreadth({ kind: 'tulip' }, 'bloom'), tulip.patch.size[0] / 40);
+  assert.equal(plantBreadth({ kind: 'tulip', single: true }, 'bloom'), 1);
+  assert.equal(plantBreadth({ kind: 'sunflower', single: true }, 'bloom'), sunflower.stature);
+  assert.equal(plantBreadth({ kind: 'tulip' }, 'sprout'), 1);
+  assert.equal(plantBreadth({ kind: 'tulip' }, 'bloom', { outdoors: false }), 1);
 });
 
 test('a flower offers one bloom or its patch only once it blooms, outdoors, and only if it has a patch', () => {

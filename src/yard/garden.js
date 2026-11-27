@@ -21,7 +21,7 @@ import { setAimingMode } from './care.js';
 import { flowerKind } from './catalog.js';
 import { flowerSvg } from './creatures.js';
 import { depthAt, field, fieldToYard, footTarget, petHeight, sizeOf, standAt, topAt, yardToDecor } from './field.js';
-import { flowerFor, hoursMinutes, offersPatch, plantLook, stageOf, untilBloom } from './growth.js';
+import { flowerFor, hoursMinutes, offersPatch, plantBreadth, plantLook, stageOf, untilBloom } from './growth.js';
 import { shapeHits } from './hit-shape.js';
 import { answer, answerOf } from './press-answer.js';
 import { movable, moveSaved, propButton, propScale, reconcile, removeWithUndo, setDown } from './props.js';
@@ -188,11 +188,14 @@ function syncTool() {
   if (!spareSeeds() && aiming === 'seed') setAimingMode(false);
 }
 
-// Sends a friend to stand just beside a plant (left or right of it, whichever is nearer).
+// Sends a friend to stand just beside a plant (left or right of it, whichever is nearer), clear of
+// a patch as of one bloom: half the plant's width past one bloom's (40 drawing units) farther out.
 function walkTo(v, plant, trip) {
-  const { x, y } = standAt(plant),
-    side = v.px + sizeOf(v.pet) / 2 < x ? -1 : 1;
-  sendTo(v, footTarget(v, x + side * sizeOf(v.pet) * 0.55, y), trip);
+  const at = standAt(plant),
+    side = v.px + sizeOf(v.pet) / 2 < at.x ? -1 : 1,
+    stage = stageOf(plant.planted, Date.now()).name,
+    wider = (plantBreadth(plant, stage, { outdoors: worldHasSoil(scene.world) }) - 1) * 20 * UNIT * propScale(at);
+  sendTo(v, footTarget(v, at.x + side * (sizeOf(v.pet) * 0.55 + Math.max(0, wider)), at.y), trip);
 }
 function water(id) {
   const plant = data.garden?.plants.find(p => p.id === id);

@@ -38,6 +38,15 @@ export function plantLook(plant, stage, { outdoors = true } = {}) {
     foot: stage === 'bloom' && outdoors ? (kind?.foot ?? 1) : 1,
   };
 }
+// How wide one bloom's drawing is, in drawing units (src/art/flowers): every flower's is.
+const ONE_BLOOM = 40;
+/** How many times one bloom's width `plant` at `stage` is drawn (plantLook): its patch's width, or
+ * one bloom's, times its stature. What it stands on and where a friend waters it from follow it. */
+export function plantBreadth(plant, stage, options) {
+  const { art, tall } = plantLook(plant, stage, options),
+    patch = flowerKind(plant.kind)?.patch;
+  return ((patch && art === patch.art ? patch.size[0] : ONE_BLOOM) / ONE_BLOOM) * tall;
+}
 /** How long until it flowers (0 once it has). */
 export const untilBloom = (planted, now) => Math.max(0, STAGES.at(-1).at - Math.max(0, now - planted));
 /** The flowers a seed planted in this season may grow into (the album marks them as there now). */

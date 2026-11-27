@@ -6,6 +6,7 @@ import { decorShown, yardSeason } from './decor-shown.js';
 import { projectFootprint, treeStage } from './discovery-rules.js';
 import { environmentLake } from './environment.js';
 import { decorFloor, depthScaleAt, EDGE, field, hasEdge, propZoom, topAt } from './field.js';
+import { plantBreadth, stageOf } from './growth.js';
 import { giftSize } from './props.js';
 import { scene } from './world.js';
 import { worldFor } from './worlds.js';
@@ -159,8 +160,10 @@ export function buildGroundProfile({
   }
   for (const plant of garden.plants || []) {
     // Drawn as garden.js places it, no lower than the floor.
+    // As wide as it is drawn: a patch takes the ground of its patch.
     const at = foot({ x: plant.x, y: Math.min(plant.y, floorAt(plant.x)) }),
-      zoom = scale * depthScaleAt(at.x, at.y);
+      breadth = plantBreadth(plant, stageOf(plant.planted ?? now, now).name, { outdoors: profile.soil }),
+      zoom = scale * depthScaleAt(at.x, at.y) * breadth;
     add(profile.obstacles, { ...at, rx: 10 * zoom, ry: 5 * zoom });
   }
   return profile;
