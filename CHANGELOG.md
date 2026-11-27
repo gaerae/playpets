@@ -21,6 +21,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Pulling an end of the desktop's grass keeps going when the pointer slips down onto the Dock or the taskbar, or past the screen's side, until you let go.
 - Letting go of an end of the desktop's grass no longer leaves its screen taking clicks for a few seconds now and then.
 - The desktop follows a screen whose usable area changes while things are out (the Dock hidden or moved, the taskbar resized, a new resolution): the grass moves down to the new bottom, and what is out there takes clicks where it is drawn.
+- A flower left on the desktop stays where it was left when it grows or blooms while PlayPets is closed, instead of shifting off its spot or below the floor.
 
 ### Website and docs
 

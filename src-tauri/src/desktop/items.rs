@@ -135,12 +135,35 @@ fn decoration(d: &crate::pets::garden::Decor) -> Item {
     }
 }
 
+/// How far the top left of a flower's box at `now` is from that of its one bloom (`plant_box` fully
+/// grown and single) standing on the same foot, the middle of where its drawing ends. A flower's
+/// spot is kept as its one bloom's: 1.10.0 kept every flower in bloom so, and a box that changes
+/// while the app is closed (a bud that blooms, a tall one that buds, a patch that blooms) then
+/// still stands where it was left. In whole pixels, so a spot kept and read back is the same spot.
+fn from_bloom(p: &crate::pets::garden::Plant, now: u64) -> (i64, i64) {
+    let (bw, bh) = plant_box(&p.kind, 0, true, u64::MAX);
+    let bloom_foot = catalog().bloom_foot(&p.kind);
+    let (w, h) = plant_box(&p.kind, p.planted, p.single, now);
+    let foot = plant_foot(&p.kind, p.planted, p.single, now);
+    (
+        ((bw - w) / 2.0).round() as i64,
+        (bh * bloom_foot - h * foot).round() as i64,
+    )
+}
+
+/// The spot kept for flower `p` left at `x`, `y` (its box's top left at `now`): its one bloom's.
+fn kept(p: &crate::pets::garden::Plant, x: i64, y: i64, now: u64) -> crate::pets::model::Pos {
+    let (dx, dy) = from_bloom(p, now);
+    crate::pets::model::Pos { x: x - dx, y: y - dy }
+}
+
 fn plant(p: &crate::pets::garden::Plant, now: u64) -> Item {
     let (w, h) = plant_box(&p.kind, p.planted, p.single, now);
+    let (dx, dy) = from_bloom(p, now);
     Item {
         id: p.id.clone(),
         size: 0.0,
-        saved: spot(p.desktop_position),
+        saved: p.desktop_position.map(|q| ((q.x + dx) as f64, (q.y + dy) as f64)),
         decor: Some((p.kind.clone(), w, h)),
         foot: plant_foot(&p.kind, p.planted, p.single, now),
         hangs: false,
@@ -198,7 +221,8 @@ pub fn set(pets: &mut [Pet], garden: &mut Garden, id: &str, on: bool) -> Result<
     Ok(())
 }
 
-/// Keeps where a friend, decoration, flower or planted tree was left on the desktop.
+/// Keeps where a friend, decoration, flower or planted tree was left on the desktop (`x`, `y`: its
+/// box's top left); a flower's as its one bloom's (from_bloom).
 pub fn place(pets: &mut [Pet], garden: &mut Garden, id: &str, x: i64, y: i64) {
     let at = Some(crate::pets::model::Pos { x, y });
     if let Some(p) = pets.iter_mut().find(|p| p.id == id) {
@@ -206,7 +230,7 @@ pub fn place(pets: &mut [Pet], garden: &mut Garden, id: &str, x: i64, y: i64) {
     } else if let Some(d) = garden.decor.iter_mut().find(|d| d.id == id) {
         d.desktop_position = at;
     } else if let Some(p) = garden.plants.iter_mut().find(|p| p.id == id) {
-        p.desktop_position = at;
+        p.desktop_position = Some(kept(p, x, y, crate::app::now_ms()));
     } else if let Some(t) = garden.trees.iter_mut().find(|t| t.id == id) {
         t.desktop_position = at;
     }
@@ -298,6 +322,59 @@ mod tests {
         assert_eq!(plant_foot("tulip", 0, false, bloom), 0.96);
         assert_eq!(plant_foot("tulip", 0, true, bloom), 0.932);
         assert_eq!(plant_foot("tulip", 0, false, bloom - 1), 1.0);
+    }
+
+    // Where a flower out on the desktop stands: the middle of where its drawing ends.
+    fn foot_of(item: &Item) -> (f64, f64) {
+        let ((_, w, h), (x, y)) = (item.decor.clone().unwrap(), item.saved.unwrap());
+        (x + w / 2.0, y + h * item.foot)
+    }
+
+    // A flower's box changes as it grows, and as it blooms into a patch, also while the app is
+    // closed; the overlay keeps its foot put only between two looks in one run. Where it was left
+    // is kept so that its foot stays where it stood whatever it has grown into since.
+    #[test]
+    fn a_flower_left_on_the_desktop_stands_where_it_was_left_whatever_it_grew_into() {
+        let bloom = catalog().bloom_after_ms();
+        let (_, mut garden) = garden_with_growing();
+        let close = |a: (f64, f64), b: (f64, f64)| (a.0 - b.0).abs() <= 0.5 && (a.1 - b.1).abs() <= 0.5;
+        // Kept by 1.10.0 while in bloom: the top left of its one bloom (50 x 75, its stem ending
+        // 93.2% down). It comes back a patch, 95 x 93, on the same spot.
+        let tulip = &mut garden.plants[0];
+        tulip.kind = "tulip".into();
+        tulip.desktop_position = Some(crate::pets::model::Pos { x: 500, y: 700 });
+        let patch = plant(tulip, tulip.planted + bloom);
+        assert_eq!(patch.decor.as_ref().map(|d| (d.1, d.2)), Some((95.0, 93.0)));
+        let stood = (525.0, 700.0 + 75.0 * 0.932);
+        assert!(close(foot_of(&patch), stood), "{:?}", foot_of(&patch));
+        // Set to one bloom: the same spot again.
+        tulip.single = true;
+        assert!(close(foot_of(&plant(tulip, tulip.planted + bloom)), stood));
+        // Left as a sprout, it blooms while the app is closed; a sunflower buds taller first.
+        for (kind, single) in [("tulip", false), ("sunflower", false), ("sunflower", true)] {
+            let p = &mut garden.plants[0];
+            (p.kind, p.single) = (kind.into(), single);
+            let young = p.planted + 1;
+            let sprout = plant(p, young);
+            p.desktop_position = Some(kept(p, 300, 400, young));
+            let left = foot_of(&Item {
+                saved: Some((300.0, 400.0)),
+                ..sprout
+            });
+            for later in [young, p.planted + 120 * 60 * 1000, p.planted + bloom] {
+                let grown = plant(p, later);
+                assert!(
+                    close(foot_of(&grown), left),
+                    "{kind} {single} at {later}: {:?}",
+                    foot_of(&grown)
+                );
+            }
+            // Saved again where it stands, it comes back to the very same spot: nothing creeps.
+            let grown = plant(p, p.planted + bloom);
+            let (x, y) = grown.saved.unwrap();
+            p.desktop_position = Some(kept(p, x as i64, y as i64, p.planted + bloom));
+            assert_eq!(plant(p, p.planted + bloom).saved, grown.saved);
+        }
     }
 
     // A drawing may end above its box's edge (catalog.json "foot"); the overlay stands it there.
