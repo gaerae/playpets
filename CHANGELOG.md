@@ -19,6 +19,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - Friends on the desktop's grass keep walking in it, instead of wandering a little higher with each stroll until they walk in the air above it.
 - Pulling an end of the desktop's grass keeps going when the pointer slips down onto the Dock or the taskbar, or past the screen's side, until you let go.
+- Letting go of an end of the desktop's grass no longer leaves its screen taking clicks for a few seconds now and then.
 
 ### Website and docs
 
