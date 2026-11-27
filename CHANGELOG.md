@@ -10,6 +10,8 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-11-27
+
 ### Added
 
 - Daisy, Clover, Pip and Miso walk with real steps: their legs pass each other and their arms swing against them, in every outfit. Walking down the yard they walk toward you, walking up they walk away, and in a game they run, both feet leaving the ground. A flower, a bow or a bag stays on its own side of the body whichever way they go.
