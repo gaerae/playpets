@@ -20,7 +20,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 ### Changed
 
 - Choosing where to plant a tree shows its sapling standing on a patch of soil at the spot, at the size it will grow from; where it cannot go, the sapling greys and leans with a small "no" sign beside it.
-- When a change cannot be saved, PlayPets tries again a few times at once, and its notice no longer blames the disk unless the disk really is full. Each failed save leaves a line in `save-errors.log` in the data folder, to send along when you report it.
+- When a change cannot be saved, PlayPets tries again a few times at once, and its notice no longer blames the disk unless the disk really is full. If it keeps happening, Settings > About PlayPets > Copy problem report copies what went wrong since the app opened, failed saves and every other error, to paste into a report.
 
 ### Fixed
 

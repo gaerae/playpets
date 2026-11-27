@@ -311,14 +311,14 @@ mod tests {
     }
 
     // In bloom a flower with a patch (catalog.json "patch") is drawn as it, at its size at the yard's
-    // 1.25 pixels a unit (src/overlay/growing.js), unless set to one bloom; one with none is as before.
+    // 1.25 pixels a unit (src/overlay/growing.js), unless set to one bloom, as every flower can be.
     #[test]
     fn a_flower_in_bloom_takes_its_patch_s_room_unless_set_to_one_bloom() {
         let bloom = catalog().bloom_after_ms();
         assert_eq!(plant_box("tulip", 0, false, bloom), (95.0, 93.0));
         assert_eq!(plant_box("sunflower", 0, false, bloom), (83.0, 128.0));
         assert_eq!(plant_box("sunflower", 0, true, bloom), (70.0, 105.0));
-        assert_eq!(plant_box("daffodil", 0, false, bloom), (50.0, 75.0));
+        assert_eq!(plant_box("daffodil", 0, true, bloom), (50.0, 75.0));
         assert_eq!(plant_foot("tulip", 0, false, bloom), 0.96);
         assert_eq!(plant_foot("tulip", 0, true, bloom), 0.932);
         assert_eq!(plant_foot("tulip", 0, false, bloom - 1), 1.0);

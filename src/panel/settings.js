@@ -239,6 +239,11 @@ export function setupSettings() {
   $('ai-add').onclick = () => openConnectionDialog(null, () => {}, { forFriend: null, inline: $('ai-editor') });
   // Where friends, settings and backups are kept, for a report or a copy by hand.
   $('open-data').onclick = guard(() => call('openFolder', 'data'));
+  // What went wrong since the app opened (problems.rs), to paste into a report.
+  $('copy-problems').onclick = guard(async () => {
+    await call('copyProblemReport');
+    toast(t('toast.problems_copied'));
+  });
   // Cmd+, (macOS, where the menu bar also has it) or Ctrl+, opens Settings, as in most desktop apps.
   onShortcut('settings', () => openPanel('settings'));
   for (const button of document.querySelectorAll('button[data-link]'))

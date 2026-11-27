@@ -145,6 +145,21 @@ static COMMANDS: &[Command] = &[
         Ok(Value::Null)
     }),
     main("openFolder", |c| open_folder(&c.state, c.text(0))),
+    // An error in a page (a window's error or a promise no one caught), kept with the backend's.
+    overlay("noteProblem", |c| {
+        let area = if c.sender == "main" { "page" } else { "overlay" };
+        crate::problems::note(area, c.text(0));
+        Ok(Value::Null)
+    }),
+    // The problem report, on the clipboard, to send with an issue.
+    main("copyProblemReport", |c| {
+        let report = crate::problems::report(&c.app.package_info().version.to_string());
+        c.app
+            .clipboard()
+            .write_text(report)
+            .map_err(|_| i18n::t("clipboard.failed"))?;
+        Ok(Value::Null)
+    }),
     main("openExternal", |c| open_external(c.text(0))),
     // AI connections and chat.
     main("saveProvider", |c| providers::save(c.app, &c.state, &c.cli, c.arg(0))),
@@ -859,7 +874,11 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
     };
     match (command.run)(&ctx) {
         Ok(v) => ok(v),
-        Err(e) => fail(e),
+        Err(e) => {
+            // Every failed command is kept for the problem report, whatever it was.
+            crate::problems::note(&name, &e);
+            fail(e)
+        }
     }
 }
 
@@ -1024,6 +1043,7 @@ mod tests {
             [
                 "bootstrap",
                 "play",
+                "noteProblem",
                 "openChat",
                 "desktopMenu",
                 "dragStart",

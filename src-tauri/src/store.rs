@@ -60,69 +60,30 @@ impl Store {
             tries += 1;
             write_synced(&tmp, text.as_bytes(), private)
         })
-        .inspect_err(|e| self.note_failure(name, "write", e, tries, unix_secs()))?;
+        .inspect_err(|e| self.note_failure(name, "write", e, tries))?;
         let mut tries = 0;
         retried(|| {
             tries += 1;
             fs::rename(&tmp, self.dir.join(name))
         })
-        .inspect_err(|e| self.note_failure(name, "rename", e, tries, unix_secs()))
+        .inspect_err(|e| self.note_failure(name, "rename", e, tries))
     }
 
-    /// Adds a line to the save log in the data folder for a write of `name` that failed at `step`
-    /// after `tries`, at `secs` (Unix time): the system's error, its kind and code, and no path (a
-    /// path names the person). A log past SAVE_LOG_MAX starts over, the old one kept beside it.
-    pub fn note_failure(&self, name: &str, step: &str, error: &std::io::Error, tries: usize, secs: u64) {
-        use std::io::Write;
-        let log = self.dir.join(SAVE_LOG);
-        if fs::metadata(&log).is_ok_and(|m| m.len() > SAVE_LOG_MAX) {
-            let _ = fs::rename(&log, self.dir.join(format!("{SAVE_LOG}.old")));
-        }
-        let code = error
-            .raw_os_error()
-            .map(|c| format!(" (os error {c})"))
-            .unwrap_or_default();
-        let line = format!(
-            "{} {name} {step}: {:?}{code} after {tries} tries: {error}\n",
-            utc_stamp(secs),
-            error.kind()
-        );
-        if let Ok(mut file) = fs::OpenOptions::new().create(true).append(true).open(&log) {
-            let _ = file.write_all(line.as_bytes());
-        }
+    /// Notes a write of `name` that failed at `step` after `tries` for the problem report
+    /// (problems.rs): the system's error, its kind and its code.
+    fn note_failure(&self, name: &str, step: &str, error: &std::io::Error, tries: usize) {
+        crate::problems::note("save", &failure_text(name, step, error, tries));
     }
 }
 
-/// The data folder's log of writes that failed (Store::note_failure), and how large it grows.
-pub const SAVE_LOG: &str = "save-errors.log";
-const SAVE_LOG_MAX: u64 = 64 * 1024;
-
-fn unix_secs() -> u64 {
-    SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_secs()
-}
-
-/// `secs` (Unix time) as a UTC date and time, 2026-11-27T08:41:03Z.
-fn utc_stamp(secs: u64) -> String {
-    let (days, rest) = ((secs / 86_400) as i64, secs % 86_400);
-    // Days to a civil date (Howard Hinnant's days_from_civil, inverted).
-    let z = days + 719_468;
-    let era = z.div_euclid(146_097);
-    let doe = z - era * 146_097;
-    let yoe = (doe - doe / 1_460 + doe / 36_524 - doe / 146_096) / 365;
-    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
-    let mp = (5 * doy + 2) / 153;
-    let day = doy - (153 * mp + 2) / 5 + 1;
-    let month = if mp < 10 { mp + 3 } else { mp - 9 };
-    let year = yoe + era * 400 + i64::from(month <= 2);
-    format!(
-        "{year:04}-{month:02}-{day:02}T{:02}:{:02}:{:02}Z",
-        rest / 3_600,
-        rest / 60 % 60,
-        rest % 60
-    )
+/// What the problem report says of a failed write: the file, the step, the error's kind and code
+/// as the system gave them, and how many tries it took; no path (a path names the person).
+fn failure_text(name: &str, step: &str, error: &std::io::Error, tries: usize) -> String {
+    let code = error
+        .raw_os_error()
+        .map(|c| format!(" (os error {c})"))
+        .unwrap_or_default();
+    format!("{name} {step}: {:?}{code} after {tries} tries: {error}", error.kind())
 }
 
 /// How many more times a write is tried after it fails, and how long it waits before each.
@@ -170,34 +131,16 @@ mod tests {
     use super::*;
     use serde_json::json;
 
-    // A write that fails leaves a line in the data folder's save log (when, which file, which step,
-    // the system's error and its code), so a failure that keeps coming can be traced. The log stays
-    // small.
+    // A write that fails is described for the problem report (problems.rs): which file, which
+    // step, the system's error and its code, and the tries, with no path.
     #[test]
-    fn a_failed_write_leaves_a_line_in_the_save_log() {
-        let dir = std::env::temp_dir().join(format!("playpets-log-{}", uuid::Uuid::new_v4()));
-        fs::create_dir_all(&dir).unwrap();
-        let store = Store { dir: dir.clone() };
+    fn a_failed_write_is_described_for_the_problem_report() {
         let denied = std::io::Error::from_raw_os_error(13);
-        store.note_failure("state.json", "rename", &denied, 6, 1_795_000_000);
-        let log = fs::read_to_string(dir.join(SAVE_LOG)).unwrap();
-        assert_eq!(log.lines().count(), 1);
-        let line = log.lines().next().unwrap();
-        assert!(line.starts_with("2026-11-18T11:06:40Z state.json rename"), "{line}");
+        let text = failure_text("state.json", "rename", &denied, 6);
         assert!(
-            line.contains("PermissionDenied") && line.contains("os error 13") && line.contains("6 tries"),
-            "{line}"
+            text.starts_with("state.json rename: PermissionDenied (os error 13) after 6 tries"),
+            "{text}"
         );
-        assert!(
-            !line.contains(dir.to_string_lossy().as_ref()),
-            "no paths: they name the person"
-        );
-        // Kept small: a log past its limit starts over, its last part kept beside it.
-        fs::write(dir.join(SAVE_LOG), "x".repeat(SAVE_LOG_MAX as usize + 1)).unwrap();
-        store.note_failure("state.json", "write", &denied, 6, 1_795_000_000);
-        assert_eq!(fs::read_to_string(dir.join(SAVE_LOG)).unwrap().lines().count(), 1);
-        assert!(dir.join(format!("{SAVE_LOG}.old")).exists());
-        fs::remove_dir_all(&dir).ok();
     }
 
     // Windows refuses to replace a file another program has open a moment (an antivirus scan, the

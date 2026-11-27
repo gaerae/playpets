@@ -7,6 +7,7 @@ import { clue } from './dom.js';
 import { t } from './i18n.js';
 import { icons } from './icons.js';
 import { displayName } from './names.js';
+import { noteProblem } from './problems.js';
 import { spoken } from './text.js';
 
 export const $ = id => document.getElementById(id);
@@ -209,6 +210,8 @@ export const guard =
     try {
       await fn(...args);
     } catch (e) {
+      // The backend's own sentences are in the report already (problems.rs); a page's error is not.
+      if (!e?.spoken) noteProblem(e);
       toast(spoken(e, t('error.generic')), { error: true });
     }
   };

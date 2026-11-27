@@ -9,6 +9,7 @@ import { icons } from '../core/icons.js';
 import { setupInteractions } from '../core/interactions.js';
 import { pick } from '../core/math.js';
 import { displayName } from '../core/names.js';
+import { setupProblemReports } from '../core/problems.js';
 import { setupSeason, systemSouth } from '../core/season.js';
 import {
   bodyOf,
@@ -38,6 +39,7 @@ import { legsKey, legsOf, legsWalk, stepDesktop } from './legs.js';
 import { CALM_SHARE, LIVELY_MS, nextDraw } from './pace.js';
 import { poke, pressLook, showLamp } from './poke.js';
 
+setupProblemReports();
 setupInteractions();
 document.documentElement.lang = language();
 const api = window.playPets,

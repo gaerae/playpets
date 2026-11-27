@@ -8,6 +8,7 @@ import { icons } from './core/icons.js';
 import { setupInteractions } from './core/interactions.js';
 import { onShortcut } from './core/keys.js';
 import { setupNotices } from './core/notices.js';
+import { setupProblemReports } from './core/problems.js';
 import { setSpriteSeason } from './core/sprites.js';
 import {
   $,
@@ -153,6 +154,7 @@ setupConfirm();
 setupLetterCard({ onClosed: syncLetter, onAnswered: answered });
 setupNotices();
 setupToast();
+setupProblemReports();
 setupInteractions();
 setupWindow();
 setupTabs({ beforeOpen: cancelDiscovery });

@@ -296,22 +296,19 @@ impl Unsaved {
 }
 
 /// What the person is told when the state cannot be saved: a full disk by name, anything else
-/// without a guess, pointing to the save log the store keeps of what the system said.
+/// without a guess, pointing to the problem report that keeps what the system said (problems.rs).
 fn held_text(error: &std::io::Error) -> String {
     use std::io::ErrorKind::{QuotaExceeded, StorageFull};
     if matches!(error.kind(), StorageFull | QuotaExceeded) {
         i18n::t("store.full")
     } else {
-        i18n::tr("store.held", &[("log", crate::store::SAVE_LOG)])
+        i18n::t("store.held")
     }
 }
 
 /// Takes back the notice that saves fail, whichever it was; true when the warnings changed.
 fn take_back_held(warnings: &mut Vec<String>) -> bool {
-    let notices = [
-        i18n::t("store.full"),
-        i18n::tr("store.held", &[("log", crate::store::SAVE_LOG)]),
-    ];
+    let notices = [i18n::t("store.full"), i18n::t("store.held")];
     let before = warnings.len();
     warnings.retain(|w| !notices.contains(w));
     warnings.len() != before
@@ -1230,15 +1227,14 @@ pub(crate) mod tests {
     }
 
     // The notice says the disk is full only when it is; otherwise it does not guess, and points to
-    // the save log that records what the system said (store.rs note_failure).
+    // the problem report that keeps what the system said (problems.rs).
     #[test]
     fn the_save_notice_names_a_full_disk_only_when_it_is_one() {
         use std::io::{Error, ErrorKind};
         assert_eq!(held_text(&Error::from(ErrorKind::StorageFull)), i18n::t("store.full"));
         assert_eq!(held_text(&Error::from(ErrorKind::QuotaExceeded)), i18n::t("store.full"));
         let held = held_text(&Error::from(ErrorKind::PermissionDenied));
-        assert_eq!(held, i18n::tr("store.held", &[("log", crate::store::SAVE_LOG)]));
-        assert!(held.contains(crate::store::SAVE_LOG));
+        assert_eq!(held, i18n::t("store.held"));
         // A save that goes through takes back either notice.
         let mut warnings = vec![i18n::t("store.full")];
         assert!(take_back_held(&mut warnings));

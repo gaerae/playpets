@@ -1,162 +1,42 @@
 {
- "tulip": [
-  76.33,
-  74.0
- ],
- "cosmos": [
-  73.0,
-  77.0
- ],
- "sunflower": [
-  66.67,
-  102.0
- ],
- "lavender": [
-  80.0,
-  77.0
- ],
- "hydrangea": [
-  83.0,
-  74.0
- ],
- "camellia": [
-  79.33,
-  77.0
- ],
- "daffodil": [
-  57.33,
-  74.0
- ],
- "chrysanthemum": [
-  74.33,
-  72.0
- ],
- "snowdrop": [
-  60.33,
-  58.0
- ],
- "crocus": [
-  55.0,
-  55.0
- ],
- "grape_hyacinth": [
-  60.67,
-  58.0
- ],
- "bellflower": [
-  83.67,
-  76.0
- ],
- "dahlia": [
-  73.67,
-  82.0
- ],
- "aster": [
-  69.33,
-  76.0
- ],
- "hellebore": [
-  62.67,
-  62.0
- ],
- "cyclamen": [
-  66.67,
-  60.0
- ],
- "dandelion": [
-  48.67,
-  62.0
- ],
- "azalea": [
-  84.33,
-  74.0
- ],
- "morning_glory": [
-  64.0,
-  86.0
- ],
- "balsam": [
-  66.0,
-  78.0
- ],
- "spider_lily": [
-  60.0,
-  80.0
- ],
- "celosia": [
-  60.67,
-  76.0
- ],
- "adonis": [
-  69.0,
-  58.0
- ],
- "pansy": [
-  69.0,
-  56.0
- ],
- "bleeding_heart": [
-  71.0,
-  80.0
- ],
- "pasque_flower": [
-  55.33,
-  62.0
- ],
- "daylily": [
-  65.33,
-  90.0
- ],
- "hollyhock": [
-  75.67,
-  108.0
- ],
- "buckwheat": [
-  61.67,
-  76.0
- ],
- "gentian": [
-  79.33,
-  72.0
- ],
- "flowering_kale": [
-  88.33,
-  52.0
- ],
- "winter_heath": [
-  63.67,
-  58.0
- ],
- "lily_of_the_valley": [
-  44.67,
-  60.0
- ],
- "peony": [
-  65.33,
-  80.0
- ],
- "rose": [
-  60.67,
-  82.0
- ],
- "lily": [
-  85.67,
-  94.0
- ],
- "marigold": [
-  70.67,
-  62.0
- ],
- "japanese_anemone": [
-  76.0,
-  84.0
- ],
- "poinsettia": [
-  76.67,
-  74.0
- ],
- "amaryllis": [
-  71.67,
-  92.0
- ]
+  "tulip": [76.33, 74.0],
+  "cosmos": [73.0, 77.0],
+  "sunflower": [66.67, 102.0],
+  "lavender": [80.0, 77.0],
+  "hydrangea": [83.0, 74.0],
+  "camellia": [79.33, 77.0],
+  "daffodil": [57.33, 74.0],
+  "chrysanthemum": [74.33, 72.0],
+  "snowdrop": [60.33, 58.0],
+  "crocus": [55.0, 55.0],
+  "grape_hyacinth": [60.67, 58.0],
+  "bellflower": [83.67, 76.0],
+  "dahlia": [73.67, 82.0],
+  "aster": [69.33, 76.0],
+  "hellebore": [62.67, 62.0],
+  "cyclamen": [66.67, 60.0],
+  "dandelion": [48.67, 62.0],
+  "azalea": [84.33, 74.0],
+  "morning_glory": [64.0, 86.0],
+  "balsam": [66.0, 78.0],
+  "spider_lily": [60.0, 80.0],
+  "celosia": [60.67, 76.0],
+  "adonis": [69.0, 58.0],
+  "pansy": [69.0, 56.0],
+  "bleeding_heart": [71.0, 80.0],
+  "pasque_flower": [55.33, 62.0],
+  "daylily": [65.33, 90.0],
+  "hollyhock": [75.67, 108.0],
+  "buckwheat": [61.67, 76.0],
+  "gentian": [79.33, 72.0],
+  "flowering_kale": [88.33, 52.0],
+  "winter_heath": [63.67, 58.0],
+  "lily_of_the_valley": [44.67, 60.0],
+  "peony": [65.33, 80.0],
+  "rose": [60.67, 82.0],
+  "lily": [85.67, 94.0],
+  "marigold": [70.67, 62.0],
+  "japanese_anemone": [76.0, 84.0],
+  "poinsettia": [76.67, 74.0],
+  "amaryllis": [71.67, 92.0]
 }

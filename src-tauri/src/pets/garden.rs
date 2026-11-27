@@ -1443,8 +1443,8 @@ mod tests {
         assert!(Garden::restore(Some(&saved), 0).plants[0].single);
         assert_eq!(g.set_single(&tulip, false), Ok(()));
         assert!(serde_json::to_value(&g).unwrap()["plants"][0].get("single").is_none());
-        // Only a kind that has a patch has the choice.
-        assert!(g.set_single(&daffodil, true).is_err());
+        // Every flower has its patch now, so the daffodil has the choice too; a gone plant has none.
+        assert_eq!(g.set_single(&daffodil, true), Ok(()));
         assert!(g.set_single("gone", true).is_err());
     }
 

@@ -20,6 +20,7 @@ mod i18n;
 mod links;
 mod menu;
 mod pets;
+mod problems;
 mod startup;
 mod store;
 mod system;
