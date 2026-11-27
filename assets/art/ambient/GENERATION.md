@@ -67,11 +67,11 @@ Create a premium cozy woodland game sprite reference atlas, transparent backgrou
   - Autumn sheet: "about 22 small autumn things to scatter over a lawn: 12 single fallen leaves (maple, oak and round leaves) in orange, gold, russet and a few half-green, each in a different turn, 4 acorns (two with caps off), and 3 tiny brown seed pods."
   - Each sheet asked for separate items with space around them, at one small scale, in the reference's soft painterly style, with no ground, shadows, glow or text.
 
-## The walk mark (2026-11-26)
+## The walk pin (2026-11-27)
 
-- `walk-mark.png` marks the spot a press on the ground sends a friend to (yard/walk-here.js, garden.css `.walk-mark`).
-- Made with Codex's built-in image tool. The references were a crop of the lawn in `environments/green.webp` and `tuft-left.webp`, so the greens and outlines match.
-- Two candidates were made; the one with a green fringe around its blades was dropped.
-- Cleaning: alpha below 8 cleared and 245 or more made whole, cropped to the bounds, and scaled to 192 px wide.
-- The untouched output is `assets/sources/walk-mark-2026-11-26/mark-source.png`.
-- Prompt: "a single small game UI ground marker for a cozy illustrated desktop pet game, on a truly transparent background (real alpha), 1024x1024. It is a flat ring of short lawn grass blades on the ground seen from a slightly high three-quarter view (an ellipse about twice as wide as tall), every blade bent OUTWARD away from the middle as if a soft puff of air pressed them down, the middle of the ring empty and transparent. Same greens, soft painted shading and dark green outlines as the reference lawn and grass tuft images. Centered, filling about 70% of the width. No flowers, no soil patch, no shadow disc, no text, no frame, no sparkles, no checkerboard, no white backdrop."
+- `walk-pin.png` points at the spot a press on the ground sends a friend to (yard/walk-here.js, garden.css `.walk-pin`). It replaced the ring of bent grass of 2026-11-26, which read as a target painted on the ground.
+- Made with Codex's built-in image tool. The references were `ui/heart.png` and `ui/book-track.png`, so the outline, texture and paw match the app's icons.
+- Two candidates were made: a round pin and a downward arrow. The pin reads more clearly at its small size.
+- Cleaning (`assets/sources/walk-pin-2026-11-27/pack.py`): alpha under 50 cleared (the tool's faint reddish fringe), cropped to the drawing with a 4 px margin, scaled to 120 px high.
+- The untouched output is `assets/sources/walk-pin-2026-11-27/pin-a.png`.
+- Prompt: "a single small game UI marker for a cozy illustrated desktop pet game, on a truly transparent background (real alpha), 1024x1024. It is a plump rounded map pin seen from the front, pointing straight DOWN to a spot on the ground: a round head on top tapering to a soft point at the bottom, in warm honey yellow with a cream highlight on its upper left, soft painted shading and a thin warm dark brown outline, and a small cream-white paw print in the middle of the round head. Same soft painted storybook style, outline and texture as the attached heart and paw print icons. Centered, filling about 70% of the height, nothing else. No shadow, no ground, no text, no frame, no sparkles, no checkerboard, no white backdrop."

@@ -186,3 +186,24 @@ test('the mark is as big as the friend going there would look at the spot', t =>
   };
   assert.ok(zoomAt(420, 330) < zoomAt(420, 520), 'smaller farther back');
 });
+
+// Feedback: a big ring of grass read as a target painted on the ground. The spot is pointed at
+// instead: a small pin bobbing over it, with only a small soft shadow on the ground, and the pin
+// drops in again at each new spot.
+test('the mark is a small pin pointing at the spot, not a ring on the ground', async t => {
+  const { readFile } = await import('node:fs/promises');
+  const html = await readFile('src/index.html', 'utf8'),
+    css = await readFile('src/styles/garden.css', 'utf8');
+  assert.match(html, /<span id="walk-mark" class="walk-mark"[^>]*><i class="walk-pin"><\/i><\/span>/);
+  assert.match(css, /\.walk-pin \{[^}]*url\("\.\.\/art\/ambient\/walk-pin\.webp"\)/);
+  assert.match(css, /\.walk-pin \{[^}]*animation:[^;]*walk-pin-bob/);
+  assert.doesNotMatch(css, /walk-mark\.webp/);
+  const document = yard(t);
+  friend('daisy', 380);
+  walkHere(420, 420);
+  const mark = document.getElementById('walk-mark');
+  assert.ok(mark.classList.contains('drop'));
+  mark.classList.remove('drop');
+  walkHere(440, 430);
+  assert.ok(mark.classList.contains('drop'), 'it drops in again at the next spot');
+});

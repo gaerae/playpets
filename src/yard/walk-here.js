@@ -1,6 +1,6 @@
 // A press on open yard ground sends a friend there, at walking pace (docs/design/2026-11-26-natural-
 // walking.md): the selected friend, else the one nearest the spot. A spot it cannot stand on moves
-// to the nearest one it can, and a ring of bent grass marks it until the friend gets there.
+// to the nearest one it can, and a small pin bobbing over it points at it until the friend gets there.
 import { $, aiming, game, selected, views } from '../core/state.js';
 import { depthScaleAt, dockBox, footOf, footTarget, sizeOf, underDock, yardToField } from './field.js';
 import { groundProfile } from './ground.js';
@@ -60,20 +60,24 @@ export function groundFor(v) {
 // The body size the mark is drawn for (styles/garden.css .walk-mark), in pixels.
 const MARK_BODY = 112;
 let marked = null;
-// The mark at the spot (yard pixels), until `v` gets there or goes elsewhere: as big as `v` looks
-// standing there, in this window and that far back, as the planting marker is.
+// The mark at the spot (yard pixels), until `v` gets there or goes elsewhere: a pin that drops in
+// over it, as big as `v` looks standing there, in this window and that far back, as the planting
+// marker is.
 function mark(v, px, py) {
-  const ring = $('walk-mark');
-  if (!ring) return () => {};
-  ring.style.translate = `${Math.round(px)}px ${Math.round(py)}px`;
+  const pin = $('walk-mark');
+  if (!pin) return () => {};
+  pin.style.translate = `${Math.round(px)}px ${Math.round(py)}px`;
   const zoom = (sizeOf(v.pet) * depthScaleAt(px, py)) / MARK_BODY;
-  ring.style.setProperty('--zoom', String(Math.round(zoom * 100) / 100));
-  ring.classList.remove('gone');
-  ring.hidden = false;
+  pin.style.setProperty('--zoom', String(Math.round(zoom * 100) / 100));
+  pin.classList.remove('gone', 'drop');
+  // From the top again at each new spot.
+  void pin.offsetWidth;
+  pin.classList.add('drop');
+  pin.hidden = false;
   const own = {};
   marked = own;
   return () => {
-    if (marked === own) ring.classList.add('gone');
+    if (marked === own) pin.classList.add('gone');
   };
 }
 

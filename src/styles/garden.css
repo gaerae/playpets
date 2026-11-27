@@ -1210,32 +1210,78 @@
     transition: none;
   }
 }
-/* Where a press sends a friend (yard/walk-here.js): a ring of grass bent outward, under the friends,
-   until it gets there. */
+/* Where a press sends a friend (yard/walk-here.js): a small pin over the spot, pointing down at it,
+   until the friend gets there. It drops in, then bobs gently, and only its soft shadow lies on the
+   ground, shrinking as the pin rises. Its box's top left is the spot; --zoom sizes it to the friend. */
 .walk-mark {
   position: absolute;
   left: 0;
   top: 0;
   z-index: 0;
-  width: calc(64px * var(--zoom, 1));
-  height: calc(22px * var(--zoom, 1));
-  margin: calc(-11px * var(--zoom, 1)) 0 0 calc(-32px * var(--zoom, 1));
-  background: url("../art/ambient/walk-mark.webp") center / contain no-repeat;
+  width: 0;
+  height: 0;
   pointer-events: none;
-  animation: walk-mark-in 0.25s ease-out;
   transition: opacity 0.4s ease-out;
 }
 .walk-mark.gone {
   opacity: 0;
 }
-@keyframes walk-mark-in {
+.walk-mark::before {
+  content: "";
+  position: absolute;
+  left: calc(-9px * var(--zoom, 1));
+  top: calc(-3px * var(--zoom, 1));
+  width: calc(18px * var(--zoom, 1));
+  height: calc(6px * var(--zoom, 1));
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(48 34 18 / 0.38), rgb(48 34 18 / 0));
+  animation: walk-pin-shadow 1.2s ease-in-out infinite;
+}
+.walk-pin {
+  position: absolute;
+  left: calc(-11px * var(--zoom, 1));
+  bottom: calc(4px * var(--zoom, 1));
+  width: calc(22px * var(--zoom, 1));
+  height: calc(28px * var(--zoom, 1));
+  background: url("../art/ambient/walk-pin.webp") center bottom / contain no-repeat;
+  transform-origin: 50% 100%;
+  animation: walk-pin-bob 1.2s ease-in-out infinite;
+}
+.walk-mark.drop .walk-pin {
+  animation:
+    walk-pin-drop 0.34s cubic-bezier(0.3, 1.5, 0.6, 1),
+    walk-pin-bob 1.2s ease-in-out 0.34s infinite;
+}
+/* Once the friend is there nothing bobs on, unseen (after the drop's
+   shorthand, which would set it running). */
+.walk-mark.gone::before,
+.walk-mark.gone .walk-pin {
+  animation-play-state: paused;
+}
+@keyframes walk-pin-drop {
   from {
-    scale: 0.6;
     opacity: 0;
+    translate: 0 calc(-18px * var(--zoom, 1));
+  }
+  70% {
+    scale: 1.08 0.9;
+  }
+}
+@keyframes walk-pin-bob {
+  50% {
+    translate: 0 calc(-5px * var(--zoom, 1));
+  }
+}
+@keyframes walk-pin-shadow {
+  50% {
+    scale: 0.75;
+    opacity: 0.7;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .walk-mark {
+  .walk-mark::before,
+  .walk-pin,
+  .walk-mark.drop .walk-pin {
     animation: none;
   }
 }
