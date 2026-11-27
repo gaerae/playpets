@@ -1142,6 +1142,18 @@ dialog:not(#confirm-dialog) .dialog-heading h2:not(:empty)::after {
   border-color: var(--rare-gold);
   box-shadow: inset 0 0 0 1px var(--rare-gold);
 }
+/* The picture is the card's button (album.js card): it keeps the picture's own look, and the
+   keyboard's ring goes round the whole card, inside its edge so the scrolling page cannot cut it. */
+.album-pick {
+  padding: 0;
+}
+.album-pick:focus-visible {
+  outline: none;
+}
+.album-card:has(> .album-pick:focus-visible) {
+  outline: var(--focus-ring);
+  outline-offset: -2px;
+}
 /* On the book's page a card shows its picture, its number and its name; where to look is read on
    the left page (and still heard on the card). A small window has no left page: there they show. */
 .album-card .album-hint,

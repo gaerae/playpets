@@ -234,9 +234,9 @@ export const recordLine = (id, entry) => BOOKS[id].record(entry);
 const kindName = (b, kind, entry) =>
   entry ? (b.name ? b.name(kind) : t(nameKey(b.list, kind.id))) : t(b.unknown || 'catch.unknown');
 // A kind's drawing with its place in the book, as on a collector's page: the gaps between numbers
-// are what is left. A card and the left page show the same.
-function specimenStage(b, kind, entry, index) {
-  const stage = document.createElement('div');
+// are what is left. A card and the left page show the same; on a card it is a `button`.
+function specimenStage(b, kind, entry, index, tag = 'div') {
+  const stage = document.createElement(tag);
   stage.className = 'album-specimen';
   stage.innerHTML = b.draw(kind, !entry, entry);
   const number = document.createElement('span');
@@ -268,7 +268,13 @@ function card(b, kind, entry, index, current, now) {
   el.dataset.kind = kind.id;
   // The one the left page shows.
   if (current) el.setAttribute('aria-current', 'true');
-  const stage = specimenStage(b, kind, entry, index);
+  // Its picture is the button that shows it there, so a keyboard reaches every card's clues too (a
+  // press anywhere else on the card does the same for a pointer, setupAlbum).
+  const stage = specimenStage(b, kind, entry, index, 'button');
+  stage.type = 'button';
+  stage.classList.add('album-pick');
+  stage.setAttribute('aria-label', kindName(b, kind, entry));
+  stage.setAttribute('aria-controls', 'album-detail');
   el.append(stage);
   // Where to look, as the left page shows it: a small window, which has no left page, shows it on
   // the card.
@@ -290,8 +296,9 @@ function card(b, kind, entry, index, current, now) {
     el.classList.add('now');
   }
   if (entry) {
+    // On the card, beside the picture rather than in its button, so a reader still hears whose it is.
     const mark = b.mark?.(kind);
-    if (mark) stage.append(mark);
+    if (mark) el.append(mark);
     const record = document.createElement('small');
     record.className = 'album-record';
     record.textContent = b.record(entry);
@@ -452,8 +459,10 @@ export function renderAlbum() {
     have = b.found();
   // Each book has its own ground under the drawings: water for fish, wood for gifts (dialog.css).
   $('album-grid').dataset.book = book;
-  // A press on a card redraws the book: the focus goes back to the control it was on.
-  const was = rowFocus();
+  // A press on a card redraws the book: the focus goes back to the control it was on, or to the
+  // picture it chose.
+  const was = rowFocus(),
+    picked = document.activeElement?.closest?.('.album-pick')?.parentNode?.dataset.kind;
   const kinds = b.kinds.filter(k => !b.sealed || have[k.id]),
     showing = kinds.find(k => k.id === chosen[book]) || kinds.find(k => have[k.id]) || kinds[0];
   if (!kinds.length) {
@@ -469,6 +478,7 @@ export function renderAlbum() {
     kinds.map((k, index) => card(b, k, have[k.id], index, k === showing, !have[k.id] && there.has(k.id))),
   );
   restoreRowFocus($('album-grid'), was);
+  if (picked) pickOf(picked)?.focus();
   leftPage(b, showing, showing && have[showing.id], kinds.indexOf(showing));
   fitTabs();
 }
@@ -496,6 +506,31 @@ function sealedCard() {
   el.className = 'album-card unknown sealed';
   el.append(sealedStage());
   return el;
+}
+// The picture button of the card for `kind`, in the book shown.
+const pickOf = kind =>
+  [...$('album-grid').children].find(card => card.dataset.kind === kind)?.querySelector('.album-pick');
+// The arrows move the focus along the cards' pictures, a row at a time up and down, as the page
+// reads; Home and End go to its ends. Only the focus moves: Enter or Space shows the one it is on.
+function moveAmongCards(e) {
+  const from = e.target.closest?.('.album-pick');
+  if (!from) return;
+  const picks = [...$('album-grid').querySelectorAll('.album-pick')],
+    at = picks.indexOf(from),
+    top = picks[0].getBoundingClientRect().top,
+    below = picks.findIndex(pick => pick.getBoundingClientRect().top > top + 1),
+    columns = below > 0 ? below : picks.length,
+    next = {
+      ArrowRight: at + 1,
+      ArrowLeft: at - 1,
+      ArrowDown: at + columns,
+      ArrowUp: at - columns,
+      Home: 0,
+      End: picks.length - 1,
+    }[e.key];
+  if (next === undefined) return;
+  e.preventDefault();
+  picks[Math.min(Math.max(next, 0), picks.length - 1)].focus();
 }
 // The book's left page: the chosen kind's drawing, large, its name and its record, or where to look
 // for one not found yet. In a small window the book is one page and this one is not shown (dialog.css).
@@ -667,9 +702,11 @@ export function setupAlbum() {
       return tab;
     }),
   );
-  // A press on a card (not on one of its buttons) shows it on the left page.
+  // A press on a card (on its picture, or anywhere but one of its other buttons) shows it on the
+  // left page.
   $('album-grid').addEventListener('click', e => {
-    if (e.target.closest('button, a, input, select')) return;
+    const control = e.target.closest('button, a, input, select');
+    if (control && !control.classList.contains('album-pick')) return;
     const seal = e.target.closest('.album-seal');
     if (seal) return rattle(seal);
     const picked = e.target.closest('.album-card');
@@ -677,6 +714,7 @@ export function setupAlbum() {
     chosen[book] = picked.dataset.kind;
     renderAlbum();
   });
+  $('album-grid').addEventListener('keydown', moveAmongCards);
   $('album-detail')?.addEventListener('click', e => {
     const seal = e.target.closest('.album-seal');
     if (seal) rattle(seal);
