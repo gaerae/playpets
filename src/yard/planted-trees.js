@@ -6,13 +6,15 @@ import { openTreeMenu } from '../core/controls.js';
 import { put, putAttribute } from '../core/dom.js';
 import { joinList, t } from '../core/i18n.js';
 import { clamp } from '../core/math.js';
-import { call, data, guard } from '../core/state.js';
+import { reduced } from '../core/sprites.js';
+import { aiming, call, data, guard } from '../core/state.js';
 import { artSvg } from './art.js';
 import { treeArt, treeKind, treeSize } from './catalog.js';
 import { freeSpot, groundAllows, treesIn, treeStage } from './discovery-rules.js';
 import { depthAt, field, measureYard, standAt } from './field.js';
 import { groundProfile } from './ground.js';
 import { shapeHits } from './hit-shape.js';
+import { answer, answerOf } from './press-answer.js';
 import { movable, moveSaved, propButton, propScale, reconcile, removeWithUndo, setDown } from './props.js';
 import { scene } from './world.js';
 
@@ -126,6 +128,16 @@ function create(tree) {
     menu: at => openTreeMenu(view.id, at),
     remove: () => remove(view),
     settle: renderTrees,
+    // A press rustles it and lets a few leaves go; the ground behind takes no click.
+    press: e => {
+      if (aiming) return;
+      e.stopPropagation();
+      const tree = current(view.id);
+      if (tree)
+        answer(view.button, answerOf({ what: 'tree', kind: tree.kind, season: scene.season }), {
+          reduced: reduced.matches,
+        });
+    },
     // The ground does not change under one drag: measured at its first move, not at every one.
     allowed: (at, drag) => groundAllows(at, (drag.ground ??= groundProfile({ skipTreeId: view.id })), PLANTING),
   });

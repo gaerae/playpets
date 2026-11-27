@@ -38,7 +38,8 @@
         "petal-hi": "#f9a3b5",
         "petal-lo": "#c9496a",
         "heart": "#f6c445"
-      }
+      },
+      "patch": { "art": "flowers/patch-tulip.svg", "size": [76.33, 74], "foot": 0.96 }
     },
     {
       "id": "daffodil",
@@ -63,7 +64,8 @@
         "petal-hi": "#ffd864",
         "petal-lo": "#d39a12",
         "heart": "#7a4b26"
-      }
+      },
+      "patch": { "art": "flowers/patch-sunflower.svg", "size": [66.67, 102], "foot": 0.96 }
     },
     {
       "id": "hydrangea",
@@ -75,7 +77,8 @@
         "petal-hi": "#c6dbf7",
         "petal-lo": "#7290d2",
         "heart": "#eef2ff"
-      }
+      },
+      "patch": { "art": "flowers/patch-hydrangea.svg", "size": [83, 74], "foot": 0.96 }
     },
     {
       "id": "cosmos",
@@ -87,7 +90,8 @@
         "petal-hi": "#fbc6dc",
         "petal-lo": "#d0709c",
         "heart": "#f5c542"
-      }
+      },
+      "patch": { "art": "flowers/patch-cosmos.svg", "size": [73, 77], "foot": 0.96 }
     },
     {
       "id": "chrysanthemum",
@@ -112,7 +116,8 @@
         "petal-hi": "#f07386",
         "petal-lo": "#a92a40",
         "heart": "#f8d04f"
-      }
+      },
+      "patch": { "art": "flowers/patch-camellia.svg", "size": [79.33, 77], "foot": 0.96 }
     },
     {
       "id": "snowdrop",
@@ -157,7 +162,8 @@
         "petal-hi": "#cbb6df",
         "petal-lo": "#755b99",
         "heart": "#d5bf7c"
-      }
+      },
+      "patch": { "art": "flowers/patch-lavender.svg", "size": [80, 77], "foot": 0.96 }
     },
     {
       "id": "bellflower",

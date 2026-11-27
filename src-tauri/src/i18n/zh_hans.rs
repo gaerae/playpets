@@ -22,6 +22,8 @@ const TABLE: &[(&str, &str)] = &[
     ("desktop.grass_off", "收起草地"),
     ("desktop.talk", "和{name}聊天"),
     ("desktop.take_in", "从桌面移走"),
+    ("desktop.one_bloom", "一朵"),
+    ("desktop.patch", "一丛"),
     ("tray.alwaysOnTop", "始终置顶"),
     ("tray.fit", "重置窗口大小"),
     ("menu.sound", "乐园声音"),

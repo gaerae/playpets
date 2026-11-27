@@ -273,3 +273,12 @@ The grass came out on its own, but nothing showed that its pebbles move or how t
 - **The hand shows the pull** the first three times the grass comes out (`ground.js` `demo`): the yard's hand, mirrored so the screen's corner cuts none of it, pulls the right pebble in twice and lets it spring back. Pulling a pebble ends it for good. With reduced motion the hand rests on the pebble without moving; with no storage it does not show, so it cannot come back every time.
 - **No scatter.** The season's daisies, petals, leaves and winter tufts laid over the lawn were 4 to 8 px at the strip's size and read as specks, so they are gone. Winter keeps its snowy lawn and pebble; the other seasons show in what falls around a friend (`flurry.js`), which comes from something the person did.
 - **Kept as it was:** the grass starts across the whole floor. A pointer resting 300ms on a corner still lets the pebble take the next click there, as over a full window's scrollbar or resize corner; this is looked at again only if it is reported.
+
+## Follow-up: flower patches and press answers (2026-11-27)
+Two parts of the desktop-first spike that were tried and left out are brought over:
+- **One bloom or a patch.** Six flowers have a patch drawing (`patch` in `catalog.json`). In bloom, outdoors and on the desktop, they draw as the patch unless the plant is set to one bloom (`single` in the garden, `setSingleBloom`).
+  - The yard's thing bar and the desktop's native menu offer **One bloom** and **A patch** as a checked pair, only in bloom, so a flower's kind stays a surprise until then.
+  - The workshop has no soil: flowers there stay one bloom in a pot, and the pair is not offered.
+- **A press answers** (`yard/press-answer.js`, `styles/answer.css`): a flower bobs and drops three of its own petals, a tree rustles and lets three leaves go (autumn colours only on a tree that turns, snow in winter), a gift bobs.
+  - The same in the yard and on the desktop. A desktop gift with its own answer (a part that spins, a lamp, a find) keeps that answer instead.
+  - One CSS animation on `scale` or `rotate`, so the breeze on `transform` goes on under it, and at most eight bits per thing that remove themselves; nothing joins the frame loop. Reduced motion shows none.

@@ -403,6 +403,8 @@ export const strings = {
   'garden.pulled': '{kind} pulled up',
   'garden.pulled_young': 'Young plant pulled up',
   'garden.pull': 'Pull up',
+  'garden.one_bloom': 'One bloom',
+  'garden.patch': 'A patch',
   'garden.water': ['Grow, grow!', 'Here is some water~', 'Thirsty?'],
   'garden.visit': ['Smells nice~', 'It bloomed!', 'A flower!'],
   'decor.kind_bench': 'Bench',

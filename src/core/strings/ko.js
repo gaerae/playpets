@@ -400,6 +400,8 @@ export const strings = {
   'garden.pulled': '{kind:을/를} 뽑았어요',
   'garden.pulled_young': '아직 피지 않은 꽃을 뽑았어요',
   'garden.pull': '뽑기',
+  'garden.one_bloom': '한 송이',
+  'garden.patch': '꽃무리',
   'garden.water': ['쑥쑥 자라라!', '물 줄게~', '목마르지?'],
   'garden.visit': ['좋은 냄새~', '예쁘게 피었다!', '꽃이다!'],
   'decor.kind_bench': '벤치',

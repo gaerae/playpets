@@ -84,6 +84,7 @@ Every album book is a list in `src/content/catalog.json`; its kinds are named by
    | `weight` (optional) | How often seeds of its season grow it, among that season's flowers; 1 if left out |
    | `stature` (optional) | How much taller than others it stands once grown |
    | `foot` (optional) | Where the stem ends, as a share of the drawing's height from its top, when that is above the drawing's edge; outdoors and on the desktop the flower in bloom stands there. 1 if left out |
+   | `patch` (optional) | A patch of the flower drawn as one picture: `art` (`flowers/patch-<id>.svg`), `size` in catalogue units and `foot`. Outdoors and on the desktop the flower blooms as this patch unless the person picks **One bloom** in its menu; in the workshop it stays one bloom in a pot |
 
 2. Draw it in `src/art/flowers/<id>.svg`. The garden's stages before the bloom are shared (`src/art/plants/`).
 3. Add `garden.kind_<id>` to every string table.

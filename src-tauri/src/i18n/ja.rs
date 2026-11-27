@@ -22,6 +22,8 @@ const TABLE: &[(&str, &str)] = &[
     ("desktop.grass_off", "芝生をしまう"),
     ("desktop.talk", "{name}に話しかける"),
     ("desktop.take_in", "デスクトップから外す"),
+    ("desktop.one_bloom", "一輪"),
+    ("desktop.patch", "群れ咲き"),
     ("tray.alwaysOnTop", "常に手前に表示"),
     ("tray.fit", "ウィンドウサイズをリセット"),
     ("menu.sound", "庭の音"),

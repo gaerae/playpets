@@ -10,18 +10,20 @@ import { put, putAttribute } from '../core/dom.js';
 import { joinList, list, t } from '../core/i18n.js';
 import { onEscape } from '../core/keys.js';
 import { clamp, pick } from '../core/math.js';
+import { reduced } from '../core/sprites.js';
 import { $, aiming, call, data, game, guard, selected, toast, views } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { everyMinute } from '../core/ticker.js';
-import { artHref, artSize, colorStyle } from './art.js';
+import { artHref, artSize, artSvg, colorStyle } from './art.js';
 import { befriend } from './bond.js';
 import { showCard } from './card.js';
 import { setAimingMode } from './care.js';
 import { flowerKind } from './catalog.js';
 import { flowerSvg } from './creatures.js';
 import { depthAt, field, fieldToYard, footTarget, petHeight, sizeOf, standAt, topAt, yardToDecor } from './field.js';
-import { flowerFor, hoursMinutes, plantArt, plantStature, stageOf, untilBloom } from './growth.js';
+import { flowerFor, hoursMinutes, offersPatch, plantLook, stageOf, untilBloom } from './growth.js';
 import { shapeHits } from './hit-shape.js';
+import { answer, answerOf } from './press-answer.js';
 import { movable, moveSaved, propButton, propScale, reconcile, removeWithUndo, setDown } from './props.js';
 import { cue } from './sound.js';
 import { forPerson, release, rest, sendTo } from './trips.js';
@@ -53,8 +55,10 @@ function label(plant, now) {
 const current = id => data.garden?.plants?.find(p => p.id === id);
 // Where a plant stands, drawn at the stage the clock says (a drag shows it at `point` first).
 function position(v, plant, now = Date.now(), point = plant) {
+  // Outdoors a flower may bloom as its planted patch; indoors it stands in its pot (garden.css), and
+  // its cut stem may end above the drawing's edge only outdoors (catalog.json "foot").
   const stage = stageOf(plant.planted, now).name,
-    art = plantArt(plant, stage);
+    { art, tall, foot } = plantLook(plant, stage, { outdoors: worldHasSoil(scene.world) });
   if (v.art !== art) {
     v.art = art;
     v.use.setAttribute('href', artHref(art));
@@ -67,12 +71,8 @@ function position(v, plant, now = Date.now(), point = plant) {
   const [aw, ah] = artSize(art),
     at = standAt(point),
     scale = propScale(at),
-    tall = plantStature(plant, stage),
     w = aw * UNIT * scale * tall,
-    h = ah * UNIT * scale * tall,
-    // A cut stem may end above the drawing's edge (catalog.json "foot"): outdoors it stands where
-    // it ends; indoors it stands in its pot, which ends at the box (garden.css).
-    foot = stage === 'bloom' && worldHasSoil(scene.world) ? (flowerKind(plant.kind)?.foot ?? 1) : 1;
+    h = ah * UNIT * scale * tall;
   v.button.style.setProperty('--foot', String(foot));
   // Whole inside the yard at either side, as a gift is (decor.js placement).
   at.x = clamp(at.x, w / 2 + 4, field().width - w / 2 - 4);
@@ -118,10 +118,32 @@ function create(plant) {
     press: e => {
       if (aiming) return;
       e.stopPropagation();
+      // It bobs and drops a few petals, and the nearest friend walks over to water it.
+      const plant = current(v.id);
+      if (plant)
+        answer(v.button, answerOf({ what: 'plant', kind: plant.kind, season: scene.season }), {
+          reduced: reduced.matches,
+        });
       water(v.id);
     },
   });
   return v;
+}
+/** What a flower's menu offers between one bloom and its planted patch (growth.js offersPatch):
+ * whether it is set to one bloom, and a picture of each, or null when it offers neither. */
+export function bloomChoice(id, now = Date.now()) {
+  const plant = current(id);
+  if (!plant || !offersPatch(plant, stageOf(plant.planted, now).name, worldHasSoil(scene.world))) return null;
+  const kind = flowerKind(plant.kind);
+  return {
+    single: !!plant.single,
+    one: artSvg(kind.art, `style="${colorStyle(kind.colors)}"`),
+    patch: artSvg(kind.patch.art),
+  };
+}
+/** Sets a flower to bloom as one flower or as its planted patch; the backend's state redraws it. */
+export function setSingleBloom(id, single) {
+  return call('setSingleBloom', id, single).catch(error => toast(spoken(error, t('error.generic')), { error: true }));
 }
 /** Brings the field in line with the backend's garden, at the stage the clock says. */
 export function renderGarden(now = Date.now()) {

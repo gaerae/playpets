@@ -22,6 +22,8 @@ const TABLE: &[(&str, &str)] = &[
     ("desktop.grass_off", "잔디 걷기"),
     ("desktop.talk", "{name}에게 말 걸기"),
     ("desktop.take_in", "바탕화면에서 빼기"),
+    ("desktop.one_bloom", "한 송이"),
+    ("desktop.patch", "꽃무리"),
     ("tray.alwaysOnTop", "항상 위에 표시"),
     ("tray.fit", "창 크기 맞추기"),
     ("menu.sound", "놀이터 소리"),

@@ -10,6 +10,11 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- Tulips, cosmos, sunflowers, lavender, hydrangeas and camellias bloom as a patch outdoors and on the desktop. Their menu offers **One bloom** or **A patch**, so each flower can be a single stem again; in the garden workshop they stay one bloom in a pot.
+- A flower, a tree or a gift answers a press, in the yard and on the desktop: a flower bobs and drops a few of its petals, a tree rustles and lets a few leaves go in its season's colours (snow in winter), and a gift bobs. Nothing moves with reduced motion.
+
 ### Website and docs
 
 - The website's and the README's pictures of the yard show it as it is played, without the painted hand that points at a friend until it has been patted.

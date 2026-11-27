@@ -1397,6 +1397,15 @@ const scenario = `(async()=>{
     const grownToast=document.querySelector('.toast')?.textContent;
     $('close-album').click();
     await L('albumTakeOut='+(grownFlower&&grownTree?'grown-out':'err:'+JSON.stringify({grownFlower,grownTree,grownToast,world:(await playPets.bootstrap()).data.world})));
+    // A tulip in bloom stands on the desktop as its patch, and One bloom makes it a single stem
+    // there too: the box the backend lays out follows the choice.
+    const deskBox=async()=>{const i=(await playPets.bootstrap()).data.desktopLayout.find(x=>x.id===grownFlower?.id);return i&&[i.width,i.height];};
+    const patchBox=grownFlower&&await until(async()=>{const b=await deskBox();return b?.[0]===95&&b[1]===93&&b;},8000);
+    if(grownFlower)await must('oneBloom',playPets.setSingleBloom(grownFlower.id,true));
+    const oneBox=grownFlower&&await until(async()=>{const b=await deskBox();return b&&b[0]<95&&b[1]<93&&b;},8000);
+    if(grownFlower)await must('patchAgain',playPets.setSingleBloom(grownFlower.id,false));
+    const backBox=grownFlower&&await until(async()=>{const b=await deskBox();return b?.[0]===95&&b;},8000);
+    await L('desktopPatch='+(patchBox&&oneBox&&backBox?'patch-one-patch':'err:'+JSON.stringify({patchBox,oneBox,backBox,now:await deskBox()})));
     // The flower's card brings it back: its screen takes it off the desktop and leaves it in the yard,
     // then Put back takes it in.
     $('album-button').click();await until(()=>document.querySelectorAll('.album-card').length>0);
@@ -2088,6 +2097,10 @@ const expect = [
   [/^wanderOn=ok/, 'roaming toggle'],
   [/^desktopPlant=out-and-in$/, 'a flower goes out on the desktop from its menu and comes back in'],
   [/^albumTakeOut=grown-out$/, 'a flower and a tree come out of the album grown, the flower onto the desktop too'],
+  [
+    /^desktopPatch=patch-one-patch$/,
+    'a tulip in bloom stands on the desktop as its patch, and One bloom makes it a single stem',
+  ],
   [/^albumBringIn=off-then-in$/, 'the flower comes off the desktop and back into the album through its card'],
   [
     /^albumFindOut=on-its-own$/,

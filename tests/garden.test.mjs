@@ -14,6 +14,9 @@ import {
   STAGES,
   stageOf,
   untilBloom,
+  plantLook,
+  hasPatch,
+  offersPatch,
 } from '../src/yard/growth.js';
 
 const MIN = 60000;
@@ -70,4 +73,33 @@ test('a gift waits a while once it may come, the first one soon', () => {
   assert.ok(giftWait(() => 0.999) < GIFT_WAIT[1]);
   assert.equal(localDay(new Date(2026, 0, 5, 23, 59)), '2026-01-05', "the person's own day, by their clock");
   assert.equal(localDay(new Date(2026, 9, 9)), '2026-10-09');
+});
+
+test('a flower with a patch blooms as its planted patch outdoors, unless set to one bloom', () => {
+  const tulip = FLOWERS.find(f => f.id === 'tulip'),
+    sunflower = FLOWERS.find(f => f.id === 'sunflower'),
+    daffodil = FLOWERS.find(f => f.id === 'daffodil');
+  assert.ok(tulip.patch && sunflower.patch && !daffodil.patch);
+  assert.deepEqual(plantLook({ kind: 'tulip' }, 'bloom'), { art: tulip.patch.art, tall: 1, foot: tulip.patch.foot });
+  assert.deepEqual(plantLook({ kind: 'tulip', single: true }, 'bloom'), { art: tulip.art, tall: 1, foot: tulip.foot });
+  // A patch is drawn at its own size: a tall flower's stature is for its one bloom.
+  assert.equal(plantLook({ kind: 'sunflower' }, 'bloom').tall, 1);
+  assert.equal(plantLook({ kind: 'sunflower', single: true }, 'bloom').tall, sunflower.stature);
+  assert.equal(plantLook({ kind: 'sunflower' }, 'bud').tall, sunflower.stature);
+  // Before it blooms, and for a flower with no patch, nothing changes.
+  const bud = STAGES.find(s => s.name === 'bud').art;
+  assert.deepEqual(plantLook({ kind: 'tulip' }, 'bud'), { art: bud, tall: 1, foot: 1 });
+  assert.equal(plantLook({ kind: 'daffodil' }, 'bloom').art, daffodil.art);
+  // Indoors a flower stands in its pot: one bloom, standing at its box's edge.
+  assert.deepEqual(plantLook({ kind: 'tulip' }, 'bloom', { outdoors: false }), { art: tulip.art, tall: 1, foot: 1 });
+  assert.equal(hasPatch('tulip'), true);
+  assert.equal(hasPatch('daffodil'), false);
+});
+
+test('a flower offers one bloom or its patch only once it blooms, outdoors, and only if it has a patch', () => {
+  assert.equal(offersPatch({ kind: 'tulip' }, 'bloom', true), true);
+  assert.equal(offersPatch({ kind: 'tulip', single: true }, 'bloom', true), true, 'and back to its patch');
+  assert.equal(offersPatch({ kind: 'tulip' }, 'bud', true), false, 'its kind is still a surprise');
+  assert.equal(offersPatch({ kind: 'tulip' }, 'bloom', false), false, 'indoors it is in a pot');
+  assert.equal(offersPatch({ kind: 'daffodil' }, 'bloom', true), false);
 });

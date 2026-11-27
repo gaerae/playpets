@@ -16,19 +16,39 @@ pub const DECOR_SCALE: f64 = 1.05;
 /// (src/yard/garden.js UNIT).
 const PLANT_BOX: (f64, f64) = (50.0, 75.0);
 
-/// A flower's box on the desktop at `now`: its drawing, taller once a tall kind buds, as the overlay
-/// draws it (src/overlay/growing.js). The overlay takes the pointer over the whole box, so it is no
-/// bigger than what is drawn; main.rs looks again each minute while a flower is out.
-fn plant_box(kind: &str, planted: u64, now: u64) -> (f64, f64) {
+/// Yard pixels a catalogue unit at full size (src/yard/garden.js UNIT).
+const UNIT: f64 = 1.25;
+
+/// A flower's planted patch, when it is drawn as one at `now`: in bloom, of a kind that has one, and
+/// not set to one bloom (`single`), as src/yard/growth.js plantLook says.
+fn patch_now(kind: &str, planted: u64, single: bool, now: u64) -> Option<((f64, f64), f64)> {
+    let bloomed = now.saturating_sub(planted) >= catalog().bloom_after_ms();
+    if bloomed && !single {
+        catalog().patch(kind)
+    } else {
+        None
+    }
+}
+
+/// A flower's box on the desktop at `now`: its drawing, taller once a tall kind buds, or its patch
+/// once it blooms as one, as the overlay draws it (src/overlay/growing.js). The overlay takes the
+/// pointer over the whole box, so it is no bigger than what is drawn; main.rs looks again each
+/// minute while a flower is out.
+fn plant_box(kind: &str, planted: u64, single: bool, now: u64) -> (f64, f64) {
+    if let Some(((w, h), _)) = patch_now(kind, planted, single, now) {
+        return ((w * UNIT).round(), (h * UNIT).round());
+    }
     let tall = catalog().stature_at(kind, now.saturating_sub(planted));
     ((PLANT_BOX.0 * tall).round(), (PLANT_BOX.1 * tall).round())
 }
 
 /// Where a flower's drawing ends on the desktop at `now`, as a share of its box from the top: a cut
-/// stem may end above it once it blooms (catalog.json "foot"); before, it stands in its soil at the
-/// box's edge, as the overlay draws it (src/overlay/growing.js).
-fn plant_foot(kind: &str, planted: u64, now: u64) -> f64 {
-    if now.saturating_sub(planted) >= catalog().bloom_after_ms() {
+/// stem, or a patch's grass, may end above it once it blooms (catalog.json "foot"); before, it
+/// stands in its soil at the box's edge, as the overlay draws it (src/overlay/growing.js).
+fn plant_foot(kind: &str, planted: u64, single: bool, now: u64) -> f64 {
+    if let Some((_, foot)) = patch_now(kind, planted, single, now) {
+        foot
+    } else if now.saturating_sub(planted) >= catalog().bloom_after_ms() {
         catalog().bloom_foot(kind)
     } else {
         1.0
@@ -116,13 +136,13 @@ fn decoration(d: &crate::pets::garden::Decor) -> Item {
 }
 
 fn plant(p: &crate::pets::garden::Plant, now: u64) -> Item {
-    let (w, h) = plant_box(&p.kind, p.planted, now);
+    let (w, h) = plant_box(&p.kind, p.planted, p.single, now);
     Item {
         id: p.id.clone(),
         size: 0.0,
         saved: spot(p.desktop_position),
         decor: Some((p.kind.clone(), w, h)),
-        foot: plant_foot(&p.kind, p.planted, now),
+        foot: plant_foot(&p.kind, p.planted, p.single, now),
         hangs: false,
     }
 }
@@ -258,12 +278,26 @@ mod tests {
     #[test]
     fn a_tall_flower_takes_its_room_on_the_desktop_only_once_it_buds() {
         let bud = 120 * 60 * 1000;
-        assert_eq!(plant_box("sunflower", 1000, 1000), (50.0, 75.0));
-        assert_eq!(plant_box("sunflower", 1000, 1000 + bud - 1), (50.0, 75.0));
-        assert_eq!(plant_box("sunflower", 1000, 1000 + bud), (70.0, 105.0));
-        assert_eq!(plant_box("tulip", 0, 10 * bud), (50.0, 75.0));
+        assert_eq!(plant_box("sunflower", 1000, false, 1000), (50.0, 75.0));
+        assert_eq!(plant_box("sunflower", 1000, false, 1000 + bud - 1), (50.0, 75.0));
+        assert_eq!(plant_box("sunflower", 1000, false, 1000 + bud), (70.0, 105.0));
+        assert_eq!(plant_box("tulip", 0, true, 10 * bud), (50.0, 75.0));
         // A clock set back reads as just planted.
-        assert_eq!(plant_box("sunflower", 5000, 1000), (50.0, 75.0));
+        assert_eq!(plant_box("sunflower", 5000, false, 1000), (50.0, 75.0));
+    }
+
+    // In bloom a flower with a patch (catalog.json "patch") is drawn as it, at its size at the yard's
+    // 1.25 pixels a unit (src/overlay/growing.js), unless set to one bloom; one with none is as before.
+    #[test]
+    fn a_flower_in_bloom_takes_its_patch_s_room_unless_set_to_one_bloom() {
+        let bloom = catalog().bloom_after_ms();
+        assert_eq!(plant_box("tulip", 0, false, bloom), (95.0, 93.0));
+        assert_eq!(plant_box("sunflower", 0, false, bloom), (83.0, 128.0));
+        assert_eq!(plant_box("sunflower", 0, true, bloom), (70.0, 105.0));
+        assert_eq!(plant_box("daffodil", 0, false, bloom), (50.0, 75.0));
+        assert_eq!(plant_foot("tulip", 0, false, bloom), 0.96);
+        assert_eq!(plant_foot("tulip", 0, true, bloom), 0.932);
+        assert_eq!(plant_foot("tulip", 0, false, bloom - 1), 1.0);
     }
 
     // A drawing may end above its box's edge (catalog.json "foot"); the overlay stands it there.
@@ -284,9 +318,9 @@ mod tests {
         assert_eq!(foot("pip"), 1.0, "a friend's box is its own");
         // A flower's stem ends above its drawing once it blooms; before, it stands in its soil.
         let bloom = catalog().bloom_after_ms();
-        assert_eq!(plant_foot("tulip", 1000, 1000 + bloom - 1), 1.0);
-        assert_eq!(plant_foot("tulip", 1000, 1000 + bloom), 0.932);
-        assert_eq!(plant_foot("no-such-flower", 0, bloom), 1.0);
+        assert_eq!(plant_foot("tulip", 1000, true, 1000 + bloom - 1), 1.0);
+        assert_eq!(plant_foot("tulip", 1000, true, 1000 + bloom), 0.932);
+        assert_eq!(plant_foot("no-such-flower", 0, false, bloom), 1.0);
     }
 
     #[test]
@@ -357,8 +391,14 @@ mod tests {
         assert!(anything_out(&pets, &garden, Some(&[])));
         let out = items(&pets, &garden, Some(&[]));
         assert_eq!(out.iter().map(|i| i.id.as_str()).collect::<Vec<_>>(), ["sun", "cherry"]);
-        // A flower's box is its grown drawing's, taller for a tall kind; a tree's is its stage's.
-        assert_eq!(out[0].decor, Some(("sunflower".into(), 70.0, 105.0)));
+        // A flower's box is its grown drawing's: its patch's, or one bloom's, taller for a tall kind; a
+        // tree's is its stage's.
+        assert_eq!(out[0].decor, Some(("sunflower".into(), 83.0, 128.0)));
+        garden.plants[0].single = true;
+        assert_eq!(
+            items(&pets, &garden, Some(&[]))[0].decor,
+            Some(("sunflower".into(), 70.0, 105.0))
+        );
         assert_eq!(out[1].decor, Some(("cherry".into(), 35.0, 40.0)));
         garden.trees[0].stage = 2;
         assert_eq!(

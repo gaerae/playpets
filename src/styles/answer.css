@@ -1,0 +1,103 @@
+/* A press on a flower, a tree or a gift answers (yard/press-answer.js), in the yard and on the
+   desktop alike: its drawing bobs or rustles once from its foot, and a few petals, leaves or flakes
+   fall from it to about its foot and fade. Bob and rustle move only `scale` and `rotate`, so the
+   breeze's lean (garden.css, on `transform`) goes on under them. Loaded by both pages; reduced
+   motion makes none (press-answer.js). */
+.yard :is(.plant, .planted-tree, .decor).answering > svg,
+#friends .decor.answering > svg {
+  transform-origin: 50% 100%;
+}
+.yard :is(.plant, .decor).answering[data-answer="bob"] > svg,
+#friends .decor.answering[data-answer="bob"] > svg {
+  animation: answer-bob 520ms cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.yard .planted-tree.answering[data-answer="rustle"] > svg,
+#friends .decor.answering[data-answer="rustle"] > svg {
+  animation: answer-rustle 760ms ease-out;
+}
+/* Outdoors the breeze keeps swaying it while it answers. */
+.yard:not([data-soil="false"]) .plant.answering[data-answer="bob"]:not([data-stage="seed"]) > svg {
+  animation:
+    breeze-flower 4.6s ease-in-out var(--sway, 0s) infinite alternate,
+    answer-bob 520ms cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.yard:not([data-soil="false"]) .planted-tree.answering[data-answer="rustle"] > svg {
+  animation:
+    breeze 7s ease-in-out var(--sway, 0s) infinite alternate,
+    answer-rustle 760ms ease-out;
+}
+@keyframes answer-bob {
+  0%,
+  100% {
+    scale: 1 1;
+  }
+  30% {
+    scale: 1.07 0.93;
+  }
+  62% {
+    scale: 0.97 1.04;
+  }
+}
+@keyframes answer-rustle {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  18% {
+    rotate: -1.8deg;
+  }
+  42% {
+    rotate: 1.4deg;
+  }
+  68% {
+    rotate: -0.7deg;
+  }
+}
+/* A bit falls slowly, drifting aside and turning, and fades before it lands. */
+.answer-bit {
+  position: absolute;
+  z-index: 1;
+  width: 7px;
+  height: 5px;
+  margin: -2px -3px;
+  border-radius: 60% 40% 60% 40%;
+  /* Lit from the upper left as the paintings are, so a petal reads as a petal on any ground. */
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 55%, white), var(--c) 70%);
+  box-shadow: 0 1px 1px rgb(60 40 20 / 0.22);
+  pointer-events: none;
+  opacity: 0;
+  animation: answer-fall 1500ms cubic-bezier(0.35, 0.1, 0.6, 1) forwards;
+}
+.answer-bit[data-bit="leaf"] {
+  width: 8px;
+  height: 5px;
+  border-radius: 0 80% 0 80%;
+}
+.answer-bit[data-bit="snow"] {
+  width: 4px;
+  height: 4px;
+  margin: -2px;
+  border-radius: 50%;
+  box-shadow: 0 0 2px rgb(255 255 255 / 0.9);
+}
+@keyframes answer-fall {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  12% {
+    opacity: 1;
+  }
+  45% {
+    translate: calc(var(--dx) * 0.7) calc(var(--fall) * 0.4);
+  }
+  80% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    translate: var(--dx) var(--fall);
+    rotate: var(--turn);
+  }
+}

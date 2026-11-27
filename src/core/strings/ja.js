@@ -404,6 +404,8 @@ export const strings = {
   'garden.pulled': '{kind}を抜きました',
   'garden.pulled_young': 'まだ咲いていない花を抜きました',
   'garden.pull': '抜く',
+  'garden.one_bloom': '一輪',
+  'garden.patch': '群れ咲き',
   'garden.water': ['すくすく育て！', 'お水どうぞ〜', 'のど乾いた？'],
   'garden.visit': ['いい匂い〜', 'きれいに咲いた！', 'お花だ！'],
   'decor.kind_bench': 'ベンチ',

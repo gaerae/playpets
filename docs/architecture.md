@@ -307,7 +307,7 @@ What each arrow in the diagram carries, path by path.
 | AI and chat | `saveProvider`, `chat`, `chatWith` |
 | Yard chatter | `chatter`, `setAutoChatter` |
 | Yard sounds | `setSound` |
-| The garden and its gifts | `plant`, `pullPlant`, `receiveGift`, `moveDecor`, `putAway` |
+| The garden and its gifts | `plant`, `pullPlant`, `setSingleBloom`, `receiveGift`, `moveDecor`, `putAway` |
 | The scene and imported backgrounds | `setScene`, `listBackgrounds`, `saveBackground`, `removeBackground` |
 | Discoveries and trees | `dig`, `plantTree`, `moveTree`, `removeTree`, `growTrees` |
 | The album | `catch`, `bloomed` |

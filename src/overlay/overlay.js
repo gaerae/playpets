@@ -26,6 +26,7 @@ import { plain } from '../core/text.js';
 import { every, everyMinute, halt, moveTo } from '../core/ticker.js';
 import { useCatalog } from '../yard/catalog.js';
 import { findOutKind, visitLines } from '../yard/find-out.js';
+import { answer } from '../yard/press-answer.js';
 import { periodFor } from '../yard/scene.js';
 import { ring } from './chime.js';
 import { dressDecor, drawDecor } from './decor-view.js';
@@ -34,7 +35,7 @@ import { setupGround } from './ground.js';
 import { visitKey } from './growing.js';
 import { legsKey, legsOf, legsWalk, stepDesktop } from './legs.js';
 import { CALM_SHARE, LIVELY_MS, nextDraw } from './pace.js';
-import { poke, showLamp } from './poke.js';
+import { poke, pressLook, showLamp } from './poke.js';
 
 setupInteractions();
 document.documentElement.lang = language();
@@ -245,7 +246,11 @@ function createDecor(id, kind) {
     if (!view.drag) return;
     const moved = view.drag.moved;
     view.drag = null;
-    if (!moved) poke(view, { period, reduced: reduced.matches, ring: cue => ring(sound, cue) });
+    if (!moved) {
+      poke(view, { period, reduced: reduced.matches, ring: cue => ring(sound, cue) });
+      // A flower, a tree or a quiet gift answers as in the yard; its bits fall in its box.
+      answer(view.button, pressLook(view, data.garden, season), { into: view.wrap, reduced: reduced.matches });
+    }
     await api.dragStop();
     if (button.hasPointerCapture(e.pointerId)) button.releasePointerCapture(e.pointerId);
   };

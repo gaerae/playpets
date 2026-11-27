@@ -76,6 +76,8 @@ export function artOf(catalog, events = { events: [] }) {
     ...events.events,
     ...catalog.garden.stages,
     ...catalog.flowers,
+    // A flower's planted patch, for the kinds that bloom as one.
+    ...catalog.flowers.flatMap(f => (f.patch ? [f.patch] : [])),
     ...catalog.gifts,
     ...(catalog.findsOut || []),
     // A gift's Christmas night is a second look (the grand tree) and the sleigh that comes only with it.

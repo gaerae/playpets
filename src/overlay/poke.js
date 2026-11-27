@@ -13,6 +13,8 @@ import { artSvg } from '../yard/art.js';
 import { giftKind } from '../yard/catalog.js';
 import { effectLayers } from '../yard/effects.js';
 import { findOutEffects, findOutKind, pokeOf } from '../yard/find-out.js';
+import { answerOf } from '../yard/press-answer.js';
+import { growing } from './growing.js';
 
 const share = ([x, y]) => `${x * 100}% ${y * 100}%`;
 /** A gift's drawing as the desktop lays it: its effects' layers (a lit gift's halo and pool, a
@@ -85,4 +87,15 @@ export function poke(view, { period, reduced, ring }) {
   }
   if (answer?.cue) ring(answer.cue);
   else if (gift.effects?.includes('chime')) ring('chime');
+}
+
+/** How the desktop thing `view` (its id and kind) answers a poke as the yard does (press-answer.js):
+ * a flower or a tree in `garden` by `season`, and a gift with no answer of its own. Null for a gift
+ * that already moves, lights or is a find out when poked (`poke`). */
+export function pressLook(view, garden, season) {
+  const thing = growing(garden, view.id);
+  if (thing) return answerOf({ what: thing.what, kind: thing.item.kind, season });
+  const gift = giftKind(view.kind);
+  if (!gift || gift.part || gift.poke || findOutKind(view.kind)) return null;
+  return answerOf({ what: 'gift', kind: view.kind, season });
 }

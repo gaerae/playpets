@@ -1380,6 +1380,10 @@
     "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
     "webp": "7b33f650d966f0ec989f3becb76a29cd7f9a56437c78c274dbb956d69ba04ea2"
   },
+  "flowers/patches.png": {
+    "png": "bb374bfcfa7800d5ab20f2f93be390c218976830e9152f02ab29f935674380e6",
+    "webp": "02db2f7dc2c16b6373bc6a43e8f8172e30b63d137107b746e5ce74640882a790"
+  },
   "flowers/specimens.png": {
     "png": "4facb70ea74cd5db0592bc7cd68d02d3067a183c3f1bbd26070c7fabab284194",
     "webp": "3d4ff1c28481313fcd6fbc154597c2989fb9978c7f40c99a34fdaa18a9eed4fd"

@@ -233,6 +233,14 @@ pub struct Plant {
     /// Whether its flower has been counted in the album.
     #[serde(default)]
     pub bloomed: bool,
+    /// Set to bloom as one flower, for a kind that otherwise blooms as its planted patch
+    /// (catalog.json "patch").
+    #[serde(
+        default,
+        deserialize_with = "super::or_default",
+        skip_serializing_if = "std::ops::Not::not"
+    )]
+    pub single: bool,
     /// Out on the desktop too, as a gift can be (src-tauri/src/desktop/).
     #[serde(
         rename = "onDesktop",
@@ -573,6 +581,7 @@ impl Garden {
             y,
             planted: now,
             bloomed: false,
+            single: false,
             on_desktop: false,
             desktop_position: None,
         };
@@ -643,6 +652,7 @@ impl Garden {
             y,
             planted: now.saturating_sub(catalog().bloom_after_ms()),
             bloomed: true,
+            single: false,
             on_desktop: false,
             desktop_position: None,
         };
@@ -657,6 +667,20 @@ impl Garden {
         if self.plants.len() == before {
             return Err(i18n::t("error.plant_missing"));
         }
+        Ok(())
+    }
+
+    /// Sets a flower with a planted patch to bloom as one flower (`single`) or as its patch.
+    pub fn set_single(&mut self, id: &str, single: bool) -> Result<(), String> {
+        let plant = self
+            .plants
+            .iter_mut()
+            .find(|p| p.id == id)
+            .ok_or_else(|| i18n::t("error.plant_missing"))?;
+        if catalog().patch(&plant.kind).is_none() {
+            return Err(i18n::t("error.bad_request"));
+        }
+        plant.single = single;
         Ok(())
     }
 
@@ -1404,6 +1428,27 @@ mod tests {
     }
 
     #[test]
+    fn a_flower_with_a_patch_can_be_set_to_one_bloom_and_keeps_it_across_a_restart() {
+        let mut g = Garden {
+            seeds: 2,
+            ..Default::default()
+        };
+        let tulip = g.plant("tulip", 0.5, 0.5, 1).unwrap().id;
+        let daffodil = g.plant("daffodil", 0.3, 0.5, 1).unwrap().id;
+        assert!(!g.plants[0].single, "a patch at first");
+        assert_eq!(g.set_single(&tulip, true), Ok(()));
+        assert!(g.plants[0].single);
+        let saved = serde_json::to_value(&g).unwrap();
+        assert_eq!(saved["plants"][0]["single"], true);
+        assert!(Garden::restore(Some(&saved), 0).plants[0].single);
+        assert_eq!(g.set_single(&tulip, false), Ok(()));
+        assert!(serde_json::to_value(&g).unwrap()["plants"][0].get("single").is_none());
+        // Only a kind that has a patch has the choice.
+        assert!(g.set_single(&daffodil, true).is_err());
+        assert!(g.set_single("gone", true).is_err());
+    }
+
+    #[test]
     fn a_plant_out_on_the_desktop_stays_out_across_a_restart() {
         let mut g = Garden {
             seeds: 1,
@@ -1462,6 +1507,7 @@ mod tests {
             y: 0.8,
             planted: now,
             bloomed: false,
+            single: false,
             on_desktop: false,
             desktop_position: None,
         });

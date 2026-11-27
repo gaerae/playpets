@@ -6,7 +6,7 @@
 import { t } from '../core/i18n.js';
 import { artSize, artSvg, colorStyle } from '../yard/art.js';
 import { flowerKind, STAGES, treeArt, treeKind, treeSize } from '../yard/catalog.js';
-import { plantArt, plantStature, stageOf } from '../yard/growth.js';
+import { plantLook, stageOf } from '../yard/growth.js';
 
 // Yard pixels per unit of a plant's drawing (garden.js UNIT): a friend's sprite on the desktop is
 // its size in pixels, as in a yard at full size.
@@ -24,21 +24,21 @@ export function growing(garden, id) {
 /** Every drawing a flower or a tree of `kind` may be drawn with, to load before it is. */
 export function growingArt(kind) {
   const flower = flowerKind(kind);
-  if (flower) return [...STAGES.map(s => s.art), flower.art].filter(Boolean);
+  if (flower) return [...STAGES.map(s => s.art), flower.art, flower.patch?.art].filter(Boolean);
   const tree = treeKind(kind);
   return tree ? [...tree.stages.map(s => s.art), ...Object.values(tree.seasonArt || {})] : [];
 }
 
-/** How `thing` (from growing) looks at `now` in `season`: its drawing, its stage and its size in
- * pixels. `size` gives a drawing's own size (art.js artSize, once loaded). */
+/** How `thing` (from growing) looks at `now` in `season`: its drawing (a flower's planted patch
+ * too: the desktop is outdoors), its stage and its size in pixels. `size` gives a drawing's own size (art.js artSize, once loaded). */
 export function growingLook(thing, season, now = Date.now(), size = artSize) {
   if (thing.what === 'plant') {
     const plant = thing.item,
       stage = stageOf(plant.planted, now).name,
-      art = plantArt(plant, stage),
-      [w, h] = size(art),
-      tall = plantStature(plant, stage);
-    return { art, stage, width: w * UNIT * tall, height: h * UNIT * tall };
+      { art, tall } = plantLook(plant, stage),
+      [w, h] = size(art);
+    // In whole pixels, as the backend rounds the box it gives the flower.
+    return { art, stage, width: Math.round(w * UNIT * tall), height: Math.round(h * UNIT * tall) };
   }
   const tree = thing.item,
     stage = Math.min(2, tree.stage || 0),

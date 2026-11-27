@@ -1226,11 +1226,12 @@ test('the narrowest windows keep the Invite title on one line', async () => {
 
 // The interface's colours come from tokens with a light and a dark value (base.css), and a themed
 // surface (the decorating night) names its palette as tokens on its own root. Only drawn things
-// keep colours of their own: the yard's art files, and the marks listed here. Before, 240 raw
+// keep colours of their own: the yard's art files (and the petals, leaves and flakes a pressed thing
+// lets fall, answer.css), and the marks listed here. Before, 240 raw
 // colours were spread over the rules, and some (the Remove button, the Quit hover, the Settings
 // shadow) stayed light in dark mode.
 test('the interface takes its colours from tokens', async () => {
-  const art = new Set(['scenery.css', 'garden.css', 'play.css', 'worn.css']);
+  const art = new Set(['scenery.css', 'garden.css', 'play.css', 'worn.css', 'answer.css']);
   const drawn =
     /\.(?:sun-dot|treat|yard-pet|pet-state-dot|particle|head-petal|album-specimen|album-card\.rare|decorating-stage|decorating-tree|ornament-glint|ornament-hook|decorating-bubble|decorating-status|decorating-kind|ornament-chip::before|pet-label\.dear)\b/;
   const raw = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?)\(|:(?:white|black)\b/i;

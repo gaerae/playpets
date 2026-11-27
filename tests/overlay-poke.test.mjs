@@ -5,7 +5,7 @@ import test from 'node:test';
 import './support/content.mjs';
 
 globalThis.playPets = {};
-const { giftLayers, poke, showLamp } = await import('../src/overlay/poke.js');
+const { giftLayers, poke, pressLook, showLamp } = await import('../src/overlay/poke.js');
 const { giftKind } = await import('../src/yard/catalog.js');
 const { element } = await import('./support/dom.mjs');
 
@@ -88,4 +88,17 @@ test('a poked lantern switches its light until the time of day changes', () => {
   const campfire = desktopGift('campfire');
   poke(campfire, { period: 'night', reduced: false, ring() {} });
   assert.equal(campfire.button.classList.contains('lamp-off'), false, 'only a lamp switches');
+});
+
+test('a flower, a tree or a quiet gift on the desktop answers a poke as in the yard; a gift that moves on its own keeps its own', () => {
+  const garden = {
+    plants: [{ id: 'p', kind: 'tulip' }],
+    trees: [{ id: 't', kind: 'maple' }],
+  };
+  assert.equal(pressLook({ id: 'p', kind: 'tulip' }, garden, 'spring').bit, 'petal');
+  assert.equal(pressLook({ id: 't', kind: 'maple' }, garden, 'autumn').motion, 'rustle');
+  assert.equal(pressLook({ id: 'g', kind: 'bench' }, garden, 'summer').motion, 'bob');
+  // A pinwheel spins and a lantern switches: they answer as they do already.
+  assert.equal(pressLook({ id: 'w', kind: 'pinwheel' }, garden, 'summer'), null);
+  assert.equal(pressLook({ id: 'l', kind: 'lantern' }, garden, 'summer'), null);
 });

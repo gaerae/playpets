@@ -45,6 +45,9 @@ struct Kind {
     /// How much taller a flower stands than others once grown.
     #[serde(default)]
     stature: Option<f64>,
+    /// A flower's planted patch, what it blooms as unless set to one bloom.
+    #[serde(default)]
+    patch: Option<Patch>,
     /// Where a gift's drawing, or a flower's in bloom, ends, as a share of its height from the top.
     #[serde(default)]
     foot: Option<f64>,
@@ -58,6 +61,14 @@ struct Kind {
     /// (a footprint animal, once followed until it turned to look).
     #[serde(default, rename = "onceAfter")]
     once_after: Option<u32>,
+}
+/// A flower's planted patch: its drawing's size in catalogue units, and where its grass ends as a
+/// share of its height from the top.
+#[derive(Deserialize)]
+struct Patch {
+    size: [f64; 2],
+    #[serde(default)]
+    foot: Option<f64>,
 }
 #[derive(Deserialize)]
 struct SizedStage {
@@ -423,6 +434,12 @@ impl Catalog {
     /// Where a gift's drawing ends, as a share of its box's height from the top (1 at its edge).
     pub fn gift_foot(&self, id: &str) -> f64 {
         self.decor_kind(id).and_then(|k| k.foot).unwrap_or(1.0)
+    }
+    /// A flower's planted patch, if it has one: its size in catalogue units, and where its grass
+    /// ends as a share of its height from the top.
+    pub fn patch(&self, id: &str) -> Option<((f64, f64), f64)> {
+        let patch = self.flowers.iter().find(|k| k.id == id)?.patch.as_ref()?;
+        Some(((patch.size[0], patch.size[1]), patch.foot.unwrap_or(1.0)))
     }
     /// Where a flower's stem ends in its bloom's drawing, as a share of its height from the top.
     pub fn bloom_foot(&self, id: &str) -> f64 {

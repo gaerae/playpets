@@ -400,6 +400,8 @@ export const strings = {
   'garden.pulled': '拔掉了{kind}',
   'garden.pulled_young': '拔掉了还没开的花',
   'garden.pull': '拔掉',
+  'garden.one_bloom': '一朵',
+  'garden.patch': '一丛',
   'garden.water': ['快快长大！', '给你浇水～', '渴了吗？'],
   'garden.visit': ['好香呀～', '开得真漂亮！', '是花！'],
   'decor.kind_bench': '长椅',

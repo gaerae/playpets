@@ -71,7 +71,7 @@ import {
 } from './yard/discovery.js';
 import { dutyAfresh } from './yard/duty.js';
 import { cancelFruitPicks, fruitMinute, renderFruit, setupFruit } from './yard/fallen-fruit.js';
-import { pullPlant, renderGarden, setupGarden } from './yard/garden.js';
+import { bloomChoice, pullPlant, renderGarden, setSingleBloom, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { setupLetterCard } from './yard/letter-card.js';
 import { answered, letterPress, letterReadable, openReadable, setupLetters, syncLetter } from './yard/letter.js';
@@ -163,6 +163,8 @@ setupControls({
   removeTree,
   dress: openDress,
   canDress,
+  bloomChoice,
+  setSingleBloom,
   closeness: levelOf,
   canDigAt,
   digAt,

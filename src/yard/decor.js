@@ -13,6 +13,7 @@ import { t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { between, clamp, pick } from '../core/math.js';
 import { systemSouth } from '../core/season.js';
+import { reduced } from '../core/sprites.js';
 import { aiming, call, data, game, guard, name, views } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
 import { artSvg } from './art.js';
@@ -38,6 +39,7 @@ import {
 } from './field.js';
 import { decorName, drawHeld, findOutEffects, findOutKind, giftsOut, visitLines } from './find-out.js';
 import { FIRST_GIFT, GIFT_WAIT, giftDue, giftWait, localDay } from './growth.js';
+import { answer, answerOf } from './press-answer.js';
 import {
   beginDrag,
   dragPoint,
@@ -194,7 +196,10 @@ function create(d) {
     const drag = endDrag(v, button, event);
     button.classList.remove('dragging', 'invalid');
     if (!drag) return;
-    if (!drag.moved) return pressed(v);
+    if (!drag.moved) {
+      answer(button, answerOf({ what: 'gift', kind: v.kind }), { reduced: reduced.matches });
+      return pressed(v);
+    }
     // Let go on the furniture, it goes back where it stood.
     if (drag.at && !drag.free) return renderDecor();
     if (drag.at) return save(v.id, drawnPlace(v.kind, drag.at, v.holds));

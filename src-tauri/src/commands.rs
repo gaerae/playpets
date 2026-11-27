@@ -369,6 +369,13 @@ static COMMANDS: &[Command] = &[
             d.garden.move_plant(c.text(0), x, y).map(|_| Value::Null)
         })
     }),
+    // (id, single): a flower with a planted patch blooms as one flower, or as its patch again.
+    main("setSingleBloom", |c| {
+        let single = c.arg(1).as_bool().ok_or_else(|| i18n::t("error.bad_request"))?;
+        commit(c.app, &c.state, |d| {
+            d.garden.set_single(c.text(0), single).map(|_| Value::Null)
+        })
+    }),
     main("pullPlant", |c| {
         commit(c.app, &c.state, |d| d.garden.pull(c.text(0)).map(|_| Value::Null))
     }),

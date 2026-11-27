@@ -22,6 +22,8 @@ const TABLE: &[(&str, &str)] = &[
     ("desktop.grass_off", "Roll up the grass"),
     ("desktop.talk", "Talk to {name}"),
     ("desktop.take_in", "Take off the desktop"),
+    ("desktop.one_bloom", "One bloom"),
+    ("desktop.patch", "A patch"),
     ("tray.alwaysOnTop", "Always on top"),
     ("tray.fit", "Reset window size"),
     ("menu.sound", "Yard sounds"),
