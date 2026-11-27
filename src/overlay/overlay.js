@@ -26,8 +26,9 @@ import { plain } from '../core/text.js';
 import { every, everyMinute, halt, moveTo } from '../core/ticker.js';
 import { useCatalog } from '../yard/catalog.js';
 import { findOutKind, visitLines } from '../yard/find-out.js';
-import { answer } from '../yard/press-answer.js';
+import { answer, remarker } from '../yard/press-answer.js';
 import { periodFor } from '../yard/scene.js';
+import { arrivalOf, dropIn, dust, popUp } from './arrive.js';
 import { ring } from './chime.js';
 import { dressDecor, drawDecor } from './decor-view.js';
 import { glideMs } from './glide.js';
@@ -250,6 +251,15 @@ function createDecor(id, kind) {
       poke(view, { period, reduced: reduced.matches, ring: cue => ring(sound, cue) });
       // A flower, a tree or a quiet gift answers as in the yard; its bits fall in its box.
       answer(view.button, pressLook(view, data.garden, season), { into: view.wrap, reduced: reduced.matches });
+      // Now and then the friend standing nearest says something about it, as on a visit.
+      const friend = remarker(
+        [...views.values()].filter(v => !v.drag),
+        v => Math.abs(v.mid - view.mid),
+      );
+      if (friend) {
+        say(friend, visitLine(view.kind, view.id));
+        enliven(friend);
+      }
     }
     await api.dragStop();
     if (button.hasPointerCapture(e.pointerId)) button.releasePointerCapture(e.pointerId);
@@ -297,9 +307,48 @@ function renderDecor(local) {
     v.wrap.style.width = `${position.width}px`;
     v.wrap.style.height = `${position.height}px`;
     v.wrap.style.transform = `translate(${position.x - position.origin.x}px,${position.y - position.origin.y}px)`;
+    v.mid = position.x + position.width / 2;
+    if (arrivalOf(position, arrivals)) thingArrives(v);
     // A hanging gift at a screen's top hangs from it (poke.js).
     v.button.classList.toggle('hung', !!position.hung);
   }
+}
+// What came out while the app runs arrives once (arrive.js; overlay.rs marks it for a moment).
+const arrivals = new Set();
+// A friend drops in from the top of its screen once its sheet is in, lands in a puff of dust and
+// waves hello.
+function friendArrives(v, position) {
+  v.button.classList.add('arrive-wait');
+  const land = () => {
+    v.button.classList.remove('arrive-wait');
+    if (!reduced.matches) dust(v.wrap);
+    v.pose = 'wave';
+    v.since = performance.now();
+    v.until = v.since + 1600;
+    say(v, t('care.hello'));
+    enliven(v);
+  };
+  const fall = position.y - position.origin.y + position.height;
+  (v.asset ? sheetReady(v.asset) : Promise.resolve()).then(() => {
+    v.button.classList.remove('arrive-wait');
+    dropIn(v.button, fall, { reduced: reduced.matches, land });
+  });
+}
+// A gift, a flower or a tree pops up, and the friend standing nearest hops and says something
+// about it.
+function thingArrives(v) {
+  popUp(v.button, { reduced: reduced.matches });
+  const friend = remarker(
+    [...views.values()].filter(f => !f.drag),
+    f => Math.abs(f.mid - v.mid),
+    { random: () => 0 },
+  );
+  if (!friend) return;
+  friend.pose = 'jump';
+  friend.since = performance.now();
+  friend.until = friend.since + 1400;
+  say(friend, visitLine(v.kind, v.id));
+  enliven(friend);
 }
 function render() {
   const here = layout.filter(p => p.displayId === displayId),
@@ -347,6 +396,7 @@ function render() {
     // (legs.js; positions stream in via layout events).
     stepDesktop(v, position, performance.now());
     v.mid = position.x + position.width / 2;
+    if (arrivalOf(position, arrivals)) friendArrives(v, position);
     if (drawing(v) !== was) drawNow();
     const height = cellHeight(pet.size);
     // How much screen there is above the sprite: near the top edge the bubble slides down over
@@ -444,11 +494,7 @@ api.onEvent(event => {
     if (event.petId && event.type === 'play' && !v.drag) lawn.fall(v.mid);
     // A friend that strolled over to a gift, a flower or a tree says something that fits it, as in
     // the yard.
-    if (event.type === 'visit') {
-      // A find out is named by what it holds, which the garden keeps under its id.
-      const holds = data.garden?.decor?.find(d => d.id === event.decorId)?.holds;
-      say(v, pick(findOutKind(event.kind) ? visitLines(event.kind, holds) : list(visitKey(event.kind))) || '');
-    }
+    if (event.type === 'visit') say(v, visitLine(event.kind, event.decorId));
     if (event.type === 'status') {
       v.status = stateOf(data, id);
       say(v, event.message);
@@ -465,6 +511,12 @@ api.onEvent(event => {
     }
   }
 });
+/** What a friend says about the gift, flower or tree `id` of `kind` it visits or sees pressed. A
+ * find out is named by what it holds, which the garden keeps under its id. */
+function visitLine(kind, id) {
+  const holds = data.garden?.decor?.find(d => d.id === id)?.holds;
+  return pick(findOutKind(kind) ? visitLines(kind, holds) : list(visitKey(kind))) || '';
+}
 // Someone was with this friend, or it has news: as lively as in the yard for a while. The loop may
 // be resting until a calmer gesture, so it looks again now.
 function enliven(v) {

@@ -129,6 +129,22 @@ struct Inner {
     over_grass: bool,
     /// Whether the pointer shows it pulls a grass end, as last set on the window.
     pull: bool,
+    /// Each thing that came out while the app runs, and when (ARRIVE): its page drops a friend in
+    /// and pops a gift, a flower or a tree up. What was out at the first sync is just there.
+    arrived: HashMap<String, Instant>,
+    /// Whether the first sync has come.
+    synced: bool,
+}
+
+/// How long a thing that came out counts as arriving: long enough for a window opened for it to
+/// load and hear so.
+const ARRIVE: Duration = Duration::from_secs(6);
+
+/// Whether `id` came out within ARRIVE before `now`.
+fn arriving_at(d: &Inner, id: &str, now: Instant) -> bool {
+    d.arrived
+        .get(id)
+        .is_some_and(|at| now.saturating_duration_since(*at) < ARRIVE)
 }
 
 pub struct Overlay {
@@ -294,6 +310,21 @@ impl Overlay {
             d.grass_drag = None;
             d.news = true;
         }
+        // What comes out now arrives: sent out while things are shown, or all of it as desktop
+        // mode comes on; at the first sync, what is out was already there.
+        let now = Instant::now();
+        d.arrived.retain(|_, at| now.saturating_duration_since(*at) < ARRIVE);
+        if d.synced && visible {
+            let came: Vec<String> = pets
+                .iter()
+                .filter(|p| !d.visible || !d.pets.iter().any(|o| o.id == p.id))
+                .map(|p| p.id.clone())
+                .collect();
+            for id in came {
+                d.arrived.insert(id, now);
+            }
+        }
+        d.synced = true;
         d.visible = visible;
         d.wander = wander;
         if !wander {
@@ -458,6 +489,9 @@ fn layout_of(d: &Inner, mons: &[Mon]) -> Vec<Value> {
             // never had the press (pointer capture stays where the drag began).
             if d.drag.as_ref().is_some_and(|g| g.id == p.id) {
                 item["dragging"] = json!(true);
+            }
+            if arriving_at(d, &p.id, Instant::now()) {
+                item["arriving"] = json!(true);
             }
             Some(item)
         })
@@ -1269,6 +1303,42 @@ mod tests {
         overlay.sync(vec![], false, false, None);
         overlay.wake();
         assert!(crate::app::hold(&overlay.inner).resend, "brought in is news too");
+    }
+
+    // What comes out while the app runs arrives (the page drops a friend in, pops a gift up);
+    // what was already out when the app started is just there.
+    #[test]
+    fn what_comes_out_while_the_app_runs_is_marked_as_arriving() {
+        let overlay = Overlay {
+            inner: Arc::default(),
+            looper: std::thread::current(),
+        };
+        let now = Instant::now();
+        let arriving = |o: &Overlay, id: &str| arriving_at(&crate::app::hold(&o.inner), id, now);
+        overlay.sync(vec![out("pip", None, None)], true, false, None);
+        assert!(!arriving(&overlay, "pip"), "out when the app started");
+        overlay.sync(
+            vec![out("pip", None, None), out("bench", None, Some((90.0, 60.0)))],
+            true,
+            false,
+            None,
+        );
+        assert!(arriving(&overlay, "bench"), "sent out now");
+        assert!(!arriving(&overlay, "pip"), "still out");
+        // Desktop mode off and on again: everything comes back out.
+        overlay.sync(vec![out("pip", None, None)], false, false, None);
+        overlay.sync(vec![out("pip", None, None)], true, false, None);
+        assert!(arriving(&overlay, "pip"));
+        let d = crate::app::hold(&overlay.inner);
+        assert!(!arriving_at(&d, "pip", Instant::now() + ARRIVE), "only for a moment");
+        // The page hears it in the layout.
+        let mut d = Inner {
+            pets: d.pets.clone(),
+            arrived: d.arrived.clone(),
+            ..Inner::default()
+        };
+        d.positions.insert("pip".into(), (100.0, 600.0));
+        assert_eq!(layout_of(&d, &screen())[0]["arriving"], json!(true));
     }
 
     // With nothing moving, the loop looks at the pointer again only as soon as it could reach a

@@ -16,6 +16,7 @@ import { TREES, treasureKind } from './catalog.js';
 import { groundAllows } from './discovery-rules.js';
 import { field, fieldToYard, petHeight, sizeOf, topAt, yardToDecor, yardToField } from './field.js';
 import { groundProfile } from './ground.js';
+import { saplingPreview } from './planted-trees.js';
 import { atRainbowEnd, clearRainbowEnd } from './rainbow-end.js';
 import { learn } from './show-how.js';
 import { atTrailEnd, reservedForTrail } from './trails.js';
@@ -173,6 +174,23 @@ function showMarker(event) {
   marker.classList.toggle('invalid', !valid);
   marker.style.left = `${event.clientX - r.left}px`;
   marker.style.top = `${event.clientY - r.top}px`;
+  markSpot(marker, { x: event.clientX - r.left, y: event.clientY - r.top });
+}
+// The spot shows what will happen there: a patch of turned soil (the season's), and for a tree a
+// see-through sapling of the kind in hand at the size it starts at that depth (garden.css).
+function markSpot(marker, at) {
+  marker.dataset.soil = scene.season === 'winter' ? 'winter' : 'base';
+  if (!marker.firstChild) marker.innerHTML = '<span class="marker-soil"></span><span class="marker-sapling"></span>';
+  const sapling = marker.lastChild,
+    look = intent?.action === 'tree' && intent.kind ? saplingPreview(intent.kind, at, scene.season) : null;
+  if (sapling.dataset.art !== (look?.art || '')) {
+    sapling.dataset.art = look?.art || '';
+    sapling.innerHTML = look ? artSvg(look.art) : '';
+  }
+  if (!look) return marker.style.removeProperty('--zoom');
+  sapling.style.width = `${look.width}px`;
+  sapling.style.height = `${look.height}px`;
+  marker.style.setProperty('--zoom', String(look.zoom));
 }
 
 /** A task owns its timer and effect. Taking the friend away cancels only the presentation. `own` is

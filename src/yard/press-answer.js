@@ -3,7 +3,8 @@
 // petals, a tree rustles and lets a few leaves go in the colours it wears now (snow off its
 // branches in winter), and a gift bobs. Each is one short CSS animation (styles/answer.css) and a
 // few small bits that remove themselves, so nothing joins the frame loop; with reduced motion there
-// is none. The yard's and the desktop's stylesheets say which drawing moves.
+// is none. The yard's and the desktop's stylesheets say which drawing moves. Now and then a friend
+// standing near says something about it (remarker), with the lines it says when it visits one.
 
 import { flowerKind, treeKind } from './catalog.js';
 
@@ -35,6 +36,22 @@ export function answerOf({ what, kind, season }) {
     return { motion: 'rustle', bit: 'leaf', colors: turned ? AUTUMN : GREEN, count: 3 };
   }
   return { motion: 'bob', bit: null, colors: [], count: 0 };
+}
+
+// How often a press has a friend say something about what was pressed, and how near (in pixels,
+// on the desktop and in the yard alike) the friend must stand to see it.
+export const REMARK = { chance: 0.4, reach: 360 };
+/** The friend among `friends` who says something about a press, now and then: the nearest by
+ * `away` (its distance in pixels) within reach, or null. */
+export function remarker(friends, away, { random = Math.random } = {}) {
+  if (random() >= REMARK.chance) return null;
+  let best = null,
+    bestD = REMARK.reach;
+  for (const friend of friends) {
+    const d = away(friend);
+    if (d <= bestD) [best, bestD] = [friend, d];
+  }
+  return best;
 }
 
 /** Where each bit of `look` starts in a drawing of `box` ({ width, height } in pixels), as shares of

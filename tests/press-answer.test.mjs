@@ -56,3 +56,20 @@ test('the bits start in the drawing and fall to about its foot, a little apart',
   }
   assert.ok(new Set(bits.map(bit => bit.x)).size === bits.length, 'not on top of each other');
 });
+
+test('now and then the nearest friend within reach says something about what was pressed', async () => {
+  const { remarker, REMARK } = await import('../src/yard/press-answer.js');
+  const friends = [
+    { name: 'far', x: 900 },
+    { name: 'near', x: 160 },
+    { name: 'nearer', x: 60 },
+  ];
+  const away = f => Math.abs(f.x - 0);
+  assert.equal(remarker(friends, away, { random: () => 0 })?.name, 'nearer');
+  // Most presses pass quietly: words at every press would be noise.
+  assert.ok(REMARK.chance > 0 && REMARK.chance < 0.5);
+  assert.equal(remarker(friends, away, { random: () => REMARK.chance }), null);
+  // A friend across the screen does not answer for a flower it cannot see.
+  assert.equal(remarker([{ x: REMARK.reach + 1 }], away, { random: () => 0 }), null);
+  assert.equal(remarker([], away, { random: () => 0 }), null);
+});

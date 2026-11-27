@@ -1149,16 +1149,66 @@
     min-height: 44px;
   }
 }
+/* The spot under the pointer while digging or planting (discovery.js markSpot): a patch of turned
+   soil, with a see-through sapling of the kind in hand standing in it when planting a tree; greyed,
+   leaning and with a small "no" sign where nothing can go. */
 .discovery-marker {
+  --zoom: 1;
   position: absolute;
   z-index: 4;
-  width: 26px;
-  height: 12px;
-  transform: translate(-50%, -50%);
-  border: 2px solid var(--green-ink);
-  border-radius: 50%;
-  background: var(--green-soft);
+  width: 0;
+  height: 0;
   pointer-events: none;
+}
+.marker-soil {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(52px * var(--zoom));
+  height: calc(30px * var(--zoom));
+  translate: -50% -55%;
+  background: url("../art/discovery/dug-soil.webp") center / contain no-repeat;
+  filter: drop-shadow(0 0 3px rgb(255 250 220 / 0.9));
+  opacity: 0.9;
+  transition:
+    opacity 160ms ease,
+    filter 160ms ease;
+}
+.discovery-marker[data-soil="winter"] .marker-soil {
+  background-image: url("../art/discovery/dug-soil-winter.webp");
+}
+.marker-sapling {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  translate: -50% 0;
+  transform-origin: 50% 100%;
+  opacity: 0.72;
+  filter: drop-shadow(0 0 4px rgb(255 252 230 / 0.95));
+  transition:
+    opacity 160ms ease,
+    filter 160ms ease,
+    rotate 220ms cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.marker-sapling > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.discovery-marker.invalid .marker-soil {
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+.discovery-marker.invalid .marker-sapling {
+  opacity: 0.4;
+  filter: grayscale(1) brightness(1.15);
+  rotate: -14deg;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marker-soil,
+  .marker-sapling {
+    transition: none;
+  }
 }
 /* Where a press sends a friend (yard/walk-here.js): a ring of grass bent outward, under the friends,
    until it gets there. */
@@ -1189,22 +1239,19 @@
     animation: none;
   }
 }
-.discovery-marker.invalid {
-  border-color: var(--danger);
-  background: var(--soft);
-}
+/* Where nothing can go, a small round "no" sign beside the spot, drawn rather than typed. */
 .discovery-marker.invalid::after {
-  /* a cross of two strokes, drawn rather than typed */
   content: "";
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  transform: translate(-50%, -50%);
-  background:
-    linear-gradient(45deg, transparent 42%, var(--danger) 42% 58%, transparent 58%),
-    linear-gradient(-45deg, transparent 42%, var(--danger) 42% 58%, transparent 58%);
+  left: calc(14px * var(--zoom));
+  top: calc(-22px * var(--zoom));
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, transparent 44%, var(--danger) 44% 58%, transparent 58%), rgb(255 253 247);
+  box-shadow:
+    inset 0 0 0 2px var(--danger),
+    0 1px 3px rgb(60 40 20 / 0.25);
 }
 .dig-effect {
   position: absolute;
