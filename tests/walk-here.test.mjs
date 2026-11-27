@@ -6,7 +6,7 @@ import test from 'node:test';
 import './support/content.mjs';
 import { reduced } from '../src/core/sprites.js';
 import { setAiming, setData, setGame, setSelected, views } from '../src/core/state.js';
-import { measureYard, sizeOf, underDock } from '../src/yard/field.js';
+import { depthScaleAt, measureYard, sizeOf, underDock } from '../src/yard/field.js';
 import { setupWalkHere, walkHere } from '../src/yard/walk-here.js';
 import { element, installDom } from './support/dom.mjs';
 import { flatField } from './support/flat-field.mjs';
@@ -169,4 +169,20 @@ test('the mark shows the spot until the friend gets there', t => {
   assert.ok(mark && !mark.hidden, 'shown');
   v.trip.arrive(v, 0);
   assert.ok(mark.classList.contains('gone'), 'it fades once the friend is there');
+});
+
+// Feedback: in a small window the friends are small but the mark was not. It is sized as the friend
+// going there stands at the spot: by its size in this window and how far back the spot is.
+test('the mark is as big as the friend going there would look at the spot', t => {
+  const document = yard(t);
+  const v = friend('daisy', 380);
+  const mark = document.getElementById('walk-mark');
+  const zoomAt = (x, y) => {
+    walkHere(x, y);
+    const [px, py] = mark.style.translate.split(' ').map(Number.parseFloat);
+    const zoom = Number(mark.style['--zoom']);
+    assert.equal(zoom, Math.round(((sizeOf(v.pet) * depthScaleAt(px, py)) / 112) * 100) / 100);
+    return zoom;
+  };
+  assert.ok(zoomAt(420, 330) < zoomAt(420, 520), 'smaller farther back');
 });

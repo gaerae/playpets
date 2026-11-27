@@ -1217,9 +1217,9 @@
   left: 0;
   top: 0;
   z-index: 0;
-  width: 64px;
-  height: 22px;
-  margin: -11px 0 0 -32px;
+  width: calc(64px * var(--zoom, 1));
+  height: calc(22px * var(--zoom, 1));
+  margin: calc(-11px * var(--zoom, 1)) 0 0 calc(-32px * var(--zoom, 1));
   background: url("../art/ambient/walk-mark.webp") center / contain no-repeat;
   pointer-events: none;
   animation: walk-mark-in 0.25s ease-out;

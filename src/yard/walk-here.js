@@ -2,7 +2,7 @@
 // walking.md): the selected friend, else the one nearest the spot. A spot it cannot stand on moves
 // to the nearest one it can, and a ring of bent grass marks it until the friend gets there.
 import { $, aiming, game, selected, views } from '../core/state.js';
-import { dockBox, footOf, footTarget, underDock, yardToField } from './field.js';
+import { depthScaleAt, dockBox, footOf, footTarget, sizeOf, underDock, yardToField } from './field.js';
 import { groundProfile } from './ground.js';
 import { nearest, sendTo } from './trips.js';
 import { reachOf } from './views.js';
@@ -57,12 +57,17 @@ export function groundFor(v) {
     !underDock(x, y, reach, dock) && !blocked(x, y) && strollClear(from, yardToField(x, y), ground);
 }
 
+// The body size the mark is drawn for (styles/garden.css .walk-mark), in pixels.
+const MARK_BODY = 112;
 let marked = null;
-// The mark at the spot (yard pixels), until `v` gets there or goes elsewhere.
+// The mark at the spot (yard pixels), until `v` gets there or goes elsewhere: as big as `v` looks
+// standing there, in this window and that far back, as the planting marker is.
 function mark(v, px, py) {
   const ring = $('walk-mark');
   if (!ring) return () => {};
   ring.style.translate = `${Math.round(px)}px ${Math.round(py)}px`;
+  const zoom = (sizeOf(v.pet) * depthScaleAt(px, py)) / MARK_BODY;
+  ring.style.setProperty('--zoom', String(Math.round(zoom * 100) / 100));
   ring.classList.remove('gone');
   ring.hidden = false;
   const own = {};
