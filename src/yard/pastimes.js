@@ -67,7 +67,7 @@ function lookAround(v, others, rng) {
 // It calls over the nearest idle friend: both walk to stand face to face, look at each other, and
 // the one who called waves. Either taken on the way leaves the other to stroll on.
 function meet(v, others, clear, now) {
-  const body = bodyInField(v.pet, v.x),
+  const body = bodyInField(v.pet, v.x, v.y),
     by = o => distance(o, v);
   for (const o of others.sort((a, b) => by(a) - by(b))) {
     const spots = meetSpots({ x: v.x, y: v.y }, { x: o.x, y: o.y }, body);

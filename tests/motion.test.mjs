@@ -4,10 +4,12 @@ import './support/content.mjs';
 import { LEAN, rampPace } from '../src/core/physics.js';
 import { reduced } from '../src/core/sprites.js';
 import { setData, views } from '../src/core/state.js';
-import { geometry, measureYard, sizeOf } from '../src/yard/field.js';
+import { depthScaleAt, EDGE, footTarget, geometry, measureYard, petHeight, sizeOf } from '../src/yard/field.js';
 import { moveFriends, STROLL, WALK } from '../src/yard/motion.js';
 import { LOOK_FIRST_MS, release, sendTo } from '../src/yard/trips.js';
 import { GLIDE_MS, place } from '../src/yard/views.js';
+import { scene } from '../src/yard/world.js';
+import { worldFor } from '../src/yard/worlds.js';
 import { element, installDom } from './support/dom.mjs';
 import { flatField } from './support/flat-field.mjs';
 
@@ -251,6 +253,7 @@ test('the first step of a walk counts from when the friend set off', t => {
   reduced.matches = false;
   let clock = 1000;
   t.mock.method(performance, 'now', () => clock);
+  flatField(t);
   try {
     const friend = {
       pet: { id: 'friend', size: 112 },
@@ -263,9 +266,10 @@ test('the first step of a walk counts from when the friend set off', t => {
     views.clear();
     views.set('friend', friend);
     measureYard();
-    // Its pace is in body lengths, across the field (the yard less a body and its edges), and
-    // ramps up from a stand (core/physics.js).
-    const body = sizeOf(friend.pet) / geometry(friend.pet).w,
+    // Its pace is in body lengths as drawn at its depth, across the field (the yard less a body
+    // and its edges), and ramps up from a stand (core/physics.js).
+    const feet = feetOf(friend),
+      body = (sizeOf(friend.pet) * depthScaleAt(feet.x, feet.y)) / geometry(friend.pet).w,
       far = 0.6 / body;
     // It looks that way first (trips.js LOOK_FIRST_MS), then sets off.
     sendTo(friend, { x: 0.8, y: 0.5 }, { save: false });
@@ -395,7 +399,13 @@ test('a walk cut short and started again ramps up from a stand', t => {
 
 // A pace in the yard's width made friends race across a wide window: on a full screen a stroll
 // covered three body lengths a second. In body lengths, a friend steps the same in any window.
-test('a friend keeps its pace in body lengths, whatever the window’s size and the way it goes, in a game too', t => {
+// Where a friend's feet are in the yard, from its place on the field (views.js place).
+const feetOf = v => {
+  const { w, h, top } = geometry(v.pet, v.x);
+  return { x: EDGE + v.x * w + sizeOf(v.pet) / 2, y: top + v.y * h + petHeight(v.pet) };
+};
+
+test('a friend keeps its pace in body lengths as drawn, whatever the window’s size and the way it goes, in a game too', t => {
   const previousReduced = reduced.matches;
   reduced.matches = false;
   let clock = 1000;
@@ -419,12 +429,13 @@ test('a friend keeps its pace in body lengths, whatever the window’s size and 
     clock = 1000;
     sendTo(friend, to, { save: false, ...trip });
     for (clock = 1050 + LOOK_FIRST_MS; clock <= 1250 + LOOK_FIRST_MS; clock += 50) moveFriends(clock, 50);
-    const at = { x: friend.x, y: friend.y };
+    const at = feetOf(friend);
     clock = 1300 + LOOK_FIRST_MS;
     moveFriends(clock, 50);
     assert.ok(friend.target, 'still on its way');
-    const { w, h } = geometry(friend.pet, at.x);
-    return { px: Math.hypot((friend.x - at.x) * w, (friend.y - at.y) * h) * 20, body: sizeOf(friend.pet) };
+    const now = feetOf(friend);
+    // Farther back it is drawn smaller (field.js depthScaleAt), and its steps are as short.
+    return { px: Math.hypot(now.x - at.x, now.y - at.y) * 20, body: sizeOf(friend.pet) * depthScaleAt(at.x, at.y) };
   };
   const across = [
       { x: 0.1, y: 0.5 },
@@ -453,6 +464,10 @@ test('a friend keeps its pace in body lengths, whatever the window’s size and 
           );
         assert.ok(small.px < middle.px, 'a smaller friend covers fewer pixels');
       }
+      // The same walk far back covers fewer pixels than near the front: it is drawn smaller there.
+      const far = walked(1180, 850, trip, { x: 0.1, y: 0.05 }, { x: 0.9, y: 0.05 }),
+        near = walked(1180, 850, trip, { x: 0.1, y: 0.95 }, { x: 0.9, y: 0.95 });
+      assert.ok(far.body < near.body && far.px < near.px * 0.95, `${kind}: far back is slower on the screen`);
     }
     assert.ok(STROLL * 1000 <= 1, 'a stroll is no more than a body length a second');
     assert.ok(WALK > STROLL, 'an errand is quicker than a stroll');
@@ -656,4 +671,55 @@ test('a jump lands with a squash', t => {
     views.clear();
     reduced.matches = previousReduced;
   }
+});
+
+// A stroll across the field goes straight on the screen where the field's top rises and falls (a
+// path up to a door, geometry.edge): the friend neither climbs toward the path nor shrinks and grows
+// as it passes it. Stepped in field shares, whose rows follow the top at each x, it bent up there.
+test('a friend walking across stays on its line and at its size past a path that rises', t => {
+  const previousReduced = reduced.matches;
+  reduced.matches = false;
+  let clock = 1000;
+  t.mock.method(performance, 'now', () => clock);
+  installDom(t, { anyId: true, props: { rect: { width: 1536, height: 1024 } } });
+  const before = scene.world,
+    kept = worldFor('woodland').geometry;
+  scene.world = 'woodland';
+  worldFor('woodland').geometry = {
+    ...kept,
+    fieldTop: 0.66,
+    edge: [
+      [0.15, 0.66],
+      [0.2, 0.58],
+      [0.3, 0.58],
+      [0.35, 0.66],
+    ],
+  };
+  t.after(() => {
+    worldFor('woodland').geometry = kept;
+    scene.world = before;
+    reduced.matches = previousReduced;
+    views.clear();
+  });
+  setData({ statuses: {} });
+  measureYard();
+  const friend = { pet: { id: 'friend', size: 112 }, button: element(), label: element(), canvas: { animate() {} } };
+  const line = 0.8 * 1024;
+  Object.assign(friend, footTarget(friend, 0.05 * 1536, line, 0));
+  const to = footTarget(friend, 0.55 * 1536, line, 0);
+  views.clear();
+  views.set('friend', friend);
+  sendTo(friend, to, { save: false, slow: true });
+  const ys = [],
+    depths = [];
+  for (clock = 1050 + LOOK_FIRST_MS; friend.target && clock < 60_000; clock += 50) {
+    moveFriends(clock, 50);
+    const feet = feetOf(friend);
+    ys.push(feet.y);
+    depths.push(depthScaleAt(feet.x, feet.y));
+  }
+  assert.ok(!friend.target, 'it arrived');
+  const off = Math.max(...ys.map(y => Math.abs(y - line)));
+  assert.ok(off < 1, `its feet stay on their line (${off.toFixed(1)} px off)`);
+  assert.ok(Math.max(...depths) - Math.min(...depths) < 0.005, 'its size stays the same');
 });

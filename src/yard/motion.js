@@ -24,7 +24,7 @@ import { stateOf } from '../core/status.js';
 import { spoken } from '../core/text.js';
 import { decorTarget } from './decor.js';
 import { keepDuty } from './duty.js';
-import { bodiesApart, bodyInField, EDGE, footTarget, geometry, petHeight, sizeOf, yardToField } from './field.js';
+import { bodiesApart, bodyInField, depthScaleAt, feetAt, footTarget, petHeight, sizeOf, yardToField } from './field.js';
 import { GAME_PACE } from './games.js';
 import { visitTarget } from './garden.js';
 import { loungeTarget, sitOut } from './lounge.js';
@@ -42,8 +42,8 @@ export const STROLL = 0.0008;
 export const WALK = 0.002;
 // Where a friend's feet are in the yard, in pixels, when it stands at a place (0 to 1 each way).
 const feetInYard = (v, at) => {
-  const { w, h, top } = geometry(v.pet, at.x);
-  return [EDGE + at.x * w + sizeOf(v.pet) / 2, top + at.y * h + petHeight(v.pet)];
+  const feet = feetAt(v.pet, at);
+  return [feet.x, feet.y];
 };
 // A stroll the ground allows (walk-here.js groundFor), between two places the friend may stand,
 // and not over a workspace's furniture.
@@ -245,7 +245,14 @@ export function moveFriends(now, dt) {
         // a walk looks as quick in any window and any way it goes. It speeds up from a stand and
         // slows into its stop (core/physics.js), unless it only passes through, and the body leans
         // with the change.
-        const left = bodiesApart(v.pet, v, aim),
+        // It walks on the screen, from its feet to where they go: a field share's row follows the
+        // field's top at each x, so stepped in shares a walk across bent up where a path rises and
+        // the friend shrank and grew there. A body length is the body as drawn at its depth
+        // (field.js depthScaleAt), so farther back its steps are as much shorter as it is smaller.
+        const [fx, fy] = feetInYard(v, v),
+          [ax, ay] = feetInYard(v, aim),
+          body = sizeOf(v.pet) * depthScaleAt(fx, fy),
+          left = bodiesApart(v.pet, v, aim),
           pace = v.speed || (v.trip?.slow ? STROLL * (v.own ? paceOf(v) : 1) : WALK),
           was = v.vel ?? 0;
         // A point on the way round is walked past at its pace, as a stop passed through is.
@@ -253,14 +260,10 @@ export function moveFriends(now, dt) {
         v.vel = rampPace(was, pace, past ? Infinity : left, span);
         // It heads the way it goes on the screen, turning toward a new way in an arc; a game's run
         // and the last body length go straight.
-        const { w, h } = geometry(v.pet, v.x),
-          want = Math.atan2(dy * h, dx * w);
+        const want = Math.atan2(ay - fy, ax - fx);
         const walked = Math.min(left, span * v.vel),
-          size = sizeOf(v.pet),
-          toward = heading => ({
-            x: clamp(v.x + (Math.cos(heading) * walked * size) / w),
-            y: clamp(v.y + (Math.sin(heading) * walked * size) / h),
-          });
+          toward = heading =>
+            footTarget(v, fx + Math.cos(heading) * walked * body, fy + Math.sin(heading) * walked * body, 0);
         v.heading =
           v.speed || !was || left <= 1 || v.heading == null ? want : turnToward(v.heading, want, TURN_RATE * span);
         let next = walked >= left ? aim : toward(v.heading);
@@ -300,7 +303,7 @@ export function moveFriends(now, dt) {
         !visitTarget(v) &&
         !decorTarget(v)
       ) {
-        const target = wanderTarget({ x: v.x, y: v.y }, Math.random, dryStroll(v), bodyInField(v.pet, v.x), {
+        const target = wanderTarget({ x: v.x, y: v.y }, Math.random, dryStroll(v), bodyInField(v.pet, v.x, v.y), {
           across: strollAcross(v),
         });
         if (target) sendTo(v, target, { slow: true, own: true });

@@ -169,16 +169,26 @@ export function measureYard() {
  * measures a stroll by it). A place is drawn across the field's width and down its height
  * (geometry, views.js place), not the yard's: the field is the yard's lower band, so a step down is
  * a far larger share of it than a step across. */
-export function bodyInField(pet, x = 0.5) {
-  const body = sizeOf(pet) || 1,
-    { w, h } = geometry(pet, x);
+export function bodyInField(pet, x = 0.5, y) {
+  const { w, h, top } = geometry(pet, x),
+    // As drawn where its feet are, when it is said where (`y`): farther back it is smaller.
+    depth = y === undefined ? 1 : depthScaleAt(EDGE + x * w + sizeOf(pet) / 2, top + y * h + petHeight(pet)),
+    body = (sizeOf(pet) || 1) * depth;
   return { x: body / w, y: body / h };
 }
-/** How far apart two places (0 to 1 each way) are on the screen, in body lengths of the friend
- * `pet` at its size there (motion.js paces a walk by it). */
+/** Where the feet of the friend `pet` standing at `at` (field shares, 0 to 1 each way) are in the
+ * yard, in pixels (views.js place). */
+export function feetAt(pet, at) {
+  const { w, h, top } = geometry(pet, at.x);
+  return { x: EDGE + at.x * w + sizeOf(pet) / 2, y: top + at.y * h + petHeight(pet) };
+}
+/** How far apart two places (field shares) are on the screen, from feet to feet, in body lengths of
+ * the friend `pet` as it is drawn at the first (motion.js paces a walk by it): farther back a body
+ * is smaller, so the same pixels are more of its steps. */
 export function bodiesApart(pet, a, b) {
-  const body = bodyInField(pet, (a.x + b.x) / 2);
-  return Math.hypot((b.x - a.x) / body.x, (b.y - a.y) / body.y);
+  const from = feetAt(pet, a),
+    to = feetAt(pet, b);
+  return Math.hypot(to.x - from.x, to.y - from.y) / ((sizeOf(pet) || 1) * depthScaleAt(from.x, from.y));
 }
 /** Where a pointer event `e` is in the yard, in pixels, from the yard's box as last measured: read
  * on every pointer move, the box would lay the page out each time. The yard fills its window, so it
