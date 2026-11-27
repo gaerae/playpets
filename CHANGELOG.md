@@ -27,6 +27,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A friend walking toward you grows steadily, instead of shrinking and growing again on the woodland and lakeside places, whose far edge curves.
 - In the garden workshop friends walk around the tables, the shelves and the bench instead of over them, and reach a desk from behind it.
 - In a small window the ring a click on the grass leaves is as small as the friends, and smaller farther back.
+- Opening **Play** no longer shows a sideways scrollbar on Windows.
+- Album cards stand the same height in every row, found or not, and can be chosen with the keyboard: arrow keys move between them, Enter or Space chooses one.
+- In a small window the chat is as wide as the other panels and only as tall as the conversation.
+- Clicking the first-run card no longer sends a friend walking there.
 - Friends on the desktop's grass keep walking in it, instead of wandering a little higher with each stroll until they walk in the air above it.
 - Pulling an end of the desktop's grass keeps going when the pointer slips down onto the Dock or the taskbar, or past the screen's side, until you let go.
 - Letting go of an end of the desktop's grass no longer leaves its screen taking clicks for a few seconds now and then.
