@@ -134,6 +134,8 @@ struct Inner {
     arrived: HashMap<String, Instant>,
     /// Whether the first sync has come.
     synced: bool,
+    /// The work area each screen's window was built on or last moved to (x, y, width, height).
+    placed: HashMap<String, (f64, f64, f64, f64)>,
 }
 
 /// How long a thing that came out counts as arriving: long enough for a window opened for it to
@@ -936,6 +938,39 @@ fn keep_warm(warm: &mut HashMap<String, Instant>, visible: bool, layout: &[Value
     }
 }
 
+/// `mon`'s work area, as `placed` keeps it.
+fn area_of(mon: &Mon) -> (f64, f64, f64, f64) {
+    (mon.area.x, mon.area.y, mon.area.w, mon.area.h)
+}
+
+/// `mon`'s window is being built, on its work area as it is now.
+fn built_at(d: &mut Inner, mon: &Mon) {
+    d.placed.insert(mon.id.clone(), area_of(mon));
+    d.sent.remove(&mon.id);
+    d.ignored.remove(&mon.id);
+}
+
+/// Whether `mon`'s window stands on a work area that has changed since (the Dock hidden, moved or
+/// grown, a new resolution): then it is taken as moved onto the new one, and hears its layout
+/// again, whose origin moved with it.
+fn reshaped(d: &mut Inner, mon: &Mon) -> bool {
+    let area = area_of(mon);
+    if d.placed.get(&mon.id) == Some(&area) {
+        return false;
+    }
+    d.placed.insert(mon.id.clone(), area);
+    d.sent.remove(&mon.id);
+    true
+}
+
+/// `id`'s window is closing: one opened again later is built ignoring the pointer, where its screen
+/// is then, and hears everything anew.
+fn closed(d: &mut Inner, id: &str) {
+    d.placed.remove(id);
+    d.sent.remove(id);
+    d.ignored.remove(id);
+}
+
 /// What sync_windows reads and settles under the overlay's lock, to act on once it is let go.
 struct Look<'m> {
     /// Whether anything is out to show.
@@ -1005,8 +1040,6 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
         }
     };
     let lawn_id = lawn.map(|(m, _)| m.id.as_str());
-    // What the grass's window draws of it, built once for a step that moved anything.
-    let ground = lawn.filter(|_| moved).map(lawn_view);
     if takes && let Some(id) = lawn_id {
         hover.insert(id.to_string(), true);
     }
@@ -1027,7 +1060,7 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
         ) {
             (true, None) => {
                 // A new window starts from its part of the state; the next move is sent to it in full.
-                crate::app::hold(inner).sent.remove(&mon.id);
+                built_at(&mut crate::app::hold(inner), mon);
                 let app2 = app.clone();
                 let mon_id = mon.id.clone();
                 let area = mon.area;
@@ -1057,6 +1090,14 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
                 });
             }
             (true, Some(win)) => {
+                // Built on a work area that has changed since: it moves onto the new one before it
+                // hears where things are on it, so what the pointer finds is where they are drawn.
+                let reshape = reshaped(&mut crate::app::hold(inner), mon);
+                if reshape {
+                    let area = mon.area;
+                    let _ = win.set_position(tauri::LogicalPosition::new(area.x, area.y));
+                    let _ = win.set_size(tauri::LogicalSize::new(area.w, area.h));
+                }
                 let ignore = !(hover.get(&mon.id).copied().unwrap_or(false) || dragging);
                 let before = crate::app::hold(inner).ignored.insert(mon.id.clone(), ignore);
                 if before != Some(ignore) {
@@ -1072,12 +1113,12 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
                         tauri::CursorIcon::Default
                     });
                 }
-                if moved {
+                if moved || reshape {
                     let own: Vec<&Value> = layout
                         .iter()
                         .filter(|item| item["displayId"] == mon.id.as_str())
                         .collect();
-                    let ground = ground.as_ref().filter(|_| draws_grass);
+                    let ground = lawn.filter(|_| draws_grass).map(lawn_view);
                     let payload = json!({"type": "layout", "layout": own, "ground": ground});
                     let fresh = crate::app::hold(inner).sent.get(&mon.id) != Some(&payload);
                     if fresh {
@@ -1092,11 +1133,7 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
                 }
             }
             (false, Some(win)) => {
-                // A window opened again later is built ignoring the pointer and hears everything anew.
-                let mut d = crate::app::hold(inner);
-                d.sent.remove(&mon.id);
-                d.ignored.remove(&mon.id);
-                drop(d);
+                closed(&mut crate::app::hold(inner), &mon.id);
                 let _ = app.run_on_main_thread(move || {
                     restore_window_class(&win);
                     let _ = win.close();
@@ -1213,6 +1250,29 @@ mod tests {
             needs_window(false, false, &[], "2", true),
             "a screen kept warm keeps its window, empty"
         );
+    }
+
+    // The Dock hidden, moved or grown, or the resolution changed: a window built for the old work
+    // area moves onto the new one and hears its layout again, by the new origin. Once.
+    #[test]
+    fn a_window_follows_its_screens_work_area_when_it_changes() {
+        let mut d = Inner::default();
+        let mon = screen()[0].clone();
+        built_at(&mut d, &mon);
+        assert!(!reshaped(&mut d, &mon), "still where it was built");
+        d.sent.insert("0".into(), json!({"type": "layout"}));
+        let undocked = Mon {
+            area: Bounds { h: 875.0, ..mon.area },
+            ..mon.clone()
+        };
+        assert!(
+            reshaped(&mut d, &undocked),
+            "the Dock hid: it grows down to the new bottom"
+        );
+        assert!(!d.sent.contains_key("0"), "and hears the layout again");
+        assert!(!reshaped(&mut d, &undocked), "moved once");
+        closed(&mut d, "0");
+        assert!(d.placed.is_empty(), "a closed window is placed anew when it is built");
     }
 
     #[test]
