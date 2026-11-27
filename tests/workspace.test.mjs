@@ -147,8 +147,13 @@ test('in a room, friends grow with the picture past the size it was drawn for, a
   scene.world = room.id;
   wide(300, 210);
   assert.equal(yardZoom(), 0.375);
+  // A strip shows a slice of the picture: friends, and gifts with them, grow no taller than its
+  // height allows, as outdoors, though the painted furniture is larger.
   wide(900, 260);
-  assert.ok(close(yardZoom(), 900 / 1536 / (850 / 1024)), 'a strip: the larger of the two');
+  assert.ok(close(yardZoom(), 260 / 380), `a strip ${yardZoom()}`);
+  wide(2400, 300);
+  assert.ok(close(yardZoom(), 300 / 380), `a long strip ${yardZoom()}`);
+  assert.ok(close(propZoom(), 300 / 380), 'a gift too');
   // Outdoors too, friends grow with the painting, so they stay as big next to the house.
   scene.world = 'woodland';
   wide(1180, 850);

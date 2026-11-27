@@ -188,3 +188,4 @@ New `geometry.stations` in `worlds.json`, in source-image fractions like `geomet
 - Past what that allows, the picture stops covering the window's width. Up to 7% of each side shows the picture's own edge, mirrored, blurred and shaded (`environment.js paintSides`). A sharp mirror showed a vase twice, face to face.
 - The sides are not floor (`workspace.js blocked`), and friends grow with the picture as shown, so they stay as big next to a desk.
 - A strip along the screen (wider than three times its height) still crops, as decided in [places](2026-10-11-places.md).
+- In a strip, friends and gifts grow no taller than its height allows, as outdoors (`field.js zoomFor`): at 2400×300 a friend stood 224px tall, now about 90px. The painted furniture keeps the picture's scale, so there a friend is smaller beside the bench than in a full window.

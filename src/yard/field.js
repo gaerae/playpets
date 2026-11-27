@@ -99,15 +99,16 @@ const ROOM_ZOOM_MAX = 2;
 // friend can be read at, so friends stop there. Outdoors what stands on the grass keeps to the
 // friends; in a room (a floor without soil) a gift is furniture, and keeps to the picture's scale
 // there too, or a bench would stand larger than the desk.
-// Outdoors a strip shows a slice of a wide picture, so friends grow no taller than its height allows.
+// A strip shows a slice of a wide picture, so nothing grows taller than its height allows; in a room
+// at 2400 by 300 a friend stood 224px tall in it, though the painted furniture stays as large.
 function zoomFor(width, height, world) {
   const strip = width > height * 3,
     tall = height / (strip ? 380 : 560),
     fit = clamp(Math.min(tall, width / 640), 0.35, 1),
-    picture = Math.min(ROOM_ZOOM_MAX, environmentFrame(width, height, { world }).width / 1536 / ROOM_SCALE);
-  if (!worldHasSoil(world)) return { friends: Math.max(fit, picture), props: picture };
-  const friends = Math.max(fit, Math.min(picture, tall));
-  return { friends, props: friends };
+    framed = environmentFrame(width, height, { world }).width / 1536 / ROOM_SCALE,
+    picture = Math.min(ROOM_ZOOM_MAX, framed, tall),
+    friends = Math.max(fit, picture);
+  return { friends, props: worldHasSoil(world) ? friends : picture };
 }
 // The zoom follows the place as well as the size: another place measures it again.
 const currentZoom = () => {

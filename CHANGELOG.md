@@ -46,6 +46,7 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A flower left on the desktop stays where it was left when it grows or blooms while PlayPets is closed, instead of shifting off its spot or below the floor.
 - A click on the sky or the painting behind the field no longer sends a friend walking, and the star pin stands where the friend stops, at the yard's sides too.
 - A sapling a friend is on its way to plant counts as spent: the tool strip's count drops at once, and the spot greys when none is left or the yard already holds all its trees.
+- In a short, wide window the garden workshop draws friends and gifts no taller than outdoors, instead of almost as tall as the window.
 - With a tool in hand, no soil is marked over a creature or the lake, where a click catches or fishes instead. Indoors, the strip no longer offers digging or a tree beside the seeds.
 
 ### Website and docs
