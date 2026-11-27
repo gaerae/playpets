@@ -139,10 +139,11 @@ test('in a room, friends grow with the picture past the size it was drawn for, a
   scene.world = 'workshop';
   wide(1920, 1080);
   assert.ok(close(yardZoom(), 1920 / 1536 / (850 / 1024)), 'the garden workshop is a room too');
-  // Too wide for its picture, the workshop leaves its sides to its mirrored edge: friends stay as
-  // big next to a desk as the picture shown is.
+  // Wider than 16:9, the workshop shows its safe rect's height and leaves its sides to its mirrored
+  // edge: friends stay as big next to a desk as the picture shown is.
+  const [, top, , bottom] = shipped.find(w => w.id === 'workshop').geometry.safe;
   wide(2560, 1080);
-  assert.ok(close(yardZoom(), (2560 * 0.86) / 1536 / (850 / 1024)), `a very wide workshop ${yardZoom()}`);
+  assert.ok(close(yardZoom(), 1080 / ((bottom - top) * 1024) / (850 / 1024)), `a very wide workshop ${yardZoom()}`);
   // Small, friends keep the size that reads, larger than the picture shrinks them to.
   scene.world = room.id;
   wide(300, 210);
@@ -186,6 +187,24 @@ test("in a window wider than the picture, the floor begins where the picture's f
   const deep = depthScale(a.target.y);
   wide(1536, 1024);
   assert.ok(Math.abs(depthScale(footTarget(a, 1536 * 0.3, 1024 * 0.55, 0).y) - deep) < 0.01);
+});
+
+// Outdoors the picture is placed to keep its safe rect in view (environment.js environmentFrame),
+// so the field's top is where the picture's own line falls in the window, at any shape.
+test("outdoors the field begins at the picture's own line, wherever the window puts the picture", t => {
+  inRoom(t);
+  scene.world = 'woodland';
+  const line = shipped.find(w => w.id === 'woodland').geometry.fieldTop;
+  for (const [width, height] of [
+    [1180, 850],
+    [2560, 1080],
+    [1920, 1080],
+    [820, 1000],
+  ]) {
+    wide(width, height);
+    const want = stationAt({ x: 0.5, y: line }).y;
+    assert.ok(Math.abs(field().top - want) < 1e-6, `${width}x${height}: ${field().top} against ${want}`);
+  }
 });
 
 test('a station is where the picture puts it, and cropped away it lies outside the window', t => {

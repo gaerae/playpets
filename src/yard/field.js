@@ -16,13 +16,13 @@ import { worldAllows, worldFor, worldHasSoil } from './worlds.js';
 // land stands in for it (easel.js), that land's near hill (yard.json "fieldTop"), where the painted
 // lake lies too. A place without a sky paints a plain floor instead and keeps its own line.
 // Friends, plants and gifts shrink with the yard, so a small window still reads as a whole scene.
-// A picture framed from its foot ("cover-bottom", a room) loses its top in a window wider than it,
-// so its floor begins higher in the yard: there, the field follows the picture's own floor line.
+// The picture is placed to keep the part always seen in view (environment.js environmentFrame), so
+// its floor line is not always at the same share of the yard: the field follows the picture's own.
 const paintedLand = () => worldAllows(scene.world, 'sky') && $('yard')?.dataset.environment === 'painted';
 export const fieldTop = () => {
   const place = worldFor(scene.world),
     top = (paintedLand() ? composition.fieldTop : place.geometry?.fieldTop) ?? composition.fieldTop ?? 0.6;
-  if (paintedLand() || place.fit !== 'cover-bottom' || !yardSize.height) return top;
+  if (paintedLand() || !yardSize.height) return top;
   const frame = environmentFrame(yardSize.width, yardSize.height, scene);
   return (frame.y + top * frame.height) / yardSize.height;
 };

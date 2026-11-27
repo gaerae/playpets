@@ -59,26 +59,140 @@ test('fishing targets stay inside the woodland pond at wide and narrow sizes', a
   }
 });
 
-test('wide and portrait environments preserve image proportions and keep the floor anchored', async () => {
+// A picture with no safe rect of its own (an imported background, the attic fixture) covers the
+// window and keeps its floor line where the window's is.
+test('a background without a safe rect covers the window and keeps the floor anchored', async () => {
   const { environmentFrame } = await import('../src/yard/environment.js');
   const { useWorlds, worldFor } = await import('../src/yard/worlds.js');
   const { attic } = await import('./support/attic.mjs');
   useWorlds([...JSON.parse(await readFile(new URL('../src/content/worlds.json', import.meta.url))), attic]);
-  for (const world of ['woodland', attic.id]) {
-    const floor = worldFor(world).geometry.fieldTop;
+  const floor = worldFor(attic.id).geometry.fieldTop;
+  for (const [w, h] of [
+    [1200, 260],
+    [520, 650],
+    [320, 240],
+    [500, 350],
+    [1180, 780],
+  ]) {
+    const frame = environmentFrame(w, h, { world: attic.id });
+    assert.ok(Math.abs(frame.width / frame.height - 1.5) < 1e-10, 'no stretching');
+    assert.ok(frame.x <= 0 && frame.y <= 0 && frame.x + frame.width >= w && frame.y + frame.height >= h);
+    assert.ok(Math.abs(frame.y + frame.height * floor - h * floor) < 1e-8, 'floor stays aligned');
+  }
+});
+
+// Each shipped place names the part of its picture that is always seen (geometry.safe, [x0, y0,
+// x1, y1]). From 4:3 to 16:9 the picture covers the window and the safe rect is all in view; a
+// wider window shows the safe rect whole with the picture's own edge at the sides; a narrower one
+// outdoors fits the safe rect's width, standing on the window's bottom with the sky above; a room
+// keeps covering its height; a strip along the screen crops as it always did.
+const SHIPPED = ['woodland', 'courtyard', 'lakeside', 'workshop'];
+const EPS = 1e-6;
+async function shippedFrames() {
+  const { environmentFrame, paintEnvironment } = await import('../src/yard/environment.js');
+  const { useWorlds, worldFor } = await import('../src/yard/worlds.js');
+  useWorlds(JSON.parse(await readFile(new URL('../src/content/worlds.json', import.meta.url))));
+  return { environmentFrame, paintEnvironment, worldFor };
+}
+const shows = (f, safe, w, h) =>
+  f.x + safe[0] * f.width >= -EPS &&
+  f.x + safe[2] * f.width <= w + EPS &&
+  f.y + safe[1] * f.height >= -EPS &&
+  f.y + safe[3] * f.height <= h + EPS;
+const covers = (f, w, h) => f.x <= EPS && f.y <= EPS && f.x + f.width >= w - EPS && f.y + f.height >= h - EPS;
+
+test('from 4:3 to 16:9 every place covers the window and shows its safe rect', async () => {
+  const { environmentFrame, worldFor } = await shippedFrames();
+  for (const world of SHIPPED) {
+    const safe = worldFor(world).geometry.safe;
+    assert.ok(safe, `${world} has a safe rect`);
+    assert.ok(safe[2] - safe[0] <= 0.888 && safe[3] - safe[1] <= 0.843, `${world}: fits 4:3 and 16:9`);
     for (const [w, h] of [
-      [1200, 260],
-      [520, 650],
-      [320, 240],
-      [500, 350],
+      [800, 600],
+      [1024, 768],
+      [1180, 850],
       [1180, 780],
+      [1280, 800],
+      [1366, 768],
+      [1440, 900],
+      [1600, 1000],
+      [1920, 1080],
+      [2560, 1440],
     ]) {
-      const frame = environmentFrame(w, h, { world });
-      assert.ok(Math.abs(frame.width / frame.height - 1.5) < 1e-10, `${world}: no stretching`);
-      assert.ok(frame.x <= 0 && frame.y <= 0 && frame.x + frame.width >= w && frame.y + frame.height >= h);
-      assert.ok(Math.abs(frame.y + frame.height * floor - h * floor) < 1e-8, `${world}: floor stays aligned`);
+      const f = environmentFrame(w, h, { world });
+      assert.ok(Math.abs(f.width / f.height - 1.5) < 1e-10, `${world} ${w}x${h}: no stretching`);
+      assert.ok(covers(f, w, h), `${world} ${w}x${h}: no band or gap`);
+      assert.ok(shows(f, safe, w, h), `${world} ${w}x${h}: the safe rect is in view`);
     }
   }
+});
+
+test('a window wider than 16:9 shows the whole safe rect, with the picture’s edge at the sides', async () => {
+  const { environmentFrame, worldFor } = await shippedFrames();
+  for (const world of SHIPPED) {
+    const safe = worldFor(world).geometry.safe;
+    for (const [w, h] of [
+      [2560, 1080],
+      [3440, 1440],
+      [2000, 900],
+    ]) {
+      const f = environmentFrame(w, h, { world });
+      assert.ok(shows(f, safe, w, h), `${world} ${w}x${h}: the safe rect is in view`);
+      assert.ok(f.x > 0 && Math.abs(f.x * 2 + f.width - w) < EPS, `${world} ${w}x${h}: even sides`);
+      assert.ok(f.y <= EPS && f.y + f.height >= h - EPS, `${world} ${w}x${h}: covers the height`);
+    }
+  }
+  // A strip along the screen keeps cropping.
+  for (const world of SHIPPED) assert.ok(covers(environmentFrame(2400, 300, { world }), 2400, 300), world);
+});
+
+test('a window narrower than 4:3 keeps the safe width outdoors, and covers the height in a room', async () => {
+  const { environmentFrame, worldFor } = await shippedFrames();
+  for (const world of SHIPPED) {
+    const safe = worldFor(world).geometry.safe,
+      room = worldFor(world).fit === 'cover-bottom';
+    for (const [w, h] of [
+      [820, 1000],
+      [520, 650],
+      [700, 600],
+    ]) {
+      const f = environmentFrame(w, h, { world });
+      assert.ok(Math.abs(f.width / f.height - 1.5) < 1e-10, `${world} ${w}x${h}: no stretching`);
+      assert.ok(f.x <= EPS && f.x + f.width >= w - EPS, `${world} ${w}x${h}: covers the width`);
+      assert.ok(Math.abs(f.y + f.height - h) < EPS || f.y + f.height > h, `${world} ${w}x${h}: no floor gap`);
+      if (room) assert.ok(covers(f, w, h), `${world} ${w}x${h}: a room covers its height`);
+      else {
+        assert.ok(f.x + safe[0] * f.width >= -EPS && f.x + safe[2] * f.width <= w + EPS, `${world}: safe width`);
+        assert.ok(f.y + f.height <= h + EPS, `${world} ${w}x${h}: stands on the window's bottom`);
+      }
+    }
+  }
+});
+
+test('a top left above an outdoor picture fades its edge into the sky', async () => {
+  const { environmentFrame, paintEnvironment } = await shippedFrames();
+  const ops = [];
+  const ctx = {
+    save() {},
+    restore() {},
+    drawImage() {},
+    fillRect(...args) {
+      ops.push([ctx.globalCompositeOperation, ...args]);
+    },
+    createLinearGradient: (...args) => ({ args, addColorStop() {} }),
+  };
+  const image = { width: 1536, height: 1024 };
+  const scene = { world: 'woodland', season: 'summer', weather: 'clear', period: 'day' };
+  const f = environmentFrame(820, 1000, scene);
+  assert.ok(f.y > 0, 'a narrow window leaves sky above the picture');
+  paintEnvironment(ctx, image, 820, 1000, scene);
+  assert.ok(
+    ops.some(([op, , y]) => op === 'destination-out' && Math.abs(y - f.y) < EPS),
+    'the picture’s top edge is faded out',
+  );
+  ops.length = 0;
+  paintEnvironment(ctx, image, 1180, 850, scene);
+  assert.ok(!ops.some(([op]) => op === 'destination-out'), 'a covered window fades nothing');
 });
 
 test('pond hit testing follows the same crop as the source image', async () => {
@@ -166,6 +280,7 @@ test('festival lights follow each tree through wide and mini crops and never lig
         lineTo() {},
         stroke() {},
         fill() {},
+        createLinearGradient: () => ({ addColorStop() {} }),
         arc(x, y) {
           assert.ok(x >= 0 && x <= w && y >= 0 && y <= h);
           bulbs++;
@@ -199,32 +314,6 @@ test('snow preserves imported seasonal imagery', async () => {
   }
 });
 
-// A room framed from its foot (the garden workshop) keeps a band of its picture in view
-// (geometry.keep): a wider window first loses the empty floor below the band, then the top; past
-// what that allows the picture stops covering the window's width, and its own edge, mirrored and
-// shaded, fills at most a tenth of the window at each side. A strip along the screen keeps cropping.
-test('a very wide window keeps the workshop’s windows in view, its own edge filling the sides', async () => {
-  const { environmentFrame } = await import('../src/yard/environment.js');
-  const { useWorlds, worldFor } = await import('../src/yard/worlds.js');
-  useWorlds(JSON.parse(await readFile(new URL('../src/content/worlds.json', import.meta.url))));
-  const [top, bottom] = worldFor('workshop').geometry.keep;
-  const near = (a, b) => Math.abs(a - b) < 1e-6;
-  let f = environmentFrame(2560, 1080, { world: 'workshop' });
-  assert.ok(near(f.width / f.height, 1.5), 'no stretching');
-  assert.ok(f.x > 0 && f.x <= 2560 * 0.1 + 1e-6, `the sides are at most a tenth: ${f.x}`);
-  assert.ok(near(f.x * 2 + f.width, 2560));
-  assert.ok(f.y + bottom * f.height >= 1080 - 1e-6, 'the bench and the approval spot stay in view');
-  assert.ok(-f.y / f.height <= top + 0.08, `the windows show: ${-f.y / f.height} of the top is cut`);
-  // A 16:9 window still covers its width, and loses the empty floor before the windows.
-  f = environmentFrame(1920, 1080, { world: 'workshop' });
-  assert.ok(f.x <= 1e-6 && f.width >= 1920);
-  assert.ok(f.y + f.height > 1080, 'some empty floor is cut');
-  assert.ok(f.y + bottom * f.height >= 1080 - 1e-6);
-  // A strip loses the top as it always did, and covers its width.
-  f = environmentFrame(1200, 260, { world: 'workshop' });
-  assert.ok(f.x <= 1e-6 && f.width >= 1200);
-});
-
 test('the mirrored sides are painted from the picture’s own edges', async () => {
   const { environmentFrame, paintEnvironment } = await import('../src/yard/environment.js');
   const { useWorlds } = await import('../src/yard/worlds.js');
@@ -251,13 +340,15 @@ test('the mirrored sides are painted from the picture’s own edges', async () =
   assert.deepEqual(drawn[0], [image, f.x, f.y, f.width, f.height]);
   const sides = drawn.slice(1);
   assert.equal(sides.length, 2);
+  // Each side is drawn from the picture's edge and reaches past the seam and the window's edge,
+  // so its blur has pixels to sample there instead of fading into a light line.
   const strip = (f.x / f.width) * image.width;
   assert.ok(
-    sides.some(args => args[1] === 0 && Math.abs(args[3] - strip) < 1e-6),
+    sides.some(args => args[1] === 0 && args[3] > strip && args[7] > f.x),
     'the left edge',
   );
   assert.ok(
-    sides.some(args => Math.abs(args[1] - (image.width - strip)) < 1e-6),
+    sides.some(args => Math.abs(args[1] + args[3] - image.width) < 1e-6 && args[3] > strip && args[7] > f.x),
     'the right edge',
   );
   assert.ok(filled.length >= 2, 'each side is shaded');

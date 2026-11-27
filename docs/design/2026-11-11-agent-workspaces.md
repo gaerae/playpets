@@ -189,3 +189,8 @@ New `geometry.stations` in `worlds.json`, in source-image fractions like `geomet
 - The sides are not floor (`workspace.js blocked`), and friends grow with the picture as shown, so they stay as big next to a desk.
 - A strip along the screen (wider than three times its height) still crops, as decided in [places](2026-10-11-places.md).
 - In a strip, friends and gifts grow no taller than its height allows, as outdoors (`field.js zoomFor`): at 2400×300 a friend stood 224px tall, now about 90px. The painted furniture keeps the picture's scale, so there a friend is smaller beside the bench than in a full window.
+
+## Follow-up: the part always seen (2026-11-28)
+
+- `geometry.keep` and its 7% limit are replaced by `geometry.safe`, the rule every place now follows ([places](2026-10-11-places.md#follow-up-the-part-always-seen-2026-11-28)).
+- The workshop keeps 0.13 to 0.93 of its height and 0.06 to 0.94 of its width. At 2560×1080 each side is about 10% of the window.

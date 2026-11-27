@@ -60,9 +60,17 @@
 | `edge` | `[[x, y], …]` from `x` 0 to 1; each `y` is where walkable ground ends at that `x` |
 | `far` | Optional, for ground reaching far back (a meadow, not a path): the picture `y` a friend is drawn smallest at, usually the edge's highest point |
 | `depthFar` | How small a friend at the back is drawn (default 0.84) |
+| `safe` | `[x0, y0, x1, y1]`: the part of the picture always in view, at most 0.88 wide and 0.84 tall |
 
 - Without `far`, a friend's size follows its saved `y`: one at the top of a raised path is as small as one at the line beside it.
 - With `far`, its size follows its height on the screen, alike at every `x`, from `depthFar` at `far` to its own size at the field's foot. The Wild garden uses `far` 0.48 and `depthFar` 0.68.
+
+`safe` decides how the picture is framed (`environment.js environmentFrame`):
+- From 4:3 to 16:9 the picture covers the window and the whole rect shows. 0.88 is the width a 4:3 window shows, 0.84 the height a 16:9 one shows.
+- Wider, the picture shrinks to the rect's height. Its own edge, mirrored, blurred and shaded, fills each side, and the sides are not floor (`workspace.js blocked`).
+- Narrower, an outdoor picture shrinks to the rect's width and stands on the window's bottom; the yard's sky fills the top, and the picture's top edge fades into it. A `cover-bottom` room keeps covering its height and crops its sides, keeping the rect's middle.
+- A strip (wider than three times its height) and a place without `safe` (an imported background) cover the window and crop.
+- Put the house, the big tree and the windows inside it, and leave out the corners' flowers and the empty sky.
 
 To trace one:
 1. Open the summer picture at full size (1536 × 1024).
@@ -85,7 +93,6 @@ To trace one:
 | `blocks` | `{x, y, rx, ry}` ellipses a stroll does not end on and a gift is not set down on (furniture) |
 | `fronts` | `{x, y, width, height, foot, shape}`: a piece cut from the picture and drawn over friends whose feet are above `foot` |
 | `depthFar` | How small a friend at the back is drawn (default 0.84; about 0.6 for a deep room) |
-| `keep` | With `cover-bottom`, `[top, bottom]`: the band of the picture's height to keep in view. A wider window first loses the floor below `bottom`, then the top; past that the picture leaves up to 7% of each side to its own edge, mirrored and out of focus, and that side is not floor |
 
 - Measure each front on the picture. Start its `shape` at the tabletop, not at a lamp or a pot on it: anything above the top covers a seated friend's face.
 - Ask for only flat things on a table in front of a seat (books, paper, seed packets): a laptop or a tall pot there sits in front of a face.
