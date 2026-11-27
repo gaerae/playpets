@@ -26,7 +26,7 @@ const { t } = await import('../src/core/i18n.js');
 const { openAlbum, renderAlbum, setupAlbum } = await import('../src/panel/album.js');
 const { ALBUM_BOOKS, BUGS, FISH, FLOWERS, TREASURES, artOf, giftKind } = await import('../src/yard/catalog.js');
 const { findOutEffects, findOutFor, decorName, heldLayers } = await import('../src/yard/find-out.js');
-const { giftLayers, poke } = await import('../src/overlay/poke.js');
+const { giftLayers, poke } = await import('../src/yard/poke.js');
 const flush = () => new Promise(resolve => setImmediate(resolve));
 const entry = { count: 1, best: 0, first: 1 };
 const decor = (n, more) =>
@@ -102,7 +102,7 @@ test('a find is drawn from its full painting and named for itself', () => {
   assert.equal(decorName('bench'), t('decor.kind_bench'));
   // Nothing of a container is drawn on the desktop: only the find (and a firefly's glow).
   assert.equal(giftLayers('fish_out', [fish]), '');
-  const css = readFileSync(new URL('../src/overlay/overlay.css', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../src/styles/answer.css', import.meta.url), 'utf8');
   assert.match(css, /\.decor \.held\.moving ~ \.bubbles i/);
   // A fish is turned a little, in the yard and on the desktop alike: keyed off the find, not the
   // button's kind, which only the yard marks.

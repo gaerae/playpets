@@ -1,6 +1,6 @@
 // Finds out of the album come alive: a fish's size follows its length, every find answers a poke on
 // the desktop in its own way, friends who visit one name it, and sixteen new entries join the album
-// (src/yard/find-out.js, src/overlay/poke.js; docs/design/2026-11-20-finds-come-alive.md).
+// (src/yard/find-out.js, src/yard/poke.js; docs/design/2026-11-20-finds-come-alive.md).
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -12,7 +12,7 @@ const { STRINGS, loadStrings } = await import('../src/core/strings.js');
 const { list, t } = await import('../src/core/i18n.js');
 const { drawHeld, findScale, heldLayers, pokeOf, visitLines } = await import('../src/yard/find-out.js');
 const { giftSize } = await import('../src/yard/props.js');
-const { poke } = await import('../src/overlay/poke.js');
+const { poke } = await import('../src/yard/poke.js');
 
 const NEW = {
   flowers: ['lily_of_the_valley', 'peony', 'rose', 'lily', 'marigold', 'japanese_anemone', 'poinsettia', 'amaryllis'],
@@ -63,16 +63,15 @@ test('every find answers a poke in its own way, and a few make a sound', () => {
   assert.equal(motion('treasure', 'heart_locket'), 'rock');
   assert.equal(pokeOf('bug', 'no-such-bug'), null);
   // Every find of every book has a motion the stylesheet draws.
-  const css = readFileSync(new URL('../src/overlay/overlay.css', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../src/styles/answer.css', import.meta.url), 'utf8');
   for (const [b, list] of Object.entries(catalog).filter(([b]) => b in book))
     for (const k of list) {
       const m = motion(book[b], k.id);
       assert.ok(m, `${b}: ${k.id}`);
       assert.match(css, new RegExp(`\\.held\\.moving\\[data-motion="${m}"\\]`), `${k.id}: ${m}`);
     }
-  // A treasure that twinkles has sparkles to show; the locket only sways.
+  // Every treasure has sparkles to show, the locket that sways too (yard-pokes.test.mjs).
   assert.equal(heldLayers('treasure_out', ['quartz']).match(/class="sparkle"/g).length, 1);
-  assert.doesNotMatch(heldLayers('treasure_out', ['heart_locket']), /sparkle/);
 });
 
 test('a poke plays the find’s motion, and its sound even with reduced motion', () => {

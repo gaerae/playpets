@@ -1,23 +1,23 @@
-// How a gift on the desktop answers: its lit look by the hour, and a poke (a press let go where it
-// started). A gift's moving part is cut from its own painting by a polygon in the catalogue
+// How a gift or a find out answers a press, the same in the yard (decor.js) and on the desktop
+// (overlay.js): its lit look by the hour, and a poke (a press let go where it started). A gift's moving part is cut from its own painting by a polygon in the catalogue
 // (catalog.json "part": points and pivot as shares of its box, and "spin" or "sway"): the drawing
 // is laid twice, once without the part and once with only the part, which turns. Each motion is
-// one animation that ends by itself (overlay.css). A lamp ("poke": "switch") goes off or on until
+// one animation that ends by itself (styles/answer.css, which both pages load). A lamp ("poke": "switch") goes off or on until
 // the hour next changes, and a find out answers in its own way (find-out.js pokeOf): a fish swims
-// across and back, a butterfly flaps, a treasure sparkles, and a few make a sound. A gift that hangs
-// draws its cord too, for when it hangs from a screen's top. Design:
+// across and back, a butterfly flaps, a treasure sparkles, and a few make a sound. Only a gift with
+// none of these bobs (quietLook, press-answer.js). A gift that hangs draws its cord too, for when it
+// hangs from a screen's top. Design:
 // docs/design/2026-11-19-desktop-items-that-answer.md, docs/design/2026-11-19-album-finds-out.md,
 // docs/design/2026-11-19-desktop-edges.md, docs/design/2026-11-20-finds-come-alive.md.
 
-import { artSvg } from '../yard/art.js';
-import { giftKind } from '../yard/catalog.js';
-import { effectLayers } from '../yard/effects.js';
-import { findOutEffects, findOutKind, pokeOf } from '../yard/find-out.js';
-import { answerOf } from '../yard/press-answer.js';
-import { growing } from './growing.js';
+import { artSvg } from './art.js';
+import { giftKind } from './catalog.js';
+import { effectLayers } from './effects.js';
+import { findOutEffects, findOutKind, pokeOf } from './find-out.js';
+import { answerOf } from './press-answer.js';
 
 const share = ([x, y]) => `${x * 100}% ${y * 100}%`;
-/** A gift's drawing as the desktop lays it: its effects' layers (a lit gift's halo and pool, a
+/** A gift's drawing as the yard and the desktop lay it: its effects' layers (a lit gift's halo and pool, a
  * firefly's, by what a find out `holds`) under its drawing, and a moving part as a second copy
  * of the drawing over the rest. */
 export function giftLayers(kind, holds = []) {
@@ -33,7 +33,7 @@ export function giftLayers(kind, holds = []) {
     // The box, then the part as a hole in it: the joins there and back cancel out.
     rest = `0% 0%,100% 0%,100% 100%,0% 100%,0% 0%,${points},${share(part.points[0])}`;
   // A gift that hangs has a cord from its box's top to the pivot, shown once it hangs from a
-  // screen's top without its stand (overlay.css .hung).
+  // screen's top without its stand (worn.css .hung).
   const [px, py] = part.pivot,
     cord = gift.hangs ? `<span class="cord" style="left: ${px * 100}%; height: ${py * 100}%"></span>` : '';
   return (
@@ -89,13 +89,10 @@ export function poke(view, { period, reduced, ring }) {
   else if (gift.effects?.includes('chime')) ring('chime');
 }
 
-/** How the desktop thing `view` (its id and kind) answers a poke as the yard does (press-answer.js):
- * a flower or a tree in `garden` by `season`, and a gift with no answer of its own. Null for a gift
- * that already moves, lights or is a find out when poked (`poke`). */
-export function pressLook(view, garden, season) {
-  const thing = growing(garden, view.id);
-  if (thing) return answerOf({ what: thing.what, kind: thing.item.kind, season });
-  const gift = giftKind(view.kind);
-  if (!gift || gift.part || gift.poke || findOutKind(view.kind)) return null;
-  return answerOf({ what: 'gift', kind: view.kind, season });
+/** How a press on a gift of `kind` answers when the gift has no answer of its own (poke): a bob,
+ * as press-answer.js has it. Null for a gift that moves, lights or is a find out when poked. */
+export function quietLook(kind) {
+  const gift = giftKind(kind);
+  if (!gift || gift.part || gift.poke || findOutKind(kind)) return null;
+  return answerOf({ what: 'gift', kind });
 }

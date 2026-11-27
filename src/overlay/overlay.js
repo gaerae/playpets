@@ -27,17 +27,17 @@ import { plain } from '../core/text.js';
 import { every, everyMinute, halt, moveTo } from '../core/ticker.js';
 import { useCatalog } from '../yard/catalog.js';
 import { findOutKind, visitLines } from '../yard/find-out.js';
+import { poke, showLamp } from '../yard/poke.js';
 import { answer, remarker } from '../yard/press-answer.js';
 import { periodFor } from '../yard/scene.js';
 import { arrivalOf, dropIn, dust, popUp } from './arrive.js';
 import { ring } from './chime.js';
-import { dressDecor, drawDecor } from './decor-view.js';
+import { dressDecor, drawDecor, pressLook } from './decor-view.js';
 import { glideMs } from './glide.js';
 import { setupGround } from './ground.js';
 import { visitKey } from './growing.js';
 import { legsKey, legsOf, legsWalk, stepDesktop } from './legs.js';
 import { CALM_SHARE, LIVELY_MS, nextDraw } from './pace.js';
-import { poke, pressLook, showLamp } from './poke.js';
 
 setupProblemReports();
 setupInteractions();
@@ -215,7 +215,7 @@ const night = () => data.nightDecor || [];
 function redress() {
   for (const v of decorations.values()) dressDecor(v, data.garden, season, new Date(), night());
 }
-// A gift, a flower or a planted tree out on the desktop: dragged to move, poked to answer (poke.js:
+// A gift, a flower or a planted tree out on the desktop: dragged to move, poked to answer (yard/poke.js:
 // a press let go where it started, as a friend's pat), and its menu takes it off the desktop.
 function createDecor(id, kind) {
   const wrap = document.createElement('div'),
@@ -311,7 +311,7 @@ function renderDecor(local) {
     v.wrap.style.transform = `translate(${position.x - position.origin.x}px,${position.y - position.origin.y}px)`;
     v.mid = position.x + position.width / 2;
     if (arrivalOf(position, arrivals)) thingArrives(v);
-    // A hanging gift at a screen's top hangs from it (poke.js).
+    // A hanging gift at a screen's top hangs from it (yard/poke.js).
     v.button.classList.toggle('hung', !!position.hung);
   }
 }

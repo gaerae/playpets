@@ -1,10 +1,9 @@
 // A find out of the album on its own: a fish, a bug, a treasure or a footprint animal, with no
 // container and no shadow (catalog.json "findsOut": the book it holds from, the list its kinds are
 // in, which of a kind's drawings it shows, how it answers a poke and where in its box the find is
-// drawn). The
-// yard and the desktop draw one the same way: the find's own painting in its slot, and for a fish
-// the bubbles it lets out when it swims. On the desktop each answers a poke in its own way, and a
-// fish is drawn by its length. Design: docs/design/2026-11-19-album-finds-out.md,
+// drawn). The yard and the desktop draw one the same way: the find's own painting in its slot, and
+// the bits its book lets out when it moves. In both each answers a poke in its own way (poke.js),
+// and a fish is drawn by its length. Design: docs/design/2026-11-19-album-finds-out.md,
 // docs/design/2026-11-20-finds-come-alive.md.
 
 import { lines, list, t } from '../core/i18n.js';
@@ -40,7 +39,7 @@ export const heldName = (book, id) => {
 // How a find answers a poke: its own "poke" (catalog.json), else its book's (the find out's
 // "poke"), else, for a bug, how it moves (its "kind"). Its own may ring a cue (soundscape.js).
 const BUG_MOTIONS = { butterfly: 'flutter', dragonfly: 'dart', firefly: 'blink', beetle: 'hop', cricket: 'hop' };
-/** How a find of `book` answers a poke on the desktop: { motion } (overlay.css), and a `cue` when
+/** How a find of `book` answers a poke: { motion } (styles/answer.css), and a `cue` when
  * it makes a sound; null for an id its book does not have. */
 export function pokeOf(book, id) {
   const found = heldKind(book, id);
@@ -62,14 +61,13 @@ export function findScale(kind, holds = []) {
 }
 
 const share = n => `${+(n * 100).toFixed(2)}%`;
-// What shows a poke beside the find, by how it moves (overlay.css): a swimming fish's bubbles, a
-// twinkling keepsake's sparkles. Each rests unseen until the find moves.
-const AROUND = {
-  swim: '<span class="bubbles"><i></i><i></i><i></i></span>',
-  twinkle: '<span class="sparkle"><i></i><i></i><i></i></span>',
-};
+// What each book lets out beside its find as it moves (styles/answer.css): a fish its bubbles, a bug
+// a few glints, a treasure its sparkles and an animal a heart or two. Each rests unseen until the
+// find moves.
+const bits = name => `<span class="${name}" aria-hidden="true"><i></i><i></i><i></i></span>`;
+const AROUND = { fish: bits('bubbles'), bug: bits('glints'), treasure: bits('sparkle'), track: bits('hearts') };
 /** The find a kind out holds, as markup: its full painting in its slot, in proportion and centred,
- * and a fish's bubbles. Nothing for a gift, or for an id its book does not have. */
+ * and its book's bits. Nothing for a gift, or for an id its book does not have. */
 export function heldLayers(kind, holds = []) {
   const out = findOutKind(kind);
   if (!out) return '';
@@ -80,7 +78,7 @@ export function heldLayers(kind, holds = []) {
       if (!art) return '';
       const [x, y, w, h] = out.slots[i];
       const held = `<span class="held" data-held="${id}" data-book="${out.holds}" style="left:${share(x)};top:${share(y)};width:${share(w)};height:${share(h)}">${artSvg(art)}</span>`;
-      return held + (AROUND[pokeOf(out.holds, id)?.motion] || '');
+      return held + (AROUND[out.holds] || '');
     })
     .join('');
 }

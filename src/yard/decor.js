@@ -16,14 +16,13 @@ import { systemSouth } from '../core/season.js';
 import { reduced } from '../core/sprites.js';
 import { aiming, call, data, game, guard, name, views } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
-import { artSvg } from './art.js';
 import { befriend, levelOf } from './bond.js';
 import { rareKind, showCard } from './card.js';
 import { GIFTS, eventGifts, giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
 import { decorShown, hiddenKinds, yardSeason } from './decor-shown.js';
 import { dressLayers } from './dress-layers.js';
-import { effectLayers, effectsVisited } from './effects.js';
+import { effectsVisited } from './effects.js';
 import { giftEvent } from './events.js';
 import {
   decorFloor,
@@ -39,7 +38,8 @@ import {
 } from './field.js';
 import { decorName, drawHeld, findOutEffects, findOutKind, giftsOut, visitLines } from './find-out.js';
 import { FIRST_GIFT, GIFT_WAIT, giftDue, giftWait, localDay } from './growth.js';
-import { answer, answerOf } from './press-answer.js';
+import { giftLayers, poke, quietLook, showLamp } from './poke.js';
+import { answer } from './press-answer.js';
 import {
   beginDrag,
   dragPoint,
@@ -132,7 +132,8 @@ function create(d) {
     // A firefly out glows as a lit gift does (find-out.js).
     effects = [...(gift?.effects || []), ...findOutEffects(d.kind, d.holds)];
   if (effects.length) button.dataset.effects = effects.join(' ');
-  button.innerHTML = `${effectLayers(effects, gift?.light)}${gift?.art ? artSvg(gift.art) : ''}`;
+  // Drawn as the desktop draws it (poke.js): its light, and a moving part laid over the rest.
+  button.innerHTML = giftLayers(d.kind, d.holds);
   // A drawing with no ground of its own stands on a contact shade, under it (garden.css); one on
   // spread feet has a small dark one under each foot, over a wide soft one under it all.
   if (gift?.shade) {
@@ -197,7 +198,10 @@ function create(d) {
     button.classList.remove('dragging', 'invalid');
     if (!drag) return;
     if (!drag.moved) {
-      answer(button, answerOf({ what: 'gift', kind: v.kind }), { reduced: reduced.matches });
+      // It answers as it does on the desktop (poke.js): a lamp switches, a part turns, a find moves
+      // its own way; only a gift with none of these bobs.
+      poke(v, { period: scene.period, reduced: reduced.matches, ring: cue });
+      answer(button, quietLook(v.kind), { reduced: reduced.matches });
       return pressed(v);
     }
     // Let go on the furniture, it goes back where it stood.
@@ -290,6 +294,8 @@ export function renderDecor() {
   reconcile(shown, decor, make, (v, d) => {
     // What a find out holds sizes it, so it is known before it is placed.
     v.holds = d.holds || [];
+    // A lamp switched by a press keeps to it until the yard's part of the day changes.
+    showLamp(v, scene.period);
     if (!v.drag?.moved) position(v, d.x, d.y);
     const until = d.memento && d.came_at ? d.came_at + MEMENTO_NEW_MS : 0;
     if (until > now) fadeAt = Math.min(fadeAt, until);

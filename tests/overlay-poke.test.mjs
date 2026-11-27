@@ -1,11 +1,12 @@
-// Gifts on the desktop answer a poke and the time of day (src/overlay/poke.js, used by
+// Gifts on the desktop answer a poke and the time of day (src/yard/poke.js, used by the yard's decor.js,
 // decor-view.js and overlay.js; docs/design/2026-11-19-desktop-items-that-answer.md).
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import './support/content.mjs';
 
 globalThis.playPets = {};
-const { giftLayers, poke, pressLook, showLamp } = await import('../src/overlay/poke.js');
+const { giftLayers, poke, showLamp } = await import('../src/yard/poke.js');
+const { pressLook } = await import('../src/overlay/decor-view.js');
 const { giftKind } = await import('../src/yard/catalog.js');
 const { element } = await import('./support/dom.mjs');
 

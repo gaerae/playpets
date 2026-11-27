@@ -492,7 +492,7 @@
   background: radial-gradient(closest-side, rgb(38 26 14 / 0.85), rgb(38 26 14 / 0.5) 55%, rgb(38 26 14 / 0));
 }
 /* a gift that just came pops into place */
-.decor.arrive > svg,
+.decor.arrive > :is(svg, .part-still, .part),
 .decor.arrive > .ornaments {
   animation: arrive 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }

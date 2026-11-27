@@ -4,8 +4,9 @@
 
 import { loadArt } from '../yard/art.js';
 import { decorName, heldArt } from '../yard/find-out.js';
+import { giftLayers, quietLook } from '../yard/poke.js';
+import { answerOf } from '../yard/press-answer.js';
 import { drawGrowing, growing, growingArt } from './growing.js';
-import { giftLayers } from './poke.js';
 import { wear, wearArt } from './wear.js';
 
 const holdsOf = (garden, id) => garden?.decor?.find(d => d.id === id)?.holds || [];
@@ -23,7 +24,7 @@ export async function drawDecor(view, garden, season, night = () => []) {
     // A find out has no drawing of its own: it waits for the garden to say which find it holds.
     art = thing ? growingArt(view.kind) : [...wearArt(view.kind), ...heldArt(view.kind, holds)];
   if (!art.length) return;
-  // What a find out holds, for a poke to answer by (poke.js).
+  // What a find out holds, for a poke to answer by (yard/poke.js).
   view.holds = holds;
   view.loading = true;
   try {
@@ -36,7 +37,7 @@ export async function drawDecor(view, garden, season, night = () => []) {
   // A flower or a tree is named by its stage as it is drawn (growing.js).
   if (!thing) {
     // Under what it wears, which wear.js adds after it; a lit gift's light and a moving part with it
-    // (poke.js).
+    // (yard/poke.js).
     view.button.insertAdjacentHTML('afterbegin', giftLayers(view.kind, holds));
     view.button.title = decorName(view.kind, holds);
     view.button.setAttribute('aria-label', view.button.title);
@@ -52,4 +53,13 @@ export function dressDecor(view, garden, season, now = new Date(), night = []) {
   if (!view.growing) return wear(view, garden, now, night);
   const thing = growing(garden, view.id);
   if (thing) drawGrowing(view, thing, season, now.getTime());
+}
+
+/** How the desktop thing `view` (its id and kind) answers a press as the yard does (press-answer.js):
+ * a flower or a tree in `garden` by `season`, and a gift with no answer of its own (yard/poke.js
+ * quietLook). Null for a gift that moves, lights or is a find out when poked. */
+export function pressLook(view, garden, season) {
+  const thing = growing(garden, view.id);
+  if (thing) return answerOf({ what: thing.what, kind: thing.item.kind, season });
+  return quietLook(view.kind);
 }

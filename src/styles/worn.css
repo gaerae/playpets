@@ -40,6 +40,31 @@
   opacity: 1;
 }
 
+/* A gift with a moving part is laid twice (yard/poke.js), in the yard and on the desktop alike: the
+   rest of it, and the part alone over it, which a poke turns once about its pivot (answer.css). */
+.decor .part-still,
+.decor .part {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+/* A gift that hangs from a screen's top (desktop/overlay.rs set_down) leaves its stand out and hangs
+   on a cord from the edge to its pivot (yard/poke.js), swaying there when poked. */
+.decor.hung .part-still {
+  display: none;
+}
+.decor .cord {
+  position: absolute;
+  top: 0;
+  width: 1.5px;
+  translate: -50% 0;
+  background: #9c7a52;
+  pointer-events: none;
+}
+.decor:not(.hung) .cord {
+  display: none;
+}
+
 /* Ornaments (yard/ornaments.js): found things hung on the Christmas tree, each a small bauble
    tinted by its book with a gold rim, a cap and a shine; the rim and the shine grow with the bauble
    (cqi of its own width), so a small one is not all rim. A bauble stands centred on its hook, at the
@@ -169,8 +194,8 @@
 }
 
 /* A find out of the album on its own (yard/find-out.js): its painting in its slot, kept in
-   proportion and centred, with no shadow under it. A fish floats a little, turned a little, and on
-   the desktop swims when poked, letting out its bubbles (overlay.css). */
+   proportion and centred, with no shadow under it. A fish floats a little, turned a little, and
+   swims when poked, letting out its bubbles (answer.css). */
 .decor .held-layer {
   position: absolute;
   inset: 0;
@@ -220,7 +245,7 @@
   height: 4px;
 }
 
-/* A treasure's sparkles (yard/find-out.js), unseen until it is poked on the desktop (overlay.css):
+/* A treasure's sparkles (yard/find-out.js), unseen until it is poked (answer.css):
    three little four-pointed stars by its top. */
 .decor .sparkle {
   position: absolute;
@@ -252,6 +277,82 @@
   top: 65%;
   width: 6px;
   height: 6px;
+}
+
+/* A bug's glints and an animal's hearts (yard/find-out.js), unseen until it is poked (answer.css):
+   three small glints about a bug, and three small hearts rising over an animal's head. */
+.decor .glints {
+  position: absolute;
+  inset: -6% -10% 30% -10%;
+  pointer-events: none;
+}
+.decor .glints i {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fffdf0, #ffeeb0 45%, rgb(255 238 176 / 0) 72%);
+  opacity: 0;
+  scale: 0.4;
+}
+.decor .glints i:nth-child(1) {
+  left: 8%;
+  top: 20%;
+}
+.decor .glints i:nth-child(2) {
+  left: 82%;
+  top: 8%;
+}
+.decor .glints i:nth-child(3) {
+  left: 70%;
+  top: 70%;
+  width: 5px;
+  height: 5px;
+}
+.decor .hearts {
+  position: absolute;
+  left: 30%;
+  top: -4%;
+  width: 40%;
+  height: 30%;
+  pointer-events: none;
+}
+.decor .hearts i {
+  position: absolute;
+  bottom: 0;
+  width: 9px;
+  height: 8px;
+  background: #f08aa6;
+  clip-path: polygon(
+    50% 100%,
+    8% 58%,
+    0 35%,
+    6% 14%,
+    24% 4%,
+    42% 10%,
+    50% 22%,
+    58% 10%,
+    76% 4%,
+    94% 14%,
+    100% 35%,
+    92% 58%
+  );
+  filter: drop-shadow(0 0 1px #fff);
+  opacity: 0;
+  scale: 0.5;
+}
+.decor .hearts i:nth-child(1) {
+  left: 10%;
+}
+.decor .hearts i:nth-child(2) {
+  left: 55%;
+  width: 7px;
+  height: 6px;
+}
+.decor .hearts i:nth-child(3) {
+  left: 85%;
+  width: 6px;
+  height: 5px;
 }
 
 /* The grand Christmas tree (yard/grand-tree.js), in the yard and out on the desktop: a layer

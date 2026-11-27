@@ -1,12 +1,12 @@
 // The desktop's edges: a chime, a hanging pot, a mobile or a wreath hangs from a screen's top by a cord
-// (src/overlay/poke.js; docs/design/2026-11-19-desktop-edges.md).
+// (src/yard/poke.js; docs/design/2026-11-19-desktop-edges.md).
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import './support/content.mjs';
 
 globalThis.playPets = {};
-const { giftLayers } = await import('../src/overlay/poke.js');
+const { giftLayers } = await import('../src/yard/poke.js');
 const { GIFTS, giftKind } = await import('../src/yard/catalog.js');
 
 test('the chime, the hanging pot, the mobile and the wreath hang, each by a part with its pivot on its box', () => {
@@ -27,7 +27,7 @@ test('the chime, the hanging pot, the mobile and the wreath hang, each by a part
   }
   assert.doesNotMatch(giftLayers('pinwheel'), /class="cord"/);
   // The stand and the shade are what a hung gift leaves out.
-  const css = readFileSync(new URL('../src/overlay/overlay.css', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../src/styles/worn.css', import.meta.url), 'utf8');
   assert.match(css, /\.decor\.hung \.part-still\s*\{\s*display: none;/);
   assert.match(css, /\.decor:not\(\.hung\) \.cord\s*\{\s*display: none;/);
 });
