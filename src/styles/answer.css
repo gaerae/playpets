@@ -1,14 +1,17 @@
 /* A press on a flower, a tree or a gift answers (yard/press-answer.js), in the yard and on the
    desktop alike: its drawing bobs or rustles once from its foot, and a few petals, leaves or flakes
    fall from it to about its foot and fade. Bob and rustle move only `scale` and `rotate`, so the
-   breeze's lean (garden.css, on `transform`) goes on under them. Loaded by both pages; reduced
-   motion makes none (press-answer.js). */
-.yard :is(.plant, .planted-tree, .decor).answering > svg,
-#friends .decor.answering > svg {
+   breeze's lean (garden.css, on `transform`) goes on under them. A gift's drawing moves with all
+   it wears (worn.css): the ornaments, a snowman's dress, what a display holds and the grand tree,
+   each standing on the same foot. Loaded by both pages; reduced motion makes none (press-answer.js). */
+.yard :is(.plant, .planted-tree).answering > svg,
+.yard .decor.answering > :is(svg, .ornaments, .dress-layers, .held-layer, .xmas-night),
+#friends .decor.answering > :is(svg, .ornaments, .dress-layers, .held-layer, .xmas-night) {
   transform-origin: 50% 100%;
 }
-.yard :is(.plant, .decor).answering[data-answer="bob"] > svg,
-#friends .decor.answering[data-answer="bob"] > svg {
+.yard .plant.answering[data-answer="bob"] > svg,
+.yard .decor.answering[data-answer="bob"] > :is(svg, .ornaments, .dress-layers, .held-layer, .xmas-night),
+#friends .decor.answering[data-answer="bob"] > :is(svg, .ornaments, .dress-layers, .held-layer, .xmas-night) {
   animation: answer-bob 520ms cubic-bezier(0.3, 1.4, 0.5, 1);
 }
 .yard .planted-tree.answering[data-answer="rustle"] > svg,

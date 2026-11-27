@@ -73,3 +73,33 @@ test('now and then the nearest friend within reach says something about what was
   assert.equal(remarker([{ x: REMARK.reach + 1 }], away, { random: () => 0 }), null);
   assert.equal(remarker([], away, { random: () => 0 }), null);
 });
+
+// Review: the answer's animation took the place of a gift's own while it ran (answer.css sets
+// `animation` on the same drawing), cutting short a gift arriving, a Christmas tree turning grand
+// or looking up at its star. A press then answers nothing; the next one does.
+test('a press while the thing still plays its own animation leaves that one be', async t => {
+  const { installDom, element } = await import('./support/dom.mjs');
+  installDom(t);
+  const { answer } = await import('../src/yard/press-answer.js');
+  const look = answerOf({ what: 'decor', kind: 'bench' });
+  for (const own of ['arrive', 'arrive-pop', 'xmas-rise', 'look-up']) {
+    const button = element('button');
+    button.classList.add(own);
+    answer(button, look);
+    assert.ok(!button.classList.contains('answering'), own);
+  }
+  const button = element('button');
+  answer(button, look);
+  assert.ok(button.classList.contains('answering'));
+  clearTimeout(button.answerTimer);
+});
+
+// Review: a dressed snowman and a decorated tree bobbed bare, what they wear standing still. All of
+// a gift's drawing moves together, in the yard and on the desktop.
+test('what a gift wears bobs with it', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const css = await readFile(new URL('../src/styles/answer.css', import.meta.url), 'utf8');
+  const bob = css.split('}').find(rule => rule.includes('[data-answer="bob"]') && rule.includes('answer-bob 520ms'));
+  for (const layer of ['svg', '.ornaments', '.dress-layers', '.held-layer', '.xmas-night'])
+    assert.ok(bob.includes(layer), layer);
+});

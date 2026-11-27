@@ -74,10 +74,15 @@ export function bitsOf(look, box, random = Math.random) {
   });
 }
 
+// A thing's own animations, which the answer's would take the place of (answer.css sets `animation`
+// on the same drawing): arriving (garden.css, overlay.css) and a Christmas tree turning grand or
+// looking up at its star (worn.css, garden.css).
+const OWN = ['arrive', 'arrive-pop', 'xmas-rise', 'look-up'];
 /** Answers a press on `button`, whose drawing moves by its `data-answer` (styles/answer.css), with
- * `look` (answerOf); its bits fall in `into` (the element the drawing fills). */
+ * `look` (answerOf); its bits fall in `into` (the element the drawing fills). A press while the
+ * thing plays its own animation answers nothing. */
 export function answer(button, look, { into = button, reduced = false, random = Math.random } = {}) {
-  if (!look || reduced) return;
+  if (!look || reduced || OWN.some(name => button.classList.contains(name))) return;
   // From the start again when pressed while it still moves.
   button.classList.remove('answering');
   void button.offsetWidth;
