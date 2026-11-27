@@ -187,10 +187,13 @@ body.compact .side-panel .pop-menu {
     max-height: calc(100% - 16px);
   }
 }
-/* Headers stay available while each destination scrolls inside the window. */
+/* Headers stay available while each destination scrolls inside the window. A sheet is as wide as
+   the small window's dock panels (compact.css), at its right, so the yard stays in sight beside it:
+   the large window's sheet left a 560px window a strip of yard. */
 body.compact .layout.panel-open .side-panel {
   inset: 8px;
-  width: auto;
+  left: auto;
+  width: min(var(--dock-panel-width), calc(100% - 16px));
   max-height: none;
   padding: 8px;
   overflow: hidden;
@@ -222,12 +225,5 @@ body.compact #panel-expand {
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
-  }
-}
-/* A short window may still be wide: the panel need not span the scenery. */
-@media (min-width: 480px) {
-  body.compact .layout.panel-open .side-panel {
-    left: auto;
-    width: min(var(--sheet-width), calc(100% - 16px));
   }
 }

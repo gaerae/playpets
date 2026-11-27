@@ -495,6 +495,30 @@ test('compact settings reserve height for their scroller and panels clear the do
   assert.match(css, /body\.compact #settings-home\{[^}]*min-height:0;[^}]*overflow-y:auto/);
 });
 
+// At 560 by 400 a friend's chat was the large window's 440px sheet from top to bottom, over all but
+// a strip of the yard, while Play and Friends & settings there are 360px and as tall as what they
+// hold. A small window's sheet is the dock panels' width at its right, and a conversation is as tall
+// as it is, from the top, up to the window.
+test("a small window's chat is a dock panel's width and as tall as the conversation", async () => {
+  const css = await styles();
+  const sheet = css.match(/(?:^|\})body\.compact \.layout\.panel-open \.side-panel\{([^}]*)\}/)?.[1] || '';
+  assert.match(sheet, /left:auto;/);
+  assert.match(sheet, /width:min\(var\(--dock-panel-width\),calc\(100% - 16px\)\)/);
+  const chat =
+    css.match(
+      /(?:^|\})body\.compact \.layout\.panel-open \.side-panel:has\(#panel-pet:not\(\[hidden\]\)\)\{([^}]*)\}/,
+    )?.[1] || '';
+  assert.match(chat, /bottom:auto;/);
+  assert.match(chat, /max-height:calc\(100% - 16px\)/);
+  // A window 280px tall or less keeps the whole height: the friend's menu spreads over the sheet
+  // there (panel.css), and a sheet as short as a new chat cut its last item.
+  const short = [...css.matchAll(/@media\(max-height:280px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
+  assert.match(
+    short,
+    /body\.compact \.layout\.panel-open \.side-panel:has\(#panel-pet:not\(\[hidden\]\)\)\{bottom:8px;max-height:none;?\}/,
+  );
+});
+
 test('compact chat keeps its composer visible while the log owns scrolling', async () => {
   const css = await styles();
   assert.match(css, /body\.compact #panel-pet\{[^}]*overflow:hidden/);
