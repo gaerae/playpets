@@ -294,3 +294,22 @@ test('SHOT_SCENE=reel films one take with a mark at each part the moving picture
   // A coding agent reports in through the binary's own hook mode.
   assert.match(source, /hook_event_name: 'PreToolUse'/);
 });
+
+test('captures start in a yard whose first lessons are learned, so no painted hand points in a picture', async () => {
+  const kept = new Map();
+  shots.learnYard({ setItem: (key, value) => kept.set(key, value) });
+  // The pat, the lake, the album and every tool on the ground (yard/hint.js, yard/show-how.js).
+  for (const key of ['patted', 'fished', 'shown-album', 'shown-dig', 'shown-tree', 'shown-seed', 'shown-treat'])
+    assert.equal(kept.get(key), '1', key);
+  const { hintKey } = await import('../src/yard/hint.js');
+  assert.equal(hintKey({ friends: 4, patted: true, fished: true, soil: true, seeds: 3, found: true }), null);
+  const source = readFileSync('scripts/shots.mjs', 'utf8');
+  // Both passes learn the yard in their own webview before the first friend comes in.
+  const passes = source.split(/function (?:scenario|playScenario)\(lang\)/).slice(1);
+  assert.equal(passes.length, 2);
+  for (const pass of passes) {
+    const learn = pass.search(/learnYard\.toString\(\)\}\)\(localStorage\)/),
+      first = pass.indexOf('playPets.addPet(');
+    assert.ok(learn >= 0 && learn < first, 'learned before any friend is added');
+  }
+});

@@ -101,6 +101,14 @@ export function clearCaptureFocus(doc) {
   doc.documentElement?.classList.add('pointer-input');
 }
 
+/** What a person learns in the first minutes (yard/hint.js, yard/show-how.js): the pat, the lake, the
+ * album and every tool on the ground. Kept in the capture's own webview, so the pictures show the
+ * yard as it is played, with no painted hand pointing at a friend, the water or the grass. */
+export function learnYard(storage) {
+  for (const key of ['patted', 'fished', 'shown-album', 'shown-dig', 'shown-tree', 'shown-seed', 'shown-treat'])
+    storage.setItem(key, '1');
+}
+
 /** The saved garden and album the play pictures start from (state.json in the capture's data
  * folder): spring flowers in bloom, two grown cherry trees, gifts set out, and a season of finds.
  * Places are field fractions, kept clear of where the four friends stand (y 0.58). */

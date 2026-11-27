@@ -10,6 +10,10 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Website and docs
+
+- The website's and the README's pictures of the yard show it as it is played, without the painted hand that points at a friend until it has been patted.
+
 ## [1.10.0] - 2026-11-27
 
 ### Added
