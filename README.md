@@ -29,7 +29,7 @@ Site in [English](https://playpets.gaerae.com/), [Korean](https://playpets.gaera
 
 | Friends talk among themselves | Out on your desktop while you code | A friend for each coding agent |
 |---|---|---|
-| ![Four friends in the yard, chatting in speech bubbles](website/public/shots/1.7.0/en/yard-talk.webp) | ![Four friends on the desktop below a terminal running tests](website/public/shots/1.7.0/en/desktop.webp) | ![Coding tools settings with a reacting friend chosen for each agent](website/public/shots/1.7.0/en/settings-agents.webp) |
+| ![Four friends in the yard, chatting in speech bubbles](website/public/shots/1.10.0/en/yard-talk.webp) | ![Four friends on the desktop below a terminal running tests](website/public/shots/1.10.0/en/desktop.webp) | ![Coding tools settings with a reacting friend chosen for each agent](website/public/shots/1.10.0/en/settings-agents.webp) |
 
 ## Install
 

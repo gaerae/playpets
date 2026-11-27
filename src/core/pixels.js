@@ -1,7 +1,8 @@
 // WebKit lets go of a big image's decoded pixels while the image itself is not on screen, and then
 // decodes the whole sheet again for each cell drawn from it: 4.5 ms a cell in the yard, against
 // 0.04 ms from an ImageBitmap, which keeps its pixels. A sheet that is in is drawn from one bitmap
-// of it, made once; until then, and where there is none, from the image itself.
+// of it, made once it is decoded (one made from a sheet only loaded comes out empty); until then,
+// and where there is none, from the image itself.
 export function pixels(image) {
   if (image._bitmap) return image._bitmap;
   if (
@@ -11,13 +12,16 @@ export function pixels(image) {
     typeof globalThis.createImageBitmap === 'function'
   ) {
     image._bitmapAsked = true;
-    globalThis.createImageBitmap(image).then(
-      bitmap => {
-        if (image._letGo) bitmap.close();
-        else image._bitmap = bitmap;
-      },
-      () => {},
-    );
+    const make = () =>
+      globalThis.createImageBitmap(image).then(
+        bitmap => {
+          if (image._letGo) bitmap.close();
+          else image._bitmap = bitmap;
+        },
+        () => {},
+      );
+    if (image.decode) image.decode().then(make, make);
+    else make();
   }
   return image;
 }

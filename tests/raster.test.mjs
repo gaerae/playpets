@@ -95,3 +95,26 @@ test('a decoded picture is handed out as one bitmap of it, or the image where no
   const image = await decodeImage('../art/test/refused.png');
   assert.ok(image instanceof globalThis.Image, 'a bitmap refused leaves the image');
 });
+
+// A sheet is complete (loaded) before WebKit has decoded it, and a bitmap made from it then comes
+// out empty: drawn from that, three of four friends sent to a new desktop window stayed unseen
+// until their outfit's sheet changed. The bitmap is made once the sheet is decoded.
+test('a sheet is made into a bitmap only once it is decoded', async t => {
+  keepGlobals(t, 'createImageBitmap');
+  const { pixels } = await import('../src/core/pixels.js');
+  let decoded;
+  const image = { complete: true, naturalWidth: 1536, decode: () => new Promise(resolve => (decoded = resolve)) };
+  const made = [];
+  globalThis.createImageBitmap = async from => {
+    const bitmap = { from };
+    made.push(bitmap);
+    return bitmap;
+  };
+  assert.equal(pixels(image), image, 'drawn from the image meanwhile');
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(made.length, 0, 'no bitmap before the sheet is decoded');
+  decoded();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(made.length, 1);
+  assert.equal(pixels(image), made[0], 'drawn from the bitmap once it is made');
+});
