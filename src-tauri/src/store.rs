@@ -135,10 +135,15 @@ mod tests {
     // step, the system's error and its code, and the tries, with no path.
     #[test]
     fn a_failed_write_is_described_for_the_problem_report() {
-        let denied = std::io::Error::from_raw_os_error(13);
+        // Access denied is 5 on Windows (ERROR_ACCESS_DENIED) and 13 elsewhere (EACCES); 13 on
+        // Windows is ERROR_INVALID_DATA.
+        let code = if cfg!(windows) { 5 } else { 13 };
+        let denied = std::io::Error::from_raw_os_error(code);
         let text = failure_text("state.json", "rename", &denied, 6);
         assert!(
-            text.starts_with("state.json rename: PermissionDenied (os error 13) after 6 tries"),
+            text.starts_with(&format!(
+                "state.json rename: PermissionDenied (os error {code}) after 6 tries"
+            )),
             "{text}"
         );
     }
