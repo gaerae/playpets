@@ -170,7 +170,10 @@ test('a press on the first-run card catches nothing and sends no friend there', 
   setData({ pets: [pet], assets: [], statuses: {} });
   const asked = [];
   setScenery({
-    catchAt: (x, y) => (asked.push([x, y]), null),
+    catchAt: (x, y) => {
+      asked.push([x, y]);
+      return null;
+    },
     near: () => false,
     nearPetal: () => false,
     catchPetal: () => null,
