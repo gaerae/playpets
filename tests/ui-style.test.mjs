@@ -1536,14 +1536,15 @@ test('a news card in a large window shows its picture and name, its sentence on 
   assert.doesNotMatch(rule, /display:none/);
 });
 
-// The tool in hand looked like the one under the pointer; it wears the rim, and its seed count stays a pill.
-test('the tool in hand wears a rim a hovered one never has, and keeps its seed count', async () => {
+// The tool in hand looked like the one under the pointer; it wears the rim. Its seed count is in the
+// hand row now (ground-tools.test.mjs), not a pill on the tool.
+test('the tool in hand wears a rim a hovered one never has', async () => {
   const css = await styles();
   const pressed = css.match(/\.discovery-target \[aria-pressed="true"\]\{([^}]*)\}/)?.[1] || '';
   assert.match(pressed, /box-shadow:inset 0 0 0 2px var\(--garden-rim\)/);
   assert.match(pressed, /font-weight:750/);
   assert.doesNotMatch(css.match(/\.discovery-tool:hover\{([^}]*)\}/)?.[1] || '', /box-shadow/);
-  assert.match(css, /\.discovery-target \[aria-pressed="true"\] \.tool-count\{[^}]*background:var\(--garden-paper\)/);
+  assert.doesNotMatch(css, /\.discovery-target \[aria-pressed="true"\] \.tool-count/);
 });
 
 test('Back stands before the title, away from Close', async () => {

@@ -214,7 +214,7 @@ test('the tree picker is one button naming the sapling in hand, its menu only th
   // A kind with none in the pocket takes no room; the album lists every kind.
   const others = choices.filter(choice => !['maple', 'oak'].includes(choice.dataset.treeKind));
   assert.ok(others.every(choice => choice.hidden));
-  assert.match(maple.textContent, /2/);
+  assert.match(maple.querySelector('.hand-name').textContent, /2/);
   // However many kinds are owned, the strip keeps one button for them.
   state.data.garden.saplings = Object.fromEntries(choices.map(choice => [choice.dataset.treeKind, 1]));
   syncDiscovery();
@@ -244,7 +244,7 @@ test('with no saplings the picker gives way to digging for some', t => {
   fixture(t);
   beginDiscovery('tree');
   assert.equal(document.getElementById('discovery-tree-picker').hidden, true);
-  assert.equal(document.getElementById('discovery-find-saplings').hidden, false);
+  assert.equal(document.getElementById('discovery-find').hidden, false);
 });
 
 test('a state change keeps keyboard focus on the chosen tree choice', t => {
@@ -258,17 +258,17 @@ test('a state change keeps keyboard focus on the chosen tree choice', t => {
   syncDiscovery();
   assert.equal(document.activeElement, maple);
   assert.equal(maple.parentNode, choices);
-  assert.match(maple.textContent, /1/);
+  assert.match(maple.querySelector('.hand-name').textContent, /1/);
 });
 
 test('an empty sapling pocket offers digging instead of allowing free planting', async t => {
   const { v } = fixture(t);
   setupDiscovery();
   beginDiscovery('tree');
-  assert.equal(document.getElementById('discovery-find-saplings').hidden, false);
+  assert.equal(document.getElementById('discovery-find').hidden, false);
   await document.getElementById('yard').dispatch('click', { clientX: 500, clientY: 620 });
   assert.equal(v.trip, undefined);
-  document.getElementById('discovery-find-saplings').onclick();
+  document.getElementById('discovery-find').onclick();
   assert.equal(state.aiming, 'dig');
 });
 

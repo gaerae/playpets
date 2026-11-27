@@ -1005,18 +1005,15 @@
   grid-row: 1;
   grid-column: 2;
 }
-:is(#discovery-tree-picker, #discovery-find-saplings) {
+:is(#discovery-tree-picker, #discovery-seed-hand, #discovery-find) {
   grid-column: 1 / -1;
 }
-/* The tool in hand wears the rim, which a hovered one never does, and its seed count stays a pill on
-   the paper rather than melting into the chosen fill. */
+/* The tool in hand wears the rim, which a hovered one never does. How many are in hand is in the row
+   under the tools (the sapling picker, the seeds), not on the tool. */
 .discovery-target [aria-pressed="true"] {
   background: var(--control-selected);
   box-shadow: inset 0 0 0 2px var(--garden-rim);
   font-weight: 750;
-}
-.discovery-target [aria-pressed="true"] .tool-count {
-  background: var(--garden-paper);
 }
 /* While a tool is in hand, one press switches to another or (with Close) puts it away. */
 .discovery-tools {
@@ -1059,8 +1056,9 @@
 .discovery-tool:hover {
   background: var(--control-hover);
 }
-/* The sapling in hand is one button that opens the others (discovery.js treeChoices), so the strip
-   keeps one row however many kinds are found. */
+/* What is in hand to spend, as a picture, a name and a count: the sapling in hand is one button that
+   opens the others (discovery.js treeChoices), so the strip keeps one row however many kinds are
+   found; the seeds are the same row with nothing to choose (.hand-only). */
 .tree-picker {
   position: relative;
   padding-top: 4px;
@@ -1083,12 +1081,12 @@
   font-size: var(--font-sm);
   cursor: pointer;
 }
-.tree-button > span:first-child {
+.hand-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.tree-button svg {
+.tree-button > [data-icon] svg {
   width: 14px;
   height: 14px;
   flex: none;
@@ -1096,6 +1094,28 @@
 }
 .tree-button:hover {
   background: var(--control-hover);
+}
+.tree-button.hand-only {
+  cursor: default;
+}
+.tree-button.hand-only:hover {
+  background: var(--control-selected);
+}
+/* The drawing of what is in hand, small, standing on the row's line. */
+.hand-picture {
+  display: block;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  /* Seeds show their packet (base.css [data-clue="seeds"]): a planted seed is a speck at this size. */
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.hand-picture > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 /* A menu above the strip, which stands on the ground's edge; a long list scrolls in it. */
 .tree-menu {
@@ -1120,6 +1140,9 @@
 }
 .tree-menu [role="menuitemradio"] {
   min-height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 6px 10px;
   border: 0;
   border-radius: 10px;
@@ -1150,8 +1173,8 @@
   }
 }
 /* The spot under the pointer while digging or planting (discovery.js markSpot): a patch of turned
-   soil, with a see-through sapling of the kind in hand standing in it when planting a tree; greyed,
-   leaning and with a small "no" sign where nothing can go. */
+   soil, with a see-through sapling of the kind in hand or a seed in it when planting; greyed, leaning
+   and with a small "no" sign where nothing can go. */
 .discovery-marker {
   --zoom: 1;
   position: absolute;
@@ -1176,6 +1199,24 @@
 }
 .discovery-marker[data-soil="winter"] .marker-soil {
   background-image: url("../art/discovery/dug-soil-winter.webp");
+}
+/* A seed indoors goes in a pot, not in the floor: the marker shows the pot a planted one stands in
+   (.yard[data-soil="false"] .plant above), the seed in its mouth. */
+.discovery-marker[data-soil="none"] .marker-soil {
+  display: none;
+}
+.discovery-marker[data-soil="none"] .marker-sapling::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -12%;
+  width: 100%;
+  height: 45%;
+  background: url("../art/decor/indoor-planter.webp") center / 100% 100% no-repeat;
+}
+.discovery-marker[data-soil="none"] .marker-sapling > svg {
+  position: relative;
+  top: -12%;
 }
 .marker-sapling {
   position: absolute;

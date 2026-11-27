@@ -12,9 +12,10 @@ import { artSvg } from './art.js';
 import { befriend } from './bond.js';
 import { rareKind, showCard } from './card.js';
 import { onAimingChange, setAimingMode } from './care.js';
-import { TREES, treasureKind } from './catalog.js';
+import { treeArt, TREES, treasureKind } from './catalog.js';
 import { groundAllows } from './discovery-rules.js';
 import { field, fieldToYard, petHeight, sizeOf, topAt, yardToDecor, yardToField } from './field.js';
+import { noRoomForSeed, seedLook, seedSpot, spareSeeds } from './garden.js';
 import { groundProfile } from './ground.js';
 import { saplingPreview } from './planted-trees.js';
 import { atRainbowEnd, clearRainbowEnd } from './rainbow-end.js';
@@ -49,6 +50,29 @@ const TOOLS = [
 ];
 const ownAim = () => intent && aiming === intent.action;
 const stock = kind => data.garden?.saplings?.[kind] || 0;
+const saplingArt = kind => treeArt(kind, 0, scene.season) || '';
+/** The tool in hand that marks the ground: a dig or a tree chosen here, or a seed (garden.js). */
+const inHand = () => (ownAim() ? intent.action : aiming === 'seed' ? 'seed' : null);
+// The sapling in hand, here and in the menu: its picture, its name and how many.
+// The picture is drawn again only when it changes, as the strip is updated on every state change.
+function inHandRow(picture, name, art, { text }) {
+  if (picture && picture.dataset.art !== art) {
+    picture.dataset.art = art;
+    picture.innerHTML = art ? artSvg(art) : '';
+  }
+  if (name) name.textContent = text;
+}
+// The seeds in hand, as the sapling picker shows a sapling; with none, where seeds come from and
+// the dig that finds them, as for a sapling.
+function seedHand() {
+  const seeds = spareSeeds();
+  $('discovery-seed-hand').hidden = !seeds;
+  // No friend digs a floor (beginDiscovery), so a room offers no dig it would refuse.
+  $('discovery-find').hidden = !!seeds || !groundProfile().soil;
+  // Its picture is the seed packet (index.html), as a planted seed is a speck at that size.
+  if (seeds) $('discovery-seed-current').textContent = t('garden.seeds_in_hand', { count: seeds });
+  stripSays(seeds ? 'hint.plant' : 'garden.no_seeds');
+}
 
 function treeChoices() {
   const choices = $('discovery-tree-choices');
@@ -59,10 +83,16 @@ function treeChoices() {
   if (choices.children.length !== TREES.length)
     choices.replaceChildren(
       ...TREES.map(tree => {
-        const button = document.createElement('button');
+        const button = document.createElement('button'),
+          picture = document.createElement('span'),
+          name = document.createElement('span');
         button.type = 'button';
         button.setAttribute('role', 'menuitemradio');
         button.dataset.treeKind = tree.id;
+        picture.className = 'hand-picture';
+        picture.setAttribute('aria-hidden', 'true');
+        name.className = 'hand-name';
+        button.append(picture, name);
         return button;
       }),
     );
@@ -72,18 +102,19 @@ function treeChoices() {
     const kind = button.dataset.treeKind;
     button.disabled = !stock(kind);
     button.hidden = !stock(kind);
-    button.textContent = t('discovery.pocket', { kind: t(`tree.${kind}`), count: stock(kind) });
+    inHandRow(button.querySelector('.hand-picture'), button.querySelector('.hand-name'), saplingArt(kind), {
+      text: t('discovery.pocket', { kind: t(`tree.${kind}`), count: stock(kind) }),
+    });
     button.title = t('discovery.sapling_source');
     button.setAttribute('aria-checked', String(kind === intent.kind));
   }
   if (intent.kind)
-    $('discovery-tree-current').textContent = t('discovery.pocket', {
-      kind: t(`tree.${intent.kind}`),
-      count: stock(intent.kind),
+    inHandRow($('discovery-tree-picture'), $('discovery-tree-current'), saplingArt(intent.kind), {
+      text: t('discovery.pocket', { kind: t(`tree.${intent.kind}`), count: stock(intent.kind) }),
     });
   $('discovery-tree-picker').hidden = !intent.kind;
   stripSays(intent.kind ? 'discovery.choose_tree' : 'discovery.no_saplings');
-  $('discovery-find-saplings').hidden = !!intent.kind;
+  $('discovery-find').hidden = !!intent.kind;
 }
 
 export function cancelDiscovery() {
@@ -110,6 +141,7 @@ export function syncDiscovery() {
     put(button, 'title', t(soil ? `discovery.${id === 'dig-tool' ? 'dig' : 'tree'}_hint` : 'discovery.indoors'));
   }
   if (intent?.action === 'tree') treeChoices();
+  if (aiming === 'seed') seedHand();
 }
 
 // Trees friends are on their way to plant: not saved yet, or saved but not yet in the state the
@@ -138,7 +170,8 @@ export function beginDiscovery(action) {
   setAimingMode(action);
   stripSays(action === 'dig' ? 'discovery.choose_dig' : 'discovery.choose_tree');
   $('discovery-tree-picker').hidden = true;
-  $('discovery-find-saplings').hidden = true;
+  $('discovery-seed-hand').hidden = true;
+  $('discovery-find').hidden = true;
   treeChoices();
   $('discovery-target').hidden = false;
   clearAllOfDock();
@@ -162,27 +195,44 @@ function positionAt(event) {
   return groundAllows(point, groundProfile(), reach(intent?.action)) ? point : null;
 }
 
+// Every tool that marks the ground marks it here, each by its own rule for where it may go: a dig and
+// a sapling on soil (positionAt), a seed on the field, in a pot indoors too (garden.js seedSpot).
 function showMarker(event) {
-  const marker = $('discovery-marker');
-  if (!ownAim()) {
+  const marker = $('discovery-marker'),
+    tool = inHand();
+  if (!tool) {
     marker.hidden = true;
     return;
   }
   const r = $('yard').getBoundingClientRect(),
-    valid = !!positionAt(event);
+    at = { x: event.clientX - r.left, y: event.clientY - r.top },
+    valid = tool === 'seed' ? spareSeeds() > 0 && !noRoomForSeed() && !!seedSpot(at.x, at.y) : !!positionAt(event);
   marker.hidden = false;
   marker.classList.toggle('invalid', !valid);
-  marker.style.left = `${event.clientX - r.left}px`;
-  marker.style.top = `${event.clientY - r.top}px`;
-  markSpot(marker, { x: event.clientX - r.left, y: event.clientY - r.top });
+  marker.style.left = `${at.x}px`;
+  marker.style.top = `${at.y}px`;
+  markSpot(marker, at, tool);
 }
-// The spot shows what will happen there: a patch of turned soil (the season's), and for a tree a
-// see-through sapling of the kind in hand at the size it starts at that depth (garden.css).
-function markSpot(marker, at) {
-  marker.dataset.soil = scene.season === 'winter' ? 'winter' : 'base';
-  if (!marker.firstChild) marker.innerHTML = '<span class="marker-soil"></span><span class="marker-sapling"></span>';
-  const sapling = marker.lastChild,
-    look = intent?.action === 'tree' && intent.kind ? saplingPreview(intent.kind, at, scene.season) : null;
+// The spot shows what will happen there: a patch of turned soil (the season's; none on a floor), and
+// in it a see-through look of what goes in, the sapling in hand or a seed, at the size it starts at
+// that depth (garden.css).
+function markSpot(marker, at, tool) {
+  marker.dataset.soil = !groundProfile().soil ? 'none' : scene.season === 'winter' ? 'winter' : 'base';
+  if (!marker.parts) {
+    const soil = document.createElement('span'),
+      look = document.createElement('span');
+    soil.className = 'marker-soil';
+    look.className = 'marker-sapling';
+    marker.replaceChildren(soil, look);
+    marker.parts = { soil, look };
+  }
+  const sapling = marker.parts.look,
+    look =
+      tool === 'seed'
+        ? seedLook(at)
+        : tool === 'tree' && intent.kind
+          ? saplingPreview(intent.kind, at, scene.season)
+          : null;
   if (sapling.dataset.art !== (look?.art || '')) {
     sapling.dataset.art = look?.art || '';
     sapling.innerHTML = look ? artSvg(look.art) : '';
@@ -397,13 +447,15 @@ function syncTools(kind = aiming) {
   const strip = $('discovery-tools');
   if (!strip) return;
   for (const button of strip.children) button.setAttribute('aria-pressed', String(button.dataset.tool === kind));
-  const count = strip.querySelector('.tool-count');
-  if (count) count.textContent = data.garden?.seeds ? String(data.garden.seeds) : '';
+  if (kind !== 'seed') $('discovery-seed-hand').hidden = true;
   if (kind === 'seed' || kind === 'treat') {
-    stripSays(kind === 'seed' ? 'hint.plant' : 'hint.treat');
     treeMenu?.close();
     $('discovery-tree-picker').hidden = true;
-    $('discovery-find-saplings').hidden = true;
+    if (kind === 'seed') seedHand();
+    else {
+      stripSays('hint.treat');
+      $('discovery-find').hidden = true;
+    }
     if ($('discovery-target').hidden) {
       $('discovery-target').hidden = false;
       clearAllOfDock();
@@ -442,11 +494,6 @@ export function setupDiscovery() {
       mark.dataset.icon = icon;
       label.textContent = t(key);
       button.append(mark, label);
-      if (tool === 'seed') {
-        const count = document.createElement('span');
-        count.className = 'tool-count';
-        button.append(count);
-      }
       button.onclick = () => useTool(tool);
       return button;
     }),
@@ -462,7 +509,7 @@ export function setupDiscovery() {
     event.preventDefault?.();
     useTool(tool);
   });
-  $('discovery-find-saplings').onclick = () => beginDiscovery('dig');
+  $('discovery-find').onclick = () => beginDiscovery('dig');
   // A popup menu that opens on the sapling in hand rather than the first in the list.
   const saplings = menuNavigation($('discovery-tree-choices'));
   treeMenu = dropdown($('discovery-tree-button'), $('discovery-tree-choices'), () =>

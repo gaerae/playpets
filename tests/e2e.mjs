@@ -594,8 +594,10 @@ const scenario = `(async()=>{
     // The friend walks to the spot first, from wherever it happened to be.
     await until(()=>document.querySelectorAll('.plant').length===1,15000);
     const gb=(await playPets.bootstrap()).data.garden;
-    const planted=gb.seeds===0&&gb.plants.length===1&&document.querySelector('.plant')?.dataset.stage==='seed'&&!$('yard').classList.contains('aiming')&&$('plant-tool').getAttribute('aria-disabled')==='true',gardenNow={...yardNow(),spot:[spotX,spotY],garden:gb,plants:document.querySelectorAll('.plant').length,aiming:$('yard').classList.contains('aiming'),tool:$('plant-tool').getAttribute('aria-disabled')};
+    const planted=gb.seeds===0&&gb.plants.length===1&&document.querySelector('.plant')?.dataset.stage==='seed'&&$('yard').classList.contains('aiming')&&!$('discovery-find').hidden&&$('plant-tool').getAttribute('aria-disabled')==='true',gardenNow={...yardNow(),spot:[spotX,spotY],garden:gb,plants:document.querySelectorAll('.plant').length,aiming:$('yard').classList.contains('aiming'),tool:$('plant-tool').getAttribute('aria-disabled')};
     await L('garden='+(planted?'found-planted':'err:'+JSON.stringify({...gardenNow,frames:await framesIn(500)})));
+    // With the last seed spent the tool stays in hand, offering digging for more, until put away.
+    $('discovery-cancel').click();
     // A drag moves a plant to another spot, and it stays moved.
     const plantEl=document.querySelector('.plant'),plantBox=plantEl.getBoundingClientRect(),plantPress={bubbles:true,pointerId:8,button:0,clientX:plantBox.left+plantBox.width/2,clientY:plantBox.bottom-4},plantX=gb.plants[0].x;
     plantEl.dispatchEvent(new PointerEvent('pointerdown',plantPress));plantEl.dispatchEvent(new PointerEvent('pointermove',{...plantPress,clientX:plantPress.clientX-80}));plantEl.dispatchEvent(new PointerEvent('pointerup',{...plantPress,clientX:plantPress.clientX-80}));

@@ -9,6 +9,7 @@ import { openPlantMenu } from '../core/controls.js';
 import { put, putAttribute } from '../core/dom.js';
 import { joinList, list, t } from '../core/i18n.js';
 import { onEscape } from '../core/keys.js';
+import { limit } from '../core/limits.js';
 import { clamp, pick } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { $, aiming, call, data, game, guard, selected, toast, views } from '../core/state.js';
@@ -18,7 +19,7 @@ import { artHref, artSize, artSvg, colorStyle } from './art.js';
 import { befriend } from './bond.js';
 import { showCard } from './card.js';
 import { setAimingMode } from './care.js';
-import { flowerKind } from './catalog.js';
+import { flowerKind, STAGES } from './catalog.js';
 import { flowerSvg } from './creatures.js';
 import { depthAt, field, fieldToYard, footTarget, petHeight, sizeOf, standAt, topAt, yardToDecor } from './field.js';
 import { flowerFor, hoursMinutes, offersPatch, plantBreadth, plantLook, stageOf, untilBloom } from './growth.js';
@@ -192,7 +193,6 @@ function syncTool() {
   const seeds = data.garden?.seeds ?? 0;
   put($('seed-count'), 'textContent', seeds ? String(seeds) : '');
   putAttribute($('plant-tool'), 'aria-disabled', String(!seeds));
-  if (!spareSeeds() && aiming === 'seed') setAimingMode(false);
 }
 
 // Sends a friend to stand just beside a plant (left or right of it, whichever is nearer), clear of
@@ -241,8 +241,27 @@ export function pullPlant(id) {
 }
 
 const planting = new Map();
-// A friend on the way to plant spends its seed only on arrival, so that seed is already promised.
-const spareSeeds = () => Math.max(0, (data.garden?.seeds ?? 0) - planting.size);
+/** The seeds left to plant: a friend on the way to plant spends its seed only on arrival, so that
+ * seed is already promised. */
+export const spareSeeds = () => Math.max(0, (data.garden?.seeds ?? 0) - planting.size);
+/** Where a seed pressed at yard pixel (cx, cy) goes in, or null off the field: as low as a gift may
+ * stand, below the friends' field. The spot's marker (discovery.js) and the press both ask here. */
+export const seedSpot = (cx, cy) => (cy < topAt(cx) - 10 ? null : yardToDecor(cx, cy));
+/** Why no other seed fits, counting those on their way; nothing when one does. The field holds one
+ * count of plants in every place, as the backend keeps it (garden.rs PLANT_MAX). */
+export function noRoomForSeed() {
+  const most = limit(data, 'plants');
+  return (data.garden?.plants?.length ?? 0) + planting.size >= most ? t('garden.full', { limit: most }) : '';
+}
+/** What the marker shows at yard pixel `at` for a seed: the seed as it lies once planted, at the
+ * size it will be drawn there (position). */
+export function seedLook(at) {
+  const art = STAGES.find(stage => stage.name === 'seed')?.art;
+  if (!art) return null;
+  const [aw, ah] = artSize(art),
+    scale = propScale(at);
+  return { art, width: aw * UNIT * scale, height: ah * UNIT * scale, zoom: clamp(scale, 0.6, 1.2) };
+}
 function cancelPlanting() {
   for (const v of planting.keys()) release(v);
 }
@@ -284,16 +303,16 @@ function sendPlanting(v, point, kind, clip) {
     }),
   });
   planting.set(v, cleanup);
-  if (!spareSeeds() && aiming === 'seed') setAimingMode(false);
 }
 
-// Planting: the tool, then a click on the field. It stays on while there are seeds; Esc or the
-// tool again puts it away.
+// Planting: the tool, then a click on the field. It stays in hand, as a sapling does, after the last
+// seed (the strip then offers digging for more); Esc or the tool again puts it away.
 function plantAt(cx, cy) {
-  if (cy < topAt(cx) - 10) return toast(t('garden.on_field'));
+  const point = seedSpot(cx, cy);
+  if (!point) return toast(t('garden.on_field'));
+  const full = noRoomForSeed();
+  if (full) return toast(full);
   if (!spareSeeds()) return;
-  // As low as a gift may stand, below the friends' field.
-  const point = yardToDecor(cx, cy);
   const kind = flowerFor(scene.season);
   const v = forPerson(cx, cy, views.get(selected));
   const clip = v ? prepareCompanionAction(v.asset, 'plant') : null;
@@ -312,9 +331,12 @@ export function setupGarden() {
   onEscape(cancelPlanting);
   // With the mouse the next click in the yard chooses the spot; from the keyboard a second press
   // plants beside the selected friend (or mid-field), as the picnic treat does.
+  // With none, the tool is still taken up: the strip says where seeds come from (discovery.js).
   $('plant-tool').onclick = guard(async e => {
-    if (!spareSeeds()) return toast(t('garden.no_seeds'));
-    if (aiming === 'seed' && e?.detail === 0) return plantNearby();
+    if (aiming === 'seed' && e?.detail === 0 && spareSeeds()) return plantNearby();
+    // As the tree tool is with the yard's trees all out (discovery.js beginDiscovery).
+    const full = aiming !== 'seed' && noRoomForSeed();
+    if (full) return toast(full);
     setAimingMode(aiming === 'seed' ? false : 'seed');
   });
   $('yard').addEventListener(
