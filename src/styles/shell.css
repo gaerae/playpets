@@ -625,11 +625,14 @@ body.compact .toast > span {
   height: 18px;
   stroke-width: 2px;
 }
+/* It scrolls up and down only: overflow-y alone leaves the other axis at auto, and Windows then drew
+   a second bar under Play's tiles for the painted hand on Album, a few pixels past the edge. */
 .dock-panel-body {
   display: flex;
   flex-direction: column;
   gap: 8px;
   min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
 }

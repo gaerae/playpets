@@ -191,6 +191,25 @@ test('a tool name in a small window takes a second line instead of running into 
   assert.match(css, /@media\(max-width:360px\)\{body\.compact \.discovery-tool svg\{display:none;\}\}/);
 });
 
+// overflow-y: auto alone turns the other axis to auto too, and Windows draws its scrollbars inside
+// the box: with Play's body scrolling, the painted hand tapping Album passed its right edge by a few
+// pixels and a second bar showed under the tiles. A box meant to scroll up and down never scrolls
+// sideways; what passes its edge is cut, as it was already.
+test('a panel, sheet or page that scrolls up and down never scrolls sideways', async () => {
+  const css = await styles();
+  for (const selector of [
+    '\\.dock-panel-body',
+    '\\.side-panel',
+    '#panel-invite',
+    'body\\.compact \\.panel-body',
+    '\\.album-grid',
+  ]) {
+    const rule = css.match(new RegExp(`(?:^|\\})${selector}\\{([^}]*)\\}`))?.[1] || '';
+    assert.match(rule, /overflow-y:auto/, selector);
+    assert.match(rule, /overflow-x:(?:hidden|clip)/, selector);
+  }
+});
+
 test('a button in a scrolling dock panel draws its focus ring inside, where the scroller cannot cut it', async () => {
   const css = await styles();
   assert.match(css, /\.dock-panel-body button:focus-visible\{outline-offset:-3px;/);

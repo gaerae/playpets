@@ -963,6 +963,7 @@ dialog:not(#confirm-dialog) .dialog-heading h2:not(:empty)::after {
   gap: 10px;
   align-content: start;
   padding: 4px 16px 16px;
+  overflow-x: hidden;
   overflow-y: auto;
 }
 .album-card {

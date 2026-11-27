@@ -18,6 +18,8 @@
   min-height: 0;
   padding: 8px;
   font-size: var(--font-md);
+  /* up and down only, as every scrolling panel (shell.css .dock-panel-body) */
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -33,6 +35,7 @@
   box-shadow: var(--shadow-sheet);
 }
 #panel-invite {
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
@@ -193,6 +196,7 @@ body.compact .layout.panel-open .side-panel {
   overflow: hidden;
 }
 body.compact .panel-body {
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
