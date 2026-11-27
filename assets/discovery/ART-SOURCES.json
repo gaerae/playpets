@@ -14,6 +14,16 @@
   ],
   "sources": [
     {
+      "id": "freshwater-pearl",
+      "file": "freshwater-pearl-source.png",
+      "atlas": "fixes/freshwater_pearl.png",
+      "size": [635, 640],
+      "sha256": "0a008c1a3650f4074e5933c213b130e9604453e9566502b9c012b2bbc61b9437",
+      "prompt": "Use the built-in image_gen tool to make one game asset: a single perfectly ROUND freshwater pearl: a smooth glossy spherical bead, soft cream with a pink-silver sheen and one small bright highlight, seen slightly from above; no shell, nothing under it, in exactly the style of the reference image (warm sculpted hand-painted cozy game sprite, soft top-left light, crisp clean edges, natural tactile finish). One whole object only, centered, filling about 70% of the frame, readable at 40 pixels. Transparent background, no ground shadow, no text, no border, no other objects.",
+      "reference": "src/art/album/discovery/glass_marble.webp, style reference only",
+      "notes": "Redrawn 2026-11-27: the more-finds cell asked for an irregular pearl on a mussel shell, which read as a shell or a stone. Processed by assets/sources/art-fixes-2026-11-27/pack.py."
+    },
+    {
       "id": "growth",
       "file": "trees-growth-source.png",
       "atlas": "trees/growth.png",
@@ -1395,10 +1405,10 @@
     },
     {
       "id": "freshwater_pearl",
-      "source": "more-finds",
+      "source": "freshwater-pearl",
       "art": "discovery/freshwater_pearl.svg",
       "size": [40, 40],
-      "crop": [910, 514, 379, 295],
+      "crop": [0, 0, 635, 640],
       "anchor": [0.5, 0.5]
     },
     {
