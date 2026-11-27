@@ -187,4 +187,4 @@ Friends move like characters in a game: legs pass each other and arms swing agai
 
 ## Follow-up (2026-11-27)
 
-- The ring of bent grass read as a target painted on the ground, and it was large. The mark is now a small paw pin over the spot (`ambient/walk-pin.png`), dropping in and bobbing, with only a small soft shadow on the ground (garden.css `.walk-mark`, `.walk-pin`). It still scales by the friend's size and depth.
+- The ring of bent grass read as a target painted on the ground, and it was large. The mark is now a small star pin over the spot (a paw print was dropped: friends are not all animals) (`ambient/walk-pin.png`), dropping in and bobbing, with only a small soft shadow on the ground (garden.css `.walk-mark`, `.walk-pin`). It still scales by the friend's size and depth.

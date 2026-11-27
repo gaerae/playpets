@@ -131,7 +131,7 @@ Right-click the friend in the yard and choose **Edit**. In the **Friends** panel
 |---|---|
 | Pat | Click a friend once. It jumps and shows a heart |
 | Move | Drag a friend and drop it. Its place in the yard is remembered |
-| Walk somewhere | Click open ground. The selected friend walks there, or the nearest one when none is selected. A small paw pin bobs over the spot until it arrives |
+| Walk somewhere | Click open ground. The selected friend walks there, or the nearest one when none is selected. A small star pin bobs over the spot until it arrives |
 | Chat | Point at the friend and click the name tag that shows under it. Under the pointer the tag shows a speech mark, and its tooltip says **Talk to** and the friend's name. The **Friends** panel opens on that friend, and the conversation fits inside the window at every size. The first friend you invite explains how to chat |
 | Friend menu | Right-click a friend. Its name and closeness hearts sit above **Talk to**, **Play with**, **Ask … to dig**, **Show on desktop** and **Edit** |
 | Put down a treat | **Play → Garden → Picnic**, then choose a spot. From the keyboard, press it again to set it beside the selected friend. A picnic blanket with sandwiches, fruit and snacks appears, and friends gather around it. It clears after 15 seconds if not everyone arrives, or six seconds after the last friend eats |
