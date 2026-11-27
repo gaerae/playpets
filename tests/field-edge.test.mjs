@@ -150,13 +150,23 @@ test("draw order runs from the highest ground to the yard's foot, whatever the e
   assert.ok(depthAt(LINE) > 1 && depthAt(LINE) < 101);
 });
 
-// Up a path, a friend is as far back as at the line beside it: each x has its own top.
-test('by default what stands at the top of the field is as small anywhere, up a path or not', t => {
+// Depth goes by the height on the screen in every place, from the highest the field reaches: a
+// friend walking toward the viewer only grows, whichever way across it goes. (Measured from the
+// field's top at each x, one walking down and across a path's side shrank as the edge fell away
+// under it, then grew again.)
+test('by default what stands higher on the screen is smaller, alike at every x', t => {
   yard(t, DOOR);
-  const up = depthScaleAt(0.25 * 1536, 0.58 * 1024),
-    beside = depthScaleAt(0.6 * 1536, LINE);
-  assert.equal(up, DEPTH_FAR);
-  assert.equal(beside, DEPTH_FAR);
+  assert.equal(depthScaleAt(0.25 * 1536, 0.58 * 1024), DEPTH_FAR, 'at the top of the path');
+  const line = depthScaleAt(0.6 * 1536, LINE);
+  assert.ok(line > DEPTH_FAR && line < 1, `at the line beside it, nearer (${line})`);
+  assert.equal(depthScaleAt(0.25 * 1536, LINE), line, 'as high on the screen, as big');
+  // A walk down and across the path's side never shrinks.
+  let last = 0;
+  for (let i = 0; i <= 20; i++) {
+    const s = depthScaleAt((0.2 + i * 0.02) * 1536, (0.58 + i * 0.015) * 1024);
+    assert.ok(s >= last, `step ${i}: ${s} after ${last}`);
+    last = s;
+  }
 });
 
 // Where the lawn reaches far back (the Wild garden's open meadow), the same scale up the path and

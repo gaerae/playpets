@@ -4,6 +4,7 @@ import {
   decorFloor,
   DEPTH_FAR,
   depthAt,
+  depthScaleAt,
   dockBox,
   drawnBox,
   field,
@@ -167,15 +168,14 @@ test('a friend whose name tag reaches behind the dock is lifted too', t => {
 // the rod in its paws (drawnBox), or they float above a friend at the back.
 test('what sits on a friend far back follows its shrunk drawing', t => {
   yardIn(t);
-  for (const [y, depth] of [
-    [0, DEPTH_FAR],
-    [1, 1],
-  ]) {
+  for (const y of [0, 1]) {
     const v = friendAt(0.5, y);
     place(v);
     const width = 96,
       height = petHeight(v.pet),
-      foot = footOf(v);
+      foot = footOf(v),
+      depth = Math.round(depthScaleAt(foot.x, foot.y) * 100) / 100;
+    assert.ok(y ? depth === 1 : depth >= DEPTH_FAR && depth < 1, `${depth} at ${y}`);
     assert.equal(v.depth, depth);
     assert.equal(v.label.style['--depth'], String(depth), 'the head offset shrinks with it');
     assert.equal(

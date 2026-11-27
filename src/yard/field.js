@@ -125,14 +125,16 @@ export function depthScale(y) {
   return far + (1 - far) * clamp(y);
 }
 /** How big something whose foot is at (px, py) in the yard is drawn for its depth: as a friend whose
- * feet are there (views.js place). A friend's place runs from where the field begins at its feet
- * down to its name tag's room (geometry), so a gift, a plant or a tree on the same spot reads at the
- * same scale; one set below a friend's reach is as near as the nearest friend. Where the lawn
- * reaches far back (geometry.far, a share of the picture's height), the scale runs from that line
- * instead, the same at every x: up the meadow a friend is smaller than at the line beside it. */
+ * feet are there (views.js place), so a gift, a plant or a tree on the same spot reads at the same
+ * scale; one set below a friend's reach is as near as the nearest friend. By the height on the
+ * screen, the same at every x, from a far line down to the name tag's room at the yard's foot: the
+ * place's own (geometry.far, a share of the picture's height, where the lawn reaches far back), else
+ * the highest the field begins (up a path). Measured from the field's top at each x instead, a
+ * friend walking down and across a path's side shrank as the edge fell away, then grew again. */
 export function depthScaleAt(px, py) {
   if (!yardSize.width) measureYard();
-  const top = edgeShape()?.far ?? topAt(px);
+  const shape = edgeShape(),
+    top = shape?.far ?? shape?.high ?? topAt(px);
   return depthScale((py - top) / Math.max(1, yardSize.height - TAG_ROOM - top));
 }
 export const petHeight = p => cellHeight(sizeOf(p));
