@@ -23,7 +23,7 @@ const { setData, setSelected, views } = state;
 const { measureYard } = await import('../src/yard/field.js');
 const { release } = await import('../src/yard/trips.js');
 const { useWorlds } = await import('../src/yard/worlds.js');
-const { scene } = await import('../src/yard/world.js');
+const { scene, setScenery } = await import('../src/yard/world.js');
 const { STAGES } = await import('../src/yard/catalog.js');
 const { t: say } = await import('../src/core/i18n.js');
 const page = await readFile(new URL('../src/index.html', import.meta.url), 'utf8');
@@ -194,4 +194,65 @@ test('indoors the seed marker stands in a pot and no dig is offered', t => {
   assert.equal($('discovery-find').hidden, true);
   hover(500, 620);
   assert.equal($('discovery-marker').dataset.soil, 'none');
+});
+
+// A sapling a friend is on its way to plant is promised, as a seed is (garden.js spareSeeds): the
+// hand row counts it spent at once, and the marker greys where the press would be refused.
+test('a sapling on its way is spent at once: the count drops and the marker greys once the yard is full', async t => {
+  const trees = Array.from({ length: 10 }, (_, i) => ({ id: `t${i}`, kind: 'maple', x: 0.1, y: 0.9 }));
+  const { $, hover, click } = yard(t, { saplings: { maple: 3 }, trees });
+  // A second friend, as each spot sends the next free one.
+  const pip = { ...views.get('friend'), pet: { id: 'pip', size: 112, name: 'Pip' }, px: 600 };
+  views.set('pip', pip);
+  t.after(() => release(pip));
+  beginDiscovery('tree');
+  assert.match($('discovery-tree-current').textContent, /3/);
+  await click(500, 620);
+  assert.match($('discovery-tree-current').textContent, /2/, 'one is on its way');
+  hover(520, 640);
+  assert.equal($('discovery-marker').classList.contains('invalid'), false);
+  await click(520, 640);
+  // Two of the twelve the yard holds are on their way: no other fits, though a sapling is left.
+  assert.match($('discovery-tree-current').textContent, /1/);
+  hover(540, 660);
+  assert.equal($('discovery-marker').classList.contains('invalid'), true, 'the yard has all it holds');
+});
+
+test('the last sapling on its way leaves the picker saying where saplings come from', async t => {
+  const { $, hover, click } = yard(t, { saplings: { maple: 1 } });
+  beginDiscovery('tree');
+  await click(500, 620);
+  assert.equal($('discovery-tree-picker').hidden, true);
+  assert.equal($('discovery-target-label').textContent, say('discovery.no_saplings'));
+  assert.equal($('discovery-find').hidden, false);
+  hover(520, 640);
+  assert.equal($('discovery-marker').classList.contains('invalid'), true);
+});
+
+// A press on a creature or the lake puts the tool away and catches or fishes (catch.js), so no soil
+// is marked there.
+test('no spot is marked where a press catches instead', t => {
+  setScenery({ near: x => x > 800, nearPetal: () => false });
+  t.after(() => setScenery(null));
+  const { $, hover } = yard(t, { saplings: { maple: 1 }, seeds: 1 });
+  beginDiscovery('dig');
+  hover(500, 620);
+  assert.equal($('discovery-marker').hidden, false);
+  hover(900, 620);
+  assert.equal($('discovery-marker').hidden, true, 'a creature is under the pointer');
+  $('plant-tool').onclick({ detail: 1 });
+  hover(900, 620);
+  assert.equal($('discovery-marker').hidden, true, 'for a seed too');
+});
+
+// Indoors a seed may be in hand, and the strip beside it offers no dig or sapling it would refuse.
+test('indoors the strip offers no dig or sapling, as the yard tools do not', t => {
+  const { $ } = yard(t, { seeds: 1 }, { soil: false });
+  $('plant-tool').onclick({ detail: 1 });
+  syncDiscovery();
+  const strip = Object.fromEntries($('discovery-tools').children.map(b => [b.dataset.tool, b]));
+  assert.equal(strip.dig.disabled, true);
+  assert.equal(strip.tree.disabled, true);
+  assert.equal(strip.dig.title, say('discovery.indoors'));
+  assert.notEqual(strip.seed.disabled, true);
 });

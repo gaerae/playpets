@@ -2,7 +2,7 @@
 // walking.md): the selected friend, else the one nearest the spot. A spot it cannot stand on moves
 // to the nearest one it can, and a small pin bobbing over it points at it until the friend gets there.
 import { $, aiming, game, selected, views } from '../core/state.js';
-import { depthScaleAt, dockBox, footOf, footTarget, sizeOf, underDock, yardToField } from './field.js';
+import { depthScaleAt, dockBox, feetAt, footOf, footTarget, sizeOf, topAt, underDock, yardToField } from './field.js';
 import { groundProfile } from './ground.js';
 import { nearest, sendTo } from './trips.js';
 import { reachOf } from './views.js';
@@ -81,9 +81,10 @@ function mark(v, px, py) {
   };
 }
 
-/** Sends a friend to the ground pressed at (px, py), yard pixels: whether one went. */
+/** Sends a friend to the ground pressed at (px, py), yard pixels: whether one went. The sky and the
+ * painting behind the field are not ground, as for a seed (garden.js seedSpot). */
 export function walkHere(px, py) {
-  if (aiming || game || pressClosed || pressHeld || busy()) return false;
+  if (aiming || game || pressClosed || pressHeld || busy() || py < topAt(px) - 10) return false;
   const v = whoGoes(px, py);
   if (!v) return false;
   const allows = groundFor(v),
@@ -93,8 +94,12 @@ export function walkHere(px, py) {
     const x = px + dx,
       y = py + dy;
     if (!allows(from, x, y)) continue;
-    const done = mark(v, x, y);
-    sendTo(v, footTarget(v, x, y), { arrive: done, cancel: done });
+    // The pin is where the feet will be: the field keeps a body's half width from each side and its
+    // feet on the ground, so that can be a little off the press.
+    const target = footTarget(v, x, y),
+      feet = feetAt(v.pet, target),
+      done = mark(v, feet.x, feet.y);
+    sendTo(v, target, { arrive: done, cancel: done });
     return true;
   }
   return false;

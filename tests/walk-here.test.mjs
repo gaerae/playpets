@@ -6,7 +6,7 @@ import test from 'node:test';
 import './support/content.mjs';
 import { reduced } from '../src/core/sprites.js';
 import { setAiming, setData, setGame, setSelected, views } from '../src/core/state.js';
-import { depthScaleAt, measureYard, sizeOf, underDock } from '../src/yard/field.js';
+import { depthScaleAt, feetAt, measureYard, sizeOf, topAt, underDock } from '../src/yard/field.js';
 import { setupWalkHere, walkHere } from '../src/yard/walk-here.js';
 import { element, installDom } from './support/dom.mjs';
 import { flatField } from './support/flat-field.mjs';
@@ -184,7 +184,7 @@ test('the mark is as big as the friend going there would look at the spot', t =>
     assert.equal(zoom, Math.round(((sizeOf(v.pet) * depthScaleAt(px, py)) / 112) * 100) / 100);
     return zoom;
   };
-  assert.ok(zoomAt(420, 330) < zoomAt(420, 520), 'smaller farther back');
+  assert.ok(zoomAt(420, topAt(420) + 10) < zoomAt(420, 520), 'smaller farther back');
 });
 
 // Feedback: a big ring of grass read as a target painted on the ground. The spot is pointed at
@@ -206,4 +206,27 @@ test('the mark is a small pin pointing at the spot, not a ring on the ground', a
   mark.classList.remove('drop');
   walkHere(440, 430);
   assert.ok(mark.classList.contains('drop'), 'it drops in again at the next spot');
+});
+
+// Measured: a press on the sky put the pin in the sky while the friend stopped on the far line 400 px
+// below it, and a press at a side edge put it 64 px from where the friend stopped (the field keeps a
+// body's half width from each side). Only ground sends a friend, as for a seed (garden.js seedSpot),
+// and the pin stands where the friend's feet will be.
+test('a press on the sky sends nobody, as a seed is not planted there', t => {
+  yard(t);
+  const v = friend('daisy', 380);
+  assert.equal(walkHere(420, topAt(420) - 40), false);
+  assert.equal(v.target ?? null, null);
+  assert.equal(walkHere(420, topAt(420) + 4), true, 'the far edge of the ground is ground');
+});
+
+test('the pin stands where the friend will stand, at a side edge too', t => {
+  const document = yard(t);
+  const v = friend('daisy', 380);
+  for (const x of [2, 420, 798]) {
+    walkHere(x, 420);
+    const [px, py] = document.getElementById('walk-mark').style.translate.split(' ').map(Number.parseFloat),
+      feet = feetAt(v.pet, v.target);
+    assert.ok(Math.abs(px - feet.x) <= 1 && Math.abs(py - feet.y) <= 1, `pin ${px},${py} feet ${feet.x},${feet.y}`);
+  }
 });

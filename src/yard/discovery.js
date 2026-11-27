@@ -13,6 +13,7 @@ import { befriend } from './bond.js';
 import { rareKind, showCard } from './card.js';
 import { onAimingChange, setAimingMode } from './care.js';
 import { treeArt, TREES, treasureKind } from './catalog.js';
+import { toolGivesWay } from './catch.js';
 import { groundAllows } from './discovery-rules.js';
 import { field, fieldToYard, petHeight, sizeOf, topAt, yardToDecor, yardToField } from './field.js';
 import { noRoomForSeed, seedLook, seedSpot, spareSeeds } from './garden.js';
@@ -50,6 +51,9 @@ const TOOLS = [
 ];
 const ownAim = () => intent && aiming === intent.action;
 const stock = kind => data.garden?.saplings?.[kind] || 0;
+// The saplings of a kind left to plant: one a friend is on its way to plant is already promised, as a
+// seed is (garden.js spareSeeds).
+const spare = kind => Math.max(0, stock(kind) - planting().filter(task => task.kind === kind).length);
 const saplingArt = kind => treeArt(kind, 0, scene.season) || '';
 /** The tool in hand that marks the ground: a dig or a tree chosen here, or a seed (garden.js). */
 const inHand = () => (ownAim() ? intent.action : aiming === 'seed' ? 'seed' : null);
@@ -77,7 +81,7 @@ function seedHand() {
 function treeChoices() {
   const choices = $('discovery-tree-choices');
   if (intent?.action !== 'tree' || !choices) return;
-  if (!stock(intent.kind)) intent.kind = TREES.find(tree => stock(tree.id))?.id || null;
+  if (!spare(intent.kind)) intent.kind = TREES.find(tree => spare(tree.id))?.id || null;
   // Every state change comes here; the choices are made once and updated in place, so a keyboard
   // user keeps focus on one.
   if (choices.children.length !== TREES.length)
@@ -100,17 +104,17 @@ function treeChoices() {
   // many kinds are found; the menu lists only the saplings in the pocket (the album lists every kind).
   for (const button of choices.children) {
     const kind = button.dataset.treeKind;
-    button.disabled = !stock(kind);
-    button.hidden = !stock(kind);
+    button.disabled = !spare(kind);
+    button.hidden = !spare(kind);
     inHandRow(button.querySelector('.hand-picture'), button.querySelector('.hand-name'), saplingArt(kind), {
-      text: t('discovery.pocket', { kind: t(`tree.${kind}`), count: stock(kind) }),
+      text: t('discovery.pocket', { kind: t(`tree.${kind}`), count: spare(kind) }),
     });
     button.title = t('discovery.sapling_source');
     button.setAttribute('aria-checked', String(kind === intent.kind));
   }
   if (intent.kind)
     inHandRow($('discovery-tree-picture'), $('discovery-tree-current'), saplingArt(intent.kind), {
-      text: t('discovery.pocket', { kind: t(`tree.${intent.kind}`), count: stock(intent.kind) }),
+      text: t('discovery.pocket', { kind: t(`tree.${intent.kind}`), count: spare(intent.kind) }),
     });
   $('discovery-tree-picker').hidden = !intent.kind;
   stripSays(intent.kind ? 'discovery.choose_tree' : 'discovery.no_saplings');
@@ -133,6 +137,11 @@ export function cancelDiscoveryWork() {
 export function syncDiscovery() {
   if (intent && (!ownAim() || !views.has(intent.petId) || intent.world !== scene.world || game)) cancelDiscovery();
   for (const [v, task] of tasks) if (!views.has(v.pet.id) || task.world !== scene.world) release(v);
+  syncSoilTools();
+  syncHand();
+}
+// The dig and the tree, on the yard's tools and on the strip: no friend digs or plants a floor.
+function syncSoilTools() {
   const soil = groundProfile().soil;
   for (const id of ['dig-tool', 'tree-tool']) {
     const button = $(id);
@@ -140,6 +149,14 @@ export function syncDiscovery() {
     put(button, 'disabled', !soil || !views.size || !!game);
     put(button, 'title', t(soil ? `discovery.${id === 'dig-tool' ? 'dig' : 'tree'}_hint` : 'discovery.indoors'));
   }
+  for (const button of $('discovery-tools')?.children || []) {
+    if (button.dataset.tool === 'seed') continue;
+    put(button, 'disabled', !soil);
+    put(button, 'title', soil ? '' : t('discovery.indoors'));
+  }
+}
+// The hand row, again whenever what is in hand changes: the state, or a friend setting off to plant.
+function syncHand() {
   if (intent?.action === 'tree') treeChoices();
   if (aiming === 'seed') seedHand();
 }
@@ -156,6 +173,8 @@ function noRoomForTree() {
   const count = (data.garden?.trees || []).length + planting().length;
   return count >= limit(data, 'trees') ? t('discovery.tree_total', { limit: limit(data, 'trees') }) : '';
 }
+// Why a sapling of `kind` cannot be planted now; nothing when it can. The marker and the press ask here.
+const treeRefused = kind => noRoomForTree() || (spare(kind) > 0 ? '' : t('discovery.no_saplings'));
 
 export function beginDiscovery(action) {
   const v = views.get(selected) || views.values().next().value;
@@ -182,7 +201,7 @@ export function beginDiscovery(action) {
 const reach = action => ({ planting: action === 'tree' });
 function positionAt(event) {
   const tree = intent?.action === 'tree';
-  if (tree && !stock(intent.kind)) return null;
+  if (tree && !spare(intent.kind)) return null;
   const r = $('yard').getBoundingClientRect(),
     x = event.clientX - r.left,
     y = event.clientY - r.top,
@@ -200,13 +219,17 @@ function positionAt(event) {
 function showMarker(event) {
   const marker = $('discovery-marker'),
     tool = inHand();
-  if (!tool) {
+  // Nor where the press would put the tool away to catch or fish instead (catch.js).
+  if (!tool || toolGivesWay(event)) {
     marker.hidden = true;
     return;
   }
   const r = $('yard').getBoundingClientRect(),
     at = { x: event.clientX - r.left, y: event.clientY - r.top },
-    valid = tool === 'seed' ? spareSeeds() > 0 && !noRoomForSeed() && !!seedSpot(at.x, at.y) : !!positionAt(event);
+    valid =
+      tool === 'seed'
+        ? spareSeeds() > 0 && !noRoomForSeed() && !!seedSpot(at.x, at.y)
+        : !!positionAt(event) && !(tool === 'tree' && treeRefused(intent.kind));
   marker.hidden = false;
   marker.classList.toggle('invalid', !valid);
   marker.style.left = `${at.x}px`;
@@ -267,9 +290,11 @@ export function sendDiscovery(v, point, action, kind, own = false) {
     stopWork(v);
     if (tasks.get(v) === task) tasks.delete(v);
     task.reveal?.();
+    syncHand();
   };
   release(v);
   tasks.set(v, task);
+  syncHand();
   sendToDig(v, point, stroke, {
     own,
     cancel: cleanup,
@@ -401,12 +426,8 @@ function actorFor(point) {
 function order(point, v = actorFor(point)) {
   if (!v) return toast(t('catch.busy'));
   const { action, kind } = intent;
-  if (action === 'tree') {
-    const full = noRoomForTree();
-    if (full) return toast(full);
-    if (stock(kind) - planting().filter(task => task.kind === kind).length <= 0)
-      return toast(t('discovery.no_saplings'));
-  }
+  const refused = action === 'tree' && treeRefused(kind);
+  if (refused) return toast(refused);
   sendDiscovery(v, point, action, kind);
 }
 /** With Let them dig on (Settings → Friends & AI): an idle friend digs a spot of its own choosing.
