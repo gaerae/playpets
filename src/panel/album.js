@@ -470,7 +470,8 @@ export function renderAlbum() {
     $('album-grid').replaceChildren(sealedCard());
     $('album-detail')?.replaceChildren(sealedStage());
     if ($('album-detail')) delete $('album-detail').dataset.kind;
-    return fitTabs();
+    fitTabs();
+    return evenCards();
   }
   const there = new Set((b.now?.() || []).map(k => k.id));
   keepUnchanged(
@@ -481,6 +482,18 @@ export function renderAlbum() {
   if (picked) pickOf(picked)?.focus();
   leftPage(b, showing, showing && have[showing.id], kinds.indexOf(showing));
   fitTabs();
+  evenCards();
+}
+// Every card in the book is as tall as its tallest, found or not: a find shows its name, its record
+// and its buttons, one not found yet only its picture, and a grid that scrolls sizes each row by its
+// own cards, so a row with nothing found came out shorter. Each card is measured at its own height
+// first, then the tallest is every row's least (dialog.css --album-card); a change of width, which
+// wraps a record or a name, measures again.
+function evenCards() {
+  const grid = $('album-grid');
+  grid.style.removeProperty('--album-card');
+  const tallest = Math.max(0, ...[...grid.children].map(card => card.getBoundingClientRect().height));
+  if (tallest) grid.style.setProperty('--album-card', `${Math.ceil(tallest)}px`);
 }
 // Every book's tab stays in the one row: where their names do not fit (a window just above the
 // compact one, a longer language) each shows its picture and count, and
@@ -720,7 +733,11 @@ export function setupAlbum() {
     if (seal) rattle(seal);
   });
   $('album-button').onclick = () => openAlbum();
-  globalThis.window?.addEventListener('resize', () => $('album-dialog').open && fitTabs());
+  globalThis.window?.addEventListener('resize', () => {
+    if (!$('album-dialog').open) return;
+    fitTabs();
+    evenCards();
+  });
   $('close-album').onclick = () => $('album-dialog').close();
   closeOnBackdrop($('album-dialog'));
   const tabs = [...document.querySelectorAll('.album-tabs [data-book]')];

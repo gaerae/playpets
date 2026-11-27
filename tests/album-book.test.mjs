@@ -128,3 +128,55 @@ test('a card is chosen from the keyboard: its picture is a button, and the arrow
   const row = grid.children[0].children.find(c => c.classList?.contains('album-actions'));
   assert.equal(key(row.children[0], 'ArrowRight'), false);
 });
+
+// A card found shows its name, its record and its buttons; one not found yet only its picture. A
+// scrolling grid sizes each row by its own cards, so a row with nothing found came out shorter than
+// one with a find. Every card is as tall as the book's tallest (dialog.css --album-card).
+test("every card in a book is as tall as its tallest, found or not, and follows the window's width", ctx => {
+  const heights = { found: 186.4, unknown: 109 };
+  const dom = installDom(ctx, {
+    ids: ['album-tabs', 'album-grid', 'album-button', 'close-album', 'album-dialog', 'album-total', 'album-detail'],
+    anyId: true,
+    props: { open: true },
+  });
+  dom.document.querySelectorAll = () => [];
+  dom.document.querySelector = () => dom.nodes.get('album-total');
+  const make = dom.document.createElement;
+  dom.document.createElement = tag => {
+    const node = make(tag);
+    // A card's height as the page draws it: each at its own, unless the grid sets one for all.
+    node.getBoundingClientRect = () => ({
+      top: 0,
+      height: node.classList.contains('album-card')
+        ? Math.max(
+            heights[node.classList.contains('unknown') ? 'unknown' : 'found'],
+            parseFloat(node.parentNode?.style['--album-card']) || 0,
+          )
+        : 0,
+    });
+    return node;
+  };
+  const previous = state.data;
+  state.setData({
+    pets: [],
+    assets: [],
+    bonds: {},
+    album: { flowers: { [FLOWERS[0].id]: { count: 1, best: 0, first: 1 } } },
+    garden: { received: [], decor: [], boxed: [], plants: [], trees: [] },
+  });
+  ctx.after(() => state.setData(previous));
+  setupAlbum();
+  openAlbum('flower');
+  const grid = dom.nodes.get('album-grid');
+  assert.equal(grid.style['--album-card'], '187px', 'the tallest card, rounded up so none is cut');
+  // A narrower window wraps a record onto two lines: the cards are measured again.
+  heights.found = 202;
+  heights.unknown = 120;
+  for (const listener of dom.window.listeners.get('resize') || []) listener();
+  assert.equal(grid.style['--album-card'], '202px');
+  // A book with nothing found: its cards' own height, not the last book's.
+  heights.found = 0;
+  state.setData({ ...state.data, album: {} });
+  openAlbum('flower');
+  assert.equal(grid.style['--album-card'], '120px');
+});

@@ -955,11 +955,14 @@ dialog:not(#confirm-dialog) .dialog-heading h2:not(:empty)::after {
   --album-ground: #e4e5f2;
   --album-ground-hi: #f6f6fb;
 }
+/* Every row at least the book's tallest card, found or not (album.js evenCards), and taller where a
+   card is taller still, so nothing is cut. */
 .album-grid {
   flex: 1;
   min-height: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+  grid-auto-rows: minmax(var(--album-card, auto), auto);
   gap: 10px;
   align-content: start;
   padding: 4px 16px 16px;
@@ -1954,9 +1957,12 @@ dialog:not(#confirm-dialog) .dialog-heading h2:not(:empty)::after {
   .album-dialog {
     padding: 12px;
   }
+  /* One column is a list, not rows of cards side by side: each card keeps its own height, or the
+     book's tallest would leave one card to a 320px window. */
   .album-grid {
     grid-template-columns: 1fr;
     gap: 6px;
+    grid-auto-rows: auto;
   }
   /* A narrow page lists the specimens as rows: the drawing on its ground, then the words. */
   .album-card {

@@ -279,6 +279,19 @@ test('the menu sets its three places side by side in every window, so Close wind
   assert.equal(css.match(/\.management-destinations\{display:grid/g).length, 1, 'said once, for every window');
 });
 
+// A row of cards not found yet was shorter than a row with a find. Every row is at least the
+// book's tallest card (album.js evenCards), and grows if a card is taller still, so nothing is cut.
+// A small window's one column is a list, not rows of cards: there each card keeps its own height,
+// or one card would fill a 320px window.
+test("every row of album cards is at least the book's tallest card, where cards stand side by side", async () => {
+  const css = await styles();
+  assert.match(css, /(?:^|\})\.album-grid\{[^}]*grid-auto-rows:minmax\(var\(--album-card,auto\),auto\)/);
+  const small = css.match(
+    /@media\(max-width:640px\),\(max-height:480px\)\{\.album-tabs\{display:none;?\}(.*?)\}\}/,
+  )?.[1];
+  assert.match(small, /\.album-grid\{grid-template-columns:1fr;[^}]*grid-auto-rows:auto/);
+});
+
 // At 760 by 520 the album's large picture pushed the hint on where to find a kind below the left
 // page's fold.
 test('a short window draws the album large picture smaller, so the hint under it stays in view', async () => {
@@ -939,6 +952,7 @@ const SET_FROM_CODE = {
   '--bubble-shift': 'src/yard/views.js',
   '--depth': 'src/yard/views.js',
   '--album-found': 'src/panel/album.js',
+  '--album-card': 'src/panel/album.js',
   '--trail-opacity': 'src/yard/trails.js',
   '--petal-x': 'src/yard/petals.js',
   '--petal-turn': 'src/yard/petals.js',
