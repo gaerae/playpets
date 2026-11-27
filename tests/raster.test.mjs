@@ -96,14 +96,46 @@ test('a decoded picture is handed out as one bitmap of it, or the image where no
   assert.ok(image instanceof globalThis.Image, 'a bitmap refused leaves the image');
 });
 
-// A sheet is complete (loaded) before WebKit has decoded it, and a bitmap made from it then comes
-// out empty: drawn from that, three of four friends sent to a new desktop window stayed unseen
-// until their outfit's sheet changed. Waiting on decode() instead left the starter pets and the
-// friends' own clips blank in WebKit, where drawing a sheet while its decode() is pending paints
-// nothing and the promise may never settle. Drawing the image decodes it, so the bitmap is asked
-// for once the sheet has been drawn from, and decode() is never called.
-test('a sheet is made into a bitmap once it has been drawn from, without waiting on decode()', async t => {
-  keepGlobals(t, 'createImageBitmap');
+// A bitmap of a sheet is made as soon as the sheet is in. In a desktop window that has just
+// opened, WebKit can give an empty one for a sheet that is loaded but not decoded: three of four
+// friends sent out together stayed unseen. Waiting on decode() for every sheet instead left the
+// starter pets and the friends' own clips blank in the yard. So a bitmap that reads empty is
+// dropped, and one more is made once the sheet is decoded.
+const sampler = () => {
+  globalThis.OffscreenCanvas = class {
+    getContext() {
+      let source;
+      return {
+        drawImage(from) {
+          source = from;
+        },
+        getImageData: () => ({ data: new Uint8ClampedArray(16).fill(source?.empty ? 0 : 255) }),
+      };
+    }
+  };
+};
+const fakeBitmaps = emptyFirst => {
+  const made = [];
+  globalThis.createImageBitmap = async from => {
+    const bitmap = {
+      from,
+      empty: emptyFirst && made.length === 0,
+      closed: false,
+      close() {
+        this.closed = true;
+      },
+    };
+    made.push(bitmap);
+    return bitmap;
+  };
+  return made;
+};
+const settle = () => new Promise(resolve => setImmediate(resolve));
+
+test('a sheet is drawn from a bitmap made at once, and decode() is not waited on for it', async t => {
+  keepGlobals(t, 'createImageBitmap', 'OffscreenCanvas');
+  sampler();
+  const made = fakeBitmaps(false);
   const { pixels } = await import('../src/core/pixels.js');
   let decodeAsked = false;
   const image = {
@@ -114,19 +146,28 @@ test('a sheet is made into a bitmap once it has been drawn from, without waiting
       return new Promise(() => {});
     },
   };
-  const made = [];
-  globalThis.createImageBitmap = async from => {
-    const bitmap = { from };
-    made.push(bitmap);
-    return bitmap;
-  };
-  assert.equal(pixels(image), image, 'the first drawing is from the image, which decodes it');
-  await new Promise(resolve => setImmediate(resolve));
-  assert.equal(made.length, 0, 'no bitmap from a sheet not yet drawn');
-  assert.equal(pixels(image), image, 'drawn from the image until the bitmap is made');
-  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(pixels(image), image, 'drawn from the image while the bitmap is made');
+  await settle();
   assert.equal(made.length, 1);
   assert.equal(pixels(image), made[0], 'drawn from the bitmap once it is made');
-  assert.equal(made.length, 1, 'made once');
-  assert.equal(decodeAsked, false, 'decode() is never waited on');
+  assert.equal(decodeAsked, false, 'decode() is not asked for a bitmap with pixels');
+});
+
+test('an empty bitmap of a sheet is dropped and made again once the sheet is decoded', async t => {
+  keepGlobals(t, 'createImageBitmap', 'OffscreenCanvas');
+  sampler();
+  const made = fakeBitmaps(true);
+  const { pixels } = await import('../src/core/pixels.js');
+  let decoded;
+  const image = { complete: true, naturalWidth: 1536, decode: () => new Promise(resolve => (decoded = resolve)) };
+  pixels(image);
+  await settle();
+  assert.equal(made.length, 1);
+  assert.equal(made[0].closed, true, 'the empty bitmap is let go');
+  assert.equal(pixels(image), image, 'drawn from the image until the sheet is decoded');
+  assert.equal(made.length, 1, 'no second bitmap before the sheet is decoded');
+  decoded();
+  await settle();
+  assert.equal(made.length, 2);
+  assert.equal(pixels(image), made[1], 'drawn from the bitmap made after decoding');
 });
