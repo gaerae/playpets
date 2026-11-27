@@ -98,23 +98,35 @@ test('a decoded picture is handed out as one bitmap of it, or the image where no
 
 // A sheet is complete (loaded) before WebKit has decoded it, and a bitmap made from it then comes
 // out empty: drawn from that, three of four friends sent to a new desktop window stayed unseen
-// until their outfit's sheet changed. The bitmap is made once the sheet is decoded.
-test('a sheet is made into a bitmap only once it is decoded', async t => {
+// until their outfit's sheet changed. Waiting on decode() instead left the starter pets and the
+// friends' own clips blank in WebKit, where drawing a sheet while its decode() is pending paints
+// nothing and the promise may never settle. Drawing the image decodes it, so the bitmap is asked
+// for once the sheet has been drawn from, and decode() is never called.
+test('a sheet is made into a bitmap once it has been drawn from, without waiting on decode()', async t => {
   keepGlobals(t, 'createImageBitmap');
   const { pixels } = await import('../src/core/pixels.js');
-  let decoded;
-  const image = { complete: true, naturalWidth: 1536, decode: () => new Promise(resolve => (decoded = resolve)) };
+  let decodeAsked = false;
+  const image = {
+    complete: true,
+    naturalWidth: 1536,
+    decode: () => {
+      decodeAsked = true;
+      return new Promise(() => {});
+    },
+  };
   const made = [];
   globalThis.createImageBitmap = async from => {
     const bitmap = { from };
     made.push(bitmap);
     return bitmap;
   };
-  assert.equal(pixels(image), image, 'drawn from the image meanwhile');
+  assert.equal(pixels(image), image, 'the first drawing is from the image, which decodes it');
   await new Promise(resolve => setImmediate(resolve));
-  assert.equal(made.length, 0, 'no bitmap before the sheet is decoded');
-  decoded();
+  assert.equal(made.length, 0, 'no bitmap from a sheet not yet drawn');
+  assert.equal(pixels(image), image, 'drawn from the image until the bitmap is made');
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(made.length, 1);
   assert.equal(pixels(image), made[0], 'drawn from the bitmap once it is made');
+  assert.equal(made.length, 1, 'made once');
+  assert.equal(decodeAsked, false, 'decode() is never waited on');
 });

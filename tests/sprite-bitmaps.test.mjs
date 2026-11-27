@@ -1,7 +1,8 @@
 // WebKit lets go of a big image's decoded pixels while it is not on screen and decodes the whole
 // sheet again for each cell drawn from it: 4.5 ms a cell in the yard, against 0.04 ms from an
-// ImageBitmap (src/core/sprites.js pixels). A sheet that is in is drawn from a bitmap of it, made
-// once; until then, and where there is none, from the image; and the bitmap goes with its sheet.
+// ImageBitmap (src/core/pixels.js). A sheet that is in is drawn from a bitmap of it, made once the
+// sheet has been drawn from (which decodes it); until then, and where there is none, from the image;
+// and the bitmap goes with its sheet.
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -46,7 +47,10 @@ test('a sheet is drawn from one bitmap of it once that is made, and lets it go w
   const pet = { id: 'bitmap-pet', spriteUrl: 'sheet' };
   const first = surface();
   sprites.drawSprite(first, pet);
-  assert.deepEqual(first.drawn, ['sheet'], 'the image is drawn while the bitmap is being made');
+  await settle();
+  assert.equal(made.filter(b => b.bitmapOf === 'sheet').length, 0, 'no bitmap of a sheet not yet drawn');
+  sprites.drawSprite(first, pet, 'jump', 400);
+  assert.deepEqual(first.drawn, ['sheet', 'sheet'], 'the image is drawn while the bitmap is being made');
   await settle();
   const second = surface();
   sprites.drawSprite(second, pet);
@@ -62,13 +66,15 @@ test('a season’s sheet lets go of the bitmap of the one it replaced once it is
   const c = surface();
   sprites.setSpriteSeason('');
   sprites.drawSprite(c, pet);
+  sprites.drawSprite(c, pet, 'jump', 400);
   await settle();
   const base = made.find(b => b.bitmapOf === 'base');
   sprites.setSpriteSeason('winter');
   sprites.drawSprite(c, pet);
   assert.equal(base.closed, true);
-  await settle();
   sprites.drawSprite(c, pet, 'jump', 400);
+  await settle();
+  sprites.drawSprite(c, pet);
   assert.equal(c.drawn.at(-1), 'bitmap:winter');
   sprites.setSpriteSeason('');
   sprites.release(new Set());
@@ -76,7 +82,9 @@ test('a season’s sheet lets go of the bitmap of the one it replaced once it is
 
 test('a bitmap made after its sheet was let go is closed at once', async () => {
   const pet = { id: 'bitmap-late', spriteUrl: 'late' };
-  sprites.drawSprite(surface(), pet);
+  const c = surface();
+  sprites.drawSprite(c, pet);
+  sprites.drawSprite(c, pet, 'jump', 400);
   sprites.release(new Set());
   await settle();
   assert.equal(made.find(b => b.bitmapOf === 'late').closed, true);
