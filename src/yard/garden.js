@@ -141,9 +141,16 @@ export function bloomChoice(id, now = Date.now()) {
     patch: artSvg(kind.patch.art),
   };
 }
-/** Sets a flower to bloom as one flower or as its planted patch; the backend's state redraws it. */
+/** Sets a flower to bloom as one flower or as its planted patch; the backend's state redraws it.
+ * Resolves to whether it was saved. */
 export function setSingleBloom(id, single) {
-  return call('setSingleBloom', id, single).catch(error => toast(spoken(error, t('error.generic')), { error: true }));
+  return call('setSingleBloom', id, single).then(
+    () => true,
+    error => {
+      toast(spoken(error, t('error.generic')), { error: true });
+      return false;
+    },
+  );
 }
 /** Brings the field in line with the backend's garden, at the stage the clock says. */
 export function renderGarden(now = Date.now()) {

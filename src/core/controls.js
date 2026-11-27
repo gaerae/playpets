@@ -130,7 +130,7 @@ export function setupControls({
   dress = () => {},
   canDress = () => false,
   bloomChoice = () => null,
-  setSingleBloom = async () => {},
+  setSingleBloom = async () => true,
   closeness = () => 0,
   letterReadable = () => false,
   openLetter = () => {},
@@ -424,7 +424,11 @@ export function setupControls({
           single = action === 'one-bloom';
         row('one-bloom').setAttribute('aria-checked', String(single));
         row('patch').setAttribute('aria-checked', String(!single));
-        setSingleBloom(id, single).then(() => requestAnimationFrame(place));
+        // Not saved, the tick goes back to what the flower still is.
+        setSingleBloom(id, single).then(saved => {
+          if (saved === false && friend === id && !context.hidden) showBloomChoice(id);
+          requestAnimationFrame(place);
+        });
         return;
       }
       closeControls();
