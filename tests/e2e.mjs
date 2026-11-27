@@ -517,7 +517,9 @@ const scenario = `(async()=>{
     const autoBefore=!!(await playPets.bootstrap()).data.autoPlay;$('auto-play').click();
     // The switch stays disabled until its save returns; a press before then is ignored, as for a person.
     const autoOn=await until(async()=>!!(await playPets.bootstrap()).data.autoPlay!==autoBefore&&!$('auto-play').disabled);
-    $('auto-play').click();const autoBack=await until(async()=>!!(await playPets.bootstrap()).data.autoPlay===autoBefore);
+    // The first save's state can reach the page after the second press and show it a moment; the
+    // second save's state follows it, so the switch settles on what was saved (seen on Linux CI).
+    $('auto-play').click();const autoBack=await until(async()=>!!(await playPets.bootstrap()).data.autoPlay===autoBefore&&!$('auto-play').disabled&&$('auto-play').checked===autoBefore);
     $('close-panel').click();
     await L('autoPlay='+(autoOn&&autoBack&&$('auto-play').checked===autoBefore?'saved-both-ways':'err:'+JSON.stringify({autoBefore,autoOn:!!autoOn,autoBack:!!autoBack})));
     // The relationship shows beside the friend's closeness, and a click on it opens the settings at the relationship cards.
