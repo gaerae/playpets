@@ -40,14 +40,67 @@ export function environmentLook({ season, weather, period, world }) {
   };
 }
 
-/** Keeps the source's proportions while aligning its walkable floor with the yard's. */
+// The share of a window, at each side, a room's picture may leave to its own mirrored edge.
+const SIDE_MAX = 0.07;
+/** Keeps the source's proportions while aligning its walkable floor with the yard's. A room framed
+ * from its foot ("cover-bottom") that names the band of its height to keep in view (geometry.keep,
+ * [top, bottom]) loses the empty floor below that band before its top; in a window too wide for
+ * the band (not a strip along the screen) the picture stops covering the width, and up to 7%
+ * at each side is left to its mirrored edge (paintEnvironment), so a wide screen still shows its
+ * windows instead of only the floor. */
 export function environmentFrame(w, h, scene = {}, sourceWidth = 1536, sourceHeight = 1024) {
   const place = worldFor(scene.world),
-    scale = Math.max(w / sourceWidth, h / sourceHeight),
-    width = sourceWidth * scale,
+    fromFoot = place.fit === 'cover-bottom',
+    keep = fromFoot ? place.geometry?.keep : null,
+    cover = Math.max(w / sourceWidth, h / sourceHeight);
+  let scale = cover;
+  if (keep && w <= h * 3) {
+    const band = h / ((keep[1] - keep[0]) * sourceHeight);
+    scale = Math.max(h / sourceHeight, (w * (1 - 2 * SIDE_MAX)) / sourceWidth, Math.min(cover, band));
+  }
+  const width = sourceWidth * scale,
     height = sourceHeight * scale,
-    floor = place.fit === 'cover-bottom' ? 1 : (place.geometry?.fieldTop ?? 0.6);
-  return { x: (w - width) / 2, y: (h - height) * floor, width, height };
+    x = (w - width) / 2;
+  if (!fromFoot) return { x, y: (h - height) * (place.geometry?.fieldTop ?? 0.6), width, height };
+  const extra = height - h,
+    below = keep ? Math.min(extra, (1 - keep[1]) * height) : 0;
+  return { x, y: below - extra, width, height };
+}
+// A side the picture leaves is its own edge mirrored there, out of focus and shaded toward the
+// window's edge, so it reads as the room going on into shadow; sharp, a vase at the edge showed
+// twice, face to face.
+const SIDE_SHADE = 'rgba(64, 40, 22, 0.5)';
+const SIDE_BLUR = 'blur(10px)';
+function paintSides(ctx, image, w, h, frame) {
+  if (frame.x <= 0) return;
+  const strip = (frame.x / frame.width) * image.width,
+    right = frame.x + frame.width,
+    look = ctx.filter && ctx.filter !== 'none' ? `${ctx.filter} ${SIDE_BLUR}` : SIDE_BLUR;
+  for (const [at, from, left] of [
+    [frame.x, 0, 0],
+    [right + frame.x, image.width - strip, right],
+  ]) {
+    ctx.save();
+    // Kept to its side: the blur would spread over the picture's own edge.
+    ctx.beginPath?.();
+    ctx.rect?.(left, 0, frame.x, h);
+    ctx.clip?.();
+    ctx.filter = look;
+    ctx.translate(at, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(image, from, 0, strip, image.height, 0, frame.y, frame.x, frame.height);
+    ctx.restore();
+  }
+  for (const [from, to] of [
+    [0, frame.x],
+    [w, right],
+  ]) {
+    const shade = ctx.createLinearGradient(from, 0, to, 0);
+    shade.addColorStop(0, SIDE_SHADE);
+    shade.addColorStop(1, 'rgba(64, 40, 22, 0)');
+    ctx.fillStyle = shade;
+    ctx.fillRect(Math.min(from, to), 0, frame.x, h);
+  }
 }
 
 /** Visible window glass in the same cropped coordinates as the painted room; null means outdoors. */
@@ -71,6 +124,7 @@ export function paintEnvironment(ctx, image, w, h, scene) {
   ctx.filter = filter;
   const frame = environmentFrame(w, h, scene, image.width, image.height);
   ctx.drawImage(image, frame.x, frame.y, frame.width, frame.height);
+  paintSides(ctx, image, w, h, frame);
   ctx.filter = 'none';
   if (tint) {
     ctx.globalCompositeOperation = 'source-atop';

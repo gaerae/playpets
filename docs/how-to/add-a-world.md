@@ -85,6 +85,7 @@ To trace one:
 | `blocks` | `{x, y, rx, ry}` ellipses a stroll does not end on and a gift is not set down on (furniture) |
 | `fronts` | `{x, y, width, height, foot, shape}`: a piece cut from the picture and drawn over friends whose feet are above `foot` |
 | `depthFar` | How small a friend at the back is drawn (default 0.84; about 0.6 for a deep room) |
+| `keep` | With `cover-bottom`, `[top, bottom]`: the band of the picture's height to keep in view. A wider window first loses the floor below `bottom`, then the top; past that the picture leaves up to 7% of each side to its own edge, mirrored and out of focus, and that side is not floor |
 
 - Measure each front on the picture. Start its `shape` at the tabletop, not at a lamp or a pot on it: anything above the top covers a seated friend's face.
 - Ask for only flat things on a table in front of a seat (books, paper, seed packets): a laptop or a tall pot there sits in front of a face.

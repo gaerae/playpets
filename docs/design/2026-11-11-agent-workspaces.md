@@ -180,3 +180,11 @@ New `geometry.stations` in `worlds.json`, in source-image fractions like `geomet
 - Furniture keeps the friends' size: a seated friend's tag rests on the table top, and the bench is about two friends wide.
 - The bench, the post and its lantern are one front, cut along their outline.
 - The tables' fronts follow the top board and the legs too, not their boxes: a lantern's ground glow or a gift's shade behind a table stops at the table, not at a straight edge beside it.
+
+## Follow-up: a very wide window (2026-11-27)
+
+- At 2560×1080 the workshop's picture, framed from its foot, lost its top 37%: the windows and the roof were gone and only floor showed.
+- The workshop names the band it keeps in view (`geometry.keep`, 0.13 to 0.93 of its height). A wider window loses the empty floor below the bench first, then the top.
+- Past what that allows, the picture stops covering the window's width. Up to 7% of each side shows the picture's own edge, mirrored, blurred and shaded (`environment.js paintSides`). A sharp mirror showed a vase twice, face to face.
+- The sides are not floor (`workspace.js blocked`), and friends grow with the picture as shown, so they stay as big next to a desk.
+- A strip along the screen (wider than three times its height) still crops, as decided in [places](2026-10-11-places.md).

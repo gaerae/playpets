@@ -84,8 +84,8 @@ export function topAt(px) {
 }
 let zoom = { friends: 1, props: 1 },
   zoomWorld = null;
-// A room's furniture is drawn at the friends' size where its picture fills a window 850px tall
-// (the picture at 850/1024); past that the picture grows with the window, and friends with it.
+// A place's picture is drawn for the friends' size where it fills a window 850px tall (the picture
+// at 850/1024); past that the picture grows with the window, and friends with it.
 const ROOM_SCALE = 850 / 1024;
 // Up to twice the friend size: a sprite's own pixels at the default size and more.
 const ROOM_ZOOM_MAX = 2;
@@ -93,17 +93,21 @@ const ROOM_ZOOM_MAX = 2;
 // height, so a small window still reads as a whole scene; a strip (much wider than tall, like a bar
 // along the screen's edge) gives the sky away and keeps the friends larger, and a narrow column
 // keeps them from crowding each other.
-// In a room (a floor without soil) a larger window shows its furniture larger, so friends grow
-// as much as its picture (environment.js environmentFrame, 1536 by 1024 for every place) and
-// stay the same size next to a desk; outdoors the land is open and friends keep their size. A
-// smaller window shrinks the picture past what a friend can be read at, so friends stop there; a
-// gift is furniture, and keeps to the picture's scale, or a bench would stand larger than the desk.
+// A larger window shows its picture larger (environment.js environmentFrame, 1536 by 1024 for every
+// place), so friends grow as much and stay the same size next to a house or a desk; kept at one, a
+// big screen drew them small beside the cottage. A smaller window shrinks the picture past what a
+// friend can be read at, so friends stop there. Outdoors what stands on the grass keeps to the
+// friends; in a room (a floor without soil) a gift is furniture, and keeps to the picture's scale
+// there too, or a bench would stand larger than the desk.
+// Outdoors a strip shows a slice of a wide picture, so friends grow no taller than its height allows.
 function zoomFor(width, height, world) {
   const strip = width > height * 3,
-    fit = clamp(Math.min(height / (strip ? 380 : 560), width / 640), 0.35, 1);
-  if (worldHasSoil(world)) return { friends: fit, props: fit };
-  const picture = Math.min(ROOM_ZOOM_MAX, Math.max(width / 1536, height / 1024) / ROOM_SCALE);
-  return { friends: Math.max(fit, picture), props: picture };
+    tall = height / (strip ? 380 : 560),
+    fit = clamp(Math.min(tall, width / 640), 0.35, 1),
+    picture = Math.min(ROOM_ZOOM_MAX, environmentFrame(width, height, { world }).width / 1536 / ROOM_SCALE);
+  if (!worldHasSoil(world)) return { friends: Math.max(fit, picture), props: picture };
+  const friends = Math.max(fit, Math.min(picture, tall));
+  return { friends, props: friends };
 }
 // The zoom follows the place as well as the size: another place measures it again.
 const currentZoom = () => {

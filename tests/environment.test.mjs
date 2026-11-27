@@ -198,3 +198,71 @@ test('snow preserves imported seasonal imagery', async () => {
     worlds.splice(worlds.indexOf(place), 1);
   }
 });
+
+// A room framed from its foot (the garden workshop) keeps a band of its picture in view
+// (geometry.keep): a wider window first loses the empty floor below the band, then the top; past
+// what that allows the picture stops covering the window's width, and its own edge, mirrored and
+// shaded, fills at most a tenth of the window at each side. A strip along the screen keeps cropping.
+test('a very wide window keeps the workshop’s windows in view, its own edge filling the sides', async () => {
+  const { environmentFrame } = await import('../src/yard/environment.js');
+  const { useWorlds, worldFor } = await import('../src/yard/worlds.js');
+  useWorlds(JSON.parse(await readFile(new URL('../src/content/worlds.json', import.meta.url))));
+  const [top, bottom] = worldFor('workshop').geometry.keep;
+  const near = (a, b) => Math.abs(a - b) < 1e-6;
+  let f = environmentFrame(2560, 1080, { world: 'workshop' });
+  assert.ok(near(f.width / f.height, 1.5), 'no stretching');
+  assert.ok(f.x > 0 && f.x <= 2560 * 0.1 + 1e-6, `the sides are at most a tenth: ${f.x}`);
+  assert.ok(near(f.x * 2 + f.width, 2560));
+  assert.ok(f.y + bottom * f.height >= 1080 - 1e-6, 'the bench and the approval spot stay in view');
+  assert.ok(-f.y / f.height <= top + 0.08, `the windows show: ${-f.y / f.height} of the top is cut`);
+  // A 16:9 window still covers its width, and loses the empty floor before the windows.
+  f = environmentFrame(1920, 1080, { world: 'workshop' });
+  assert.ok(f.x <= 1e-6 && f.width >= 1920);
+  assert.ok(f.y + f.height > 1080, 'some empty floor is cut');
+  assert.ok(f.y + bottom * f.height >= 1080 - 1e-6);
+  // A strip loses the top as it always did, and covers its width.
+  f = environmentFrame(1200, 260, { world: 'workshop' });
+  assert.ok(f.x <= 1e-6 && f.width >= 1200);
+});
+
+test('the mirrored sides are painted from the picture’s own edges', async () => {
+  const { environmentFrame, paintEnvironment } = await import('../src/yard/environment.js');
+  const { useWorlds } = await import('../src/yard/worlds.js');
+  useWorlds(JSON.parse(await readFile(new URL('../src/content/worlds.json', import.meta.url))));
+  const drawn = [],
+    filled = [];
+  const ctx = {
+    save() {},
+    restore() {},
+    translate() {},
+    scale() {},
+    drawImage(...args) {
+      drawn.push(args);
+    },
+    fillRect(...args) {
+      filled.push(args);
+    },
+    createLinearGradient: () => ({ addColorStop() {} }),
+  };
+  const image = { width: 1536, height: 1024 };
+  const scene = { world: 'workshop', season: 'summer', weather: 'clear', period: 'day' };
+  const f = environmentFrame(2560, 1080, scene);
+  paintEnvironment(ctx, image, 2560, 1080, scene);
+  assert.deepEqual(drawn[0], [image, f.x, f.y, f.width, f.height]);
+  const sides = drawn.slice(1);
+  assert.equal(sides.length, 2);
+  const strip = (f.x / f.width) * image.width;
+  assert.ok(
+    sides.some(args => args[1] === 0 && Math.abs(args[3] - strip) < 1e-6),
+    'the left edge',
+  );
+  assert.ok(
+    sides.some(args => Math.abs(args[1] - (image.width - strip)) < 1e-6),
+    'the right edge',
+  );
+  assert.ok(filled.length >= 2, 'each side is shaded');
+  // Where the picture covers the window there is nothing to fill.
+  drawn.length = 0;
+  paintEnvironment(ctx, image, 1920, 1080, scene);
+  assert.equal(drawn.length, 1);
+});

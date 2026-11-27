@@ -10,7 +10,7 @@ globalThis.playPets = { updatePet: async () => ({ ok: true, data: null }) };
 const { reduced } = await import('../src/core/sprites.js');
 const { setData, views } = await import('../src/core/state.js');
 const { FADE_MS } = await import('../src/core/status.js');
-const { DEPTH_FAR, depthScale, EDGE, field, footOf, footTarget, geometry, measureYard, sizeOf, yardZoom } =
+const { DEPTH_FAR, depthScale, EDGE, field, footOf, footTarget, geometry, measureYard, propZoom, sizeOf, yardZoom } =
   await import('../src/yard/field.js');
 const { moveFriends } = await import('../src/yard/motion.js');
 const { scene } = await import('../src/yard/world.js');
@@ -139,16 +139,30 @@ test('in a room, friends grow with the picture past the size it was drawn for, a
   scene.world = 'workshop';
   wide(1920, 1080);
   assert.ok(close(yardZoom(), 1920 / 1536 / (850 / 1024)), 'the garden workshop is a room too');
+  // Too wide for its picture, the workshop leaves its sides to its mirrored edge: friends stay as
+  // big next to a desk as the picture shown is.
+  wide(2560, 1080);
+  assert.ok(close(yardZoom(), (2560 * 0.86) / 1536 / (850 / 1024)), `a very wide workshop ${yardZoom()}`);
   // Small, friends keep the size that reads, larger than the picture shrinks them to.
   scene.world = room.id;
   wide(300, 210);
   assert.equal(yardZoom(), 0.375);
   wide(900, 260);
   assert.ok(close(yardZoom(), 900 / 1536 / (850 / 1024)), 'a strip: the larger of the two');
-  // Outdoors, friends keep the size they always had.
+  // Outdoors too, friends grow with the painting, so they stay as big next to the house.
   scene.world = 'woodland';
-  wide(2560, 1440);
+  wide(1180, 850);
   assert.equal(yardZoom(), 1);
+  wide(1920, 1080);
+  assert.ok(close(yardZoom(), 1920 / 1536 / (850 / 1024)), `outdoors ${yardZoom()}`);
+  assert.equal(propZoom(), yardZoom(), 'and what stands on the grass with them');
+  wide(2560, 1440);
+  assert.equal(yardZoom(), 2);
+  wide(300, 210);
+  assert.equal(yardZoom(), 0.375, 'small, as before');
+  // A strip along the screen's edge shows a slice of a wide picture: friends still fit its height.
+  wide(2400, 300);
+  assert.ok(yardZoom() <= 300 / 380 + 1e-9, `strip ${yardZoom()}`);
 });
 
 test("in a window wider than the picture, the floor begins where the picture's floor shows, and the back desks are seats", t => {
@@ -616,4 +630,20 @@ test('outdoors and in rooms without stations, an idle friend strolls as before',
     }),
     null,
   );
+});
+
+// The workshop's sides in a very wide window are its edge out of focus (environment.js
+// environmentFrame, paintSides), not floor: friends keep to the picture.
+test('the blurred sides of a very wide workshop are not floor', t => {
+  inRoom(t);
+  scene.world = 'workshop';
+  wide(2560, 1080);
+  const side = stationAt({ x: -0.03, y: 0.8 }),
+    floor = stationAt({ x: 0.03, y: 0.8 });
+  assert.ok(side.x > 0, 'the side is in the window');
+  assert.equal(blocked(side.x, side.y), true);
+  assert.equal(blocked(floor.x, floor.y), false);
+  wide(1920, 1080);
+  const edge = stationAt({ x: 0.01, y: 0.8 });
+  assert.equal(blocked(Math.max(edge.x, 2), edge.y), false, 'a window the picture covers has no sides');
 });

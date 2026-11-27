@@ -37,8 +37,15 @@ function blocksNow() {
 }
 const inside = (p, e) => ((p.x - e.x) / e.rx) ** 2 + ((p.y - e.y) / e.ry) ** 2 <= 1;
 
-/** Whether a point of the yard (a friend's feet) is on furniture, where a stroll does not end. */
-export const blocked = (px, py) => blocksNow().some(e => inside({ x: px, y: py }, e));
+// In a window wider than the picture, its sides are the picture's edge out of focus
+// (environment.js paintSides), not floor.
+function offPicture(px) {
+  const f = frame();
+  return f.x > 0 && (px < f.x || px > f.x + f.width);
+}
+/** Whether a point of the yard (a friend's feet) is on furniture, or off the picture at its sides,
+ * where a stroll does not end. */
+export const blocked = (px, py) => offPicture(px) || blocksNow().some(e => inside({ x: px, y: py }, e));
 
 // Pixels between two points looked at along a walk: less than the thinnest furniture is deep.
 const STEP_PX = 8;

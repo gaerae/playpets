@@ -61,6 +61,13 @@ struct Kind {
     /// (a footprint animal, once followed until it turned to look).
     #[serde(default, rename = "onceAfter")]
     once_after: Option<u32>,
+    /// A find out's size by what it holds: [[cm, scale], [cm, scale]], the shortest and longest
+    /// ends of a log scale (find_scale).
+    #[serde(default)]
+    grow: Option<[[f64; 2]; 2]>,
+    /// A bug's length in cm, as it is drawn (a butterfly's wingspan), which sizes it out of the album.
+    #[serde(default)]
+    length: Option<f64>,
 }
 /// A flower's planted patch: its drawing's size in catalogue units, and where its grass ends as a
 /// share of its height from the top.
@@ -114,6 +121,9 @@ struct Garden {
 #[derive(Deserialize)]
 struct Treasure {
     id: String,
+    /// Its length in cm, which sizes it out of the album.
+    #[serde(default)]
+    length: Option<f64>,
     rarity: String,
     #[serde(default = "one")]
     weight: u32,
@@ -128,6 +138,9 @@ fn one() -> u32 {
 #[derive(Deserialize)]
 pub struct Track {
     pub id: String,
+    /// The animal's length in cm, which sizes it out of the album.
+    #[serde(default)]
+    pub length: Option<f64>,
     #[serde(default)]
     pub finds: Vec<String>,
 }
@@ -477,17 +490,32 @@ impl Catalog {
     pub fn fish_max(&self, id: &str) -> Option<f64> {
         self.fish.iter().find(|f| f.id == id).map(|f| f.size[1])
     }
-    /// How much bigger than its book's box a find out is drawn: a fish by its longest length, on a
-    /// log scale from a killifish's 4 cm (0.7) to a sturgeon's 150 cm (1.45); 1 for anything else.
-    /// The page draws it the same (find-out.js findScale).
+    /// The length in cm of a find from this album book, as it sizes the find out: a fish's longest.
+    fn length_of(&self, book: &str, id: &str) -> Option<f64> {
+        match book {
+            "fish" => self.fish_max(id),
+            "bug" => self.bugs.iter().find(|k| k.id == id)?.length,
+            "treasure" => self.treasures.iter().find(|t| t.id == id)?.length,
+            "track" => self.tracks.iter().find(|t| t.id == id)?.length,
+            _ => None,
+        }
+    }
+    /// How much bigger than its book's box a find out is drawn: by the length of what it holds, on
+    /// a log scale between the two [cm, scale] ends of the find out's `grow` (a killifish's 4 cm at
+    /// 0.7 to a sturgeon's 150 cm at 1.45); 1 for a gift or a find with no length. The page draws it
+    /// the same (find-out.js findScale).
     pub fn find_scale(&self, kind: &str, holds: &[String]) -> f64 {
-        let fish = (self.book_of(kind) == Some("fish"))
-            .then(|| holds.first())
-            .flatten()
-            .and_then(|id| self.fish_max(id));
-        fish.map_or(1.0, |max| {
-            let at = ((max.ln() - 4f64.ln()) / (150f64.ln() - 4f64.ln())).clamp(0.0, 1.0);
-            0.7 + 0.75 * at
+        let Some(out) = self.finds_out.iter().find(|k| k.id == kind) else {
+            return 1.0;
+        };
+        let (Some([[short, smallest], [long, biggest]]), Some(book), Some(id)) =
+            (out.grow, out.holds.as_deref(), holds.first())
+        else {
+            return 1.0;
+        };
+        self.length_of(book, id).map_or(1.0, |cm| {
+            let at = ((cm.ln() - short.ln()) / (long.ln() - short.ln())).clamp(0.0, 1.0);
+            smallest + (biggest - smallest) * at
         })
     }
     /// Whether this bug flies over the yard.
@@ -553,10 +581,11 @@ mod tests {
         assert!(!c.holds("fish", "firefly") && !c.holds("gift", "bench") && !c.holds("flower", "nothing"));
     }
 
-    // A fish out is drawn by its length: from a killifish (4 cm at most) to a sturgeon (150 cm),
-    // on a log scale, the same as the page (find-out.js findScale).
+    // A find out is drawn by its length: a fish from a killifish (4 cm at most) to a sturgeon
+    // (150 cm), and each other book on its own scale, on a log scale, the same as the page
+    // (find-out.js findScale).
     #[test]
-    fn a_fish_out_is_sized_by_its_length_and_other_finds_by_their_book() {
+    fn a_find_out_is_sized_by_its_length_on_its_books_scale() {
         let c = catalog();
         let scale = |kind: &str, id: &str| c.find_scale(kind, &[id.to_string()]);
         assert_eq!(scale("fish_out", "killifish"), 0.7);
@@ -564,8 +593,14 @@ mod tests {
         let goldfish = scale("fish_out", "goldfish");
         assert!(goldfish > 0.9 && goldfish < 1.05, "{goldfish}");
         assert!(scale("fish_out", "minnow") < scale("fish_out", "carp"));
-        assert_eq!(scale("bug_out", "ladybug"), 1.0);
-        assert_eq!(scale("treasure_out", "heart_locket"), 1.0);
+        // The other books by their own lengths, on their own scales, as the page has them
+        // (tests/finds-come-alive.test.mjs).
+        assert_eq!(scale("bug_out", "ladybug"), 0.55);
+        assert!(scale("bug_out", "firefly") < scale("bug_out", "swallowtail"));
+        assert_eq!(scale("treasure_out", "freshwater_pearl"), 0.65);
+        assert_eq!(scale("track_out", "water_deer"), 1.3);
+        assert!(scale("track_out", "sparrow") < scale("track_out", "cat"));
+        assert_eq!(scale("bug_out", "no-such-bug"), 1.0);
         assert_eq!(scale("bench", "crucian"), 1.0);
         assert_eq!(c.find_scale("fish_out", &[]), 1.0);
         assert_eq!(scale("fish_out", "no-such-fish"), 1.0);

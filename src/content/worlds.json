@@ -128,6 +128,7 @@
     ],
     "fit": "cover-bottom",
     "geometry": {
+      "keep": [0.13, 0.93],
       "fieldTop": 0.42,
       "depthFar": 0.6,
       "stations": {

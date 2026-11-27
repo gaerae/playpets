@@ -49,15 +49,19 @@ export function pokeOf(book, id) {
   return own.cue ? { motion, cue: own.cue } : { motion };
 }
 
-// A fish's longest length (catalog.json "size") on a log scale, from a killifish's 4 cm to a
-// sturgeon's 150 cm; the backend sizes it the same (content.rs find_scale).
-const [SHORT, LONG, SMALLEST, BIGGEST] = [Math.log(4), Math.log(150), 0.7, 1.45];
-/** How much bigger than its book's box a find out is drawn: a fish by its length, 1 for the rest. */
+/** How much bigger than its book's box a find out is drawn: by the length of what it holds in cm (a
+ * fish's longest, catalog.json "size"; anything else's "length"), on a log scale between the two
+ * [cm, scale] ends of its find out's "grow", so a ladybug comes out smaller than a swallowtail and a
+ * killifish than a sturgeon. 1 for a gift or a find with no length. The backend sizes it the same
+ * (content.rs find_scale). */
 export function findScale(kind, holds = []) {
-  const max = findOutKind(kind)?.holds === 'fish' && heldKind('fish', holds[0])?.size?.[1];
-  if (!max) return 1;
-  const at = Math.min(1, Math.max(0, (Math.log(max) - SHORT) / (LONG - SHORT)));
-  return SMALLEST + (BIGGEST - SMALLEST) * at;
+  const out = findOutKind(kind),
+    found = out?.grow && heldKind(out.holds, holds[0]),
+    cm = out?.holds === 'fish' ? found?.size?.[1] : found?.length;
+  if (!cm) return 1;
+  const [[short, smallest], [long, biggest]] = out.grow,
+    at = Math.min(1, Math.max(0, (Math.log(cm) - Math.log(short)) / (Math.log(long) - Math.log(short))));
+  return smallest + (biggest - smallest) * at;
 }
 
 const share = n => `${+(n * 100).toFixed(2)}%`;

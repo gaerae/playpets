@@ -39,7 +39,7 @@ Every album book is a list in `src/content/catalog.json`; its kinds are named by
 | Aquatic life, Bugs | `fish`, `bugs` | `catch.fish_<id>`, `catch.bug_<id>` | `src/art/collection.json` | [Add a fish or a bug](#add-a-fish-or-a-bug) |
 | Gifts | `gifts` | `decor.kind_<id>`, `decor.visit_<id>` | a gift SVG or `src/art/collection.json` | Always at the end of the list ([Add a gift](#add-a-gift)) |
 | Trees | `trees` | `tree.<id>` | `assets/discovery/ART-SOURCES.json` | Three stages and seasonal art ([Planted trees](#planted-trees-and-discoveries)) |
-| Keepsakes | `treasures` | `treasure.<id>` | `src/art/collection.json` | `rarity`; the drawing stands on the bottom of its box |
+| Keepsakes | `treasures` | `treasure.<id>` | `src/art/collection.json` | `rarity`, and `length` in cm, which sizes it out of the album; the drawing stands on the bottom of its box |
 | Footprints, Spring shoots | `tracks`, `shoots` | `track.<id>`, `shoot.<id>` | their own SVGs | [Footprints](#add-an-animal-s-footprints), [Spring shoots](#planted-trees-and-discoveries) |
 
 1. Add the entry to its list, and its name to all four string tables (ko, en, ja, zh-hans).
@@ -63,6 +63,7 @@ Every album book is a list in `src/content/catalog.json`; its kinds are named by
    | `size` | fish | [shortest, longest] in cm; the backend refuses a longer catch |
    | `rain` | fish | More likely in rain |
    | `kind` | bug | `butterfly`, `dragonfly`, `firefly`, `beetle` or `cricket` |
+   | `length` | bug | Its length in cm as drawn (a butterfly's or a dragonfly's wingspan); it sizes the bug out of the album ([finds out](#let-an-album-book-s-finds-come-out)) |
    | `look` | both | The colours the drawer paints it with; each drawer's fields are in `creatures.js`. `tests/look-alikes.test.mjs` fails when two bugs of one kind and about one size share every colour and marking |
    | `look.size` | bug | Its size in the yard against others of its kind (1 when absent), in its art and in the plain drawing before the art loads; a small flier such as the damselfly is drawn smaller than the dragonfly beside it |
    | `look.blink` | firefly | Its flash in the yard: ms between flashes (2100 when absent, 0 for a steady light). `tests/look-alikes.test.mjs` keeps every two fireflies apart by rhythm or size |
@@ -146,10 +147,11 @@ A fish, a bug or a treasure comes out of its album card on its own: a kind with 
 
    | Key | Meaning |
    |---|---|
-   | `holds` | The album's book it holds from, as the album names it: `fish`, `bug` or `treasure`. One kind per book (`find_out_for` in `pets/content.rs`) |
+   | `holds` | The album's book it holds from, as the album names it: `fish`, `bug`, `treasure` or `track`. One kind per book (`find_out_for` in `pets/content.rs`) |
    | `list` | The catalogue list its finds are in (`fish`, `bugs`, `treasures`); they are looked up and named from it (`src/yard/find-out.js`) |
    | `poke` (optional) | How its finds answer a click on the desktop, when not by their own `poke` or, for a bug, by its `kind`: a motion `src/overlay/overlay.css` draws, such as `swim` or `twinkle` |
    | `slots` | Where the find is drawn, one `[x, y, width, height]` as shares of its box |
+   | `grow` | Its size by the find's length: `[[cm, scale], [cm, scale]]`, the shortest and longest ends of a log scale over its box. A fish's length is its longest `size`, anything else's its `length`; `tests/finds-come-alive.test.mjs` checks every find has one. The page (`findScale`) and the desktop (`find_scale` in `pets/content.rs`) read it alike |
 
 2. Point its album book's `action` in `src/panel/album.js` at `findButtons` (`src/panel/album-actions.js`), and add its book to `holds` in `pets/content.rs` and `take_out_find` in `pets/garden.rs`.
 3. Add `decor.visit_<id>` to every string table: what friends say when they visit it. A find out is named for the find, so it needs no `decor.kind_<id>`.
@@ -262,6 +264,7 @@ To make a new effect:
    | `gait.side` | How far a walker's prints sit off the line; ignored when `group` is `true` |
    | `gait.size` | Size of one print |
    | `finds` | Keepsake ids the animal likes to leave in the dig |
+   | `length` | The animal's length in cm; it sizes the animal out of the album |
 
 2. Put the drawings in `src/art/prints/` and `src/art/tracks/`. `trailArt` lists the shared `bush`, `twigs` and `puff` drawings.
 3. Add the animal's name to every string table.

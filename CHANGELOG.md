@@ -23,6 +23,9 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - Digging, planting a tree and planting seeds choose a spot the same way: a patch of soil under the pointer holds a see-through sapling or seed at the size it will be (indoors, the pot a seed goes in); where nothing can go it greys and leans with a small "no" sign beside it.
 - The tool strip shows what is in hand as a picture, a name and a count, and each sapling in its menu has its picture. With no seeds left the seed tool stays in hand, says where seeds come from and offers digging, as the tree tool does with no saplings; with the field full it says so before anyone walks off.
 - A click on the grass marks where a friend is walking with a small star pin bobbing over the spot, instead of a ring of bent grass. It is as big as a friend standing there, and smaller farther back.
+- On a large screen, friends and what stands on the grass grow with the place's picture, so they stay as big next to the cottage as in a smaller window. Smaller windows are unchanged.
+- In a very wide window the garden workshop keeps its windows in view: it loses the empty floor first, and its own edge, blurred, fills a little of each side.
+- A bug, a keepsake or an animal taken out of the album is sized by what it is, as a fish is: a ladybug comes out small and a swallowtail large, a pearl smaller than a toy robot, and a water deer larger than a sparrow.
 - Seven pictures that were easy to misread are drawn again: the freshwater pearl, the field cricket, the pond snail, the damselfly, the water deer, the morel and the wild garlic.
 - When a change cannot be saved, PlayPets tries again a few times at once, and its notice no longer blames the disk unless the disk really is full. If it keeps happening, Settings > About PlayPets > Copy problem report copies what went wrong since the app opened, failed saves and every other error, to paste into a report.
 
