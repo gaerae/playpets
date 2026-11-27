@@ -149,9 +149,10 @@ What blooms depends on the season you planted in:
 | On a plant | What happens |
 |---|---|
 | Point at it | Shows what it is and how long until it flowers |
-| Click | The nearest friend walks over to water it. Friends also visit flowers on their own |
+| Click | It bobs and drops a few petals, and the nearest friend walks over to water it. Friends also visit flowers on their own, and now and then one standing near says something about it |
 | Drag, or arrow keys | Moves it; it keeps growing there |
 | Right-click → **Pull up**, or **Delete** or **Backspace** | Gone at once, no question. **Undo** in the notice brings it back for about six seconds; after that it's gone for good. If the app closes first, it stays. The seed doesn't come back |
+| Right-click → **One bloom** or **A patch** | Tulips, cosmos, sunflowers, lavender, hydrangeas and camellias bloom outdoors as a patch; this switches between the patch and a single stem. In the garden workshop they stand as one bloom in a pot |
 | Right-click → **Show on desktop** | It grows on your desk too ([Desktop mode](./desktop.md#flowers-and-trees-on-the-desktop)) |
 
 - Limits: 20 seeds and 12 plants. A yard that had more before keeps them.
@@ -177,7 +178,7 @@ Friends use what they get. They sit on the bench, the swing and the stump, gathe
 | On a gift | What happens |
 |---|---|
 | Drag, or select it and use the arrow keys | Moves it anywhere on the field |
-| Click | The nearest friend walks over |
+| Click | It bobs, and the nearest friend walks over |
 | Right-click → **Put away**, or **Delete** or **Backspace** | Gone at once. **Undo** in the notice brings it back for about six seconds. If the app closes first, it stays. A friend may bring it again another day |
 | Right-click → **Show on desktop** | Sends it out to the desktop ([Gifts on the desktop](./desktop.md#gifts-on-the-desktop)) |
 
@@ -353,10 +354,11 @@ The **Friends** panel shows how close a friend is to you: its level, a bar towar
 
 1. Find a sapling by digging.
 2. Choose **Play → Garden → Plant a tree** to see your stock: cherry, maple, pine, oak, birch, willow, ginkgo, persimmon, bamboo, magnolia, crape myrtle, dawn redwood, wisteria, Korean fringe tree, fig, golden rain tree, chestnut, red plum, yuzu, juniper, lilac, silk tree, sweet osmanthus and holly.
-3. Pick a kind you have and click clear ground. It uses one sapling.
+3. Pick a kind you have. Its sapling stands on a patch of soil under the pointer; where it can't go, it greys and leans with a small no sign. Click clear ground. It uses one sapling.
 
 - Growth counts time with the app closed: young after two hours, mature after twelve. A mature tree is recorded once in **Album → Trees**, and from then on its card can set one out fully grown, without a sapling ([Album](#album)).
 - Up to 12 trees. Like flowers and gifts, they stand in every outdoor place, wherever you planted them.
+- Click a tree and it rustles and lets a few leaves go in its season's colours, or snow in winter.
 - Drag a tree to move it. Right-click → **Remove**, or **Delete**: gone at once, with **Undo** for about six seconds. Its album entry stays; the sapling doesn't come back.
 - Imported backgrounds can allow or turn off soil.
 

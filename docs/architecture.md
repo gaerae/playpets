@@ -332,6 +332,7 @@ What each arrow in the diagram carries, path by path.
 | `pets/` | Pets imported from an address or a ZIP |
 | `backgrounds/` | Imported backgrounds, one JSON file each (`app/backgrounds.rs`); the page checks a package again when it reads it |
 | `builtin/` | The four illustrated starter entries bundled in the executable, unpacked at launch |
+| `save-errors.log` | One line per failed save: UTC time, file, step, error kind, tries and seconds, no paths (`store.rs` `note_failure`). Past 64 KB it moves to `save-errors.log.old` and starts over. Made only after a failure |
 
 - API keys are not in this folder. They are in the OS secure storage.
 

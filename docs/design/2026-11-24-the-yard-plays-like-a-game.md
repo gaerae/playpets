@@ -282,3 +282,13 @@ Two parts of the desktop-first spike that were tried and left out are brought ov
 - **A press answers** (`yard/press-answer.js`, `styles/answer.css`): a flower bobs and drops three of its own petals, a tree rustles and lets three leaves go (autumn colours only on a tree that turns, snow in winter), a gift bobs.
   - The same in the yard and on the desktop. A desktop gift with its own answer (a part that spins, a lamp, a find) keeps that answer instead.
   - One CSS animation on `scale` or `rotate`, so the breeze on `transform` goes on under it, and at most eight bits per thing that remove themselves; nothing joins the frame loop. Reduced motion shows none.
+
+## Follow-up: 1.10.1 review and feedback (2026-11-27)
+The rest of the desktop-first spike, and what a review and a tester found:
+- **A friend's remark** (`press-answer.js` `remarker`): two presses in five, the nearest friend within 360 px says one of its visit lines about what was pressed, in the yard and on the desktop.
+- **Arrivals** (`overlay/arrive.js`): `overlay.rs` marks what came out after the first sync as `arriving` for six seconds. A friend drops in and waves; a thing pops up and the nearest friend hops over. Once per coming out; reduced motion shows it in place.
+- **The planting marker** shows the sapling on soil at the size it grows from (`planted-trees.js` `saplingPreview`); a spot refused greys and leans it with a drawn "no" sign.
+- **Depth from one far line** (`field.js` `depthScaleAt`): on a place whose field top curves, depth was measured from the top at the friend's own x, so a walk toward the viewer that drifted sideways could shrink. It is measured from the place's far line now.
+- **Walking around furniture** (`workspace.js` `wayAround`): a walk that would cross a workspace's furniture passes its corners, the shortest way; a seat on its back half is reached and left from behind. The way is measured once per target (`motion.js` `aimOf`), and strolls over furniture are not chosen.
+- **Sizes follow the friend:** the walk ring scales by the friend's size and depth, and a patch takes its own width of ground (`growth.js` `plantBreadth`), so strolls and the waterer stay out of it.
+- **Saving:** a failed write is retried five times, 80 ms apart, unless the disk is full or read-only, and each failure leaves a line in `save-errors.log` (`store.rs`). The notice names a full disk only when it is one.

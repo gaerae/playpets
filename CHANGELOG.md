@@ -14,9 +14,19 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 - Tulips, cosmos, sunflowers, lavender, hydrangeas and camellias bloom as a patch outdoors and on the desktop. Their menu offers **One bloom** or **A patch**, so each flower can be a single stem again; in the garden workshop they stay one bloom in a pot.
 - A flower, a tree or a gift answers a press, in the yard and on the desktop: a flower bobs and drops a few of its petals, a tree rustles and lets a few leaves go in its season's colours (snow in winter), and a gift bobs. Nothing moves with reduced motion.
+- Now and then a friend standing near what you pressed says something about it, in the yard and on the desktop.
+- Something sent to the desktop while PlayPets runs arrives: a friend drops in from above, lands in a puff of dust and waves, and a gift, a flower or a tree pops up from its foot while the nearest friend hops over to greet it. Nothing moves with reduced motion.
+
+### Changed
+
+- Choosing where to plant a tree shows its sapling standing on a patch of soil at the spot, at the size it will grow from; where it cannot go, the sapling greys and leans with a small "no" sign beside it.
+- When a change cannot be saved, PlayPets tries again a few times at once, and its notice no longer blames the disk unless the disk really is full. Each failed save leaves a line in `save-errors.log` in the data folder, to send along when you report it.
 
 ### Fixed
 
+- A friend walking toward you grows steadily, instead of shrinking and growing again on the woodland and lakeside places, whose far edge curves.
+- In the garden workshop friends walk around the tables, the shelves and the bench instead of over them, and reach a desk from behind it.
+- In a small window the ring a click on the grass leaves is as small as the friends, and smaller farther back.
 - Friends on the desktop's grass keep walking in it, instead of wandering a little higher with each stroll until they walk in the air above it.
 - Pulling an end of the desktop's grass keeps going when the pointer slips down onto the Dock or the taskbar, or past the screen's side, until you let go.
 - Letting go of an end of the desktop's grass no longer leaves its screen taking clicks for a few seconds now and then.
