@@ -805,16 +805,22 @@ fn stroll(
                     w: 1440.0,
                     h: 900.0,
                 });
-                let area = match (lawn, mon) {
+                // Over the grass a stroll keeps to its floor line: a wander up or down from there
+                // would add up, walk by walk, to a friend walking in the air above the strip.
+                let (area, floor) = match (lawn, mon) {
                     (Some((grass_mon, ends)), Some(m)) if grass_mon.id == m.id => {
                         let (gx, gw) = grass::walk_range(&area, ends, (w - p.size) / 2.0);
-                        Bounds {
-                            x: gx,
-                            w: gw.max(w),
-                            ..area
-                        }
+                        let floor = area.y + area.h - grass::FLOOR_GAP - h;
+                        (
+                            Bounds {
+                                x: gx,
+                                w: gw.max(w),
+                                ..area
+                            },
+                            Some(floor),
+                        )
                     }
-                    _ => area,
+                    _ => (area, None),
                 };
                 let here = Bounds { x: px, y: py, w, h };
                 // Only one on the same screen: a walk never crosses from one monitor to another.
@@ -835,7 +841,8 @@ fn stroll(
                         roam::beside(&here, p.size, SPRITE_FOOT, &to.at, &area, rand01() < 0.5)
                     }
                 } else {
-                    roam::roam_target(&here, &area, rand01(), rand01(), rand01())
+                    let (x, y) = roam::roam_target(&here, &area, rand01(), rand01(), rand01());
+                    (x, floor.unwrap_or(y))
                 });
             }
             None => {}
@@ -1793,21 +1800,30 @@ mod tests {
             pets: vec![out("pip", None, None)],
             ..Inner::default()
         };
-        let (w, _) = dims(&d.pets[0]);
+        let (w, h) = dims(&d.pets[0]);
         let margin = (w - 96.0) / 2.0;
-        for _ in 0..200 {
-            d.positions.insert("pip".into(), (450.0, 600.0));
-            d.roams.insert(
-                "pip".into(),
-                Roam {
-                    target: None,
-                    next_at: Instant::now(),
-                    visiting: None,
-                },
-            );
-            stroll(&mut d, &screen(), None, 40.0, &mut Vec::new(), &mut Vec::new());
-            let (x, _) = d.roams["pip"].target.expect("it picks where to go");
-            assert!(x >= 360.0 - margin - 20.0 && x + w <= 1080.0 + margin + 20.0, "{x}");
+        // Its box ends on the floor in the grass (grass::FLOOR_GAP above the work area's bottom).
+        let floor = 825.0 - grass::FLOOR_GAP - h;
+        // Standing on the floor, or set down higher up the screen: either way it walks in the grass.
+        for start in [floor, 300.0] {
+            let mut at = (450.0, start);
+            for _ in 0..200 {
+                d.positions.insert("pip".into(), at);
+                d.roams.insert(
+                    "pip".into(),
+                    Roam {
+                        target: None,
+                        next_at: Instant::now(),
+                        visiting: None,
+                    },
+                );
+                stroll(&mut d, &screen(), None, 40.0, &mut Vec::new(), &mut Vec::new());
+                let (x, y) = d.roams["pip"].target.expect("it picks where to go");
+                assert!(x >= 360.0 - margin - 20.0 && x + w <= 1080.0 + margin + 20.0, "{x}");
+                assert_eq!(y, floor, "it never drifts up off the grass");
+                // The next walk starts where this one ends.
+                at = (x, y);
+            }
         }
     }
 
