@@ -1,3 +1,6 @@
+# Replaced by ../flower-patches-2026-11-27/pack.py, which packs these six and the other flowers into
+# one sheet: running this one would leave the sheet with six patches only.
+raise SystemExit('Run assets/sources/flower-patches-2026-11-27/pack.py instead.')
 # Packs the accepted patch paintings beside this file into assets/art/flowers/patches.png and writes
 # each patch's wrapper, src/art/flowers/patch-<kind>.svg. Run from the repository root with a Python
 # that has Pillow: python3 assets/sources/flower-patches-2026-11-23/pack.py

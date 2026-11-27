@@ -51,7 +51,8 @@
         "petal-hi": "#fffbe9",
         "petal-lo": "#e6d496",
         "heart": "#f4a53a"
-      }
+      },
+      "patch": { "art": "flowers/patch-daffodil.svg", "size": [57.33, 74], "foot": 0.96 }
     },
     {
       "id": "sunflower",
@@ -103,7 +104,8 @@
         "petal-hi": "#f9dd8c",
         "petal-lo": "#d8982a",
         "heart": "#b5762a"
-      }
+      },
+      "patch": { "art": "flowers/patch-chrysanthemum.svg", "size": [74.33, 72], "foot": 0.96 }
     },
     {
       "id": "camellia",
@@ -129,7 +131,8 @@
         "petal-hi": "#ffffff",
         "petal-lo": "#e3ebe6",
         "heart": "#7cc47f"
-      }
+      },
+      "patch": { "art": "flowers/patch-snowdrop.svg", "size": [60.33, 58], "foot": 0.96 }
     },
     {
       "id": "crocus",
@@ -140,7 +143,8 @@
         "petal-hi": "#d5b7ee",
         "petal-lo": "#7655a6",
         "heart": "#edb94e"
-      }
+      },
+      "patch": { "art": "flowers/patch-crocus.svg", "size": [55, 55], "foot": 0.96 }
     },
     {
       "id": "grape_hyacinth",
@@ -151,7 +155,8 @@
         "petal-hi": "#b3c4ec",
         "petal-lo": "#4d63a1",
         "heart": "#f0e6c8"
-      }
+      },
+      "patch": { "art": "flowers/patch-grape_hyacinth.svg", "size": [60.67, 58], "foot": 0.96 }
     },
     {
       "id": "lavender",
@@ -175,7 +180,8 @@
         "petal-hi": "#bcc8ed",
         "petal-lo": "#5c66a3",
         "heart": "#eee9ce"
-      }
+      },
+      "patch": { "art": "flowers/patch-bellflower.svg", "size": [83.67, 76], "foot": 0.96 }
     },
     {
       "id": "dahlia",
@@ -187,7 +193,8 @@
         "petal-hi": "#f6c3b2",
         "petal-lo": "#be7062",
         "heart": "#e6ad51"
-      }
+      },
+      "patch": { "art": "flowers/patch-dahlia.svg", "size": [73.67, 82], "foot": 0.96 }
     },
     {
       "id": "aster",
@@ -198,7 +205,8 @@
         "petal-hi": "#dbc4ed",
         "petal-lo": "#8a6baa",
         "heart": "#efc76d"
-      }
+      },
+      "patch": { "art": "flowers/patch-aster.svg", "size": [69.33, 76], "foot": 0.96 }
     },
     {
       "id": "hellebore",
@@ -210,7 +218,8 @@
         "petal-hi": "#f0f3e6",
         "petal-lo": "#a4b995",
         "heart": "#e4c776"
-      }
+      },
+      "patch": { "art": "flowers/patch-hellebore.svg", "size": [62.67, 62], "foot": 0.96 }
     },
     {
       "id": "cyclamen",
@@ -221,7 +230,8 @@
         "petal-hi": "#e9a6c0",
         "petal-lo": "#a14d74",
         "heart": "#eee1c1"
-      }
+      },
+      "patch": { "art": "flowers/patch-cyclamen.svg", "size": [66.67, 60], "foot": 0.96 }
     },
     {
       "id": "dandelion",
@@ -233,7 +243,8 @@
         "petal-hi": "#f8e07c",
         "petal-lo": "#c99a1e",
         "heart": "#e6a81c"
-      }
+      },
+      "patch": { "art": "flowers/patch-dandelion.svg", "size": [48.67, 62], "foot": 0.96 }
     },
     {
       "id": "azalea",
@@ -245,7 +256,8 @@
         "petal-hi": "#f2a2c4",
         "petal-lo": "#b54378",
         "heart": "#8a2f58"
-      }
+      },
+      "patch": { "art": "flowers/patch-azalea.svg", "size": [84.33, 74], "foot": 0.96 }
     },
     {
       "id": "morning_glory",
@@ -258,7 +270,8 @@
         "petal-hi": "#9aa8ec",
         "petal-lo": "#3f4fa8",
         "heart": "#f4f0e4"
-      }
+      },
+      "patch": { "art": "flowers/patch-morning_glory.svg", "size": [64, 86], "foot": 0.96 }
     },
     {
       "id": "balsam",
@@ -270,7 +283,8 @@
         "petal-hi": "#f29aa6",
         "petal-lo": "#b23a4e",
         "heart": "#f2d6c8"
-      }
+      },
+      "patch": { "art": "flowers/patch-balsam.svg", "size": [66, 78], "foot": 0.96 }
     },
     {
       "id": "spider_lily",
@@ -282,7 +296,8 @@
         "petal-hi": "#f07a6a",
         "petal-lo": "#a8251e",
         "heart": "#f2c8a0"
-      }
+      },
+      "patch": { "art": "flowers/patch-spider_lily.svg", "size": [60, 80], "foot": 0.96 }
     },
     {
       "id": "celosia",
@@ -294,7 +309,8 @@
         "petal-hi": "#e05a80",
         "petal-lo": "#8a1436",
         "heart": "#f0c060"
-      }
+      },
+      "patch": { "art": "flowers/patch-celosia.svg", "size": [60.67, 76], "foot": 0.96 }
     },
     {
       "id": "adonis",
@@ -306,7 +322,8 @@
         "petal-hi": "#f8dc6e",
         "petal-lo": "#c8961a",
         "heart": "#8a6a1e"
-      }
+      },
+      "patch": { "art": "flowers/patch-adonis.svg", "size": [69, 58], "foot": 0.96 }
     },
     {
       "id": "pansy",
@@ -318,7 +335,8 @@
         "petal-hi": "#a68ae0",
         "petal-lo": "#4a3088",
         "heart": "#f2d24a"
-      }
+      },
+      "patch": { "art": "flowers/patch-pansy.svg", "size": [69, 56], "foot": 0.96 }
     },
     {
       "id": "bleeding_heart",
@@ -330,7 +348,8 @@
         "petal-hi": "#f6a3bf",
         "petal-lo": "#b83e68",
         "heart": "#fbf3f4"
-      }
+      },
+      "patch": { "art": "flowers/patch-bleeding_heart.svg", "size": [71, 80], "foot": 0.96 }
     },
     {
       "id": "pasque_flower",
@@ -342,7 +361,8 @@
         "petal-hi": "#c9a7c0",
         "petal-lo": "#64162e",
         "heart": "#f2b833"
-      }
+      },
+      "patch": { "art": "flowers/patch-pasque_flower.svg", "size": [55.33, 62], "foot": 0.96 }
     },
     {
       "id": "daylily",
@@ -354,7 +374,8 @@
         "petal-hi": "#f8b860",
         "petal-lo": "#c95f12",
         "heart": "#e04a1c"
-      }
+      },
+      "patch": { "art": "flowers/patch-daylily.svg", "size": [65.33, 90], "foot": 0.96 }
     },
     {
       "id": "hollyhock",
@@ -367,7 +388,8 @@
         "petal-hi": "#ffffff",
         "petal-lo": "#e2e2d4",
         "heart": "#f2d24a"
-      }
+      },
+      "patch": { "art": "flowers/patch-hollyhock.svg", "size": [75.67, 108], "foot": 0.96 }
     },
     {
       "id": "buckwheat",
@@ -379,7 +401,8 @@
         "petal-hi": "#ffffff",
         "petal-lo": "#e8dcd0",
         "heart": "#c8504a"
-      }
+      },
+      "patch": { "art": "flowers/patch-buckwheat.svg", "size": [61.67, 76], "foot": 0.96 }
     },
     {
       "id": "gentian",
@@ -391,7 +414,8 @@
         "petal-hi": "#6f8fe6",
         "petal-lo": "#1f3a96",
         "heart": "#e8eef8"
-      }
+      },
+      "patch": { "art": "flowers/patch-gentian.svg", "size": [79.33, 72], "foot": 0.96 }
     },
     {
       "id": "flowering_kale",
@@ -403,7 +427,8 @@
         "petal-hi": "#fffdf2",
         "petal-lo": "#7fa6a0",
         "heart": "#e8e6b8"
-      }
+      },
+      "patch": { "art": "flowers/patch-flowering_kale.svg", "size": [88.33, 52], "foot": 0.96 }
     },
     {
       "id": "winter_heath",
@@ -415,7 +440,8 @@
         "petal-hi": "#f07cb8",
         "petal-lo": "#a82468",
         "heart": "#4a6a34"
-      }
+      },
+      "patch": { "art": "flowers/patch-winter_heath.svg", "size": [63.67, 58], "foot": 0.96 }
     },
     {
       "id": "lily_of_the_valley",
@@ -427,7 +453,8 @@
         "petal-hi": "#ffffff",
         "petal-lo": "#cdd2bc",
         "heart": "#7aa848"
-      }
+      },
+      "patch": { "art": "flowers/patch-lily_of_the_valley.svg", "size": [44.67, 60], "foot": 0.96 }
     },
     {
       "id": "peony",
@@ -439,7 +466,8 @@
         "petal-hi": "#f9bcd2",
         "petal-lo": "#d0588a",
         "heart": "#f4c84a"
-      }
+      },
+      "patch": { "art": "flowers/patch-peony.svg", "size": [65.33, 80], "foot": 0.96 }
     },
     {
       "id": "rose",
@@ -451,7 +479,8 @@
         "petal-hi": "#f0525a",
         "petal-lo": "#9a1022",
         "heart": "#8a0f1e"
-      }
+      },
+      "patch": { "art": "flowers/patch-rose.svg", "size": [60.67, 82], "foot": 0.96 }
     },
     {
       "id": "lily",
@@ -464,7 +493,8 @@
         "petal-hi": "#ffffff",
         "petal-lo": "#d8d0c0",
         "heart": "#c63238"
-      }
+      },
+      "patch": { "art": "flowers/patch-lily.svg", "size": [85.67, 94], "foot": 0.96 }
     },
     {
       "id": "marigold",
@@ -476,7 +506,8 @@
         "petal-hi": "#f2b41c",
         "petal-lo": "#7a1614",
         "heart": "#f0a818"
-      }
+      },
+      "patch": { "art": "flowers/patch-marigold.svg", "size": [70.67, 62], "foot": 0.96 }
     },
     {
       "id": "japanese_anemone",
@@ -488,7 +519,8 @@
         "petal-hi": "#ffffff",
         "petal-lo": "#d5d8ca",
         "heart": "#9ccc3c"
-      }
+      },
+      "patch": { "art": "flowers/patch-japanese_anemone.svg", "size": [76, 84], "foot": 0.96 }
     },
     {
       "id": "poinsettia",
@@ -500,7 +532,8 @@
         "petal-hi": "#f45e6a",
         "petal-lo": "#a6162a",
         "heart": "#f0c42c"
-      }
+      },
+      "patch": { "art": "flowers/patch-poinsettia.svg", "size": [76.67, 74], "foot": 0.96 }
     },
     {
       "id": "amaryllis",
@@ -513,7 +546,8 @@
         "petal-hi": "#fbe6e0",
         "petal-lo": "#a6161e",
         "heart": "#c4d468"
-      }
+      },
+      "patch": { "art": "flowers/patch-amaryllis.svg", "size": [71.67, 92], "foot": 0.96 }
     }
   ],
   "gifts": [

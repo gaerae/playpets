@@ -19,7 +19,7 @@ test('each flower patch is cut from one sheet at the size the catalogue gives it
   const catalog = JSON.parse(await readFile('src/content/catalog.json', 'utf8'));
   const { artOf } = await import('../src/yard/catalog.js');
   const patches = catalog.flowers.filter(f => f.patch);
-  assert.ok(patches.length >= 6);
+  assert.equal(patches.length, catalog.flowers.length, 'every flower can bloom as a patch');
   for (const { id, patch } of patches) {
     assert.equal(patch.art, `flowers/patch-${id}.svg`);
     const svg = await readFile(`src/art/${patch.art}`, 'utf8');
