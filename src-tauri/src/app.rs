@@ -291,10 +291,30 @@ impl Unsaved {
         }
     }
     pub fn write(self) -> Result<(), String> {
-        self.saving
-            .write(&self.store, &WRITTEN)
-            .map_err(|_| i18n::t("store.held"))
+        self.saving.write(&self.store, &WRITTEN).map_err(|e| held_text(&e))
     }
+}
+
+/// What the person is told when the state cannot be saved: a full disk by name, anything else
+/// without a guess, pointing to the save log the store keeps of what the system said.
+fn held_text(error: &std::io::Error) -> String {
+    use std::io::ErrorKind::{QuotaExceeded, StorageFull};
+    if matches!(error.kind(), StorageFull | QuotaExceeded) {
+        i18n::t("store.full")
+    } else {
+        i18n::tr("store.held", &[("log", crate::store::SAVE_LOG)])
+    }
+}
+
+/// Takes back the notice that saves fail, whichever it was; true when the warnings changed.
+fn take_back_held(warnings: &mut Vec<String>) -> bool {
+    let notices = [
+        i18n::t("store.full"),
+        i18n::tr("store.held", &[("log", crate::store::SAVE_LOG)]),
+    ];
+    let before = warnings.len();
+    warnings.retain(|w| !notices.contains(w));
+    warnings.len() != before
 }
 
 /// Takes what to write and shows the change while holding the lock, then writes without it.
@@ -650,7 +670,8 @@ pub fn flush(app: &AppHandle) {
     let wanted = hold(&SAVE_LATER).take();
     if wanted && let Some(state) = app.try_state::<Shared>() {
         let unsaved = Unsaved::of(&lock(&state));
-        let failed = unsaved.write().is_err();
+        let failure = unsaved.write().err();
+        let failed = failure.is_some();
         let (retry, notice) = {
             let mut later = hold(&SAVE_LATER);
             if failed {
@@ -665,7 +686,11 @@ pub fn flush(app: &AppHandle) {
         }
         if notice {
             let mut d = lock(&state);
-            if held_warning(&mut d.warnings, failed, &i18n::t("store.held")) {
+            let shown = match &failure {
+                Some(text) => held_warning(&mut d.warnings, true, text),
+                None => take_back_held(&mut d.warnings),
+            };
+            if shown {
                 changed(app, &d);
             }
         }
@@ -726,12 +751,12 @@ impl Saving {
         }
     }
 
-    fn write(&self, store: &store::Store, written: &Mutex<u64>) -> Result<(), String> {
+    fn write(&self, store: &store::Store, written: &Mutex<u64>) -> std::io::Result<()> {
         let mut last = hold(written);
         if self.order <= *last {
             return Ok(());
         }
-        store.write("state.json", &self.state)?;
+        store.put("state.json", &self.state, false)?;
         *last = self.order;
         Ok(())
     }
@@ -1202,6 +1227,22 @@ pub(crate) mod tests {
         assert!(held_warning(&mut warnings, false, "held"));
         assert!(!held_warning(&mut warnings, false, "held"));
         assert_eq!(warnings, ["other"]);
+    }
+
+    // The notice says the disk is full only when it is; otherwise it does not guess, and points to
+    // the save log that records what the system said (store.rs note_failure).
+    #[test]
+    fn the_save_notice_names_a_full_disk_only_when_it_is_one() {
+        use std::io::{Error, ErrorKind};
+        assert_eq!(held_text(&Error::from(ErrorKind::StorageFull)), i18n::t("store.full"));
+        assert_eq!(held_text(&Error::from(ErrorKind::QuotaExceeded)), i18n::t("store.full"));
+        let held = held_text(&Error::from(ErrorKind::PermissionDenied));
+        assert_eq!(held, i18n::tr("store.held", &[("log", crate::store::SAVE_LOG)]));
+        assert!(held.contains(crate::store::SAVE_LOG));
+        // A save that goes through takes back either notice.
+        let mut warnings = vec![i18n::t("store.full")];
+        assert!(take_back_held(&mut warnings));
+        assert!(warnings.is_empty());
     }
 
     #[test]
