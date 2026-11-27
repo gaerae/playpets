@@ -25,7 +25,7 @@ A friend linked to a coding agent shows the agent's state in what it does, with 
 | Row | The agent is | Outdoor places and your backgrounds | Garden workshop |
 |---|---|---|---|
 | `working` | working | Stops and works where it stands | Sits at a table |
-| `waiting` | waiting for your approval | Comes to the front, near the middle | Stands by the bell post at the front |
+| `waiting` | waiting for your approval | Comes to the front, near the middle | Waits at the garden bench at the front |
 | `done` | finished | Plays it once, then strolls on | Rests in the tea corner |
 | `error` | stuck on an error | Stops where it stands | Stays at its table |
 
@@ -48,7 +48,8 @@ Steps:
 2. The supplied Python script assembles them into a transparent 1536 × 2288 RGBA v2 atlas.
 3. Check the nine animation rows and sixteen gaze directions.
 4. For the games, approve four more batches per outfit (digging, planting, showing a find, fishing) and check them on the review sheet the script draws.
-5. Import the finished ZIP.
+5. Optional: one more batch each for walking toward you, walking away and running right and left. The script draws a grey mannequin guide for each so the legs move right.
+6. Import the finished ZIP.
 
 | Outfit | Worn in |
 |---|---|
@@ -59,6 +60,7 @@ Steps:
 - Every outfit has all nine rows and sixteen gaze directions.
 - Separate spring or autumn outfits are made only when you ask.
 - With its game poses, a friend you made digs, plants, shows a find and fishes like the built-in friends. Without them it plays its ordinary rows for those games.
+- With its walks it strolls toward you and away and runs in the games. Without them it walks on its side rows.
 - The same SKILL can improve an official friend and keeps its identity and approved movements.
 
 [Import a pet](./import.md), [Pet format reference](/dev/standards/pet-files)

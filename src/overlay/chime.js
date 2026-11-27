@@ -1,8 +1,7 @@
-// The wind chime's ring on the desktop, and a find's own sound when poked (a music box's tune, a
-// cicada's song): the yard's cues (soundscape.js), at the yard's volume,
-// when the sound is on. The desktop has no sound of its own, so it makes the cues' voice alone, not
-// the yard's beds, and the audio wakes for a ring and rests a moment after it, costing nothing in
-// between.
+// The wind chime's ring on the desktop, and a find's own sound when poked (a perfume's spritz): the
+// yard's cues (soundscape.js), at the yard's volume, when the sound is on. The desktop has no
+// sound of its own, so it makes the cues' voice alone, not the yard's calls, and the audio wakes
+// for a ring and rests a moment after it, costing nothing in between.
 
 import { createCueVoice } from '../yard/soundscape.js';
 

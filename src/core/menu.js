@@ -58,7 +58,10 @@ export function menuNavigation(menu) {
       item => !item.disabled && !item.hidden,
     );
   menu.addEventListener('keydown', e => {
-    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) return;
+    // A menu laid out as a row (a thing's bar, controls.js) is walked along with the side arrows.
+    const row = menu.getAttribute('aria-orientation') === 'horizontal';
+    const [next, back] = row ? ['ArrowRight', 'ArrowLeft'] : ['ArrowDown', 'ArrowUp'];
+    if (![next, back, 'Home', 'End'].includes(e.key)) return;
     e.preventDefault();
     const list = items();
     if (!list.length) return;
@@ -68,7 +71,7 @@ export function menuNavigation(menu) {
         ? 0
         : e.key === 'End'
           ? list.length - 1
-          : (at + (e.key === 'ArrowDown' ? 1 : -1) + list.length) % list.length;
+          : (at + (e.key === next ? 1 : -1) + list.length) % list.length;
     list[index]?.focus();
   });
   return items;

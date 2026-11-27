@@ -21,6 +21,7 @@ test('one Play board shows Find, Garden and Together on one page, each action on
 });
 
 import { closeControls, openPlay, setupControls } from '../src/core/controls.js';
+import { t as say } from '../src/core/i18n.js';
 import { setData, setSelected } from '../src/core/state.js';
 import { element, installDom, keepGlobals } from './support/dom.mjs';
 
@@ -104,7 +105,11 @@ test('small and large windows open the same board and actual actions run once', 
   setupControls();
   openPlay();
   assert.equal(node('play-panel').hidden, false);
-  assert.equal(node('play-title').textContent.includes('Daisy'), true);
+  // Not every tile is with that friend (the album, the picnic, games for all), so the board is
+  // just Play, and the friend who leads it is named small beside the picture.
+  assert.doesNotMatch(node('play-title').textContent, /Daisy/, 'the title keeps its own word, Play');
+  assert.equal(node('play-who').textContent, 'Daisy');
+  assert.equal(node('play-who').hidden, false);
   let digs = 0;
   const action = node('dig-tool');
   action.localName = 'button';
@@ -216,12 +221,104 @@ test('the right-click on a friend offers talking or playing with that friend', a
   openFriendMenu('friend', { x: 40, y: 40 });
   await node('yard-context-menu').dispatch('click', { target: dig });
   assert.deepEqual(digs, ['friend'], 'asking a friend to dig picks up the tool for that friend');
+  const settings = element('button', { dataset: { contextAction: 'settings-friend', contextFor: 'friend' } });
+  all.push(settings);
+  const edits = [];
+  setupControls({ friendSettings: id => edits.push(id) });
+  openFriendMenu('friend', { x: 40, y: 40 });
+  await node('yard-context-menu').dispatch('click', { target: settings });
+  assert.deepEqual(edits, ['friend'], "a friend's settings are one choice away from it");
   await node('yard').dispatch('contextmenu', { clientX: 20, clientY: 20 });
   assert.deepEqual(
     all.filter(item => !item.hidden).map(item => item.dataset.contextAction),
     [undefined, 'pin'],
     'the scenery shows its own items again',
   );
+});
+
+// A friend's, gift's, flower's or tree's menu is a bar of choices over the thing itself, with its
+// name on a plate, a notch toward it and arrow keys along the row (2026-11-24 design, G1 and G5).
+test("a thing's menu is a bar over the thing that clears its tag and stays in the window", async t => {
+  const { node, first, pin } = fixture(t);
+  globalThis.innerWidth = 800;
+  globalThis.innerHeight = 600;
+  const talk = element('button', { dataset: { contextAction: 'talk', contextFor: 'friend' } });
+  const play = element('button', { dataset: { contextAction: 'play-friend', contextFor: 'friend' } });
+  const edit = element('button', { dataset: { contextAction: 'settings-friend', contextFor: 'friend' } });
+  for (const item of [talk, play, edit]) {
+    item.setAttribute('role', 'menuitem');
+    item.append(element('span', { className: 'context-label' }));
+  }
+  const plate = element('div', { className: 'thing-plate' }),
+    plateName = element('span', { className: 'thing-name' }),
+    hearts = element('span', { className: 'thing-hearts' });
+  plate.append(plateName, hearts);
+  const all = [first, pin, talk, play, edit];
+  const menu = node('yard-context-menu');
+  menu.append(plate);
+  menu.querySelectorAll = () => all;
+  menu.querySelector = selector =>
+    all.find(item => selector.includes(`"${item.dataset.contextAction}"`))?.children[0] || null;
+  menu.getBoundingClientRect = () => ({ width: 240, height: 80 });
+  const box = rect => element('button', { getBoundingClientRect: () => rect });
+  const pet = box({ left: 300, right: 340, top: 200, bottom: 260, width: 40, height: 60 }),
+    tag = box({ left: 290, right: 350, top: 262, bottom: 280, width: 60, height: 18 });
+  setupControls({ closeness: () => 2 });
+  const { openFriendMenu } = await import('../src/core/controls.js');
+  openFriendMenu('friend', { x: 300, y: 260, from: [pet, tag] });
+  assert.ok(menu.classList.contains('thing-bar'), 'a friend gets the bar');
+  assert.equal(menu.getAttribute('aria-orientation'), 'horizontal');
+  assert.equal(menu.getAttribute('aria-label'), 'Daisy', 'the bar is named for its friend');
+  assert.equal(plate.hidden, false);
+  assert.equal(plateName.textContent, 'Daisy');
+  // The plate names the friend, so the choices under it say only what they do.
+  assert.ok(talk.children[0].textContent, 'Talk has its label');
+  assert.doesNotMatch(talk.children[0].textContent, /Daisy/);
+  assert.doesNotMatch(play.children[0].textContent, /Daisy/);
+  assert.equal(edit.children[0].textContent, say('friend.edit_short'), 'Friend settings is short on the bar');
+  assert.ok(hearts.getAttribute('aria-label'), 'closeness is said in words, not only hearts');
+  assert.equal(menu.style.left, '200px', 'centred over the friend');
+  assert.equal(menu.style.top, '108px', 'above it, leaving room for the notch');
+  assert.equal(menu.dataset.side, 'above');
+  assert.equal(menu.style['--notch'], '120px');
+  assert.equal(document.activeElement, talk);
+  closeControls();
+  // A friend saying something has its line above its head: the bar goes over the line too, and its
+  // notch still points at the friend. A line that is not showing measures nothing and is passed by.
+  const line = box({ left: 250, right: 420, top: 150, bottom: 180, width: 170, height: 30 }),
+    quiet = box({ left: 0, right: 0, top: 0, bottom: 0, width: 0, height: 0 });
+  openFriendMenu('friend', { x: 300, y: 260, from: [pet, tag], clear: [line, quiet] });
+  assert.equal(menu.style.top, '58px', 'above the line');
+  assert.equal(menu.style.left, '200px', 'still centred over the friend');
+  assert.equal(menu.style['--notch'], '120px');
+  closeControls();
+  openFriendMenu('friend', { x: 300, y: 260, from: [pet, tag] });
+  assert.equal(document.activeElement, talk);
+  await menu.dispatch('keydown', { key: 'ArrowRight' });
+  assert.equal(document.activeElement, play, 'the arrows follow the row');
+  await menu.dispatch('keydown', { key: 'ArrowLeft' });
+  assert.equal(document.activeElement, talk);
+  closeControls();
+  // Near the top it goes below, under the tag too; near the side it slides in and its notch stays on the friend.
+  const high = box({ left: 760, right: 790, top: 30, bottom: 90, width: 30, height: 60 }),
+    highTag = box({ left: 750, right: 796, top: 92, bottom: 110, width: 46, height: 18 });
+  openFriendMenu('friend', { x: 760, y: 90, from: [high, highTag] });
+  assert.equal(menu.dataset.side, 'below');
+  assert.equal(menu.style.top, '122px');
+  assert.equal(menu.style.left, '552px');
+  assert.equal(menu.style['--notch'], '221px');
+  closeControls();
+  // The scenery's own menu stays a list at the pointer.
+  await node('yard').dispatch('contextmenu', { clientX: 20, clientY: 20 });
+  assert.ok(!menu.classList.contains('thing-bar'));
+  assert.equal(menu.getAttribute('aria-orientation'), 'vertical');
+  assert.equal(plate.hidden, true);
+  // A small window lists a friend's choices with no plate, so there it says whose settings they are.
+  document.body.classList.add('compact');
+  openFriendMenu('friend', { x: 300, y: 260, from: [pet, tag] });
+  assert.equal(edit.children[0].textContent, say('friend.edit'));
+  document.body.classList.remove('compact');
+  closeControls();
 });
 
 test('in a small window the corner button opens and closes the scenery menu', async t => {

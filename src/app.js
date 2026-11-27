@@ -2,7 +2,7 @@
 // No other module does anything when it is imported; each has a setup function, called here.
 
 import { setupConfirm } from './core/confirm.js';
-import { openControls, openFriendMenu, setupControls } from './core/controls.js';
+import { openControls, openFriendMenu, openPlay, setupControls } from './core/controls.js';
 import { apply, follow, t } from './core/i18n.js';
 import { icons } from './core/icons.js';
 import { setupInteractions } from './core/interactions.js';
@@ -28,10 +28,10 @@ import {
 import { applyBusy, applyStatus, fadedBetween } from './core/status.js';
 import { clip, plain, spoken } from './core/text.js';
 import { every, everyMinute } from './core/ticker.js';
-import { openAlbum, renderAlbum, setupAlbum } from './panel/album.js';
+import { booksDone, openAlbum, renderAlbum, setupAlbum } from './panel/album.js';
 import { chatEvent, refreshChat, setupChat, syncBusy } from './panel/chat.js';
 import { setupConnection } from './panel/connection.js';
-import { setupFriendSettings } from './panel/friend-settings.js';
+import { openFriendSettings, setupFriendSettings } from './panel/friend-settings.js';
 import { drawPortrait, renderPanel, select, setupFriend } from './panel/friend.js';
 import { drawPreviews, importLink, invite, setupInvite } from './panel/invite.js';
 import { setupSettings, showSection } from './panel/settings.js';
@@ -40,10 +40,10 @@ import { announceInstalledUpdate, checkForUpdates, setupUpdates, updateFound, up
 import { render } from './render.js';
 import { setupWindow } from './window.js';
 import { setupBackgrounds } from './yard/background-ui.js';
-import { befriend, bondTick, seen, setupBond } from './yard/bond.js';
+import { befriend, bondTick, levelOf, seen, setupBond } from './yard/bond.js';
 import { setupCard } from './yard/card.js';
 import { react, resizePicnic, setupCare, startChatter } from './yard/care.js';
-import { endFishing, refitFishing, setupCatch, soloFishing } from './yard/catch.js';
+import { endFishing, fishingNow, refitFishing, setupCatch, soloFishing } from './yard/catch.js';
 import { christmasNightCheck, setupChristmasNight } from './yard/christmas-night.js';
 import { loadContent } from './yard/content.js';
 import {
@@ -75,6 +75,7 @@ import { pullPlant, renderGarden, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { setupLetterCard } from './yard/letter-card.js';
 import { answered, letterPress, letterReadable, openReadable, setupLetters, syncLetter } from './yard/letter.js';
+import { renderLiving } from './yard/living.js';
 import { moveFriends } from './yard/motion.js';
 import { drawTreeOrnaments } from './yard/ornaments.js';
 import { petalTick, setupPetals, wishAt } from './yard/petals.js';
@@ -83,6 +84,7 @@ import { after, endGame, gameTap, judge, playGame, setupPlay, startGame, syncGam
 import { idleChatter } from './yard/remarks.js';
 import { setupRest } from './yard/rest.js';
 import { cancelShootDigs, renderShoots, setupShoots, shootsMinute } from './yard/shoots.js';
+import { setupShowHow } from './yard/show-how.js';
 import { chosenSeason, restSky, setupSky, showSeason, wakeSky } from './yard/sky.js';
 import { resizeTrail, setupSnowTrail } from './yard/snow-trail.js';
 import { canDress, closeDress, openDress, renderDress, setupDress } from './yard/snowman-dress.js';
@@ -94,6 +96,7 @@ import { cancelTreeVisit, setupTreeMoments, syncTreeMoments, treeMomentTick } fr
 import { release } from './yard/trips.js';
 import { setupViewing, viewing, viewingTick } from './yard/viewing.js';
 import { bubble, place, setupViews, syncView, syncViews } from './yard/views.js';
+import { setupWalkHere } from './yard/walk-here.js';
 import { drawWelcome, setupWelcome } from './yard/welcome.js';
 import { setupWinter } from './yard/winter.js';
 import { scene, scenery } from './yard/world.js';
@@ -160,6 +163,7 @@ setupControls({
   removeTree,
   dress: openDress,
   canDress,
+  closeness: levelOf,
   canDigAt,
   digAt,
   letterReadable,
@@ -167,6 +171,11 @@ setupControls({
   digWith: id => {
     select(id);
     beginDiscovery('dig');
+  },
+  // Its settings, one choice from the friend rather than through its panel's menu.
+  friendSettings: id => {
+    select(id);
+    openFriendSettings();
   },
   beforeOpen: () => {
     cancelDiscovery();
@@ -182,6 +191,10 @@ onShortcut('friends', () => {
   openPanel('pet');
 });
 onShortcut('invite', () => openPanel('invite'));
+// Play and the place open as the dock's buttons do; pressed again, the scene stays open.
+const openScene = () => $('scene-menu')?.hidden && $('scene-button').click();
+onShortcut('play', openPlay);
+onShortcut('scene', openScene);
 onShortcut('alwaysOnTop', () => $('always-on-top').click());
 onShortcut('desktop', () => data.pets.length && guard(() => call('toggleDesktop'))());
 // The winter yard's footprint trails, before the sky: its first paint checks them. A friend that
@@ -232,6 +245,8 @@ setupSky({
     letterCheck();
     // The winter yard's footprint trails come, soften and go under new snow.
     trailsCheck();
+    // The place's own small motions (living.js), placed again only when the place changed.
+    renderLiving();
     christmasNightCheck();
     // The decorating view ends at midnight with the season, not only when the yard is redrawn.
     renderDecorating();
@@ -271,6 +286,7 @@ setupSky({
     resizeTrails();
     resizePicnic();
     redrawGround();
+    renderLiving();
   },
 });
 // Hidden for a while, the yard lets go of its paintings and is not drawn; seen again, it is painted
@@ -306,9 +322,12 @@ setupViews({
     resizeTrails();
     resizePicnic();
     redrawGround();
+    // The hand tapping the water moves with the water (show-how.js).
+    hint();
   },
 });
 setupPlay();
+setupShowHow();
 setupSnowman({ start: startGame, end: endGame, after });
 setupCare();
 setupGarden();
@@ -332,6 +351,7 @@ setupSnowTrail();
 setupDiscovery();
 setupTrees();
 setupCatch({ wish: wishAt });
+setupWalkHere({ busy: fishingNow });
 setupViewing();
 setupPetals();
 setupAlbum();
@@ -379,6 +399,7 @@ function drawPushed() {
   const { old, ai } = pushed;
   pushed = null;
   render();
+  booksDone();
   // What the log says before a first word depends on whether the friend has an AI.
   if (old !== selected || ai !== pet()?.providerId) refreshChat();
 }
@@ -420,6 +441,8 @@ function speak(event) {
 // What each event from the backend does on this page; the chat panel hears every one first.
 const ON_EVENT = {
   'open-controls': openControls,
+  'open-play': openPlay,
+  'open-scene': openScene,
   update: e => updateFound(e.update),
   'check-update': () => guard(checkForUpdates)(),
   'update-status': updateStatus,
@@ -518,10 +541,11 @@ function pace(now) {
   if (scenery.busy()) return scene.weather === 'snow' ? SNOW_MS : RAIN_MS;
   return CALM_MS;
 }
-// The yard's pace, or sooner when a walking friend's step ends first (motion.js cellEnds): a 120 ms
-// step would otherwise show for 100 or 150 ms, a limp. Walks share one clock, so one early wake
-// serves every walker; and there is at most one between two paced frames (`early`, this wake was
-// one), however the steps fall. A step ending within SOONEST_MS of the paced frame waits for it.
+// The yard's pace, or sooner when a walking friend's cell ends first (motion.js cellEnds), so a cell
+// does not show for a frame too long, a limp. There is at most one early wake between two paced
+// frames (`early`, this wake was one), however the steps fall: it is aimed at the walker due first,
+// and every other walker whose cell ends within 25 ms takes its next one then (motion.js EARLY_MS).
+// A cell ending within SOONEST_MS of the paced frame waits for it.
 function interval(now, early) {
   const due = sceneryDue - now;
   let next = due;

@@ -10,6 +10,12 @@
     "motion-reference.png",
     "wardrobe-reference.png"
   ],
+  "guides": [
+    "guides/gait-guide.png",
+    "guides/gait-guide-front.png",
+    "guides/gait-guide-back.png",
+    "guides/gait-guide-run.png"
+  ],
   "availability": {
     "detail": "available",
     "seasons": ["summer", "winter"]
@@ -40,16 +46,32 @@
       "sha256": "00db22415f1c40ad3db2d4580f62420b79d315fa8906cd91fc01e5753f2bf316"
     },
     "spritesheet.png": {
-      "bytes": 3026099,
-      "sha256": "4af3be1be7d76f78f521c724bc7c93c092c3fb1b8843327c723315db406c31b1"
+      "bytes": 3096598,
+      "sha256": "fd46b82211a903eb6c6fb9308ef4ffd657ad381f40a9fb4416693a29bc86c2d2"
     },
     "summer.png": {
-      "bytes": 2953922,
-      "sha256": "6fca5746dca6615bd8d2d481608f4efeba1032951b6067bf3b4f7d03be6b80df"
+      "bytes": 3036706,
+      "sha256": "129096de3e422082bc1e5a0ececadb6afbca5ca6f774ff783d1d47e5cdd121d4"
     },
     "winter.png": {
-      "bytes": 3091450,
-      "sha256": "e90272d0c21dc0060fb91606508df53470504d20d6aa9bcfeae8e78d7bcdd1e6"
+      "bytes": 3172331,
+      "sha256": "403431948023e0e99435be1235b807fb038d73d3ee8ebeeea204c9d1172995a8"
+    },
+    "guides/gait-guide.png": {
+      "bytes": 126104,
+      "sha256": "41b40e99b993771b25c2d98624b5634b3b83c7bf82cb3cf787b10f4d5ff4faa2"
+    },
+    "guides/gait-guide-front.png": {
+      "bytes": 98017,
+      "sha256": "7915a92e785c98adc7a994697668a8cb96fb1d59bed0ff886f0a6296ddaaa03b"
+    },
+    "guides/gait-guide-back.png": {
+      "bytes": 96871,
+      "sha256": "a22b35c2aeb3cc42d7488e3525f195b7d02193f3c0361979c1344179bf590e28"
+    },
+    "guides/gait-guide-run.png": {
+      "bytes": 149461,
+      "sha256": "001e1209a41783a938e825c6252b1924a5e20f4d178e9fdd8e5fd313294fdcfd"
     },
     "identity.json": {
       "bytes": 3019,
@@ -68,8 +90,8 @@
       "sha256": "0e2b36978441604151f3f4a205d18b7a4c2f9b07e4108208539159a85bac55e2"
     },
     "prompts/04-state-row.txt": {
-      "bytes": 2548,
-      "sha256": "fdb22bf4002fffcc06c93baf0e42077af730aec473844f3672ebc447892121f3"
+      "bytes": 3092,
+      "sha256": "13efca2c0e36f8350d209674e950ff023fc7d2da93e2172cadfccb6e6648395e"
     },
     "prompts/05-canonical-export.txt": {
       "bytes": 2406,
@@ -96,8 +118,8 @@
       "sha256": "8500f375b545d5b282438e066ffba45786e8ed19fb01f90cc86a2a5905d10063"
     },
     "README.txt": {
-      "bytes": 956,
-      "sha256": "f51ecc48d0f6a21e92827120c0f7539a85fc53d42df808d52636a3fa1c4da985"
+      "bytes": 1071,
+      "sha256": "8149d6d9f38407ec0a3f35270b4f9b783a47d19f240d479c0c96eb58646e943d"
     }
   }
 }

@@ -4,9 +4,12 @@
 .side-panel {
   /* Its own width decides how compact its rows get (the friend actions), not the window's. */
   container: panel / inline-size;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  background: var(--panel-surface);
+  border: var(--garden-frame-border);
+  border-radius: var(--radius-garden);
+  background: var(--garden-frame);
+  box-shadow: var(--shadow-garden);
+  /* The paper's ink (base.css): a colour is inherited as computed, so --ink alone is not enough. */
+  color: var(--ink);
   align-self: start;
   display: flex;
   flex-direction: column;
@@ -45,9 +48,9 @@
   flex: none;
 }
 .panel-head h2 {
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
-  font-size: var(--font-base);
+  font-size: var(--font-lg);
 }
 .panel-head .icon-button {
   width: 36px;
@@ -160,16 +163,26 @@
   height: 15px;
 }
 
-/* Small windows (body.compact, window.js): the panel fills the window and scrolls inside it. */
-body.compact .friend-head:has(.pop-menu:not([hidden])),
-body.compact .side-panel .menu-anchor:has(.pop-menu:not([hidden])) {
-  position: static;
-}
+/* Small windows (body.compact, window.js): the panel fills the window and scrolls inside it. The
+   friend's menu opens under its own button, as in a large window, and scrolls if the window is too
+   short for it; spread over the panel's top it covered the button that opened it. */
 body.compact .side-panel .pop-menu {
-  inset: 8px 8px auto;
+  top: calc(100% + 4px);
   z-index: 4;
-  max-height: calc(100% - 16px);
+  max-height: calc(100dvh - 96px);
   overflow-y: auto;
+}
+/* A window 280px tall or less has no room under the button for the menu, so there it spreads over
+   the sheet, as tall as the sheet allows. */
+@media (max-height: 280px) {
+  body.compact .friend-head:has(.pop-menu:not([hidden])),
+  body.compact .side-panel .menu-anchor:has(.pop-menu:not([hidden])) {
+    position: static;
+  }
+  body.compact .side-panel .pop-menu {
+    inset: 8px 8px auto;
+    max-height: calc(100% - 16px);
+  }
 }
 /* Headers stay available while each destination scrolls inside the window. */
 body.compact .layout.panel-open .side-panel {

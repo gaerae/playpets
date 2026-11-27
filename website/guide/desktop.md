@@ -12,6 +12,7 @@ Send your friends out of the yard window and they live on your desktop, on top o
 | Send one friend out | Right-click it in the yard → **Show on desktop** | [Turning it on and off](#turning-it-on-and-off) |
 | Send everything out | **Friends & settings → Window & desktop → Show on desktop** | [Turning it on and off](#turning-it-on-and-off) |
 | Let friends wander | **Stroll on desktop**, right below it | [Stroll on desktop](#stroll-on-desktop) |
+| Lay grass along the bottom of the screen | **Grass on desktop**, under Stroll on desktop | [Turning it on and off](#turning-it-on-and-off) |
 | Put a gift, flower, tree or find on your desk | Right-click it in the yard → **Show on desktop**, or the screen button on its album card | [Gifts](#gifts-on-the-desktop), [flowers and trees](#flowers-and-trees-on-the-desktop) |
 | Chat with a friend | Point at it, then click its name | [Things to do](#things-to-do-on-the-desktop) |
 | Bring something back | Right-click it → **Take off the desktop** | [Things to do](#things-to-do-on-the-desktop) |
@@ -28,9 +29,11 @@ Every friend at once:
 
 1. Open **Friends & settings → Window & desktop**.
 2. Turn on **Show on desktop**.
-3. If you like, turn on **Stroll on desktop** right below it. It works only while something is out on the desktop.
+3. **Stroll on desktop** and **Grass on desktop** then appear right below it. The grass starts on and strolling starts off; switch either as you like.
 
-- Both switches show their current state, and the menu stays open while you change them.
+- Each switch shows its current state, and the menu stays open while you change them.
+- **Grass on desktop** lays a strip of grass along the bottom of the screen, and friends stroll on it. Drag the pebble at either end to make it narrower or wider. Double-click a pebble to spread the grass across the screen again, or right-click one for **Spread the grass across the floor** and **Roll up the grass**.
+- The grass thins while the pointer is over it, and turns to snow when the yard shows winter.
 - Turning off **Show on desktop** brings everything back to the yard: friends, gifts, finds, flowers and trees.
 - Desktop mode is unavailable with no friends.
 - The tray icon's menu has the same items, so you don't need to open the yard window.
@@ -46,7 +49,7 @@ Every friend at once:
 | Eye contact | Move the mouse over a resting friend's face and its eyes follow. Only v2 pets with 16-direction gaze artwork can do this |
 
 - A double-click does nothing, so no window opens by accident while you move a friend.
-- The first time you send something out, a notice tells you how to chat and how to bring it back.
+- The first time you send something out, a notice shows three gestures: click the name to chat, drag to move, right-click to take it off.
 - Names stay hidden until you point at a friend, so friends blend in with your desk.
 - The [coding agent](./agents.md)'s status and what a friend says float in a speech bubble above its head. A long line ends with "…" after three lines.
 

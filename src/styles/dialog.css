@@ -4,12 +4,14 @@ dialog {
   max-width: calc(100vw - 32px);
   max-height: calc(100dvh - 16px);
   overflow-y: auto;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
+  border: var(--garden-frame-border);
+  border-radius: var(--radius-garden);
   padding: 20px;
   color: var(--ink);
-  background: var(--panel-surface);
-  box-shadow: 0 24px 100px var(--dialog-shadow);
+  background: var(--garden-frame);
+  box-shadow:
+    var(--shadow-garden),
+    0 24px 100px var(--dialog-shadow);
 }
 dialog::backdrop {
   background: var(--dialog-backdrop);
@@ -62,6 +64,11 @@ dialog .tiny {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+/* A word with no fill (Cancel, Later) still gets room to aim at beside the filled button; the one
+   pushed to the start keeps the fields' edge. */
+.dialog-actions .button.text:not(.push-left) {
+  padding-inline: 10px;
 }
 .form-error {
   font-size: var(--font-sm);
@@ -359,22 +366,18 @@ body.compact .update-compact {
   height: 32px;
   min-height: 32px;
   padding: 6px;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: var(--menu-surface);
-  color: var(--ink);
   transition: opacity 0.2s;
 }
 .update-compact::after {
   content: "";
   position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 5px;
-  height: 5px;
-  border: 1px solid var(--menu-surface);
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--accent);
+  box-shadow: 0 0 0 2px var(--menu-surface);
 }
 @media (pointer: coarse) {
   body.compact .update-compact {
@@ -410,34 +413,121 @@ body.compact .update-compact {
 /* ---- the album: a collector's notebook, each book a page of numbered specimens, the ones not yet
    found as soft silhouettes with where to look ---- */
 .album-dialog {
-  /* The notebook's own colours: cream paper, its ruled edge, the gold of what comes seldom, and
-     the ground under the drawings (each book sets its own below). */
-  --album-paper: #fffdf6;
-  --album-page: #f6f2e6;
-  --album-edge: #e5dcc6;
+  /* The notebook's own colours: cream paper, its ruled edge and the ground under the drawings (each
+     book sets its own below); what comes seldom takes the rare gold (base.css). */
+  --album-paper: #fffaf0;
+  --album-page: #f5ead3;
+  --album-edge: #e2d0ad;
   --album-gap: #d8cfb7;
-  --album-gold: #c99a2e;
-  --album-gold-soft: #fbefd2;
-  --album-gold-ink: #8a6417;
-  --album-fill: #6fa56a;
+  --album-fill: var(--garden-muted);
   --album-ground: #e6efd9;
   --album-ground-hi: #f4f8ec;
   --album-wood: #f3e6d2;
   --album-wood-hi: #fbf5ec;
   /* A card's number, on the ground of its drawing: quieter than the ink, readable on every book's. */
-  --album-number: #4a5c5d;
-  height: min(640px, calc(100dvh - 16px));
-  width: min(760px, 94vw);
-  padding: 14px;
-  background: var(--album-page);
+  --album-number: #6b5038;
+  /* the pencil line round a find not made yet */
+  --album-sketch: #a98d66;
+  /* the secrets' night-blue ribbon and the cream of its words, as on their seals (secrets.js) */
+  --album-night: #3b4573;
+  --album-night-ink: #fff3d6;
+  /* The book: a honey-wood cover around two cream pages, a shadow down the spine. */
+  --album-cover: var(--garden-wood);
+  --album-left: #faf0db;
+  --album-spine: #8a6a3a33;
+  --album-cover-shine: #ffffff26;
+  --album-cover-shadow: #3a28142e;
+  height: min(680px, calc(100dvh - 16px));
+  width: min(1040px, 96vw);
+  max-width: calc(100vw - 16px);
+  padding: 10px 12px 12px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--album-cover);
+  box-shadow:
+    0 0 0 1px var(--garden-rim-edge),
+    inset 0 0 0 2px var(--album-cover-shine),
+    0 18px 40px var(--album-cover-shadow);
 }
+/* Ribbons along the top, and Close at their end; the left page holds the title and the find shown,
+   the right one the book's line and its cards. The pages are the grid's own boxes behind them. */
 .album-dialog[open] {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(230px, 33%) minmax(0, 1fr) auto;
+  /* The right page is one column of its own (its line, then its cards), so the left page's title
+     sets nothing on it. */
+  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-areas:
+    "tabs tabs close"
+    "title right right"
+    "detail right right";
   overflow: hidden;
 }
-.album-dialog > :not(.album-grid) {
+.album-dialog[open]::before,
+.album-dialog[open]::after {
+  content: "";
+  grid-row: 2 / 4;
+}
+.album-dialog[open]::before {
+  grid-column: 1;
+  border-radius: 10px 0 0 10px;
+  background: var(--album-left);
+  box-shadow: inset -14px 0 16px -14px var(--album-spine);
+}
+.album-dialog[open]::after {
+  grid-column: 2 / 4;
+  border-radius: 0 10px 10px 0;
+  background: var(--album-page);
+  box-shadow: inset 14px 0 16px -14px var(--album-spine);
+}
+.album-dialog[open] > *,
+.album-dialog[open] > .dialog-heading > * {
+  position: relative;
+  z-index: 1;
+}
+.album-dialog .dialog-heading {
+  display: contents;
+}
+.album-dialog .dialog-heading > div:first-child {
+  grid-area: title;
+  padding: 14px 18px 4px;
+}
+/* A sheet's title is in the panels' heavier ink with the painted vine after it; a question asked
+   before something is removed stays plain. */
+dialog:not(#confirm-dialog) .dialog-heading h2 {
+  font-weight: 800;
+  letter-spacing: -0.2px;
+}
+dialog:not(#confirm-dialog) .dialog-heading h2:not(:empty)::after {
+  content: "";
+  display: inline-block;
+  width: 92px;
+  height: 20px;
+  margin-left: 8px;
+  vertical-align: middle;
+  background: url("../art/ui/title-vine.webp") left center / auto 100% no-repeat;
+}
+/* Close is on the wooden cover at the end of the ribbons, off the pages (album.js openAlbum puts
+   the focus on the book's tab, not on it). */
+/* On the wooden cover the rim is the cover's own colour, so Close takes the Play button's darker
+   edge to stay a button in either theme. */
+#close-album {
+  border-color: var(--garden-rim-edge);
+}
+.album-heading-actions {
+  grid-area: close;
+  align-self: center;
+  padding: 0 4px 0 2px;
+}
+.album-dialog > :not(.album-right) {
   flex-shrink: 0;
+}
+.album-right {
+  grid-area: right;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 .album-picker {
   display: none;
@@ -456,7 +546,7 @@ body.compact .update-compact {
   height: 4px;
   margin-top: 5px;
   border-radius: var(--radius-pill);
-  background: linear-gradient(90deg, var(--album-gold) calc(var(--album-found, 0) * 100%), var(--album-edge) 0);
+  background: linear-gradient(90deg, var(--rare-gold) calc(var(--album-found, 0) * 100%), var(--album-edge) 0);
 }
 .album-heading-actions {
   display: flex;
@@ -465,10 +555,166 @@ body.compact .update-compact {
   flex-shrink: 0;
 }
 .album-dig-status {
-  margin: 0 0 6px;
-  font-size: var(--font-xs);
+  flex-shrink: 0;
+  margin: 0;
+  padding: 14px 8px 6px 16px;
+  font-size: var(--font-sm);
   line-height: 1.4;
   color: var(--muted);
+}
+/* The left page: the chosen find, large on its ground, its name on a plate, what it did or where
+   to look. */
+.album-detail {
+  grid-area: detail;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 6px 18px 18px;
+  text-align: center;
+}
+.album-detail .album-specimen {
+  position: relative;
+  height: auto;
+  aspect-ratio: 1;
+  max-height: 260px;
+  max-width: 260px;
+  margin-bottom: 4px;
+  border: 1px solid var(--album-edge);
+  border-radius: var(--radius-panel);
+  box-shadow: 0 6px 14px -8px var(--ink-12);
+}
+.album-detail .album-specimen svg {
+  max-width: 200px;
+  height: 78%;
+}
+
+.album-detail-name {
+  padding: 3px 18px 4px;
+  border: 1px solid var(--rare-gold);
+  border-radius: var(--radius-pill);
+  background: var(--album-paper);
+  font-size: var(--font-lg);
+}
+.album-detail.unknown .album-specimen {
+  background: var(--album-paper);
+}
+.album-detail.unknown .album-specimen > svg {
+  opacity: 0.85;
+}
+.album-detail.unknown .album-detail-name {
+  border-color: var(--album-gap);
+  color: var(--muted);
+  font-weight: 600;
+}
+.album-detail-line {
+  margin: 0;
+  font-size: var(--font-sm);
+  line-height: 1.45;
+  text-wrap: balance;
+}
+.album-detail .album-detail-hint {
+  margin: 0;
+  line-height: 1.45;
+  /* two short lines rather than a long one and a word left over */
+  text-wrap: balance;
+}
+/* How a kind is found, in painted pictures (panel/album-clues.js), up to three rows that never share
+   a line, each under its word on a tag: how (steps joined by a small arrow), when and more often
+   (side by side). Every clue is a picture with its one word under it; a place is its round thumbnail. */
+.album-clues {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0 0;
+  font-size: var(--font-xs);
+  line-height: 1.2;
+  color: var(--muted);
+}
+.album-clues .clue-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.album-clues .clue-items {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 6px 10px;
+}
+.album-clues .clue {
+  position: relative;
+}
+.album-clues .clue > span {
+  white-space: nowrap;
+}
+/* One kind of clue (seasons, times of day) holds together where a long row wraps. */
+.album-clues .clue-group {
+  display: inline-flex;
+  gap: 10px;
+}
+.album-clues .clue > i {
+  width: 30px;
+  height: 30px;
+}
+/* A place as the place picker shows it, in a round frame like the times of day. */
+.album-clues .clue > i.clue-place {
+  box-sizing: border-box;
+  border: 1.5px solid var(--garden-rim);
+  border-radius: 50%;
+  background-size: cover;
+}
+.album-clues .clue-arrow {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin: 12px -2px 0 -4px;
+  border-top: 2px solid var(--garden-rim);
+  border-right: 2px solid var(--garden-rim);
+  transform: rotate(45deg);
+}
+/* An event by its own drawing, as its notice shows it. */
+.album-clues .clue > i.clue-art {
+  display: grid;
+  place-items: center;
+}
+.album-clues .clue > i.clue-art svg {
+  width: 100%;
+  height: 100%;
+}
+/* A row's word ("How", "When", "Best in") on a small tag above its clues. */
+.album-clues .clue-label {
+  padding: 1px 8px;
+  border: 1px solid var(--album-edge);
+  border-radius: var(--radius-pill);
+  background: var(--album-paper);
+  font-weight: 700;
+  white-space: nowrap;
+}
+/* A short window draws the picture smaller, down to 112px at 520 high, and the clues a little
+   smaller, so the rows of clues under it, where to find a kind, stay in view. */
+@media (max-height: 720px) {
+  .album-detail .album-specimen {
+    max-height: clamp(112px, calc(100dvh - 408px), 200px);
+  }
+  .album-clues {
+    gap: 5px;
+  }
+  .album-clues .clue-row {
+    gap: 2px;
+  }
+  .album-clues .clue > i {
+    width: 24px;
+    height: 24px;
+  }
+  .album-clues .clue-arrow {
+    margin-top: 9px;
+  }
 }
 /* the album draws flowers and gifts from the yard's own symbols, in daylight colours */
 .album-card {
@@ -496,109 +742,227 @@ body.compact .update-compact {
 .unknown-art {
   filter: brightness(0) invert(0.4);
 }
-/* The books as tabs: a name, how many of its kinds are found, and a line that fills with them. As
-   many columns as there are books showing (a hidden one takes none until it is found), each at
-   least as wide as its name. */
+/* The books as tabs: a name, how many of its kinds are found, and a line that fills with them. A
+   column for each book, each at least as wide as its name. */
 .album-tabs {
+  grid-area: tabs;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(min-content, 1fr);
-  gap: 3px;
-  padding: 4px;
-  margin: 6px 0 10px;
-  border: 1px solid var(--album-edge);
-  border-radius: var(--radius-control);
-  background: var(--segment-track);
+  align-items: end;
+  gap: 4px;
+  padding: 0 12px;
+  margin: 0;
 }
 /* The name over its count and line. A name never breaks: in Japanese it would break letter by
    letter. */
 .album-tabs button {
+  --album-ribbon: var(--album-edge);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "icon icon"
+    "name name"
+    "meter count";
   align-items: center;
-  align-content: center;
-  gap: 3px 6px;
+  justify-items: center;
+  gap: 2px 6px;
   min-width: max-content;
   min-height: 40px;
-  padding: 6px 8px 7px;
+  padding: 5px 9px 7px;
   border: 0;
-  border-radius: var(--radius-control);
-  background: transparent;
+  border-radius: 10px 10px 0 0;
+  background: var(--album-ribbon);
+  box-shadow: inset 0 -5px 6px -5px var(--album-spine);
   font: inherit;
   font-weight: 650;
   line-height: 1.2;
-  color: var(--muted);
-  text-align: left;
+  color: var(--ink);
+  text-align: center;
   cursor: pointer;
+  transition: transform 140ms ease-out;
+}
+/* Each ribbon wears its book's painted picture (art/ui/book-*.webp) and its own colour. */
+.album-tabs button::before {
+  content: "";
+  grid-area: icon;
+  width: 28px;
+  height: 28px;
+  background: center / contain no-repeat;
 }
 .album-tabs button > span {
-  grid-column: 1 / -1;
+  grid-area: name;
   line-height: 1.25;
   white-space: nowrap;
 }
 .album-tabs button[aria-selected="true"] {
-  color: var(--ink);
-  background: var(--segment-active);
-  box-shadow: 0 1px 4px var(--ink-12);
+  background: var(--album-left);
+  box-shadow: none;
+  transform: translateY(2px);
+  padding-top: 9px;
 }
 .album-tabs button:hover:not([aria-selected="true"]) {
-  background: var(--control-hover);
-  color: var(--ink);
+  transform: translateY(-2px);
 }
 .album-tabs small {
-  grid-area: 2 / 2;
+  grid-area: count;
   font-size: var(--font-xs);
   font-weight: 600;
   white-space: nowrap;
-  color: var(--muted);
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
-/* On the selected tab's tint the muted count is too faint (3.8:1 in dark); it takes the ink. */
-.album-tabs button[aria-selected="true"] small {
-  color: var(--ink);
+.album-tabs [data-book="flower"] {
+  --album-ribbon: #f5d9dc;
 }
+.album-tabs [data-book="flower"]::before {
+  background-image: url("../art/ui/book-flower.webp");
+}
+.album-tabs [data-book="fish"] {
+  --album-ribbon: #d6e7ef;
+}
+.album-tabs [data-book="fish"]::before {
+  background-image: url("../art/ui/book-fish.webp");
+}
+.album-tabs [data-book="bug"] {
+  --album-ribbon: #f4e4b4;
+}
+.album-tabs [data-book="bug"]::before {
+  background-image: url("../art/ui/book-bug.webp");
+}
+.album-tabs [data-book="gift"] {
+  --album-ribbon: #f2d6d0;
+}
+.album-tabs [data-book="gift"]::before {
+  background-image: url("../art/ui/book-gift.webp");
+}
+.album-tabs [data-book="tree"] {
+  --album-ribbon: #dbe9cb;
+}
+.album-tabs [data-book="tree"]::before {
+  background-image: url("../art/ui/book-tree.webp");
+}
+.album-tabs [data-book="treasure"] {
+  --album-ribbon: #ece1c9;
+}
+.album-tabs [data-book="treasure"]::before {
+  background-image: url("../art/ui/book-treasure.webp");
+}
+.album-tabs [data-book="track"] {
+  --album-ribbon: #dfdcef;
+}
+.album-tabs [data-book="track"]::before {
+  background-image: url("../art/ui/book-track.webp");
+}
+.album-tabs [data-book="shoot"] {
+  --album-ribbon: #dff0cc;
+}
+.album-tabs [data-book="shoot"]::before {
+  background-image: url("../art/ui/book-shoot.webp");
+}
+/* The secrets' book is the one night-blue ribbon in the row, there before anything in it is found. */
+.album-tabs [data-book="secret"] {
+  --album-ribbon: var(--album-night);
+}
+.album-tabs [data-book="secret"]:not([aria-selected="true"]),
+.album-tabs [data-book="secret"]:not([aria-selected="true"]) small {
+  color: var(--album-night-ink);
+}
+.album-tabs [data-book="secret"]::before {
+  background-image: url("../art/ui/book-secret.webp");
+}
+/* A book that counts only what is found has no line: its count sits under its name. */
+.album-tabs button:not(:has(.album-meter)) small {
+  grid-column: 1 / -1;
+}
+/* A book with a find not looked at yet carries the dot Album and Play carry (play.css). */
+.album-tabs button.has-new {
+  position: relative;
+}
+.album-tabs button.has-new::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--album-ribbon);
+}
+/* More names than the row holds (album.js fitTabs): each tab is its picture over its count and
+   line, its name kept for a pointer and a reader. */
+.album-tabs.tight button {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "icon"
+    "count"
+    "meter";
+  min-width: 0;
+  padding-inline: 4px;
+}
+.album-tabs.tight button > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+/* On the selected tab's tint the muted count is too faint (3.8:1 in dark); it takes the ink. */
 .album-meter {
-  grid-area: 2 / 1;
+  grid-area: meter;
+  justify-self: stretch;
+  /* a narrow tab still shows how full its book is */
+  min-width: 20px;
   height: 3px;
   border-radius: var(--radius-pill);
   background: linear-gradient(90deg, var(--album-fill) calc(var(--album-found, 0) * 100%), var(--album-edge) 0);
 }
 .album-tabs button.complete .album-meter {
-  background: var(--album-gold);
+  background: var(--rare-gold);
 }
 .album-tabs button.complete small::before {
-  content: "★ ";
-  color: var(--album-gold);
+  content: "";
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-right: 0.25em;
+  vertical-align: -0.1em;
+  background: url("../art/ambient/spark.svg") center / contain no-repeat;
 }
 /* Each book's ground under its drawings. */
-.album-grid[data-book="fish"] {
+:is(.album-grid, .album-detail)[data-book="fish"] {
   --album-ground: #dcedf1;
   --album-ground-hi: #f1f8f9;
 }
-.album-grid[data-book="gift"] {
+:is(.album-grid, .album-detail)[data-book="gift"] {
   --album-ground: var(--album-wood);
   --album-ground-hi: var(--album-wood-hi);
 }
-.album-grid[data-book="tree"] {
+:is(.album-grid, .album-detail)[data-book="tree"] {
   --album-ground: #dfeadb;
   --album-ground-hi: #f1f6ee;
 }
-.album-grid[data-book="treasure"] {
+:is(.album-grid, .album-detail)[data-book="treasure"] {
   --album-ground: #efe7d6;
   --album-ground-hi: #f9f5ec;
 }
-.album-grid[data-book="track"] {
+:is(.album-grid, .album-detail)[data-book="track"] {
   --album-ground: #e1e9f2;
   --album-ground-hi: #f7fafd;
+}
+:is(.album-grid, .album-detail)[data-book="secret"] {
+  --album-ground: #e4e5f2;
+  --album-ground-hi: #f6f6fb;
 }
 .album-grid {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
   gap: 10px;
   align-content: start;
-  padding: 2px 2px 6px;
+  padding: 4px 16px 16px;
   overflow-y: auto;
 }
 .album-card {
@@ -647,13 +1011,20 @@ body.compact .update-compact {
 .album-specimen > .tail-peek {
   --u: 1.8px;
 }
+/* A card's place in its book and its Rare mark are the same small paper tag, in the picture's two
+   top corners, so neither is stamped on the drawing nor caught on its frame. */
 .album-no {
   position: absolute;
-  top: 11px;
+  top: 12px;
   left: 12px;
+  min-width: 24px;
+  padding: 0 6px;
+  border: 1px solid var(--album-edge);
+  border-radius: var(--radius-pill);
+  background: var(--album-paper);
   font-size: var(--font-xs);
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-weight: 600;
+  line-height: 18px;
   color: var(--album-number);
   font-variant-numeric: tabular-nums;
 }
@@ -678,6 +1049,13 @@ body.compact .update-compact {
 .album-hint {
   margin-bottom: 4px;
 }
+/* Japanese runs its words together, and an even pill broke it between any two letters
+   ("捕まえまし / た"): the album breaks it between phrases, after 、 and 。 or at a space, and a
+   phrase wider than its box may still break rather than spill out. */
+:root:lang(ja) .album-dialog {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
 /* A card's presses: set out, bring back, and the desktop's screen. Each is at least 28 px tall, so
    a quick second press lands, and the row keeps its shape as things go out and come back. */
 .album-take-out {
@@ -694,7 +1072,7 @@ body.compact .update-compact {
   cursor: pointer;
 }
 .album-take-out:hover:not(:disabled, [aria-disabled="true"]) {
-  border-color: var(--album-gold);
+  border-color: var(--rare-gold);
 }
 /* One that cannot be pressed now keeps the focus and its title; it only looks quiet. */
 .album-take-out:disabled,
@@ -731,8 +1109,8 @@ body.compact .update-compact {
 /* In the yard, or on the desktop: the button is filled in, in both themes. */
 .album-toggle[aria-pressed="true"],
 .album-to-desktop[aria-pressed="true"] {
-  border-color: var(--album-gold-ink);
-  background: var(--album-gold-ink);
+  border-color: var(--rare-gold-ink);
+  background: var(--rare-gold-ink);
   color: var(--album-paper);
 }
 /* Fewer and more around how many are out, within what the album found. */
@@ -751,17 +1129,39 @@ body.compact .update-compact {
 }
 /* One not found yet is an empty place on the page: a dashed outline, a faint shape and the hint. */
 .album-card.unknown {
-  border-style: dashed;
-  border-color: var(--album-gap);
-  background: transparent;
+  border-color: var(--album-edge);
+  background: color-mix(in srgb, var(--album-paper) 45%, transparent);
   box-shadow: none;
 }
+/* The card pressed is the one the left page shows. */
+.album-card {
+  cursor: pointer;
+}
+.album-card[aria-current="true"] {
+  border-color: var(--rare-gold);
+  box-shadow: inset 0 0 0 1px var(--rare-gold);
+}
+/* On the book's page a card shows its picture, its number and its name; where to look is read on
+   the left page (and still heard on the card). A small window has no left page: there they show. */
+.album-card .album-hint,
+.album-card.unknown strong {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* Its shape is a pale pencil outline on the bare page, as on the approved mockup. */
 .album-card.unknown .album-specimen {
-  background: radial-gradient(ellipse at 50% 38%, var(--album-ground-hi), var(--album-ground) 72%);
-  opacity: 0.8;
+  background: none;
 }
 .album-card.unknown .album-specimen > svg {
-  opacity: 0.4;
+  opacity: 0.85;
+}
+.album-dialog .unknown-art {
+  filter: brightness(0) invert(1) drop-shadow(1px 0 0 var(--album-sketch)) drop-shadow(-1px 0 0 var(--album-sketch))
+    drop-shadow(0 1px 0 var(--album-sketch)) drop-shadow(0 -1px 0 var(--album-sketch));
 }
 /* A print is the clue to whose it is, not a silhouette: it keeps its strength, on its full snow. */
 .album-grid[data-book="track"] .album-card.unknown .album-specimen {
@@ -774,51 +1174,94 @@ body.compact .update-compact {
   color: var(--muted);
   font-weight: 600;
 }
-/* A kind that comes seldom says so in its corner, found or not; found, its card takes a gold edge. */
-/* A friend's memento wears its heart at the drawing's lower corner, as in the yard (garden.css
-   .decor.memento): a disc of the page's paper, clear of the number and the rare tag. */
+/* A sealed book with nothing found yet: its own keyhole on a night-blue ground, on its one card and
+   on the page, so it is something to wonder about; pressed, it rattles (album.js sealedStage). */
+:is(.album-card, .album-detail) .album-specimen.album-seal {
+  position: relative;
+  background:
+    url("../art/ui/book-secret.webp") center / auto 70% no-repeat,
+    radial-gradient(ellipse at 50% 38%, color-mix(in srgb, var(--album-night) 70%, white), var(--album-night) 75%);
+}
+.album-seal {
+  cursor: pointer;
+}
+.album-seal.rattle {
+  animation: album-seal-rattle 0.45s ease-in-out;
+}
+@keyframes album-seal-rattle {
+  20% {
+    transform: rotate(-4deg);
+  }
+  40% {
+    transform: rotate(3deg);
+  }
+  60% {
+    transform: rotate(-2deg);
+  }
+  80% {
+    transform: rotate(1deg);
+  }
+}
+/* A friend's memento wears its painted heart at the drawing's lower corner, as in the yard
+   (garden.css .decor.memento): a paper tag like the number and Rare, the same edge and height,
+   round for its one picture. */
 .album-heart {
   position: absolute;
   top: 72px;
   right: 14px;
   display: grid;
   place-items: center;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--album-edge);
   border-radius: 50%;
-  background: var(--album-paper);
-  box-shadow: 0 1px 2px var(--ink-15);
-  color: var(--heart);
-  font-size: var(--font-xs);
-  line-height: 1;
+  background:
+    url("../art/ui/heart.webp") center / 14px no-repeat,
+    var(--album-paper);
 }
+/* A kind that comes seldom says so in its corner, found or not; found, its card takes a gold edge. */
 .album-rare {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  padding: 1px 7px;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 7px 0 4px;
+  border: 1px solid color-mix(in srgb, var(--rare-gold) 55%, var(--album-edge));
   border-radius: var(--radius-pill);
-  background: var(--album-gold-soft);
-  color: var(--album-gold-ink);
+  background: var(--rare-gold-soft);
+  color: var(--rare-gold-ink);
   font-size: var(--font-xs);
   font-weight: 700;
-}
-.album-rare::before {
-  content: "✦ ";
-}
-.album-card.rare .album-specimen {
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--album-gold) 45%, transparent);
+  line-height: 18px;
 }
 .album-card.rare:not(.unknown) {
-  border-color: color-mix(in srgb, var(--album-gold) 60%, var(--album-edge));
+  border-color: color-mix(in srgb, var(--rare-gold) 60%, var(--album-edge));
   box-shadow:
-    0 1px 0 color-mix(in srgb, var(--album-gold) 50%, var(--album-edge)),
+    0 1px 0 color-mix(in srgb, var(--rare-gold) 50%, var(--album-edge)),
     0 4px 12px -6px #c99a2e55;
 }
 .album-card.rare:not(.unknown) .album-specimen {
   background:
     radial-gradient(ellipse 34% 10% at 50% 82%, #2847311f, transparent),
     radial-gradient(ellipse at 50% 38%, #fff8e4, var(--album-ground) 78%);
+}
+/* A kind not found yet that the yard could give right now (album.js card): the same paper tag, at
+   the drawing's lower corner, in leaf green, so the next one is in sight. The album's own green-soft
+   comes out the tan of a find's record on its paper, so the tag mixes the leaf ink in instead. */
+.album-now {
+  position: absolute;
+  top: 72px;
+  left: 12px;
+  padding: 0 7px;
+  border: 1px solid color-mix(in srgb, var(--garden-peer-ink) 45%, var(--album-edge));
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--garden-peer-ink) 16%, var(--album-paper));
+  color: var(--garden-peer-ink);
+  font-size: var(--font-xs);
+  font-weight: 700;
+  line-height: 18px;
 }
 /* ---- Decorating the tree (yard/decorating.js): the tree on a winter evening in both themes, so
    it and the bauble tints read the same in light and dark; hook points while an item is picked, a
@@ -1287,11 +1730,6 @@ body.compact .update-compact {
   color: var(--ink);
   line-height: 1.6;
 }
-#pet-dialog,
-#import-dialog,
-#connection-dialog {
-  background: var(--sheet);
-}
 :is(#pet-dialog, #import-dialog, #connection-dialog) label:not(.choice-card, .wander-toggle) {
   font-weight: 650;
 }
@@ -1369,35 +1807,71 @@ body.compact .update-compact {
     border-color: var(--green-line);
   }
   .album-dialog {
-    --album-paper: #26322c;
-    --album-page: #1d2823;
-    --album-edge: #3c4b42;
-    --album-gap: #4f6155;
-    --album-gold: #d8b25e;
-    --album-gold-soft: #493e29;
-    --album-gold-ink: #f0d399;
-    --album-fill: #91b08b;
+    --album-paper: var(--garden-paper);
+    --album-page: #332a21;
+    --album-edge: var(--garden-line);
+    --album-gap: #6b5840;
     --album-ground: #33452f;
     --album-ground-hi: #41573b;
     --album-wood: #43382a;
     --album-wood-hi: #554735;
-    --album-number: #d0dbd3;
+    --album-number: #dcc7a6;
+    --album-sketch: #a8916f;
+    --album-night: #2c3460;
+    --album-left: #382e25;
+    --album-spine: #00000059;
+    --album-cover-shadow: #00000066;
   }
-  .album-grid[data-book="fish"] {
+  :is(.album-grid, .album-detail)[data-book="fish"] {
     --album-ground: #24403f;
     --album-ground-hi: #2f5250;
   }
-  .album-grid[data-book="tree"] {
+  :is(.album-grid, .album-detail)[data-book="tree"] {
     --album-ground: #2c4230;
     --album-ground-hi: #39543c;
   }
-  .album-grid[data-book="treasure"] {
+  :is(.album-grid, .album-detail)[data-book="treasure"] {
     --album-ground: #3e3a2d;
     --album-ground-hi: #4f4a39;
   }
-  .album-grid[data-book="track"] {
+  :is(.album-grid, .album-detail)[data-book="track"] {
     --album-ground: #2e3a4b;
     --album-ground-hi: #3e4d62;
+  }
+  :is(.album-grid, .album-detail)[data-book="secret"] {
+    --album-ground: #2c3150;
+    --album-ground-hi: #3a4066;
+  }
+  .album-tabs [data-book] {
+    --album-ribbon: color-mix(in srgb, var(--album-paper) 70%, var(--album-tint, var(--album-edge)));
+  }
+  .album-tabs [data-book="flower"] {
+    --album-tint: #c76b7a;
+  }
+  .album-tabs [data-book="fish"] {
+    --album-tint: #5b93ad;
+  }
+  .album-tabs [data-book="bug"] {
+    --album-tint: #b79a3e;
+  }
+  .album-tabs [data-book="gift"] {
+    --album-tint: #b86a5e;
+  }
+  .album-tabs [data-book="tree"] {
+    --album-tint: #6f9c55;
+  }
+  .album-tabs [data-book="treasure"] {
+    --album-tint: #a48a5a;
+  }
+  .album-tabs [data-book="track"] {
+    --album-tint: #7d78b3;
+  }
+  .album-tabs [data-book="shoot"] {
+    --album-tint: #7fae55;
+  }
+  /* the night-blue ribbon stays itself, deeper */
+  .album-tabs [data-book="secret"] {
+    --album-ribbon: var(--album-night);
   }
   .album-card.rare:not(.unknown) .album-specimen {
     background:
@@ -1407,12 +1881,50 @@ body.compact .update-compact {
   .unknown-art {
     filter: brightness(0) invert(0.7);
   }
+  .album-dialog .unknown-art {
+    filter: brightness(0) invert(0.16) drop-shadow(1px 0 0 var(--album-sketch))
+      drop-shadow(-1px 0 0 var(--album-sketch)) drop-shadow(0 1px 0 var(--album-sketch))
+      drop-shadow(0 -1px 0 var(--album-sketch));
+  }
 }
 
 /* A compact collection uses one familiar chooser instead of two rows of tabs. */
 @media (max-width: 640px), (max-height: 480px) {
   .album-tabs {
     display: none;
+  }
+  /* One page: no left page, the heading back on top and each card's words on it. */
+  .album-dialog[open] {
+    display: flex;
+    flex-direction: column;
+    background: var(--album-page);
+  }
+  .album-dialog[open]::before,
+  .album-dialog[open]::after,
+  .album-detail {
+    display: none;
+  }
+  .album-dialog .dialog-heading {
+    display: flex;
+  }
+  .album-dialog .dialog-heading > div:first-child,
+  .album-heading-actions,
+  .album-dig-status,
+  .album-grid {
+    padding: 0;
+  }
+  .album-dig-status {
+    margin: 0 0 6px;
+    font-size: var(--font-xs);
+  }
+  .album-card .album-hint,
+  .album-card.unknown strong {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
   }
   .album-picker {
     display: flex;
@@ -1472,19 +1984,37 @@ body.compact .update-compact {
   .album-hint {
     margin-bottom: 0;
   }
+  /* Where to look, on the card: each row its word, then its pictures, smaller, from the left. */
+  .album-card .album-clues {
+    align-items: start;
+    gap: 3px;
+  }
+  .album-card .album-clues .clue-row {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .album-card .album-clues .clue-items {
+    justify-content: start;
+    gap: 2px 6px;
+  }
+  .album-card .album-clues .clue > i {
+    width: 22px;
+    height: 22px;
+  }
+  .album-card .album-clues .clue-arrow {
+    margin-top: 8px;
+  }
   .album-record {
     margin-top: 2px;
   }
-  .album-rare {
+  .album-rare,
+  .album-now {
     position: static;
     width: fit-content;
   }
   .album-dialog .dialog-heading h2 {
     font-size: var(--font-lg);
-  }
-  .album-dialog .dialog-heading .icon-button {
-    width: 36px;
-    height: 36px;
   }
 }
 /* A short window keeps its height for the list: the chooser already shows each book's count. */
@@ -1510,11 +2040,6 @@ body.compact .update-compact {
   .dialog-form > .dialog-heading .eyebrow {
     margin-bottom: 3px;
     font-size: var(--font-xs);
-  }
-  .dialog-form > .dialog-heading .icon-button {
-    width: 36px;
-    height: 36px;
-    flex: none;
   }
   .dialog-form > .dialog-actions {
     margin-top: 8px;

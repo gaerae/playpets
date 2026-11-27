@@ -27,7 +27,14 @@ test('everything the yard says shares one lane just above the dock, clear of the
   // At the bottom by a spacer, so a lane taller than the window can still scroll to its top.
   assert.match(css, /\.yard-feedback::before\{content:"";flex:1 0 0;\}/);
   assert.doesNotMatch(css.match(/\.yard-feedback\{([^}]*)\}/)?.[1] || '', /justify-content:flex-end/);
-  assert.match(css, /\.yard-frame:has\(#discovery-target:not\(\[hidden\]\)\)\.yard-feedback\{bottom:106px;/);
+  // With a tool in hand the friends walk where the lane was, and the one aimed at sat under a card, so
+  // the lane goes up into the sky; a small window's strip is up there, so its lane stays at the foot.
+  assert.match(css, /\.yard-frame:has\(#discovery-target:not\(\[hidden\]\)\)\.yard-feedback\{inset:12px 12px auto;/);
+  assert.doesNotMatch(css, /\.yard-feedback\{bottom:106px/);
+  assert.match(
+    css,
+    /body\.compact \.yard-frame:has\(#discovery-target:not\(\[hidden\]\)\)\.yard-feedback\{inset:auto 8px 8px;/,
+  );
   assert.match(css, /body\.compact \.yard-feedback\{inset:auto 52px 8px 8px;/);
   assert.match(css.match(/(?:^|})\.toast\{([^}]*)\}/)?.[1] || '', /pointer-events:none/);
   assert.doesNotMatch(css.match(/(?:^|})\.toast\{([^}]*)\}/)?.[1] || '', /position:absolute/);
@@ -81,6 +88,19 @@ test('icon actions share the desktop control shape and a compact target', async 
   assert.match(rule[1], /width:36px;height:36px/);
 });
 
+test("an icon button keeps none of the engine's button padding and never shrinks, so its icon sits in the middle of a round one", async () => {
+  // WebKit and Chromium pad a button unevenly (1px 6px, more below in WebKit): a 20px icon in a 32px
+  // round Close with a 2px rim overflowed its 16px and sat 2px right, and half a pixel high in WebKit.
+  const css = await styles();
+  const rule = css.match(/(?:^|[{}; ])\.icon-button\{([^}]*)\}/);
+  assert.ok(rule, 'icon buttons have a base rule');
+  assert.match(rule[1], /(?:^|;)padding:0(?:;|$)/);
+  // With no padding to hold it, a row short of room would squeeze a round Close into an oval.
+  assert.match(rule[1], /(?:^|;)flex:none(?:;|$)/);
+  for (const [, selector, body] of css.matchAll(/([^{}]*\.icon-button[^{}]*)\{([^}]*)\}/g))
+    assert.doesNotMatch(body, /(?:^|;)padding(?:-\w+)?:(?!0(?:;|$))/, `${selector.trim()} pads an icon button`);
+});
+
 test('select boxes are fully custom-styled so every engine renders them identically', async () => {
   const css = await styles();
   const match = css.match(/(?:^|[{}; ])select\{([^}]*)\}/);
@@ -97,7 +117,12 @@ test('atmosphere choices keep equal one-line columns across platform fonts', asy
     css,
     /\.atmosphere-segments\{[^}]*grid-template-columns:repeat\(var\(--climate-columns\),minmax\(0,1fr\)\)/,
   );
-  assert.match(css, /\.atmosphere-segments span\{[^}]*padding:4px 2px;[^}]*font-weight:500/);
+  // A picture over a caption, at the smallest size words are read at (the e2e asks 12px); Morning fits
+  // a fifth of the row.
+  assert.match(
+    css,
+    /\.atmosphere-segments span\{[^}]*padding:2px 1px;[^}]*font-size:var\(--font-sm\);[^}]*font-weight:500/,
+  );
   assert.match(css, /body\.compact \.atmosphere-choice\{[^}]*padding:0 4px/);
   assert.match(css, /body\.compact \.atmosphere-auto\{[^}]*grid-column:1 \/ -1/);
 });
@@ -152,7 +177,8 @@ test('one yard fills the freely resized window without mode-specific scene rules
 
 test('a small window shows a find in one line: its name, a short New and its book, without Close', async () => {
   const css = await styles();
-  assert.match(css, /(?:^|})\.catch-card \.catch-new-short\{display:none;/);
+  // The short New is a paper tag beside the name at every size (card.js), the sentence read aloud.
+  assert.match(css, /(?:^|})\.catch-card:is\(\.catch-new-short,\.catch-rare,\.catch-record\)\{display:inline-flex;/);
   assert.match(css, /body\.compact \.catch-copy:has\(\.catch-new-short\)\{display:flex;[^}]*align-items:baseline/);
   assert.match(css, /body\.compact \.catch-copy:has\(\.catch-new-short\)\.catch-new\{display:none;/);
   assert.match(css, /body\.compact \.catch-card \.catch-new-short\{display:block;/);
@@ -187,6 +213,236 @@ test('compact windows keep every panel and shared menu within the viewport', asy
     );
   }
   assert.doesNotMatch(css, /body\.compact[^{}]*(?:#provider-select|\.companions)[^{}]*\{[^}]*display:none/);
+});
+
+// At the default 1180 by 850 a fixed 520px cut Atmosphere after Time of day, so Weather and the yard's
+// sound sat below the fold with nothing saying they were there.
+test('the scene panel is as tall as what it holds, up to the window, so Weather and Sound show without scrolling', async () => {
+  const css = await styles();
+  const rule = css.split('}').find(part => part.endsWith('.scene-menu{') || /(^|[;{])\.scene-menu\{/.test(part));
+  assert.ok(rule, 'the scene panel has its own rule');
+  assert.match(rule, /max-height:calc\(100% - 76px\)/);
+  assert.doesNotMatch(rule, /(^|[;{])height:min\(/, 'no fixed height under the window');
+});
+
+// At 960 by 640 two rows of places still pushed the yard's sound below the fold.
+test('a window too short for two rows of places shows them in one row that scrolls sideways', async () => {
+  const css = await styles();
+  assert.match(
+    css,
+    /@media ?\(max-height:720px\)\{\.background-gallery\{[^}]*grid-auto-flow:column;[^}]*overflow-x:auto/,
+  );
+});
+
+// A small window's friend panel hid the closeness row, and with no name plate on the small window's
+// menu either, how close a friend was showed nowhere.
+test('a small window still says how close a friend is, without the bar', async () => {
+  const css = await styles();
+  const hides = css
+    .split('}')
+    .filter(rule => rule.includes('display:none') && /body\.compact[^{]*\.bond-row/.test(rule));
+  assert.deepEqual(hides, [], 'the row stays');
+  assert.match(css, /body\.compact \.bond-bar[,{][^{}]*\{display:none;?\}/);
+});
+
+// At 760 by 520 the menu's three places as rows left Close window and Quit below its fold, and a
+// tall window showed the same 360px menu as rows where a short one showed tiles. Tiles in every window.
+// Equal thirds broke "Invite a friend" in a wider font (Linux): a name keeps its line in a large
+// window, and its tile takes the width it needs, the other two sharing the rest.
+test('the menu sets its three places side by side in every window, so Close window and Quit stay in view', async () => {
+  const css = await styles();
+  assert.match(css, /(?:^|\})\.management-destinations\{display:grid;grid-template-columns:repeat\(3,1fr\)/);
+  assert.match(css, /(?:^|\})body:not\(\.compact\) ?\.menu-destination-copy strong\{[^}]*white-space:nowrap/);
+  assert.match(
+    css,
+    /(?:^|\})\.management-destinations \.menu-destination\{[^}]*flex-direction:column;[^}]*text-align:center/,
+  );
+  assert.equal(css.match(/\.management-destinations\{display:grid/g).length, 1, 'said once, for every window');
+});
+
+// At 760 by 520 the album's large picture pushed the hint on where to find a kind below the left
+// page's fold.
+test('a short window draws the album large picture smaller, so the hint under it stays in view', async () => {
+  const css = await styles();
+  // Down to 112px at 520 high, where the rows of clues under it need room too, and they draw smaller.
+  assert.match(
+    css,
+    /@media ?\(max-height:720px\)\{[^@]*\.album-detail \.album-specimen\{max-height:clamp\(112px,calc\(100dvh - 408px\),200px\)/,
+  );
+  assert.match(css, /@media ?\(max-height:720px\)\{[^@]*\.album-clues \.clue>i\{width:24px;height:24px/);
+});
+
+// At 460 by 320 the board's painted tiles, three to a row under their sections' names, took the
+// whole window and scrolled: a low window keeps Play to two thirds of it (e2e.mjs reach=).
+test('a low window draws Play as tiles with the picture beside the word, the section names read aloud only', async () => {
+  const [css, win] = await Promise.all([styles(), readFile('src/window.js', 'utf8')]);
+  // A window 480 high or lower is always a small one, whose section names are read aloud only.
+  assert.match(win, /innerHeight <= 480/);
+  assert.match(
+    css,
+    /body\.compact \.dock-section-label\{position:absolute;width:1px;height:1px;[^}]*clip-path:inset\(50%\)/,
+  );
+  assert.match(css, /@media ?\(max-height:480px\)\{[^@]*\.play-board \.play-action\{flex-direction:row;/);
+  assert.match(
+    css,
+    /@media ?\(max-height:480px\)\{[^@]*\.play-board \.play-action>\[data-icon\]\{flex:none;width:22px;height:22px/,
+  );
+});
+
+// A card's number and its Rare mark were a bold number stamped on the picture and a pill caught on
+// its frame's corner, and a rare card not found yet had a second gold box inside its frame. Both are
+// now the same small paper tag inside the picture's top corners, Rare with its painted star.
+test("an album card's number and Rare are matching tags inside the picture's corners", async () => {
+  const css = await styles();
+  assert.match(
+    css,
+    /\.album-no\{position:absolute;top:12px;left:12px;[^}]*border:1px solid var\(--album-edge\);border-radius:var\(--radius-pill\);background:var\(--album-paper\)/,
+  );
+  assert.match(css, /\.album-rare\{position:absolute;top:12px;right:12px;[^}]*display:inline-flex;/);
+  // The same painted star as a rare find's card wears.
+  assert.match(
+    css,
+    /:is\(\.album-rare,\.catch-rare\)::before\{content:"";[^}]*background:url\("\.\.\/art\/ui\/rare\.webp"\)/,
+  );
+  assert.doesNotMatch(css, /\.album-card\.rare \.album-specimen\{box-shadow/);
+  assert.doesNotMatch(css, /content:"✦ "/);
+});
+
+// Play stood over the dock's rim, taller and in the largest type, so it drew the eye from the yard
+// itself; it keeps the honey colour that marks it as the way in, at the dock's own height.
+test("Play is the dock's honey button at the dock's height", async () => {
+  const css = await styles();
+  const play = css.match(/(?:^|\})\.yard-play-toggle\{([^}]*)\}/)[1];
+  assert.match(play, /min-height:36px/);
+  assert.match(play, /font-size:var\(--font-lg\)/);
+  assert.match(play, /background:linear-gradient\(180deg,var\(--garden-honey\),var\(--garden-honey-deep\)\)/);
+  assert.doesNotMatch(play, /margin:-/, 'not over the rim');
+});
+
+// A Close at a panel's corner is a round wooden button, one size with one weight of × everywhere:
+// they were 32px and 36px with a 14px to 20px ×, so the same button looked heavy in one place and
+// faint in the next.
+test('every round wooden Close is one size with one weight of ×', async () => {
+  const [css, html] = await Promise.all([styles(), readFile('src/index.html', 'utf8')]);
+  // Each corner Close says so by its class, the side panel's and every dialog's included.
+  for (const id of [
+    'scene-close',
+    'close-controls',
+    'close-play',
+    'close-panel',
+    'close-album',
+    'discovery-cancel',
+    'close-pet-dialog',
+    'close-import',
+    'close-dialog',
+    'close-decorating',
+    'letter-close',
+    'confirm-close',
+  ])
+    assert.match(html, new RegExp(`<button[^>]*id="${id}"[^>]*class="[^"]*\\bcorner-close\\b`), id);
+  const closes = ':is(.corner-close,#close-panel)';
+  const at = css.indexOf(`${closes}{`);
+  assert.ok(at >= 0, 'one rule sizes every corner Close');
+  assert.match(css.slice(at), /^[^{]*\{width:32px;height:32px;?\}/);
+  assert.ok(css.includes(`${closes}svg{width:18px;height:18px;stroke-width:2px`), 'and its ×');
+  for (const size of [/\.dock-panel-head \.icon-button\{width:/, /\.discovery-target-heading \.icon-button\{width:/])
+    assert.doesNotMatch(css, size, 'no corner sets a size of its own');
+  assert.doesNotMatch(css, /\.album-dialog \.dialog-heading \.icon-button\{/);
+  assert.doesNotMatch(css, /\.dialog-form>\.dialog-heading \.icon-button\{/);
+});
+
+// A notice or a card already has its own frame, so a ring round its × was a third outline beside
+// Undo's; its Close is the bare ×, with the round hover every icon button has.
+test('a Close inside a notice or a card is a bare ×, not another ring', async () => {
+  const css = await styles();
+  const wooden = css.match(/:is\(\.corner-close[^)]*\)\{border:2px solid var\(--garden-rim\)/);
+  assert.ok(wooden, 'the wooden rule is still there');
+  assert.doesNotMatch(wooden[0], /toast-close|catch-dismiss/);
+  const toast = css.match(/(?:^|\})\.toast-close\{([^}]*)\}/)[1];
+  assert.match(toast, /border:0/);
+  assert.match(toast, /border-radius:50%/);
+  assert.match(toast, /background:transparent/);
+  assert.match(css, /\.catch-dismiss\{[^}]*border-radius:50%/);
+});
+
+// "New" was five dots of three sizes, one with no edge, so on honey or in dark mode it was hard to
+// see; every one is now the same 8px dot with a 2px ring of the paper behind it.
+test('every new-thing dot is the same dot with a ring of its own surface', async () => {
+  const css = await styles();
+  const dots = [...css.matchAll(/([^{}]*(?:\.has-new|\.has-update|\.update-compact)::after)\{([^}]*)\}/g)];
+  assert.ok(dots.length >= 4, 'the dots are found');
+  for (const [, selector, body] of dots) {
+    assert.match(
+      body,
+      /width:8px;height:8px;border-radius:50%;background:var\(--accent\);box-shadow:0 0 0 2px var\(--[\w-]+\)/,
+      selector.trim(),
+    );
+    assert.doesNotMatch(body, /border:/, selector.trim());
+  }
+});
+
+// The memento heart is a paper tag like the card's number and Rare, not a shadowed button.
+test("the memento heart on an album card is a paper tag like the card's number", async () => {
+  const heart = (await styles()).match(/(?:^|\})\.album-heart\{([^}]*)\}/)[1];
+  assert.match(heart, /width:20px;height:20px;/);
+  assert.match(heart, /border:1px solid var\(--album-edge\)/);
+  assert.match(
+    heart,
+    /background:url\("\.\.\/art\/ui\/heart\.webp"\) ?center ?\/ ?14px no-repeat,var\(--album-paper\)/,
+  );
+  assert.doesNotMatch(heart, /box-shadow/);
+});
+
+// In the yard a memento's heart and the mailbox's letter are the same painted tags, on a cream disc
+// with an edge line, so they read as one family with the album's, not a font's ♥ in a shadowed dot.
+test("the yard's memento heart and waiting letter are painted tags with an edge", async () => {
+  const css = await styles();
+  const heart = css.match(/(?:^|\})\.decor\.memento::after\{([^}]*)\}/)[1];
+  assert.match(heart, /content:""/);
+  assert.match(heart, /url\("\.\.\/art\/ui\/heart\.webp"\)/);
+  const letter = css.match(/(?:^|\})\.decor\[data-mark="letter"\]::before\{([^}]*)\}/)[1];
+  assert.match(letter, /url\("\.\.\/art\/ui\/letter\.webp"\)/);
+  for (const mark of [heart, letter]) {
+    assert.match(mark, /border:1px solid #c9a477/);
+    assert.doesNotMatch(mark, /box-shadow/);
+  }
+});
+
+// A tab's dot sat in the ribbon's rounded corner, half off the tab and over its neighbour.
+test("an album tab's new dot sits inside the tab", async () => {
+  assert.match(await styles(), /\.album-tabs button\.has-new::after\{[^}]*top:6px;right:8px;/);
+});
+
+// On the album's wooden cover the rim was the cover's own colour, so in dark mode the Close was a
+// disc with no edge; it takes the darker edge the Play button has.
+test("the album's Close keeps an edge on the wooden cover", async () => {
+  assert.match(await styles(), /(?:^|\})#close-album\{border-color:var\(--garden-rim-edge\);?\}/);
+});
+
+// A notice's bare × grows to the touch size every other icon button has.
+test("a notice's Close is large enough to touch", async () => {
+  assert.match(await styles(), /@media ?\(pointer:coarse\)\{\.toast-close\{width:44px;height:44px;?\}/);
+});
+
+// Cancel, a word with no padding beside Save, was 23px wide to aim at in every dialog.
+test('a word button among the actions of a dialog has room around it to press', async () => {
+  const css = await styles();
+  assert.match(css, /\.dialog-actions \.button\.text:not\(\.push-left\)\{[^}]*padding-inline:10px/);
+});
+
+// The shelf scrolls and clips its sides, so a ring drawn outside a full-width card showed as two
+// dark bars above and below it.
+test('an invite card draws its focus ring inside, where the shelf cannot cut it', async () => {
+  const css = await styles();
+  assert.match(css, /\.asset-card:focus-visible\{outline-offset:-3px;?\}/);
+});
+
+// An event's card broke Japanese inside a word ("始まりま / した！"), as the album once did.
+test('a card title in the yard breaks Japanese between phrases, as the album does', async () => {
+  const css = await styles();
+  assert.match(css, /:root:lang\(ja\) ?\.catch-card strong\{word-break:keep-all;overflow-wrap:anywhere;?\}/);
+  const { strings: ja } = await import('../src/core/strings/ja.js');
+  assert.match(ja['event.started'], /が\u200b始まりました/, 'a place to break after the event name');
 });
 
 // At 560 by 400 the Invite sheet shrank to an 18px sliver: a compact rule picking the sheet by
@@ -268,10 +524,14 @@ test('a small window shows the four starters in one row of small pictures', asyn
 // row, and a name stays whole on one line; only if a font draws it wider than its tile is it cut
 // with an ellipsis. With the games on two rows the tiles are close set (the icon over the name, the
 // seed count in the corner, no 40px floor), so the panel stays under two thirds of a 460 by 320
-// window (the e2e's quick Play check). Narrow windows take the smallest step.
+// window (the e2e's quick Play check). Narrow windows take the smallest step. A group's last row
+// gathers in the middle, so four games never leave Chatter alone at the left, and a line between
+// groups shows where one ends, since their names are hidden there.
 test('a Play name stays whole on one line in a small window', async () => {
   const css = await styles();
-  assert.match(css, /body\.compact \.play-actions\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+  assert.match(css, /body\.compact \.play-actions\{display:flex;flex-wrap:wrap;justify-content:center;gap:2px/);
+  assert.match(css, /body\.compact \.play-action\{[^}]*flex:0 0 calc\(\(100% - 4px\)\/ 3\)/);
+  assert.match(css, /body\.compact \.play-board \.dock-section \+ \.dock-section\{border-top:1px solid var\(--line\)/);
   const tile = css.match(/(?:^|\})body\.compact \.play-action\{([^}]*)\}/)?.[1] || '';
   assert.doesNotMatch(tile, /white-space:normal|overflow-wrap:anywhere|word-break|flex-direction:row/);
   assert.match(tile, /min-height:0/);
@@ -415,7 +675,9 @@ test('Menu hover and selected settings states remain distinct', async () => {
   const css = await styles();
   assert.match(css, /\.yard-controls-panel \.panel-tab:hover\{[^}]*var\(--control-hover\)/);
   assert.match(css, /\.settings-index button:hover\{[^}]*var\(--control-hover\)/);
-  assert.match(css, /\.album-tabs button\[aria-selected="true"\]\{[^}]*var\(--segment-active\)/);
+  // The chosen book's ribbon takes the page's paper; a hover only lifts one.
+  assert.match(css, /\.album-tabs button\[aria-selected="true"\]\{[^}]*var\(--album-left\)/);
+  assert.match(css, /\.album-tabs button:hover:not\(\[aria-selected="true"\]\)\{[^}]*transform:translateY\(-2px\)/);
 });
 
 // Every declaration can apply: none is always replaced by a later rule for the same selector across
@@ -539,7 +801,8 @@ export function parseRules(css, file = '') {
     .replace(/\/\*[\s\S]*?\*\//g, '')
     // Statement at-rules (@import, @charset, @layer a, b;) hold no declarations.
     .replace(/@[a-z-]+[^{};]*;/g, '')
-    .replace(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|url\([^)]*\)/g, m => m.replace(/[{};,]/g, '\u2400'));
+    // A quoted url() is read as its string, so a url(…) inside a data URL stays inside it.
+    .replace(/"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|url\([^)"']*\)/g, m => m.replace(/[{};,]/g, '\u2400'));
   const rules = [];
   const walk = (body, media) => {
     let i = 0;
@@ -549,7 +812,9 @@ export function parseRules(css, file = '') {
       const head = body.slice(i, open).trim();
       let depth = 1,
         k = open + 1;
-      for (; depth; k++) depth += body[k] === '{' ? 1 : body[k] === '}' ? -1 : 0;
+      for (; depth && k < body.length; k++) depth += body[k] === '{' ? 1 : body[k] === '}' ? -1 : 0;
+      // An unclosed rule is the end of the sheet.
+      if (depth) return;
       const inner = body.slice(open + 1, k - 1);
       if (head.startsWith('@keyframes')) {
         // its steps are not rules
@@ -624,6 +889,10 @@ test('the replaced-declaration check sees through strings, pseudo-class lists, s
   assert.equal(found('.a{color:red !important}.a{color:blue}'), 0, '!important outlasts a later plain rule');
   assert.equal(found('.a{color:red ! IMPORTANT}.a{color:blue !important}'), 1, 'and gives way to a later !important');
   assert.equal(found('.a{color:red;&:hover{color:blue}}'), 0, 'nesting is not a declaration');
+  // A data URL may hold its own url(…) and quotes; the rules after it still read in step.
+  const nested = `.a{background:url("data:x,%3Cpath fill='url(%23p)'/%3E")}.b{background:url("y.webp")}`;
+  assert.equal(found(`${nested}.c{color:red}.c{color:blue}`), 1, 'a url() inside a quoted data URL');
+  assert.equal(found('.a{color:red}.a{'), 0, 'an unclosed rule ends the walk');
 });
 
 // A custom property defined as itself is invalid, and the cycle silently empties every use of it.
@@ -637,6 +906,8 @@ test('no custom property is defined from itself', async () => {
 
 // A custom property the page sets from code rather than in a stylesheet, and the file that sets it.
 const SET_FROM_CODE = {
+  '--notch': 'src/core/controls.js',
+  '--order': 'src/core/controls.js',
   '--dig-scale': 'src/yard/work.js',
   '--dig-duration': 'src/yard/work.js',
   '--dig-contact': 'src/yard/work.js',
@@ -728,14 +999,16 @@ test("a sky moment's glow stays out of rooms, where furniture fronts would show 
 // The agent's state rides in the name tag, beside the name: by the head it floated off a friend
 // drawn smaller at the back, and a seated friend's head is where a desk's laptop is.
 // Where it sits in the tag is yard-lifecycle.test.mjs's.
-// A tag with an agent cut both names at once ("Sir Wiggleton F… • Cl…"), so neither could be read.
-// It is wider, so the agent's name fits beside a long friend's, and the agent's whole name is its
-// tooltip when it is cut anyway.
-test('a name tag with an agent has room for both names', async () => {
+// A tag with an agent cut both names at once ("Sir Wiggleton F… • Cl…"), and a tool's name on a
+// pet's tag read like a setting. The agents are a small line icon after the name; who they are is its
+// tooltip, the same words as the Friend tab's chip.
+test('a name tag marks its agents with a small icon and names them in the tooltip', async () => {
   const [css, views] = await Promise.all([styles(), readFile('src/yard/views.js', 'utf8')]);
-  assert.match(css, /\.pet-tag:has\(small:not\(\[hidden\]\)\)\{max-width:210px;?\}/);
-  assert.match(css, /\.pet-tag:has\(small:not\(\[hidden\]\)\)\.tag-name\{flex:none;max-width:110px;?\}/);
-  assert.match(views, /put\(v\.agents, 'title', joinList\(agents\)\)/);
+  assert.match(css, /\.pet-tag small svg\{width:12px;height:12px;?\}/);
+  assert.doesNotMatch(css, /\.pet-tag:has\(small:not\(\[hidden\]\)\)/);
+  assert.match(views, /agents\.innerHTML = '<span data-icon="plug"><\/span>'/);
+  assert.match(views, /put\(v\.agents, 'title', t\('friend\.agent_chip', \{ agents: joinList\(agents\) \}\)\)/);
+  assert.doesNotMatch(views, /put\(v\.agents, 'textContent'/);
 });
 
 test("the agent's state dot flows in the name tag instead of floating over the friend", async () => {
@@ -853,9 +1126,10 @@ test('startup notices float above the yard instead of shrinking it into a discon
   assert.match(html, /id="dismiss-warnings"/);
 });
 
-test('pin switches show their selected state for every window size', async () => {
+test('pin switches show their selected state for every window size, lit like every other switch', async () => {
   const css = await styles();
-  assert.match(css, /\.view-toggle\[aria-pressed="true"\] \.wander-switch[^{]*\{[^}]*background:var\(--green-ink\)/);
+  assert.match(css, /\.view-toggle\[aria-pressed="true"\] \.wander-switch[^{]*\{[^}]*background:var\(--accent\)/);
+  assert.match(css, /\.wander-toggle input:checked ~ \.wander-switch\{[^}]*background:var\(--accent\)/);
   assert.match(
     css,
     /\.view-toggle\[aria-pressed="true"\] \.wander-switch::after[^{]*\{[^}]*transform:translateX\(12px\)/,
@@ -877,7 +1151,8 @@ test('compact controls hide the dock, offer a corner button and scroll only the 
   assert.doesNotMatch(css, /body\.compact:hover \.yard-dock|body\.compact:focus-within \.yard-dock/);
   assert.match(css, /body\.compact \.yard-controls-panel\{[^}]*inset:8px;[^}]*overflow:hidden/);
   assert.match(css, /\.dock-panel-body\{[^}]*overflow-y:auto/);
-  assert.match(css, /body\.compact \.compact-launcher\{[^}]*display:inline-flex/);
+  // the icon button's centred grid: a flex row started its dots 6px left of the middle
+  assert.match(css, /body\.compact \.compact-launcher\{[^}]*display:grid/);
   // A small window left on the desktop shows only the yard; the corner buttons (the menu and an
   // update) come with the pointer, the keyboard or their open panel, and a screen without hover keeps them.
   assert.match(
@@ -891,11 +1166,27 @@ test('compact controls hide the dock, offer a corner button and scroll only the 
 // WebKit otherwise resolves the flexible scroller to zero inside an auto-height dialog.
 test('the collection reserves a viewport-bounded height before laying out its scroller', async () => {
   const css = await styles();
-  assert.match(css, /\.album-dialog\{[^}]*height:min\(640px,calc\(100dvh - 16px\)\)/);
+  assert.match(css, /\.album-dialog\{[^}]*height:min\(680px,calc\(100dvh - 16px\)\)/);
 });
 
 test('a dialog heading wraps a long word instead of running past the dialog', async () => {
   assert.match(await styles(), /\.dialog-heading h2\{[^}]*overflow-wrap:anywhere/);
+});
+
+// The album's Close is on the wooden cover at the end of the ribbons, as a tab is, so the pages
+// hold only the books: the right page's line and cards start at its top.
+test('the album closes from the cover beside its ribbons, not from a corner of its page', async () => {
+  const css = await styles();
+  // The right page is one column of its own, its line over its cards, so neither page's height sets
+  // where the other's content starts.
+  assert.match(
+    css,
+    /\.album-dialog\[open\]\{[^}]*grid-template-rows:auto auto minmax\(0,1fr\);grid-template-areas:"tabs tabs close" ?"title right right" ?"detail right right"/,
+  );
+  assert.match(css, /\.album-right\{grid-area:right;display:flex;flex-direction:column;flex:1;min-height:0;/);
+  const page = await readFile('src/index.html', 'utf8');
+  assert.match(page, /<div class="album-right"><p id="album-dig-status"[^>]*><\/p><div id="album-grid"/);
+  assert.match(css, /\.album-heading-actions\{grid-area:close;align-self:center;/);
 });
 
 test('an album tab is as wide as its name, so a long one in Japanese stays on one line', async () => {
@@ -959,7 +1250,7 @@ test('the interface takes its colours from tokens', async () => {
 // side sheet, 400 by 280 the tiniest, 360 the narrowest, and 1100 a wide one.
 test('every media query on the window size uses one of the size tiers', async () => {
   const css = await styles();
-  const tiers = { width: [360, 400, 480, 640, 1100], height: [280, 480] };
+  const tiers = { width: [360, 400, 480, 640, 1100], height: [280, 480, 720] };
   const queries = [...css.matchAll(/@media([^{]*)\{/g)].map(m => m[1]);
   for (const query of queries) {
     for (const [, axis, px] of query.matchAll(/(?:min|max)-(width|height):(\d+)px/g)) {
@@ -1042,9 +1333,306 @@ test('a corner the same size as a named one uses the name', async () => {
   const named = Object.fromEntries(
     [...css.matchAll(/--radius-([a-z]+):(\d+px);/g)].map(([, name, value]) => [value, name]),
   );
-  assert.deepEqual(named, { '8px': 'panel', '5px': 'control', '6px': 'card', '999px': 'pill', '12px': 'bubble' });
+  assert.deepEqual(named, {
+    '8px': 'panel',
+    '5px': 'control',
+    '6px': 'card',
+    '999px': 'pill',
+    '12px': 'bubble',
+    '14px': 'garden',
+  });
   const literal = [...css.matchAll(/([^{}]+)\{[^{}]*?(?:^|;)border-radius:(\d+px);/g)]
     .filter(([, , value]) => named[value] || value === '99px')
     .map(([, selector, value]) => `${selector.trim()} ${value}`);
   assert.deepEqual(literal, []);
+});
+
+// The page's own green marks and blue-green ink shades (a count, a picked card, a shadow) belong to the
+// old look; every paper surface redefines them in the paper's colours, so none shows on paper.
+test('paper surfaces take the paper colours for the page green marks and ink shades', async () => {
+  const css = await styles();
+  const scopes = [/\.side-panel,dialog\{([^}]*)\}/, /\.window-buttons,\.empty-yard\{([^}]*)\}/];
+  for (const scope of scopes) {
+    const body = css.match(scope)?.[1];
+    assert.ok(body, `scope ${scope}`);
+    for (const token of ['--green-soft', '--green-ink', '--green-line', '--ink-8', '--ink-12', '--ink-20', '--white'])
+      assert.match(body, new RegExp(`${token}:var\\(--garden-`), `${token} in ${scope}`);
+  }
+  assert.match(css, /\.empty-yard\{[^}]*background:var\(--garden-frame\)/);
+  assert.match(css, /--shadow-sheet:var\(--shadow-garden\),0 12px 36px var\(--garden-ink-20\)/);
+  assert.doesNotMatch(css, /--scene-green/);
+});
+
+test("a thing's name plate stands on the bar's rim, not in its paper, and its edge stops where the bar begins", async () => {
+  // A positioned child is measured from inside the rim, so the plate used to reach 6px into the bar's
+  // paper: its wood poked in at both sides, darker than the rim beside it, and its dark edge ran down
+  // across the rim.
+  const css = await styles();
+  const above = css.match(/\.thing-bar>\.thing-plate:not\(\[hidden\]\)\{([^}]*)\}/)?.[1];
+  assert.ok(above, 'the plate has its rule');
+  assert.match(above, /bottom:100%/);
+  assert.doesNotMatch(above, /--garden-frame\b(?!-)/, "not the frame's own gradient, which ends dark at its foot");
+  assert.match(above, /var\(--garden-wood-head\)border-box/);
+  assert.match(above, /clip-path:polygon\(/, 'its dark edge is cut where the rim begins');
+  const below = css.match(/\.thing-bar\[data-side="below"\]>\.thing-plate:not\(\[hidden\]\)\{([^}]*)\}/)?.[1];
+  assert.match(below, /top:100%/);
+  assert.match(below, /var\(--garden-wood-foot\)border-box/);
+  assert.match(below, /clip-path:polygon\(/);
+  // Its paper runs on over the bar's inner edge, so the two read as one piece.
+  assert.match(css, /\.thing-bar>\.thing-plate:not\(\[hidden\]\)::after\{[^}]*background:var\(--garden-paper\)/);
+});
+
+test('every book in the album, the hidden one too, wears its own painted picture and ribbon', async () => {
+  const css = await styles();
+  const js = await readFile('src/panel/album.js', 'utf8');
+  const books = [...js.matchAll(/^ {2}(\w+): \{\n {4}tab: /gm)].map(m => m[1]);
+  assert.ok(books.includes('secret'), 'the books are read from album.js');
+  for (const book of books) {
+    assert.match(
+      css,
+      new RegExp(
+        `\\.album-tabs \\[data-book="${book}"\\]::before\\{background-image:url\\("\\.\\./art/ui/book-${book}\\.webp"\\)`,
+      ),
+      book,
+    );
+    assert.match(
+      css,
+      new RegExp(`\\.album-tabs \\[data-book="${book}"\\]\\{--album-ribbon:`),
+      `${book} has a ribbon of its own`,
+    );
+  }
+  // a row too narrow for every name keeps each one for a reader, out of sight
+  assert.match(
+    css,
+    /\.album-tabs\.tight button>span\{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset\(50%\)/,
+  );
+});
+
+test("the album's left page wraps its words in even lines, with no word left alone on the last", async () => {
+  const css = await styles();
+  for (const part of ['\\.album-detail-line', '\\.album-detail \\.album-detail-hint']) {
+    const rule = css.match(new RegExp(`${part}\\{([^}]*)\\}`))?.[1];
+    assert.match(rule || '', /text-wrap:balance/, part);
+  }
+});
+test('closeness shows its empty hearts as outlines in the heart colour, so five read as five', async () => {
+  // They used to be filled in the paper's line colour, about 1.4:1 against the paper in both themes.
+  const css = await styles();
+  const heart = css.match(/\.thing-hearts>i\{([^}]*)\}/)?.[1];
+  assert.ok(heart, 'the hearts have their rule');
+  assert.match(heart, /background:var\(--garden-heart\)/);
+  assert.match(heart, /stroke=/, 'an empty heart is an outline');
+  assert.doesNotMatch(heart, /--garden-line/);
+  const filled = css.match(/\.thing-hearts\[data-level="5"\]>i\{([^}]*)\}/)?.[1];
+  assert.match(filled, /mask-image:url\(/);
+  assert.doesNotMatch(filled, /stroke=/, 'a filled heart is filled');
+});
+
+test("the play board's portrait centres the friend in its circle", async () => {
+  const css = await styles();
+  const px = (rule, prop) => Number(css.match(new RegExp(`${rule}\\{[^}]*\\b${prop}:(-?\\d+)px`))?.[1]);
+  const circle = px('\\.play-portrait:not\\(\\[hidden\\]\\)', 'width'),
+    picture = px('\\.play-portrait canvas', 'width');
+  const margin = css.match(/\.play-portrait canvas\{[^}]*margin:(-?\d+)px (-?\d+)px/);
+  const border = Number(css.match(/--garden-border:(\d+)px/)?.[1]);
+  assert.ok(circle && picture && margin && border, 'the circle, its rim, the picture and its margins');
+  // wider than the circle inside its rim, the picture overhangs it by the same on both sides
+  assert.equal(Number(margin[2]), -(picture - (circle - 2 * border)) / 2);
+});
+
+test("a thing's notch hangs outside its bar in the rim's own wood, and paints nothing inside the bar", async () => {
+  // It used to repaint the bar's paper and wood in its own 16px box: a pale diamond showed inside the
+  // bar under the middle choice, and its wood started light again where the bar's rim is darkest.
+  const css = await styles();
+  const notch = css.match(/\.thing-bar::after\{([^}]*)\}/)?.[1];
+  assert.ok(notch, 'the notch has its rule');
+  assert.doesNotMatch(notch, /--garden-frame/);
+  assert.match(notch, /background:var\(--garden-wood-foot\)/);
+  assert.match(notch, /clip-path:polygon\(/, 'only the half outside the bar is drawn');
+  const below = css.match(/\.thing-bar\[data-side="below"\]::after\{([^}]*)\}/)?.[1];
+  assert.match(below, /background:var\(--garden-wood-head\)/);
+  // The wood runs from its head to its foot, light and dark alike, so the notch matches the rim.
+  const woods = [...css.matchAll(/--garden-wood:linear-gradient\(([^;]*)\);/g)].map(m => m[1]);
+  assert.ok(woods.length >= 2, 'light and dark wood');
+  for (const wood of woods) assert.match(wood, /^175deg,var\(--garden-wood-head\),.*,var\(--garden-wood-foot\)$/);
+});
+
+test("on a thing's bar an unticked check takes no room, so its choices sit evenly apart", async () => {
+  // A list keeps the slot so its rows line up; on the bar the hidden tick after Show on desktop
+  // left a wider gap before the next choice than between any other two.
+  const css = await styles();
+  const rule = css.match(/\.thing-bar \[aria-checked="false"\]>\.context-check\{([^}]*)\}/)?.[1];
+  assert.match(rule || '', /display:none/);
+});
+
+// A card in a large window is its picture and its name; the sentence under them shows under the
+// pointer or the keyboard and is still read out, so a card in the lane covers less of the yard. A fish's
+// size, a bug's count and a letter's quote stay (a card that keeps its words), being what the card is about.
+test('a news card in a large window shows its picture and name, its sentence on hover and read out', async () => {
+  const css = await styles();
+  const rule =
+    css.match(
+      /body:not\(\.compact\)\.catch-card:not\(\.keep-detail,:hover,:focus-within\)\.catch-copy>small:not\(\.catch-new,\.catch-new-short\)\{([^}]*)\}/,
+    )?.[1] || '';
+  assert.match(rule, /clip-path:inset\(50%\)/, 'kept for the live region, not display:none');
+  assert.doesNotMatch(rule, /display:none/);
+});
+
+// The tool in hand looked like the one under the pointer; it wears the rim, and its seed count stays a pill.
+test('the tool in hand wears a rim a hovered one never has, and keeps its seed count', async () => {
+  const css = await styles();
+  const pressed = css.match(/\.discovery-target \[aria-pressed="true"\]\{([^}]*)\}/)?.[1] || '';
+  assert.match(pressed, /box-shadow:inset 0 0 0 2px var\(--garden-rim\)/);
+  assert.match(pressed, /font-weight:750/);
+  assert.doesNotMatch(css.match(/\.discovery-tool:hover\{([^}]*)\}/)?.[1] || '', /box-shadow/);
+  assert.match(css, /\.discovery-target \[aria-pressed="true"\] \.tool-count\{[^}]*background:var\(--garden-paper\)/);
+});
+
+test('Back stands before the title, away from Close', async () => {
+  const css = await styles();
+  assert.match(css, /\.panel-head>#panel-menu\{order:-1;?\}/);
+});
+
+// At 560 by 400 the friend's menu opened over the whole head, its own ⋯ under it. A window 280px
+// tall or less keeps that (compact-navigation.test.mjs): there is no room under the button.
+test("a small window opens the friend's menu under its button", async () => {
+  const css = (await styles()).replace(/@media\(max-height:280px\)\{(?:[^{}]*\{[^}]*\})*[^{}]*\}/g, '');
+  const rule = css.match(/body\.compact \.side-panel \.pop-menu\{([^}]*)\}/)?.[1] || '';
+  assert.match(rule, /top:calc\(100% \+ 4px\)/);
+  assert.doesNotMatch(rule, /inset:8px 8px auto/);
+  assert.doesNotMatch(css, /body\.compact \.side-panel \.menu-anchor:has\(\.pop-menu:not\(\[hidden\]\)\)/);
+});
+
+// In Japanese the yard's menu at 224px left one character of Reset window size on a second line.
+test("the yard's menu is as wide as its longest choice, and the AI cards break Japanese between phrases", async () => {
+  const css = await styles();
+  const menu = css.match(/(?:^|})\.yard-context-menu\{([^}]*)\}/)?.[1] || '';
+  assert.match(menu, /width:max-content/);
+  assert.match(menu, /min-width:\d+px/);
+  assert.match(menu, /max-width:calc\(100vw - 16px\)/);
+  assert.match(css, /\.yard-context-menu>button\{[^}]*white-space:nowrap/);
+  assert.match(css, /:lang\(ja\) ?\.choice-card strong\{word-break:keep-all;overflow-wrap:anywhere;?\}/);
+});
+
+// At 760 by 520 the fourth place was cut and the panel scrolled: four places fit in a row, what a place
+// is for is its card's title, and each atmosphere row is a picture and a word beside its name.
+test('Place & atmosphere fits four places and shows the atmosphere as pictures', async () => {
+  const [css, html, ui] = await Promise.all([
+    styles(),
+    readFile('src/index.html', 'utf8'),
+    readFile('src/yard/background-ui.js', 'utf8'),
+  ]);
+  assert.match(css, /grid-auto-columns:minmax\(72px,calc\(\(100% - 24px\) ?\/ ?4\)\)/);
+  assert.match(ui, /button\.title = /, "a place's card says what it is for");
+  assert.doesNotMatch(html, /id="world-note"/);
+  for (const art of [
+    'spring',
+    'summer',
+    'autumn',
+    'winter',
+    'morning',
+    'day',
+    'evening',
+    'night',
+    'clear',
+    'rain',
+    'snow',
+  ])
+    assert.match(css, new RegExp(`url\\("\\.\\./art/ui/${art}\\.webp"\\)`), art);
+  const chosen = css.match(/\.atmosphere-segments input:checked \+ span\{([^}]*)\}/)?.[1] || '';
+  assert.match(chosen, /background:var\(--garden-selected\)/);
+  assert.match(chosen, /box-shadow:inset 0 0 0 2px var\(--garden-rim\)/);
+  assert.match(css, /body:not\(\.compact\)\.atmosphere-choice\{[^}]*padding-left:/, 'the name beside its row');
+});
+
+test("the yard's sound is a switch like the dock's other toggles", async () => {
+  const html = await readFile('src/index.html', 'utf8');
+  const sound = html.match(/<button id="sound-button"[^>]*>.*?<\/button>/)?.[0] || '';
+  assert.match(sound, /class="view-button view-toggle"/);
+  assert.match(sound, /<span class="wander-switch" aria-hidden="true"><\/span><\/button>$/);
+});
+
+// The select's chevron and a group chat's other friend kept the old blue-grey on the paper.
+test('the select chevron and another friend in a group chat take the paper colours', async () => {
+  const css = await styles();
+  assert.doesNotMatch(css, /%235c6f70/);
+  assert.match(css, /select\{[^}]*stroke="%236b5038"|select\{[^}]*stroke='%236b5038'/);
+  assert.match(css, /stroke='%23dcc7a6'/, 'the dark paper has its own chevron');
+  const remap = css.match(/\.side-panel,dialog\{([^}]*)\}/)?.[1] || '';
+  assert.match(remap, /--bubble-peer:var\(--garden-/);
+  assert.match(remap, /--peer-ink:var\(--garden-/);
+});
+
+test("a menu opened from a control is the yard menu's paper in wood", async () => {
+  const css = await styles();
+  for (const menu of ['\\.pop-menu', '\\.companion-chips', '\\.tree-menu']) {
+    const rule = css.match(new RegExp(`(?:^|})${menu}\\{([^}]*)\\}`))?.[1] || '';
+    assert.match(rule, /border:var\(--garden-frame-border\)/, menu);
+    assert.match(rule, /background:var\(--garden-frame\)/, menu);
+    assert.match(rule, /border-radius:var\(--radius-garden\)/, menu);
+  }
+  assert.match(css, /\.pop-menu \[role="menuitem"\]\{[^}]*border-radius:10px/);
+  assert.match(
+    css,
+    /\.pop-menu \[role="menuitem"\]:hover:not\(:disabled\),[^{]*\{[^}]*background:var\(--garden-hover\)/,
+  );
+});
+
+test('the yard takes focus for its keys without the browser ring around the field', async () => {
+  const css = await styles();
+  assert.match(css, /#yard:focus\{outline:none;?\}/);
+  assert.match(css, /#yard:focus-visible\{[^}]*outline-offset:-\d+px/);
+});
+
+test("the welcome card's title trails a vine and its starters are cards with an edge", async () => {
+  const [css, html] = await Promise.all([styles(), readFile('src/index.html', 'utf8')]);
+  assert.match(css, /\.welcome-title::after\{[^}]*title-vine\.webp/);
+  const starter = css.match(/(?:^|})\.starter\{([^}]*)\}/)?.[1] || '';
+  assert.match(starter, /border:1\.5px solid var\(--garden-line\)/);
+  assert.match(starter, /border-radius:var\(--radius-garden\)/);
+  assert.match(starter, /background:var\(--garden-field\)/);
+  assert.match(css, /\.starter:hover\{[^}]*transform:translateY\(-2px\)/);
+  assert.match(html, /<button id="welcome-more" class="button secondary"/);
+});
+
+test('an eyebrow is spaced like a word, not a label', async () => {
+  const css = await styles();
+  assert.match(css, /\.eyebrow\{[^}]*letter-spacing:0\.3px/);
+});
+
+// The friends' own words and names were the smallest text on screen.
+test("a friend's line is read at the body size, with a tail, and its name a step up", async () => {
+  const css = await styles();
+  const bubble = css.match(/(?:^|})\.yard-bubble\{([^}]*)\}/)?.[1] || '';
+  assert.match(bubble, /font-size:var\(--font-md\)/);
+  assert.match(bubble, /font-weight:600/);
+  assert.match(css, /\.yard-bubble::before\{/);
+  assert.match(css, /\.yard-bubble::after\{/);
+  assert.match(css.match(/(?:^|})\.pet-tag\{([^}]*)\}/)?.[1] || '', /font-size:var\(--font-sm\)/);
+});
+
+// A friend to bring into the talk was a word in the menu, 18px tall, the same chosen or not.
+test('a friend to bring into the talk is a pill large enough to press, filled when chosen', async () => {
+  const css = await styles();
+  const chip = css.match(/\.companion-chips>\.detect-chip\{([^}]*)\}/)?.[1] || '';
+  assert.match(chip, /min-height:28px/);
+  assert.match(chip, /border-radius:var\(--radius-pill\)/);
+  const on = css.match(/\.companion-chips>\.detect-chip\[aria-pressed="true"\]\{([^}]*)\}/)?.[1] || '';
+  assert.match(on, /box-shadow:inset 0 0 0 2px var\(--garden-rim\)/);
+});
+
+// The pressed play action looked like the one under the pointer; it wears the rim the tool in hand wears.
+test('a pressed play action wears the rim of the tool in hand', async () => {
+  const css = await styles();
+  const active = css.match(/\.play-action\.active\{([^}]*)\}/)?.[1] || '';
+  assert.match(active, /box-shadow:inset 0 0 0 2px var\(--garden-rim\)/);
+});
+
+// Now wore the album's green-soft, which on the album's paper came out the tan of a find's record.
+test("the album's Now tag is leaf green, apart from the tan of a find's record", async () => {
+  const css = await styles();
+  const now = css.match(/\.album-now\{([^}]*)\}/)?.[1] || '';
+  assert.match(now, /color:var\(--garden-peer-ink\)/);
+  assert.match(now, /background:color-mix\(in srgb,var\(--garden-peer-ink\) ?16%,var\(--album-paper\)\)/);
+  assert.doesNotMatch(now, /--green-soft/);
 });

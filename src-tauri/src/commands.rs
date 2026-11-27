@@ -462,6 +462,9 @@ static COMMANDS: &[Command] = &[
     main("toggleDesktopWander", |c| {
         crate::app::toggle_wander(c.app, lock(&c.state)).map(Value::Bool)
     }),
+    main("toggleDesktopGrass", |c| {
+        crate::app::toggle_grass(c.app, lock(&c.state)).map(Value::Bool)
+    }),
     main("setOnDesktop", |c| {
         let on = c.arg(1).as_bool().ok_or_else(|| i18n::t("error.bad_request"))?;
         crate::app::put_on_desktop(c.app, lock(&c.state), c.text(0), on).map(|()| Value::Null)
@@ -608,9 +611,45 @@ static COMMANDS: &[Command] = &[
         }
         Ok(Value::Null)
     }),
+    // (id, [left, top, right, bottom] or null): where a friend on this window's screen is drawn in
+    // its sprite's cell (core/sprites.js bodyOf), so the pointer is taken there only (overlay.rs
+    // hovered). A box out of its cell's reach is not kept.
+    overlay("setBody", |c| {
+        let id = c.text(0);
+        if c.sender.starts_with("overlay") && overlay_owns(c.app, c.sender, id) {
+            let body = c
+                .parse::<Option<[f64; 4]>>(1)?
+                .filter(|[l, t, r, b]| [l, t, r, b].iter().all(|v| (-0.5..=1.5).contains(*v)) && l < r && t < b);
+            c.app.state::<OverlayHandle>().0.set_body(id, body);
+        }
+        Ok(Value::Null)
+    }),
     overlay("dragStop", |c| {
         let sink = c.app.state::<PositionSink>().0.clone();
         overlay::stop_drag_and_save(&c.app.state::<OverlayHandle>().0, c.app, &sink);
+        Ok(Value::Null)
+    }),
+    // (left, right, dragging): an end of the grass along the floor pulled to there, in logical pixels;
+    // kept once let go (overlay.rs set_grass), and only from the window drawing the grass. The overlay
+    // lock is let go before the state's is taken.
+    overlay("setGrass", |c| {
+        let kept = c
+            .app
+            .state::<OverlayHandle>()
+            .0
+            .set_grass(c.sender, c.float(0), c.float(1), c.flag(2));
+        match kept {
+            Some(span) => crate::app::keep_grass(c.app, lock(&c.state), span).map(|()| Value::Null),
+            None => Ok(Value::Null),
+        }
+    }),
+    // (): a right click on a grass end: spreading it across the floor again, or rolling it up.
+    overlay("grassMenu", |c| {
+        if !lock(&c.state).prefs.grass {
+            return Err(i18n::t("error.bad_request"));
+        }
+        // A menu that cannot be shown leaves nothing to tell, as with desktopMenu.
+        let _ = crate::menu::pop_desktop_menu(c.app, c.sender, &crate::menu::grass_choices());
         Ok(Value::Null)
     }),
     main("windowDrag", |c| window::command(c.app, c.name, c.args)),
@@ -975,7 +1014,17 @@ mod tests {
             .collect();
         assert_eq!(
             overlay,
-            ["bootstrap", "play", "openChat", "desktopMenu", "dragStart", "dragStop"]
+            [
+                "bootstrap",
+                "play",
+                "openChat",
+                "desktopMenu",
+                "dragStart",
+                "setBody",
+                "dragStop",
+                "setGrass",
+                "grassMenu"
+            ]
         );
         for name in &overlay {
             assert!(may_call("overlay0", name) && may_call("main", name));

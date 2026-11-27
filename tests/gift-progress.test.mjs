@@ -130,6 +130,28 @@ test('time alone brings no gift; a friend the person did something with today br
   assert.equal(gifts().length, 2, 'the day after that');
 });
 
+// The loop asks every frame; the system's time zone (Intl) is dear to read that often (4.9 ms a
+// second of the yard's idle frames in Chrome's profile), and a day's event changes at most once a
+// minute: alone with no one played with it is not read at all, and while a gift waits, once a minute.
+test('a gift waiting reads the time zone at most once a minute, and not at all before anyone plays', async t => {
+  const clock = fixture(t);
+  const decor = await fresh();
+  let asked = 0;
+  const real = Intl.DateTimeFormat;
+  t.mock.method(Intl, 'DateTimeFormat', (...args) => {
+    asked++;
+    return new real(...args);
+  });
+  for (let i = 0; i < 20; i++) decor.giftTick();
+  assert.equal(asked, 0, 'no one played today');
+  clock.together();
+  for (let i = 0; i < 20; i++) decor.giftTick();
+  assert.equal(asked, 1);
+  clock.advance(MIN);
+  for (let i = 0; i < 20; i++) decor.giftTick();
+  assert.equal(asked, 2);
+});
+
 test("the wait is the backend's, so a restart keeps it", async t => {
   const clock = fixture(t);
   clock.together();

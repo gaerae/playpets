@@ -283,6 +283,21 @@ mod tests {
         assert_eq!(Lang::parse("JA").map(|l| l.english_name()), Some("Japanese"));
     }
 
+    // A game's limit is said the way the yard talks, not as a system's record or request.
+    #[test]
+    fn game_limits_read_like_the_game() {
+        let en = lang("en");
+        for (key, system) in [
+            ("error.discovery_daily_limit", "record"),
+            ("error.discovery_ground", "obstacle"),
+            ("error.finds_full", "aquatic"),
+            ("error.request_failed", "request"),
+        ] {
+            assert!(!t_in(en, key).to_lowercase().contains(system), "{key}");
+        }
+        assert!(tr_in(en, "error.finds_full", &[("limit", "12")]).contains("12"));
+    }
+
     #[test]
     fn the_environment_outranks_the_saved_language_which_outranks_the_system() {
         assert_eq!(pick_language(Some("ja"), Some("ko"), Some("en-US")), lang("ko"));

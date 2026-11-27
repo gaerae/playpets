@@ -10,20 +10,20 @@
   "age": null,
   "kind": "person",
   "identity": {
-    "description": "Fictional young explorer with a curious, friendly personality; preserve the accepted youthful age and appearance. Not a real person.",
+    "description": "Fictional young explorer with a curious, friendly personality; she reads about 11-12 years old with the same chibi proportions. Not a real person.",
     "face": {
-      "eyes": "warm brown eyes with the accepted rounded shape and spacing",
-      "nose": "small softly rounded nose and subtle freckles",
-      "mouth": "small friendly smile; retain the accepted shape"
+      "eyes": "warm brown eyes, slightly smaller irises with few sparkle highlights, gentle defined eyebrows",
+      "nose": "small softly rounded nose and subtle freckles, light blush",
+      "mouth": "calm friendly smile above a slightly longer chin"
     },
-    "hair": "chestnut bob, unchanged bangs and curled ends",
+    "hair": "chestnut hair just past the shoulders with soft bangs and loose waves",
     "accessories": [
-      "sage beret with white daisy and green leaf satchel; preserve each anatomical attachment side from the approved reference"
+      "white daisy with a small yellow centre and two green leaves on the beret or headband, and a moss-green satchel on a thin brown strap worn crossbody from her right shoulder to her left hip; preserve each anatomical side from the approved reference"
     ],
     "wardrobe": {
-      "baseline": "sage daisy beret, ivory blouse, apricot dungaree dress, brown boots and green leaf satchel",
-      "summer": "airy ivory short-sleeve blouse, light apricot linen dungaree dress, sage daisy beret, light brown shoes and original green satchel",
-      "winter": "warm apricot wool coat over leggings, sage knit scarf, green knit beret with white daisy, brown winter boots and original green satchel"
+      "baseline": "cream felt daisy beret, cream cable-knit cardigan over a white collared blouse and a butter-yellow dress, white socks, brown lace-up boots and moss-green satchel",
+      "summer": "cream fabric headband with a white daisy, sleeveless lemon-yellow sundress with a white peter-pan collar and small daisy print, white ankle socks, tan strapped shoes and moss-green satchel",
+      "winter": "cream felt daisy beret, honey-yellow wool toggle coat, long cream knitted scarf, dark brown tights, brown fur-trimmed boots and moss-green satchel"
     }
   },
   "style": "illustrated",

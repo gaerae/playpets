@@ -161,6 +161,220 @@
             "duration": 260
           }
         ]
+      },
+      "sit": {
+        "image": "actions/base/rest.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 380
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 1500
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 2600
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 1300
+          },
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 420
+          }
+        ]
+      },
+      "stretch": {
+        "image": "actions/base/rest.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "frames": [
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 1000
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 1200
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 700
+          }
+        ]
+      },
+      "walk-front": {
+        "image": "actions/base/walk-front.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1152, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1344, 0, 192, 208],
+            "duration": 100
+          }
+        ]
+      },
+      "walk-back": {
+        "image": "actions/base/walk-back.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1152, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1344, 0, 192, 208],
+            "duration": 100
+          }
+        ]
+      },
+      "run-right": {
+        "image": "actions/base/run-right.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1152, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1344, 0, 192, 208],
+            "duration": 100
+          }
+        ],
+        "stride": 0.94
+      },
+      "run-left": {
+        "image": "actions/base/run-left.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1152, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1344, 0, 192, 208],
+            "duration": 100
+          }
+        ],
+        "stride": 1.18
       }
     },
     "summer": {
@@ -323,6 +537,220 @@
             "duration": 260
           }
         ]
+      },
+      "sit": {
+        "image": "actions/summer/rest.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 380
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 1500
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 2600
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 1300
+          },
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 420
+          }
+        ]
+      },
+      "stretch": {
+        "image": "actions/summer/rest.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "frames": [
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 1000
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 1200
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 700
+          }
+        ]
+      },
+      "walk-front": {
+        "image": "actions/summer/walk-front.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1152, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1344, 0, 192, 208],
+            "duration": 100
+          }
+        ]
+      },
+      "walk-back": {
+        "image": "actions/summer/walk-back.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1152, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1344, 0, 192, 208],
+            "duration": 100
+          }
+        ]
+      },
+      "run-right": {
+        "image": "actions/summer/run-right.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1152, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1344, 0, 192, 208],
+            "duration": 100
+          }
+        ],
+        "stride": 0.95
+      },
+      "run-left": {
+        "image": "actions/summer/run-left.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1152, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1344, 0, 192, 208],
+            "duration": 100
+          }
+        ],
+        "stride": 1.19
       }
     },
     "winter": {
@@ -485,6 +913,220 @@
             "duration": 260
           }
         ]
+      },
+      "sit": {
+        "image": "actions/winter/rest.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 380
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 1500
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 2600
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 1300
+          },
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 420
+          }
+        ]
+      },
+      "stretch": {
+        "image": "actions/winter/rest.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "frames": [
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 1000
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 1200
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 700
+          }
+        ]
+      },
+      "walk-front": {
+        "image": "actions/winter/walk-front.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1152, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1344, 0, 192, 208],
+            "duration": 100
+          }
+        ]
+      },
+      "walk-back": {
+        "image": "actions/winter/walk-back.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1152, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1344, 0, 192, 208],
+            "duration": 100
+          }
+        ]
+      },
+      "run-right": {
+        "image": "actions/winter/run-right.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1152, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1344, 0, 192, 208],
+            "duration": 100
+          }
+        ],
+        "stride": 1.2
+      },
+      "run-left": {
+        "image": "actions/winter/run-left.png",
+        "canvas": [192, 208],
+        "anchor": [96, 199],
+        "offset": [0, 0],
+        "loop": true,
+        "frames": [
+          {
+            "rect": [0, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [192, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [384, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [576, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [768, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [960, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1152, 0, 192, 208],
+            "duration": 100
+          },
+          {
+            "rect": [1344, 0, 192, 208],
+            "duration": 100
+          }
+        ],
+        "stride": 1.2
       }
     }
   }

@@ -50,6 +50,13 @@ const pairs = [
   ['--scene-on-accent', '--scene-accent'],
   ['--ink', '--control-selected'],
   ['--ink', '--control-hover'],
+  // The play surfaces' paper (2026-11-24 design): their words, on paper, hover, the pressed choice and
+  // the honey Play button.
+  ...['--garden-ink', '--garden-muted'].flatMap(text =>
+    ['--garden-paper', '--garden-paper-deep', '--garden-hover', '--garden-selected'].map(surface => [text, surface]),
+  ),
+  ['--garden-on-honey', '--garden-honey'],
+  ['--garden-on-honey', '--garden-honey-deep'],
 ];
 
 for (const scheme of ['light', 'dark'])

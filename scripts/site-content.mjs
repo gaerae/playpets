@@ -2,7 +2,7 @@ import { MOMENTS } from '../src/yard/sky-moments.js';
 
 // One inventory for public captures, pet previews and locale-dependent publishing paths.
 // Advance only after native captures for the new version exist in every site language.
-export const CAPTURE_VERSION = '1.7.0';
+export const CAPTURE_VERSION = '1.10.0';
 
 export const SITE_LANGS = Object.freeze(['en', 'ko', 'ja', 'zh-hans']);
 

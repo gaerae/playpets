@@ -1,0 +1,19 @@
+{
+  "size": [1152, 208],
+  "canvas": [192, 208],
+  "offset": [0, 0],
+  "duration": 1800,
+  "anchor": [96, 199],
+  "scale": 1,
+  "sourceScale": 0.44,
+  "frames": [
+    { "rect": [0, 0, 192, 208], "foot": [96, 199], "duration": 300 },
+    { "rect": [192, 0, 192, 208], "foot": [96, 199], "duration": 300 },
+    { "rect": [384, 0, 192, 208], "foot": [96, 199], "duration": 300 },
+    { "rect": [576, 0, 192, 208], "foot": [96, 199], "duration": 300 },
+    { "rect": [768, 0, 192, 208], "foot": [96, 199], "duration": 300 },
+    { "rect": [960, 0, 192, 208], "foot": [96, 199], "duration": 300 }
+  ],
+  "sourceSha256": "fedf064019217190f5115f00235e530848b914b6b4bff4751d0ca60472edf4c3",
+  "sha256": "0817d0a729ba5f63ecf867b4ecc1b6fbd92767b55f76f0098499d321c8a77c64"
+}

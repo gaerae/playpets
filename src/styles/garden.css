@@ -392,25 +392,23 @@
 .decor:focus-visible {
   outline: none;
 }
-/* A friend's memento wears a small heart, the tags' colour, so it is told from the same gift
-   brought on another day; the white disc keeps it apart from the name tags' hearts. It shows for a
-   day after the memento came (decor.js), then only while the gift is pointed at, chosen or
-   dragged, so a yard of mementos is not covered in hearts. */
+/* A friend's memento wears the album's painted heart, so it is told from the same gift brought on
+   another day; a cream tag with an edge line keeps it apart from the name tags' hearts, in fixed
+   colours so it reads the same on the yard in either theme. It shows for a day after the memento
+   came (decor.js), then only while the gift is pointed at, chosen or dragged, so a yard of
+   mementos is not covered in hearts. */
 .decor.memento::after {
-  content: "♥";
+  content: "";
   position: absolute;
   top: -4px;
   right: -4px;
-  display: grid;
-  place-items: center;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #c9a477;
   border-radius: 50%;
-  background: #fffaf5;
-  box-shadow: 0 1px 2px #5a3b2a40;
-  color: #ec7d96;
-  font-size: var(--font-xs);
-  line-height: 1;
+  background:
+    url("../art/ui/heart.webp") center / 12px no-repeat,
+    #fffaf5;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -421,24 +419,23 @@
 .decor.memento.dragging::after {
   opacity: 1;
 }
-/* The year-end letter waiting in the mailbox (letter.js): a small envelope above its top right, in
-   the pink ink on the memento heart's cream disc. On ::before, so a mailbox that is also a memento
-   wears both; fixed colours, as the heart has, so it reads the same on the yard in either theme.
-   It settles once when it appears. */
+/* The year-end letter waiting in the mailbox (letter.js): a small painted envelope above its top
+   right, on the memento heart's cream tag. On ::before, so a mailbox that is also a memento wears
+   both; fixed colours, as the heart has, so it reads the same on the yard in either theme. It
+   settles once when it appears. */
 .decor[data-mark="letter"]::before {
   content: "";
   position: absolute;
   top: -14px;
   right: 13px;
   z-index: 1;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #c9a477;
   border-radius: 50%;
   background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a8425b' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5.5' width='18' height='13' rx='2'/%3E%3Cpath d='m4 7 8 6 8-6'/%3E%3C/svg%3E")
-      center / 12px no-repeat,
+    url("../art/ui/letter.webp") center / 13px no-repeat,
     #fffaf5;
-  box-shadow: 0 1px 2px #5a3b2a40;
   pointer-events: none;
   animation: letter-mark 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -533,13 +530,179 @@
 .period-night .decor .xmas-art svg {
   filter: brightness(0.86);
 }
+/* The lit tree in the yard, for as long as Christmas night lasts (christmas-night.js yardLight): a
+   warm halo behind it and the pool of light at its foot breathe slowly, its bulbs glow in three
+   warm groups that twinkle in turn, several at once, and a few gold flecks drift round it. Each
+   moves by opacity and transform alone, so the compositor keeps it going without the page; an
+   unseen page pauses them (base.css), and with reduced motion they stand still and the flecks stay
+   away. While the tree grows they come in with it. The desktop's tree has none of them. */
+.xmas-halo {
+  position: absolute;
+  left: 50%;
+  bottom: -10%;
+  width: 270%;
+  height: 140%;
+  translate: -50% 0;
+  pointer-events: none;
+  /* the pool on the snow at its foot, and the glow round the tree, in one layer that breathes */
+  background:
+    radial-gradient(ellipse 50% 13% at 50% 93%, #ffdc94e6, #ffc86673 55%, #ffd27a00),
+    radial-gradient(ellipse 50% 44% at 50% 47%, #ffe2a3e6, #ffd58aa1 30%, #ffcf7a42 62%, #ffcf7a00);
+  opacity: 0.85;
+}
+.xmas-lights,
+.xmas-lights > span,
+.xmas-flecks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.xmas-lights > span {
+  opacity: 0.8;
+}
+.xmas-flecks > span {
+  position: absolute;
+  width: 9px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fffdf2 0 18%, #ffe7a6 30%, #ffd98a66 50%, #ffd27a00 72%);
+  opacity: 0;
+}
+.xmas-flecks .f0 {
+  left: 14%;
+  top: 70%;
+}
+.xmas-flecks .f1 {
+  left: 84%;
+  top: 58%;
+}
+.xmas-flecks .f2 {
+  left: 24%;
+  top: 34%;
+}
+.xmas-flecks .f3 {
+  left: 76%;
+  top: 22%;
+}
+.xmas-flecks .f4 {
+  left: 50%;
+  top: 86%;
+}
+.decor.xmas-rise .xmas-halo,
+.decor.xmas-rise .xmas-lights {
+  animation: xmas-pool-in 2.6s ease-in-out both;
+}
+.decor.xmas-grand:not(.xmas-rise) .xmas-halo {
+  animation: xmas-breathe 5s ease-in-out infinite alternate;
+}
+.decor.xmas-grand:not(.xmas-rise) .xmas-lights .g0 {
+  animation: xmas-twinkle 3.4s ease-in-out infinite alternate;
+}
+.decor.xmas-grand:not(.xmas-rise) .xmas-lights .g1 {
+  animation: xmas-twinkle 4.2s ease-in-out -1.4s infinite alternate;
+}
+.decor.xmas-grand:not(.xmas-rise) .xmas-lights .g2 {
+  animation: xmas-twinkle 5s ease-in-out -2.8s infinite alternate;
+}
+.decor.xmas-grand:not(.xmas-rise) .xmas-flecks > span {
+  animation: xmas-fleck 8s ease-in-out infinite;
+}
+.decor.xmas-grand:not(.xmas-rise) .xmas-flecks .f1 {
+  animation-duration: 9.5s;
+  animation-delay: -3s;
+}
+.decor.xmas-grand:not(.xmas-rise) .xmas-flecks .f2 {
+  animation-duration: 10.5s;
+  animation-delay: -6s;
+}
+.decor.xmas-grand:not(.xmas-rise) .xmas-flecks .f3 {
+  animation-duration: 8.8s;
+  animation-delay: -1.5s;
+}
+.decor.xmas-grand:not(.xmas-rise) .xmas-flecks .f4 {
+  animation-duration: 11s;
+  animation-delay: -4.5s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .xmas-flecks {
+    display: none;
+  }
+}
+@keyframes xmas-breathe {
+  from {
+    transform: scale(1.03);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.97);
+    opacity: 0.55;
+  }
+}
+@keyframes xmas-twinkle {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.3;
+  }
+}
+@keyframes xmas-fleck {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.9;
+  }
+  45% {
+    transform: translate(7px, -14px);
+    opacity: 0.7;
+  }
+  70% {
+    transform: translate(-5px, -26px);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(2px, -40px);
+    opacity: 0;
+  }
+}
+/* While the tree grows, a warm light blooms round it over the snow and the friends near it, as if
+   the tree lit them (christmas-night.js bloomAt): over the friends, under their names. */
+.xmas-bloom {
+  position: absolute;
+  z-index: 1;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(closest-side, #ffe6a880, #ffd27a38 42%, #ffd27a00);
+  mix-blend-mode: screen;
+  opacity: 0;
+  animation: xmas-bloom 2.6s ease-out both;
+}
+@keyframes xmas-bloom {
+  0%,
+  35% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.08);
+    opacity: 0;
+  }
+}
 /* With the sleigh (christmas-night.js), the baby reindeer and Santa look up in turn: a short tilt
    back from the foot. */
 .decor.look-up > svg {
   animation: xmas-look-up 0.9s ease-in-out both;
 }
-/* After the sleigh, gold motes drift down from the star, each on one of three paths; the script
-   sets where each starts, its wait and its pace. */
+/* After the sleigh, gold motes drift down from the star, each swaying on one of three paths and
+   shimmering as it goes, in three sizes; the script sets where each starts, its wait and its pace. */
 .xmas-mote {
   position: absolute;
   width: 4px;
@@ -552,6 +715,12 @@
     0 0 8px 2px #ffcf7066;
   pointer-events: none;
   opacity: 0;
+}
+.xmas-mote.s0 {
+  width: 3px;
+}
+.xmas-mote.s2 {
+  width: 6px;
 }
 .xmas-mote.m0 {
   animation: xmas-mote-a 3s ease-out both;
@@ -580,6 +749,19 @@
   15% {
     opacity: 1;
   }
+  35% {
+    transform: translate(-12px, 24px);
+    opacity: 0.6;
+  }
+  55% {
+    opacity: 1;
+  }
+  65% {
+    transform: translate(-6px, 50px);
+  }
+  75% {
+    opacity: 0.55;
+  }
   100% {
     transform: translate(-20px, 74px);
     opacity: 0;
@@ -593,6 +775,19 @@
   15% {
     opacity: 1;
   }
+  30% {
+    transform: translate(9px, 22px);
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+  60% {
+    transform: translate(-3px, 54px);
+  }
+  80% {
+    opacity: 0.6;
+  }
   100% {
     transform: translate(6px, 88px);
     opacity: 0;
@@ -605,6 +800,19 @@
   }
   15% {
     opacity: 1;
+  }
+  40% {
+    transform: translate(16px, 26px);
+    opacity: 0.6;
+  }
+  60% {
+    opacity: 1;
+  }
+  70% {
+    transform: translate(12px, 48px);
+  }
+  85% {
+    opacity: 0.6;
   }
   100% {
     transform: translate(22px, 66px);
@@ -694,9 +902,9 @@
   max-width: calc(100% - 16px);
   box-sizing: border-box;
   padding: 6px;
-  border: 1px solid var(--message-line);
-  border-radius: var(--radius-panel);
-  background: var(--message-surface);
+  border: var(--garden-message-border);
+  border-radius: var(--radius-garden);
+  background: var(--garden-frame);
   box-shadow: var(--message-shadow);
   color: var(--ink);
   font-size: var(--font-sm);
@@ -766,36 +974,56 @@
   width: min(420px, calc(100% - 24px));
   box-sizing: border-box;
   padding: 6px;
-  border: 1px solid var(--message-line);
-  border-radius: var(--radius-panel);
-  background: var(--message-surface);
+  border: var(--garden-message-border);
+  border-radius: var(--radius-garden);
+  background: var(--garden-frame);
   box-shadow: var(--message-shadow);
   color: var(--ink);
+  /* the tools and Close in one row, and below them what the tool in hand needs (saplings) */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px;
 }
 .discovery-target[hidden],
 .discovery-marker[hidden] {
   display: none;
 }
 .discovery-target-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  padding-left: 6px;
+  display: contents;
   font-size: var(--font-sm);
 }
-.discovery-target-heading .icon-button {
-  width: 32px;
-  height: 32px;
+/* Why a tool waits, in sight under the tools. What to do is shown by the tools, Close and the hand
+   tapping the ground (yard/show-how.js), so that sentence is read aloud only (discovery.js
+   HOW_LINES, .sr-only). */
+#discovery-target-label {
+  grid-row: 2;
+  grid-column: 1 / -1;
+  padding-left: 6px;
 }
+#discovery-cancel {
+  grid-row: 1;
+  grid-column: 2;
+}
+:is(#discovery-tree-picker, #discovery-find-saplings) {
+  grid-column: 1 / -1;
+}
+/* The tool in hand wears the rim, which a hovered one never does, and its seed count stays a pill on
+   the paper rather than melting into the chosen fill. */
 .discovery-target [aria-pressed="true"] {
   background: var(--control-selected);
+  box-shadow: inset 0 0 0 2px var(--garden-rim);
+  font-weight: 750;
+}
+.discovery-target [aria-pressed="true"] .tool-count {
+  background: var(--garden-paper);
 }
 /* While a tool is in hand, one press switches to another or (with Close) puts it away. */
 .discovery-tools {
+  grid-row: 1;
+  grid-column: 1;
   display: flex;
   gap: 4px;
-  padding-top: 4px;
 }
 .discovery-tool {
   flex: 1 1 0;
@@ -818,6 +1046,14 @@
 .discovery-tool svg {
   width: 15px;
   height: 15px;
+  flex: none;
+}
+/* Its painted picture (shell.css) at the size the thing bar shows it. */
+.discovery-tool > [data-icon] {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
   flex: none;
 }
 .discovery-tool:hover {
@@ -871,12 +1107,13 @@
   max-height: 50vh;
   overflow-y: auto;
   display: grid;
-  padding: 5px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  /* Solid: it lies over the strip's own words, which a see-through menu would let show. */
-  background: var(--panel-surface);
-  box-shadow: var(--shadow-menu);
+  padding: 6px;
+  /* Solid paper in the yard menu's wood: it lies over the strip's own words, which a see-through
+     menu would let show. */
+  border: var(--garden-frame-border);
+  border-radius: var(--radius-garden);
+  background: var(--garden-frame);
+  box-shadow: var(--shadow-dock);
 }
 .tree-menu[hidden] {
   display: none;
@@ -885,7 +1122,7 @@
   min-height: 32px;
   padding: 6px 10px;
   border: 0;
-  border-radius: var(--radius-control);
+  border-radius: 10px;
   background: none;
   color: var(--ink);
   font: inherit;
@@ -899,7 +1136,7 @@
 }
 .tree-menu [role="menuitemradio"]:hover,
 .tree-menu [role="menuitemradio"]:focus-visible {
-  background: var(--control-hover);
+  background: var(--garden-hover);
   outline: none;
 }
 .tree-menu [aria-checked="true"] {
@@ -923,16 +1160,51 @@
   background: var(--green-soft);
   pointer-events: none;
 }
+/* Where a press sends a friend (yard/walk-here.js): a ring of grass bent outward, under the friends,
+   until it gets there. */
+.walk-mark {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  width: 64px;
+  height: 22px;
+  margin: -11px 0 0 -32px;
+  background: url("../art/ambient/walk-mark.webp") center / contain no-repeat;
+  pointer-events: none;
+  animation: walk-mark-in 0.25s ease-out;
+  transition: opacity 0.4s ease-out;
+}
+.walk-mark.gone {
+  opacity: 0;
+}
+@keyframes walk-mark-in {
+  from {
+    scale: 0.6;
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .walk-mark {
+    animation: none;
+  }
+}
 .discovery-marker.invalid {
   border-color: var(--danger);
   background: var(--soft);
 }
 .discovery-marker.invalid::after {
-  content: "×";
+  /* a cross of two strokes, drawn rather than typed */
+  content: "";
   position: absolute;
-  inset: -5px 0 0;
-  text-align: center;
-  color: var(--danger);
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  transform: translate(-50%, -50%);
+  background:
+    linear-gradient(45deg, transparent 42%, var(--danger) 42% 58%, transparent 58%),
+    linear-gradient(-45deg, transparent 42%, var(--danger) 42% 58%, transparent 58%);
 }
 .dig-effect {
   position: absolute;

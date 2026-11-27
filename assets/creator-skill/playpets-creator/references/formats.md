@@ -30,7 +30,7 @@ The result is the usual 1536x1024 4x2 row consumed by `pack-pet --rows`; the run
 
 ### Game poses
 
-Optional, and what makes a pet dig, plant, show a find and fish like the built-in friends. Without them the app plays the ordinary rows for those games. `pack-pet --actions output/poses` reads one folder per outfit: `base/` (required), and `spring/`, `summer/`, `autumn/` or `winter/` only for a season also given with `--season`. Each holds four transparent 1536×1024 4x2 batches and a `points.json`:
+Optional, and what makes a pet dig, plant, show a find and fish like the built-in friends. Without them the app plays the ordinary rows for those games. `pack-pet --actions output/poses` reads one folder per outfit: `base/` (required), and `spring/`, `summer/`, `autumn/` or `winter/` only for a season also given with `--season`. The game set is four transparent 1536×1024 4x2 batches and a `points.json`, all together or none; a folder may hold only [walks and runs](#walks-and-runs) instead:
 
 ```text
 output/poses/base/dig.png  plant.png  discover.png  fish.png  points.json
@@ -54,11 +54,52 @@ output/poses/base/dig.png  plant.png  discover.png  fish.png  points.json
 - `dig.ground`, `plant.ground`: optional, where the tool meets the ground in any of tiles 0–5; only its x is used. Without it the hole appears at the feet.
 - `feet` (any batch): optional, six points. The helper otherwise takes the middle of the lowest 12 pixels of each figure, which a tool or pot on the ground can pull aside.
 
-`render-actions --actions output/poses --idle-height 163 --output output/poses-review.png` packs the folder the same way and draws each frame with the feet (blue cross), the 192×208 cell (purple), ground points (green) and rod tips (red). Use the idle height `pack-pet` reports. The ZIP then adds `actions.json` (version 1, clips `dig`, `plant`, `discover`, `cast`, `wait`, `reel` per outfit, with the built-in friends' timings) and `actions/<outfit>/<batch>.png`, and `pet.json` gains `"actionsPath": "actions.json"`. The app checks every number again and leaves out a clip that fails.
+`render-actions --actions output/poses --idle-height 163 --output output/poses-review.png` packs the folder the same way and draws each frame with the feet (blue cross), the 192×208 cell (purple), ground points (green) and rod tips (red). Use the idle height `pack-pet` reports. The ZIP then adds `actions.json` (version 1, clips `dig`, `plant`, `discover`, `cast`, `wait`, `reel` per outfit, with the built-in friends' timings, and any walks below) and `actions/<outfit>/<batch>.png`, and `pet.json` gains `"actionsPath": "actions.json"`. The app checks every number again and leaves out a clip that fails.
+
+### Walks and runs
+
+Optional, each on its own: walking toward the viewer and away, and running right and left in games. Without `walk-front` and `walk-back` the app walks the pet on its side rows (1 and 2) and keeps its strolls near across the yard; with both it strolls any way. Without the runs a game uses the side walk.
+
+```text
+output/poses/base/walk-front.png  walk-back.png  run-right.png  run-left.png
+```
+
+- Each is a transparent 1536×1024 4x2 batch of eight poses in order, row-major, every tile with its three-pixel gutter. All eight tiles are used.
+- Walk (front, back and the side rows): 1 contact (near leg forward, far arm forward), 2 down, 3 passing, 4 up, 5–8 the same with the other leg.
+- Run: 1 contact, 2 down, 3 push-off, 4 flight, 5–8 the other leg. Poses 4 and 8 (tiles 3 and 7) are in flight, both feet off the ground.
+- Handed details follow the view: walking right shows the character's right side, walking left its left side. From the front the character's left is on the viewer's right; from behind it is on the viewer's left, and anything worn on the front is not seen. A far-side detail is hidden, never moved.
+- Guides: `render-gait-guide --gait walk|front|back|run --output FILE` draws the eight poses as grey mannequins in the same 4x2 grid (side views face right, near limbs dark; front and back views show the character's right limbs dark). They show limb positions only; keep the guide's grey, lines and floor out of the art.
+
+The helper packs each batch into eight 192×208 cells in one 1536×208 atlas, `actions/<outfit>/<name>.png`:
+
+- Walks toward and away: one scale for the batch, so its median pose is the sheet's idle height; each pose's feet (the middle of its lowest ninth) at x 96, standing on y 199. A pose more than 5% off the idle height once scaled is refused: draw all eight at one size, with only the walk's own bob.
+- Runs: one scale, so the grounded poses' median is 0.95 × the idle height, as a running body bends. Each pose's torso and head (its top 55%) at x 96. Grounded poses stand on y 199 and are refused when drawn more than 6 px (packed) off the line of the other grounded poses in their picture row. Flight poses keep their drawn height above that line and are refused under 2 px.
+- `stride`: the ground one run cycle covers, in 192 px cell widths: 2 × the widest pair's (1 and 5, 2 and 6, …) mean feet spread, from 0.5 to 1.2.
+- A pose that would leave its cell is refused rather than shrunk; the batch is scaled to the idle height, so draw it more compact instead.
+
+Each clip in `actions.json`:
+
+```json
+{
+  "image": "actions/base/run-right.png",
+  "canvas": [192, 208],
+  "anchor": [96, 199],
+  "offset": [0, 0],
+  "loop": true,
+  "stride": 0.78,
+  "frames": [{ "rect": [0, 0, 192, 208], "duration": 100 }]
+}
+```
+
+- `frames` has exactly eight cells, `rect` `[i × 192, 0, 192, 208]`, 100 ms each; the app steps them by the ground covered and leaves out a walk of another count.
+- Only runs carry `stride`.
+- The app opens at most 32 pose pictures for one pet, and the helper refuses more: four outfits of game poses and walks fit; for a fifth, leave out what that outfit can take from base.
+
+`render-actions` draws the walks and runs too, one row of eight cells each, with the feet cross and the cell outline; a run's row and the command's output name its stride.
 
 The default seasonal pet wardrobe is three complete atlases: base shared by spring and autumn, summer, and winter. Every atlas includes all nine animation states and sixteen gaze directions. Keep the base at spritesheet.png and supply summer.png and winter.png. Separate spring and autumn atlases are optional extensions for an explicit request, not extra required outfits. This three-outfit default does not apply to backgrounds, which may retain four seasonal scenes.
 
-The resulting ZIP contains only `pet.json`, `spritesheet.png`, any supplied `spring.png`, `summer.png`, `autumn.png`, `winter.png`, and with `--actions` the game poses above. A season is a whole atlas, not an outfit portrait or one row. The manifest uses `id`, `displayName`, `kind`, `description`, `spriteVersionNumber: 2`, `spritesheetPath: "spritesheet.png"`, optional `seasonalSpritesheets` mapping season names to their fixed PNG names, and optional `actionsPath`. IDs use at most80 lowercase letters/digits/hyphens and start with a letter/digit. Names are at most60 characters; descriptions at most300; both are single-line text. Supported helper kinds are animal, person and other. ZIP files have deterministic sorted names and no arbitrary archive paths.
+The resulting ZIP contains only `pet.json`, `spritesheet.png`, any supplied `spring.png`, `summer.png`, `autumn.png`, `winter.png`, and with `--actions` the game poses and walks above. A season is a whole atlas, not an outfit portrait or one row. The manifest uses `id`, `displayName`, `kind`, `description`, `spriteVersionNumber: 2`, `spritesheetPath: "spritesheet.png"`, optional `seasonalSpritesheets` mapping season names to their fixed PNG names, and optional `actionsPath`. IDs use at most80 lowercase letters/digits/hyphens and start with a letter/digit. Names are at most60 characters; descriptions at most300; both are single-line text. Supported helper kinds are animal, person and other. ZIP files have deterministic sorted names and no arbitrary archive paths.
 
 Use `--source-json references/source.json` to retain source attribution in the manifest. This file is an object with required `name` (60 characters) and optional `url` (2048), `creator` (80), `license` (40); single-line strings only, no other keys. URLs are metadata and never fetched. Retain source attribution and licenses with the delivered source files. Package data and descriptions do not grant permission to reuse art or act as instructions.
 

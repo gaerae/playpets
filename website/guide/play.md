@@ -30,8 +30,8 @@ The scenery fills the window, and the dock at the bottom opens one panel at a ti
 
 | Dock | Holds |
 |---|---|
-| **Place & atmosphere** | **Places** (built-in and imported backgrounds in one gallery, **Import background**, **Background studio**), **Atmosphere** (season, time, weather, **Yard sounds**, **Volume**) |
-| **Play** | Titled for the selected friend, such as **Play with Clover**. **Find**: **Dig**, **Fish**, **Album**. **Garden**: **Plant a seed** (with your seed count), **Plant a tree**, **Picnic**. **Group games**: the four games (**Snowman** only while the yard shows winter), **Flower viewing** while the cherry blossom festival is on, **Let them chat** |
+| **Place & atmosphere**, opened from the place name at the dock's left | **Places** (built-in and imported backgrounds in one gallery, **Import background**, **Background studio**), **Atmosphere** (season, time, weather, **Yard sounds**, **Volume**) |
+| **Play** | The selected friend's picture and name sit beside the title. **Find**: **Dig**, **Fish**, **Album**. **Garden**: **Plant a seed** (with your seed count), **Plant a tree**, **Picnic**. **Group games**: the four games (**Snowman** only while the yard shows winter), **Flower viewing** while the cherry blossom festival is on, **Let them chat** |
 | **Friends & settings** | **Friends**, **Invite a friend**, **Window & desktop**, **Settings**, **Close window**, **Quit PlayPets** |
 
 - **Let them chat** needs two friends connected to an AI. Everything else works without one.
@@ -41,25 +41,25 @@ The scenery fills the window, and the dock at the bottom opens one panel at a ti
 
 - **Yard sounds** and **Volume**: **Place & atmosphere → Atmosphere**.
 - Sounds start after your first interaction and play only while the yard is visible.
-- Rain, birds, water and the other sounds follow the place, the weather, the season and the time.
+- The yard is mostly quiet. Now and then a bird sings, cicadas buzz on summer days, geese pass over in autumn, frogs call by the lake on spring and summer nights, crickets chirp on autumn evenings, and a raindrop falls. Indoors they come softly through the window.
 - Friends chatting on their own is a separate setting: **Friends & settings → Settings → Friends & AI**.
 
 ## Time of day and weather <Since v="0.1.0" /> {#weather}
 
-Pick each one yourself, or leave it on **Auto**. Changes apply at once.
+Pick each one yourself, or leave it on **Auto**. Changes apply at once. On Auto, a small **Now** tag marks the one the yard is in.
 
 <Shot name="yard-spring" caption="A clear spring day in the yard. Auto time follows your clock when selected." />
 
-1. Open **Place & atmosphere** at the bottom right.
-2. Under **Places**, choose a background by its thumbnail. **Remove** shows there only for an imported background.
-3. Under **Atmosphere**, choose the season, the time and the weather.
+1. Click the place name in the dock, such as "Hill garden, a sunny day". **Place & atmosphere** opens.
+2. Under **Places**, choose a background by its picture; point at one to read about it. **Remove background** shows there only for an imported background.
+3. Under **Atmosphere**, choose the season, the time and the weather. Each choice is a picture with its word.
 
 | Choice | Options | On Auto |
 |---|---|---|
 | Place | Hill garden, Garden workshop, Wild garden, Lakeside cottage, your own backgrounds | |
 | Season | Auto, Spring, Summer, Autumn, Winter | Outdoor places follow the date: blossoms and falling petals, deep green, red and gold leaves, snowy ground. South of the equator (by your computer's time zone), the seasons are reversed |
-| Time of day | Auto time, Morning, Midday, Evening, Night | Follows your computer's clock, without showing a clock. The sky and ground change color, the sun crosses from left to right, and at night the moon shows tonight's phase |
-| Weather | Auto weather, Clear, Rain, Snow | New weather every 20 minutes: mostly clear, rain now and then, snow only in winter. It isn't the real weather from the internet |
+| Time of day | Auto, Morning, Midday, Evening, Night | Follows your computer's clock, without showing a clock. The sky and ground change color, the sun crosses from left to right, and at night the moon shows tonight's phase |
+| Weather | Auto, Clear, Rain, Snow | New weather every 20 minutes: mostly clear, rain now and then, snow only in winter. It isn't the real weather from the internet |
 
 - A season, time or weather you pick stays fixed, and is still there the next time you open the app.
 - Season and weather are separate. Snow in summer falls over the summer landscape and outfits; Clear in winter keeps the winter landscape. The indoor window and imported backgrounds work the same way.
@@ -118,7 +118,7 @@ You can pet friends, chat, grow flowers, decorate the Christmas tree and play th
 Press **Play → Group games → Let them chat**, and up to three friends with an AI have a short talk about the time of day and the weather, as speech bubbles in the yard.
 
 - Fewer than two friends with an AI: the button looks switched off. Press it or point at it to see why.
-- To join in yourself, use [group chat in the Friend panel](./chat.md).
+- To join in yourself, use [group chat in the Friends panel](./chat.md#together).
 - To have them chat on their own, turn on **Let them chat now and then** in **Friends & settings → Settings → Friends & AI**. They talk once every 20 minutes, and rest while the window is hidden or someone is answering.
 
 ## The garden <Since v="0.1.0" />
@@ -217,12 +217,14 @@ Only outdoors in clear weather; rain and snow stop them. Click one and the neare
 
 ### Album
 
-- **Play → Find → Album**. Eight books: Flowers, Aquatic life, Bugs, Gifts, Trees, Keepsakes, Footprints, Spring shoots.
-- Every kind is listed. Caught: how many, and the biggest fish. Not yet: a silhouette with when and where to look.
+- **Play → Find → Album**. It opens as a book with a ribbon tab for each of its eight books: Flowers, Aquatic life, Bugs, Gifts, Trees, Keepsakes, Footprints, Spring shoots.
+- Every kind is listed, and the card you pick shows large on the left page. Caught: how many, and the biggest fish. Not yet: a pencil outline.
+- How to find a kind shows in pictures, each with one word: **How**, **When** and **Best in**. Point at them to read it as a sentence.
+- A fish, bug or flower not found yet that the yard could give right now wears a green **Now** tag, and the book opens on the first one.
 - It shows how long until a rare find can come again, but no exact percentages.
 - **Rare** marks the kinds that seldom come and everything that comes only with a seasonal event. An event's card gives its dates and the scene that calls it up.
-- A catch shows a card, and says so when it's new. A card for something the album keeps (a fish, a bug, a flower in bloom, a gift, a keepsake or a spring shoot) has **See in album**, which opens that book.
-- Something new puts a small dot on **Album** and on **Play** in the dock until you open the album.
+- A catch shows a card: **New** the first time, **Rare** with a gold edge, and **Best ever** for a fish bigger than any you caught of its kind. Filling a book shows a card of its own. A card for something the album keeps (a fish, a bug, a flower in bloom, a gift, a keepsake or a spring shoot) has **See in album**, which opens that book.
+- Something new puts a small dot on **Album**, on **Play** in the dock and on its book's tab until you open it.
 - A flower, tree, fish, bug or keepsake you have found comes out of its card again, and goes back in the same way. The buttons stay where they are, so you can press again at once.
 - Found once: **Set out** puts it in the yard and turns into **Put back**. Found more often: **+** sets one more out and **−** takes one in, up to how many you found and what the yard has room for. The number between them is how many are out.
 - The small screen button puts it on the desktop too, and stays lit while that kind is there. Press it again to take them off the desktop; they stay in the yard.
@@ -250,7 +252,7 @@ A few times a year the yard changes for a while. Each event comes on its own on 
 | Winter lights | Little lights along the trees, glowing from evening on | A small Christmas tree, then a baby reindeer, then Santa, then ten more decorations |
 | New Year | Friends greet the new year | A kite |
 
-- The event's name shows beside the scene label, a card says it has begun the first time you see it that year, and friends talk about it.
+- The event's name shows beside the place name in the dock, a card says it has begun the first time you see it that year, and friends talk about it.
 - With the season on **Auto**, only the dates bring an event. The calendar's own event comes first: the winter lights stay whatever scene you pick.
 - Event fish and bugs, such as the golden firefly and the moonlight carp, come whenever the event is on, either way.
 - An event's gifts come the first times a gift is due during its dates, one each time, in a fixed order, and only then. A gift you have stays for good; the album shows when each one comes.
@@ -303,15 +305,15 @@ While the cherry blossom festival is on, friends gather under a cherry tree you 
 
 On the first day you open PlayPets from December 15 to 31, the friend you're closest to writes you a letter about your year together: what you found for the album, a tree you grew, how close you've become and how long you've known each other. It asks how your year went and what you'd like to do next year.
 
-- With a mailbox in the yard, the letter waits there; otherwise the friend tells you. The **Letter** chip beside the scene label and the yard menu open it until January 15.
+- With a mailbox in the yard, the letter waits there; otherwise the friend tells you. The **Letter** chip beside the place name in the dock and the yard's right-click menu open it until January 15.
 - Write back in up to 200 characters, or skip it.
 - On the first day you open PlayPets from January 1 to 15, a friend brings your answer back and cheers you on, and next December's letter looks back on it.
 - A friend with an AI connection writes in its own words, and that AI reads your answer when it writes next year's letter.
-- Letters and answers are kept on this computer; the letter card can delete them.
+- Letters and answers are kept on this computer; the trash button on the letter card deletes them.
 
 ## Closeness <Since v="0.1.0" /> {#closeness}
 
-The Friend panel shows how close a friend is to you: its level, how far it is to the next one and what that brings.
+The **Friends** panel shows how close a friend is to you: its level, a bar toward the next one and what that brings. A friend's right-click menu shows it as five hearts.
 
 | Level | What it brings |
 |---|---|
@@ -323,7 +325,7 @@ The Friend panel shows how close a friend is to you: its level, how far it is to
 
 - Levels say how close you are, not who you are to each other; that is the [relationship](./chat.md#setting-a-relationship).
 - Time together counts every ten minutes the yard is seen, up to an hour's worth a day.
-- Patting, treats, chatting, watering, catching and gifts count more, up to a day's worth. Pats alone fill only a quarter of that.
+- Patting, treats, chatting, watering, catching, gifts, a dig you ask for and a finished game count more, up to a day's worth. Pats alone fill only a quarter of that.
 - So leaving the window open or a minute of clicking can't rush it, and nothing is lost by being away.
 - Saved as `bonds` in `state.json`.
 
@@ -378,7 +380,8 @@ While the yard shows spring outdoors, a few shoots come up after rain, and one o
 
 ### Motions and outfits
 
-- Daisy, Clover, Pip and Miso have their own motions in every season for digging, planting, casting, waiting for a bite, reeling in and reacting to a find. Imported pets join in with their own animations.
+- Daisy, Clover, Pip and Miso have their own motions in every season for digging, planting, casting, waiting for a bite, reeling in and reacting to a find. They walk toward you and away from you, and run in a game.
+- Any pet can bring its own poses for digging, planting, showing a find and fishing ([Game poses](./import.md#make-your-own)). A pet without them plays its usual rows.
 - Daisy, Pip and Miso wear everyday outfits in spring and autumn, and change for summer and winter. Clover keeps the teal overalls and straw hat through autumn, then wears a coat, scarf and knitted beanie in winter.
 
 ## Games <Since v="0.1.0" />
@@ -387,9 +390,9 @@ The four games are in **Play → Group games**, one at a time. While one is on, 
 
 | Game | How it goes | Ends |
 |---|---|---|
-| Hide and seek | Friends hide (one that can't reach a spot in 15 seconds hides where it is). The line above the dock says **Click to find**, the friend to find, then the others still hiding. Click the right friend and it jumps out with "You found me!", and the line moves on. A wrong one only gets "Oops, that's not them" and keeps hiding | "Everyone found!" |
+| Hide and seek | Friends hide (one that can't reach a spot in 15 seconds hides where it is). The line above the dock says **Click to find**, the friend to find, then the others still hiding. Click the right friend and it jumps out with "You found me!", and the line moves on. A wrong one shakes with a **?** and keeps hiding | "Everyone found!" |
 | Parade | The selected friend leads, the others line up behind, and once the line is ready they walk one lap of the yard | "Lap done!" |
-| Tag | Needs two friends. The selected friend is it ("It" on its name tag) and chases the nearest; overlapping on screen catches a friend, which becomes it, while the catcher is safe for a moment | "Tag is over. Good running, everyone!" after a set time |
+| Tag | Needs two friends. The selected friend is it ("(it)" after its name on the tag) and chases the nearest; overlapping on screen catches a friend, which becomes it, while the catcher is safe for a moment. Click whoever is it to hold it still for a moment; it can be held again a few seconds later | "Tag is over. Good running, everyone!" after a set time |
 | Snowman | While the yard shows winter. Two friends roll a snowball, and three stack into a snowman ([Snowman](#snowman)) | When the snowman stands |
 
 <Shot name="play-hide-and-seek" caption="Hide and seek. The line above the dock names the friend to find." />
@@ -418,9 +421,9 @@ Drag any edge or corner to resize the window, down to 300 × 210, and drag the n
 
 A window is small at 640 pixels wide or less, or 480 tall or less.
 
-- The dock hides. A round button shows in the bottom-right corner while the pointer is over the window, or when you Tab to it. It opens the same short menu as a right-click on empty scenery: **Place & atmosphere**, **Play**, **Friends & settings**, **Always on top**.
+- The dock hides. A round button shows in the bottom-right corner while the pointer is over the window, or when you Tab to it. It opens the same short menu as a right-click on empty scenery: **Place & atmosphere**, **Play**, **Friends & settings**, **Reset window size**, **Always on top**.
 - **Cmd/Ctrl + Shift + P** opens Friends & settings.
-- Panels show their actions as tiles (names may take two lines), hide section names and scroll inside the window.
+- Panels show their actions as tiles (names may take two lines). A line marks each group instead of its name, and the panel scrolls inside the window.
 - An available update shows as a 32-pixel download icon with a dot instead of the version pill. Its label names the version, and it opens App updates.
 
 <Shot name="mini-chat" caption="A conversation stays inside the small yard window, beside your work." />
@@ -430,19 +433,19 @@ A window is small at 640 pixels wide or less, or 480 tall or less.
 | Where | What it does |
 |---|---|
 | A friend's name tag | Talk to it (tooltip: **Talk to** and its name) |
-| Right-click a friend | **Talk to**, **Play with** (the Play panel for it), **Ask … to dig** (picks up the dig tool, that friend first) |
+| Right-click a friend | **Talk to**, **Play with** (the Play panel for it), **Ask … to dig** (picks up the dig tool, that friend first), **Show on desktop**, **Edit** (Friend settings) |
 | Right-click empty scenery, or the corner button | The short action menu beside the pointer. It stays inside the window and scrolls when needed |
 | Friends, plants and gifts | Their own right-click actions |
 | Close, **Esc** or a click outside | Back to the scenery |
 | Place & atmosphere, Play | Closing returns straight to the scenery |
-| Friend panel, Invite a friend | **Back** to Friends & settings; **×** to the yard. Invite keeps Import in its header |
+| Friends, Invite a friend | **Back** to Friends & settings; **×** to the yard. Invite keeps Import in its header |
 | Settings | **Back** goes from a section to the list, then to Friends & settings |
 
 ### Window controls
 
 | Control | Where | What it does |
 |---|---|---|
-| **Enter fullscreen** | **Friends & settings → Window & desktop** | Fills the screen. It then reads **Return to previous size**, and **Esc** also returns (closing an open panel or menu first). Size, position and Always on top come back |
+| **Fullscreen** | **Friends & settings → Window & desktop** | A switch that fills the screen. Turn it off, or press **Esc**, to return (closing an open panel or menu first). Size, position and Always on top come back |
 | **Always on top** | **Window & desktop**, the short right-click menu, the tray, the macOS View menu, **Cmd/Ctrl + Shift + M** | Keeps the yard above other windows, at any size, remembered. On Linux it depends on the desktop: some Wayland desktops refuse it, so check your window rules |
 | **Close window** | **Friends & settings** | Hides the yard in the tray; desktop friends and agent hooks keep running |
 | **Quit PlayPets** | **Friends & settings**, the tray, <kbd>⌘</kbd> <kbd>Q</kbd> on macOS | Closes PlayPets at once. Conversations aren't saved |

@@ -9,6 +9,9 @@ import { eventDates, eventScene } from '../src/yard/events.js';
 import { scene } from '../src/yard/world.js';
 import { installDom } from './support/dom.mjs';
 
+// A card's hint is its pictures, which say their sentence as their label, or the sentence itself.
+const heard = hint => hint.getAttribute('aria-label') || hint.textContent;
+
 test('tree and keepsake books use saved counts, mature artwork and explicit keepsake rarity', t => {
   t.mock.timers.enable({ apis: ['Date', 'setTimeout'], now: 100000000 });
   const before = data;
@@ -92,8 +95,16 @@ test('tree and keepsake books use saved counts, mature artwork and explicit keep
       !!badge,
       `${kind.id} takes the rare card's edge with its badge`,
     );
-    assert.ok(cards[index].children[2].textContent.includes(translate('catch.bug_clear')));
+    assert.ok(heard(cards[index].children[2]).includes(translate('catch.bug_clear')));
   }
+  // Chosen, a rare kind shows Rare in its large picture's corner, opposite its number, as its card does.
+  const rareBug = BUGS.findIndex(kind => kind.rarity === 'rare' || !!kind.event);
+  document.getElementById('album-grid').dispatch('click', { target: cards[rareBug].children[0] });
+  const stage = document.getElementById('album-detail').children[0];
+  assert.deepEqual(
+    stage.children.slice(-2).map(child => child.className),
+    ['album-no', 'album-rare'],
+  );
   // What comes only on certain dates is rare in every book, and its hint says when.
   for (const [book, kinds] of [
     ['fish', FISH],
@@ -105,7 +116,7 @@ test('tree and keepsake books use saved counts, mature artwork and explicit keep
       const badge = cards[index].children.find(child => child.className === 'album-rare');
       assert.equal(!!badge, kind.rarity === 'rare' || !!kind.event, `${book} ${kind.id}`);
       if (!kind.event) continue;
-      const hint = cards[index].children[2].textContent;
+      const hint = heard(cards[index].children[2]);
       assert.ok(hint.includes(eventDates(kind.event)), kind.id);
       // A catch comes whenever its event is on, so the scene that calls it up by hand is named;
       // a gift keeps to the dates (events.js giftEvent), so it is not.
@@ -133,7 +144,7 @@ test('each book says what finding a kind takes', t => {
   setData({ ...before, album: {} });
   const hints = book => {
     tabs.find(tab => tab.dataset.book === book).onclick();
-    return document.getElementById('album-grid').children.map(card => card.children[2].textContent);
+    return document.getElementById('album-grid').children.map(card => heard(card.children[2]));
   };
   for (const hint of hints('flower')) assert.match(hint, /Dig.*4 hours/, hint);
   for (const hint of hints('tree')) assert.match(hint, /digging.*12 hours.*Each of these helps: \S/, hint);

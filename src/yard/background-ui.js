@@ -40,6 +40,8 @@ function renderGallery() {
       image.loading = 'lazy';
       const name = document.createElement('span');
       name.textContent = world.name || t(world.label);
+      // What a place is for is its card's title, not a sentence under the gallery.
+      if (world.about) button.title = t(world.about);
       button.append(image, name);
       button.addEventListener('click', () => {
         $('world').value = world.id;
@@ -63,6 +65,8 @@ export function setupAtmosphereChoices() {
     select.dataset.atmosphereReady = 'true';
     const disclosure = document.createElement('details');
     disclosure.className = 'atmosphere-choice';
+    // Which choice a picture is for (caption.css): Auto has one of its own in each row.
+    disclosure.dataset.for = id;
     disclosure.open = !compact;
     const summary = document.createElement('summary');
     summary.tabIndex = compact ? 0 : -1;
@@ -88,6 +92,7 @@ export function setupAtmosphereChoices() {
       radio.value = option.value;
       const text = document.createElement('span');
       text.dataset.i18n = option.dataset.i18n;
+      text.dataset.choice = option.value;
       text.textContent = t(option.dataset.i18n);
       radio.addEventListener('change', () => {
         if (!radio.checked) return;
@@ -102,6 +107,14 @@ export function setupAtmosphereChoices() {
       });
       label.append(radio, text);
       if (option.value === 'auto') label.className = 'atmosphere-auto';
+      else {
+        const now = document.createElement('small');
+        now.className = 'atmosphere-now';
+        now.dataset.i18n = 'scene.now';
+        now.textContent = t('scene.now');
+        now.hidden = true;
+        label.append(now);
+      }
       group.append(label);
       radios.push(radio);
     }
@@ -110,12 +123,19 @@ export function setupAtmosphereChoices() {
     const refresh = () => {
       group.disabled = !!select.disabled;
       summary.setAttribute('aria-disabled', String(!!select.disabled));
-      for (const radio of radios) radio.checked = radio.value === select.value;
+      for (const radio of radios) {
+        radio.checked = radio.value === select.value;
+        // On Auto, the one the yard is in now; a choice made by hand is its own mark.
+        const now = radio.closest('label')?.querySelector('.atmosphere-now');
+        if (now) now.hidden = !(select.value === 'auto' && radio.value === select.dataset.now);
+      }
       const option = [...select.options].find(option => option.value === select.value);
+      current.dataset.choice = option?.value || '';
       current.dataset.i18n = option?.dataset.i18n || '';
       current.textContent = option ? t(option.dataset.i18n) : '';
     };
     select.addEventListener('change', refresh);
+    select.addEventListener('now', refresh);
     $('world').addEventListener('change', refresh);
     refresh();
     select.hidden = true;

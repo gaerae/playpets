@@ -14,15 +14,18 @@ const prefix = computed(() => (props.lang === 'en' ? '' : `${props.lang}/`));
   </nav>
 </template>
 <style scoped>
-.studio-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px 0 28px; }
-.studio-nav a { min-height: 78px; display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 12px; border: 1px solid var(--vp-c-divider); color: var(--vp-c-text-2); text-decoration: none; background: var(--vp-c-bg); }
-.studio-nav a[aria-current=page] { border-color: var(--vp-c-brand-1); background: var(--vp-c-brand-soft); color: var(--vp-c-brand-1); }
-.studio-nav a:hover { border-color: var(--vp-c-brand-1); }
+/* Two signboards over the workbench: the one you are at is honey-lit, the other one points across. */
+.studio-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px 0 8px; }
+.studio-nav a { min-height: 74px; display: flex; align-items: center; gap: 14px; padding: 12px 18px; border-radius: 14px; border: 1px solid var(--pp-line, var(--vp-c-divider)); color: var(--vp-c-text-1); text-decoration: none; background: var(--vp-c-bg-elv); transition: border-color 0.15s ease, transform 0.15s ease; }
+.studio-nav a[aria-current=page] { border-color: var(--pp-wood-edge, var(--vp-c-brand-1)); background: var(--pp-honey-light, var(--vp-c-brand-soft)); color: var(--pp-on-honey, var(--vp-c-brand-1)); box-shadow: inset 0 -3px 0 var(--pp-honey, transparent); }
+.studio-nav a:not([aria-current=page]):hover { border-color: var(--pp-wood, var(--vp-c-brand-1)); transform: translateY(-1px); }
 .studio-nav svg { width: 32px; height: 32px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.studio-nav strong { display: block; font-size: 15px; font-weight: 600; }
+.studio-nav strong { display: block; font-size: 15px; font-weight: 700; }
 .studio-nav small { display: block; font-size: 12px; color: var(--vp-c-text-2); line-height: 1.5; margin-top: 2px; }
-.studio-nav-arrow { margin-left: auto; }
+.studio-nav a[aria-current=page] small { color: inherit; opacity: 0.8; }
+.studio-nav-arrow { margin-left: auto; color: var(--vp-c-brand-1); }
 .studio-nav a[aria-current=page] .studio-nav-arrow { visibility: hidden; }
 :focus-visible { outline: 3px solid var(--vp-c-brand-1); outline-offset: 3px; }
-@media (max-width: 640px) { .studio-nav { gap: 8px; } .studio-nav a { padding: 12px; gap: 8px; min-height: 64px; } .studio-nav strong { font-size: 13px; } .studio-nav svg { display: none; } .studio-nav small, .studio-nav-arrow { display: none; } }
+@media (prefers-reduced-motion: reduce) { .studio-nav a { transition: none; } .studio-nav a:not([aria-current=page]):hover { transform: none; } }
+@media (max-width: 640px) { .studio-nav { gap: 8px; } .studio-nav a { padding: 10px 12px; gap: 8px; min-height: 56px; } .studio-nav strong { font-size: 13px; } .studio-nav svg { display: none; } .studio-nav small, .studio-nav-arrow { display: none; } }
 </style>

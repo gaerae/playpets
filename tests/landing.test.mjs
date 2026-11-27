@@ -26,15 +26,16 @@ test('landing introduces every built-in companion before optional AI setup', () 
 test('the landing lets visitors play a chat and a coding session instead of looking at captures', async () => {
   const landing = read('website/.vitepress/theme/Landing.vue');
   assert.ok(landing.indexOf('<PetGallery') < landing.indexOf('class="together-story'));
-  // Coding company is the reason most visitors come, so it follows the hero and what PlayPets adds.
-  assert.ok(landing.indexOf('class="codex-plus"') < landing.indexOf('class="work-story'));
+  // The yard first, then friends out on the desktop beside a coding agent, the reason most
+  // visitors come, then the agents themselves.
+  assert.ok(landing.indexOf('class="hero"') < landing.indexOf('class="desk-story"'));
+  assert.ok(landing.indexOf('class="desk-story"') < landing.indexOf('class="work-story'));
   assert.ok(landing.indexOf('class="work-story') < landing.indexOf('<PetGallery'));
   assert.ok(landing.indexOf('class="together-story') < landing.indexOf('<ChatDemo'));
   assert.ok(landing.indexOf('class="work-story') < landing.indexOf('<AgentDemo'));
-  // Talk and coding company play as demos; the desktop capture backs the comparison's moving row.
+  // Talk, coding company and the desktop play as live scenes, not captures.
   assert.doesNotMatch(landing, /shotUrl\('yard-talk'\)/);
-  assert.ok(landing.indexOf("shotUrl('desktop')") > landing.indexOf('class="codex-compare"'));
-  assert.ok(landing.indexOf("shotUrl('desktop')") < landing.indexOf('class="play-story"'));
+  assert.doesNotMatch(landing, /shotUrl\('desktop'\)/);
   assert.match(landing, /path\('\/guide\/desktop'\)/);
   // The install command follows the visitor's system, inside the download block.
   assert.match(landing, /<Downloads>/);
@@ -126,15 +127,20 @@ test('each landing says the app’s name in its own script and the kind of app i
       assert.ok(descriptions[i].includes(tag), `${lang}: description says ${tag}`);
       assert.ok(copy.keywords.includes(tag), `${lang}: keywords say ${tag}`);
     }
-    assert.ok(sections.moments.kind.includes(copy.steamTags[0]), `${lang}: moments kind`);
+    assert.ok(sections.desk.kind.includes(copy.steamTags[0]), `${lang}: desk kind`);
   }
+  // It says so where it shows them out on the desktop.
   const landing = read('website/.vitepress/theme/Landing.vue');
-  assert.match(landing, /t\.moments\.kind/);
+  const desk = landing.slice(landing.indexOf('class="desk-story"'), landing.indexOf('class="work-story'));
+  assert.match(desk, /t\.desk\.kind/);
 });
 
-test("the top of the landing sets a Codex pet's features beside PlayPets', in every language", async () => {
+// The comparison answers people who know ChatGPT's pets; it waits low on the page, after what
+// PlayPets is on its own, and stays short.
+test("lower on the landing, a compact block sets a Codex pet's features beside PlayPets', in every language", async () => {
   const landing = read('website/.vitepress/theme/Landing.vue');
-  assert.ok(landing.indexOf('</section>') < landing.indexOf('class="codex-plus"'), 'right after the hero');
+  assert.ok(landing.indexOf('class="connections"') < landing.indexOf('class="codex-plus"'), 'after the AI block');
+  assert.ok(landing.indexOf('class="codex-plus"') < landing.indexOf('id="download"'), 'before the download');
   // A real table, so a screen reader and an answer engine read each row as Codex pet / PlayPets.
   // Phones restyle it as a grid, which drops table semantics in Safari, so the roles are explicit.
   assert.match(landing, /<table class="codex-compare" role="table">/);
@@ -153,6 +159,7 @@ test("the top of the landing sets a Codex pet's features beside PlayPets', in ev
     const { compare } = sections;
     assert.equal(compare.head.length, 2, lang);
     assert.equal(compare.rows.length, en.rows.length, lang);
+    assert.ok(compare.rows.length <= 6, `${lang}: a compact block`);
     for (const row of compare.rows) assert.ok(row.length === 3 && row.every(cell => cell.length), lang);
     assert.match(compare.source, /2026/, lang);
     assert.match(copy.diffNote, /OpenAI/, lang);
@@ -161,10 +168,9 @@ test("the top of the landing sets a Codex pet's features beside PlayPets', in ev
   }
 });
 
-test('real captures show play right after the comparison, the same pictures in every language', async () => {
+test('real captures show play right after the coding agents, the same pictures in every language', async () => {
   const landing = read('website/.vitepress/theme/Landing.vue');
-  assert.ok(landing.indexOf('class="codex-plus"') < landing.indexOf('class="play-story" id="play"'));
-  assert.ok(landing.indexOf('class="play-story"') < landing.indexOf('class="work-story'));
+  assert.ok(landing.indexOf('class="work-story') < landing.indexOf('class="play-story" id="play"'));
   assert.match(landing, /<a href="#play">\{\{ t\.compare\.seePlay \}\}/);
   assert.match(landing, /v-for="\(\[name, title, body\]\) in t\.play\.shots"/);
   const { CAPTURE_VERSION } = await import('../scripts/site-content.mjs');
@@ -180,7 +186,49 @@ test('real captures show play right after the comparison, the same pictures in e
       assert.ok(existsSync(`website/public/shots/${CAPTURE_VERSION}/${lang}/${name}.webp`), `${lang}: ${name}`);
     }
     for (const key of ['title', 'lead', 'link']) assert.ok(sections.play[key]?.length, `${lang}: play.${key}`);
-    for (const key of ['desktop', 'seePlay']) assert.ok(sections.compare[key]?.length, `${lang}: compare.${key}`);
+    assert.ok(sections.compare.seePlay?.length, `${lang}: compare.seePlay`);
+  }
+});
+
+// The owner's first appeal: friends step out of the window onto the desktop and stay all day. The
+// scene draws them on the app's own desktop grass, and each point wears a painted icon.
+test('right after the yard, the landing takes the friends out onto the desktop, in every language', async () => {
+  const landing = read('website/.vitepress/theme/Landing.vue');
+  assert.match(landing, /<section class="desk-story" id="desktop">/);
+  assert.match(landing, /href="#desktop">\{\{ t\.meet \}\}/);
+  assert.match(landing, /<DeskStory /);
+  const desk = read('website/.vitepress/theme/DeskStory.vue');
+  assert.match(desk, /src\/art\/ambient\/desktop-grass\.webp/);
+  for (const part of ['IntersectionObserver', 'observer?.disconnect', 'prefers-reduced-motion', 'onBeforeUnmount'])
+    assert.ok(desk.includes(part), part);
+  assert.doesNotMatch(desk, /setInterval/);
+  // The yard's own desktop view stands its friends on the same grass.
+  assert.match(read('website/.vitepress/theme/WorldPreview.vue'), /class="world-grass"/);
+  const icons = {
+    desktop: 'src/art/ui/desktop.webp',
+    gift: 'src/art/ui/gift.webp',
+    hourglass: 'src/art/ui/hourglass.webp',
+    laptop: 'website/public/art/laptop.webp',
+  };
+  for (const file of Object.values(icons)) assert.ok(existsSync(file), file);
+  const en = (await import('../website/.vitepress/theme/landing-en.ts')).sections.desk;
+  for (const lang of ['en', 'ko', 'ja', 'zh-hans']) {
+    const { sections } = await import(`../website/.vitepress/theme/landing-${lang}.ts`);
+    const { strings } = await import(`../src/core/strings/${lang}.js`);
+    const { desk } = sections;
+    for (const key of ['title', 'lead', 'kind', 'link', 'agents']) assert.ok(desk[key]?.length, `${lang}: desk.${key}`);
+    assert.deepEqual(
+      desk.points.map(([icon]) => icon),
+      en.points.map(([icon]) => icon),
+      lang,
+    );
+    for (const [icon, title, body] of desk.points) {
+      assert.ok(icon in icons, `${lang}: ${icon}`);
+      assert.ok(title.length && body.length, `${lang}: ${icon}`);
+    }
+    // The switches it names are the app's own.
+    assert.ok(desk.lead.includes(strings['desktop.show']), `${lang}: names Show on desktop`);
+    assert.ok(desk.points[0][2].includes(strings['desktop.grass']), `${lang}: names Grass on desktop`);
   }
 });
 
@@ -352,8 +400,9 @@ test('localized landing data has one active contract without removed feature tab
     ['en', 'ko', 'ja', 'zh-hans'].map(lang => import(`../website/.vitepress/theme/landing-${lang}.ts`)),
   );
   for (const locale of locales) {
-    // Every language file has the same exports, so Landing.vue reads them all the same way.
-    assert.deepEqual(Object.keys(locale).sort(), ['copy', 'sections', 'worldCopy']);
+    // Every language file has the same exports, so Landing.vue reads them all the same way, and the
+    // share card's words (scripts/make-og.mjs).
+    assert.deepEqual(Object.keys(locale).sort(), ['card', 'copy', 'sections', 'worldCopy']);
     const { copy, worldCopy } = locale;
     assert.deepEqual(Object.keys(copy).sort(), Object.keys(locales[0].copy).sort());
     assert.deepEqual(Object.keys(worldCopy).sort(), Object.keys(locales[0].worldCopy).sort());

@@ -2,6 +2,7 @@
 // planting, showing a find and fishing, drawn for each outfit. The backend checks them and hands
 // them over (petActions) once a friend with poses comes into the yard or asks for one, never before
 // the yard is first drawn. Until they come, and for every pet without them, the ordinary sheet plays.
+import { letGo } from './pixels.js';
 import { call } from './state.js';
 
 // The poses are drawn for the illustrated sheets; a friend shown realistic keeps its ordinary rows.
@@ -12,6 +13,11 @@ let season = '';
 let generation = 0;
 const actions = new WeakMap();
 const images = new Map();
+// The atlases decoded so far are let go, their bitmaps with them (pixels.js).
+function forget() {
+  for (const image of images.values()) letGo(image);
+  images.clear();
+}
 
 /** Saving a task refreshes catalog objects without replacing the friend's appearance. */
 export function sameCompanionAppearance(a, b) {
@@ -44,7 +50,7 @@ export function useCompanionActions(id, value) {
   const entry = entries.get(id);
   if (entry?.poses !== undefined) {
     generation++;
-    images.clear();
+    forget();
   }
   entries.set(id, {
     poses: value?.version === 1 && value.outfits?.base ? value : null,
@@ -71,7 +77,7 @@ export function loadCompanionActionsFor(assets) {
 export function setCompanionSeason(value) {
   if (value !== season) {
     generation++;
-    images.clear();
+    forget();
   }
   season = value;
 }
@@ -85,9 +91,24 @@ function clipFor(asset, name) {
   // lacks plays the ordinary rows rather than another outfit's clothes.
   const clip = (outfits?.[season] ?? outfits?.base)?.[name];
   if (!clip?.frames?.length || !clip.url) return null;
+  return wellFormed(clip) ? clip : null;
+}
+// Clips whose frames were found whole: a walk asks for its clip every frame it walks, and a clip
+// does not change once read (a new outfit or season is a new object).
+const whole = new WeakSet();
+function wellFormed(clip) {
+  if (whole.has(clip)) return true;
   if (!clip.frames.every(frame => frame.rect?.length === 4 && frame.foot?.length === 2 && frame.duration > 0))
-    return null;
-  return clip;
+    return false;
+  whole.add(clip);
+  return true;
+}
+/** A walk or run of `asset` (`walk-front`, `walk-back`, `run-right`, `run-left`) to draw now: one
+ * cycle of eight cells, stepped by the legs (core/gait.js) rather than its frames' durations. Null
+ * when the pet has none, or until its atlas has decoded, so the sheet's side walk plays meanwhile. */
+export function gaitClip(asset, name) {
+  const clip = clipFor(asset, name);
+  return clip?.frames.length === 8 && companionImage({ clip }) ? clip : null;
 }
 /** Each action owns its clock; a new trip or a changed outfit invalidates it. */
 export function beginCompanionAction(view, name, now = performance.now()) {

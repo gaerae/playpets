@@ -1,8 +1,8 @@
 # PlayPets developer guide
 
 ## Overview and audience
-- PlayPets is a pet app: pets play on the desktop and in the yard window.
-- Connect an AI to a friend to chat with it. Friends react while a coding agent works.
+- PlayPets is a desktop companion: friends live in a painted yard window and step out onto the desktop to play.
+- It stays open all day. Connect an AI to a friend to chat with it; friends react while a coding agent works.
 - A Tauri v2 app: the page is web code with no build tool (`src/`), and the backend is Rust (`src-tauri/`).
 - Runs on macOS, Windows and Linux.
 
@@ -14,6 +14,17 @@
 | AI agents and review bots | [AGENTS.md](../AGENTS.md), a short version of these rules |
 
 - The site also shows these documents, unchanged, under its "Developers" tab.
+
+## Getting started
+New here? Read in this order.
+
+1. Get the tests passing and start the app: [Set up a development environment and run the app](getting-started.md).
+2. Read the diagram and data flow in [Architecture: PlayPets app](architecture.md). Find the component that owns the part you want to change.
+3. Read the standard for the area you change (the standards table under [Area map](#area-map)).
+   - Page changes almost always touch Page code structure and Multilingual strings.
+   - Backend changes almost always touch Backend locks and threads.
+4. Run the checks in the order [CONTRIBUTING](../CONTRIBUTING.md) gives, then open a PR.
+5. Add one line to `CHANGELOG.md` for any change users can see.
 
 ## Key concepts
 - **One app, two windows:**
@@ -90,17 +101,6 @@ Procedures for outages and incidents.
 | Situation | Procedure |
 |---|---|
 | Updater signing key lost or leaked | [The updater signing key is lost or leaked](runbooks/updater-key-lost-or-leaked.md) |
-
-## Getting started
-New here? Read in this order.
-
-1. Get the tests passing and start the app: [Set up a development environment and run the app](getting-started.md).
-2. Read the diagram and data flow in [Architecture: PlayPets app](architecture.md). Find the component that owns the part you want to change.
-3. Read the standard for the area you change (standards table above).
-   - Page changes almost always touch Page code structure and Multilingual strings.
-   - Backend changes almost always touch Backend locks and threads.
-4. Run the checks in the order [CONTRIBUTING](../CONTRIBUTING.md) gives, then open a PR.
-5. Add one line to `CHANGELOG.md` for any change users can see.
 
 ## Deep dives and reference
 **Decision records**: why the structure is the way it is. The standards cite them as their basis.

@@ -9,6 +9,9 @@ export const GAMES = {
   snowman: t('game.snowman'),
 };
 export const TAG_MS = 40000;
+// Pressing whoever is it holds it still this long, and not again until TAG_FREEZE_AGAIN_MS after.
+export const TAG_FREEZE_MS = 1500;
+export const TAG_FREEZE_AGAIN_MS = 4000;
 // How fast friends go in a game, in body lengths a millisecond as motion.js counts a walk (an
 // errand, WALK, is 0.002): a dash to a hiding spot or into line, the tagger a good step quicker
 // than the friends it chases. In the field's width instead, a full screen's game ran at four times

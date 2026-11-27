@@ -250,6 +250,7 @@ async function pushHandler() {
     setData: value => (context.data = value),
     pet: () => context.data?.pets?.find(p => p.id === context.selected),
     render: () => drawn.push(['render', context.data.n]),
+    booksDone: () => drawn.push(['booksDone']),
     refreshChat: () => drawn.push(['refreshChat']),
     setTimeout: fn => timers.push(fn),
   };
@@ -268,8 +269,12 @@ test('pushes that come together are drawn once, from the latest state', async ()
   assert.deepEqual(drawn, [], 'not drawn under the push');
   assert.equal(context.data.n, 3, 'the state is taken at once');
   settle();
-  assert.deepEqual(drawn, [['render', 3]]);
+  assert.deepEqual(drawn, [['render', 3], ['booksDone']], 'then a book just filled is told');
   push({ n: 4, pets: [{ id: 'a', providerId: 'local' }] });
   settle();
-  assert.deepEqual(drawn.slice(1), [['render', 4], ['refreshChat']], 'a friend given an AI has its log redrawn');
+  assert.deepEqual(
+    drawn.slice(2),
+    [['render', 4], ['booksDone'], ['refreshChat']],
+    'a friend given an AI has its log redrawn',
+  );
 });

@@ -275,7 +275,7 @@
   z-index: 3;
 }
 .menu-anchor > .icon-button,
-.side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])) .panel-head .icon-button {
+.side-panel:has(#panel-pet:not([hidden]) #pet-panel:not([hidden])) .panel-head .icon-button:not(#close-panel) {
   width: 36px;
   height: 36px;
   border-radius: var(--radius-control);
@@ -287,16 +287,17 @@
 .menu-anchor > .icon-button[aria-expanded="true"] {
   background: var(--control-selected);
 }
+/* A menu opened from a control is the yard menu's paper in its honey-wood frame (shell.css). */
 .pop-menu {
   position: absolute;
   right: 0;
   top: calc(100% + 6px);
   min-width: 190px;
-  padding: 5px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  background: var(--white);
-  box-shadow: var(--shadow-menu);
+  padding: 6px;
+  border: var(--garden-frame-border);
+  border-radius: var(--radius-garden);
+  background: var(--garden-frame);
+  box-shadow: var(--shadow-dock);
   display: grid;
 }
 .pop-menu[hidden] {
@@ -308,7 +309,7 @@
   gap: 9px;
   padding: 8px 10px;
   border: 0;
-  border-radius: var(--radius-control);
+  border-radius: 10px;
   background: none;
   color: var(--ink);
   font-size: var(--font-md);
@@ -323,7 +324,7 @@
 }
 .pop-menu [role="menuitem"]:hover:not(:disabled),
 .pop-menu [role="menuitem"]:focus-visible {
-  background: var(--paper);
+  background: var(--garden-hover);
   outline: none;
 }
 .pop-menu [role="menuitem"]:disabled {
@@ -339,11 +340,6 @@
   border-top: 1px solid var(--line);
   margin: 4px 6px;
 }
-/* These surfaces belong to the friend, rather than changing the landscape's daylight colours. */
-.side-panel:has(#panel-pet:not([hidden])) {
-  background: var(--sheet);
-}
-
 /* Small windows (body.compact, window.js): the friend's head and its extras fold away. */
 body.compact #panel-pet {
   overflow: hidden;
@@ -382,7 +378,9 @@ body.compact .friend-sub {
     min-height: 44px;
   }
 }
-body.compact .bond-row,
+/* How close the friend is stays as its heart and name beside the relation (the small window's menu has
+   no name plate to show it); the bar and the next step give way to the conversation. */
+body.compact .bond-bar,
 body.compact .bond-next,
 body.compact .friend-chips,
 body.compact .chat-foot {

@@ -34,14 +34,29 @@ const PETS: &[Builtin] = &[
         "actions/base/plant.webp",
         "actions/base/fish.webp",
         "actions/base/discover.webp",
+        "actions/base/rest.webp",
+        "actions/base/walk-front.webp",
+        "actions/base/walk-back.webp",
+        "actions/base/run-right.webp",
+        "actions/base/run-left.webp",
         "actions/summer/dig.webp",
         "actions/summer/plant.webp",
         "actions/summer/fish.webp",
         "actions/summer/discover.webp",
+        "actions/summer/rest.webp",
+        "actions/summer/walk-front.webp",
+        "actions/summer/walk-back.webp",
+        "actions/summer/run-right.webp",
+        "actions/summer/run-left.webp",
         "actions/winter/dig.webp",
         "actions/winter/plant.webp",
         "actions/winter/fish.webp",
-        "actions/winter/discover.webp"
+        "actions/winter/discover.webp",
+        "actions/winter/rest.webp",
+        "actions/winter/walk-front.webp",
+        "actions/winter/walk-back.webp",
+        "actions/winter/run-right.webp",
+        "actions/winter/run-left.webp"
     ),
     pet!(
         "clover",
@@ -53,10 +68,20 @@ const PETS: &[Builtin] = &[
         "actions/base/plant.webp",
         "actions/base/discover.webp",
         "actions/base/fish.webp",
+        "actions/base/rest.webp",
+        "actions/base/walk-front.webp",
+        "actions/base/walk-back.webp",
+        "actions/base/run-right.webp",
+        "actions/base/run-left.webp",
         "actions/winter/dig.webp",
         "actions/winter/plant.webp",
         "actions/winter/discover.webp",
-        "actions/winter/fish.webp"
+        "actions/winter/fish.webp",
+        "actions/winter/rest.webp",
+        "actions/winter/walk-front.webp",
+        "actions/winter/walk-back.webp",
+        "actions/winter/run-right.webp",
+        "actions/winter/run-left.webp"
     ),
     pet!(
         "pip",
@@ -68,14 +93,29 @@ const PETS: &[Builtin] = &[
         "actions/base/plant.webp",
         "actions/base/discover.webp",
         "actions/base/fish.webp",
+        "actions/base/rest.webp",
+        "actions/base/walk-front.webp",
+        "actions/base/walk-back.webp",
+        "actions/base/run-right.webp",
+        "actions/base/run-left.webp",
         "actions/summer/dig.webp",
         "actions/summer/plant.webp",
         "actions/summer/discover.webp",
         "actions/summer/fish.webp",
+        "actions/summer/rest.webp",
+        "actions/summer/walk-front.webp",
+        "actions/summer/walk-back.webp",
+        "actions/summer/run-right.webp",
+        "actions/summer/run-left.webp",
         "actions/winter/dig.webp",
         "actions/winter/plant.webp",
         "actions/winter/discover.webp",
-        "actions/winter/fish.webp"
+        "actions/winter/fish.webp",
+        "actions/winter/rest.webp",
+        "actions/winter/walk-front.webp",
+        "actions/winter/walk-back.webp",
+        "actions/winter/run-right.webp",
+        "actions/winter/run-left.webp"
     ),
     pet!(
         "miso",
@@ -87,14 +127,29 @@ const PETS: &[Builtin] = &[
         "actions/base/plant.webp",
         "actions/base/fish.webp",
         "actions/base/discover.webp",
+        "actions/base/rest.webp",
+        "actions/base/walk-front.webp",
+        "actions/base/walk-back.webp",
+        "actions/base/run-right.webp",
+        "actions/base/run-left.webp",
         "actions/summer/dig.webp",
         "actions/summer/plant.webp",
         "actions/summer/fish.webp",
         "actions/summer/discover.webp",
+        "actions/summer/rest.webp",
+        "actions/summer/walk-front.webp",
+        "actions/summer/walk-back.webp",
+        "actions/summer/run-right.webp",
+        "actions/summer/run-left.webp",
         "actions/winter/dig.webp",
         "actions/winter/plant.webp",
         "actions/winter/fish.webp",
-        "actions/winter/discover.webp"
+        "actions/winter/discover.webp",
+        "actions/winter/rest.webp",
+        "actions/winter/walk-front.webp",
+        "actions/winter/walk-back.webp",
+        "actions/winter/run-right.webp",
+        "actions/winter/run-left.webp"
     ),
 ];
 
@@ -383,12 +438,27 @@ mod tests {
                 clips.sort();
                 assert_eq!(
                     clips,
-                    ["cast", "dig", "discover", "plant", "reel", "wait"],
+                    [
+                        "cast",
+                        "dig",
+                        "discover",
+                        "plant",
+                        "reel",
+                        "run-left",
+                        "run-right",
+                        "sit",
+                        "stretch",
+                        "wait",
+                        "walk-back",
+                        "walk-front"
+                    ],
                     "{} {outfit}",
                     asset.display_name
                 );
             }
-            assert_eq!(poses.images.len(), 4 * outfits.len(), "{}", asset.display_name);
+            // Dig, plant, fish and discover, the rest sheet the sit and the stretch share, and the walks
+            // toward and away from the viewer, and the runs.
+            assert_eq!(poses.images.len(), 9 * outfits.len(), "{}", asset.display_name);
         }
         assert_eq!(assets.len(), 4);
     }

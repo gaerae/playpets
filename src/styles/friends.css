@@ -6,7 +6,14 @@
   z-index: 1;
   pointer-events: none;
 }
+/* A friend's button lets a press beside its drawing through to what is there; its hit area, the
+   drawing of the pose now playing and a little around it (views.js fitHit), takes the press, and
+   the button's own handlers get it as before. */
 #pet-layer .yard-pet {
+  pointer-events: none;
+}
+.yard-pet > .yard-hit {
+  position: absolute;
   pointer-events: auto;
 }
 /* Each friend's bubble, tag and agent dot, over everything on the field (views.js mirror): the
@@ -27,6 +34,7 @@
   will-change: transform;
 }
 .label-body {
+  position: relative;
   display: block;
   flex: none;
 }
@@ -81,29 +89,6 @@
 .yard-pet.pressed > canvas {
   transform: scale(1.06, 0.92);
   transition-duration: 0.08s;
-}
-/* A walking friend bobs at each step and leans into it, on the compositor (yard/motion.js); a
-   stroll's steps are slower. It moves translate and rotate, so a press (transform) still squashes
-   it. Before the dizzy spin, which wins over it. */
-.yard-pet.walking > canvas {
-  animation: stroll 0.3s ease-in-out infinite alternate;
-}
-.yard-pet.walking.strolling > canvas {
-  animation-duration: 0.42s;
-}
-@keyframes stroll {
-  0% {
-    translate: 0 0;
-    rotate: -2deg;
-  }
-  50% {
-    translate: 0 -2.5%;
-    rotate: 0deg;
-  }
-  100% {
-    translate: 0 0;
-    rotate: 2deg;
-  }
 }
 /* A friend spun round three times (touches.js) turns once more on its own, wobbles to a stop and
    sees stars for a moment. */
@@ -163,8 +148,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .yard-pet.dizzy > canvas,
-  .yard-pet.dizzy::after,
-  .yard-pet.walking > canvas {
+  .yard-pet.dizzy::after {
     animation: none;
   }
 }
@@ -195,7 +179,8 @@
 .yard-pet.held > canvas {
   translate: 0 -10%;
 }
-/* Selected, the shade becomes the ring it has always been. */
+/* Selected, the shade becomes the ring it has always been; the ring, not the tag, marks the friend
+   chosen. */
 .yard-pet.selected:before {
   width: 54%;
   height: 11%;
@@ -244,7 +229,7 @@
   cursor: pointer;
 }
 .pet-tag {
-  font-size: var(--font-xs);
+  font-size: var(--font-sm);
   color: var(--scene-ink);
   font-weight: 650;
   background: var(--scene-label-soft);
@@ -256,22 +241,37 @@
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  transition: background 0.15s;
+  /* Hidden until it is wanted (below); a tag going lingers a moment, so the pointer can follow
+     it from the body onto the tag to talk. */
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    background 0.15s,
+    opacity 0.2s ease 0.35s,
+    visibility 0s linear 0.55s;
+}
+/* The yard shows friends, not labels: the tag comes under the pointer or the keyboard, while it
+   talks or thinks, when its agent waits for the person or failed
+   (views.js `calling`), and in a game, where it says who is it. */
+.pet-label.pointing .pet-tag,
+.pet-label.focused .pet-tag,
+.pet-label.thinking .pet-tag,
+.yard-bubble:not([hidden]) ~ .pet-tag,
+.pet-label.calling .pet-tag,
+.pet-label.tagger .pet-tag,
+.yard.playing .pet-tag,
+.pet-tag:hover {
+  visibility: visible;
+  opacity: 1;
+  transition:
+    background 0.15s,
+    opacity 0.12s ease;
 }
 /* The tag is how to talk: under the pointer it shows a speech mark and lights up (views.js). */
 .tag-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-/* The friend's name keeps its room; an agent's name beside it gives way first. The tag is wider
-   with an agent, so "Claude Code" fits beside a long name instead of both being cut. */
-.pet-tag:has(small:not([hidden])) {
-  max-width: 210px;
-}
-.pet-tag:has(small:not([hidden])) .tag-name {
-  flex: none;
-  max-width: 110px;
 }
 .tag-talk {
   display: none;
@@ -292,7 +292,7 @@
 }
 .pet-label .pet-tag:hover {
   background: var(--scene-label);
-  color: var(--scene-green);
+  color: var(--scene-accent);
   box-shadow: 0 1px 4px var(--scene-line);
 }
 .yard.playing .tag-talk,
@@ -305,32 +305,15 @@
 .yard.aiming .pet-tag {
   cursor: inherit;
 }
-/* the agents that report to this friend, small after the name */
+/* the agents that report to this friend: a small plug after the name (views.js) */
 .pet-tag small {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: var(--font-xs);
-  font-weight: 600;
+  display: inline-flex;
+  flex: none;
   color: var(--scene-agent);
-  white-space: nowrap;
 }
-.pet-tag small::before {
-  content: "";
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--agent-blue);
-  margin-right: 3px;
-  vertical-align: 1px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  pointer-events: none;
-}
-/* with the agent's state shown beside the name, its agents need no second dot */
-.pet-state-dot:not([hidden]) ~ small::before {
-  display: none;
+.pet-tag small svg {
+  width: 12px;
+  height: 12px;
 }
 .period-night .pet-tag {
   background: var(--scene-label);
@@ -345,10 +328,6 @@
   /* Solid white: the translucent white fell under 4.5:1 on the accent at this size. */
   color: var(--scene-on-accent);
 }
-.pet-label.selected .pet-tag small::before,
-.pet-label.tagger .pet-tag small::before {
-  background: var(--scene-label-soft);
-}
 .pet-label.tagger .pet-tag {
   background: var(--scene-accent);
   color: var(--scene-on-accent);
@@ -356,37 +335,65 @@
 .pet-label.hiding .pet-tag {
   visibility: hidden;
 }
-/* the dearest friend wears a flower on its tag (yard/bond.js) */
+/* the dearest friend wears a flower on its tag (yard/bond.js), a picture of its own */
 .pet-label.dear .pet-tag::before {
-  content: "✿";
+  content: "";
+  display: inline-block;
+  width: 0.95em;
+  height: 0.95em;
   margin-right: 3px;
-  color: #f2a7b8;
+  vertical-align: -0.12em;
+  background: url("../art/ambient/flower.svg") center / contain no-repeat;
 }
 .yard-bubble {
   position: absolute;
   /* just above the head: --head is the cell's empty top, measured per pet (core/sprites.js crown),
      and --depth shrinks it as the friend is shrunk farther back (views.js place); --bubble-lift raises it clear of a neighbour's bubble and --bubble-shift moves it sideways to
      stay inside the yard (views.js); it still pops from over the friend */
-  bottom: calc(100% + 2px - var(--head, 8px) * var(--depth, 1) + var(--bubble-lift, 0px));
+  bottom: calc(100% + 8px - var(--head, 8px) * var(--depth, 1) + var(--bubble-lift, 0px));
   left: 50%;
   transform: translateX(calc(-50% + var(--bubble-shift, 0px)));
   transform-origin: calc(50% - var(--bubble-shift, 0px)) 100%;
   animation: bubble-pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
   width: max-content;
-  max-width: 190px;
-  padding: 6px 10px;
+  max-width: 200px;
+  padding: 7px 12px;
   border-radius: var(--radius-bubble);
   background: var(--scene-label);
   border: 1px solid var(--scene-line);
   box-shadow: 0 4px 12px var(--scene-shadow);
-  font-size: var(--font-xs);
-  line-height: 1.45;
+  font-size: var(--font-md);
+  font-weight: 600;
+  line-height: 1.4;
   color: var(--scene-ink);
   text-align: center;
   white-space: normal;
   overflow-wrap: anywhere;
   pointer-events: none;
   z-index: 3;
+}
+/* Its tail points down at the friend however far the bubble slid to stay inside the yard: the rim's
+   triangle, and the label's own over it, 6px lower than the bubble (bottom above leaves that room). */
+.yard-bubble::before,
+.yard-bubble::after {
+  content: "";
+  position: absolute;
+  left: clamp(16px, calc(50% - var(--bubble-shift, 0px)), calc(100% - 16px));
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-color: transparent;
+  transform: translateX(-50%);
+}
+.yard-bubble::before {
+  top: 100%;
+  border-width: 7px 6px 0;
+  border-top-color: var(--scene-line);
+}
+.yard-bubble::after {
+  top: calc(100% - 1px);
+  border-width: 7px 6px 0;
+  border-top-color: var(--scene-label);
 }
 /* A bubble that brings something can be pressed (views.js bubble: the year-end letter). */
 .yard-bubble.acts {
@@ -493,8 +500,6 @@
   pointer-events: none;
   animation: float-up 1.2s cubic-bezier(0.2, 0.7, 0.3, 1) both;
   z-index: 10;
-  color: #bd563c;
-  font-weight: 800;
   --dx: 0px;
   --rot: 0deg;
 }
@@ -515,6 +520,14 @@
   height: 1em;
   background: url("../art/ambient/notice.svg") center / contain no-repeat;
   filter: drop-shadow(0 1px 1px #77582630);
+}
+/* A wrong guess in hide and seek, over a friend in the bushes: the halo keeps it read against
+   leaves and blossom alike. */
+.particle[data-kind="question"] {
+  width: 1em;
+  height: 1em;
+  background: url("../art/ambient/question.svg") center / contain no-repeat;
+  filter: drop-shadow(0 0 2px #fffaf0) drop-shadow(0 1px 1px #77582630);
 }
 @keyframes float-up {
   from {
@@ -543,5 +556,105 @@
   }
   .particle {
     display: none;
+  }
+}
+/* What to try next, shown (yard/show-how.js): a painted hand taps the first friend's middle, or the
+   water, a few seconds after the yard settles. Its fingertip is at its top left; it waits while a
+   panel, a menu, a dialog, a tool or a game is over the yard. */
+.show-how {
+  position: absolute;
+  /* the fingertip, at the picture's top left, on the spot */
+  left: -10px;
+  top: -4px;
+  width: 46px;
+  height: 46px;
+  pointer-events: none;
+  background: url("../art/ui/hand.webp") center / contain no-repeat;
+  /* a pale rim keeps a skin-coloured hand clear of a friend's body and of the grass */
+  filter: drop-shadow(0 0 1.5px var(--scene-label)) drop-shadow(0 0 1px var(--scene-label))
+    drop-shadow(0 3px 4px var(--scene-shadow));
+  animation:
+    show-how-in 0.4s ease-out 3s backwards,
+    show-how-tap 1.8s ease-in-out 3s infinite;
+}
+/* On a friend it touches the middle of the body from its right, rather than covering it, and is
+   about half the friend's height, so a small window's smaller friends get a smaller hand. The box
+   keeps its width; the picture, drawn from its top left, keeps the fingertip where it was. */
+.label-body > .show-how {
+  left: 8px;
+  top: 48%;
+  height: clamp(30px, 52%, 46px);
+  background-position: left top;
+}
+.show-how > i {
+  position: absolute;
+  left: -4px;
+  top: -6px;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--scene-label);
+  border-radius: 50%;
+  opacity: 0;
+  animation: show-how-ring 1.8s ease-out 3s infinite;
+}
+/* With a tool in hand it taps the ground at once, beside the strip that holds the tool; in the open
+   Play panel it taps its tile as soon as the panel is up. */
+.show-how:is([data-on="ground"], [data-on="tile"]),
+.show-how:is([data-on="ground"], [data-on="tile"]) > i {
+  animation-delay: 0.6s;
+}
+/* Past the lake it teaches the dock: Play while the panel is shut, then the tile it leads to, each
+   touched at its picture's right (show-how.js). On a tile it is a little smaller, and between taps
+   it rests clear of the seed count. */
+.yard-play-toggle:has(> .show-how) {
+  position: relative;
+}
+/* a little taller than Play (36px), not a head taller */
+.yard-play-toggle > .show-how {
+  left: 22px;
+  top: 20px;
+  width: 40px;
+  height: 40px;
+}
+.play-action > .show-how {
+  left: calc(50% + 16px);
+  top: 12px;
+  width: 40px;
+  height: 40px;
+}
+.yard.playing .show-how,
+.yard.aiming .show-how:not([data-on="ground"]),
+body:has(:is(#side-panel, #scene-menu, #play-panel, #yard-controls-panel):not([hidden]))
+  .show-how:not([data-on="tile"]),
+body:has(#discovery-target:not([hidden])) .show-how:not([data-on="ground"]),
+body:has(dialog[open]) .show-how {
+  display: none;
+}
+@keyframes show-how-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes show-how-tap {
+  0%,
+  100% {
+    transform: translate(9px, 11px);
+  }
+  38% {
+    transform: translate(0, 0) scale(0.9);
+  }
+  52% {
+    transform: translate(0, 0);
+  }
+}
+@keyframes show-how-ring {
+  38% {
+    opacity: 0.9;
+    transform: scale(0.4);
+  }
+  78%,
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
   }
 }

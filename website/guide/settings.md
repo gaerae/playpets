@@ -12,7 +12,7 @@ Open **Friends & settings → Settings**. It has five sections: **Language & sta
 | Change the language | **Language & startup** | [Language](#language) |
 | Start PlayPets with your computer | **Language & startup** | [Start at login](#start-at-login) |
 | Edit or add an AI connection | **Friends & AI** | [Friends & AI](#friends-ai) |
-| Let friends chat or dig on their own | Switches in **Friends & AI** | [Switches](#switches) |
+| Let friends chat or dig on their own | **On their own** in **Friends & AI** | [On their own](#switches) |
 | Connect a coding agent | **Coding tools** | [Coding agents](./agents.md) |
 | Update PlayPets | **App updates** | [App updates](#app-updates) |
 | Open the data folder, the guide or the privacy policy | **About PlayPets** | [About PlayPets](#about) |
@@ -52,14 +52,14 @@ Turn this on and PlayPets starts whenever you log in to your computer. It's off 
 
 ## Friends & AI <Since v="1.2.0" /> {#friends-ai}
 
-Every AI connection is listed here, with how many friends use it and an **Edit** button. No connection yet? Friends still play and react without one.
+The section has two groups. **AI connections** lists every connection, with how many friends use it and an **Edit** button. No connection yet? Friends still play and react without one. **On their own** holds what friends do by themselves.
 
-- **Edit**, or **Connect an AI** for a new connection, opens the connection form right in the section. No window covers Settings.
+- **Edit**, or **Connect an AI** under the list for a new connection, opens the connection form right in the section. No window covers Settings.
 - Editing a connection here moves no friend to it.
 - **Esc** folds the form. If you typed something, it says "You have changes here. Save them, or press Cancel to discard them." instead.
 - How to make a connection: [Chat with a friend](./chat.md#making-a-connection).
 
-### Switches {#switches}
+### On their own {#switches}
 
 | Switch | Default | What it does | Needs an AI |
 |---|---|---|---|
@@ -71,13 +71,12 @@ Every AI connection is listed here, with how many friends use it and an **Edit**
 
 ## About PlayPets <Since v="0.1.0" /> {#about}
 
-The version, then three groups. Links open in your browser; updates have their own section.
+The version sits at the end of the name's row, then two groups. Links open in your browser; updates have their own section.
 
 | Group | Holds |
 |---|---|
-| **Help** | The user guide, reporting a problem, **Open the data folder** (friends, settings and backups; see [Data folder](#data-folder)) |
-| **Project** | The website, release notes, GitHub |
-| **Privacy and license** | The privacy policy, the license |
+| **Help** | The user guide, reporting a problem, reporting an AI reply, **Open the data folder** (friends, settings and backups; see [Data folder](#data-folder)) |
+| **Project** | The website, release notes, GitHub, the privacy policy, the license |
 
 ## App updates <Since v="0.1.0" /> {#app-updates}
 
@@ -88,7 +87,7 @@ How PlayPets updates depends on where you installed it. Test MSIX packages updat
 | Installs updates | The Store | PlayPets, only when you choose |
 | Checks on its own | When PlayPets starts, then every six hours | 20 seconds after startup, then every six hours |
 | **Check for updates** | Asks the Store now | Reads `latest.json` from GitHub releases |
-| A new version | Shows in the yard and here. **Open in Microsoft Store** opens its page there | Its entry opens **Friends & settings → Settings → App updates** |
+| A new version | Shows in the yard and here. **Update with Microsoft Store** has the Store download and install it, with its progress here; PlayPets closes for a moment and opens again. Where the Store cannot do it from the app, its PlayPets page opens instead | Its entry opens **Friends & settings → Settings → App updates** |
 | While it installs | PlayPets closes for a moment and opens again | PlayPets downloads, verifies and installs it, then restarts |
 
 | In the section | What it does |
@@ -120,12 +119,15 @@ How PlayPets updates depends on where you installed it. Test MSIX packages updat
 
 It opens from the cat in the menu bar or taskbar. Its items, in order:
 
-1. **Open the yard**, **Friends** (when friends are present), **Invite a Friend…**
-2. **Reset window size**: puts the yard back at its usual size in the middle of the screen
-3. Display switches: **Always on top**, **Show on desktop**, and **Stroll on desktop** while desktop mode is on
-4. **Yard Sounds**, **Settings…**, **Check for updates…**, **About PlayPets**, **Quit PlayPets**
+1. **Open the yard**
+2. Places: **Friends**, **Invite a friend…**, **Play**, **Place & atmosphere**
+3. The desktop: **Show on desktop**, and while it is on, **Stroll on desktop** and **Grass on desktop**
+4. This window: **Yard sounds**, **Always on top**, **Reset window size** (puts the yard back at its usual size in the middle of the screen)
+5. **Settings…**, **Check for updates…**, **About PlayPets**
+6. **Quit PlayPets**
 
-- Always on top stays available without friends. Desktop switches appear once a friend is present.
+- Windows and Linux have no menu bar, so every place opens from here.
+- Without friends, **Friends**, **Play** and the desktop switches are left out; the rest stays.
 - Sound shows a check mark when on.
 - An available update changes the update label to **Update to v…**.
 - On Windows, left-click opens the yard; right-click opens the menu.
@@ -135,9 +137,9 @@ It opens from the cat in the menu bar or taskbar. Its items, in order:
 
 | Menu | Items |
 |---|---|
-| **PlayPets** | **About PlayPets**, **Check for Updates…**, **Settings…**, hiding, **Quit PlayPets** |
+| **PlayPets** | **About PlayPets**, **Check for updates…**, **Settings…**, hiding, **Quit PlayPets** |
 | **Edit** | Cut, copy and paste in text fields |
-| **View** | **Friends & Settings**, **Friends**, **Invite a Friend…**; **Always on top**, **Show on desktop** and **Yard Sounds** with a check mark (the desktop switch is grayed out until a friend is in) |
+| **View** | **Friends & settings**, **Friends**, **Invite a friend…**, **Play**, **Place & atmosphere**; **Always on top**, **Show on desktop** and **Yard sounds** with a check mark (the desktop switch is grayed out until a friend is in) |
 | **Window** | **Reset window size**, minimize and close |
 
 ### Shortcuts {#shortcuts}
@@ -148,6 +150,8 @@ It opens from the cat in the menu bar or taskbar. Its items, in order:
 |---|---|
 | <kbd>⌘</kbd> <kbd>1</kbd> | Open Friends |
 | <kbd>⌘</kbd> <kbd>2</kbd> | Open Invite a friend |
+| <kbd>⌘</kbd> <kbd>3</kbd> | Open Play |
+| <kbd>⌘</kbd> <kbd>4</kbd> | Open Place & atmosphere |
 | <kbd>⌘</kbd> <kbd>,</kbd> | Open Settings |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>P</kbd> | Open Friends & settings |
 | <kbd>⌘</kbd> <kbd>Shift</kbd> <kbd>M</kbd> | Always on top on or off |
@@ -175,7 +179,7 @@ It opens from the cat in the menu bar or taskbar. Its items, in order:
 - `state.json` holds:
   - friends: name, personality and where it came from, relationship, what it calls you, size, position, chosen AI connection
   - the list of AI connections (without keys)
-  - language, desktop mode and roaming, each agent's friend, auto chatter, auto digging, yard sounds and their volume
+  - language, desktop mode, strolling and grass on the desktop, each agent's friend, auto chatter, auto digging, yard sounds and their volume
   - the window's position and size and Always on top setting
   - the place, season, time of day and weather picked for the yard (`scene`)
   - the garden and decorations (`garden`), the album (`album`), closeness (`bonds`)
@@ -217,7 +221,7 @@ If a friend can't load when the app opens, a collapsed **Startup notices** card 
 - Year-end letters and your answers (the letter's text until January 15, then only the answer)
 - The garden, the decorations in the yard and the album
 - The kind, server address and model name of each AI connection
-- Language, desktop mode and strolling, the window position, size and Always on top setting, the chosen time of day, weather and season
+- Language, desktop mode, strolling and grass on the desktop, the window position, size and Always on top setting, the chosen time of day, weather and season
 - Imported pet files and where they came from
 
 ### Saved differently

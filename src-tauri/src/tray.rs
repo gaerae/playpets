@@ -18,6 +18,8 @@ pub struct Snapshot {
     friends: bool,
     desktop: bool,
     wander: bool,
+    /// The grass under what is out on the desktop (desktop/grass.rs).
+    grass: bool,
     /// The yard's sounds are on (shared by the tray and macOS View menu).
     sound: bool,
     always_on_top: bool,
@@ -49,6 +51,7 @@ pub fn snapshot(d: &AppData) -> Snapshot {
         friends: !d.pets.is_empty(),
         desktop: crate::app::desktop_on(d),
         wander: d.prefs.wander,
+        grass: d.prefs.grass,
         sound: d.prefs.sound.on,
         always_on_top: d.prefs.always_on_top,
         attention,
@@ -97,25 +100,32 @@ enum Line {
     Separator,
 }
 
-/// Direct access to the yard and its panels, then the applicable display switches and sound,
-/// then settings, updates and about, then quitting.
+/// The yard, then where to go in it, then the desktop's switches, then this window and its sound,
+/// then settings, updates and about, then quitting. A group with nothing in it leaves no line.
 fn lines(snap: &Snapshot) -> Vec<Line> {
     use Line::{Item, Separator};
-    let mut lines = vec![Item("open", None)];
+    let mut lines = vec![Item("open", None), Separator];
+    // Windows and Linux have no menu bar, so the tray is where every place opens from.
     if snap.friends {
         lines.push(Item("friends", None));
     }
-    lines.extend([Item("invite", None), Separator]);
-    lines.push(Item("fit", None));
-    lines.push(Item("alwaysOnTop", Some(snap.always_on_top)));
+    lines.push(Item("invite", None));
+    if snap.friends {
+        lines.push(Item("play", None));
+    }
+    lines.extend([Item("scene", None), Separator]);
     if snap.friends {
         lines.push(Item("desktop", Some(snap.desktop)));
         if snap.desktop {
             lines.push(Item("wander", Some(snap.wander)));
+            lines.push(Item("grass", Some(snap.grass)));
         }
+        lines.push(Separator);
     }
     lines.extend([
         Item("sound", Some(snap.sound)),
+        Item("alwaysOnTop", Some(snap.always_on_top)),
+        Item("fit", None),
         Separator,
         Item("settings", None),
         Item("update", None),
@@ -124,6 +134,19 @@ fn lines(snap: &Snapshot) -> Vec<Line> {
         Item("quit", None),
     ]);
     lines
+}
+
+/// The items the macOS menu bar has as well, said in its words so one sentence has one key.
+const SHARED: [&str; 9] = [
+    "friends", "invite", "play", "scene", "sound", "settings", "update", "about", "quit",
+];
+
+fn key(id: &str) -> String {
+    if SHARED.contains(&id) {
+        format!("menu.{id}")
+    } else {
+        format!("tray.{id}")
+    }
 }
 
 fn menu(app: &AppHandle, (snap, found, _): &Shown) -> tauri::Result<Menu<tauri::Wry>> {
@@ -136,7 +159,7 @@ fn menu(app: &AppHandle, (snap, found, _): &Shown) -> tauri::Result<Menu<tauri::
         // Once a newer version is known, the update item names it.
         let text = match (id, found) {
             ("update", Some(version)) => i18n::tr("tray.update_to", &[("version", &format!("v{version}"))]),
-            _ => i18n::t(&format!("tray.{id}")),
+            _ => i18n::t(&key(id)),
         };
         match check {
             Some(on) => menu.append(&CheckMenuItem::with_id(app, id, text, true, on, None::<&str>)?)?,
@@ -291,7 +314,7 @@ pub fn build(app: &tauri::App) -> tauri::Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use super::{Line, Snapshot, i18n, lines, with_mark};
+    use super::{Line, SHARED, Snapshot, i18n, key, lines, with_mark};
 
     fn ids(snap: &Snapshot) -> Vec<String> {
         lines(snap)
@@ -311,11 +334,13 @@ mod tests {
             ids(&none),
             [
                 "open",
-                "invite",
                 "-",
-                "fit",
-                "alwaysOnTop:false",
+                "invite",
+                "scene",
+                "-",
                 "sound:false",
+                "alwaysOnTop:false",
+                "fit",
                 "-",
                 "settings",
                 "update",
@@ -323,7 +348,7 @@ mod tests {
                 "-",
                 "quit"
             ],
-            "inviting and sound remain available without a friend"
+            "inviting, the place and sound remain available without a friend, with no empty group"
         );
         let friends = Snapshot {
             friends: true,
@@ -334,13 +359,17 @@ mod tests {
             ids(&friends),
             [
                 "open",
+                "-",
                 "friends",
                 "invite",
+                "play",
+                "scene",
                 "-",
-                "fit",
-                "alwaysOnTop:true",
                 "desktop:false",
+                "-",
                 "sound:false",
+                "alwaysOnTop:true",
+                "fit",
                 "-",
                 "settings",
                 "update",
@@ -348,29 +377,53 @@ mod tests {
                 "-",
                 "quit"
             ],
-            "strolling waits for desktop mode"
+            "strolling and the grass wait for desktop mode"
         );
         let desk = Snapshot {
             friends: true,
             desktop: true,
             wander: true,
+            grass: true,
             ..Default::default()
         };
-        assert!(ids(&desk).contains(&"wander:true".to_string()));
+        assert_eq!(
+            ids(&desk)[6..10],
+            ["-", "desktop:true", "wander:true", "grass:true"],
+            "the desktop's switches stand together, strolling and the grass under it"
+        );
         let audible = Snapshot {
             sound: true,
             ..Default::default()
         };
         assert!(ids(&audible).contains(&"sound:true".to_string()));
         assert!(!ids(&audible).contains(&"friends".to_string()));
-        // Every item's words come from tray.{id} (built at run time, so the key test cannot see them).
-        for line in lines(&desk).iter().chain(&lines(&none)) {
-            if let Line::Item(id, _) = line {
-                assert_ne!(i18n::t(&format!("tray.{id}")), format!("tray.{id}"), "tray.{id}");
+        assert!(!ids(&audible).contains(&"play".to_string()), "a game needs a friend");
+    }
+
+    // The words are found at run time, so the key test cannot see them; an item the menu bar
+    // also has takes the menu bar's words, so the two never drift apart.
+    #[test]
+    fn every_item_has_words_in_every_language_shared_with_the_menu_bar() {
+        let desk = Snapshot {
+            friends: true,
+            desktop: true,
+            ..Default::default()
+        };
+        for lang in i18n::Lang::all() {
+            for line in lines(&desk) {
+                if let Line::Item(id, _) = line {
+                    let key = key(id);
+                    assert_ne!(i18n::t_in(lang, &key), key, "{key}");
+                    assert!(
+                        !SHARED.contains(&id) || key.starts_with("menu."),
+                        "{id} borrows the menu bar's words"
+                    );
+                }
             }
-        }
-        for state in ["waiting", "error"] {
-            assert_ne!(i18n::t(&format!("tray.state_{state}")), format!("tray.state_{state}"));
+            for state in ["waiting", "error"] {
+                let key = format!("tray.state_{state}");
+                assert_ne!(i18n::t_in(lang, &key), key);
+            }
         }
     }
 

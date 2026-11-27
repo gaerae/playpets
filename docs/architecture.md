@@ -60,7 +60,7 @@ flowchart LR
 | Strings | `src-tauri/src/i18n/<language>.rs`, `src/core/strings/<language>.js` | Per-language sentence tables. Registered in `i18n/mod.rs` and `core/strings.js` |
 | Import links | `src-tauri/src/links.rs` | Takes `playpets://import?url=…`, imports the pet through the same path as a pasted address, and opens the Invite tab |
 | Saved files | `src-tauri/src/store.rs` | Reads and writes the JSON files in the data folder atomically. A file that cannot be parsed is kept as a timestamped copy beside it (`state.json.corrupt-…`), so nothing is lost |
-| Auto-update | `src-tauri/src/update.rs` | Checks `latest.json` on the latest release, renames the tray's update item once a version is found, reports download, signature-check and install stages (`update-status`), then restarts ([update notice](#update-notice)). A Store installation asks Microsoft Store (`StoreContext`) on the same schedule and opens its Store page instead of installing |
+| Auto-update | `src-tauri/src/update.rs` | Checks `latest.json` on the latest release, renames the tray's update item once a version is found, reports download, signature-check and install stages (`update-status`), then restarts ([update notice](#update-notice)). A Store installation asks Microsoft Store (`StoreContext`) on the same schedule and has the Store download and install it, with the same stages; its Store page opens where the Store cannot do it from the app |
 
 ### Yard content
 - Every kind: fish, bugs, flowers, gifts, the garden's stages.
@@ -188,7 +188,7 @@ Format:
 - A failed installation clears the record.
 - The page also keeps the version that ran last (`last-version`). A start on a higher version shows the same notice once, which covers Microsoft Store and installers run by hand while the app was closed.
 - An ordinary restart never claims an update succeeded.
-- A Store installation shows a version waiting in the Store the same way; its button opens the app's Store page (`ms-windows-store://pdp/?PFN=…`), and the Store installs it.
+- A Store installation shows a version waiting in the Store the same way. Its button asks the Store to download and install it (`RequestDownloadAndInstallStorePackageUpdatesAsync`): a Windows consent, then download progress and the install stage as `update-status`, and Cancel while it downloads. Windows closes the app to install it and opens it again (`reopen_after_store_update`). When the Store declines (Wi-Fi required, low battery, an error), the app's Store page opens instead (`ms-windows-store://pdp/?PFN=…`).
 - A Store installation registers with `RegisterApplicationRestart` (not for crashes, hangs or Windows Update restarts), because the Store closes a running app to update it and reopens only apps that asked.
 - On macOS, an install from a read-only volume (an opened disk image, App Translocation) stops before downloading and asks the person to move the app to Applications.
 
@@ -294,7 +294,7 @@ What each arrow in the diagram carries, path by path.
 ## Interfaces
 | Touchpoint | Source | Summary |
 |---|---|---|
-| Page → backend commands | The `COMMANDS` table in `src-tauri/src/commands.rs` (see Commands in [Components](#components)) | [Commands by area](#commands-by-area). The overlay gets only `bootstrap`, `play`, `openChat`, `dragStart`, `dragStop` |
+| Page → backend commands | The `COMMANDS` table in `src-tauri/src/commands.rs` (see Commands in [Components](#components)) | [Commands by area](#commands-by-area). The overlay gets only `bootstrap`, `play`, `openChat`, `desktopMenu`, `dragStart`, `setBody`, `dragStop`, `setGrass`, `grassMenu` |
 | Backend → page | `app::changed`, `app::push_event` | `change` (full state), `event` (status, say, play, chat-message, select, window, update, update-status, check-update, open-panel, persona-saved, history-reset, import-request, pet-moved) |
 | Sprites and imported backgrounds' pictures | `app::sprite_response` | The `pet-asset` custom protocol |
 | Coding agents | [Architecture: coding agent integration](agent-integration.md) | CLI commands, hooks, MCP, HTTP bridge |

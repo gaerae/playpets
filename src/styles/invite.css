@@ -61,11 +61,16 @@
   align-items: center;
   gap: 8px;
   text-align: left;
-  background: var(--white);
+  background: var(--field-surface);
   position: relative;
   min-height: 58px;
   min-width: 0;
   max-width: 100%;
+}
+/* The shelf scrolls and clips its sides, so a ring outside a full-width card showed only as two
+   bars above and below it; it goes inside, as in the dock's panels (shell.css). */
+.asset-card:focus-visible {
+  outline-offset: -3px;
 }
 .asset-card:hover {
   border-color: var(--green-line);
@@ -91,8 +96,8 @@
   height: 16px;
 }
 .asset-card canvas {
-  width: 40px;
-  height: 44px;
+  width: 56px;
+  height: 60px;
   border-radius: var(--radius-card);
   background: var(--portrait);
   flex-shrink: 0;
@@ -142,9 +147,6 @@
 .invite-search {
   width: 100%;
   margin-bottom: 8px;
-}
-.side-panel:has(#panel-invite:not([hidden])) {
-  background: var(--sheet);
 }
 #panel-invite .section-heading {
   flex-wrap: wrap;

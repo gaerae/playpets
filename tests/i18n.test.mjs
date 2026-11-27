@@ -52,6 +52,29 @@ test('the agent chip introduces its agents without a comma', () => {
     assert.doesNotMatch(STRINGS[lang]['friend.agent_chip'], /[,、，]\s*\{agents\}/, lang);
 });
 
+// The non-game surfaces speak like the game: closeness is a next step, not a score; the empty chat
+// only greets; the import dialog names its buttons as they are labelled.
+test('the closeness line names the next level and what it brings, with no points', () => {
+  for (const lang of Object.keys(STRINGS)) {
+    assert.deepEqual(holes(STRINGS[lang]['bond.next']), ['level', 'unlock'], lang);
+  }
+});
+
+test('the empty chat only greets, and the clear button says the talk ends with the app', () => {
+  for (const lang of Object.keys(STRINGS)) {
+    assert.doesNotMatch(STRINGS[lang]['chat.empty_connected'], /\n/, lang);
+    assert.ok(STRINGS[lang]['chat.clear_title'].length > STRINGS.en['chat.clear'].length, lang);
+  }
+  assert.match(STRINGS.en['chat.clear_title'], /quits/);
+});
+
+test('the empty shelf names the Import button as it is labelled', () => {
+  for (const lang of Object.keys(STRINGS)) {
+    assert.ok(STRINGS[lang]['invite.none'].includes(STRINGS[lang]['invite.import_go']), lang);
+    assert.ok(!STRINGS[lang]['invite.none'].includes(STRINGS[lang]['invite.import']), lang);
+  }
+});
+
 // Every relationship the friend settings offer (index.html) has its own voice for the moments a
 // friend speaks up on its own (bond.js lineFor); a friend uses the plain lines.
 test('every relationship has its own welcome, closeness and dear lines', async () => {

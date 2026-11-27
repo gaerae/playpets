@@ -16,6 +16,8 @@ test('album tabs have one tab stop and arrow keys select and label the collectio
   setupAlbum();
   nodes.get('album-button').onclick();
   const tabs = nodes.get('album-tabs').children;
+  // Opened, the album is at its book's tab, not at Close: a keyboard starts among the books.
+  assert.equal(document.activeElement, tabs[0]);
   assert.deepEqual(
     tabs.map(tab => tab.tabIndex),
     tabs.map((_, index) => (index === 0 ? 0 : -1)),
@@ -28,8 +30,9 @@ test('album tabs have one tab stop and arrow keys select and label the collectio
     },
   });
   assert.equal(prevented, true);
-  // a book with nothing in it yet keeps out of the way (the hidden ones)
-  const last = tabs.findLast(tab => !tab.hidden);
+  // from the first book, Left goes round to the last: the secrets', there from the first day
+  const last = tabs.at(-1);
+  assert.equal(last.dataset.book, 'secret');
   assert.equal(document.activeElement, last);
   assert.equal(last.getAttribute('aria-selected'), 'true');
   assert.equal(nodes.get('album-grid').getAttribute('aria-labelledby'), last.id);

@@ -1,8 +1,10 @@
 // Desktop overlay: one transparent, click-through window per monitor. Rust owns positions,
 // drags, hover hit-testing and desktop roaming; the page (src/overlay/overlay.js) only draws.
+use super::grass::{self, Span};
 use super::macos::{float_over_fullscreen, restore_window_class};
 use super::roam::{self, Bounds};
 use super::screens::{Mon, clamp_to, cursor_to_logical, monitor_of_box, monitors};
+use crate::pets::catalog::{CELL_WIDTH, ROW_HEIGHT};
 use crate::pets::content::catalog;
 use serde_json::{Value, json};
 use std::collections::HashMap;
@@ -89,6 +91,9 @@ struct Inner {
     sent: HashMap<String, Value>,
     /// The friend the pointer is on, as last told to the pages (they show its name button).
     hover_pet: Option<String>,
+    /// Where each friend is drawn in its sprite's cell, as its page measured it (set_body): shares
+    /// [left, top, right, bottom]. Until then its whole sprite takes the pointer.
+    bodies: HashMap<String, [f64; 4]>,
     /// Whether any overlay window is (or is being) open; until all are closed the loop keeps its pace.
     open: bool,
     /// The monitors as last asked for, when, and the primary one's scale.
@@ -113,6 +118,17 @@ struct Inner {
     warm: HashMap<String, Instant>,
     /// The thing whose menu the yard just opened: the screen it would land on gets its window.
     warming: Option<Item>,
+    /// The grass along the first screen's floor while its switch is on (Prefs::grass), and how far it
+    /// reaches (grass.rs).
+    grass: Option<Span>,
+    /// When the page last said a grass end is being dragged: meanwhile the screen takes the pointer.
+    grass_drag: Option<Instant>,
+    /// Since when the pointer has rested on a grass end (grass::DWELL).
+    grip_since: Option<Instant>,
+    /// Whether the pointer is over the bare grass, as last told to the page (it thins meanwhile).
+    over_grass: bool,
+    /// Whether the pointer shows it pulls a grass end, as last set on the window.
+    pull: bool,
 }
 
 pub struct Overlay {
@@ -129,7 +145,11 @@ fn dims(item: &Item) -> (f64, f64) {
         return (w, h);
     }
     let size = item.size;
-    ((size + 48.0).max(200.0), (size * 208.0 / 192.0 + 88.0 + FOOT).round())
+    ((size + 48.0).max(200.0), (sprite_height(size) + 88.0 + FOOT).round())
+}
+/// How tall a friend `size` wide is drawn: its sprite sheet's cells keep their shape.
+fn sprite_height(size: f64) -> f64 {
+    size * f64::from(ROW_HEIGHT) / f64::from(CELL_WIDTH)
 }
 /// A friend's sprite stands this far above the bottom of its box (FOOT in overlay.js).
 const SPRITE_FOOT: f64 = FOOT + 4.0;
@@ -137,6 +157,7 @@ const SPRITE_FOOT: f64 = FOOT + 4.0;
 const VISIT_CHANCE: f64 = 0.4;
 /// The floor line on a screen: this far above its work area's bottom. Friends start in a row with
 /// their sprites' feet on it, and the drawing of a gift, a flower or a planted tree always ends on it.
+/// Lower on the screen with the grass (grass::FLOOR_GAP).
 const FLOOR_GAP: f64 = 25.0;
 /// The top of a friend's box is for its speech bubble, which lets clicks through.
 const BUBBLE_ROOM: f64 = 60.0;
@@ -261,11 +282,18 @@ impl Overlay {
         self.looper.unpark();
     }
 
-    pub fn sync(&self, pets: Vec<Item>, visible: bool, wander: bool) {
+    pub fn sync(&self, pets: Vec<Item>, visible: bool, wander: bool, grass: Option<Span>) {
         let mut d = crate::app::hold(&self.inner);
         let same =
             d.visible == visible && d.pets.len() == pets.len() && d.pets.iter().zip(&pets).all(|(a, b)| a.id == b.id);
         d.news |= !same;
+        // An end still held keeps where it is pulled to; the saved span comes back once it is let go.
+        let held = d.grass_drag.is_some() && grass.is_some() && d.grass.is_some();
+        if !held && d.grass != grass {
+            d.grass = grass;
+            d.grass_drag = None;
+            d.news = true;
+        }
         d.visible = visible;
         d.wander = wander;
         if !wander {
@@ -281,6 +309,7 @@ impl Overlay {
         d.news |= !grown.is_empty();
         d.resized.extend(grown);
         d.roams.retain(|k, _| ids.contains(k));
+        d.bodies.retain(|k, _| ids.contains(k));
         if d.drag.as_ref().map(|g| !ids.contains(&g.id)).unwrap_or(false) {
             d.drag = None;
         }
@@ -312,6 +341,88 @@ impl Overlay {
         let d = crate::app::hold(&self.inner);
         layout_of(&d, &d.mons)
     }
+
+    /// The grass as the overlay page draws it (`ground_view`), by the monitors as last asked for.
+    pub fn ground(&self) -> Value {
+        let d = crate::app::hold(&self.inner);
+        ground_view(&d, &d.mons)
+    }
+
+    /// The page measured where friend `id` is drawn in its sprite's cell (shares [left, top, right,
+    /// bottom]), or could not (None): the pointer is taken there from the next look (hovered).
+    pub fn set_body(&self, id: &str, body: Option<[f64; 4]>) {
+        let mut d = crate::app::hold(&self.inner);
+        match body {
+            Some(body) => d.bodies.insert(id.to_string(), body),
+            None => d.bodies.remove(id),
+        };
+    }
+    /// The page in window `from` pulled a grass end to `left`/`right` (logical pixels): the grass
+    /// reaches there now. While `dragging` the screen keeps the pointer; once let go, the span to
+    /// save. None while dragging, with no grass out, without both ends, or from a window other
+    /// than the one drawing the grass.
+    pub fn set_grass(&self, from: &str, left: f64, right: f64, dragging: bool) -> Option<Span> {
+        if !(left.is_finite() && right.is_finite()) {
+            return None;
+        }
+        let mut d = crate::app::hold(&self.inner);
+        let (mon, _) = ground(&d, &d.mons)?;
+        if from.strip_prefix("overlay") != Some(mon.id.as_str()) {
+            return None;
+        }
+        let area = d.mons.first()?.area;
+        let span = Span::from_ends(&area, left, right);
+        d.grass = Some(span);
+        d.grass_drag = dragging.then(Instant::now);
+        if !dragging {
+            // Every window hears where it ends now, the one that pulled it too.
+            d.resend = true;
+        }
+        drop(d);
+        self.looper.unpark();
+        (!dragging).then_some(span)
+    }
+}
+
+/// The grass's screen (the first, where friends first come out) and its ends there, while it is
+/// switched on and something is out.
+fn ground<'m>(d: &Inner, mons: &'m [Mon]) -> Option<(&'m Mon, (f64, f64))> {
+    let (true, Some(span), Some(mon)) = (d.visible, d.grass, mons.first()) else {
+        return None;
+    };
+    Some((mon, span.ends(&mon.area)))
+}
+
+/// What the overlay page draws of the grass (grass::view), or null with none out.
+fn ground_view(d: &Inner, mons: &[Mon]) -> Value {
+    ground(d, mons).map_or(Value::Null, lawn_view)
+}
+
+/// What the overlay page draws of the grass out on `mon` with these ends (`ground` gives both).
+fn lawn_view((mon, ends): (&Mon, (f64, f64))) -> Value {
+    grass::view(&mon.id, &mon.area, ends)
+}
+
+/// Whether the grass's screen takes the pointer for the grass (`lawn`, as `ground` gives it) at
+/// `now`: anywhere on it while an end is dragged (until the page stops telling,
+/// grass::DRAG_STALE), else on an end the pointer has rested on (grass::DWELL).
+fn grass_takes(d: &mut Inner, lawn: Option<(&Mon, (f64, f64))>, cursor: Option<(f64, f64)>, now: Instant) -> bool {
+    let (Some((mon, ends)), Some(c)) = (lawn, cursor) else {
+        d.grip_since = None;
+        d.grass_drag = None;
+        return false;
+    };
+    let area = mon.area;
+    match d.grass_drag {
+        Some(at) if now.saturating_duration_since(at) < grass::DRAG_STALE => return area.contains(c),
+        Some(_) => d.grass_drag = None,
+        None => {}
+    }
+    if !grass::on_grip(&area, ends, c) {
+        d.grip_since = None;
+        return false;
+    }
+    now.saturating_duration_since(*d.grip_since.get_or_insert(now)) >= grass::DWELL
 }
 
 /// Whether anything is out to step, and whether a window is open or asked for: with neither, the
@@ -338,6 +449,10 @@ fn layout_of(d: &Inner, mons: &[Mon]) -> Vec<Value> {
             }
             if hung(p, *y, &mon.area) {
                 item["hung"] = json!(true);
+            }
+            // On its way: how far it still has to go, for the page to bring its legs to a stop.
+            if let Some((tx, ty)) = d.roams.get(&p.id).and_then(|r| r.target) {
+                item["toGo"] = json!((tx - x).hypot(ty - y));
             }
             // Held: it follows the pointer with no glide, also in a window on another screen, which
             // never had the press (pointer capture stays where the drag began).
@@ -371,8 +486,7 @@ fn keep_feet(old: &[Item], new: &[Item], positions: &mut HashMap<String, (f64, f
     moved
 }
 
-/// One step. Returns how long until the next: TICK while something moves, a friend is being
-/// dragged or the pointer is near one; otherwise as long as calm_wait allows.
+/// One step. Returns how long until the next (`pace`).
 fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt_ms: f64) -> Duration {
     let (mons, primary) = current_monitors(app, inner);
     let cursor = cursor_in(app, &mons, primary);
@@ -381,7 +495,7 @@ fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt
     let (moved, busy) = {
         let mut d = crate::app::hold(inner);
         if let Some(item) = d.warming.take()
-            && let Some(mon) = landing(&item, &mons)
+            && let Some(mon) = landing(&item, floor_gap(&d, &mons), &mons)
         {
             d.warm.insert(mon.id.clone(), Instant::now() + LINGER);
         }
@@ -396,16 +510,7 @@ fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt
             || strolled
             || std::mem::take(&mut d.dropped)
             || std::mem::take(&mut d.resend);
-        let walking = d.roams.values().any(|r| r.target.is_some());
-        let busy = moved || walking || d.drag.is_some() || pointer_near(&d, cursor);
-        (
-            moved,
-            if busy {
-                TICK
-            } else {
-                calm_wait(&d, cursor, Instant::now())
-            },
-        )
+        (moved, pace(&d, &mons, cursor, moved, Instant::now()))
     };
     // Saving happens outside the lock: it reaches back into the app state.
     for (id, x, y) in &arrivals {
@@ -423,20 +528,34 @@ fn tick(app: &AppHandle, inner: &Arc<Mutex<Inner>>, on_position: &PositionFn, dt
     busy
 }
 
+/// How long until the next step: TICK while something moves, a friend or a grass end is held, or
+/// the pointer is near a friend; otherwise as long as calm_wait allows. The grass's grips count
+/// there with the friends, not here: they sit in the screen's bottom corners, where a pointer
+/// rests all day (a Start button, a Dock), and a calm look every CALM_TICK still sees it rest on
+/// one well within grass::DWELL.
+fn pace(d: &Inner, mons: &[Mon], cursor: Option<(f64, f64)>, moved: bool, now: Instant) -> Duration {
+    let walking = d.roams.values().any(|r| r.target.is_some());
+    if moved || walking || d.drag.is_some() || d.grass_drag.is_some() || pointer_near(d, cursor) {
+        return TICK;
+    }
+    let grips = ground(d, mons).map(|(mon, ends)| grass::grips(&mon.area, ends));
+    calm_wait(d, grips.as_ref().map_or(&[], |g| g.as_slice()), cursor, now)
+}
+
 /// With nothing moving: how long the loop may wait before it looks again. The pointer cannot reach
-/// any box at POINTER_SPEED before then (the straight line to its nearest point), and a friend's
-/// next stroll starts on time. Between CALM_TICK and CALM_MAX.
-fn calm_wait(d: &Inner, cursor: Option<(f64, f64)>, now: Instant) -> Duration {
-    let reach = cursor.map_or(CALM_MAX, |(cx, cy)| {
-        let gap = d
-            .pets
-            .iter()
-            .filter_map(|p| {
-                let &(x, y) = d.positions.get(&p.id)?;
-                let (w, h) = dims(p);
-                let (dx, dy) = ((x - cx).max(cx - x - w).max(0.0), (y - cy).max(cy - y - h).max(0.0));
-                Some(dx.hypot(dy))
-            })
+/// any friend's box, nor any of `also` (the grass's grips), at POINTER_SPEED before then (the
+/// straight line to its nearest point), and a friend's next stroll starts on time. Between
+/// CALM_TICK and CALM_MAX.
+fn calm_wait(d: &Inner, also: &[Bounds], cursor: Option<(f64, f64)>, now: Instant) -> Duration {
+    let reach = cursor.map_or(CALM_MAX, |c| {
+        let boxes = d.pets.iter().filter_map(|p| {
+            let &(x, y) = d.positions.get(&p.id)?;
+            let (w, h) = dims(p);
+            Some(Bounds { x, y, w, h })
+        });
+        let gap = boxes
+            .chain(also.iter().copied())
+            .map(|b| b.gap(c))
             .fold(f64::INFINITY, f64::min);
         Duration::from_secs_f64((gap / POINTER_SPEED).min(CALM_MAX.as_secs_f64()))
     });
@@ -468,6 +587,7 @@ fn place_newcomers(d: &mut Inner, mons: &[Mon]) -> bool {
     let (true, Some(primary)) = (d.visible, mons.first()) else {
         return false;
     };
+    let floor = floor_gap(d, mons);
     let mut placed = false;
     let (mut friends, mut decorations) = (0, 0);
     for p in &d.pets {
@@ -481,7 +601,7 @@ fn place_newcomers(d: &mut Inner, mons: &[Mon]) -> bool {
         if d.positions.contains_key(&p.id) {
             continue;
         }
-        let start = start_of(p, index, primary);
+        let start = start_of(p, index, primary, floor);
         let area = &screen_of(p, start, mons, primary).area;
         d.positions.insert(p.id.clone(), set_down(p, area, start));
         placed = true;
@@ -493,18 +613,18 @@ fn place_newcomers(d: &mut Inner, mons: &[Mon]) -> bool {
 /// its row on the primary screen. Friends in a row from the left; decorations from the right, so the
 /// two do not stack up, each with its drawn foot on the line friends' feet start on, as it stands on
 /// the ground in the yard.
-fn start_of(p: &Item, index: usize, primary: &Mon) -> (f64, f64) {
+fn start_of(p: &Item, index: usize, primary: &Mon, floor: f64) -> (f64, f64) {
     let (w, h) = dims(p);
     let fallback = if p.decor.is_some() {
         (
             primary.area.x + primary.area.w - w - 60.0 - (index % 5) as f64 * 180.0,
             // A friend's box ends SPRITE_FOOT below its sprite's feet.
-            primary.area.y + primary.area.h - FLOOR_GAP - SPRITE_FOOT - h * p.foot,
+            primary.area.y + primary.area.h - floor - SPRITE_FOOT - h * p.foot,
         )
     } else {
         (
             primary.area.x + 35.0 + (index % 6) as f64 * 145.0,
-            primary.area.y + primary.area.h - h - FLOOR_GAP - (index / 6) as f64 * 145.0,
+            primary.area.y + primary.area.h - h - floor - (index / 6) as f64 * 145.0,
         )
     };
     p.saved.unwrap_or(fallback)
@@ -515,10 +635,21 @@ fn screen_of<'a>(p: &Item, start: (f64, f64), mons: &'a [Mon], primary: &'a Mon)
     monitor_of_box(mons, start.0, start.1, dims(p)).unwrap_or(primary)
 }
 
-/// The screen `item` lands on when it is sent out, as place_newcomers places it.
-fn landing<'a>(item: &Item, mons: &'a [Mon]) -> Option<&'a Mon> {
+/// The floor line's height above the primary work area's bottom (FLOOR_GAP). With the grass out
+/// the floor is lower, so feet stand in it rather than on its tips.
+fn floor_gap(d: &Inner, mons: &[Mon]) -> f64 {
+    if ground(d, mons).is_some() {
+        grass::FLOOR_GAP
+    } else {
+        FLOOR_GAP
+    }
+}
+
+/// The screen `item` lands on when it is sent out, as place_newcomers places it with the floor line
+/// `floor` (floor_gap) above the primary work area's bottom.
+fn landing<'a>(item: &Item, floor: f64, mons: &'a [Mon]) -> Option<&'a Mon> {
     let primary = mons.first()?;
-    Some(screen_of(item, start_of(item, 0, primary), mons, primary))
+    Some(screen_of(item, start_of(item, 0, primary, floor), mons, primary))
 }
 
 /// How near a work area's top a hanging gift's box is set down to hang from it.
@@ -612,6 +743,8 @@ fn stroll(
     let mut moved = false;
     // Looked up only when a friend picks where to go, not on every step of a walk.
     let mut decorations: Option<Vec<Reach>> = None;
+    // On the grass's screen a friend walks over the grass.
+    let lawn = ground(d, mons);
     for p in d.pets.iter().filter(|p| p.decor.is_none()) {
         let Some(&(px, py)) = d.positions.get(&p.id) else {
             continue;
@@ -638,6 +771,17 @@ fn stroll(
                     w: 1440.0,
                     h: 900.0,
                 });
+                let area = match (lawn, mon) {
+                    (Some((grass_mon, ends)), Some(m)) if grass_mon.id == m.id => {
+                        let (gx, gw) = grass::walk_range(&area, ends, (w - p.size) / 2.0);
+                        Bounds {
+                            x: gx,
+                            w: gw.max(w),
+                            ..area
+                        }
+                    }
+                    _ => area,
+                };
                 let here = Bounds { x: px, y: py, w, h };
                 // Only one on the same screen: a walk never crosses from one monitor to another.
                 let screen = mon.map(|m| m.id.as_str());
@@ -662,7 +806,7 @@ fn stroll(
             }
             None => {}
             Some((tx, ty)) => {
-                let (nx, ny, done) = roam::step_toward(px, py, tx, ty, dt_ms);
+                let (nx, ny, done) = roam::step_toward(px, py, tx, ty, dt_ms, p.size);
                 d.positions.insert(p.id.clone(), (nx, ny));
                 moved = true;
                 if done {
@@ -693,12 +837,33 @@ fn hovered(d: &Inner, layout: &[Value], cursor: Option<(f64, f64)>) -> (HashMap<
             item["height"].as_f64().unwrap_or(0.0),
         );
         let pet = d.pets.iter().find(|p| p.id == item["id"].as_str().unwrap_or(""));
-        // A friend takes clicks on its sprite and name, not on the room for its bubble; a decoration on all of it.
-        let (margin, top) = match pet {
-            Some(p) if p.decor.is_none() => ((w - p.size) / 2.0, BUBBLE_ROOM),
-            _ => (0.0, 0.0),
+        let within = |left: f64, top: f64, right: f64, bottom: f64| {
+            Bounds {
+                x: left,
+                y: top,
+                w: right - left,
+                h: bottom - top,
+            }
+            .contains(c)
         };
-        let inside = c.0 >= x + margin && c.0 <= x + w - margin && c.1 >= y + top && c.1 <= y + h;
+        // A friend takes clicks on its drawing, and on its name under it once it has the pointer; not
+        // on the empty rest of its cell nor the room for its bubble. A decoration takes them on all of
+        // it. A friend not measured yet takes them on its whole sprite and name.
+        let inside = match pet {
+            Some(p) if p.decor.is_none() => {
+                let (sw, sh) = (p.size, sprite_height(p.size));
+                let (sx, sy) = (x + (w - sw) / 2.0, y + h - SPRITE_FOOT - sh);
+                match d.bodies.get(&p.id) {
+                    Some([l, t, r, b]) => {
+                        within(sx + l * sw, sy + t * sh, sx + r * sw, sy + b * sh)
+                            || d.hover_pet.as_deref() == Some(p.id.as_str())
+                                && within(sx, y + h - SPRITE_FOOT, sx + sw, y + h)
+                    }
+                    None => within(sx, y + BUBBLE_ROOM, sx + sw, y + h),
+                }
+            }
+            _ => within(x, y, x + w, y + h),
+        };
         if inside && pet_id.is_none() {
             pet_id = item["id"].as_str().map(String::from);
         }
@@ -728,9 +893,42 @@ fn keep_warm(warm: &mut HashMap<String, Instant>, visible: bool, layout: &[Value
     }
 }
 
+/// What sync_windows reads and settles under the overlay's lock, to act on once it is let go.
+struct Look<'m> {
+    /// Whether anything is out to show.
+    visible: bool,
+    layout: Vec<Value>,
+    /// Per monitor, whether the pointer is on something drawn there (hovered).
+    hover: HashMap<String, bool>,
+    dragging: bool,
+    /// The friend under the pointer changed: the pages show its name button.
+    hover_event: Option<Value>,
+    /// The pointer came onto the bare grass or left it: its page thins it.
+    grass_event: Option<Value>,
+    /// The screens whose window is kept (keep_warm).
+    warm: Vec<String>,
+    /// The grass's screen and its ends (`ground`).
+    lawn: Option<(&'m Mon, (f64, f64))>,
+    /// The pull the pointer shows, only when it changed.
+    pull: Option<bool>,
+    /// Whether the grass's screen takes the pointer for the grass (grass_takes).
+    takes: bool,
+}
+
 /// Opens, updates or closes each monitor's window. Windows are built and closed on the main thread.
 fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor: Option<(f64, f64)>, moved: bool) {
-    let (visible, layout, hover, dragging, hover_changed, warm) = {
+    let Look {
+        visible,
+        layout,
+        mut hover,
+        dragging,
+        hover_event,
+        grass_event,
+        warm,
+        lawn,
+        pull,
+        takes,
+    } = {
         let mut d = crate::app::hold(inner);
         let layout = layout_of(&d, mons);
         let visible = d.visible && !d.pets.is_empty();
@@ -739,16 +937,49 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
         let (hover, pet_id) = hovered(&d, &layout, cursor);
         let changed = d.hover_pet != pet_id;
         d.hover_pet = pet_id;
-        let event = changed.then(|| json!({"type": "hover", "petId": d.hover_pet}));
-        (visible, layout, hover, d.drag.is_some(), event, warm)
+        let hover_event = changed.then(|| json!({"type": "hover", "petId": d.hover_pet}));
+        // The grass's screen: the page draws it there, an end takes the pointer, and the bare grass
+        // under the pointer thins so what is behind it shows. Its place borrows `mons`, not `d`.
+        let lawn = ground(&d, mons);
+        let takes = grass_takes(&mut d, lawn, cursor, Instant::now());
+        let over = d.hover_pet.is_none()
+            && d.grass_drag.is_none()
+            && cursor.is_some_and(|c| lawn.is_some_and(|(m, ends)| grass::over(&m.area, ends, c)));
+        let grass_event =
+            (std::mem::replace(&mut d.over_grass, over) != over).then(|| json!({"type": "grass", "over": over}));
+        let pull = (std::mem::replace(&mut d.pull, takes) != takes).then_some(takes);
+        Look {
+            visible,
+            layout,
+            hover,
+            dragging: d.drag.is_some(),
+            hover_event,
+            grass_event,
+            warm,
+            lawn,
+            pull,
+            takes,
+        }
     };
+    let lawn_id = lawn.map(|(m, _)| m.id.as_str());
+    // What the grass's window draws of it, built once for a step that moved anything.
+    let ground = lawn.filter(|_| moved).map(lawn_view);
+    if takes && let Some(id) = lawn_id {
+        hover.insert(id.to_string(), true);
+    }
     let mut open = visible;
     for mon in mons {
         let label = format!("overlay{}", mon.id);
         let existing = app.get_webview_window(&label);
         open |= existing.is_some();
         match (
-            needs_window(visible, dragging, &layout, &mon.id, warm.contains(&mon.id)),
+            needs_window(
+                visible,
+                dragging,
+                &layout,
+                &mon.id,
+                warm.contains(&mon.id) || lawn_id == Some(mon.id.as_str()),
+            ),
             existing,
         ) {
             (true, None) => {
@@ -788,20 +1019,32 @@ fn sync_windows(app: &AppHandle, inner: &Arc<Mutex<Inner>>, mons: &[Mon], cursor
                 if before != Some(ignore) {
                     let _ = win.set_ignore_cursor_events(ignore);
                 }
+                let draws_grass = lawn_id == Some(mon.id.as_str());
+                // A window that does not show the page's own cursor (an inactive one) shows the pull
+                // the backend sets while a grass end is ready or held.
+                if let (Some(on), true) = (pull, draws_grass) {
+                    let _ = win.set_cursor_icon(if on {
+                        tauri::CursorIcon::EwResize
+                    } else {
+                        tauri::CursorIcon::Default
+                    });
+                }
                 if moved {
                     let own: Vec<&Value> = layout
                         .iter()
                         .filter(|item| item["displayId"] == mon.id.as_str())
                         .collect();
-                    let own = json!(own);
-                    let fresh = crate::app::hold(inner).sent.get(&mon.id) != Some(&own);
+                    let ground = ground.as_ref().filter(|_| draws_grass);
+                    let payload = json!({"type": "layout", "layout": own, "ground": ground});
+                    let fresh = crate::app::hold(inner).sent.get(&mon.id) != Some(&payload);
                     if fresh {
-                        let payload = json!({"type": "layout", "layout": own});
                         let _ = win.eval(format!("window.__pp&&__pp('event',{payload})"));
-                        crate::app::hold(inner).sent.insert(mon.id.clone(), own);
+                        crate::app::hold(inner).sent.insert(mon.id.clone(), payload);
                     }
                 }
-                if let Some(payload) = &hover_changed {
+                // Only the window drawing the grass thins it; every other one hides its strip.
+                let grass_event = grass_event.as_ref().filter(|_| draws_grass);
+                for payload in hover_event.iter().chain(grass_event) {
                     let _ = win.eval(format!("window.__pp&&__pp('event',{payload})"));
                 }
             }
@@ -966,22 +1209,28 @@ mod tests {
         };
         let mons = vec![screen()[0].clone(), second];
         assert_eq!(
-            landing(&out("pip", None, None), &mons).unwrap().id,
+            landing(&out("pip", None, None), FLOOR_GAP, &mons).unwrap().id,
             "0",
             "a first time out: the primary"
         );
         assert_eq!(
-            landing(&out("pip", Some((2000.0, 500.0)), None), &mons).unwrap().id,
+            landing(&out("pip", Some((2000.0, 500.0)), None), FLOOR_GAP, &mons)
+                .unwrap()
+                .id,
             "1"
         );
         assert_eq!(
-            landing(&out("bench", Some((2000.0, 500.0)), Some((151.0, 121.0))), &mons)
-                .unwrap()
-                .id,
+            landing(
+                &out("bench", Some((2000.0, 500.0)), Some((151.0, 121.0))),
+                FLOOR_GAP,
+                &mons
+            )
+            .unwrap()
+            .id,
             "1",
             "a gift where it was left"
         );
-        assert!(landing(&out("pip", None, None), &[]).is_none());
+        assert!(landing(&out("pip", None, None), FLOOR_GAP, &[]).is_none());
     }
 
     // The loop is woken once the pages were sent the change, and only for a change to what is out;
@@ -998,7 +1247,7 @@ mod tests {
             inner: Arc::default(),
             looper: looper.thread().clone(),
         };
-        overlay.sync(vec![out("pip", None, None)], true, false);
+        overlay.sync(vec![out("pip", None, None)], true, false, None);
         // A step between the sync and the change's eval sent the newcomer; the change then came
         // with a layout from before it.
         crate::app::hold(&overlay.inner)
@@ -1014,10 +1263,10 @@ mod tests {
         );
         drop(d);
         // The same things again (a status, a chat): nothing new, no wake.
-        overlay.sync(vec![out("pip", None, None)], true, false);
+        overlay.sync(vec![out("pip", None, None)], true, false, None);
         overlay.wake();
         assert!(!crate::app::hold(&overlay.inner).resend);
-        overlay.sync(vec![], false, false);
+        overlay.sync(vec![], false, false, None);
         overlay.wake();
         assert!(crate::app::hold(&overlay.inner).resend, "brought in is news too");
     }
@@ -1033,7 +1282,7 @@ mod tests {
         };
         // Its box: 200 x 216 at (100, 600).
         d.positions.insert("pip".into(), (100.0, 600.0));
-        let ms = |d: &Inner, cursor| calm_wait(d, cursor, now).as_millis();
+        let ms = |d: &Inner, cursor| calm_wait(d, &[], cursor, now).as_millis();
         // At NEAR, as before: the calm tick.
         assert_eq!(ms(&d, Some((200.0, 300.0))), CALM_TICK.as_millis());
         // 1000px above it: 2500 px/s takes 400ms to come that far.
@@ -1061,6 +1310,42 @@ mod tests {
             CALM_TICK.as_millis(),
             "never sooner than the calm tick"
         );
+    }
+
+    // A friend takes the pointer on its drawing (the page measures it, setBody) and, once it has the
+    // pointer, on its name under it; the empty rest of its sprite's cell lets clicks through.
+    #[test]
+    fn a_friend_takes_the_pointer_on_its_drawing_not_on_the_empty_rest_of_its_cell() {
+        let mut d = Inner {
+            pets: vec![out("pip", None, None)],
+            ..Inner::default()
+        };
+        // Its box: 200 x 216 at (100, 600); its 96 x 104 sprite from (152, 684), the name's row under it.
+        let layout =
+            vec![json!({"id": "pip", "x": 100.0, "y": 600.0, "width": 200.0, "height": 216.0, "displayId": "1"})];
+        let on = |d: &Inner, c| hovered(d, &layout, Some(c)).1;
+        assert_eq!(
+            on(&d, (156.0, 700.0)).as_deref(),
+            Some("pip"),
+            "unmeasured: the whole sprite"
+        );
+        // Drawn over the middle half of its cell, from 40% down.
+        d.bodies.insert("pip".into(), [0.25, 0.4, 0.75, 1.0]);
+        assert_eq!(on(&d, (156.0, 760.0)), None, "beside the drawing");
+        assert_eq!(on(&d, (200.0, 700.0)), None, "above its head");
+        assert_eq!(on(&d, (200.0, 760.0)).as_deref(), Some("pip"));
+        assert_eq!(
+            on(&d, (156.0, 800.0)),
+            None,
+            "the name's row, before it has the pointer"
+        );
+        d.hover_pet = Some("pip".into());
+        assert_eq!(
+            on(&d, (156.0, 800.0)).as_deref(),
+            Some("pip"),
+            "moving down onto its name"
+        );
+        assert_eq!(on(&d, (156.0, 760.0)), None, "still not beside it");
     }
 
     #[test]
@@ -1257,6 +1542,30 @@ mod tests {
         assert!(row(&d, "bench").get("hung").is_none());
     }
 
+    // The page eases a walk's legs to a stop from how far it still has to go (overlay.js).
+    #[test]
+    fn a_walking_friend_tells_its_window_how_far_it_has_to_go() {
+        let mut d = Inner {
+            pets: vec![out("daisy", None, None)],
+            ..Inner::default()
+        };
+        d.mons = screen();
+        d.positions.insert("daisy".into(), (300.0, 600.0));
+        let row = |d: &Inner| layout_of(d, &d.mons).into_iter().find(|r| r["id"] == "daisy").unwrap();
+        assert!(row(&d).get("toGo").is_none(), "standing");
+        d.roams.insert(
+            "daisy".into(),
+            Roam {
+                target: Some((330.0, 640.0)),
+                next_at: Instant::now(),
+                visiting: None,
+            },
+        );
+        assert_eq!(row(&d)["toGo"], 50.0);
+        d.roams.get_mut("daisy").unwrap().target = None;
+        assert!(row(&d).get("toGo").is_none(), "cut short");
+    }
+
     // Each decoration carries the screen it stands on, so a friend walks only to one on its own.
     #[test]
     fn a_stroll_goes_only_to_something_on_the_friends_own_screen() {
@@ -1384,5 +1693,225 @@ mod tests {
         assert_eq!(d.positions["tulip"], (1440.0 - 50.0 - 60.0 - 180.0, FEET - 75.0));
         // A friend keeps its saved spot.
         assert_eq!(d.positions["pip"], (300.0, 120.0));
+    }
+
+    // The grass along the first screen's floor (grass.rs): friends come out standing in it and
+    // walk only over it; an end takes the pointer only once the pointer rests there.
+    #[test]
+    fn with_the_grass_out_newcomers_stand_in_it() {
+        let mut d = Inner {
+            visible: true,
+            grass: Some(Span::default()),
+            pets: vec![out("pip", None, None)],
+            ..Inner::default()
+        };
+        assert!(place_newcomers(&mut d, &screen()));
+        let (_, h) = dims(&d.pets[0]);
+        assert_eq!(
+            d.positions["pip"].1 + h,
+            825.0 - grass::FLOOR_GAP,
+            "its box ends on the lower floor"
+        );
+    }
+
+    #[test]
+    fn a_friend_on_the_grass_screen_strolls_only_over_the_grass() {
+        let mut d = Inner {
+            visible: true,
+            wander: true,
+            grass: Some(Span(0.25, 0.75)),
+            pets: vec![out("pip", None, None)],
+            ..Inner::default()
+        };
+        let (w, _) = dims(&d.pets[0]);
+        let margin = (w - 96.0) / 2.0;
+        for _ in 0..200 {
+            d.positions.insert("pip".into(), (450.0, 600.0));
+            d.roams.insert(
+                "pip".into(),
+                Roam {
+                    target: None,
+                    next_at: Instant::now(),
+                    visiting: None,
+                },
+            );
+            stroll(&mut d, &screen(), None, 40.0, &mut Vec::new(), &mut Vec::new());
+            let (x, _) = d.roams["pip"].target.expect("it picks where to go");
+            assert!(x >= 360.0 - margin - 20.0 && x + w <= 1080.0 + margin + 20.0, "{x}");
+        }
+    }
+
+    // The grips sit in the screen's bottom corners, where a pointer rests all day: near one the loop
+    // keeps its calm pace, which still sees a rest of grass::DWELL; only a held end keeps it quick.
+    #[test]
+    fn a_pointer_by_a_grass_end_keeps_the_calm_pace_and_a_held_end_the_quick_one() {
+        let (mons, now) = (screen(), Instant::now());
+        let mut d = Inner {
+            visible: true,
+            grass: Some(Span(0.25, 0.75)),
+            pets: vec![out("pip", None, None)],
+            ..Inner::default()
+        };
+        // Far from both grips (360 to 408 and 1032 to 1080 across, from 769 down to the floor).
+        d.positions.insert("pip".into(), (1200.0, 100.0));
+        let ms = |d: &Inner, cursor| pace(d, &mons, Some(cursor), false, now).as_millis();
+        assert_eq!(ms(&d, (370.0, 815.0)), CALM_TICK.as_millis(), "resting on one");
+        assert!(CALM_TICK * 2 < grass::DWELL, "a rest is seen before it ends");
+        // 500px above a grip: 2500 px/s takes 200ms to come that far.
+        assert_eq!(ms(&d, (384.0, 269.0)), 200, "the grips count as a friend's box does");
+        assert_eq!(
+            pace(&d, &mons, Some((370.0, 815.0)), true, now),
+            TICK,
+            "something moved"
+        );
+        d.grass_drag = Some(now);
+        assert_eq!(ms(&d, (900.0, 300.0)), TICK.as_millis(), "an end held");
+        d.grass_drag = None;
+        d.grass = None;
+        assert!(ms(&d, (370.0, 815.0)) > CALM_TICK.as_millis(), "no grass, no grips");
+    }
+
+    #[test]
+    fn a_grass_end_takes_the_pointer_once_the_pointer_rests_on_it_and_while_it_is_dragged() {
+        let mons = screen();
+        let mut d = Inner {
+            visible: true,
+            grass: Some(Span(0.25, 0.75)),
+            pets: vec![out("pip", None, None)],
+            ..Inner::default()
+        };
+        let takes = |d: &mut Inner, cursor, now| {
+            let lawn = ground(d, &mons);
+            grass_takes(d, lawn, cursor, now)
+        };
+        let t0 = Instant::now();
+        let grip = Some((370.0, 815.0));
+        assert!(!takes(&mut d, grip, t0), "a quick pass lets clicks through");
+        assert!(takes(&mut d, grip, t0 + grass::DWELL), "a rest takes it");
+        assert!(
+            !takes(&mut d, Some((600.0, 815.0)), t0 + grass::DWELL),
+            "the middle does not"
+        );
+        assert!(
+            !takes(&mut d, grip, t0 + grass::DWELL * 2),
+            "moving off starts the rest over"
+        );
+        d.grass_drag = Some(t0);
+        assert!(takes(&mut d, Some((900.0, 300.0)), t0), "a drag takes the whole screen");
+        assert!(
+            !takes(&mut d, Some((900.0, 300.0)), t0 + grass::DRAG_STALE),
+            "a drag unheard of ends by itself"
+        );
+        assert!(d.grass_drag.is_none());
+        d.grass = None;
+        assert!(!takes(&mut d, grip, t0 + grass::DWELL * 9), "no grass, nothing to take");
+    }
+
+    #[test]
+    fn the_grass_is_drawn_on_the_first_screen_only_while_something_is_out() {
+        let mons = screen();
+        let mut d = Inner {
+            visible: true,
+            grass: Some(Span(0.25, 0.75)),
+            ..Inner::default()
+        };
+        let view = ground_view(&d, &mons);
+        assert_eq!(view["displayId"], "0");
+        assert_eq!(
+            (view["left"].as_f64(), view["right"].as_f64()),
+            (Some(360.0), Some(1080.0))
+        );
+        d.visible = false;
+        assert!(ground_view(&d, &mons).is_null());
+        d.visible = true;
+        d.grass = None;
+        assert!(ground_view(&d, &mons).is_null(), "switched off");
+    }
+
+    #[test]
+    fn a_grass_end_let_go_is_kept_and_one_still_held_is_not_undone_by_a_change() {
+        let overlay = Overlay {
+            inner: Arc::default(),
+            looper: std::thread::current(),
+        };
+        crate::app::hold(&overlay.inner).mons = screen();
+        overlay.sync(vec![out("pip", None, None)], true, false, Some(Span::default()));
+        assert_eq!(
+            overlay.set_grass("overlay0", 360.0, 1080.0, true),
+            None,
+            "nothing to save mid-drag"
+        );
+        overlay.sync(vec![out("pip", None, None)], true, false, Some(Span::default()));
+        assert_eq!(crate::app::hold(&overlay.inner).grass, Some(Span(0.25, 0.75)));
+        assert_eq!(
+            overlay.set_grass("overlay0", 360.0, 1440.0, false),
+            Some(Span(0.25, 1.0))
+        );
+        assert!(crate::app::hold(&overlay.inner).grass_drag.is_none());
+        overlay.sync(vec![out("pip", None, None)], true, false, None);
+        assert_eq!(
+            overlay.set_grass("overlay0", 0.0, 100.0, false),
+            None,
+            "switched off: nothing moves"
+        );
+    }
+
+    // Only the window drawing the grass moves it: another screen's overlay, or any other page, cannot.
+    #[test]
+    fn only_the_grass_screens_window_moves_the_grass() {
+        let overlay = Overlay {
+            inner: Arc::default(),
+            looper: std::thread::current(),
+        };
+        crate::app::hold(&overlay.inner).mons = screen();
+        overlay.sync(vec![out("pip", None, None)], true, false, Some(Span(0.25, 0.75)));
+        for other in ["overlay1", "main", "overlay"] {
+            assert_eq!(overlay.set_grass(other, 0.0, 1440.0, false), None, "{other}");
+            assert_eq!(
+                crate::app::hold(&overlay.inner).grass,
+                Some(Span(0.25, 0.75)),
+                "{other}"
+            );
+        }
+        assert_eq!(overlay.set_grass("overlay0", 0.0, 1440.0, false), Some(Span(0.0, 1.0)));
+    }
+
+    // What a page measured of a friend goes with it when it is brought in.
+    #[test]
+    fn a_friend_brought_in_leaves_no_measured_body_behind() {
+        let overlay = Overlay {
+            inner: Arc::default(),
+            looper: std::thread::current(),
+        };
+        overlay.sync(vec![out("pip", None, None), out("miso", None, None)], true, false, None);
+        overlay.set_body("pip", Some([0.2, 0.3, 0.8, 1.0]));
+        overlay.set_body("miso", Some([0.2, 0.3, 0.8, 1.0]));
+        overlay.sync(vec![out("miso", None, None)], true, false, None);
+        let d = crate::app::hold(&overlay.inner);
+        assert_eq!(d.bodies.keys().collect::<Vec<_>>(), ["miso"]);
+    }
+
+    // A call without both ends (the page's numbers lost on the way) moves nothing and saves nothing,
+    // rather than reading as the whole floor.
+    #[test]
+    fn a_grass_end_with_no_number_moves_nothing() {
+        let overlay = Overlay {
+            inner: Arc::default(),
+            looper: std::thread::current(),
+        };
+        crate::app::hold(&overlay.inner).mons = screen();
+        overlay.sync(vec![out("pip", None, None)], true, false, Some(Span(0.25, 0.75)));
+        for (left, right) in [
+            (f64::NAN, 1080.0),
+            (360.0, f64::NAN),
+            (f64::NEG_INFINITY, f64::INFINITY),
+        ] {
+            assert_eq!(
+                overlay.set_grass("overlay0", left, right, false),
+                None,
+                "{left} {right}"
+            );
+            assert_eq!(crate::app::hold(&overlay.inner).grass, Some(Span(0.25, 0.75)));
+        }
     }
 }

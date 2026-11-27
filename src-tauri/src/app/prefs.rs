@@ -70,6 +70,11 @@ fn year_fits(year: u32) -> bool {
 pub struct Prefs {
     /// Friends out on the desktop roam it. Which ones are out is each friend's own (Pet::on_desktop).
     pub wander: bool,
+    /// Grass along the floor of the screen friends first come out on, where they walk (desktop/grass.rs).
+    /// On by default.
+    pub grass: bool,
+    /// How far along that floor the grass reaches, as the person dragged its ends.
+    pub grass_span: crate::desktop::grass::Span,
     /// The language the app speaks to the person in; the pet is asked to answer in it too.
     pub language: i18n::Lang,
     /// The person's own language while `PLAYPETS_LANG` forces another for one run: it is what
@@ -92,8 +97,10 @@ pub struct Prefs {
 
 impl Prefs {
     /// The keys of state.json these are saved under.
-    pub const KEYS: [&str; 10] = [
+    pub const KEYS: [&str; 12] = [
         "desktopWander",
+        "desktopGrass",
+        "desktopGrassSpan",
         "language",
         "autoChatter",
         "autoPlay",
@@ -111,6 +118,8 @@ impl Prefs {
         let flag = |key: &str| raw.get(key).and_then(|v| v.as_bool()).unwrap_or(false);
         Prefs {
             wander: flag("desktopWander"),
+            grass: raw.get("desktopGrass").and_then(Value::as_bool).unwrap_or(true),
+            grass_span: crate::desktop::grass::Span::restore(raw.get("desktopGrassSpan")),
             language,
             kept_language: None,
             auto_chatter: flag("autoChatter"),
@@ -139,6 +148,8 @@ impl Prefs {
     pub fn json(&self) -> Map<String, Value> {
         let mut m = Map::new();
         m.insert("desktopWander".into(), json!(self.wander));
+        m.insert("desktopGrass".into(), json!(self.grass));
+        m.insert("desktopGrassSpan".into(), self.grass_span.json());
         m.insert("language".into(), json!(self.language.code()));
         m.insert("autoChatter".into(), json!(self.auto_chatter));
         m.insert("autoPlay".into(), json!(self.auto_play));
@@ -299,6 +310,8 @@ mod tests {
         let lang = i18n::Lang::parse("en").unwrap();
         let prefs = Prefs {
             wander: true,
+            grass: false,
+            grass_span: crate::desktop::grass::Span(0.25, 0.75),
             language: lang,
             kept_language: None,
             auto_chatter: true,
@@ -330,6 +343,8 @@ mod tests {
         let odd = json!({"desktopWander": "yes", "autoChatter": 1, "autoPlay": "on", "miniRect": {"x": 1}});
         let back = Prefs::restore(&odd, lang);
         assert!(!back.wander && !back.auto_chatter && !back.auto_play && back.window_rect.is_none());
+        assert!(back.grass, "the grass starts on");
+        assert_eq!(back.grass_span, crate::desktop::grass::Span::default());
         assert!(!Prefs::restore(&odd, lang).json().contains_key("miniRect"));
     }
 

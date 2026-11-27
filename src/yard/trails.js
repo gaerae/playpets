@@ -23,7 +23,7 @@ import { showCard } from './card.js';
 import { TRACKS, trackKind, trailArt } from './catalog.js';
 import { yardSeason } from './decor-shown.js';
 import { behind, dugSpots, tileOf } from './discovery-rules.js';
-import { bodiesApart, depthAt, fieldToYard, footTarget, petHeight, sizeOf, yardZoom } from './field.js';
+import { bodiesApart, depthAt, depthScaleAt, fieldToYard, footTarget, petHeight, sizeOf, yardZoom } from './field.js';
 import { groundProfile } from './ground.js';
 import { localDay } from './growth.js';
 import { STROLL } from './motion.js';
@@ -35,6 +35,7 @@ import {
   endZoom,
   laidAt,
   printZoom,
+  TRAIL_ZOOM_MIN,
   seedOf,
   stamps,
   trailAnimal,
@@ -69,6 +70,7 @@ let deps = {
   weather: defaultWeather,
   toYard: fieldToYard,
   zoom: yardZoom,
+  scaleAt: p => depthScaleAt(p.x, p.y),
   dig: () => {},
   rested: () => true,
   card: showCard,
@@ -93,7 +95,8 @@ const STATES = ['following', 'covered', ...TAIL];
 // The garden layers and documents whose events are already heard (setupTrails may be called again).
 const wired = new WeakSet();
 
-/** `profile`, `weather`, `toYard` and `zoom` replace the yard's own (tests); `dig(v, point)` sends a
+/** `profile`, `weather`, `toYard`, `zoom` and `scaleAt` (the depth's scale at a yard point) replace
+ * the yard's own (tests); `dig(v, point)` sends a
  * friend to dig at a trail's end and `rested(v)` says whether it may dig yet (app.js hands in
  * discovery.js's); `card` shows the first follow of an animal; `visible()` says whether the yard
  * can be seen (app.js: the window shown and the page not hidden). */
@@ -102,12 +105,13 @@ export function setupTrails({
   weather = defaultWeather,
   toYard = fieldToYard,
   zoom = yardZoom,
+  scaleAt = p => depthScaleAt(p.x, p.y),
   dig = () => {},
   rested = () => true,
   card = showCard,
   visible = () => true,
 } = {}) {
-  deps = { profile, weather, toYard, zoom, dig, rested, card, visible };
+  deps = { profile, weather, toYard, zoom, scaleAt, dig, rested, card, visible };
   clear();
   paths = new Map();
   pathsFor = '';
@@ -217,11 +221,14 @@ const round = n => Math.round(n * 100) / 100;
 const yardWidth = () => deps.toYard({ x: 1, y: 0 }).x + deps.toYard({ x: 0, y: 0 }).x;
 
 function draw(n, track, path, followed) {
-  const { toYard, zoom } = deps,
+  const { toYard, zoom, scaleAt } = deps,
     width = yardWidth(),
     points = path.points.map(toYard),
     [w, h] = artSize(track.print),
-    marks = stamps(points, track.gait, printZoom(zoom())).filter(s => s.x >= 0 && s.x <= width);
+    // Prints shrink with their depth as the friends do, no smaller than the mini window's least.
+    printed = printZoom(zoom()),
+    depth = p => Math.max(scaleAt(p) || 1, TRAIL_ZOOM_MIN / printed),
+    marks = stamps(points, track.gait, printed, depth).filter(s => s.x >= 0 && s.x <= width);
   const svg = el('svg', { 'aria-hidden': 'true' });
   svg.classList.add('trail');
   svg.dataset.trail = String(n);

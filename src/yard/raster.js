@@ -31,8 +31,8 @@ export function materialCache(makeCanvas = canvasFor) {
 
 // Each picture's decoding, by its address: started once, shared by everyone who asks.
 const decoding = new Map();
-/** The picture at `path` (relative to this folder) once decoded, or null where there is no page
- * or it cannot be decoded. */
+/** The picture at `path` (relative to this folder) once decoded, as an ImageBitmap where there is
+ * one, else the image; or null where there is no page or it cannot be decoded. */
 export function decodeImage(path) {
   if (typeof Image === 'undefined') return Promise.resolve(null);
   const href = new URL(path, import.meta.url).href;
@@ -43,7 +43,13 @@ export function decodeImage(path) {
       href,
       image
         .decode()
-        .then(() => image)
+        // Drawn every frame from an image, a big atlas is decoded again for each draw in WebKit
+        // (src/core/pixels.js): a bitmap of it keeps its pixels. Refused, the image serves.
+        .then(() =>
+          typeof globalThis.createImageBitmap === 'function'
+            ? globalThis.createImageBitmap(image).catch(() => image)
+            : image,
+        )
         .catch(() => null),
     );
   }

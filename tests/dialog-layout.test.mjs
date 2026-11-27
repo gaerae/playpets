@@ -22,7 +22,8 @@ test('desktop controls use a compact reading scale while touch targets stay gene
   assert.match(button, /font-size:\s*var\(--font-md\)/);
   assert.match(base, /@media\s*\(pointer:\s*coarse\)/);
   const play = await readFile('src/styles/play.css', 'utf8');
-  assert.match(play, /(?:^|\})\s*\.play-action\s*\{[^}]*min-height:\s*40px/s);
+  const tile = Number(play.match(/(?:^|\})\s*\.play-action\s*\{[^}]*min-height:\s*(\d+)px/s)?.[1]);
+  assert.ok(tile >= 40, `a Play tile is at least 40px tall (${tile}px)`);
 });
 
 // At 300 by 210 in Japanese, a long friend's name took three lines of the leaving question and

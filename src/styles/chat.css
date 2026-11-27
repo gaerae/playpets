@@ -50,7 +50,7 @@
   height: 30px;
   border-radius: 50%;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 70%, var(--portrait), var(--paper));
+  background: radial-gradient(circle at 50% 70%, var(--portrait), var(--soft));
   box-shadow: inset 0 0 0 1px var(--ink-8);
   display: grid;
   place-items: start center;
@@ -205,7 +205,7 @@
 }
 .composer-select:hover,
 .composer-select:focus {
-  background-color: var(--paper);
+  background-color: var(--control-hover);
   color: var(--ink);
 }
 /* Who joins in: a small button that opens the friends with an AI above the composer. */
@@ -234,7 +234,7 @@
 }
 .companion-toggle:hover,
 .companion-toggle[aria-expanded="true"] {
-  background: var(--paper);
+  background: var(--control-hover);
   color: var(--ink);
 }
 .companion-toggle svg {
@@ -251,12 +251,32 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 10px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  background: var(--white);
-  box-shadow: var(--shadow-menu);
+  padding: 8px;
+  /* the yard menu's paper in wood, as every menu opened from a control */
+  border: var(--garden-frame-border);
+  border-radius: var(--radius-garden);
+  background: var(--garden-frame);
+  box-shadow: var(--shadow-dock);
   z-index: 3;
+}
+/* A friend to bring into the talk is a pill on the menu's paper, large enough to press; chosen, it is
+   filled and wears the rim of a tool in hand. */
+.companion-chips > .detect-chip {
+  min-height: 28px;
+  padding: 0 12px;
+  border: 1.5px solid var(--garden-line);
+  border-radius: var(--radius-pill);
+  background: var(--garden-paper);
+  color: var(--ink);
+  font-size: var(--font-md);
+  font-weight: 650;
+}
+.companion-chips > .detect-chip:hover {
+  background: var(--garden-hover);
+}
+.companion-chips > .detect-chip[aria-pressed="true"] {
+  background: var(--control-selected);
+  box-shadow: inset 0 0 0 2px var(--garden-rim);
 }
 .send-button,
 .cancel-button {

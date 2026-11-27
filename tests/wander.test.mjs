@@ -88,6 +88,56 @@ test('quiet companions greet without spontaneous jumping', () => {
   assert.deepEqual(wander.idleAction(rngOf([0.9]), true), { type: 'move' });
 });
 
+// The four friends move like characters (docs/design/2026-11-24-the-yard-plays-like-a-game.md, G4).
+test('each of the four friends has its own pace and rhythm, and any other pet the middle one', () => {
+  const of = id => wander.characterOf({ sourceId: id });
+  assert.ok(of('playpets-pip').pace > of('playpets-clover').pace, 'Pip is brisk');
+  assert.ok(of('playpets-miso').pace < of('playpets-clover').pace, 'Miso is unhurried');
+  assert.ok(of('playpets-pip').rest < 1 && of('playpets-miso').rest > 1, 'Pip rests short, Miso long');
+  assert.ok(of('playpets-daisy').look > of('playpets-clover').look, 'Daisy stops to look more often');
+  assert.equal(of('someone-imported'), wander.characterOf(null));
+  assert.equal(of('someone-imported').pace, 1);
+});
+
+test('outdoors a friend sometimes looks, meets a friend, sits or stretches, and mostly strolls', () => {
+  const all = { look: true, meet: true, sit: true, stretch: true };
+  const counts = {};
+  for (let i = 0; i < 6000; i++) {
+    const { type } = wander.idleAction(Math.random, false, wander.characterOf(null), all);
+    counts[type] = (counts[type] || 0) + 1;
+  }
+  for (const type of ['look', 'meet', 'sit', 'stretch', 'pose'])
+    assert.ok(counts[type] > 120, `${type}: ${counts[type]}`);
+  assert.ok(counts.move > 6000 * 0.55, 'strolling still leads');
+  // What a friend cannot do (no clip, nobody near, a sheet without look rows) is a stroll instead.
+  for (let i = 0; i < 500; i++)
+    assert.match(wander.idleAction(Math.random, false, wander.characterOf(null), {}).type, /^(move|pose)$/);
+  // Miso sits more than Pip; Pip meets more than Miso.
+  const share = (id, type) => {
+    let n = 0;
+    for (let i = 0; i < 6000; i++)
+      if (wander.idleAction(Math.random, false, wander.characterOf({ sourceId: id }), all).type === type) n++;
+    return n;
+  };
+  assert.ok(share('playpets-miso', 'sit') > share('playpets-pip', 'sit'));
+  assert.ok(share('playpets-pip', 'meet') > share('playpets-miso', 'meet'));
+});
+
+test('two friends meet face to face, a little apart, on the ground between them', () => {
+  const body = { x: 0.1, y: 0.13 };
+  const spots = wander.meetSpots({ x: 0.3, y: 0.6 }, { x: 0.5, y: 0.7 }, body);
+  assert.ok(spots, 'near enough to meet');
+  const [a, b] = spots;
+  assert.ok(a.x < b.x, 'each keeps its side');
+  assert.equal(a.y, b.y, 'level with each other');
+  const apart = (b.x - a.x) / body.x;
+  assert.ok(apart >= 1 && apart <= 1.6, `about a body and a bit apart: ${apart}`);
+  assert.ok(a.x > 0.3 && b.x < 0.5, 'both step toward the other');
+  assert.equal(wander.meetSpots({ x: 0.1, y: 0.6 }, { x: 0.9, y: 0.6 }, body), null, 'too far to call over');
+  const flipped = wander.meetSpots({ x: 0.5, y: 0.7 }, { x: 0.3, y: 0.6 }, body);
+  assert.ok(flipped[0].x > flipped[1].x, 'the first keeps its own side whichever it is');
+});
+
 // The lake and what stands on the field, in field units, as ground.js measures them.
 const pond = { water: [{ x: 0.5, y: 0.5, rx: 0.2, ry: 0.2 }], obstacles: [{ x: 0.9, y: 0.9, rx: 0.06, ry: 0.06 }] };
 
@@ -117,4 +167,22 @@ test('a friend picks a stroll the ground allows, and stays put when there is non
     wander.wanderTarget({ x: 0.5, y: 0.5 }, Math.random, () => false),
     null,
   );
+});
+
+// A friend with no walk toward or away from you strolls across, where its side walk looks right.
+test('a stroll across keeps within its angle of the horizontal, both ways', () => {
+  const across = (35 * Math.PI) / 180,
+    body = { x: 0.1, y: 0.1 },
+    from = { x: 0.5, y: 0.5 };
+  let left = 0,
+    right = 0;
+  for (let i = 0; i < 400; i++) {
+    const to = wander.wanderTarget(from, Math.random, () => true, body, { across });
+    const dx = (to.x - from.x) / body.x,
+      dy = (to.y - from.y) / body.y;
+    assert.ok(Math.atan2(Math.abs(dy), Math.abs(dx)) <= across + 1e-9, `${dx}, ${dy}`);
+    if (dx < 0) left++;
+    else right++;
+  }
+  assert.ok(left > 100 && right > 100, `both ways (${left}, ${right})`);
 });

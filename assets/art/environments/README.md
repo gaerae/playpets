@@ -28,7 +28,7 @@
 - No rain or snow is painted in.
 - The field's top follows the picture: `geometry.fieldTop`, raised where `geometry.edge` traces ground reaching back.
 - Where the lawn reaches far back, `geometry.far` (a share of the picture's height) and `geometry.depthFar` scale a friend by its height on the screen, alike at every x.
-- The line against the sky is antialiased, with no pale ring. A newly accepted picture runs through `node scripts/soften-sky-edges.mjs`, with `--keep-white` for snow or blossom. The script leaves a picture whose edge is soft already; `--again` softens it once more and moves its line a pixel into the land.
+- The line against the sky is antialiased, with no pale ring. A newly accepted picture runs through `node scripts/soften-sky-edges.mjs`, with `--keep-white` for snow or blossom, and `--holes` for paper white left between leaves away from the sky's line. The script leaves a picture whose edge is soft already; `--again` softens it once more and moves its line a pixel into the land.
 - The pond people click is `geometry.lake`, an ellipse in picture fractions. `yard/environment.js` (`environmentLake`) applies the picture's crop to it.
 - The pictures keep their proportions with a floor-anchored cover crop (`environmentFrame`), shared with the pond, the fishing stance and the festival lights.
 - Night tint uses alpha compositing, so darkness does not depend on Canvas filter support.
@@ -63,6 +63,7 @@
 | 2026-11-12 | Agent workspaces: a sunny office and the garden workshop. The office was dropped and the workshop replaced the village study (living room) |
 | 2026-11-13 | New outdoor set; the stone courtyard became the Wild garden. The previous outdoor pictures and the retired studio and office sources were removed from the repository; Git history keeps them |
 | 2026-11-21 | Soft sky edges on every outdoor picture (`scripts/soften-sky-edges.mjs`); the Wild garden's left side opened back to the meadow ([provenance](FOUR-PLACES-PROVENANCE.md)) |
+| 2026-11-26 | Paper white left between leaves and treetops became sky in every outdoor picture (`soften-sky-edges.mjs --holes`, [provenance](FOUR-PLACES-PROVENANCE.md)) |
 
 - Only `assets/sources/environments/studio-cozy-day.png` remains of the retired rooms: an opaque indoor picture the background helper's tests pack (`creator-workflow`, `creator-distribution`).
 - The creator kit's examples are the app's own places (`BACKGROUND_REFERENCES` in `scripts/background-specs.mjs`): `courtyard-green.png` (the Wild garden) for the garden, `lakeside-spring.png` for the lakeside and `workshop.png` for the interior, whose layout uses the workshop's window panes. The site shows each one's small WebP copy on the background studio's cards.

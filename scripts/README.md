@@ -24,7 +24,7 @@
 | Releases | `release.mjs`, `release-lib.mjs`, `release-notes.mjs`, `release-page.mjs`, `package-smoke.mjs` | Version changes, a commit and a tag; the release pages read per system and checked against the release notes rules (`node scripts/release-page.mjs x.y.z` prints each system's text); native package install-and-launch verification runs in release CI |
 | Distribution metadata | `distribute.mjs`, `distribute-lib.mjs` | Updater, Homebrew and winget manifests |
 | Store API | `store-api.mjs` via `store:verify`, `store-submit.mjs` via `store:submit`, `store-notes.mjs` | Redacted read-only credential check; the release's Store submission and its What's new from the website release pages, run by `store.yml`, or `store-retry.yml` for a fix after the tag (see [Store automation](../docs/how-to/store-and-apple-signing.md#submission-automation-and-first-submission-setup)) |
-| Brand exports | `make-icons.mjs`, `make-installer-art.mjs`, `make-og.mjs` via `icons`, `art`, `og` | Tracked native, installer and site artwork; `icons` includes the illustrated Clover face for the app and every platform’s tray; it needs macOS (`iconutil` makes the `.icns`) |
+| Brand exports | `make-icons.mjs`, `make-installer-art.mjs`, `make-og.mjs` via `icons`, `art`, `og` | Tracked native, installer and site artwork; `icons` includes the illustrated Clover face for the app and every platform’s tray; it needs macOS (`iconutil` makes the `.icns`); `og` takes each card's words from the site's landing copy (`website/.vitepress/theme/landing-<language>.ts` `card`) |
 | Native captures | `shots.mjs`, `shots-lib.mjs`, `shot-windows.swift` via `shots` | Localized captures and listing media; macOS capture host required |
 | Moving pictures | `shot-video.swift` via `SHOT_SCENE=reel` `shots`; `reel.mjs`, `reel-lib.mjs` via `reel` | The landing's film and its still in each site language, and the README's `assets/demo.gif`; needs macOS 15, ffmpeg and cwebp |
 | Performance and visual review | `measure.mjs`, `visual-audit.mjs`, `asset-audit.mjs` | Local measurements and review evidence; asset inventory defaults to `scratch/asset-audit/` |
@@ -34,7 +34,7 @@
 | Companion action packing | `companions:pack -- plan.json output.png`, source `pack-companion-actions.py` | Bounded action atlases from approved RGBA art, with 192 × 208 cells by default; requires Pillow, honors `PLAYPETS_PYTHON`, rejects clipped frames and preserves shared scale and foot anchors |
 | Album artwork | `art:pack`: `pack-collection.mjs`, `pack-discovery.mjs`, then `art-webp.mjs` | One command after adding or changing a drawing the album shows: the wrappers, the trimmed sheets and their shipped WebP and previews. Packing again with nothing new changes nothing. To make a new sheet smaller, run `assets:optimize <sheet>` and `art:pack` again |
 | Discovery artwork | `node scripts/pack-discovery.mjs`, source records in `assets/discovery/` | Tracked tree, keepsake and shovel PNG atlases in `assets/art/` and clipped SVG viewports in `src/art/trees/` and `src/art/discovery/`; keepsake sheets lose the cells no drawing cuts (`sheet-trim-lib.mjs`, used by `pack-collection.mjs` too) |
-| Outdoor sky edges | `node scripts/soften-sky-edges.mjs [--keep-white] [--again] <picture.png> ...`, helpers in `sky-edge-lib.mjs` | The places' outdoor PNGs in `assets/art/environments/`, rewritten in place: an antialiased line against the sky with no pale ring; without `--keep-white`, paper-white patches along the sky cleared too (not for snow or blossom). A picture already soft is skipped unless `--again`. Run `assets:webp` after |
+| Outdoor sky edges | `node scripts/soften-sky-edges.mjs [--keep-white] [--again] [--holes] <picture.png> ...`, helpers in `sky-edge-lib.mjs` | The places' outdoor PNGs in `assets/art/environments/`, rewritten in place: an antialiased line against the sky with no pale ring; without `--keep-white`, paper-white patches along the sky cleared too (not for snow or blossom); `--holes` clears only white ringed by leaves, which keeps snow and blossom. A picture already soft is skipped unless `--again`. Run `assets:webp` after |
 | Shipped art | `art-webp.mjs`, `art-webp-lib.mjs` via `assets:webp`; `--check` needs no encoder | Near-lossless WebP in `src/art/` from the PNG exports in `assets/art/`, each sample checked against the PNG, 400-pixel previews of the places' daylight backdrops for the place gallery, and a crop at twice its card size of each drawing the album shows, in `src/art/album/`; hashes in `assets/art/webp.json`. Lossless WebP of the built-in friends' sheets in `src-tauri/pets/<id>/`, with a `pet.json` naming them, for each friend `src-tauri/src/pets/builtin.rs` lists; every pixel checked against the PNG in `assets/pets/`; hashes in `assets/pets/webp.json` |
 
 ### Companion action plans
@@ -240,6 +240,8 @@ Background creation:
 - Helper commands (run `--help` for each contract):
   - `render-layout` creates technical PNG guides;
   - `pack-pet` assembles approved rows or uses an existing atlas;
+  - `render-actions` draws the review sheet of a pet's game poses, walks and runs;
+  - `render-gait-guide` draws the mannequin guide of a walk or run;
   - `pack-background` creates the final app JSON.
 - Keep the website's ZIP request and the skill instructions consistent with
   these tested commands.
@@ -277,7 +279,7 @@ Background creation:
 
 | Character | Seasonal source | Idle height |
 | --- | --- | --- |
-| Daisy | accepted 2026-10-14 seasonal sources | 163 |
+| Daisy | `assets/sources/daisy-2026-11-24` rows | 163 |
 | Clover | accepted 2026-10-14 seasonal sources | 168 |
 | Pip | denim seasonal `canonical` rows | 164 |
 | Miso | seasonal `canonical` rows | 163 |

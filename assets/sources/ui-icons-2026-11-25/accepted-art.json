@@ -1,0 +1,50 @@
+{
+  "generated": "2026-11-25",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "references": "assets/sources/ui-icons-2026-11-24/sheet-a.png, the first painted icon sheet, for the style",
+  "sources": [
+    {
+      "name": "sheet-h",
+      "file": "sheet-h.png",
+      "cells": ["hand", "spring", "summer", "autumn", "winter", "hourglass", "rain", "gift"],
+      "prompt": "Exactly 1536x1024 pixels, a truly transparent background (transparent_background=true): no backdrop, no shadow field, no text, no letters, no numbers, no labels, no grid lines, no frames. Eight separate small objects laid out in a strict grid of 4 columns and 2 rows, each centred in its own 384x512 cell with wide empty transparent gutters, never touching or overlapping, all the same visual size (each about 230px across), same soft top-left light. Painted in EXACTLY the same cozy hand-painted watercolour storybook style as the attached reference sheet of icons (fine warm-brown outlines, matte painted colour planes, soft shading): simple, readable silhouettes that still read at 28px. Row 1, left to right: a friendly small cartoon hand with a light warm skin tone and a short cream sleeve cuff, index finger extended pointing straight up and slightly left, other fingers curled, seen from the back, like a game tutorial pointer; a small sprig of pink cherry blossoms with two green leaves (spring); one bright yellow sunflower head with two leaves (summer); one red-orange maple leaf (autumn). Row 2: one pale blue-white snowflake crystal with soft painted edges (winter); a small wooden hourglass with golden sand running down; a small grey-blue rain cloud with three falling raindrops; a small gift box wrapped in red paper with a cream ribbon bow."
+    },
+    {
+      "name": "sheet-i",
+      "file": "sheet-i.png",
+      "cells": ["morning", "day", "evening", "night"],
+      "prompt": "Exactly 1536x512 pixels, a truly transparent background (transparent_background=true): no backdrop, no shadow field, no text, no letters, no numbers, no labels, no grid lines, no frames. Four separate small objects in one strict row of 4 columns, each centred in its own 384x512 cell with wide empty transparent gutters, never touching or overlapping, all the same visual size (each about 230px across), same soft top-left light. Painted in EXACTLY the same cozy hand-painted watercolour storybook style as the attached reference sheet of icons (fine warm-brown outlines, matte painted colour planes, soft shading): simple, readable silhouettes that still read at 28px, each a small round vignette of sky so the four read as times of one day. Left to right: MORNING, a pale yellow sun half risen over a small green hill with a soft pink-peach dawn sky; MIDDAY, a bright round golden sun with short rays high in a small round patch of clear blue sky; EVENING, a large orange-red sun setting behind a small hill under a warm orange-violet sky; NIGHT, a pale gold crescent moon with two small stars in a small round patch of deep navy sky.",
+      "note": "The tool returned 2172x724 rather than the asked 1536x512; the four cells are still even columns."
+    },
+    {
+      "name": "sheet-j",
+      "file": "sheet-j.png",
+      "cells": ["clear", "snow"],
+      "reference": "assets/art/ui/rain.png",
+      "prompt": "Exactly 1024x512 pixels, a truly transparent background (transparent_background=true): no backdrop, no shadow field, no text, no letters, no numbers, no labels, no grid lines, no frames. Two separate small objects in one strict row of 2 columns, each centred in its own 512x512 cell with wide empty transparent gutters, never touching or overlapping, both the same visual size (each about 300px across), same soft top-left light. Painted in EXACTLY the same cozy hand-painted watercolour storybook style as the attached rain-cloud icon (fine warm-brown outlines, matte painted colour planes, soft shading), as free-standing weather symbols with NO round sky backdrop, so they read as weather, not as a time of day, and still read at 28px. Left to right: CLEAR WEATHER, a cheerful golden sun with short rounded rays and one tiny white cloud tucked at its lower right; SNOW, a soft pale blue-grey cloud like the reference's with three or four white six-pointed snowflakes falling under it."
+    },
+    {
+      "name": "sheet-k",
+      "file": "sheet-k.png",
+      "cells": ["tap-name", "drag", "right-click"],
+      "reference": "assets/art/ui/hand.png",
+      "prompt": "Exactly 1536x512 pixels, a truly transparent background (transparent_background=true): no backdrop, no shadow field, no text, no letters, no numbers, no labels, no grid lines, no frames. Three separate small objects in one strict row of 3 columns, each centred in its own 512x512 cell with wide empty transparent gutters, never touching or overlapping, all the same visual size (each about 300px across), same soft top-left light. Painted in EXACTLY the same cozy hand-painted watercolour storybook style as the attached tutorial-hand icon (fine warm-brown outlines, matte painted colour planes, soft shading, the same light warm skin tone and short cream sleeve cuff), simple readable silhouettes that still read at 28px. Left to right: (1) TAP A NAME: the same friendly hand, index finger pressing down on a small blank rounded cream name tag (no writing on it), with two tiny curved tap marks beside the fingertip; (2) DRAG: the same hand pinching and pulling, with one soft curved warm-brown dotted arrow sweeping from behind it to the right, showing something being moved; (3) RIGHT-CLICK: a small rounded cream computer mouse seen from above, its RIGHT button painted soft coral red and slightly pressed, the left button plain cream, with two tiny curved click marks above the right button.",
+      "note": "The tool returned 2172x724 rather than the asked 1536x512; the three cells are still even columns."
+    },
+    {
+      "name": "sheet-l",
+      "file": "sheet-l.png",
+      "cells": ["calendar", "rare"],
+      "reference": "assets/art/ui/hourglass.png",
+      "prompt": "Exactly 1024x512 pixels, a truly transparent background (transparent_background=true): no backdrop, no shadow field, no text, no letters, no numbers, no labels, no grid lines, no frames. Two separate small objects in one strict row of 2 columns, each centred in its own 512x512 cell with wide empty transparent gutters, never touching or overlapping, both the same visual size (each about 300px across), same soft top-left light. Painted in EXACTLY the same cozy hand-painted watercolour storybook style as the attached hourglass icon (fine warm-brown outlines, matte painted colour planes, soft shading), simple readable silhouettes that still read at 28px. Left to right: (1) CALENDAR: a small cream paper desk calendar with two warm-brown rings at the top and a soft coral-red header band, its page showing only a plain grid of small blank squares with one square circled in coral red, absolutely no numbers or writing; (2) SPARKLE STAR: a small golden festive star with a few tiny sparkles around it, for a special event."
+    },
+    {
+      "name": "sheet-m",
+      "file": "sheet-m.png",
+      "cells": ["heart", "letter"],
+      "reference": "assets/art/ui/rare.png",
+      "prompt": "Exactly 1024x512 pixels, a truly transparent background (transparent_background=true): no backdrop, no shadow field, no text, no letters, no numbers, no labels, no grid lines, no frames. Two separate small objects in one strict row of 2 columns, each centred in its own 512x512 cell with wide empty transparent gutters, never touching or overlapping, both the same visual size (each about 300px across), same soft top-left light. Painted in EXACTLY the same cozy hand-painted watercolour storybook style as the attached star icon (fine warm-brown outlines, matte painted colour planes, soft shading), simple readable silhouettes that still read at 14px. Left to right: (1) HEART: one plump soft rose-pink heart with a small cream highlight at its top left, a keepsake heart, nothing else; (2) LETTER: one small closed cream paper envelope seen from the front, its flap outlined in warm brown, sealed with a small round rose-pink heart seal in the middle of the flap, nothing else."
+    }
+  ],
+  "processing": "Each cell cut from its sheet left to right, top to bottom (scratch tool cut-icon, as for 2026-11-24): its halo cleaned (alpha above 235 kept, a 5px min and max filter, a 1.2px blur), cropped to the opaque box, fitted in 128x128 and saved as assets/art/ui/<cell>.png; pnpm run assets:webp makes src/art/ui/<cell>.webp."
+}

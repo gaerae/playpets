@@ -153,3 +153,31 @@ test('a notice can carry one action, such as Undo, that runs once and closes the
   assert.equal(notice.children.length, 0, 'the line goes once its action is taken');
   assert.equal(notice.hidden, true);
 });
+
+// A how-to notice can be shown rather than written: its gestures as pictures, each with one word,
+// while a screen reader and a pointer that rests on it still get the whole sentence.
+test('a notice of pictures keeps its sentence for a screen reader', t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { nodes } = installDom(t, { ids: ['toast'] });
+  element().append(nodes.get('toast'));
+  const line = toast('Click the name to chat. Drag to move it.', {
+    pictures: [
+      { icon: 'tap-name', text: 'Chat' },
+      { icon: 'drag', text: 'Move' },
+    ],
+  });
+  const [shown, said] = line.children;
+  assert.equal(shown.className, 'toast-clues');
+  assert.equal(shown.getAttribute('aria-hidden'), 'true');
+  assert.deepEqual(
+    shown.children.map(c => [c.children[0].dataset.clue, c.children[1].textContent]),
+    [
+      ['tap-name', 'Chat'],
+      ['drag', 'Move'],
+    ],
+  );
+  assert.equal(said.className, 'sr-only');
+  assert.equal(said.textContent, 'Click the name to chat. Drag to move it.');
+  assert.equal(line.title, 'Click the name to chat. Drag to move it.');
+  assert.equal(line.children.at(-1).className, 'toast-close');
+});

@@ -3,6 +3,7 @@
 // and change them only through the setters.
 
 import { styledAsset } from './appearance.js';
+import { clue } from './dom.js';
 import { t } from './i18n.js';
 import { icons } from './icons.js';
 import { displayName } from './names.js';
@@ -113,9 +114,10 @@ export function dropLine(line) {
  * `action` ({ label, run }) adds one button, such as Undo, for `ms` (or the reading time). Every
  * line has a close button, and a plain line also closes on a press anywhere on it; one with an action
  * does not, so a press that misses Undo saves nothing. `onClose` runs when the person closes it (a
- * pending removal is saved then). Returns the line, which a line with an action
+ * pending removal is saved then). `pictures` ([{ icon, text }]) shows the message as gestures, each
+ * with one word, the message still read aloud. Returns the line, which a line with an action
  * keeps for itself. */
-export function toast(message, { error = false, action = null, ms = 0, onClose = null } = {}) {
+export function toast(message, { error = false, action = null, ms = 0, onClose = null, pictures = null } = {}) {
   const words = String(message);
   // A form that already says it beside its field does not need it said twice over its buttons.
   const dialog = [...document.querySelectorAll('dialog[open]')].at(-1);
@@ -130,7 +132,19 @@ export function toast(message, { error = false, action = null, ms = 0, onClose =
   if (!line) {
     line = document.createElement('span');
     line.dataset.words = words;
-    line.textContent = words;
+    if (pictures) {
+      // Shown rather than written: each gesture a picture with one word; the sentence stays for a
+      // screen reader and for a pointer resting on the line.
+      const shown = document.createElement('span'),
+        said = document.createElement('span');
+      shown.className = 'toast-clues';
+      shown.setAttribute('aria-hidden', 'true');
+      shown.append(...pictures.map(clue));
+      said.className = 'sr-only';
+      said.textContent = words;
+      line.title = words;
+      line.append(shown, said);
+    } else line.textContent = words;
     const closed = line,
       close = event => {
         event?.stopPropagation?.();

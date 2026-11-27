@@ -145,8 +145,20 @@ function syncSignIn(p) {
   put($('message'), 'disabled', !!kind);
   // The box itself says why it waits: a small window hides the note under it.
   put($('message'), 'placeholder', t(kind ? 'signin.note' : 'chat.placeholder'));
-  if (kind) put($('chat-note'), 'textContent', t('signin.note'));
+  if (kind) note(t('signin.note'));
   syncSend();
+}
+// The line under the message box; with nothing to say it takes no room.
+function note(text) {
+  put($('chat-note'), 'textContent', text);
+  put($('chat-note'), 'hidden', !text);
+}
+// The sign-in card's note stands while it shows (syncSignIn). The keys are said only until the
+// first message: the send button's own title says them after that.
+function syncNote(p) {
+  if (signInFor(p)) return;
+  const busy = data.busy.includes(p.id);
+  note(busy ? t('chat.note_busy') : !p.providerId ? t('chat.note_connect') : hasHistory ? '' : t('chat.note_keys'));
 }
 export function renderChat(p) {
   const key = JSON.stringify(data.providers);
@@ -157,6 +169,9 @@ export function renderChat(p) {
     $('provider-select').append(new Option(t('chat.new_ai'), '__new'));
   }
   $('provider-select').value = p.providerId || '';
+  // The picker gives an AI to a friend that has none; a friend that can talk switches it from its
+  // menu, so its model's name does not sit under the message box.
+  put($('provider-select'), 'hidden', !!p.providerId);
   syncSend();
   // Who joins in is another friend with an AI: the one talked with now (picked again after a friend
   // left) and friends no longer here or without an AI drop out.
@@ -214,13 +229,7 @@ export function syncBusy() {
   // Nothing said yet, nothing to clear.
   put($('clear-chat'), 'disabled', busy || !hasHistory);
   putAttribute($('chat-log'), 'aria-busy', String(busy));
-  // The sign-in card's note stands while it shows (syncSignIn).
-  if (!signInFor(p))
-    put(
-      $('chat-note'),
-      'textContent',
-      busy ? t('chat.note_busy') : p.providerId ? t('chat.note_keys') : t('chat.note_connect'),
-    );
+  syncNote(p);
   for (const chip of $('companion-chips').children) put(chip, 'disabled', busy);
   syncWaiting();
 }
@@ -352,6 +361,7 @@ export async function refreshChat() {
     const entries = logEntries(history, pendingMessage);
     hasHistory = history.length > 0;
     $('clear-chat').disabled = data.busy.includes(p.id) || !hasHistory;
+    syncNote(p);
     const keys = entries.map(keyOf);
     const atBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 48;
     // Only the same conversation, grown at its end, keeps what is on screen. A full log drops its

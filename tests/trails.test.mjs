@@ -276,3 +276,33 @@ test('no trail ends behind something standing on the snow', t => {
     now = { x: parseFloat(moved.style.left) / 600, y: parseFloat(moved.style.top) / 400 };
   assert.ok(Math.abs(now.x - foot.x) > foot.rx || now.y > foot.y || now.y < foot.y - 6 * foot.ry);
 });
+
+// A print far up the field drew as large as one at its front, and read as floating over the snow:
+// the yard hands each print the depth's scale where it lies (field.js depthScaleAt), as a friend's.
+test('prints are drawn smaller where the field is farther, as the friends are', t => {
+  const scales = [];
+  for (const depth of [1, 0.6]) {
+    t.mock.timers.reset();
+    t.mock.timers.enable({ apis: ['Date', 'setTimeout'], now: at(14, 9) });
+    const dom = installDom(t, { ids: ['yard', 'garden-layer'] });
+    installStorage(t);
+    scene.season = 'winter';
+    setupTrails({
+      profile: () => OPEN,
+      weather: () => 'clear',
+      toYard: p => ({ x: p.x * 600, y: p.y * 400 }),
+      zoom: () => 1,
+      scaleAt: () => depth,
+      visible: () => true,
+    });
+    trailsCheck();
+    const print = dom.nodes
+      .get('garden-layer')
+      .querySelectorAll('.print')
+      .find(n => !n.removed);
+    scales.push(Number(print.getAttribute('transform').match(/scale\(([\d.]+)\)/)[1]));
+  }
+  scene.season = 'spring';
+  // The transform keeps two decimals, so the ratio is near 0.6, not exactly it.
+  assert.ok(Math.abs(scales[1] / scales[0] - 0.6) < 0.06, String(scales));
+});

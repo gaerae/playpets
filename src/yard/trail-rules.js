@@ -13,7 +13,7 @@ const HOUR_MS = 3600000;
 // A trail's prints and the bush at its end shrink with the yard nearly as far as the friends do
 // (field.js zoomFor, 0.35): any smaller, in the mini window, the prints are specks in the snow's
 // grain and the tail peeking from the bush is lost. Held higher, they stood twice a friend's size.
-const TRAIL_ZOOM_MIN = 0.45;
+export const TRAIL_ZOOM_MIN = 0.45;
 /** The scale of a trail end's bush and tail in a yard drawn at `zoom`. */
 export const endZoom = zoom => Math.max(zoom, TRAIL_ZOOM_MIN);
 /** The scale of a trail's prints in a yard drawn at `zoom`. */
@@ -106,25 +106,39 @@ function lineAt(profile, x) {
   return line[i] + (line[j] - line[i]) * (at - i);
 }
 
+// How far down the field (from its own line to the bottom) every part of a trail keeps.
+const NEAR = 0.35;
 /** A trail in field coordinates: in from a side, winding to an end on ground a friend can dig. */
 export function trailPath(seed, profile, { taken = [], other = null } = {}) {
   if (!profile?.soil || !profile.bounds) return null;
   const { left, right, top, bottom } = profile.bounds;
-  const bandTop = top + (bottom - top) * 0.15,
-    bandHeight = (bottom - top) * 0.7;
-  // The far field runs into the backdrop's own snowy bushes and trees, where the small bush at a
-  // trail's end is lost among them; the trail ends on the near snow instead, measured from the
-  // field's own line where a path raises the field's top (ground.js profile.line).
-  const nearSnow = (x, share) => {
+  // The far field runs into the backdrop's own snowy bushes and trees: the small bush at a trail's
+  // end is lost among them, and prints laid over them seem to float. The whole trail keeps to the
+  // near snow, NEAR or more of the way down from the field's own line where a path raises the
+  // field's top (ground.js profile.line), and its end further down still.
+  const down = (x, share) => {
     const back = lineAt(profile, x);
-    return top + (bottom - top) * (back + (1 - back) * (0.5 + share * 0.35));
+    return top + (bottom - top) * (back + (1 - back) * share);
+  };
+  const nearSnow = (x, share) => down(x, 0.5 + share * 0.35);
+  const onNearSnow = points => {
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1],
+        b = points[i];
+      const steps = Math.max(1, Math.ceil(distance(a, b) / 0.01));
+      for (let k = 0; k <= steps; k++) {
+        const x = a.x + ((b.x - a.x) * k) / steps;
+        if (a.y + ((b.y - a.y) * k) / steps < down(x, NEAR) - 1e-9) return false;
+      }
+    }
+    return true;
   };
   const takenTiles = new Set(taken.map(tileOf));
   for (let attempt = 0; attempt < 20; attempt++) {
     const rng = seeded(seed + attempt);
     const fromLeft = rng() < 0.5;
     const startX = fromLeft ? left : right;
-    const startY = bandTop + rng() * bandHeight;
+    const startY = down(startX, NEAR + rng() * (0.85 - NEAR));
     // A third of the seeds want the far side; the choice follows the seed, not the try, and a far
     // trail that keeps meeting water gives up and ends inside in the last tries.
     const far = (Math.imul(seed, 2654435761) >>> 0) / 4294967296 < 1 / 3 && attempt < 14;
@@ -138,7 +152,9 @@ export function trailPath(seed, profile, { taken = [], other = null } = {}) {
     for (let i = 1; i < count - 1; i++) {
       const t = i / (count - 1);
       const swing = 0.08 + rng() * 0.07;
-      points.push({ x: startX + (endX - startX) * t, y: startY + (endY - startY) * t + sign * swing });
+      const x = startX + (endX - startX) * t;
+      // A bend that would swing up off the near snow stops at its edge.
+      points.push({ x, y: Math.max(startY + (endY - startY) * t + sign * swing, down(x, NEAR)) });
       sign = -sign;
     }
     points.push({ x: endX, y: endY });
@@ -149,15 +165,17 @@ export function trailPath(seed, profile, { taken = [], other = null } = {}) {
     let length = 0;
     for (let i = 1; i < points.length; i++) length += distance(points[i - 1], points[i]);
     if (length < 0.6 || length > 1.6) continue;
-    if (!walksOnGround(points, profile)) continue;
+    if (!walksOnGround(points, profile) || !onNearSnow(points)) continue;
     const last = points[points.length - 2];
     return { points, end, bush: seed % 3 === 0 ? 'twigs' : 'bush', exit: end.x >= last.x ? 'right' : 'left' };
   }
   return null;
 }
 
-/** Prints along a pixel polyline: one every gait.step * zoom px, walkers alternating sides, bounders in line. */
-export function stamps(points, gait, zoom) {
+/** Prints along a pixel polyline: one every gait.step * zoom px, walkers alternating sides, bounders
+ * in line. `scaleAt(point)` is the depth's scale where a print lies (field.js depthScaleAt): a print
+ * far up the field is smaller, and the next one comes sooner, as a friend there is drawn smaller. */
+export function stamps(points, gait, zoom, scaleAt = () => 1) {
   const out = [];
   // A repeated point has no direction; dropping it keeps the first real segment's angle.
   const pixels = points.filter((p, i) => i === 0 || p.x !== points[i - 1].x || p.y !== points[i - 1].y);
@@ -165,15 +183,18 @@ export function stamps(points, gait, zoom) {
     size = gait.size * zoom,
     side = gait.group ? 0 : gait.side * zoom;
   if (!(gap > 0) || pixels.length === 0) return out;
+  // Places a print at `p` heading (dx, dy), and says how far on the next one is.
   const place = (p, dx, dy) => {
-    const len = Math.hypot(dx, dy) || 1;
-    const off = side * (out.length % 2 === 0 ? 1 : -1);
+    const scale = scaleAt(p) || 1,
+      len = Math.hypot(dx, dy) || 1,
+      off = side * scale * (out.length % 2 === 0 ? 1 : -1);
     out.push({
       x: p.x + (-dy / len) * off,
       y: p.y + (dx / len) * off,
       angle: (Math.atan2(dx, -dy) * 180) / Math.PI,
-      size,
+      size: size * scale,
     });
+    return gap * scale;
   };
   if (pixels.length === 1) {
     place(pixels[0], 0, -1);
@@ -189,8 +210,7 @@ export function stamps(points, gait, zoom) {
       len = Math.hypot(dx, dy);
     while (next <= walked + len + 1e-9) {
       const t = len ? Math.min(1, (next - walked) / len) : 0;
-      place({ x: a.x + dx * t, y: a.y + dy * t }, dx, dy);
-      next += gap;
+      next += place({ x: a.x + dx * t, y: a.y + dy * t }, dx, dy);
     }
     walked += len;
   }

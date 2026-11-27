@@ -2,11 +2,11 @@
 // coding agents, showing friends on the desktop and the app's own pages. Updates are in update.js.
 
 import { agentFile } from '../core/agent-files.js';
-import { agentLabel, agentOf, linkView } from '../core/agents.js';
+import { agentLabel, agentOf, agentsInUse, linkView } from '../core/agents.js';
 import { confirmAction } from '../core/confirm.js';
 import { desktopTip } from '../core/controls.js';
 import { put, putAttribute } from '../core/dom.js';
-import { language, t } from '../core/i18n.js';
+import { joinList, language, t } from '../core/i18n.js';
 import { onShortcut } from '../core/keys.js';
 import { projectLinks } from '../core/project.js';
 import { $, call, data, guard, name, providerLabel, toast } from '../core/state.js';
@@ -57,6 +57,28 @@ function renderLinks() {
     problem.textContent = failure || (view.problem ? t(view.problem) : '');
   }
 }
+// The tools a person uses stand first; the rest fold under one line that names them. Rows move only
+// when the section opens, so a friend picked inside the fold does not pull its row away mid-choice.
+let agentRows = [];
+function placeAgents() {
+  const kinds = agentRows.map(row => row.dataset.tool),
+    used = agentsInUse(
+      kinds,
+      agentLinks,
+      data.agentPets || {},
+      data.pets.map(p => p.id),
+    ),
+    rest = agentRows.filter(row => !used.includes(row.dataset.tool));
+  $('agents-used').replaceChildren(...agentRows.filter(row => used.includes(row.dataset.tool)));
+  $('agents-other').replaceChildren(...rest);
+  $('agents-more').hidden = !rest.length;
+  put($('agents-more-label'), 'textContent', t('settings.agents_more', { count: rest.length }));
+  put(
+    $('agents-more-names'),
+    'textContent',
+    joinList(rest.map(row => $(`agent-name-${row.dataset.tool}`).textContent.trim())),
+  );
+}
 // Connect asks first, naming the file it changes; Disconnect takes out only PlayPets' entries and
 // Connect puts them back, so it is not asked.
 export async function linkAgent(button) {
@@ -88,16 +110,15 @@ export async function linkAgent(button) {
 export function renderDesktopSwitches() {
   // Desktop friends need someone in the yard; window pinning works independently.
   put($('desktop'), 'disabled', !data.pets.length);
-  // A switch, as in the tray and the menu bar: the same words, and pressed while it is on. A narrow
-  // window shows only the icon, so the words are the tooltip and the label too.
-  const desktopLabel = t('desktop.show');
-  put($('desktop-label'), 'textContent', desktopLabel);
-  put($('desktop'), 'title', desktopLabel);
-  putAttribute($('desktop'), 'aria-label', desktopLabel);
+  // A switch, as in the tray and the menu bar: the same words, and pressed while it is on.
+  put($('desktop-label'), 'textContent', t('desktop.show'));
   putAttribute($('desktop'), 'aria-pressed', String(!!data.desktop));
-  put($('wander-wrap'), 'hidden', false);
-  put($('desktop-wander'), 'disabled', !data.desktop);
+  // Strolling and the grass act on friends that are out, so, as in the tray, they show only under a
+  // desktop that is on; their saved choices come back with them.
+  put($('wander-wrap'), 'hidden', !data.desktop);
   $('desktop-wander').checked = !!data.desktopWander;
+  put($('grass-wrap'), 'hidden', !data.desktop);
+  $('desktop-grass').checked = !!data.desktopGrass;
   $('auto-chatter').checked = !!data.autoChatter;
   $('auto-play').checked = !!data.autoPlay;
   $('autostart').checked = !!data.autostart;
@@ -209,7 +230,12 @@ export function setupSettings() {
     });
   for (const button of document.querySelectorAll('#panel-settings button[data-connect]'))
     button.onclick = guard(() => linkAgent(button));
-  $('settings-agents').addEventListener('settings-shown', refreshLinks);
+  agentRows = [...document.querySelectorAll('#settings-agents li[data-tool]')];
+  $('settings-agents').addEventListener('settings-shown', async () => {
+    placeAgents();
+    await refreshLinks();
+    placeAgents();
+  });
   $('ai-add').onclick = () => openConnectionDialog(null, () => {}, { forFriend: null, inline: $('ai-editor') });
   // Where friends, settings and backups are kept, for a report or a copy by hand.
   $('open-data').onclick = guard(() => call('openFolder', 'data'));
@@ -223,6 +249,7 @@ export function setupSettings() {
   });
   for (const [id, method, key] of [
     ['desktop-wander', 'toggleDesktopWander', 'desktopWander'],
+    ['desktop-grass', 'toggleDesktopGrass', 'desktopGrass'],
     ['auto-chatter', 'setAutoChatter', 'autoChatter'],
     ['auto-play', 'setAutoPlay', 'autoPlay'],
   ]) {
@@ -230,7 +257,8 @@ export function setupSettings() {
     input.onchange = guard(async () => {
       input.disabled = true;
       try {
-        await call(method, ...(id === 'desktop-wander' ? [] : [input.checked]));
+        // The desktop switches flip what the backend has, so they send nothing.
+        await call(method, ...(id.startsWith('desktop-') ? [] : [input.checked]));
       } catch (error) {
         input.checked = !!data[key];
         throw error;

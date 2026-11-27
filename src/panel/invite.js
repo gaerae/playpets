@@ -63,7 +63,8 @@ export async function arrived(id) {
 // Codex's pet folder and the app's download folder each have one place to open; a folder picked
 // by hand is its own place, named on the card.
 const PLACES = [
-  { place: 'builtin', title: 'invite.place_builtin', folder: 'builtin' },
+  // The built-in pets ship inside the app: nothing in their folder is the person's to change.
+  { place: 'builtin', title: 'invite.place_builtin', folder: null },
   { place: 'codex', title: 'invite.place_codex', folder: 'codex' },
   { place: 'downloaded', title: 'invite.place_downloaded', folder: 'downloaded' },
   { place: 'folder', title: 'invite.place_folder', folder: null },
@@ -85,14 +86,12 @@ function card(a) {
   const c = canvas(),
     info = document.createElement('span'),
     title = document.createElement('strong'),
-    hint = document.createElement('small'),
     plus = document.createElement('span');
   info.className = 'asset-info';
   title.textContent = a.displayName;
-  hint.className = 'asset-hint';
   plus.className = 'add-mark';
   plus.textContent = '+';
-  info.append(title, hint);
+  info.append(title);
   const from = a.credit
     ? creditLine(a.credit)
     : a.place === 'folder'
@@ -247,11 +246,13 @@ export function renderShelf() {
   for (const b of $('shelf').querySelectorAll('.asset-card')) {
     put(b, 'disabled', full || inviting.has(b.dataset.assetId));
     putAttribute(b, 'aria-busy', String(inviting.has(b.dataset.assetId)));
-    // The heading already says a click invites; a card adds a line only when that friend is in the
-    // yard already, to say a click brings another.
-    const hint = b.querySelector('.asset-hint');
-    put(hint, 'textContent', data.pets.some(p => p.assetId === b.dataset.assetId) ? t('invite.one_more') : '');
-    put(hint, 'hidden', !hint.textContent);
+    // The + says what a click does: one more of a friend already in the yard, or an invitation.
+    const pet = data.assets.find(a => a.id === b.dataset.assetId)?.displayName || '';
+    put(
+      b.querySelector('.add-mark'),
+      'title',
+      data.pets.some(p => p.assetId === b.dataset.assetId) ? t('invite.one_more') : t('invite.add_aria', { name: pet }),
+    );
   }
   put($('no-assets'), 'hidden', data.assets.length > 0);
 }

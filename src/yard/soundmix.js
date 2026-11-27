@@ -1,32 +1,37 @@
-// What the yard sounds like for a scene: how loud each layer is (0 to 1) and how often birds call
-// (calls a minute). Pure, so the rules can be tested; src/yard/sound.js plays them.
+// What the yard sounds like for a scene: how often each of its calls comes (times a minute; 0 is
+// never), and whether they come in through a window. There is no sound that goes on by itself:
+// between calls the yard is quiet. Pure, so the rules can be tested; src/yard/sound.js plays them.
 // Design: docs/design/2026-10-10-yard-sounds.md.
 
 import { worldAllows } from './worlds.js';
 
-/** The layers' levels and the birds' rate for a time of day, a weather and a season. */
+/** How often each call comes for a place, a time of day, a weather and a season. */
 export function mixFor({ period, weather, season, world }) {
-  if (!worldAllows(world, 'ambient')) return { breeze: 0, leaves: 0, water: 0, rain: 0, birds: 0, crickets: 0 };
-  const night = period === 'night',
-    evening = period === 'evening',
-    rain = weather === 'rain',
+  const indoors = !worldAllows(world, 'ambient'),
+    lake = worldAllows(world, 'fishing'),
+    clear = weather !== 'rain' && weather !== 'snow',
     snow = weather === 'snow',
-    winter = season === 'winter',
-    bare = winter || snow;
+    night = period === 'night',
+    evening = period === 'evening',
+    daylight = period === 'morning' || period === 'day',
+    // Through the window a call is heard less often, as if only the nearer ones come in.
+    through = indoors ? 0.5 : 1;
   // Birds sing most in the morning, less through the day, a little at dusk, never at night or in
   // rain or snow; winter has few.
   const song = { morning: 10, day: 5, evening: 2.5, night: 0 }[period] ?? 5;
   return {
-    // A low breeze is always there; snow muffles it, and it settles at night.
-    breeze: snow ? 0.45 : night ? 0.5 : 0.65,
-    // Gusts through leaves, where there are leaves to move.
-    leaves: bare ? 0 : rain ? 0.25 : night ? 0.3 : 0.6,
-    // The lake laps at its shore.
-    water: worldAllows(world, 'fishing') ? (snow ? 0.25 : 0.45) : 0,
-    rain: rain ? 1 : 0,
-    birds: rain || snow ? 0 : song * (winter ? 0.3 : 1),
-    // Crickets on summer and autumn nights, a few already at dusk.
-    crickets: !rain && !snow && (season === 'summer' || season === 'autumn') ? (night ? 1 : evening ? 0.4 : 0) : 0,
+    indoors,
+    birds: clear ? song * (season === 'winter' ? 0.3 : 1) * through : 0,
+    // Cicadas now and then on summer days.
+    cicadas: clear && season === 'summer' && daylight ? (period === 'day' ? 0.8 : 0.4) * through : 0,
+    // A skein of geese going over on an autumn day.
+    geese: clear && season === 'autumn' && (daylight || evening) ? 0.25 * through : 0,
+    // Frogs by the lake on spring and summer nights, a few at dusk; rain does not stop them.
+    frogs: lake && !snow && (season === 'spring' || season === 'summer') ? (night ? 2 : evening ? 0.8 : 0) : 0,
+    // A cricket's few chirps on autumn evenings and nights, when the album finds them.
+    crickets: clear && season === 'autumn' ? (night ? 2.5 : evening ? 1 : 0) * through : 0,
+    // While it rains, a drop on a leaf now and then, or on the workshop's glass.
+    drops: weather === 'rain' ? 12 : 0,
   };
 }
 

@@ -1,9 +1,30 @@
+/* The two studio pages (pageClass creator-studio-page): the workbench (CreationStudio.vue) and the
+   notes under it, written on the same paper. */
 .creator-studio-page .vp-doc > div > h1 {
+  font-family: var(--pp-display);
   font-size: clamp(28px, 4vw, 40px);
-  letter-spacing: -0.035em;
+  letter-spacing: -0.02em;
 }
 .creator-studio-page .vp-doc > div > h1 + p {
   max-width: 65ch;
   color: var(--vp-c-text-2);
   font-size: 16px;
+}
+.creator-studio-page .vp-doc > div > h2 {
+  margin-top: 40px;
+  border-top: 1px dashed var(--pp-line, var(--vp-c-divider));
+}
+.creator-studio-page .vp-doc > div > details {
+  margin: 24px 0;
+  padding: 4px 18px;
+  border: 1px solid var(--pp-line, var(--vp-c-divider));
+  border-radius: 14px;
+  background: var(--vp-c-bg-elv);
+}
+.creator-studio-page .vp-doc > div > details > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 700;
 }

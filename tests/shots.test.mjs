@@ -275,7 +275,19 @@ test('SHOT_SCENE=reel films one take with a mark at each part the moving picture
   const film = source.slice(source.indexOf('const mark=m=>'), source.indexOf("L('video-end')"));
   const marks = new Set([...film.matchAll(/(?:mark|card)\('(\w+)'\)/g)].map(m => m[1]));
   // Every mark the edits use (reel-lib.mjs).
-  assert.deepEqual([...marks].sort(), ['bite', 'caught', 'chat', 'dig', 'end', 'fish', 'found', 'garden', 'show']);
+  assert.deepEqual([...marks].sort(), [
+    'bite',
+    'caught',
+    'chat',
+    'dig',
+    'end',
+    'fish',
+    'found',
+    'garden',
+    'show',
+    'tag',
+    'walk',
+  ]);
   // The window alone is recorded, and the take ends with its marks beside it.
   assert.match(source, /path\.join\(captureTools, 'video'\)/);
   assert.match(source, /'marks\.json'/);

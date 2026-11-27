@@ -4,7 +4,7 @@ description: Microsoft Store、winget、Homebrew、OSに合ったファイルで
 
 # インストール
 
-下のボタンは、いま使っているOSに合ったインストール方法を示します。ほかのファイルはその下の一覧にあります。
+PlayPetsは無料です。下のボタンはいま使っているOSを見分けて、合ったインストール方法を示します。ほかのファイルと入れ方はその下の一覧にあります。
 
 <Downloads />
 
@@ -14,11 +14,24 @@ description: Microsoft Store、winget、Homebrew、OSに合ったファイルで
 | Windowsに入れる | [Microsoft Store](#microsoft-store)（おすすめ、Microsoftの署名付き）、[winget](#winget)、[GitHubのインストーラー](#installer-from-github) |
 | macOSに入れる | [Homebrew](#homebrew)、[GitHubのdmg](#dmg-from-github) |
 | Linuxに入れる | [AppImageまたはdeb](#linux) |
+| 自分のパソコンで動くか確かめる | [動作環境](#requirements) |
 | 初回起動の警告を越える | [WindowsのSmartScreen](#installer-from-github)、[macOSの1.2.0以前](#dmg-from-github)、[LinuxのFUSE](#linux) |
 | アップデートする | [アップデート](#updates) |
 | PlayPetsを削除する | [アンインストール](#uninstall) |
 | 友だちと設定の保存場所を探す | [データフォルダー](#data-folder) |
 :::
+
+## 動作環境 {#requirements}
+
+| OS | 動く環境 |
+|---|---|
+| macOS | Apple SiliconとIntelのMacの両方で動くアプリがひとつ |
+| Windows | Windows 10と11の一般的なPC（x64）とARM PC。Microsoft Storeのパッケージには、Windows 10 バージョン2004以降が必要です |
+| Linux | x64とarm64。Ubuntu 22.04と同じかそれより新しいディストリビューション。AppImageにはFUSE 2が必要です |
+
+- AIの接続はなくてもかまいません。友だちはAIなしでも遊び、庭を育て、釣りをし、デスクトップに出てきます。
+- 話すにはひとつ接続します。このパソコンでログインしたClaude CodeかCodex CLI、Ollama、APIキーのどれかです（[接続を作る](./chat.md#connect)）。
+- OSに入っているWeb表示の仕組みをそのまま使うので、ダウンロードは小さく済みます。
 
 ## Windows <Since v="0.1.0" /> {#windows}
 
@@ -144,7 +157,7 @@ chmod +x PlayPets_*.AppImage
 
 | インストール元 | 更新を入れるのは |
 |---|---|
-| Microsoft Store、winget | Storeです。新しいバージョンが出ると庭と設定でお知らせし、**Microsoft Storeで開く**を押すとStoreのPlayPetsのページが開きます。テスト用MSIXもパッケージで更新します |
+| Microsoft Store、winget | Storeです。新しいバージョンが出ると庭と設定でお知らせし、**Microsoft Storeで更新**を押すと進み具合を見せながらインストールし、PlayPetsはいったん閉じて開き直します。テスト用MSIXもパッケージで更新します |
 | それ以外 | PlayPets自身です。選んだときだけ入れます（下記） |
 
 - 更新後に初めて起動すると、どのバージョンになったかをお知らせします。

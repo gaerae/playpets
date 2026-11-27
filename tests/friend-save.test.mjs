@@ -114,3 +114,57 @@ test('friend settings keep one pending save open and return editable after failu
   await resize;
   assert.equal(nodes.get('pet-error').textContent, '', 'a late resize error cannot appear for another friend');
 });
+
+// The friend card's value is empty (a friend is no relationship at all), and a browser's radio list
+// checks no card for an empty value: the dialog showed nothing picked for every friend.
+test('friend settings pick the friend card for a friend with no other relationship', t => {
+  const { document } = installDom(t, { anyId: true, props: { disabled: false, value: '', open: false } });
+  const get = id => document.getElementById(id);
+  const cards = ['', 'partner', 'senior', 'junior'].map(value => ({ value, checked: false }));
+  const relation = Object.defineProperty([...cards], 'value', {
+    // As in a browser: the first card with the value is checked, and an empty value checks none.
+    set(v) {
+      for (const card of cards) card.checked = false;
+      const card = v ? cards.find(c => c.value === v) : null;
+      if (card) card.checked = true;
+    },
+    get() {
+      return cards.find(c => c.checked)?.value ?? '';
+    },
+  });
+  const visualStyle = [];
+  Object.assign(get('pet-form'), {
+    elements: { relation, visualStyle },
+    reset() {
+      for (const card of cards) card.checked = false;
+    },
+    querySelector: () => null,
+  });
+  get('pet-dialog').showModal = () => {};
+  setData({ pets: [{ id: 'daisy', assetId: 'daisy', size: 128 }], assets: [{ id: 'daisy', place: 'builtin' }] });
+  setSelected('daisy');
+  openFriendSettings();
+  assert.deepEqual(
+    cards.map(c => c.checked),
+    [true, false, false, false],
+  );
+  setData({
+    pets: [{ id: 'daisy', assetId: 'daisy', size: 128, relation: 'senior' }],
+    assets: [{ id: 'daisy', place: 'builtin' }],
+  });
+  openFriendSettings();
+  assert.deepEqual(
+    cards.map(c => c.checked),
+    [false, false, true, false],
+  );
+  setData({
+    pets: [{ id: 'daisy', assetId: 'daisy', size: 128, relation: 'friend' }],
+    assets: [{ id: 'daisy', place: 'builtin' }],
+  });
+  openFriendSettings();
+  assert.deepEqual(
+    cards.map(c => c.checked),
+    [true, false, false, false],
+    'a relationship no card offers shows as a friend',
+  );
+});

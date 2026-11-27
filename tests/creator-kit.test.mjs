@@ -114,3 +114,17 @@ test('the site publishes only the kit files the studio packs, and the seasonal a
     await rm(folder, { recursive: true, force: true });
   }
 });
+
+// The mannequin guides of the walk, its front and back views and the run come with every kit, so
+// the walk prompts can attach them (docs/design/2026-11-26-natural-walking.md, The creator kit).
+test('every kit carries the gait guides and lists them', async () => {
+  const { creatorKits } = await import('../scripts/creator-kit.mjs');
+  const guides = ['gait-guide.png', 'gait-guide-front.png', 'gait-guide-back.png', 'gait-guide-run.png'].map(
+    name => `guides/${name}`,
+  );
+  for (const kit of creatorKits) {
+    const manifest = JSON.parse(await readFile(`assets/creator-kit/${kit.id}/kit.json`, 'utf8'));
+    assert.deepEqual(manifest.guides, guides, kit.id);
+    for (const guide of guides) assert.ok(manifest.files[guide]?.bytes > 0, `${kit.id} ${guide}`);
+  }
+});

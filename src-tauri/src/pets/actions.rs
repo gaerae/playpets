@@ -1,5 +1,6 @@
 //! A pet's own game poses (`actionsPath` in pet.json, docs/standards/pet-files.md): digging,
-//! planting, showing a find and fishing, drawn for each outfit. Every number is checked here, and
+//! planting, showing a find, fishing, a sit and a stretch between strolls, and a walk toward you or
+//! away and a run, drawn for each outfit. Every number is checked here, and
 //! what passes is handed to the page in the shape it draws (src/core/companion-actions.js).
 
 use super::catalog::{PORTRAIT_LIMIT, open_image, optional_relative, portrait_size, validated_image};
@@ -9,12 +10,30 @@ use std::path::{Path, PathBuf};
 
 /// The largest `actions.json` read.
 pub const ACTIONS_LIMIT: usize = 256 * 1024;
-const IMAGES: usize = 24;
+const IMAGES: usize = 32;
 const FRAMES: usize = 64;
 const DURATION: f64 = 10_000.0;
 const CANVAS: (u64, u64) = (384, 416);
 const OUTFITS: [&str; 5] = ["base", "spring", "summer", "autumn", "winter"];
-const CLIPS: [&str; 6] = ["dig", "plant", "discover", "cast", "wait", "reel"];
+const CLIPS: [&str; 12] = [
+    "dig",
+    "plant",
+    "discover",
+    "cast",
+    "wait",
+    "reel",
+    "sit",
+    "stretch",
+    "walk-front",
+    "walk-back",
+    "run-right",
+    "run-left",
+];
+/// A walk toward you or away and a run: one cycle of eight cells, stepped by the ground covered
+/// (src/core/gait.js), with the stride it covers in body lengths.
+const GAITS: [&str; 4] = ["walk-front", "walk-back", "run-right", "run-left"];
+const GAIT_CELLS: usize = 8;
+const STRIDE: (f64, f64) = (0.5, 1.2);
 /// A cast without a reel would leave the rod in the air, so these come and go together.
 const FISHING: [&str; 3] = ["cast", "wait", "reel"];
 
@@ -138,6 +157,10 @@ fn clip(name: &str, given: &Value, atlases: &mut Atlases) -> Option<Value> {
     if given_frames.is_empty() || given_frames.len() > FRAMES {
         return None;
     }
+    let gait = GAITS.contains(&name);
+    if gait && given_frames.len() != GAIT_CELLS {
+        return None;
+    }
     let mut frames = Vec::with_capacity(given_frames.len());
     let mut total = 0.0;
     for frame in given_frames {
@@ -163,7 +186,7 @@ fn clip(name: &str, given: &Value, atlases: &mut Atlases) -> Option<Value> {
     }
     let mut clip = json!({
         "image": image, "canvas": [canvas.0, canvas.1], "anchor": anchor, "offset": offset,
-        "scale": 1, "heldTool": name != "discover", "frames": frames,
+        "scale": 1, "heldTool": matches!(name, "dig" | "plant") || fishing, "frames": frames,
     });
     if let Some(ground) = given.get("ground").filter(|_| matches!(name, "dig" | "plant")) {
         clip["ground"] = point(Some(ground), canvas)?;
@@ -186,6 +209,10 @@ fn clip(name: &str, given: &Value, atlases: &mut Atlases) -> Option<Value> {
     }
     if let Some(looping) = given.get("loop") {
         clip["loop"] = json!(looping.as_bool()?);
+    }
+    if gait && let Some(stride) = given.get("stride") {
+        number(stride).filter(|s| (STRIDE.0..=STRIDE.1).contains(s))?;
+        clip["stride"] = stride.clone();
     }
     Some(clip)
 }
@@ -237,6 +264,7 @@ mod tests {
         fs::write(root.join("actions/dig.png"), png(1152, 208)).unwrap();
         fs::write(root.join("actions/plant.png"), png(1152, 208)).unwrap();
         fs::write(root.join("actions/fish.png"), png(1440, 216)).unwrap();
+        fs::write(root.join("actions/walk.png"), png(1536, 208)).unwrap();
         fs::write(base.join("outside.png"), png(1152, 208)).unwrap();
         fs::write(root.join("actions.json"), file.to_string()).unwrap();
         let root = dunce::canonicalize(&root).unwrap();
@@ -282,6 +310,23 @@ mod tests {
     }
 
     #[test]
+    fn a_sit_and_a_stretch_pass_and_hold_no_tool() {
+        let mut base = outfit();
+        base["sit"] = json!({"image": "actions/plant.png", "anchor": [96, 199], "frames": frames(5, 192, 208, false)});
+        base["stretch"] =
+            json!({"image": "actions/plant.png", "anchor": [96, 199], "frames": frames(3, 192, 208, false)});
+        let (root, path) = folder(&json!({"version": 1, "outfits": {"base": base}}));
+        let poses = read(&root, &path).expect("valid poses");
+        assert_eq!(
+            clips(&poses, "base"),
+            ["cast", "dig", "discover", "plant", "reel", "sit", "stretch", "wait"]
+        );
+        for name in ["sit", "stretch"] {
+            assert_eq!(poses.value["outfits"]["base"][name]["heldTool"], json!(false), "{name}");
+        }
+    }
+
+    #[test]
     fn each_rule_drops_its_clip() {
         let broken: [(&str, serde_json::Value); 10] = [
             (
@@ -318,6 +363,33 @@ mod tests {
             assert!(!clips(&poses, "base").contains(&name.to_string()), "{name} {change}");
             assert_eq!(clips(&poses, "base").len(), 5, "{change}");
         }
+    }
+
+    // A walk toward you or away and a run are one cycle of eight cells, which the page steps through
+    // by the ground covered (core/gait.js), so another count is not a walk.
+    #[test]
+    fn walks_and_runs_are_eight_cells_and_keep_their_stride() {
+        let mut base = outfit();
+        for name in ["walk-front", "walk-back", "run-right", "run-left"] {
+            base[name] = json!({"image": "actions/walk.png", "anchor": [96, 199], "loop": true,
+                                "stride": 0.9, "frames": frames(8, 192, 208, false)});
+        }
+        base["run-left"]["frames"] = frames(6, 192, 208, false);
+        base["walk-back"]["stride"] = json!(3.0);
+        let (root, path) = folder(&json!({"version": 1, "outfits": {"base": base}}));
+        let poses = read(&root, &path).expect("valid poses");
+        let names = clips(&poses, "base");
+        assert!(names.contains(&"walk-front".to_string()));
+        assert!(names.contains(&"run-right".to_string()));
+        assert!(!names.contains(&"run-left".to_string()), "six cells is not a cycle");
+        assert!(
+            !names.contains(&"walk-back".to_string()),
+            "a stride past a body and a fifth"
+        );
+        let walk = &poses.value["outfits"]["base"]["walk-front"];
+        assert_eq!(walk["stride"], json!(0.9));
+        assert_eq!(walk["heldTool"], json!(false));
+        assert_eq!(walk["loop"], json!(true));
     }
 
     #[test]

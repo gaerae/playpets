@@ -2,7 +2,8 @@
 // version is downloaded, its signature checked against the public key in tauri.conf.json,
 // installed, and the app started again. This signature is the updater's own (a free key pair),
 // apart from macOS or Windows code signing. A Microsoft Store installation asks the Store instead,
-// and only opens its Store page: the Store installs it.
+// and has the Store download and install it, with the same stages shown; its Store page opens
+// where the Store cannot do that from the app.
 use crate::app::push_event;
 use crate::i18n;
 use serde_json::{Value, json};
@@ -140,14 +141,103 @@ fn unless_called_off<T: Send + 'static>(task: JoinHandle<T>, cancel: &AtomicBool
     tauri::async_runtime::block_on(task).ok()
 }
 
+/// The page's progress (`update-status`), each phase once and a percent only every 5 points (and
+/// at 100), so the page is not repainted for every network chunk.
+#[derive(Default)]
+struct Steps {
+    phase: &'static str,
+    percent: Option<u64>,
+}
+
+impl Steps {
+    fn next(&mut self, phase: &'static str, percent: Option<u64>) -> Option<Value> {
+        if phase == self.phase {
+            let new = percent?;
+            if self
+                .percent
+                .is_some_and(|shown| new <= shown || (new < shown + 5 && new < 100))
+            {
+                return None;
+            }
+        }
+        self.phase = phase;
+        self.percent = percent;
+        Some(match percent {
+            Some(percent) => json!({"type": "update-status", "phase": phase, "percent": percent}),
+            None => json!({"type": "update-status", "phase": phase}),
+        })
+    }
+}
+
+/// Where a Store update has got to, as the page's phases. The Store counts its download as the first
+/// 80% of the progress and the install as the rest.
+fn store_stage(progress: f64) -> (&'static str, Option<u64>) {
+    const DOWNLOADED: f64 = 0.8;
+    // A NaN counts as nothing downloaded yet.
+    let progress = if progress.is_nan() { 0.0 } else { progress };
+    if progress < DOWNLOADED {
+        ("downloading", Some((progress.max(0.0) / DOWNLOADED * 100.0) as u64))
+    } else {
+        ("installing", None)
+    }
+}
+
+/// How a Store update the app asked for ended, when this copy is still running to hear it.
+/// Only Windows has a Store to make one.
+#[cfg_attr(not(windows), allow(dead_code))]
+pub enum StoreEnd {
+    /// Installed without closing this copy: the new version is there once it is opened again.
+    Installed,
+    /// The person declined Windows' question, or pressed Cancel while it downloaded.
+    Cancelled,
+    /// The Store would not do it from here (Wi-Fi only, low battery, an error).
+    Declined,
+}
+
+/// Has Microsoft Store download and install the version it has. Windows closes the app to install it
+/// and opens it again (reopen_after_store_update). Where the Store will not do it from here, its
+/// page opens, where the person can.
+fn install_from_store(app: &AppHandle) -> Result<Value, String> {
+    let found = app.state::<Found>();
+    {
+        let mut state = crate::app::hold(&found.state);
+        if state.store.is_none() || state.installing {
+            return Err(i18n::t("update.none"));
+        }
+        state.installing = true;
+        found.cancel.store(false, Ordering::SeqCst);
+    }
+    let mut steps = Steps::default();
+    if let Some(event) = steps.next("downloading", None) {
+        push_event(app, &event);
+    }
+    let status = app.clone();
+    let end = store::download_and_install(app, move |progress| {
+        let (phase, percent) = store_stage(progress);
+        if let Some(event) = steps.next(phase, percent) {
+            push_event(&status, &event);
+        }
+    });
+    crate::app::hold(&found.state).installing = false;
+    crate::tray::rebuild(app);
+    match end {
+        Ok(StoreEnd::Installed) => {
+            crate::app::hold(&found.state).store = None;
+            crate::tray::retitle(app);
+            Ok(json!({"installed": true}))
+        }
+        Ok(StoreEnd::Cancelled) => Ok(json!({"cancelled": true})),
+        Ok(StoreEnd::Declined) | Err(()) => {
+            crate::system::open_url(&store::page()?)?;
+            Ok(json!({"store": "page"}))
+        }
+    }
+}
+
 /// Downloads and installs the update found by `check`, then starts the new version.
 pub fn install(app: &AppHandle) -> Result<Value, String> {
     if store_managed() {
-        if crate::app::hold(&app.state::<Found>().state).store.is_none() {
-            return Err(i18n::t("update.none"));
-        }
-        crate::system::open_url(&store::page()?)?;
-        return Ok(json!({"store": true}));
+        return install_from_store(app);
     }
     // Opened straight from the disk image, the app sits where nothing can be replaced, and the
     // download would only end in a failure that trying again cannot fix.
@@ -175,20 +265,18 @@ pub fn install(app: &AppHandle) -> Result<Value, String> {
         update.timeout = Some(DOWNLOAD_LIMIT);
         update
     };
-    push_event(app, &json!({"type": "update-status", "phase": "downloading"}));
-    // The page shows meaningful steps rather than repainting for every network chunk.
-    let (mut received, mut shown) = (0u64, 0u64);
+    let mut steps = Steps::default();
+    if let Some(event) = steps.next("downloading", None) {
+        push_event(app, &event);
+    }
+    let mut received = 0u64;
     let (status, verifying) = (app.clone(), app.clone());
     let progress = move |chunk: usize, total: Option<u64>| {
         received += chunk as u64;
         if let Some(total) = total.filter(|t| *t > 0) {
             let percent = (received.saturating_mul(100) / total).min(100);
-            if percent >= shown + 5 || percent == 100 {
-                shown = percent;
-                push_event(
-                    &status,
-                    &json!({"type": "update-status", "phase": "downloading", "percent": percent}),
-                );
+            if let Some(event) = steps.next("downloading", Some(percent)) {
+                push_event(&status, &event);
             }
         }
     };
@@ -319,12 +407,14 @@ pub fn store_managed() -> bool {
 #[cfg(windows)]
 mod store {
     use crate::i18n;
+    use std::sync::atomic::{AtomicBool, Ordering};
     use tauri::{AppHandle, Manager};
     use windows::ApplicationModel::Package;
-    use windows::Services::Store::StoreContext;
+    use windows::Services::Store::{StoreContext, StorePackageUpdateState, StorePackageUpdateStatus};
     use windows::Win32::Foundation::HWND;
     use windows::Win32::UI::Shell::IInitializeWithWindow;
     use windows::core::Interface;
+    use windows_future::{AsyncOperationProgressHandler, AsyncStatus};
 
     /// The Store answers over the network, and a stalled answer must not hold a check forever.
     const ANSWER_LIMIT: std::time::Duration = std::time::Duration::from_secs(30);
@@ -332,11 +422,7 @@ mod store {
     /// The newer version of this app the Store has, as 1.2.3 (the package's fourth part is
     /// always 0), or None when there is none.
     pub fn waiting_version(app: &AppHandle) -> Result<Option<String>, ()> {
-        // A window handle is not Send; its value crosses to the thread instead.
-        let owner = app
-            .get_webview_window("main")
-            .and_then(|window| window.hwnd().ok())
-            .map(|hwnd| hwnd.0 as isize);
+        let owner = owner(app);
         let (sent, answer) = std::sync::mpsc::channel();
         // On a thread of its own: Windows may need the calling thread to finish the operation.
         std::thread::spawn(move || {
@@ -345,10 +431,19 @@ mod store {
         answer.recv_timeout(ANSWER_LIMIT).map_err(|_| ())?.map_err(|_| ())
     }
 
-    fn ask(owner: Option<isize>) -> windows::core::Result<Option<String>> {
+    /// The main window's handle, as a value: a handle is not Send, and the Store is asked on a
+    /// thread of its own.
+    fn owner(app: &AppHandle) -> Option<isize> {
+        app.get_webview_window("main")
+            .and_then(|window| window.hwnd().ok())
+            .map(|hwnd| hwnd.0 as isize)
+    }
+
+    fn context(owner: Option<isize>) -> windows::core::Result<StoreContext> {
         let context = StoreContext::GetDefault()?;
         // A desktop app's StoreContext needs an owner window, or Microsoft says it may answer
-        // with wrong data or errors, even for a call that shows no dialog.
+        // with wrong data or errors, even for a call that shows no dialog. Windows' question
+        // before an install is shown over it.
         if let Some(owner) = owner {
             unsafe {
                 context
@@ -356,6 +451,11 @@ mod store {
                     .Initialize(HWND(owner as *mut _))?
             };
         }
+        Ok(context)
+    }
+
+    fn ask(owner: Option<isize>) -> windows::core::Result<Option<String>> {
+        let context = context(owner)?;
         let updates = context.GetAppAndOptionalStorePackageUpdatesAsync()?.join()?;
         // The list can also hold optional packages; only this app's own package counts.
         let own = Package::Current()?.Id()?.FamilyName()?;
@@ -367,6 +467,70 @@ mod store {
             }
         }
         Ok(None)
+    }
+
+    /// Asks the Store to download and install this app's waiting version, telling `progress` how
+    /// far it has got (0 to 1, the Store's own measure). Windows asks the person first. Err when the
+    /// Store could not be asked at all.
+    pub fn download_and_install(
+        app: &AppHandle,
+        progress: impl FnMut(f64) + Send + 'static,
+    ) -> Result<super::StoreEnd, ()> {
+        let (owner, app) = (owner(app), app.clone());
+        let (sent, answer) = std::sync::mpsc::channel();
+        // On a thread of its own, as `waiting_version`. No time limit: a slow download takes what it
+        // takes, and Cancel ends it.
+        std::thread::spawn(move || {
+            let cancel = &app.state::<super::Found>().cancel;
+            let _ = sent.send(request(owner, progress, cancel));
+        });
+        answer.recv().map_err(|_| ())?.map_err(|_| ())
+    }
+
+    fn request(
+        owner: Option<isize>,
+        progress: impl FnMut(f64) + Send + 'static,
+        cancel: &AtomicBool,
+    ) -> windows::core::Result<super::StoreEnd> {
+        use super::StoreEnd;
+        let context = context(owner)?;
+        let updates = context.GetAppAndOptionalStorePackageUpdatesAsync()?.join()?;
+        if updates.Size()? == 0 {
+            return Ok(StoreEnd::Declined);
+        }
+        let own = Package::Current()?.Id()?.FamilyName()?;
+        let progress = std::sync::Mutex::new(progress);
+        let operation = context.RequestDownloadAndInstallStorePackageUpdatesAsync(&updates)?;
+        operation.SetProgress(&AsyncOperationProgressHandler::new(move |_, status| {
+            let status: &StorePackageUpdateStatus = &status;
+            if status.PackageFamilyName == own {
+                (crate::app::hold(&progress))(status.PackageDownloadProgress);
+            }
+            Ok(())
+        }))?;
+        let mut called_off = false;
+        loop {
+            match operation.Status()? {
+                AsyncStatus::Started => {
+                    if !called_off && cancel.load(Ordering::SeqCst) {
+                        called_off = true;
+                        operation.Cancel()?;
+                    }
+                    std::thread::sleep(std::time::Duration::from_millis(50));
+                }
+                AsyncStatus::Completed => break,
+                AsyncStatus::Canceled => return Ok(StoreEnd::Cancelled),
+                _ => return Ok(StoreEnd::Declined),
+            }
+        }
+        let state = operation.GetResults()?.OverallState()?;
+        Ok(if state == StorePackageUpdateState::Completed {
+            StoreEnd::Installed
+        } else if state == StorePackageUpdateState::Canceled {
+            StoreEnd::Cancelled
+        } else {
+            StoreEnd::Declined
+        })
     }
 
     /// This app's page in the Store app, found by the package family name rather than a product
@@ -387,6 +551,12 @@ mod store {
     }
     pub fn page() -> Result<String, String> {
         Err(crate::i18n::t("error.open_browser"))
+    }
+    pub fn download_and_install(
+        _: &tauri::AppHandle,
+        _: impl FnMut(f64) + Send + 'static,
+    ) -> Result<super::StoreEnd, ()> {
+        Err(())
     }
 }
 
@@ -421,6 +591,38 @@ mod tests {
     #[test]
     fn a_writable_folder_is_not_read_only() {
         assert!(!read_only(&std::env::temp_dir()));
+    }
+
+    #[test]
+    fn progress_shows_each_phase_once_and_a_percent_every_five_points() {
+        let mut steps = Steps::default();
+        let shown = |steps: &mut Steps, phase, percent| steps.next(phase, percent).map(|e| e["percent"].clone());
+        assert_eq!(shown(&mut steps, "downloading", None), Some(Value::Null));
+        assert_eq!(
+            shown(&mut steps, "downloading", None),
+            None,
+            "the same phase again says nothing"
+        );
+        assert_eq!(shown(&mut steps, "downloading", Some(0)), Some(json!(0)));
+        assert_eq!(shown(&mut steps, "downloading", Some(4)), None);
+        assert_eq!(shown(&mut steps, "downloading", Some(5)), Some(json!(5)));
+        assert_eq!(shown(&mut steps, "downloading", Some(3)), None, "it never goes back");
+        assert_eq!(shown(&mut steps, "downloading", Some(99)), Some(json!(99)));
+        assert_eq!(shown(&mut steps, "downloading", Some(100)), Some(json!(100)));
+        assert_eq!(shown(&mut steps, "downloading", Some(100)), None);
+        assert_eq!(shown(&mut steps, "installing", None), Some(Value::Null));
+        assert_eq!(shown(&mut steps, "installing", None), None);
+    }
+
+    #[test]
+    fn the_stores_progress_is_downloading_to_eighty_percent_then_installing() {
+        assert_eq!(store_stage(0.0), ("downloading", Some(0)));
+        assert_eq!(store_stage(0.4), ("downloading", Some(50)));
+        assert_eq!(store_stage(0.79), ("downloading", Some(98)));
+        assert_eq!(store_stage(0.8), ("installing", None));
+        assert_eq!(store_stage(1.0), ("installing", None));
+        assert_eq!(store_stage(f64::NAN), ("downloading", Some(0)));
+        assert_eq!(store_stage(-1.0), ("downloading", Some(0)));
     }
 
     #[test]

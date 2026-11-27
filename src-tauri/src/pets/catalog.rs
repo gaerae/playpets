@@ -61,7 +61,8 @@ pub struct Asset {
 }
 
 /// A Codex pet sheet is 8 cells of 192px across and one 208px row per animation.
-pub const SHEET_WIDTH: u32 = 1536;
+pub const CELL_WIDTH: u32 = 192;
+pub const SHEET_WIDTH: u32 = 8 * CELL_WIDTH;
 pub const ROW_HEIGHT: u32 = 208;
 /// The sprite sheet versions Codex pets come in: (spriteVersionNumber, rows). A new version is
 /// a row here (and in src/core/animation.js if its rows mean something new).

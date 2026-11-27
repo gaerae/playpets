@@ -293,6 +293,109 @@ test('a single bulb glints now and then, 10 to 16 seconds apart', async ctx => {
   assert.deepEqual(spot(tree()), at(bulbs[1]));
 });
 
+const glints = button => layers(button)[0].children.filter(c => c.classList?.contains('xmas-glint'));
+const spotOf = node => ({ left: node.style.left, top: node.style.top });
+
+test('two more bulbs follow a glint a moment apart, each a different bulb, and the star breathes with them', async ctx => {
+  ctx.mock.method(Math, 'random', () => 0);
+  const { tree } = await yard(ctx, { before: TONIGHT });
+  const { timers } = ctx.mock,
+    [first, second, third] = glints(tree()),
+    star = () => layers(tree())[0].classList.contains('shimmer');
+  assert.ok(third, 'three glints on the tree');
+  timers.tick(10_000);
+  assert.ok(first.classList.contains('glinting') && !second.classList.contains('glinting'));
+  assert.ok(star(), 'the star breathes with the run');
+  timers.tick(350);
+  assert.ok(second.classList.contains('glinting'));
+  timers.tick(350);
+  assert.ok(third.classList.contains('glinting'));
+  const spots = [first, second, third].map(spotOf).map(JSON.stringify);
+  assert.equal(new Set(spots).size, 3, spots.join(' '));
+  timers.tick(800);
+  assert.ok(
+    glints(tree()).every(g => !g.classList.contains('glinting')),
+    'all out again',
+  );
+  assert.ok(!star());
+});
+
+test('a glint run stops at once with the night', async ctx => {
+  ctx.mock.method(Math, 'random', () => 0);
+  const { tree } = await yard(ctx, { before: TONIGHT });
+  ctx.mock.timers.tick(10_400);
+  const button = tree();
+  scene.weather = 'clear';
+  christmasNightCheck();
+  assert.ok(glints(button).every(g => !g.classList.contains('glinting')));
+  assert.ok(!layers(button)[0].classList.contains('shimmer'));
+  ctx.mock.timers.tick(5_000);
+  assert.ok(
+    glints(button).every(g => !g.classList.contains('glinting')),
+    'no later bulb of the run',
+  );
+});
+
+test('as the tree grows, rays open from its star and sparkles climb with the light', async ctx => {
+  const { tree } = await yard(ctx);
+  const layer = layers(tree())[0],
+    named = name => layer.children.find(c => c.classList?.contains(name));
+  assert.ok(named('xmas-rays'));
+  const climb = named('xmas-climb');
+  assert.ok(climb && climb.children.length >= 5);
+  const worn = uncommented(await readFile('src/styles/worn.css', 'utf8'));
+  for (const name of ['xmas-rays-open', 'xmas-climb'])
+    assert.ok(
+      new RegExp(`\\.xmas-rise[^{]*\\{[^}]*animation:[^;]*\\b${name}\\b`).test(worn),
+      `${name} plays with the change`,
+    );
+});
+
+test('the lit tree stands in a warm halo, its bulbs twinkle in warm colours and gold flecks drift round it', async ctx => {
+  const { tree } = await yard(ctx, { before: TONIGHT });
+  const layer = layers(tree())[0],
+    named = name => layer.children.find(c => c.classList?.contains(name));
+  const halo = named('xmas-halo');
+  assert.ok(halo);
+  assert.ok(layer.children.indexOf(halo) < layer.children.indexOf(named('xmas-reveal')), 'behind the tree');
+  const lights = named('xmas-lights');
+  assert.ok(lights && lights.children.length >= 3, 'groups that twinkle in turn, several bulbs at once');
+  const lit = lights.children.map(g => (g.style.backgroundImage.match(/radial-gradient/g) || []).length);
+  assert.equal(
+    lit.reduce((a, b) => a + b, 0),
+    bulbs.length,
+    'every bulb, once',
+  );
+  assert.ok(
+    new Set(lights.children.map(g => g.style.backgroundImage.match(/#[0-9a-f]{6}/)[0])).size >= 3,
+    'warm colours',
+  );
+  assert.ok(named('xmas-flecks')?.children.length >= 4);
+  // Made once: the next check finds them.
+  christmasNightCheck();
+  assert.equal(layer.children.filter(c => c.classList?.contains('xmas-lights')).length, 1);
+});
+
+test('as the tree grows a warm light blooms round it over the snow and the friends, and is gone after', async ctx => {
+  const { tree, nodes } = await yard(ctx);
+  const blooms = () => nodes.get('yard').children.filter(c => c.classList?.contains('xmas-bloom') && !c.removed);
+  assert.ok(has(tree(), 'xmas-rise'));
+  assert.equal(blooms().length, 1);
+  const [bloom] = blooms();
+  assert.ok(parseFloat(bloom.style.width) > 0 && bloom.style.left.endsWith('px') && bloom.style.top.endsWith('px'));
+  ctx.mock.timers.tick(2_600);
+  assert.equal(blooms().length, 0);
+});
+
+test('no bloom without the change: a night already seen, or reduced motion', async ctx => {
+  const { nodes } = await yard(ctx, {
+    before: opts => {
+      TONIGHT(opts);
+    },
+  });
+  assert.equal(nodes.get('yard').children.filter(c => c.classList?.contains('xmas-bloom') && !c.removed).length, 0);
+});
+
 test('the next glint waits up to 16 seconds', async ctx => {
   ctx.mock.method(Math, 'random', () => 0.999);
   const { tree } = await yard(ctx, { before: TONIGHT });
@@ -449,16 +552,36 @@ test('with the baby reindeer and Santa out, the sleigh crosses the moon once tha
   assert.equal(sleigh.hidden, false);
   assert.ok(has(sleigh, 'flying'));
   assert.ok(sleigh.innerHTML.includes('#'), 'the sleigh is drawn the first time it flies');
+  assert.ok(sleigh.innerHTML.includes('xmas-trail'), 'with a trail of gold dust behind it');
+  const dust = () => parts.nodes.get('yard').children.filter(c => c.classList?.contains('xmas-dust') && !c.removed);
+  assert.equal(dust().length, 1, 'and dust it lets fall along its way');
+  assert.ok(dust()[0].children.length >= 14);
+  const waits = dust()[0].children.map(m => parseFloat(m.style.animationDelay));
+  assert.deepEqual(
+    [...waits].sort((a, b) => a - b),
+    waits,
+    'from its first stretch to its last',
+  );
+  assert.ok(waits.at(-1) < 4200);
   timers.tick(4200);
   assert.equal(sleigh.hidden, true);
   assert.ok(!has(sleigh, 'flying'));
   assert.equal(motes().length, 24, 'gold falls from the star');
+  assert.deepEqual(
+    [0, 1, 2].map(size => motes().filter(m => m.classList.contains(`s${size}`)).length),
+    [8, 8, 8],
+    'in three sizes',
+  );
   timers.tick(4799);
   assert.equal(motes().length, 24, 'the latest, slowest mote is still falling');
   assert.ok(moon());
   timers.tick(1);
   assert.equal(motes().length, 0);
   assert.ok(!moon());
+  assert.equal(
+    parts.nodes.get('yard').children.filter(c => c.classList?.contains('xmas-dust') && !c.removed).length,
+    0,
+  );
   for (let n = 0; n < 12; n++) {
     timers.tick(10_000);
     christmasNightCheck();
@@ -496,7 +619,7 @@ test('snow that stops and comes back the same night grows the tree and brings th
 });
 
 test('with reduced motion the sleigh is a still vignette and no gold falls', async ctx => {
-  const { sleigh, reindeer, santa, moon, motes } = await sleighYard(ctx, {
+  const { sleigh, reindeer, santa, moon, motes, nodes } = await sleighYard(ctx, {
     before: () => {
       reduced.matches = true;
     },
@@ -505,6 +628,7 @@ test('with reduced motion the sleigh is a still vignette and no gold falls', asy
   assert.equal(sleigh.hidden, false);
   assert.ok(has(sleigh, 'still'));
   assert.ok(!has(sleigh, 'flying'));
+  assert.equal(nodes.get('yard').children.filter(c => c.classList?.contains('xmas-dust')).length, 0, 'no dust');
   assert.ok(moon());
   assert.ok(!looking(reindeer()) && !looking(santa()));
   for (let n = 0; n < 30; n++) {
@@ -520,8 +644,9 @@ test('with reduced motion the sleigh is a still vignette and no gold falls', asy
 });
 
 // Nothing of the sleigh is left, and the timers still to come change nothing.
-function allGone(ctx, { sleigh, reindeer, santa, moon, tree }) {
+function allGone(ctx, { sleigh, reindeer, santa, moon, tree, nodes }) {
   const gone = () => {
+    assert.equal(nodes.get('yard').children.filter(c => c.classList?.contains('xmas-dust') && !c.removed).length, 0);
     assert.equal(sleigh.hidden, true);
     assert.ok(!has(sleigh, 'flying'));
     assert.ok(!moon());
@@ -632,7 +757,7 @@ function blocks(css, head) {
   return found;
 }
 
-test("the change's keyframes move only transform and opacity, never loop, and read no variables", async () => {
+test('the keyframes move only transform and opacity and read no variables, and only the lit tree in the yard loops, slowly', async () => {
   const garden = uncommented(await readFile('src/styles/garden.css', 'utf8'));
   const worn = uncommented(await readFile('src/styles/worn.css', 'utf8'));
   const scenery = uncommented(await readFile('src/styles/scenery.css', 'utf8'));
@@ -646,7 +771,19 @@ test("the change's keyframes move only transform and opacity, never loop, and re
       for (const [, property] of body.matchAll(/([\w-]+)\s*:/g))
         assert.ok(['transform', 'opacity'].includes(property), `${head} moves ${property}`);
     }
-    for (const { head, body } of blocks(css, /(?<=^|[{}])[^{}@]*xmas[^{}]*(?=\{)/g))
-      assert.ok(!/\binfinite\b/.test(body), `${head.trim()} never loops`);
+    for (const { head, body } of blocks(css, /(?<=^|[{}])[^{}@]*xmas[^{}]*(?=\{)/g)) {
+      if (!/\binfinite\b/.test(body)) continue;
+      // Only the tree standing lit in the yard breathes and twinkles for as long as the night
+      // lasts, slowly: never the change, never the desktop (worn.css), never faster than 3 s.
+      assert.ok(css === garden, `${head.trim()} loops only in the yard`);
+      assert.match(head, /\.xmas-grand:not\(\.xmas-rise\)/, `${head.trim()} loops only while it stands lit`);
+      for (const [, seconds] of body.matchAll(/([\d.]+)s\b[^;]*\binfinite\b/g))
+        assert.ok(Number(seconds) >= 3, `${head.trim()} is slow: ${seconds}s`);
+    }
   }
+  assert.match(
+    garden,
+    /@media \(prefers-reduced-motion: reduce\)\s*\{[^}]*\.xmas-flecks[^{]*\{\s*display:\s*none/,
+    'with reduced motion no flecks drift',
+  );
 });

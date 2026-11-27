@@ -7,12 +7,13 @@ export const copy = {
   more: 'Details',
   // No name of its own in this language: PlayPets is read as written.
   nativeName: '',
-  // Steam's own names, in this language, for Desktop Companion and Idler (store.steampowered.com/tag/browse).
+  // Steam's own names, in this language, for Desktop Companion and Idler (store.steampowered.com/tag/browse,
+  // checked 2026-11-27); Cozy and Relaxing are its tags too and only join the keywords.
   steamTags: ['Desktop Companion', 'Idler'],
-  keywords: ['PlayPets', 'desktop pet', 'Desktop Companion', 'Idler', 'cozy', 'Codex pets', 'coding agent'],
+  keywords: ['PlayPets', 'desktop pet', 'Desktop Companion', 'Idler', 'Cozy', 'Relaxing', 'Codex pets', 'coding agent'],
   eyebrow: 'Free desktop pet app for macOS, Windows and Linux',
   download: 'Download PlayPets',
-  meet: 'See what you can do',
+  meet: 'See them on your desktop',
   finalTitle: 'Download PlayPets',
   developerTitle: 'For people who make things',
   developerBody: 'PlayPets is open source under the MIT license. Read how it is built, or help make it.',
@@ -35,10 +36,9 @@ export const worldCopy = {
   previewNote:
     'An interactive scene sample with the app’s artwork. Select a friend to wave; games and weather live in the app.',
   greet: 'Say hello',
-  title: ['Pet friends', 'that live on your desktop.'],
-  lead: 'Four friends come with PlayPets, and any Codex pet can join them. Up to 12 play together, talk through the AI you choose and tell you what your coding agent is doing.',
-  worldsTitle: 'Try a little of it here.',
-  worldsLead: 'Open the yard window or let them out onto the desktop, then say hello to a friend.',
+  title: ['Little friends on your desktop,', 'keeping you company all day.'],
+  lead: 'Four friends play in a painted yard, then hop out onto your desktop and stay beside your work. Your Codex pets can come and play too.',
+  worldsLead: 'Look around: pick a place and a season, say hello to a friend, or let them out onto the desktop.',
   viewLabel: 'Where your friends are',
   views: ['Yard window', 'On the desktop'],
   desktopNote:
@@ -56,7 +56,7 @@ export const worldCopy = {
 export const sections = {
   play: {
     title: 'What you can do in the yard',
-    lead: 'All pictures are from the app. None of it needs an AI account; start from Play at the bottom of the yard.',
+    lead: 'Every picture here is from the app. None of it needs an AI account: start from Play at the bottom of the yard.',
     reel: 'Filmed in the app: a find from digging, a catch at the lake, a chat, and a show in the night sky.',
     shots: [
       [
@@ -145,7 +145,6 @@ export const sections = {
   },
   moments: {
     title: 'The yard on its own',
-    kind: 'It’s a Desktop Companion you leave running while you work.',
     lead: 'With time and weather on Auto, the yard follows your clock and picks its own weather. Watch for these.',
     items: {
       rainbow: ['Rainbow', 'A rainbow stands for a few minutes. Dig where it ends.'],
@@ -177,38 +176,28 @@ export const sections = {
       [
         'Moving around',
         'Stays where you drag it, showing Running, Needs input, Ready and Blocked',
-        'Strolls the yard on its own with every action in its sheet; on your desktop too, with Stroll on desktop',
+        'Strolls the yard with every action in its sheet, and your desktop too with Stroll on desktop',
       ],
       ['Pets at once', 'One at a time', 'Up to 12, playing together'],
       [
         'Conversation',
         'Starts a chat from your desktop',
-        'Talks with you and with other pets through the AI you choose',
+        'Talks with you and with the other pets through the AI you choose',
       ],
       [
         'Coding agents',
         'Follows your ChatGPT and Codex threads in one pet',
-        'Each agent reports to its own pet: Claude Code, Codex, Gemini CLI, Cursor, Grok Build, Qoder, Kimi Code and MCP tools',
+        'Each agent reports to its own pet: Claude Code, Codex, Gemini CLI, Cursor and more',
       ],
-      ['Games', '—', 'Hide and seek, parade, tag and, in winter, building a snowman'],
-      ['Garden', '—', 'Dig up seeds and saplings, plant flowers and trees, and set out the gifts friends bring'],
-      ['Collecting', '—', 'Fish, catch bugs, dig and follow tracks to fill an album of {count} finds'],
-      ['Seasons', '—', 'Cherry blossoms, firefly nights, a harvest moon, winter lights and the New Year'],
-      [
-        'Places',
-        '—',
-        'Hill garden, Wild garden, Lakeside cottage, Garden workshop or your own backgrounds, with time of day, weather and seasons',
-      ],
-      ['Outfits', '—', 'Starter pets dress for the season; any pet file can add seasonal sheets'],
+      ['Play', '—', 'Four games, a garden, fishing and an album of {count} finds'],
+      ['Places and seasons', '—', 'Four places with weather and time of day, seasonal events and seasonal outfits'],
     ],
     source: 'Codex pet column: OpenAI’s pet guide, October 2026',
-    desktop:
-      'On the desktop, friends stand in front of your other windows. Turn on Stroll on desktop and they wander around it.',
     seePlay: 'See them play',
   },
-  codexPlusTitle: ['ChatGPT pets', 'and what PlayPets adds'],
+  codexPlusTitle: ['Have ChatGPT pets?', 'Bring them along.'],
   codexPlusLead:
-    'PlayPets reads pet files made for ChatGPT and Codex (pet.json and a sprite sheet) as they are. The ChatGPT desktop app shows one pet that follows your threads. PlayPets shows up to 12, which talk to each other and follow several coding agents.',
+    'PlayPets reads pet files made for ChatGPT and Codex (pet.json and a sprite sheet) as they are. In the ChatGPT app one pet follows your threads; here up to 12 play, talk to each other and keep several coding agents company.',
   codexPlusLink: 'Bring in your Codex pets',
   discoveryGuide: 'See what you can discover',
   galleryCreate: 'Create with this friend',
@@ -244,10 +233,6 @@ export const sections = {
       '/guide/chat',
     ],
   ],
-  miniTitle: 'A small window, or the desktop',
-  miniBody:
-    'Drag a window edge to shrink the yard down to 300 × 210 and keep it beside your work. Turn on Always on top so other windows don’t cover it. In desktop mode, friends come out in front of your other windows. Gifts out there answer too: the lantern lights up in the evening, friends stand on the bench, and the wind chime hangs from the top of the screen and rings when you click it.',
-  miniLink: 'Window size and Always on top',
   agentGuide: 'Connect a coding agent',
   connectionDetails: 'Which AI you can connect, and what it costs',
   connectionSetup:
@@ -255,7 +240,35 @@ export const sections = {
   heroFacts: ['Free and open source (MIT)', 'Play needs no AI account', 'English, 한국어, 日本語, 简体中文'],
   heroAgents: 'Reacts to',
   heroAgentsMore: 'and more',
-  miniDesktop: 'Desktop mode',
+  desk: {
+    title: 'Out of the window, onto your desktop',
+    lead: 'Turn on Show on desktop and your friends hop out of the yard window. They wander in front of your other apps, rest while you type, and their eyes follow your pointer.',
+    points: [
+      [
+        'desktop',
+        'On a strip of grass',
+        'Grass on desktop lays a strip along the bottom of the screen for them to stroll on. Drag a friend anywhere, even onto another monitor.',
+      ],
+      [
+        'gift',
+        'The garden comes too',
+        'Set out gifts, flowers and trees beside them. The lantern lights up in the evening, and the wind chime rings when you click it.',
+      ],
+      [
+        'hourglass',
+        'Quiet while you work',
+        'Friends rest longer while no one is with them, and nothing is redrawn until something moves. Prefer a window? Shrink the yard to 300 × 210 and keep it on top.',
+      ],
+      [
+        'laptop',
+        'Company for your agent',
+        'While Claude Code, Codex or another coding agent works, a friend tells you what it is doing and cheers when it is done.',
+      ],
+    ],
+    kind: 'PlayPets is a Desktop Companion: a cozy app you leave open all day, with friends who keep you company while you get on with things.',
+    link: 'All about desktop mode',
+    agents: 'See a coding agent',
+  },
   togetherTitle: 'Friends talk to each other too',
   togetherBody:
     'Bring another friend into a chat, or choose Play → Group games → Let them chat. Let them chat needs at least two friends with an AI connected.',
@@ -329,4 +342,9 @@ export const sections = {
     confirm: 'Needs your confirmation',
     done: 'Finished the task',
   },
+};
+// The card a link to this page shows (scripts/make-og.mjs): a line, then the one in bold.
+export const card = {
+  title: 'Little friends on your desktop,<b>keeping you company all day</b>',
+  sub: 'Daisy, Clover, Pip and Miso play in a painted yard, step out onto your desktop and stay beside you while you work. Bring your own pets, and connect an AI when you want to talk.',
 };

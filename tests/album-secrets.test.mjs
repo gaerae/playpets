@@ -6,9 +6,10 @@ import { albumEntries } from './support/content.mjs';
 globalThis.playPets ??= {};
 const state = await import('../src/core/state.js');
 const { t: translate } = await import('../src/core/i18n.js');
-const { renderAlbum, setupAlbum } = await import('../src/panel/album.js');
+const { openAlbum, renderAlbum, setupAlbum } = await import('../src/panel/album.js');
 const { discover, SECRETS } = await import('../src/yard/secrets.js');
-const { installDom } = await import('./support/dom.mjs');
+const support = await import('./support/dom.mjs');
+const { installDom } = support;
 
 function album(t, secrets) {
   const before = state.data;
@@ -27,12 +28,32 @@ function album(t, secrets) {
   return { tabs, secret: tabs.find(tab => tab.dataset.book === 'secret') };
 }
 
-test('the hidden book is nowhere until something in it is found, and never counts toward the album', t => {
+// The secrets' book is always on the shelf, sealed: its tab and its one card say only that
+// something is there, never what, so it is worth wondering about.
+test("the secrets' book is always there, sealed with a ? until something in it is found, and never counts", t => {
   const { secret } = album(t, {});
-  assert.equal(secret.hidden, true);
+  assert.equal(secret.hidden, false, 'its tab shows before anything is found');
+  assert.equal(secret.children[1].textContent, '?', 'a ? rather than how many there are');
   assert.equal(
     document.getElementById('album-total').textContent,
     translate('catch.total', { caught: 0, total: albumEntries }),
+  );
+  secret.onclick();
+  const cards = document.getElementById('album-grid').children;
+  assert.equal(cards.length, 1, 'one sealed card, not a blank for each secret');
+  assert.ok(cards[0].className.includes('sealed'));
+  assert.equal(cards[0].dataset.kind, undefined, 'it names no secret');
+  assert.equal(cards[0].textContent, '');
+  assert.equal(document.getElementById('album-dig-status').textContent, translate('album.secret_none'));
+  // Pressed, the seal rattles like a lock that will not open yet, and the book stays as it is.
+  document.getElementById('album-grid').dispatch('click', { target: cards[0].children[0] });
+  assert.ok(cards[0].children[0].classList.contains('rattle'));
+  cards[0].children[0].dispatch('animationend');
+  assert.equal(cards[0].children[0].classList.contains('rattle'), false);
+  assert.equal(
+    document.getElementById('album-detail').textContent,
+    '',
+    'its page is the seal, with no word to give one away',
   );
 });
 
@@ -48,13 +69,32 @@ test('once found, the book shows only what was found, with no blanks and no tota
   assert.equal(document.getElementById('album-dig-status').hidden, false);
 });
 
-test('the compact chooser lists the hidden book only once something in it is found', t => {
+test('the album opens at the latest book with something new, whose tab carries a dot until then', t => {
+  const { tabs, secret } = album(t, { wish: { count: 1, best: 0, first: 1 } });
+  const fish = tabs.find(tab => tab.dataset.book === 'fish');
+  tabs[0].onclick();
+  support.installStorage(t);
+  state.remember('album-new-books', 'fish,secret');
+  renderAlbum();
+  assert.equal(secret.classList.contains('has-new'), true);
+  assert.equal(fish.classList.contains('has-new'), true);
+  document.getElementById('album-dialog').showModal = () => {};
+  openAlbum();
+  assert.equal(secret.getAttribute('aria-selected'), 'true', 'the secret just found is where the album opens');
+  assert.equal(secret.classList.contains('has-new'), false);
+  assert.equal(fish.classList.contains('has-new'), true, 'the other keeps its dot');
+  assert.equal(fish.getAttribute('aria-description'), translate('catch.new_short'));
+  fish.onclick();
+  assert.equal(fish.classList.contains('has-new'), false);
+  openAlbum();
+  assert.equal(fish.getAttribute('aria-selected'), 'true', 'with nothing new, it opens where it was');
+});
+
+test("the compact chooser lists the secrets' book before anything in it is found, last", t => {
   const books = () => document.getElementById('album-select').children.map(option => option.value);
   album(t, {});
-  assert.ok(!books().includes('secret'), 'a select popup may not honour a hidden option, so it is not there');
-  assert.ok(books().includes('flower'));
-  album(t, { wish: { count: 1, best: 0, first: 1 } });
   assert.equal(books().at(-1), 'secret');
+  assert.ok(books().includes('flower'));
 });
 
 test('the page and the backend keep the same secrets', () => {

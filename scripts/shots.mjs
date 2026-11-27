@@ -166,7 +166,7 @@ function scenario(lang) {
   const settledScene=async()=>{await wait(300);for(let i=0;i<50;i++){if($('yard').dataset.environment==='illustrated'&&document.querySelectorAll('.paint-land canvas').length===1)return;await wait(100);}throw new Error('Background did not finish loading and fading');};
   const clearFocus=${clearCaptureFocus.toString()};
   const checkChat=${assertChatCast.toString()};
-  const shot=async(name,rect)=>{if(${desktopOnly}&&name!=='desktop')return;if(${smallOnly}&&!['mini','mini-chat'].includes(name))return;if(${chatOnly}&&!['friend-chat','companions'].includes(name))return;clearFocus(document);await wait(350);if(['friend-chat','companions'].includes(name)){const {views}=await import('./core/state.js');const bounds=r=>({left:r.left,top:r.top,right:r.right,bottom:r.bottom});const bodies=[...views.values()].map(v=>({id:v.pet.id,...bounds(v.canvas.getBoundingClientRect())}));const panel=bounds($('side-panel').getBoundingClientRect());const yard=bounds($('yard').getBoundingClientRect());await L('chat-bounds '+JSON.stringify({bodies,panel,yard}));checkChat(bodies,panel,yard);}const r=rect||(await inv('e2eWindow',['main'])).data;await L('shot '+name+' '+JSON.stringify(r));await wait(1800);};
+  const shot=async(name,rect)=>{if(${desktopOnly}&&name!=='desktop')return;if(${smallOnly}&&!['mini','mini-chat'].includes(name))return;if(${chatOnly}&&!['friend-chat','companions'].includes(name))return;const card=$('catch-card');if(card&&!card.hidden){card.click();await wait(700);}clearFocus(document);await wait(350);if(['friend-chat','companions'].includes(name)){const {views}=await import('./core/state.js');const bounds=r=>({left:r.left,top:r.top,right:r.right,bottom:r.bottom});const bodies=[...views.values()].map(v=>({id:v.pet.id,...bounds(v.canvas.getBoundingClientRect())}));const panel=bounds($('side-panel').getBoundingClientRect());const yard=bounds($('yard').getBoundingClientRect());await L('chat-bounds '+JSON.stringify({bodies,panel,yard}));checkChat(bodies,panel,yard);}const r=rect||(await inv('e2eWindow',['main'])).data;await L('shot '+name+' '+JSON.stringify(r));await wait(1800);};
   try{
     if(document.documentElement.lang!=='${lang}'){localStorage.setItem('lang','${lang}');await L('RELANG');await playPets.quitApp();return;}
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
@@ -203,7 +203,7 @@ function scenario(lang) {
       $('world').value='workshop';$('world').dispatchEvent(new Event('change'));
       $('period').value='day';$('period').dispatchEvent(new Event('change'));
       $('weather').value='clear';$('weather').dispatchEvent(new Event('change'));
-      await positionCast([daisy,clover,pip,miso],.68);
+      await positionCast([daisy,clover,pip,miso],.66);
       await settledScene();await playPets.openChat(daisy.id);await wait(1200);
       await shot('companions');
     };
@@ -263,7 +263,7 @@ function scenario(lang) {
     const ask=async q=>{$('message').value=q;$('message').dispatchEvent(new Event('input'));$('chat-form').requestSubmit();for(let i=0;i<40&&!$('chat-log').textContent.includes(q);i++)await wait(100);for(let i=0;i<60&&document.querySelector('.waiting');i++)await wait(100);};
     ${s.chat.map(([q]) => `await ask(${JSON.stringify(q)});`).join('\n    ')}
     // Keep all four friends beside the actual chat sheet, at their normal visible size.
-    await positionCast([p1,p2,p3,p4],.68);
+    await positionCast([p1,p2,p3,p4],.66);
     await wait(600);await shot('friend-chat');
     if(${smallOnly}){
       await inv('e2eWindow',['main',{x:80,y:170,width:460,height:320}]);await wait(800);await shot('mini-chat');
@@ -332,7 +332,7 @@ function playScenario(lang) {
   const must=async(label,p)=>{const r=await p;if(!r||r.ok===false)await L(label+'=err:'+(r&&r.error));return r;};
   const settledScene=async()=>{await wait(300);for(let i=0;i<50;i++){if($('yard').dataset.environment==='illustrated'&&document.querySelectorAll('.paint-land canvas').length===1)return;await wait(100);}throw new Error('Background did not finish loading and fading');};
   const clearFocus=${clearCaptureFocus.toString()};
-  const shot=async name=>{clearFocus(document);await wait(350);const r=(await inv('e2eWindow',['main'])).data;await L('shot '+name+' '+JSON.stringify(r));await wait(1800);};
+  const shot=async name=>{const card=$('catch-card');if(card&&!card.hidden){card.click();await wait(700);}clearFocus(document);await wait(350);const r=(await inv('e2eWindow',['main'])).data;await L('shot '+name+' '+JSON.stringify(r));await wait(1800);};
   const scene=async(world,season='spring')=>{for(const [id,value] of [['world',world],['scene-season',season],['period','day'],['weather','clear']]){$(id).value=value;$(id).dispatchEvent(new Event('change'));}await settledScene();};
   try{
     if(document.documentElement.lang!=='${lang}'){localStorage.setItem('lang','${lang}');await L('RELANG');await playPets.quitApp();return;}
@@ -364,9 +364,25 @@ function playScenario(lang) {
       const mark=m=>L('video-mark '+m);
       const bite=async()=>{if(!await until(()=>document.querySelector('.bobber.bite'),16000))throw new Error('No bite');await mark('bite');await wait(500);document.querySelector('.bobber').click();};
       const card=async name=>{if(!await until(()=>!$('catch-card').hidden,10000))throw new Error('No catch card');await mark(name);await wait(2600);await until(()=>$('catch-card').hidden,12000);};
+      // A seasonal event's card shows once, a moment after the yard opens: closed before filming.
+      if(await until(()=>!$('catch-card').hidden,3500)){$('catch-card').click();await wait(600);}
       clearFocus(document);await wait(350);
       await L('video-start '+JSON.stringify((await inv('e2eWindow',['main'])).data));await wait(2500);
       await mark('garden');await wait(5000);
+      // A press on open ground: the nearest friend walks there, over a ring of bent grass.
+      await hold();await wait(300);
+      await mark('walk');
+      for(const [fx,fy] of [[0.86,0.74],[0.14,0.66],[0.5,0.9]]){
+        const r=$('yard').getBoundingClientRect(),o={bubbles:true,cancelable:true,button:0,pointerId:3,clientX:r.left+r.width*fx,clientY:r.top+r.height*fy,detail:1};
+        window.dispatchEvent(new PointerEvent('pointerdown',o));$('yard').dispatchEvent(new PointerEvent('pointerup',o));$('yard').dispatchEvent(new MouseEvent('click',o));
+        await wait(2700);
+      }
+      // Tag from the Play panel: the friends run.
+      await hold();await wait(300);
+      await mark('tag');$('play-button').click();await wait(1200);
+      document.querySelector('#games-menu [data-game=tag]').click();await wait(5500);
+      const tagging=document.querySelector('[data-game].playing');if(tagging)tagging.click();
+      if(!$('play-panel').hidden)$('close-play').click();await wait(800);
       await hold();await wait(400);
       const {autoDig}=await import('./yard/discovery.js');
       // A dig can come up empty: the film keeps the first one that finds something for the album.
@@ -612,12 +628,15 @@ async function captureAll(lang) {
     }
     if (result !== 'DONE') throw new Error(`${lang} capture did not complete: ${result}`);
   };
+  // The winter question is answered (the season kept), so it never asks over a picture or the film.
+  const answered = { winterAsked: { year: new Date().getFullYear(), previous: null } };
+  await writeFile(path.join(dataDir, 'state.json'), JSON.stringify(answered));
   if (!playOnly && !reelOnly) await pass(dataDir, scenario(lang));
   // The play pictures on the site start from their own saved garden, in a fresh data folder.
   if (onSite && (playOnly || reelOnly || !process.env.SHOT_SCENE)) {
     const playData = path.join(dataDir, 'play');
     await mkdir(playData, { recursive: true });
-    await writeFile(path.join(playData, 'state.json'), JSON.stringify(playGarden(Date.now())));
+    await writeFile(path.join(playData, 'state.json'), JSON.stringify({ ...playGarden(Date.now()), ...answered }));
     await pass(playData, playScenario(lang));
   }
   if (onSite) await toWebp(outDir);

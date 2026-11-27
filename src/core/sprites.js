@@ -1,5 +1,7 @@
 // Draws one 192×208 cell of a pet's sprite sheet onto a canvas. Shared by the yard and the desktop overlay.
 import {
+  bodyBox,
+  cellsIn,
   directionFrame,
   frameAt,
   headroom,
@@ -10,11 +12,15 @@ import {
   turnStep,
 } from './animation.js';
 import { companionImage, sameCompanionAppearance, setCompanionSeason } from './companion-actions.js';
+import { cellTops, DRAWN_GAIT, feetSpread, ownBob, rowGait } from './gait.js';
+import { letGo, pixels } from './pixels.js';
 import { isSeason } from './season.js';
 
 const cache = new Map();
 const cacheKey = asset => `${asset.id}:${asset.spriteStyle || 'illustrated'}`;
 // Whether the system asks for less motion (none asked where there is no page, as in a test).
+/** How tall a friend drawn `size` pixels wide stands: a cell is 192×208. */
+export const cellHeight = size => (size * 208) / 192;
 export const reduced = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)') ?? { matches: false };
 let season = '';
 let revision = 0;
@@ -49,6 +55,7 @@ function imageFor(asset) {
   if (!entry || entry.url !== url) {
     // A new season's sheet takes a moment to decode; the one on screen stays until then.
     const shown = ready(entry?.image) ? entry.image : entry?.shown;
+    if (entry) for (const old of [entry.image, entry.shown]) if (old !== shown) letGo(old);
     entry = { url, assetId: asset.id, shown };
     cache.set(key, entry);
     heads.delete(key);
@@ -60,7 +67,10 @@ function imageFor(asset) {
 function drawable(asset) {
   const image = imageFor(asset);
   const entry = cache.get(cacheKey(asset));
-  if (ready(image)) entry.shown = null;
+  if (ready(image) && entry.shown) {
+    letGo(entry.shown);
+    entry.shown = null;
+  }
   return ready(image) ? image : (entry.shown ?? image);
 }
 /** Resolves once the sheet `asset` is drawn from is decoded (at once when it is), so a loop resting
@@ -75,6 +85,8 @@ export function sheetReady(asset) {
 export function release(keep) {
   for (const [id, entry] of cache)
     if (!keep.has(entry.assetId)) {
+      letGo(entry.image);
+      letGo(entry.shown);
       cache.delete(id);
       heads.delete(id);
     }
@@ -112,6 +124,92 @@ function headroomOf(asset) {
   }
   heads.set(key, { image, value });
   return value;
+}
+// A press counts on a friend's drawing and this much (cell pixels) around it, not on the empty rest
+// of its cell: the yard's hit area (views.js fitHit) and the desktop's hovered() (overlay.rs).
+const HIT_PAD = 6;
+const bodies = new WeakMap();
+const padded = (box, clamp) =>
+  box && [
+    clamp(box[0] - HIT_PAD / 192),
+    clamp(box[1] - HIT_PAD / 208),
+    clamp(box[2] + HIT_PAD / 192),
+    clamp(box[3] + HIT_PAD / 208),
+  ];
+// The pixels of row `row` of `image`, its cells side by side; throws when they cannot be read (a
+// tainted or broken sheet). Each caller measures a row once and keeps what it found.
+function rowPixels(image, row) {
+  const cells = cellsIn(row),
+    c = document.createElement('canvas');
+  c.width = cells * 192;
+  c.height = 208;
+  const ctx = c.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(pixels(image), 0, row * 208, cells * 192, 208, 0, 0, cells * 192, 208);
+  return { rgba: ctx.getImageData(0, 0, cells * 192, 208).data, cells };
+}
+// Where row `row` of `image` is drawn in its cell (animation.js bodyBox), measured the first time it
+// is asked and kept with the sheet; null when its pixels cannot be read.
+function rowBody(image, row) {
+  let rows = bodies.get(image);
+  if (!rows) bodies.set(image, (rows = []));
+  if (rows[row] !== undefined) return rows[row];
+  let box = null;
+  try {
+    const { rgba, cells } = rowPixels(image, row);
+    box = padded(bodyBox(rgba, cells, 192, 208), v => Math.min(1, Math.max(0, v)));
+  } catch {
+    box = null;
+  }
+  rows[row] = box;
+  return box;
+}
+const gaits = new WeakMap();
+/** How row `row` of `asset`'s sheet walks (core/gait.js), measured once a sheet and row from its
+ * cells; null until the sheet is in. */
+export function gaitOf(asset, row) {
+  if (!asset) return null;
+  const image = drawable(asset);
+  if (!ready(image)) return null;
+  let rows = gaits.get(image);
+  if (!rows) gaits.set(image, (rows = []));
+  if (rows[row]) return rows[row];
+  let gait = DRAWN_GAIT;
+  try {
+    const { rgba, cells } = rowPixels(image, row),
+      tops = cellTops(rgba, cells, 192, 208);
+    gait = { ...rowGait(feetSpread(rgba, cells, 192, 208)), ownBob: ownBob(tops, 208 - Math.min(...tops)) };
+  } catch {
+    gait = DRAWN_GAIT;
+  }
+  rows[row] = gait;
+  return gait;
+}
+/** Where a companion's own action is drawn, as shares of the cell: around every frame of `clip` as
+ * drawSprite places it, which may reach outside the cell (a rod held out). Measured once a clip. */
+export function actionBox(clip) {
+  if (bodies.has(clip)) return bodies.get(clip);
+  const scale = clip.scale ?? 1,
+    anchor = clip.anchor ?? [96, 200],
+    offset = clip.offset ?? [0, 0];
+  let box = null;
+  for (const frame of clip.frames) {
+    const x = offset[0] + anchor[0] - frame.foot[0] * scale,
+      y = offset[1] + anchor[1] - frame.foot[1] * scale,
+      edges = [x / 192, y / 208, (x + frame.rect[2] * scale) / 192, (y + frame.rect[3] * scale) / 208];
+    box = box
+      ? [Math.min(box[0], edges[0]), Math.min(box[1], edges[1]), Math.max(box[2], edges[2]), Math.max(box[3], edges[3])]
+      : edges;
+  }
+  box = padded(box, v => v);
+  bodies.set(clip, box);
+  return box;
+}
+/** Where on `canvas` the friend drawSprite last drew is, as shares of its cell [left, top, right,
+ * bottom]: around its pose's row, or its own action's frames. Null until it is known. */
+export function bodyOf(canvas) {
+  const drawn = canvas?._drawn;
+  if (!drawn) return null;
+  return drawn.frames ? actionBox(drawn) : rowBody(drawn, canvas._row);
 }
 function actionSurface(canvas, clip) {
   const [width, height] = clip?.canvas ?? [192, 208];
@@ -168,7 +266,8 @@ function facing(canvas, look, now, standing) {
   return canvas._facing == null ? null : directionFrame(canvas._facing);
 }
 /** Draws `state` at `elapsed` on `canvas`: a standing friend by the idle rhythm, a look (v2 sheets)
- * turned toward `look`, or a companion's own `action`. `now` is the clock a turn is timed by. */
+ * turned toward `look`, or a companion's own `action`. `now` is the clock a turn is timed by. A
+ * `walk` ({ cell, lift }) draws that cell of the state's row, raised `lift` cell pixels. */
 export function drawSprite(
   canvas,
   asset,
@@ -177,6 +276,7 @@ export function drawSprite(
   look = null,
   action = null,
   now = globalThis.performance?.now() ?? 0,
+  walk = null,
 ) {
   if (!asset) return;
   const authored = action && sameCompanionAppearance(action.asset, asset) ? companionImage(action) : null;
@@ -193,7 +293,7 @@ export function drawSprite(
     const anchor = action.clip.anchor ?? [96, 200];
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(
-      authored,
+      pixels(authored),
       ...frame.rect,
       anchor[0] - frame.foot[0] * scale,
       anchor[1] - frame.foot[1] * scale,
@@ -202,6 +302,7 @@ export function drawSprite(
     );
     canvas._pk = key;
     canvas._sheet = authored;
+    canvas._drawn = action.clip;
     markFirst(canvas);
     return;
   }
@@ -211,21 +312,28 @@ export function drawSprite(
       canvas.getContext('2d').clearRect(0, 0, 192, 208);
       canvas._pk = '';
     }
+    canvas._drawn = null;
     return;
   }
+  const stepping = walk && !reduced.matches;
   const frame = reduced.matches
     ? { row: 0, column: 0 }
-    : looking ||
-      (state === 'idle' ? idleCell(elapsed, (canvas._seed ??= nextSeed()), canvas._rhythm) : frameAt(state, elapsed));
+    : stepping
+      ? { row: frameAt(state, 0).row, column: walk.cell }
+      : looking ||
+        (state === 'idle' ? idleCell(elapsed, (canvas._seed ??= nextSeed()), canvas._rhythm) : frameAt(state, elapsed));
+  const lift = stepping ? walk.lift : 0;
   // Animation cells change a few times a second and the loops run more often than that:
   // skip the clear+blit entirely when this canvas already shows the same cell.
-  const key = `${asset.id}:${frame.row}:${frame.column}`;
+  const key = `${asset.id}:${frame.row}:${frame.column}:${lift}`;
   if (canvas._pk === key && canvas._sheet === image._spriteRevision) return;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, 192, 208);
-  ctx.drawImage(image, frame.column * 192, frame.row * 208, 192, 208, 0, 0, 192, 208);
+  ctx.drawImage(pixels(image), frame.column * 192, frame.row * 208, 192, 208, 0, 0 - lift, 192, 208);
   canvas._pk = key;
   canvas._sheet = image._spriteRevision;
+  canvas._drawn = image;
+  canvas._row = frame.row;
   markFirst(canvas);
 }
 export function canvas() {

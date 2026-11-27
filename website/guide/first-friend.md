@@ -16,10 +16,10 @@ Pick a pet, and it comes into the yard as your friend. Pat it, move it, talk to 
 |---|---|---|
 | Invite another friend | **Friends & settings → Invite a friend**, then a card's `+` | [Inviting a friend](#inviting-a-friend) |
 | Pat it | Click the friend once | [Things to do in the yard](#things-to-do-in-the-yard) |
-| Talk to it | Click its name tag | [Talking with friends](./chat.md) |
+| Talk to it | Point at it, then click its name tag | [Talking with friends](./chat.md) |
 | Set out a treat | **Play → Garden → Picnic**, then a spot | [Things to do in the yard](#things-to-do-in-the-yard) |
-| Change its name, personality or size | **⋯** by its name → **Edit** | [Friend settings](#friend-settings) |
-| Bring in more pets | **Import a pet** in Invite a friend | [Importing pets](./import.md) |
+| Change its name, personality or size | Right-click it → **Edit** | [Friend settings](#friend-settings) |
+| Bring in more pets | **Import** at the top of Invite a friend | [Importing pets](./import.md) |
 :::
 
 ## Bundled companions <Since v="0.1.0" />
@@ -77,7 +77,7 @@ After your first friend arrives, a small **Next up** card in the corner shows wh
 | Step | Button |
 |---|---|
 | Connect an AI to a friend | **Connect**. With Claude Code or Codex CLI on this computer, **Connect now** attaches that tool to every friend in one step, with no key ([Chat with a friend](./chat.md#making-a-connection)) |
-| Pick a friend to bring news from your coding agent | **Choose** |
+| Optional: bring news from your coding agent | **Choose** picks the friend ([Coding agent hooks](./agents.md)) |
 
 - Each step gets a tick when it's done. The card disappears once they all are, or sooner with **Hide this**.
 - While the yard has no friends, play tools are hidden. **Friends & settings → Invite a friend** stays available.
@@ -90,27 +90,28 @@ Cards come in four groups, by where the pet file lives. An empty group isn't sho
 
 | Group | Where the pets come from | **Open folder** |
 |---|---|---|
-| PlayPets starter pets | Four pets bundled with the app, unpacked in `builtin/` in the data folder | Yes |
+| PlayPets starter pets | Four pets bundled with the app, unpacked in `builtin/` in the data folder | No |
 | Codex pet folder | Codex pets in `~/.codex/pets`. They show up automatically | Yes |
 | Pets imported from an address or ZIP | Pets you got with **Import a pet**, from a community page or a ZIP file. Copied into `pets/` in the data folder | Yes |
 | Pets picked from this computer | Pets in a folder you picked yourself. Not copied; the app reads that folder as it is | No; each card shows its folder name |
 
 - **Open folder** opens the folder in Explorer or Finder.
-- **Type** chips above the shelf (All, People, Animals, Other) follow the pet file's `kind`. Narrow the shelf to human-shaped pets when you're picking a partner or a mentor.
-- **Search pets** narrows the same shelf by name or creator, together with the type filter. **Show all** clears both.
+- **Search & filters**, folded above the shelf, holds the **Type** chips (All, People, Animals, Other) and **Search pets**.
+- **Type** follows the pet file's `kind`. Narrow the shelf to human-shaped pets when you're picking a partner or a mentor.
+- **Search pets** narrows the shelf by name or creator, together with the type. **Show all** clears both.
 - No cards at all? Start with [Import a pet](./import.md).
 
 ## Inviting a friend <Since v="0.1.0" />
 
 1. Click a card (the `+` on its right). A card for a friend already in the yard says **Invite one more**.
-2. The friend appears in the yard and waves, and the Friend panel opens on that friend.
+2. The friend appears in the yard and waves, and the **Friends** panel opens on that friend.
 3. Click the same pet again for **Invite one more**. From the second friend on, a number follows the name so you can tell them apart.
 
 The yard holds up to 12 friends.
 
 ## Friend settings <Since v="0.1.0" />
 
-In the Friend panel, choose **Edit** (the pencil) in the **⋯** menu by the friend's name, or click the relationship chip beside the name.
+Right-click the friend in the yard and choose **Edit**. In the **Friends** panel, **Edit** is also in the **⋯** menu by the friend's name, and the relationship chip under the name opens the same settings.
 
 | Setting | What it does |
 |---|---|
@@ -118,9 +119,10 @@ In the Friend panel, choose **Edit** (the pencil) in the **⋯** menu by the fri
 | **Personality** | Your friend answers in this personality when you chat. Up to 400 characters. Starts as the pet file's introduction; edit or add to it, then save. **Add the pet file's introduction** brings the original back. Not used until an AI is connected |
 | **Relationship** | Friend, Partner, Dependable mentor or Playful younger sibling. Changes how your friend talks to you and asks about your day ([Chat with a friend](./chat.md#setting-a-relationship)) |
 | **What it calls you** | Your friend calls you this. Up to 24 characters |
-| **Size** | Five steps: Tiny, Small, Medium, Large, Huge. The yard changes as you slide |
+| **Appearance** | Only for a pet that comes with a second look: **Original** or **Realistic**. Name, personality and chat stay |
+| **Size** | Five steps: Tiny, Small, Medium, Large, Huge. A new friend starts at Medium. The yard changes as you slide |
 
-- The friend ID is at the bottom of the window. Use it to point at a specific friend in [Coding agent hooks](./agents.md).
+- Once a coding agent reports to the friend, its ID shows at the bottom of the window. Use it to point at that friend in [Coding agent hooks](./agents.md).
 - **Send away**, in the **⋯** menu or in Friend settings, takes a friend out of the yard after a red confirmation. The pet stays in Invite a friend, so you can invite it again any time, but your conversation and the closeness you built are cleared.
 
 ## Things to do in the yard <Since v="0.1.0" />
@@ -129,12 +131,14 @@ In the Friend panel, choose **Edit** (the pencil) in the **⋯** menu by the fri
 |---|---|
 | Pat | Click a friend once. It jumps and shows a heart |
 | Move | Drag a friend and drop it. Its place in the yard is remembered |
-| Chat | Click the friend's name tag. Under the pointer it shows a speech mark, and its tooltip says **Talk to** and the friend's name. The Friend panel opens on that friend, and the conversation fits inside the window at every size. The first friend you invite explains how to chat |
-| Friend menu | Right-click a friend: **Talk to**, **Play with** and **Ask … to dig** for that friend |
+| Walk somewhere | Click open ground. The selected friend walks there, or the nearest one when none is selected. A ring of bent grass marks the spot until it arrives |
+| Chat | Point at the friend and click the name tag that shows under it. Under the pointer the tag shows a speech mark, and its tooltip says **Talk to** and the friend's name. The **Friends** panel opens on that friend, and the conversation fits inside the window at every size. The first friend you invite explains how to chat |
+| Friend menu | Right-click a friend. Its name and closeness hearts sit above **Talk to**, **Play with**, **Ask … to dig**, **Show on desktop** and **Edit** |
 | Put down a treat | **Play → Garden → Picnic**, then choose a spot. From the keyboard, press it again to set it beside the selected friend. A picnic blanket with sandwiches, fruit and snacks appears, and friends gather around it. It clears after 15 seconds if not everyone arrives, or six seconds after the last friend eats |
 
-- Each friend has a name tag underneath. It switches to the selected look when you select that friend, and while a coding agent works, a state dot shows in the tag, beside the name.
-- Left alone, friends slowly wander the yard and talk to themselves. When it rains they say things like "Got an umbrella?", and at night they get sleepy. Time of day and weather are in [The yard and games](./play.md#weather).
+- A friend's name tag shows under it while you point at the friend, while it talks or thinks, and in a game. The selected friend wears a ring at its feet instead, and its tag comes in the selected look when you point at it. A friend whose coding agent is waiting for you or stopped on an error shows its tag too, with the state dot beside the name. Otherwise the yard shows friends without labels.
+- Left alone, friends wander the yard and talk to themselves. Outdoors they also stop to watch a friend walk by, call one over, sit down for a rest or have a stretch.
+- When it rains they say things like "Got an umbrella?", and at night they get sleepy. Time of day and weather are in [The yard and games](./play.md#weather).
 
 ## What next
 

@@ -15,6 +15,8 @@ import { LANDING_PETS, petDownload } from './site-content.mjs';
 // A fork's kits credit the fork (package.json, as site-prepare reads it).
 const { repository: slug } = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
 const repository = `https://github.com/${slug.replace(/^github:/, '')}`;
+// The mannequin guides of the walks and the run (assets/sources/walk-2026-11-26/guides).
+const GAIT_GUIDES = ['gait-guide.png', 'gait-guide-front.png', 'gait-guide-back.png', 'gait-guide-run.png'];
 
 export const creatorKits = kitEntries.map(entry => {
   const spec = kitSpec(entry.id),
@@ -175,6 +177,9 @@ export async function copyCreatorKit(
       validatePng(portrait);
       files.set('portrait.png', portrait);
     }
+    // Where the limbs go in the walks and the run (the state-row prompt attaches them).
+    for (const name of GAIT_GUIDES)
+      files.set(`guides/${name}`, await readFile(`assets/sources/walk-2026-11-26/guides/${name}`));
     files.set('identity.json', json(spec));
     for (const [name, prompt] of Object.entries(kitPrompts(spec)))
       files.set(`prompts/${name}.txt`, Buffer.from(`${prompt}\n`));
@@ -194,7 +199,7 @@ export async function copyCreatorKit(
     files.set(
       'README.txt',
       Buffer.from(
-        `${spec.name} — ${spec.style} design kit\n\n${details.length ? 'Turnaround and face-detail are high-resolution extension references, not runtime sprites.' : 'Detailed turnaround and face-detail sheets have not been created for this pet. Prompts describe how to propose them; the shipped runtime collages remain the approved identity source.'} identity-reference, wardrobe-reference, expression-reference and motion-reference are supplemental collages of shipped cells. Read identity.json and prompts/ before generation; inspect every generated face, accessory side and action manually.\n\nRuntime remains v2: 1536x2288, 8x11 cells of 192x208, 88 cells; leading counts [6, 8, 8, 4, 5, 8, 6, 6, 6] plus 16 gaze. Do not import the reference images.\n\nTo use a friend as it is, download playpets-<name>.zip from the PlayPets website instead. This is an independent creator-kit copy; each named built-in entry retains its own default artwork. All drawing styles use the same pet format. Check identity.json references for availability; absent seasonal artwork is not supplied or simulated.\n\nSource artwork: PlayPets, ${repository}, MIT. Fictional characters only.\n`,
+        `${spec.name} — ${spec.style} design kit\n\n${details.length ? 'Turnaround and face-detail are high-resolution extension references, not runtime sprites.' : 'Detailed turnaround and face-detail sheets have not been created for this pet. Prompts describe how to propose them; the shipped runtime collages remain the approved identity source.'} identity-reference, wardrobe-reference, expression-reference and motion-reference are supplemental collages of shipped cells. guides/ holds grey mannequins of the walk (side, front, back) and the run: where the limbs go, not shapes to copy. Read identity.json and prompts/ before generation; inspect every generated face, accessory side and action manually.\n\nRuntime remains v2: 1536x2288, 8x11 cells of 192x208, 88 cells; leading counts [6, 8, 8, 4, 5, 8, 6, 6, 6] plus 16 gaze. Do not import the reference images.\n\nTo use a friend as it is, download playpets-<name>.zip from the PlayPets website instead. This is an independent creator-kit copy; each named built-in entry retains its own default artwork. All drawing styles use the same pet format. Check identity.json references for availability; absent seasonal artwork is not supplied or simulated.\n\nSource artwork: PlayPets, ${repository}, MIT. Fictional characters only.\n`,
       ),
     );
     const manifest = {
@@ -207,6 +212,7 @@ export async function copyCreatorKit(
         'wardrobe-reference.png',
         ...(files.has('portrait.png') ? ['portrait.png'] : []),
       ],
+      guides: GAIT_GUIDES.map(name => `guides/${name}`),
       availability: spec.references,
       files: Object.fromEntries(
         [...files].map(([name, bytes]) => [name, { bytes: bytes.length, sha256: sha256(bytes) }]),

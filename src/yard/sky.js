@@ -145,9 +145,17 @@ function paintScene() {
   $('scene-caption').textContent = worldCaption(scene.world, scene.period, scene.weather);
   $('weather').disabled = !worldAllows(scene.world, 'weather');
   $('weather').value = worldAllows(scene.world, 'weather') ? weatherChoice : 'clear';
-  const note = worldFor(scene.world).about;
-  $('world-note').textContent = note ? t(note) : '';
-  $('world-note').hidden = !note;
+  // What Auto shows now, for its choices to mark (background-ui.js); told only when it changes.
+  for (const [id, now] of [
+    ['scene-season', scene.season],
+    ['period', scene.period],
+    ['weather', scene.weather],
+  ]) {
+    const select = $(id);
+    if (select.dataset.now === now) continue;
+    select.dataset.now = now;
+    select.dispatchEvent(new Event('now'));
+  }
   easel.set({ ...scene, weather: looks });
   soundScene(scene);
   if (was !== scene.event) eventChanged(event);

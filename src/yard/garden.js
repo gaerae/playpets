@@ -130,6 +130,7 @@ export function renderGarden(now = Date.now()) {
     // A plant being dragged stays under the pointer.
     if (!v.drag?.moved) position(v, plant, now);
     put(v.button, 'title', label(plant, now));
+    put(v.button.dataset, 'name', young(plant, now) ? t('garden.young') : t(`garden.kind_${plant.kind}`));
     putAttribute(v.button, 'aria-label', v.button.title);
   });
   syncTool();

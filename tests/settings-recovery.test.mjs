@@ -3,7 +3,7 @@ import test from 'node:test';
 import { installDom } from './support/dom.mjs';
 
 globalThis.playPets = Object.fromEntries(
-  ['setAutoChatter', 'toggleDesktopWander', 'assignAgent'].map(method => [
+  ['setAutoChatter', 'toggleDesktopWander', 'toggleDesktopGrass', 'assignAgent'].map(method => [
     method,
     async () => ({ ok: false, error: 'The setting could not be saved.' }),
   ]),
@@ -28,6 +28,7 @@ function page(t) {
     agentPets: { codex: 'first' },
     autoChatter: false,
     desktopWander: false,
+    desktopGrass: false,
     desktop: true,
   });
   setupSettings();
@@ -37,7 +38,7 @@ function page(t) {
 test('rejected chatter and desktop movement switches reflect current settings again', async context => {
   context.mock.timers.enable({ apis: ['setTimeout'] });
   const { get } = page(context);
-  for (const id of ['auto-chatter', 'desktop-wander']) {
+  for (const id of ['auto-chatter', 'desktop-wander', 'desktop-grass']) {
     get(id).checked = true;
     const pending = get(id).onchange();
     assert.equal(get(id).disabled, true);

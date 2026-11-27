@@ -74,3 +74,15 @@ test('an event names its gift only on its own dates', async t => {
   );
   assert.notEqual(gift, 'event.harvest.gift', 'the gift line is in the tables');
 });
+
+// Japanese runs one sentence into the next with no space ("…光ります。友だちが…"); a fixed space
+// left a gap after the full stop on the card and the chip.
+test('an event joins its two sentences the way the language runs them on', async t => {
+  const { setLanguageForTests, t: say } = await import('../src/core/i18n.js');
+  setLanguageForTests('ja');
+  t.after(() => setLanguageForTests('en'));
+  page(t);
+  t.mock.timers.setTime(new Date(2026, 8, 20, 22).getTime());
+  eventChanged({ id: 'harvest' });
+  assert.equal(document.getElementById('event-chip').title, say('event.harvest.about') + say('event.harvest.gift'));
+});

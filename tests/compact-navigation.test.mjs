@@ -81,7 +81,13 @@ test('the menu has one Settings entry, and right-click offers the same places as
   );
   assert.deepEqual(
     [...context.matchAll(/data-context-for="friend" data-context-action="([^"]+)"/g)].map(match => match[1]),
-    ['talk', 'play-friend', 'dig-friend', 'desktop-friend'],
+    ['talk', 'play-friend', 'dig-friend', 'desktop-friend', 'settings-friend'],
+  );
+  // Its settings are a shortcut to the friend panel's own: the same name in a list, and on the bar,
+  // whose plate names the friend, the short one (controls.js).
+  assert.match(
+    context,
+    /data-context-action="settings-friend"[^>]*><span data-icon="pencil"><\/span><span class="context-label"><\/span>/,
   );
   // A gift has its own: out to the desktop, dressed up (a snowman only), or put away.
   assert.deepEqual(
@@ -112,8 +118,8 @@ test('atmosphere owns season and sound; Friends & AI owns automatic chat', async
   assert.doesNotMatch(html, /id="(?:season|sound-on|settings-yard|scene-back|play-back)"/);
   const ai = html.slice(html.indexOf('id="settings-ai"'), html.indexOf('id="settings-agents"'));
   for (const id of ['ai-connections', 'ai-add', 'auto-chatter']) assert.ok(ai.includes(`id="${id}"`));
-  // Adding a connection stays in reach however many there are already.
-  assert.ok(ai.indexOf('id="ai-add"') < ai.indexOf('id="ai-connections"'));
+  // A new connection is added under the ones there are, as a list adds its next row.
+  assert.ok(ai.indexOf('id="ai-connections"') < ai.indexOf('id="ai-add"'));
   // Coding tools open with one sentence; how the hook gets in waits behind a disclosure.
   const agents = html.slice(
     html.indexOf('id="settings-agents"'),
@@ -130,15 +136,36 @@ test('atmosphere owns season and sound; Friends & AI owns automatic chat', async
   assert.doesNotMatch(about, /id="quit-app"/, 'quitting lives with Close window, not in About');
 });
 
-test('friend actions use the sheet bounds rather than the short identity row', async () => {
+// Spread over the sheet's top, the friend's menu covered the button that opened it (560 by 400). A
+// window 280px tall or less has no room under the button for the whole menu (300 by 210 left it
+// 114px), so there it still spreads over the sheet, as tall as the sheet allows.
+test("a small window opens the friend's actions under their button, over the sheet when it is very short", async () => {
   const css = await read('src/styles/panel.css');
-  assert.match(css, /body\.compact \.friend-head:has\(\.pop-menu:not\(\[hidden\]\)\)[^{]*\{[^}]*position:\s*static/s);
+  const [wide, short = ''] = css.split('@media (max-height: 280px)');
+  assert.doesNotMatch(wide, /body\.compact \.friend-head:has\(\.pop-menu:not\(\[hidden\]\)\)/);
+  assert.match(
+    wide,
+    /body\.compact \.side-panel \.pop-menu\s*\{[^}]*top:\s*calc\(100% \+ 4px\);[^}]*overflow-y:\s*auto/s,
+  );
+  assert.match(short, /body\.compact \.friend-head:has\(\.pop-menu:not\(\[hidden\]\)\)[^{]*\{\s*position:\s*static/s);
+  assert.match(
+    short,
+    /body\.compact \.side-panel \.pop-menu\s*\{[^}]*inset:\s*8px 8px auto;[^}]*max-height:\s*calc\(100% - 16px\)/s,
+  );
 });
 
 test('window actions live in the window section of the menu, not a disclosure', async () => {
   const html = await read('src/index.html');
   const windowPage = html.slice(html.indexOf('id="management-window"'), html.indexOf('<div id="play-panel"'));
-  for (const id of ['always-on-top', 'fullscreen', 'desktop', 'desktop-wander', 'hide-window', 'menu-quit'])
+  for (const id of [
+    'always-on-top',
+    'fullscreen',
+    'desktop',
+    'desktop-wander',
+    'desktop-grass',
+    'hide-window',
+    'menu-quit',
+  ])
     assert.ok(windowPage.includes(`id="${id}"`));
   assert.doesNotMatch(windowPage, /<details/);
   // Full screen is a switch like its neighbours, so it is drawn like them, not in the smaller,
@@ -195,10 +222,6 @@ test('a small window keeps the ground clear: the tool strip goes up into the sky
     return compact.match(new RegExp(`(?:^|\\}|\\*/)\\s*${escapedSelector}\\s*\\{([^}]*)\\}`))?.[1] || '';
   };
   assert.match(rule('body.compact .discovery-target'), /top:\s*8px;[^}]*bottom:\s*auto/s);
-  assert.match(rule('body.compact .discovery-target'), /display:\s*grid;/);
-  // The instruction stays for screen readers; the tools, Close and the marker on the ground show the rest.
-  assert.match(rule('body.compact .discovery-target-heading'), /display:\s*contents/);
-  assert.match(rule('body.compact #discovery-target-label'), /clip-path:\s*inset\(50%\)/);
   // The window's own buttons would land on the strip at the top; the strip's Close and Esc come first.
   assert.match(
     compact,
@@ -208,7 +231,7 @@ test('a small window keeps the ground clear: the tool strip goes up into the sky
   // The lane of messages stays at the foot, below the ground, instead of rising over it.
   assert.match(
     shell,
-    /body\.compact \.yard-frame:has\(#discovery-target:not\(\[hidden\]\)\) \.yard-feedback\s*\{[^}]*bottom:\s*8px/s,
+    /body\.compact \.yard-frame:has\(#discovery-target:not\(\[hidden\]\)\) \.yard-feedback\s*\{[^}]*inset:\s*auto 8px 8px/s,
   );
 });
 
@@ -231,4 +254,29 @@ test('App updates names its section once', async () => {
   const section = html.slice(html.indexOf('id="settings-updates"'), html.indexOf('id="update-dialog"'));
   assert.equal(section.match(/data-i18n="settings\.update"/g)?.length, 1, 'only the heading for screen readers');
   assert.match(section, /<strong>PlayPets<\/strong><small id="update-note">/);
+});
+
+// What to do with the tool in hand is shown, not written, at every size: the tools and Close share
+// one row, the hand taps the ground (show-how.js), and the instruction is read aloud. A line that
+// says why a tool cannot be used yet (no saplings) stays in sight.
+test('at every size the tool strip draws its tools and Close in one row and reads its instruction aloud', async () => {
+  const garden = await read('src/styles/garden.css');
+  assert.match(
+    garden,
+    /\.discovery-target\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*minmax\(0, 1fr\) auto;/s,
+  );
+  assert.match(garden, /\.discovery-target-heading\s*\{[^}]*display:\s*contents;/s);
+  assert.match(await read('src/yard/discovery.js'), /label\.classList\.toggle\('sr-only', HOW_LINES\.has\(key\)\)/);
+  const { HOW_LINES } = await import('../src/yard/discovery.js');
+  for (const key of ['discovery.choose_dig', 'discovery.choose_tree', 'hint.plant', 'hint.treat'])
+    assert.ok(HOW_LINES.has(key), `${key} is read aloud`);
+  assert.ok(!HOW_LINES.has('discovery.no_saplings'), 'why a tool waits stays in sight');
+});
+
+// A small window put Always on top and Full screen on one line and dropped the pin, so the switch
+// between them read as Full screen's. Each keeps its own row and icon, as in a large window.
+test('a small window keeps each window switch on its own row with its icon', async () => {
+  const css = await read('src/styles/compact.css');
+  assert.doesNotMatch(css, /#always-on-top > \[data-icon\]/);
+  assert.doesNotMatch(css, /\.window-quick-actions > #(?:always-on-top|fullscreen)/);
 });

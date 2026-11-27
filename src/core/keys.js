@@ -30,6 +30,8 @@ export const SHORTCUTS = {
   controls: { keys: 'mod+shift+p', menu: true },
   friends: { keys: 'mod+1' },
   invite: { keys: 'mod+2' },
+  play: { keys: 'mod+3' },
+  scene: { keys: 'mod+4' },
   settings: { keys: 'mod+,' },
   alwaysOnTop: { keys: 'mod+shift+m', menu: true },
   desktop: { keys: 'mod+shift+d', menu: true },

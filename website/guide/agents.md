@@ -11,7 +11,7 @@ While a coding agent works, your friend reacts along with it: Claude Code, Codex
 |---|---|---|
 | Connect an agent | **Friends & settings → Settings → Coding tools → Connect** | [Connect in one press](#connect-in-one-press) |
 | Add the settings yourself | **Copy settings**, then paste into the file it names | [Copy and paste](#copy-and-paste-the-settings) |
-| Read what the agent is doing | The dot in the friend's name tag, beside its name | [What you see](#what-you-see-in-the-yard) |
+| Read what the agent is doing | Point at the friend: the dot on its name tag, beside its name | [What you see](#what-you-see-in-the-yard) |
 | Give each agent its own friend | Pick a **Reacting friend** on the tool's row | [A friend for each agent](#a-friend-for-each-agent) |
 | Run two sessions of one agent | Start each with `PLAYPETS_PET=Name` | [Two sessions](#two-sessions-of-the-same-agent) |
 | Talk to a friend from a script | `playpets say`, `status`, `run` | [From the terminal](#from-the-terminal) |
@@ -19,7 +19,7 @@ While a coding agent works, your friend reacts along with it: Claude Code, Codex
 
 ## Connect in one press <Since v="1.4.0" /> {#connect-in-one-press}
 
-1. Open **Friends & settings → Settings → Coding tools**.
+1. Open **Friends & settings → Settings → Coding tools**. Tools you haven't connected yet are folded under **More coding tools**.
 2. Press **Connect** next to the tool you use. PlayPets names the file it will change and asks first.
 3. Confirm with **Connect**. The row says **Connected**, and sessions you start from then on report to your friend.
 
@@ -35,7 +35,7 @@ While a coding agent works, your friend reacts along with it: Claude Code, Codex
 
 <Shot name="settings-agents" caption="Coding agent hooks in Settings → Coding tools. Each tool has Connect and Copy settings buttons." />
 
-1. Open **Friends & settings → Settings → Coding tools**.
+1. Open **Friends & settings → Settings → Coding tools**. Tools you haven't connected yet are folded under **More coding tools**.
 2. Click **Copy settings** next to the tool you use. A notice names the file to paste it into.
 3. Open that file, paste and save. Restart the agent and it connects right away.
 
@@ -58,7 +58,9 @@ While a coding agent works, your friend reacts along with it: Claude Code, Codex
 
 ## What you see in the yard <Since v="0.1.0" /> {#what-you-see-in-the-yard}
 
-A friend with an agent carries the agent's name on its name tag (Clover, Claude Code), and in the chip under its name in the Friend panel. The small dot in its name tag, beside its name, is the agent's state; point at it to see the name.
+A friend with an agent wears a small plug after its name on its name tag; point at the plug to see which agents, such as "Brings news from Claude Code". The chip under its name in the **Friends** panel says the same.
+
+The small dot beside the name is the agent's state; point at it to see the state's name. The tag shows when you point at the friend, and by itself when the agent is waiting for you or stopped on an error.
 
 | The agent | Friend's status | Dot | Stays |
 |---|---|---|---|
@@ -68,7 +70,7 @@ A friend with an agent carries the agent's name on its name tag (Clover, Claude 
 | Hits an error | Something went wrong | Red | Fades after 30 minutes |
 | Ends the session | Resting | | |
 
-- The status shows beside the friend's name in the Friend panel, in the pill there, on its name tag in the yard, and as a speech bubble above it on the desktop. Chat answers go to the log.
+- The status shows in the pill under the friend's name in the **Friends** panel, on its name tag in the yard, and as a speech bubble above it on the desktop. Chat answers go to the log.
 - Not every agent reports every step. Codex CLI reports only when a reply finishes, so its friend shows Done but never Working or Waiting for you.
 - Cursor has no hook for a confirmation, so its friend never shows Waiting for you.
 - Your friend remembers up to 8 recent activities. Ask "what were you doing?" in the [chat](./chat.md).
@@ -146,7 +148,7 @@ playpets run -- <command>
 | `playpets run -- npm test` | "Working" while the command runs, then "Done" or "Something went wrong". Stopped with Ctrl-C, it goes back to "Resting" |
 
 - Point at a friend with `--pet name` or `--pet friendID`. Without it, the first friend gets it.
-- The friend ID is at the bottom of the Friend settings window.
+- A friend's ID shows at the bottom of its Friend settings once an agent reports to it.
 
 ## Security <Since v="0.1.0" /> {#security}
 

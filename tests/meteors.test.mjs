@@ -52,14 +52,18 @@ test('a wish starts at the moon and falls long, slow and bright toward the middl
     assert.ok(travel(meteor) > longest, 'farther than any in a shower');
     assert.ok(meteor.life >= 1500 && meteor.since === 1000);
     assert.ok(meteor.width > 2.5);
-    assert.ok(dust.length >= 20);
+    assert.ok(dust.length >= 40, 'a long glittering trail');
     for (const d of dust) {
       assert.ok(d.since >= meteor.since && d.since <= meteor.since + meteor.life);
       // where the star was when it let the dust go
       const k = (d.since - meteor.since) / meteor.life;
       assert.ok(Math.hypot(d.cx - (meteor.x + meteor.dx * k), d.cy - (meteor.y + meteor.dy * k)) < 1);
     }
-    assert.ok(Math.max(...dust.map(d => d.since + d.life)) > meteor.since + meteor.life + 500, 'the dust stays after');
+    assert.ok(Math.max(...dust.map(d => d.since + d.life)) > meteor.since + meteor.life + 1200, 'the dust stays after');
+    assert.ok(
+      dust.every(d => d.ty > d.cy),
+      'and drifts down',
+    );
   }
 });
 
@@ -75,4 +79,15 @@ test('a shooting star runs its path once, its tail growing behind it, and fades 
   assert.ok(Math.abs(mid.angle - Math.atan2(100, 300)) < 1e-9);
   assert.equal(mid.alpha, 1);
   assert.ok(early.alpha < 1 && late.alpha < 0.3);
+});
+
+test('the moon lets the wish go with a soft warm light, and the star is drawn with a glow', () => {
+  const moon = { x: 820, y: 90 },
+    { meteor, glow } = wish(moon, w, h, 1000, seeded(5));
+  assert.ok(glow.glow && glow.flash !== true);
+  assert.ok(Math.hypot(glow.cx - moon.x, glow.cy - moon.y) < 1, 'round the moon');
+  assert.equal(glow.since, meteor.since);
+  assert.ok(glow.life >= 1200 && glow.r >= 40);
+  assert.ok(meteor.halo > meteor.width * 3, 'its head glows wider than any shooting star');
+  for (const m of shower(w, h, 0, seeded(3))) assert.ok(m.halo > m.width && m.halo < meteor.halo);
 });

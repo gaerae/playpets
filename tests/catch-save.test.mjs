@@ -274,3 +274,57 @@ test('fishing goes on when the window changes size, on the way to the lake and a
     views.clear();
   }
 });
+
+// Reeling before the float dips bobs it, rather than a notice; its label already says to wait.
+test('a reel before the bite bobs the float and says nothing on screen', context => {
+  context.mock.timers.enable({ apis: ['setTimeout'] });
+  context.mock.method(Math, 'random', () => 0);
+  const { nodes, view } = page(context);
+  try {
+    setScenery({ catchAt: () => null, catchPetal: () => null });
+    let point;
+    for (let y = 0; y < 560 && !point; y += 5)
+      for (let x = 0; x < 800 && !point; x += 5) if (onLake(x, y)) point = [x, y];
+    nodes.get('yard').dispatch('click', { clientX: point[0], clientY: point[1] });
+    const trip = view.trip;
+    view.trip = null;
+    view.target = null;
+    trip.arrive(view);
+    const float = nodes.get('garden-layer').children.at(-1);
+    float.dispatch('click');
+    assert.ok(float.classList.contains('early'));
+    assert.equal(nodes.get('toast').textContent, '');
+    assert.equal(catches.length, 0);
+    context.mock.timers.tick(400);
+    assert.equal(float.classList.contains('early'), false);
+  } finally {
+    endFishing();
+    views.clear();
+  }
+});
+
+// A fish bigger than the biggest of its kind caught before is a record; the first of a kind is news
+// of its own, and a smaller one is neither.
+for (const [best, first, record] of [
+  [0.5, false, true],
+  [9999, false, false],
+  [0, true, false],
+])
+  test(`a fish ${record ? 'over' : 'not over'} its best (${best} cm, first: ${first}) ${record ? 'is' : 'is not'} a record`, async context => {
+    context.mock.timers.enable({ apis: ['setTimeout'] });
+    context.mock.method(Math, 'random', () => 0);
+    const { nodes, view } = page(context);
+    const fish = Object.fromEntries(catalog.fish.map(f => [f.id, { count: 1, best }]));
+    setData({ pets: [view.pet], assets: [], statuses: {}, album: first ? {} : { fish } });
+    try {
+      attemptCatch('fish', nodes, view, context.mock.timers);
+      catches[0].resolve({ ok: true, data: { first, entry: { count: 2 } } });
+      await settled();
+      assert.equal(nodes.get('catch-card').classList.contains('record'), record);
+    } finally {
+      for (const request of catches) request.resolve({ ok: false, error: 'Save cancelled.' });
+      await settled();
+      endFishing();
+      views.clear();
+    }
+  });

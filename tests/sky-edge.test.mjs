@@ -51,3 +51,38 @@ test('a picture whose edge is already soft is told from a hard cut, so the scrip
   softenSkyEdge(pixels, W, H);
   assert.equal(softened(pixels, W, H), true, 'once softened');
 });
+
+// A winter or spring picture keeps its white (snow, blossom: the paper's own white), so the sky that
+// showed between leaves stayed paper white: drawn over the app's sky, white holes in a crown. A hole
+// is told from snow by what is round it: leaves, darker than the shading round a cap of snow.
+test('white the sky shows through between leaves becomes sky, and snow on them stays', async () => {
+  const { clearHoles } = await import('../scripts/sky-edge-lib.mjs');
+  const w = 16,
+    h = 16,
+    LEAF = [70, 110, 95, 255],
+    SHADE = [222, 214, 232, 255],
+    pixels = new Uint8Array(w * h * 4);
+  const put = (x, y, colour) => pixels.set(colour, (y * w + x) * 4);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) put(x, y, y < 3 ? SKY : LEAF);
+  // A hole between leaves, and a cap of snow in its shading.
+  for (let x = 3; x <= 5; x++) for (let y = 5; y <= 6; y++) put(x, y, PAPER);
+  for (let x = 9; x <= 13; x++) {
+    put(x, 4, SHADE);
+    put(x, 6, SHADE);
+  }
+  put(9, 5, SHADE);
+  put(13, 5, SHADE);
+  for (let x = 10; x <= 12; x++) put(x, 5, PAPER);
+  const line = () => [...pixels.subarray((3 * w + 8) * 4, 4 * w * 4)];
+  const top = line();
+  const cleared = clearHoles(pixels, w, h);
+  assert.equal(cleared.length, 6, 'the hole');
+  assert.equal(pixels[(5 * w + 4) * 4 + 3], 0, 'the sky shows through it');
+  assert.deepEqual([...pixels.subarray((5 * w + 11) * 4, (5 * w + 11) * 4 + 4)], PAPER, 'the snow stays');
+  // Only the leaves round the hole are softened: the picture's own edge, soft already, is not worn down.
+  softenSkyEdge(pixels, w, h, cleared);
+  const rim = [...pixels.subarray((5 * w + 2) * 4, (5 * w + 2) * 4 + 4)];
+  assert.deepEqual(rim.slice(0, 3), LEAF.slice(0, 3), 'no pale ring round the hole');
+  assert.ok(rim[3] > 0 && rim[3] < 255, `the hole's edge is part clear: ${rim[3]}`);
+  assert.deepEqual(line(), top, 'away from the hole, the line against the sky is as it was');
+});

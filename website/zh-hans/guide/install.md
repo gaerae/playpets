@@ -4,7 +4,7 @@ description: 通过 Microsoft Store、winget、Homebrew 或适合你系统的文
 
 # 安装
 
-下面的按钮会给出适合你当前系统的安装方式。其他文件都在它下面的列表里。
+PlayPets 是免费的。下面的按钮会认出你当前的系统，给出合适的安装方式。其他文件和安装方式都在它下面的列表里。
 
 <Downloads />
 
@@ -14,11 +14,24 @@ description: 通过 Microsoft Store、winget、Homebrew 或适合你系统的文
 | 在 Windows 上安装 | [Microsoft Store](#microsoft-store)（推荐，由 Microsoft 签名）、[winget](#winget)、[GitHub 安装文件](#installer-from-github) |
 | 在 macOS 上安装 | [Homebrew](#homebrew)、[GitHub dmg](#dmg-from-github) |
 | 在 Linux 上安装 | [AppImage 或 deb](#linux) |
+| 确认电脑能不能运行 | [运行环境](#requirements) |
 | 越过首次启动时的警告 | [Windows SmartScreen](#installer-from-github)、[macOS 1.2.0 及更早版本](#dmg-from-github)、[Linux FUSE](#linux) |
 | 更新 | [更新](#更新) |
 | 卸载 PlayPets | [卸载](#uninstall) |
 | 找到伙伴和设置的保存位置 | [数据文件夹](#数据文件夹) |
 :::
+
+## 运行环境 {#requirements}
+
+| 系统 | 可以运行在 |
+|---|---|
+| macOS | 一个应用同时支持 Apple Silicon 和 Intel Mac |
+| Windows | Windows 10 或 11，普通电脑（x64）或 ARM 电脑。Microsoft Store 版本需要 Windows 10 版本 2004 或更高 |
+| Linux | x64 或 arm64，和 Ubuntu 22.04 一样新或更新的发行版。AppImage 需要 FUSE 2 |
+
+- AI 连接不是必需的。没有 AI，伙伴们也会玩耍、照料花园、钓鱼，还会来到你的桌面。
+- 想聊天就连接一个：本机已登录的 Claude Code 或 Codex CLI、Ollama，或者一个 API 密钥（[创建连接](./chat.md#创建连接)）。
+- PlayPets 使用系统自带的网页显示组件，所以下载文件很小。
 
 ## Windows <Since v="0.1.0" /> {#windows}
 
@@ -143,7 +156,7 @@ chmod +x PlayPets_*.AppImage
 
 | 从哪里安装 | 谁来安装更新 |
 |---|---|
-| Microsoft Store、winget | Store。有新版本时，会在乐园和设置里提醒你，点**在 Microsoft Store 中打开**即可打开 Store 中的 PlayPets 页面。测试用 MSIX 同样通过安装包更新 |
+| Microsoft Store、winget | Store。有新版本时，会在乐园和设置里提醒你，点**通过 Microsoft Store 更新**即可边显示进度边安装，PlayPets 会先关闭再重新打开。测试用 MSIX 同样通过安装包更新 |
 | 其他安装方式 | PlayPets 自己，只在你选择时安装（见下文） |
 
 - 更新后第一次启动时，会告诉你现在是哪个版本。

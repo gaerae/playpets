@@ -53,6 +53,11 @@ The animation in each row. `src/core/animation.js` is the source for how many ce
 | 8 | Done | 6 |
 | 9, 10 | Gaze in 16 directions (v2 only) | 8 |
 
+- Rows 1 and 2 are not played by their durations: a walk shows the cell its legs have reached over the ground covered (`src/core/gait.js`).
+  - The app reads where the cycle's feet are widest (contact) and closest (passing) from the cells themselves, and the stride from how far apart they reach; a row whose feet hardly change keeps the drawn order.
+  - A row whose figure does not rise and fall by itself is lifted a little in time with the steps.
+  - Draw the eight cells as one cycle: contact, down, passing, up, then the same with the other leg.
+
 ### Pet identity value
 - A pet's identity value is the first 24 characters of its folder path's SHA-256.
 - Friends refer to pets by this value.
@@ -148,8 +153,8 @@ The reader accepts these optional PlayPets fields; an ordinary import does not n
 |---|---|
 | File | At most 256 KiB, inside the folder, `version` 1 |
 | `outfits` | `base` (required), `spring`, `summer`, `autumn`, `winter`; a season plays its own outfit, else `base` |
-| Clips | `dig`, `plant`, `discover`, `cast`, `wait`, `reel`; other names are ignored |
-| `image` | PNG or WebP inside the folder, at most 8 MiB and 4096×4096; at most 24 distinct images |
+| Clips | `dig`, `plant`, `discover`, `cast`, `wait`, `reel`, `sit`, `stretch`, `walk-front`, `walk-back`, `run-right`, `run-left`; other names are ignored |
+| `image` | PNG or WebP inside the folder, at most 8 MiB and 4096×4096; at most 32 distinct images |
 | `canvas` | Integers up to 384×416; missing means 192×208 |
 | `anchor` | The feet, inside the canvas |
 | `offset` | Where the canvas sits against the 192×208 cell; missing means [0, 0]; kept as written |
@@ -158,8 +163,14 @@ The reader accepts these optional PlayPets fields; an ordinary import does not n
 | `ground` | `dig` and `plant` only: where the tool meets the ground, inside the canvas |
 | `contactAt`, `tossAt`, `commitAt` | Optional ms within the clip; toss and commit never before contact |
 | `loop` | Optional boolean |
+| `stride` | `walk-front`, `walk-back`, `run-right` and `run-left` only, optional: the ground one cycle covers, in body lengths, 0.5 to 1.2 |
 
 - A clip that breaks a rule is left out; `cast`, `wait` and `reel` stay or go together.
+- `sit` and `stretch` are optional: outdoors an idle friend sits or stretches only with them, and strolls instead without them.
+- `walk-front` and `walk-back` are the walks toward and away from the viewer, `run-right` and `run-left` a game's run. Each is one cycle of exactly eight frames, stepped by the distance walked (`src/core/gait.js`), not by its durations; a clip with another count is not played.
+  - Without both walks, a friend strolls only within 35° of across, where its side walk looks right.
+  - Without a run, a game's run plays the side walk faster.
+  - Design: [Natural walking](../design/2026-11-26-natural-walking.md).
 - An outfit with no clip left is left out; without `base`, the pet has no poses.
 - The app does not tie a season's poses to a seasonal sheet: draw a season's poses only with that season's sheet, or the friend digs in clothes it does not walk in. The creator kit refuses them without `--season`.
 - The file is read again when the page asks for it, and each image again when served.

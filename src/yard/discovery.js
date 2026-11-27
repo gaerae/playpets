@@ -9,18 +9,30 @@ import { limit } from '../core/limits.js';
 import { dropdown, menuNavigation } from '../core/menu.js';
 import { $, aiming, call, data, game, guard, selected, toast, views } from '../core/state.js';
 import { artSvg } from './art.js';
-import { showCard } from './card.js';
+import { befriend } from './bond.js';
+import { rareKind, showCard } from './card.js';
 import { onAimingChange, setAimingMode } from './care.js';
 import { TREES, treasureKind } from './catalog.js';
 import { groundAllows } from './discovery-rules.js';
 import { field, fieldToYard, petHeight, sizeOf, topAt, yardToDecor, yardToField } from './field.js';
 import { groundProfile } from './ground.js';
 import { atRainbowEnd, clearRainbowEnd } from './rainbow-end.js';
+import { learn } from './show-how.js';
 import { atTrailEnd, reservedForTrail } from './trails.js';
 import { forPerson, isFree, release } from './trips.js';
 import { bubble, clearAllOfDock } from './views.js';
 import { doneDigging, sendToDig, startDig, stopWork } from './work.js';
 import { scene } from './world.js';
+
+/** The strip's lines that say what to do with the tool in hand: shown by the tools and the hand
+ * tapping the ground (show-how.js), so read aloud rather than drawn. The rest, why a tool waits,
+ * stays in sight. */
+export const HOW_LINES = new Set(['discovery.choose_dig', 'discovery.choose_tree', 'hint.plant', 'hint.treat']);
+function stripSays(key) {
+  const label = $('discovery-target-label');
+  label.textContent = t(key);
+  label.classList.toggle('sr-only', HOW_LINES.has(key));
+}
 
 let intent = null;
 // The menu of saplings, wired once by setupDiscovery; ending a choice closes it with the strip.
@@ -69,7 +81,7 @@ function treeChoices() {
       count: stock(intent.kind),
     });
   $('discovery-tree-picker').hidden = !intent.kind;
-  $('discovery-target-label').textContent = t(intent.kind ? 'discovery.choose_tree' : 'discovery.no_saplings');
+  stripSays(intent.kind ? 'discovery.choose_tree' : 'discovery.no_saplings');
   $('discovery-find-saplings').hidden = !!intent.kind;
 }
 
@@ -123,7 +135,7 @@ export function beginDiscovery(action) {
   closeScene();
   intent = { action, petId: v.pet.id, world: scene.world, kind: null };
   setAimingMode(action);
-  $('discovery-target-label').textContent = t(action === 'dig' ? 'discovery.choose_dig' : 'discovery.choose_tree');
+  stripSays(action === 'dig' ? 'discovery.choose_dig' : 'discovery.choose_tree');
   $('discovery-tree-picker').hidden = true;
   $('discovery-find-saplings').hidden = true;
   treeChoices();
@@ -217,12 +229,19 @@ export function sendDiscovery(v, point, action, kind, own = false) {
         if (task.cancelled) {
           const found = action === 'tree' || (!result.repeated && !!result.outcome && result.outcome !== 'empty');
           if (!found || !views.has(v.pet.id)) return;
+          told = true;
         } else {
           if (!finished) return;
           if (scene.world !== world || !views.has(v.pet.id)) return cleanup();
+          // Told before the stroke ends: ending it lets the friend go (cleanup), which asks again.
+          told = true;
           doneDigging(v, action === 'tree' || (!!result.outcome && result.outcome !== 'empty'));
         }
-        told = true;
+        // A dig the person asked for is done together (bond.rs `dig`); one the friend chose is its own.
+        if (action === 'dig' && !own && !result.repeated) befriend(v.pet.id, 'dig');
+        // However the person asked for it, the tool or Dig here from the yard's menu, it is learned:
+        // the hand stops pointing at Dig (hint.js).
+        if (action === 'dig' && !own) learn('dig');
         if (action === 'tree') return bubble(v, t('discovery.planted'), 2600);
         if (result.repeated) return bubble(v, t('discovery.repeated'), 2600);
         if (result.outcome === 'keepsake') {
@@ -235,6 +254,8 @@ export function sendDiscovery(v, point, action, kind, own = false) {
               before.has(found.id) ? t('discovery.kept') : '',
               !before.has(found.id),
               'treasure',
+              null,
+              { rare: rareKind('treasure', found) },
             );
         } else if (result.outcome === 'sapling') {
           bubble(v, t('discovery.sapling', { kind: t(`tree.${result.kind}`) }), 3000);
@@ -361,7 +382,7 @@ function syncTools(kind = aiming) {
   const count = strip.querySelector('.tool-count');
   if (count) count.textContent = data.garden?.seeds ? String(data.garden.seeds) : '';
   if (kind === 'seed' || kind === 'treat') {
-    $('discovery-target-label').textContent = t(kind === 'seed' ? 'hint.plant' : 'hint.treat');
+    stripSays(kind === 'seed' ? 'hint.plant' : 'hint.treat');
     treeMenu?.close();
     $('discovery-tree-picker').hidden = true;
     $('discovery-find-saplings').hidden = true;

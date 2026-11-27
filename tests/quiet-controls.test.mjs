@@ -103,6 +103,9 @@ test('view actions have visible names inside controls', async () => {
   const html = await readFile('src/index.html', 'utf8');
   assert.match(html, /id="always-on-top"[^>]*>[\s\S]*?data-i18n="win.always_on_top"[\s\S]*?<\/button>/);
   assert.match(html, /id="sound-button"[^>]*>[\s\S]*?data-i18n="sound.label"[\s\S]*?<\/button>/);
+  // A label on top of the visible name only says the same thing twice to a screen reader.
+  for (const id of ['always-on-top', 'sound-button'])
+    assert.doesNotMatch(html.match(new RegExp(`<button id="${id}"[^>]*>`))[0], /aria-label/, id);
 });
 
 test('desktop toggling keeps the menu available for its strolling control', async t => {
@@ -120,7 +123,9 @@ test('desktop toggling keeps the menu available for its strolling control', asyn
   assert.equal(panel.hidden, false);
 });
 
-test('desktop and strolling share visible switches and retain an unavailable strolling row', async t => {
+// With the desktop off, strolling and the grass stood dimmed with their switches still lit, as if on
+// and broken; like the tray, they show only while the desktop is on.
+test('strolling and the grass show under the desktop switch only while it is on', async t => {
   const { nodes } = installDom(t);
   for (const id of [
     'desktop',
@@ -128,25 +133,39 @@ test('desktop and strolling share visible switches and retain an unavailable str
     'always-on-top',
     'wander-wrap',
     'desktop-wander',
+    'grass-wrap',
+    'desktop-grass',
     'auto-chatter',
     'auto-play',
     'autostart',
   ])
     nodes.set(id, element('input', { id }));
   const { data } = await import('../src/core/state.js');
-  const prior = { pets: data.pets, desktop: data.desktop, desktopWander: data.desktopWander };
+  const prior = {
+    pets: data.pets,
+    desktop: data.desktop,
+    desktopWander: data.desktopWander,
+    desktopGrass: data.desktopGrass,
+  };
   t.after(() => Object.assign(data, prior));
   const { renderDesktopSwitches } = await import('../src/panel/settings.js');
-  Object.assign(data, { pets: [{}], desktop: false, desktopWander: true });
+  Object.assign(data, { pets: [{}], desktop: false, desktopWander: true, desktopGrass: true });
   renderDesktopSwitches();
-  assert.equal(nodes.get('wander-wrap').hidden, false);
-  assert.equal(nodes.get('desktop-wander').disabled, true);
+  assert.equal(nodes.get('wander-wrap').hidden, true);
+  assert.equal(nodes.get('grass-wrap').hidden, true, 'the grass grows under what is out');
   data.desktop = true;
   renderDesktopSwitches();
-  assert.equal(nodes.get('desktop-wander').disabled, false);
-  assert.equal(nodes.get('desktop-wander').checked, true);
+  assert.equal(nodes.get('wander-wrap').hidden, false);
+  assert.equal(nodes.get('grass-wrap').hidden, false);
+  assert.equal(nodes.get('desktop-wander').checked, true, 'the saved choice comes back with them');
+  assert.equal(nodes.get('desktop-grass').checked, true);
+  data.desktopGrass = false;
+  renderDesktopSwitches();
+  assert.equal(nodes.get('desktop-grass').checked, false);
   const html = await readFile('src/index.html', 'utf8');
   assert.match(html, /id="desktop"[^>]*>[\s\S]*?class="wander-switch"[\s\S]*?<\/button>/);
+  // The grass switch sits right after strolling, in the same group.
+  assert.match(html, /id="wander-wrap"[\s\S]*?<\/label><label id="grass-wrap"[^>]*>[\s\S]*?id="desktop-grass"/);
 });
 
 test('scene selection lives beside Menu, outside the closed controls', async () => {
@@ -177,7 +196,8 @@ test('game choices are tiles beside chatting in the Together section of Play', a
   assert.match(html, /id="play-games"[\s\S]*?id="games-menu"/);
   assert.match(css, /\.games-menu\s*\{[^}]*display: contents;/);
   const play = await readFile('src/styles/play.css', 'utf8');
-  assert.match(play, /(?:^|\})\s*\.play-action\s*\{[^}]*min-height: 40px;/);
+  // A painted tile, its picture over its name, taller than the 40px a row needs.
+  assert.match(play, /(?:^|\})\s*\.play-action\s*\{[^}]*min-height: 66px;/);
 });
 
 test('blank-yard context controls clamp inside a small window and restore a visible focus target', async t => {

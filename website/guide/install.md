@@ -4,7 +4,7 @@ description: Microsoft Store, winget, Homebrew or the file for your system, the 
 
 # Install
 
-The button below offers the way to install for the system you are on. Every other file is in the list under it.
+PlayPets is free, and the button below already knows which system you are on. Every other file and way to install is in the list under it.
 
 <Downloads />
 
@@ -14,11 +14,24 @@ The button below offers the way to install for the system you are on. Every othe
 | Install on Windows | [Microsoft Store](#microsoft-store) (recommended, signed by Microsoft), [winget](#winget), [installer from GitHub](#installer-from-github) |
 | Install on macOS | [Homebrew](#homebrew), [dmg from GitHub](#dmg-from-github) |
 | Install on Linux | [AppImage or deb](#linux) |
+| Check that your computer can run it | [What you need](#requirements) |
 | Get past a warning on first launch | [SmartScreen on Windows](#installer-from-github), [macOS 1.2.0 and earlier](#dmg-from-github), [FUSE on Linux](#linux) |
 | Update | [Updates](#updates) |
 | Remove PlayPets | [Uninstall](#uninstall) |
 | Find friends and settings on disk | [Data folder](#data-folder) |
 :::
+
+## What you need {#requirements}
+
+| System | Runs on |
+|---|---|
+| macOS | One app for both Apple Silicon and Intel Macs |
+| Windows | Windows 10 or 11, on regular (x64) or ARM PCs. The Microsoft Store package needs Windows 10 version 2004 or later |
+| Linux | x64 or arm64, a distribution as new as Ubuntu 22.04 or newer. The AppImage needs FUSE 2 |
+
+- An AI is optional. Friends play, garden, fish and come out onto your desktop without one.
+- To chat, connect one: Claude Code or Codex CLI signed in on this computer, Ollama, or an API key ([Making a connection](./chat.md#making-a-connection)).
+- PlayPets uses the system's own web view, so the download stays small.
 
 ## Windows <Since v="0.1.0" /> {#windows}
 
@@ -144,7 +157,7 @@ chmod +x PlayPets_*.AppImage
 
 | Installed from | Who installs updates |
 |---|---|
-| Microsoft Store or winget | The Store. A new version shows in the yard and in Settings, and **Open in Microsoft Store** opens its page there. Test MSIX packages also update through their package |
+| Microsoft Store or winget | The Store. A new version shows in the yard and in Settings, and **Update with Microsoft Store** installs it from there, showing its progress; PlayPets closes for a moment and opens again. Test MSIX packages also update through their package |
 | Anywhere else | PlayPets itself, only when you choose (below) |
 
 - After any update, the first start says which version PlayPets is now.
@@ -156,7 +169,7 @@ Any of these opens **Settings → App updates**, where the result and the update
 
 - **Check for updates** in **Settings → App updates**
 - **Check for updates…** in the tray menu
-- **PlayPets → Check for Updates…** in the macOS menu bar
+- **PlayPets → Check for updates…** in the macOS menu bar
 
 ### Install a new version
 

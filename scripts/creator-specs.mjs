@@ -106,22 +106,23 @@ identities.daisy = {
   kind: 'person',
   identity: {
     description:
-      'Fictional young explorer with a curious, friendly personality; preserve the accepted youthful age and appearance. Not a real person.',
+      'Fictional young explorer with a curious, friendly personality; she reads about 11-12 years old with the same chibi proportions. Not a real person.',
     face: {
-      eyes: 'warm brown eyes with the accepted rounded shape and spacing',
-      nose: 'small softly rounded nose and subtle freckles',
-      mouth: 'small friendly smile; retain the accepted shape',
+      eyes: 'warm brown eyes, slightly smaller irises with few sparkle highlights, gentle defined eyebrows',
+      nose: 'small softly rounded nose and subtle freckles, light blush',
+      mouth: 'calm friendly smile above a slightly longer chin',
     },
-    hair: 'chestnut bob, unchanged bangs and curled ends',
+    hair: 'chestnut hair just past the shoulders with soft bangs and loose waves',
     accessories: [
-      'sage beret with white daisy and green leaf satchel; preserve each anatomical attachment side from the approved reference',
+      'white daisy with a small yellow centre and two green leaves on the beret or headband, and a moss-green satchel on a thin brown strap worn crossbody from her right shoulder to her left hip; preserve each anatomical side from the approved reference',
     ],
     wardrobe: {
-      baseline: 'sage daisy beret, ivory blouse, apricot dungaree dress, brown boots and green leaf satchel',
+      baseline:
+        'cream felt daisy beret, cream cable-knit cardigan over a white collared blouse and a butter-yellow dress, white socks, brown lace-up boots and moss-green satchel',
       summer:
-        'airy ivory short-sleeve blouse, light apricot linen dungaree dress, sage daisy beret, light brown shoes and original green satchel',
+        'cream fabric headband with a white daisy, sleeveless lemon-yellow sundress with a white peter-pan collar and small daisy print, white ankle socks, tan strapped shoes and moss-green satchel',
       winter:
-        'warm apricot wool coat over leggings, sage knit scarf, green knit beret with white daisy, brown winter boots and original green satchel',
+        'cream felt daisy beret, honey-yellow wool toggle coat, long cream knitted scarf, dark brown tights, brown fur-trimmed boots and moss-green satchel',
     },
   },
 };
@@ -325,7 +326,7 @@ export function kitPrompts(spec) {
       `Edit CLOTHING ONLY in the attached approved eight-pose source row. ${wardrobe} Preserve exact original row positions, gestures, expressions, gaze and head/body physical scale. Working preserves ${spec.workingAction}; waiting keeps its thoughtful gesture; jump keeps crouch, airborne and landing phases. Output exactly1536x1024 RGBA, FOUR columns TWO rows, eight complete poses, row-major order. True alpha0 outside continuous figures; no shadow, fog, floor, grid or text. Keep accessories on their established anatomical side. Do not shrink individual poses to fit clothes; regenerate a clipping pose.`,
     '04-state-row':
       lock +
-      `Create ONE animation row [STATE] as eight sequential full-body poses, FOUR columns TWO rows on1536x1024 transparent RGBA. Preserve camera, physical scale and wardrobe. Insert the exact sequence here: [EIGHT POSES]. Consumed leading frames: idle6, right8, left8, wave4, jump5, error8, waiting6, working6, done6. Jump0/1 crouch and anticipation,2/3 clearly airborne,4 landing,5-7 recovery. Error conveys sustained concern; waiting has the established thinking gesture; working preserves ${spec.workingAction}; done raises both hands/paws joyfully. Gaze row09 is N,NNE,NE,ENE,E,ESE,SE,SSE; row10 S,SSW,SW,WSW,W,WNW,NW,NNW. Gaze eyes open, body orientation stable. No substituted idle poses, unintended props, background, shadows or alpha bridges.`,
+      `Create ONE animation row [STATE] as eight sequential full-body poses, FOUR columns TWO rows on1536x1024 transparent RGBA. Preserve camera, physical scale and wardrobe. Insert the exact sequence here: [EIGHT POSES]. Consumed leading frames: idle6, right8, left8, wave4, jump5, error8, waiting6, working6, done6. Jump0/1 crouch and anticipation,2/3 clearly airborne,4 landing,5-7 recovery. The right and left walks are one full cycle in profile: 1 contact (near leg forward on its heel, far arm forward), 2 down, 3 passing (the legs pass, the near leg straight under the body), 4 up, 5-8 the same with the other leg; the arms swing against the legs, and a skirt, scarf, ears or tail sways with them (attach guides/gait-guide.png for where the limbs go, not its grey shapes). Walking right shows the character's right side and walking left its left side: a detail on the far side is hidden or only peeks, never moved to the near side. Error conveys sustained concern; waiting has the established thinking gesture; working preserves ${spec.workingAction}; done raises both hands/paws joyfully. Gaze row09 is N,NNE,NE,ENE,E,ESE,SE,SSE; row10 S,SSW,SW,WSW,W,WNW,NW,NNW. Gaze eyes open, body orientation stable. No substituted idle poses, unintended props, background, shadows or alpha bridges.`,
     '05-canonical-export':
       lock +
       `ASSEMBLY TASK, not a new drawing: pack eleven approved source rows00-idle through10-look into1536x2288 RGBA,8columns11rows,192x208cell,88cells. Order idle,right,left,wave,jump,error,waiting,working,done,look09,look10; active counts[6,8,8,4,5,8,6,6,6] plus16clockwise gaze from north. Use node scripts/pack-companion-batches.mjs my-character-rows my-character/spritesheet.png ${spec.targetIdleHeight}. Preserve shared scale and jump lift, minimum3px transparent cell margins, no clipping/ghosts. Review all88cells and actual176px/small-window playback atDPR1/2. Extra design references are not supported extra atlas rows. Write pet.json with spriteVersionNumber2 and spritesheetPath spritesheet.png.`,

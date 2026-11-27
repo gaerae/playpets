@@ -84,6 +84,7 @@ test('a gift waiting in the box comes out of its own card, a memento marked with
   assert.ok(heart, 'a memento in the box has its heart on the card');
   assert.equal(heart.title, t('album.memento', { name: 'Miso' }));
   assert.equal(heart.getAttribute('aria-label'), heart.title);
+  assert.equal(heart.textContent, '', 'the heart is painted (dialog.css), not a letter of the font');
   assert.equal(heartOf(cardOf(nodes, 'lantern')).title, t('album.memento_plain'), 'one from a friend who left');
   assert.equal(heartOf(cardOf(nodes, 'pond')), undefined, 'an everyday gift waiting has none');
   // Waiting in the box is not out: its card sets it out, by the same call as any gift.

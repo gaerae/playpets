@@ -25,7 +25,7 @@ function ate(v, now) {
   befriend(v.pet.id, 'treat');
   cue('treat');
   pose(v, 'jump', 1100);
-  effect(v, '✦');
+  effect(v, 'spark');
   bubble(v, t('care.yum'));
   v.nextWander = now + between(Math.random, SCATTER_DELAY);
   if (++treatEaters >= views.size) {
@@ -43,7 +43,7 @@ export function react(event) {
   for (const [id, v] of views) {
     if (event.petId && event.petId !== id) continue;
     pose(v, event.action === 'wave' ? 'wave' : 'jump', 1400);
-    effect(v, event.action === 'treat' ? '✦' : '♥');
+    effect(v, event.action === 'treat' ? 'spark' : 'heart');
     rest(v);
     if (together) {
       let line = greetingFor(scene.period, Math.random);

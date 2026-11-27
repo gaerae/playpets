@@ -30,6 +30,16 @@ test('one key puts the window back at its usual size, wherever the window has go
   assert.ok(SHORTCUTS.fitWindow.menu, 'the menu bar answers it on a Mac, where the page may be out of reach');
 });
 
+// Play and the scene open from the keyboard too, numbered after Friends and Invite, and no two
+// shortcuts share a key.
+test('Play and the scene have their keys after the panels, and every key is its own', () => {
+  assert.equal(SHORTCUTS.play.keys, 'mod+3');
+  assert.equal(SHORTCUTS.scene.keys, 'mod+4');
+  assert.ok(!SHORTCUTS.play.menu && !SHORTCUTS.scene.menu, 'they only open a panel, so the page answers them too');
+  const keys = Object.values(SHORTCUTS).map(s => s.keys);
+  assert.equal(new Set(keys).size, keys.length);
+});
+
 test('a shortcut matches its modifiers exactly, Cmd or Ctrl alike', () => {
   const press = (key, mods = {}) => ({ key, metaKey: false, ctrlKey: false, shiftKey: false, altKey: false, ...mods });
   assert.ok(matches(press('1', { metaKey: true }), 'mod+1'));

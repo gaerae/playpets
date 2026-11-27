@@ -55,7 +55,8 @@ test('each style kit has its own locked identity, executable prompts and valid s
 
 test('identity prompts preserve current clothes, decorations and style-specific work props', async () => {
   const { kitSpec } = await import('../scripts/creator-specs.mjs');
-  assert.match(kitSpec('daisy').identity.wardrobe.baseline, /apricot/);
+  assert.match(kitSpec('daisy').identity.wardrobe.baseline, /cream cable-knit cardigan.*butter-yellow dress/);
+  assert.match(kitSpec('daisy').identity.description, /11-12/);
   assert.match(kitSpec('clover').identity.wardrobe.baseline, /sage ribbon.*leaf/);
   assert.match(kitSpec('clover').identity.accessories[0], /anatomical RIGHT/);
   assert.deepEqual(kitSpec('clover').facePanels, {
@@ -187,4 +188,19 @@ test('Daisy and Pip detail layouts describe their approved character-specific fe
     'signature daisy beret',
   ]);
   assert.deepEqual(kitSpec('pip').facePanels.bottom, ['eyes', 'nose', 'mouth', 'ear', 'fur', 'signature flower patch']);
+});
+
+// The walk rows were drawn as shuffles; a kit's state-row prompt now names the walk cycle and the
+// side each detail shows on (docs/design/2026-11-26-natural-walking.md, The creator kit).
+test("the state-row prompt names the walk's eight poses and the side each detail shows", async () => {
+  const { kitEntries, kitSpec, kitPrompts } = await import('../scripts/creator-specs.mjs');
+  for (const entry of kitEntries) {
+    const prompt = kitPrompts(kitSpec(entry.id))['04-state-row'];
+    assert.match(prompt, /right and left.*1 contact.*2 down.*3 passing.*4 up.*5-8/s, entry.id);
+    assert.match(prompt, /legs pass/);
+    assert.match(prompt, /arms swing against the legs/);
+    assert.match(prompt, /walking right shows the character's right side/i);
+    assert.match(prompt, /far side is hidden/);
+    assert.match(prompt, /guides\/gait-guide\.png/);
+  }
 });

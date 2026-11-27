@@ -3,6 +3,7 @@
 // about five times a second, and the wakes in between drew nothing.
 
 import { cellLeft, idleLeft, poseClock, TURN_MS } from '../core/animation.js';
+import { legsWait, legsWalk } from './legs.js';
 
 /** A desktop friend nobody has been with lately plays its idle gesture in this share of the beats,
  * half the yard's: every cell it shows redraws its window, all day (core/animation.js calmRhythm). */
@@ -30,6 +31,11 @@ export function nextDraw(views, now, { reduced = false, lookMs = 400 } = {}) {
     const posing = now < v.until;
     const state = posing ? v.pose : v.status;
     if (posing) wait = Math.min(wait, v.until - now);
+    // A walk's cells come with its positions (legs.js): only a turn or a settle needs a frame.
+    if (legsWalk(v, now)) {
+      wait = Math.min(wait, legsWait(v, now));
+      continue;
+    }
     // Turning toward the pointer, or holding its last look before it stands (sprites.js facing).
     if (v.sprite?._turning) wait = Math.min(wait, TURN_MS);
     if (state === 'idle' && v.look && now - v.lookedAt < lookMs) {

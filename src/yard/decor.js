@@ -17,7 +17,7 @@ import { aiming, call, data, game, guard, name, views } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
 import { artSvg } from './art.js';
 import { befriend, levelOf } from './bond.js';
-import { showCard } from './card.js';
+import { rareKind, showCard } from './card.js';
 import { GIFTS, eventGifts, giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
 import { decorShown, hiddenKinds, yardSeason } from './decor-shown.js';
@@ -209,7 +209,7 @@ function create(d) {
   // Its menu: out to the desktop, or put away.
   button.addEventListener('contextmenu', e => {
     e.preventDefault();
-    openDecorMenu(v.id, { x: e.clientX, y: e.clientY });
+    openDecorMenu(v.id, { x: e.clientX, y: e.clientY, from: button });
   });
   // By keyboard: arrows move it a few pixels, the same in any window or place; Delete puts it away;
   // the menu key or Shift+F10 opens its menu, as a friend's does; Enter or Space opens a kind's own
@@ -221,7 +221,7 @@ function create(d) {
     if (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey)) {
       e.preventDefault();
       const r = button.getBoundingClientRect();
-      return openDecorMenu(v.id, { x: r.left, y: r.bottom });
+      return openDecorMenu(v.id, { x: r.left, y: r.bottom, from: button });
     }
     const step = KEY_STEPS[e.key];
     if (step) {
@@ -297,6 +297,8 @@ export function renderDecor() {
     v.button.classList.toggle('memento', !!d.memento);
     showMark(v.button, d.kind);
     put(v.button, 'title', label);
+    // Its name alone, for the plate over its bar (controls.js).
+    put(v.button.dataset, 'name', kind);
     putAttribute(v.button, 'aria-label', label);
     const worn = v.dressLayer && wornDress(d);
     if (worn && worn.join() !== v.worn) {
@@ -460,6 +462,18 @@ function giftDueAt(g, now, today) {
   return dueAt;
 }
 
+// During an event, the gift is its own the first time (the backend checks the dates). A calendar
+// festival counts whatever the yard shows; a seasonal one needs the scene to show it. The loop asks
+// every frame, but the system's time zone (Intl, through systemSouth) is dear to read that often and
+// a day's event changes on the minute at most: it is looked up again once a minute, or with the scene.
+let eventSeen = { minute: NaN, scene: undefined, event: null };
+function eventNow(now) {
+  const minute = Math.floor(now / 60_000);
+  if (eventSeen.minute !== minute || eventSeen.scene !== scene.event)
+    eventSeen = { minute, scene: scene.event, event: giftEvent(new Date(now), systemSouth(), scene.event) };
+  return eventSeen.event;
+}
+
 /** Called by the frame loop while the yard is seen and no game is on; deadlines use wall time. */
 export function giftTick() {
   const g = data.garden;
@@ -467,13 +481,11 @@ export function giftTick() {
   const now = Date.now(),
     today = localDay(new Date(now));
   if (now < retryAt || !giftDue(g.giftDay, today, limit(data, 'giftEveryDays'))) return;
-  // During an event, the gift is its own the first time (the backend checks the dates). A calendar
-  // festival counts whatever the yard shows; a seasonal one needs the scene to show it.
-  const event = giftEvent(new Date(now), systemSouth(), scene.event);
-  if (full(g) && !newEventGift(g, event)) return;
   // The wait starts once the person has done something with a friend that day.
   const together = [...views.values()].filter(v => togetherToday(v.pet.id, today));
-  if (!together.length || now < giftDueAt(g, now, today)) return;
+  if (!together.length) return;
+  const event = eventNow(now);
+  if ((full(g) && !newEventGift(g, event)) || now < giftDueAt(g, now, today)) return;
   const free = together.filter(isFree);
   if (!free.length) return;
   const v = pick(free);
@@ -535,10 +547,13 @@ function bring(v, ask, { say, detail }) {
         renderDecor();
       }
       cue('gift');
-      effect(v, d.memento ? '♥' : '✦');
+      effect(v, d.memento ? 'heart' : 'spark');
       const gift = giftKind(d.kind),
         said = { name: name(v.pet), kind: kindName(d.kind) };
-      if (gift) showCard(giftSvg(gift), kindName(d.kind), t(broughtCard(d, detail), said), !seen.has(d.kind), 'gift');
+      if (gift)
+        showCard(giftSvg(gift), kindName(d.kind), t(broughtCard(d, detail), said), !seen.has(d.kind), 'gift', null, {
+          rare: rareKind('gift', gift),
+        });
       return true;
     })
     .catch(() => false)

@@ -22,6 +22,13 @@
   display: grid;
   gap: 2px;
 }
+/* The switch ends its row, as the language picker above it and the dock's switches do; so does
+   the connection dialog's "other friends too". */
+:is(.auto-chatter, .share-all) > .wander-switch {
+  order: 1;
+  margin-left: auto;
+  margin-top: 1px;
+}
 .auto-chatter small {
   font-weight: 400;
   color: var(--muted);
@@ -78,14 +85,54 @@
   margin: -4px 0 8px;
 }
 .settings-more > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 7px;
   width: fit-content;
   min-height: 28px;
   padding: 4px 0;
   font-size: var(--font-sm);
   color: var(--muted);
+  list-style: none;
+}
+.settings-more > summary::-webkit-details-marker {
+  display: none;
+}
+/* The app's chevron after the words, as on the folded rows of Place & atmosphere (caption.css). */
+.settings-more > summary::after {
+  content: "";
+  flex: none;
+  width: 5px;
+  height: 5px;
+  margin-top: -3px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+}
+.settings-more[open] > summary::after {
+  margin-top: 3px;
+  transform: rotate(225deg);
 }
 .settings-more > p {
   margin-top: 2px;
+}
+/* The coding tools not in use fold under one line, their names beneath it so a person sees theirs. */
+.agents-more {
+  margin: 0 0 8px;
+}
+.agents-more > summary {
+  width: auto;
+  padding: 6px 0;
+  font-weight: 600;
+}
+.agents-more > summary > small {
+  order: 1;
+  flex-basis: 100%;
+  margin-top: 2px;
+  font-size: inherit;
+  font-weight: 400;
+  line-height: 1.4;
 }
 .link-list {
   list-style: none;
@@ -175,14 +222,25 @@
 .settings-update-details .dialog-actions {
   flex-wrap: wrap;
 }
-/* About: the name and version, then the app's own pages in groups of rows, the license note last. */
+/* About: the name and version, then the app's own pages in two groups of rows, the license note last. */
 .settings-section.about {
   margin-top: 0;
 }
-.about-name {
-  margin: 2px 0 10px;
-  font-weight: 700;
-  color: var(--ink);
+/* The name and its version on one row, the version at its end, apart from the groups below. */
+.about-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.about-head .brand {
+  min-width: 0;
+  margin-bottom: 0;
+}
+.about-head .version {
+  flex: none;
+  margin: 0 10px 0 0;
 }
 .settings-group {
   margin: 10px 0 4px;
@@ -232,12 +290,10 @@
   flex-wrap: wrap;
 }
 /* A long reason under an agent's name wraps beside the buttons rather than pushing them down;
-   in a small window the buttons take a line of their own under it. */
+   only where the name would get narrower than about ten letters do the buttons take a line of
+   their own under it. */
 .link-row:has(.agent-pet) > div {
-  flex: 1 1 0;
-}
-body.compact .link-row:has(.agent-actions) > div {
-  flex-basis: 100%;
+  flex: 1 1 10em;
 }
 .link-row .agent-pet {
   order: 3;
@@ -264,9 +320,12 @@ body.compact .link-row:has(.agent-actions) > div {
   flex: 1;
   width: 0;
 }
-/* The connection dialog's "other friends too" switch sits under the note, before the buttons. */
+/* The connection dialog's "other friends too" switch sits under the note, before the buttons, its
+   words in line with the cards above and without the toolbar toggle's divider. */
 .share-all {
   margin-top: 6px;
+  padding: 4px 0;
+  border-right: 0;
 }
 /* The kinds of AI, as cards to pick from: what each needs is said on it, and what this computer
    has is marked. The fields for the picked kind follow. */
@@ -342,7 +401,6 @@ body.compact .link-row:has(.agent-actions) > div {
   align-self: start;
   transform: translate(-50%, -50%);
   box-shadow: var(--shadow-settings);
-  background: var(--panel-surface);
   overflow: hidden;
 }
 .layout.settings-open #panel-settings {
@@ -496,6 +554,8 @@ body.compact #settings-home {
 body.compact .settings-index button {
   min-height: 40px;
   padding: 6px;
+  border-bottom: 0;
+  border-radius: var(--radius-control);
 }
 body.compact .settings-content .settings-section > h3 {
   display: none;

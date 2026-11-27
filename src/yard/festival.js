@@ -1,6 +1,6 @@
 // A seasonal event as the person meets it: its name beside the scene label, a card the first time
 // it comes each year, and a friend who mentions it. What the events are and when: events.js.
-import { list, t } from '../core/i18n.js';
+import { joinSentences, list, t } from '../core/i18n.js';
 import { pick } from '../core/math.js';
 import { systemSouth } from '../core/season.js';
 import { $, recall, remember, views } from '../core/state.js';
@@ -27,7 +27,7 @@ export function eventChanged(event) {
   // Its gifts keep to its dates; a scene picked by hand calls up only the look (events.js).
   const name = t(`event.${event.id}.name`),
     about = byDate(event.id, new Date(), systemSouth())
-      ? `${t(`event.${event.id}.about`)} ${t(`event.${event.id}.gift`)}`
+      ? joinSentences([t(`event.${event.id}.about`), t(`event.${event.id}.gift`)])
       : t(`event.${event.id}.about`);
   chip.textContent = name;
   chip.title = about;

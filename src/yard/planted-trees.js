@@ -70,6 +70,7 @@ function position(view, tree, point = tree) {
   setDown(view.button, foot.x, foot.y, width, height, depthAt(foot.y));
   view.at = foot;
   put(view.button, 'title', t('tree.drag', { kind: t(`tree.${tree.kind}`) }));
+  put(view.button.dataset, 'name', t(`tree.${tree.kind}`));
   putAttribute(view.button, 'aria-label', joinList([view.button.title, t(stageKeys[stage])]));
 }
 

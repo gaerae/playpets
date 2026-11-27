@@ -116,8 +116,9 @@
   right: 12px;
   bottom: 64px;
   width: min(var(--dock-panel-width), calc(100% - 24px));
+  /* As tall as what it holds, up to the window: a fixed 520px left Weather and Sound below the fold at
+     the default size. The grid's 1fr body still shrinks to scroll under max-height. */
   max-height: calc(100% - 76px);
-  height: min(520px, calc(100% - 76px));
   min-height: 0;
   overflow: hidden;
   overscroll-behavior: contain;
@@ -127,11 +128,9 @@
   align-items: stretch;
   gap: 8px;
   padding: 8px;
-  border-radius: var(--radius-panel);
-  background: var(--menu-surface);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--line);
+  border-radius: var(--radius-garden);
+  background: var(--garden-frame);
+  border: var(--garden-frame-border);
   box-shadow: var(--shadow-dock);
   font-weight: 650;
 }
@@ -159,6 +158,10 @@
 .view-controls > #always-on-top,
 .view-controls > .view-wander {
   grid-column: 1 / -1;
+}
+/* The window's two switches and the desktop's three are two groups, not one list of five. */
+.window-quick-actions + .view-controls {
+  margin-top: 8px;
 }
 .view-button {
   display: inline-flex;
@@ -210,6 +213,14 @@
   color: var(--ink);
   cursor: pointer;
 }
+/* Strolling and the grass belong to the desktop: their icons line up under its name, and they leave
+   with it (settings.js renderDesktopSwitches). */
+.view-controls > .view-wander {
+  padding-left: 33px;
+}
+.view-wander[hidden] {
+  display: none;
+}
 .view-wander:not(:has(input:disabled)):hover {
   background: var(--control-hover);
 }
@@ -223,21 +234,13 @@
   width: 1px;
   height: 1px;
 }
-.view-controls .wander-switch {
+:is(.view-controls, .scene-sound) .wander-switch {
   margin-left: auto;
-  flex-shrink: 0;
-  width: 30px;
-  height: 18px;
 }
-.view-controls .wander-switch::after {
-  top: 3px;
-  left: 3px;
-  width: 12px;
-  height: 12px;
-}
+/* On, a window switch is lit like every other switch (shell.css .wander-toggle). */
 .view-toggle[aria-pressed="true"] .wander-switch,
 .view-wander input:checked ~ .wander-switch {
-  background: var(--green-ink);
+  background: var(--accent);
 }
 .view-toggle[aria-pressed="true"] .wander-switch::after,
 .view-wander input:checked ~ .wander-switch::after {
@@ -251,19 +254,41 @@
 #sound-button[aria-pressed="false"] {
   color: var(--muted);
 }
+/* The yard's sound reads as the dock's other switches: its name, then the switch at the row's end. */
+.scene-sound #sound-button {
+  width: 100%;
+  /* its name starts where the rows' names above it do */
+  padding-left: 2px;
+}
+/* A short window puts the yard's sound and its volume on one row, so the panel needs no scrolling at
+   760 by 520; the volume's name is read out, the slider beside the switch says what it is. */
+@media (max-height: 720px) {
+  body:not(.compact) .scene-sound {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 0;
+  }
+  body:not(.compact) .scene-sound #sound-button {
+    flex: none;
+    width: auto;
+  }
+  body:not(.compact) .scene-sound .volume-row {
+    flex: 1;
+    min-width: 0;
+  }
+  body:not(.compact) .scene-sound .volume-row > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
 /* The hint, while there is something to learn, under the view controls at the top right. */
 
 /* In a narrower yard the desktop switch keeps its icon and its words go to the tooltip. */
-
-.scene-world-note {
-  grid-column: 1 / -1;
-  max-width: 100%;
-  margin: 2px 0 0;
-  font-size: var(--font-sm);
-  line-height: 1.5;
-  font-weight: 450;
-  color: var(--ink);
-}
 
 .background-actions {
   grid-column: 1 / -1;
@@ -295,6 +320,18 @@
   overflow: visible;
   padding: 3px;
 }
+/* A short window keeps the places to one row, as a small one does (compact.css), so Weather and the
+   yard's sound below them still fit without scrolling. */
+@media (max-height: 720px) {
+  .background-gallery {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    /* the four built-in places side by side; an imported one scrolls in after them */
+    grid-auto-columns: minmax(72px, calc((100% - 24px) / 4));
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+}
 .background-card {
   min-width: 0;
   padding: 0;
@@ -319,6 +356,18 @@
   padding: 7px 9px;
   font-size: var(--font-sm);
 }
+/* four in a row: a two-word name takes a second line rather than being cut */
+@media (max-height: 720px) {
+  .background-card span {
+    padding: 4px 6px;
+    line-height: 1.25;
+  }
+  /* a Japanese name such as Garden workshop is one word: the smallest step keeps it on its line */
+  :root:lang(ja) .background-card span {
+    padding-inline: 3px;
+    font-size: var(--font-xs);
+  }
+}
 .background-card:hover {
   border-color: var(--muted);
 }
@@ -330,8 +379,8 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  gap: 5px 8px;
-  padding: 4px 2px;
+  gap: 4px 8px;
+  padding: 2px;
   font-size: var(--font-md);
 }
 
@@ -362,10 +411,10 @@
   --climate-manual-options: 4;
   display: grid;
   grid-template-columns: repeat(var(--climate-columns), minmax(0, 1fr));
-  gap: 4px;
+  gap: 3px;
   min-width: 0;
   margin: 0;
-  padding: 0 0 6px;
+  padding: 0 0 4px;
   border: 0;
 }
 .atmosphere-segments:disabled {
@@ -386,22 +435,113 @@
   height: 1px;
   opacity: 0;
 }
+/* A play surface: each choice is its painted picture over one word; Auto keeps its word alone where
+   there is no picture for it. */
 .atmosphere-segments span {
   display: grid;
   place-items: center;
+  align-content: center;
+  gap: 1px;
   width: 100%;
   min-height: 30px;
-  padding: 4px 2px;
+  padding: 2px 1px;
   border: 1px solid var(--line);
   border-radius: var(--radius-control);
   white-space: nowrap;
+  /* a caption under its picture, at the smallest size words are read at; Morning and Evening fit a
+     fifth of the row */
   font-size: var(--font-sm);
   font-weight: 500;
+  line-height: 1.2;
 }
+.atmosphere-segments span::before,
+.atmosphere-current::before {
+  width: 22px;
+  height: 22px;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+/* On Auto, the one the yard is in now: the album's green Now tag (dialog.css .album-now), on the
+   choice's top edge, in the gap above it, so it leaves the picture clear. */
+.atmosphere-now {
+  position: absolute;
+  top: -8px;
+  right: -3px;
+  padding: 0 4px;
+  border: 1px solid color-mix(in srgb, var(--garden-peer-ink) 45%, var(--garden-rim));
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--garden-peer-ink) 16%, var(--garden-paper));
+  color: var(--garden-peer-ink);
+  font-size: var(--font-xs);
+  font-weight: 700;
+  line-height: 13px;
+  pointer-events: none;
+}
+.atmosphere-choice[data-for="scene-season"] [data-choice="auto"]::before {
+  content: "";
+  background-image: url("../art/ui/calendar.webp");
+}
+.atmosphere-choice[data-for="period"] [data-choice="auto"]::before {
+  content: "";
+  background-image: url("../art/ui/hourglass.webp");
+}
+.atmosphere-choice[data-for="weather"] [data-choice="auto"]::before {
+  content: "";
+  background-image: url("../art/ui/weather-auto.webp");
+}
+.atmosphere-choice [data-choice="spring"]::before {
+  content: "";
+  background-image: url("../art/ui/spring.webp");
+}
+.atmosphere-choice [data-choice="summer"]::before {
+  content: "";
+  background-image: url("../art/ui/summer.webp");
+}
+.atmosphere-choice [data-choice="autumn"]::before {
+  content: "";
+  background-image: url("../art/ui/autumn.webp");
+}
+.atmosphere-choice [data-choice="winter"]::before {
+  content: "";
+  background-image: url("../art/ui/winter.webp");
+}
+.atmosphere-choice [data-choice="morning"]::before {
+  content: "";
+  background-image: url("../art/ui/morning.webp");
+}
+.atmosphere-choice [data-choice="day"]::before {
+  content: "";
+  background-image: url("../art/ui/day.webp");
+}
+.atmosphere-choice [data-choice="evening"]::before {
+  content: "";
+  background-image: url("../art/ui/evening.webp");
+}
+.atmosphere-choice [data-choice="night"]::before {
+  content: "";
+  background-image: url("../art/ui/night.webp");
+}
+.atmosphere-choice [data-choice="clear"]::before {
+  content: "";
+  background-image: url("../art/ui/clear.webp");
+}
+.atmosphere-choice [data-choice="rain"]::before {
+  content: "";
+  background-image: url("../art/ui/rain.webp");
+}
+.atmosphere-choice [data-choice="snow"]::before {
+  content: "";
+  background-image: url("../art/ui/snow.webp");
+}
+.atmosphere-segments label:hover input:not(:checked) + span {
+  background: var(--garden-hover);
+}
+/* Chosen: filled and rimmed, as the tool in hand is (garden.css). */
 .atmosphere-segments input:checked + span {
-  background: var(--control-selected);
-  border-color: var(--muted);
-  box-shadow: inset 0 0 0 1px var(--muted);
+  background: var(--garden-selected);
+  border-color: var(--garden-rim);
+  box-shadow: inset 0 0 0 2px var(--garden-rim);
   color: var(--ink);
 }
 .atmosphere-segments input:focus-visible + span {
@@ -424,6 +564,11 @@ body.compact .scene-menu {
     width: min(var(--dock-panel-width), calc(100% - 16px));
     height: min(400px, calc(100% - 16px));
   }
+}
+/* The section names are hidden here, so Import and the studio follow the places instead of
+   standing alone over them. */
+body.compact .scene-places > .dock-section-head {
+  order: 1;
 }
 body.compact .atmosphere-segments {
   grid-template-columns: repeat(var(--climate-manual-options), minmax(0, 1fr));
@@ -450,10 +595,17 @@ body.compact .atmosphere-choice summary:focus-visible {
   border-radius: var(--radius-control);
 }
 body.compact .atmosphere-current {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   margin-left: auto;
   white-space: nowrap;
   color: var(--muted);
+}
+/* The folded row shows the chosen picture before its word, as the open row does. */
+body.compact .atmosphere-current::before {
+  width: 18px;
+  height: 18px;
 }
 body.compact .atmosphere-choice summary::after {
   content: "";
@@ -467,7 +619,18 @@ body.compact .atmosphere-choice summary::after {
 body.compact .atmosphere-choice[open] summary::after {
   transform: rotate(225deg);
 }
+/* Outside a small window each row's name stands beside its choices, not over them, so the three
+   rows and the sound below fit without scrolling. */
+body:not(.compact) .atmosphere-choice {
+  position: relative;
+  padding-left: 50px;
+}
 body:not(.compact) .atmosphere-choice summary {
+  position: absolute;
+  inset: 0 auto 4px 0;
+  width: 46px;
+  min-height: 0;
+  line-height: 1.25;
   pointer-events: none;
 }
 

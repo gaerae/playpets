@@ -227,6 +227,8 @@ export function setupLetters({ open: opener = openLetter, visible = () => !docum
         const v = views.get(bringer.id);
         if (v) cheer(v, 'letter.back_bubble', { say: 4000 });
       },
+      // The quote is what the card is for: a large window keeps it in view (shell.css).
+      { keep: true },
     );
   }
   const chip = $('letter-chip');

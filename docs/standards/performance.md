@@ -28,9 +28,9 @@
 | Overlay, with no friend on its monitor | none: the loop rests until one comes |
 
 - New movement adds a condition to `pace()` in `app.js`.
-- While a friend walks, the yard also wakes when a step of its walk ends (`cellEnds`, set in `motion.js`), never sooner than 8ms, so each 120ms step shows for its own length.
-  - All walks share one clock, as standing animations do: one wake serves every walker.
-  - At most one such wake comes between two frames at the table's interval: no more than 29 wakes a second while friends walk (20 at the interval, one per 120ms step).
+- While a friend walks, the yard also wakes when its walk cell ends (`cellEnds`, set in `motion.js`), never sooner than 8ms, so a cell does not show for a frame too long.
+  - A walk cell follows the ground covered, not a clock (`src/core/gait.js`), and shows at least 70ms (`CELL_FLOOR_MS`).
+  - At most one such wake comes between two frames at the table's interval, aimed at the walker due first; every walker whose cell ends within 25ms takes its next cell then (`EARLY_MS`). No more than 40 wakes a second while friends walk (20 at the interval, one between each two).
   - Standing and gestures wake nothing extra: friends that only stand keep to 10 a second.
   - The weather canvas still moves only at the interval in the table, counted from its last repaint.
 - Between steps the compositor carries a moving friend: `moveTo` in `src/core/ticker.js`.
@@ -106,6 +106,9 @@
 | After: a change that leaves the desktop's part as it was, to each desktop window | 0 | – |
 
 - A pointer moving over the yard reads no layout: a friend under it reads its box once a frame at most.
+- A card waiting under an open panel measures itself again only when a panel opens or closes or the window changes size (`hold` in `src/yard/card.js`); each second in between it only reads which panels are open.
+  - Measuring shows the hidden card for a moment, which lays out the whole yard: about 13 ms a look in the app (0.2 ms a second after), once a second for as long as a chat stayed open.
+- The frame loop's ticks look up what changes on the minute once a minute: the gift's event, which reads the system's time zone through `Intl` (`eventNow` in `src/yard/decor.js`), and only once someone has played with a friend that day.
 - A conversation draws its last 50 lines; earlier ones are drawn as it is scrolled to its top.
 
 ### Canvases and scenery
@@ -121,17 +124,40 @@
 - A canvas redraws only when the visible cell changes.
 - A canvas sized for the screen's density is sized again when the density changes (`onDensityChange` in `src/core/dom.js`): a window moved to another screen keeps its size, so no resize says so.
 - Do not add a path that skips the cell key comparison in `drawSprite`.
+- A friend's sheet and its pose atlases are drawn from an `ImageBitmap` of them (`pixels` in `src/core/pixels.js`), made once the image is in and closed with it (`letGo`); until then, from the image.
+  - WebKit lets go of a large image's decoded pixels while the image itself is not on screen, then decodes it again for every cell drawn from it.
+  - Measured 2026-11-26, Apple M2 Pro, Playwright's WebKit, the idle yard with four friends, 20 s: a cell took 3.1–4.5 ms from the image and 0.04 ms from the bitmap; the frame loop's script went from 48 to 23 ms a second.
+  - A bench drawing one sheet over and over shows no difference (0.05–0.11 ms against 0.04 ms): the cost comes only once the page holds many large images.
+  - Measured 2026-11-26 in the app, same machine, e2e build, the yard only with three built-in friends and the chat open, 20 s per sample, three alternating runs:
+    - the frame loop's script, timed around its timers: 57.3 ms a second before, 27.0 ms after;
+    - CPU, median of 12 and 13 samples: 26.4% before, 24.7% after; the yard's page 15.5% before, 12.2% after.
+    - The same build with `createImageBitmap` taken away against with it, 15 samples each: 22.8% against 20.0%; the app's own process 4.8% against 4.4%, the page 10.3% against 9.0%. The bitmaps cost the app's process nothing.
+- A friend's hit area is measured once for each row of its sheet (`bodyOf` in `src/core/sprites.js`): about 320,000 pixels read the first time a pose plays, then a comparison a frame. The frame loops write it only when the row changes (`fitHit`; the desktop's `setBody`).
 
 ### CSS animations
 - Move only `transform` and `opacity`. Do not animate layout properties such as `left`, `top` or `width`.
 - A loop that runs on the compositor and asks nothing of the page may run while the yard is shown:
   - the clouds' drift;
   - the breeze in trees and flowers (`garden.css`);
-  - a walking friend's step (`friends.css`).
+  - a walking friend's step (`friends.css`);
+  - the living layers (`living.js`, `.living-*` in `scenery.css`): glints on the water, cloud shadows, the near tufts, and the room's light and dust;
+  - the lit Christmas tree after it has grown (`.xmas-grand:not(.xmas-rise)` in `garden.css`): the halo and the pool of light breathe over 5 s, three groups of bulbs fade in turn, five gold flecks drift.
+- The lit tree, measured 2026-11-27, Apple M2 Pro, headless Chrome with software compositing, the yard on Christmas night with the tree grown and settled, five alternating runs:
+  - main thread 3.9% before, 4.5% after;
+  - every Chrome process together, median 35.6% before, 37.9% after; software compositing exaggerates this, so check it again with `pnpm run measure` in the e2e build.
+- The living layers, measured 2026-11-26, Apple M2 Pro, e2e build, the yard only with three friends standing, the layers on and off in turns of 30 s after the friends had settled, six pairs:
+  - median 21.2% with them and 20.2% without, a median difference of 0.5 points between pairs, inside G3's 1.5 points ([the yard plays like a game](../design/2026-11-24-the-yard-plays-like-a-game.md));
+  - single pairs ranged from −4.6 to +11 points, so compare medians only;
+  - not measured in WebView2.
 - Such a loop pauses under `data-unseen` and stops with reduced motion. A loop that needs the page (a canvas, a style written each frame) is a drawing loop and follows the rules above.
 - In WebView2 (`<html data-webview2>`), the clouds move in steps of about a pixel (`steps()`): moved smoothly, they have the page composited on every display frame while nothing else moves.
   - The clouds alone, measured 2026-11-15 in Chrome with software compositing (as WebView2 with no GPU), the frame loop resting, three runs: 600 frames and 1.9 s of CPU in 10 s smoothly, 115–119 frames and 0.7 s in steps of 1500.
   - Not in WebKit, which moves steps on the page's own thread: the yard with one friend took 7.6–7.7% of a core with steps against 5.9–6.3% without (macOS, e2e build, three alternating runs of 40 s).
+- A short burst that is not a loop may run on the desktop when a person does something there, never on a timer or for an agent's news:
+  - the flurry over the desktop grass (`overlay/flurry.js`): seven bits for about five seconds, at most once every four minutes, on four fixed paths (`flurry-fall-0…3`).
+  - Measured 2026-11-24, Apple M-series, e2e build, four friends on the desktop, the yard hidden, a pat every 6.5 s with no gap between flurries, 56 s per run, alternating runs: summer (nothing falls) 6.0–6.3%, spring 8.2–9.1%, winter 8.3–9.2%.
+  - So a flurry costs about 2.5 points of a core while it falls; once every four minutes that averages under 0.1 point.
+  - Keyframes that read variables cost about the same there (spring 8.0–9.5%, winter 8.5–9.6%): the cost is the window composited every frame, not the keyframes.
 - Do not use CSS variables (`var()`) inside keyframes. Keyframes that contain variables do not run in the compositing stage.
 - Do not put a filter on the element a looping animation moves: put it on what is inside (the light on a swaying tree is on its `use`, `garden.css`).
 
@@ -203,6 +229,8 @@
 - From 2026-11-11, `pnpm run measure` also plants four flowers in bloom and two grown trees in the woodland. The values above were measured without a garden.
 - Runs on the same machine differ by several points when anything else is busy. Compare medians of alternating runs (before, after, before, after).
 - Compare only values from the same machine.
+- Follow-up, 2026-11-26: the build of 2026-10-11, run again on the same machine under macOS 27.2.1, took 12–14% for the yard only (app 3.2%, page 4.2%, GPU 6%), so about 7 points of the gap to today's builds come from the system, not the app.
+  - Today's build took about 20% there, the extra mostly in the yard's page; drawing the friends from bitmaps (Canvases and scenery) took back about 3 points of it.
 
 ### Each process, measured 2026-11-14
 - Same machine as above, e2e build, three built-in friends and the small garden of `pnpm run measure`, two runs of each state, 20 seconds each.

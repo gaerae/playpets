@@ -279,6 +279,116 @@
 .xmas-sleigh.flying {
   animation: xmas-sleigh-fly 4.2s linear both;
 }
+/* The gold dust it trails as it flies, behind it on the right: specks of light on a soft warm tail
+   that thins out away from it and glitters as it goes. It moves with the sleigh, so nothing is left
+   behind to clear. */
+.xmas-trail {
+  position: absolute;
+  left: 72%;
+  top: 18%;
+  width: 380%;
+  height: 72%;
+  pointer-events: none;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 3% 41%, #fff6d8 0 1.47px, transparent 2.37px),
+    radial-gradient(circle at 10% 41%, #ffe2a8 0 1.41px, transparent 2.31px),
+    radial-gradient(circle at 14% 47%, #fffaf0 0 1.37px, transparent 2.27px),
+    radial-gradient(circle at 24% 60%, #fff6d8 0 1.29px, transparent 2.19px),
+    radial-gradient(circle at 29% 40%, #ffe2a8 0 1.24px, transparent 2.14px),
+    radial-gradient(circle at 34% 41%, #fffaf0 0 1.19px, transparent 2.09px),
+    radial-gradient(circle at 39% 34%, #fff6d8 0 1.15px, transparent 2.05px),
+    radial-gradient(circle at 45% 69%, #ffe2a8 0 1.1px, transparent 2px),
+    radial-gradient(circle at 53% 65%, #fffaf0 0 1.02px, transparent 1.92px),
+    radial-gradient(circle at 59% 34%, #fff6d8 0 0.97px, transparent 1.87px),
+    radial-gradient(circle at 63% 57%, #ffe2a8 0 0.93px, transparent 1.83px),
+    radial-gradient(circle at 71% 70%, #fffaf0 0 0.86px, transparent 1.76px),
+    radial-gradient(circle at 78% 25%, #fff6d8 0 0.8px, transparent 1.7px),
+    radial-gradient(circle at 82% 61%, #ffe2a8 0 0.76px, transparent 1.66px),
+    radial-gradient(circle at 88% 29%, #fffaf0 0 0.71px, transparent 1.61px),
+    radial-gradient(circle at 94% 21%, #fff6d8 0 0.65px, transparent 1.55px),
+    radial-gradient(ellipse 100% 22% at 0 50%, #fff3d0e6, #ffe2a880 45%, #ffd98a00),
+    radial-gradient(ellipse 100% 50% at 0 50%, #ffe7b080, #ffe7b000 75%);
+  mask-image: linear-gradient(to right, #000 15%, #0000);
+  transform: rotate(9deg);
+  transform-origin: 0 50%;
+  opacity: 0;
+}
+.xmas-sleigh.flying .xmas-trail {
+  animation: xmas-trail 4.2s linear both;
+}
+.xmas-sleigh.still .xmas-trail {
+  display: none;
+}
+/* and the dust that falls from it along its way (christmas-night.js dropDust): each mote waits until
+   the sleigh passes its place, flares, lingers a moment and falls, fading. Its box is the sleigh's
+   at the start of its flight, so the motes are placed in shares of the sleigh's size. */
+.xmas-dust {
+  position: absolute;
+  left: var(--orb-x, 68%);
+  top: var(--orb-y, 14%);
+  height: min(5%, 34px);
+  aspect-ratio: 110 / 57;
+  z-index: -2;
+  pointer-events: none;
+}
+.xmas-dust > span {
+  position: absolute;
+  width: 3px;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fffdf2 0 35%, #ffe2a8 60%, #ffd27a00 75%);
+  box-shadow: 0 0 5px 1px #ffd98a99;
+  opacity: 0;
+  animation: xmas-dust 2.6s ease-out both;
+}
+.xmas-dust > .d1 {
+  width: 4px;
+  animation-duration: 3.2s;
+}
+.xmas-dust > .d2 {
+  width: 2px;
+  animation-duration: 2.2s;
+}
+@keyframes xmas-dust {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  8% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
+  35% {
+    transform: translateY(4px) scale(1);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translateY(28px) scale(0.6);
+    opacity: 0;
+  }
+}
+@keyframes xmas-trail {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  35% {
+    opacity: 0.55;
+  }
+  55% {
+    opacity: 0.95;
+  }
+  75% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0.85;
+  }
+}
 /* Reduced motion turns every animation off (base.css), so the still sleigh is set, not played:
    across the moon's upper half for STILL_MS, then gone, leaving most of the disc to see. */
 .xmas-sleigh.still {
@@ -316,18 +426,34 @@
   transform: translateX(-50%);
   opacity: 0;
   transition: opacity 6s;
-  background: radial-gradient(
-    circle at 50% 100%,
-    transparent 0 62%,
-    #ac9cd700 62%,
-    #ac9cd7 63%,
-    #91aedb 64.5%,
-    #acd3bc 66%,
-    #f2dfa3 67.5%,
-    #eebca0 69%,
-    #dfa3a300 71%,
-    transparent 71%
-  );
+  /* the bow; a faint second one outside it, its colours turned over as a real one's are; and the
+     sky inside it a little lighter than the sky around */
+  background:
+    radial-gradient(
+      circle at 50% 100%,
+      transparent 0 62%,
+      #ac9cd700 62%,
+      #ac9cd7 63%,
+      #91aedb 64.5%,
+      #acd3bc 66%,
+      #f2dfa3 67.5%,
+      #eebca0 69%,
+      #dfa3a300 71%,
+      transparent 71%
+    ),
+    radial-gradient(
+      circle at 50% 100%,
+      transparent 0 75%,
+      #eebca000 75%,
+      #eebca04d 76.5%,
+      #f2dfa34d 78%,
+      #acd3bc4d 79.5%,
+      #91aedb4d 81%,
+      #ac9cd74d 82.5%,
+      #ac9cd700 84.5%,
+      transparent 84.5%
+    ),
+    radial-gradient(circle at 50% 100%, #fff8e600 0 40%, #fff8e62e 62%, transparent 62.5%);
   mask-image: linear-gradient(to top, transparent, #000 45%);
 }
 .yard.moment-rainbow .rainbow {
@@ -472,6 +598,146 @@
     animation: none;
   }
 }
+/* The yard alive with nobody touching it (living.js): glints on the water, the shadows of clouds
+   passing over the field, tufts of grass swaying in the near corners, and in the room dust drifting
+   in the window's light. Each moves by transform and opacity alone, so the compositor keeps them
+   moving without a repaint; an unseen page pauses them (base.css), and reduced motion leaves only
+   the still tufts. */
+.living-layer {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.living-layer > * {
+  position: absolute;
+  display: block;
+}
+.living-shadows {
+  inset: 50% 0 0;
+}
+.living-shadow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 20% 34% at 50% 50%, #24401a29, #24401a14 55%, transparent 72%);
+  animation: living-shadow 96s linear infinite;
+}
+.living-shadow-2 {
+  inset: 22% 0 -10%;
+  background: radial-gradient(ellipse 15% 28% at 50% 50%, #24401a1f, #24401a0f 55%, transparent 72%);
+  animation-duration: 131s;
+  animation-delay: -58s;
+}
+.yard:is(.period-night, .period-evening, :not(.weather-clear)) .living-shadows {
+  display: none;
+}
+.living-glint {
+  width: 22px;
+  height: 6px;
+  margin: -3px 0 0 -11px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #ffffff 0 22%, #ffffffb3 40%, transparent 72%);
+  opacity: 0;
+  animation: living-glint 5.6s ease-in-out infinite;
+}
+.yard.period-night .living-glint {
+  background: radial-gradient(ellipse, #fff6d2 0 20%, #fff6d299 38%, transparent 70%);
+  animation-duration: 7.4s;
+}
+.living-beam {
+  transform: skewX(-14deg);
+  transform-origin: top;
+  background: radial-gradient(ellipse 46% 100% at 50% 0%, #fff6d87a, #fff2cc33 50%, transparent 78%);
+  opacity: 0.6;
+  animation: living-beam 9s ease-in-out infinite alternate;
+}
+.living-mote {
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff8dc 0 28%, #f5c45ee6 46%, #f5c45e40 62%, transparent 76%);
+  opacity: 0;
+  animation: living-mote 11s linear infinite;
+}
+.yard.period-night :is(.living-beam, .living-mote) {
+  display: none;
+}
+.living-tuft {
+  bottom: -1%;
+  background: bottom / contain no-repeat;
+  transform-origin: bottom;
+  animation: breeze 4.8s ease-in-out infinite alternate;
+}
+.living-tuft-left {
+  left: -1.5%;
+  height: min(24%, 200px);
+  aspect-ratio: 369 / 512;
+  background-image: url("../art/ambient/tuft-left.webp");
+}
+.living-tuft-right {
+  right: -1%;
+  height: min(11%, 92px);
+  aspect-ratio: 512 / 210;
+  background-image: url("../art/ambient/tuft-right.webp");
+  animation-duration: 5.9s;
+  animation-delay: -2.1s;
+}
+/* Snow lies on the near grass in winter, and the small window keeps its corners clear. */
+.yard.season-winter .living-tuft,
+body.compact .living-tuft {
+  display: none;
+}
+@keyframes living-glint {
+  0%,
+  62%,
+  100% {
+    opacity: 0;
+    transform: scaleX(0.3);
+  }
+  76% {
+    opacity: 0.95;
+    transform: scaleX(1);
+  }
+}
+@keyframes living-shadow {
+  from {
+    transform: translateX(-75%);
+  }
+  to {
+    transform: translateX(75%);
+  }
+}
+@keyframes living-mote {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  30%,
+  70% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(18px, -64px);
+  }
+}
+@keyframes living-beam {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 0.9;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .living-shadows,
+  .living-glint,
+  .living-mote {
+    display: none;
+  }
+}
 /* An old rainbow never fades through the moon or a fresh shower. */
 .yard.period-night .rainbow,
 .yard.weather-rain .rainbow,
@@ -614,6 +880,7 @@
 .yard[data-sky="false"] .sky-glow,
 .yard[data-sky="false"] .sky-body,
 .yard[data-sky="false"] .xmas-sleigh,
+.yard[data-sky="false"] .xmas-dust,
 .yard[data-sky="false"] .rainbow,
 .yard[data-sky="false"] .moment-layer,
 .yard[data-sky="false"] .cloud-lane,

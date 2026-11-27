@@ -1,13 +1,15 @@
 // Desktop strolls in logical pixels.
 pub const ROAM_DELAY: (f64, f64) = (10_000.0, 25_000.0);
-pub const ROAM_SPEED: f64 = 0.09; // px per ms
+/// How far a friend walks in a millisecond, in its own body lengths (its sprite's width): a Medium
+/// friend walks as it did at 0.09 px a ms, and a small one's legs keep the same time.
+pub const ROAM_BODIES: f64 = 0.0007;
 
 pub fn delay(r: f64, range: (f64, f64)) -> f64 {
     range.0 + r * (range.1 - range.0)
 }
 
 // Not f64::clamp: a pet wider than its area makes max < min, which f64::clamp panics on.
-fn clamp(v: f64, min: f64, max: f64) -> f64 {
+pub(crate) fn clamp(v: f64, min: f64, max: f64) -> f64 {
     v.max(min).min(max)
 }
 
@@ -17,6 +19,20 @@ pub struct Bounds {
     pub y: f64,
     pub w: f64,
     pub h: f64,
+}
+
+impl Bounds {
+    /// Whether the point `c` is on the box, its edges included.
+    pub fn contains(&self, (cx, cy): (f64, f64)) -> bool {
+        cx >= self.x && cx <= self.x + self.w && cy >= self.y && cy <= self.y + self.h
+    }
+
+    /// How far the point `c` is from the box: the straight line to its nearest point, 0 on it.
+    pub fn gap(&self, (cx, cy): (f64, f64)) -> f64 {
+        let dx = (self.x - cx).max(cx - self.x - self.w).max(0.0);
+        let dy = (self.y - cy).max(cy - self.y - self.h).max(0.0);
+        dx.hypot(dy)
+    }
 }
 
 pub fn roam_target(b: &Bounds, area: &Bounds, r1: f64, r2: f64, r3: f64) -> (f64, f64) {
@@ -63,13 +79,18 @@ pub fn onto(b: &Bounds, sprite: f64, foot: f64, d: &Bounds, seat_foot: f64, area
     )
 }
 
-pub fn step_toward(px: f64, py: f64, tx: f64, ty: f64, dt_ms: f64) -> (f64, f64, bool) {
+/// One step of `dt_ms` from (px, py) toward (tx, ty) for a friend `size` px wide: its pace in body
+/// lengths, slowing over its last body length to a quarter, so it comes to a stop rather than hits
+/// one. Returns where it is and whether it got there.
+pub fn step_toward(px: f64, py: f64, tx: f64, ty: f64, dt_ms: f64, size: f64) -> (f64, f64, bool) {
     let (dx, dy) = (tx - px, ty - py);
     let dist = (dx * dx + dy * dy).sqrt();
-    if dist <= ROAM_SPEED * dt_ms {
+    let size = size.max(1.0);
+    let reach = ROAM_BODIES * size * clamp(dist / size, 0.25, 1.0) * dt_ms;
+    if dist <= reach {
         return (tx, ty, true);
     }
-    let k = ROAM_SPEED * dt_ms / dist;
+    let k = reach / dist;
     (px + dx * k, py + dy * k, false)
 }
 
@@ -82,6 +103,23 @@ mod tests {
             s = (s * 9301.0 + 49297.0) % 233280.0;
             s / 233280.0
         }
+    }
+
+    #[test]
+    fn a_point_is_on_a_box_up_to_its_edges_and_otherwise_as_far_as_its_nearest_point() {
+        let b = Bounds {
+            x: 100.0,
+            y: 600.0,
+            w: 200.0,
+            h: 216.0,
+        };
+        for on in [(100.0, 600.0), (300.0, 816.0), (200.0, 700.0)] {
+            assert!(b.contains(on), "{on:?}");
+            assert_eq!(b.gap(on), 0.0, "{on:?}");
+        }
+        assert!(!b.contains((99.0, 700.0)));
+        assert_eq!(b.gap((200.0, -400.0)), 1000.0, "straight above");
+        assert_eq!(b.gap((900.0, -200.0)), 1000.0, "to the corner, not along one side");
     }
 
     #[test]
@@ -197,11 +235,11 @@ mod tests {
     #[test]
     fn steps_walk_steadily_and_land_exactly() {
         let (mut x, mut y) = (100.0, 500.0);
-        let first = step_toward(x, y, 400.0, 520.0, 40.0);
+        let first = step_toward(x, y, 400.0, 520.0, 40.0, 128.0);
         let pace = ((first.0 - x).powi(2) + (first.1 - y).powi(2)).sqrt();
         assert!(pace > 1.0 && pace < 10.0);
         for _ in 0..5000 {
-            let (nx, ny, done) = step_toward(x, y, 400.0, 520.0, 40.0);
+            let (nx, ny, done) = step_toward(x, y, 400.0, 520.0, 40.0, 128.0);
             x = nx;
             y = ny;
             if done {
@@ -209,5 +247,24 @@ mod tests {
             }
         }
         assert_eq!((x, y), (400.0, 520.0));
+    }
+
+    // In body lengths, as the yard paces: a small friend's legs keep the same time as a large one's.
+    #[test]
+    fn a_walk_is_paced_in_the_friends_own_body_lengths() {
+        let stride = |size: f64| step_toward(0.0, 0.0, 1000.0, 0.0, 40.0, size).0;
+        assert!((stride(128.0) - ROAM_BODIES * 128.0 * 40.0).abs() < 1e-9);
+        assert!((stride(64.0) * 2.0 - stride(128.0)).abs() < 1e-9);
+    }
+
+    // It slows over its last body length, to a quarter of its pace, and still gets there.
+    #[test]
+    fn a_walk_slows_into_its_stop() {
+        let full = ROAM_BODIES * 128.0 * 10.0;
+        let half = step_toward(0.0, 0.0, 64.0, 0.0, 10.0, 128.0).0;
+        assert!((half - full / 2.0).abs() < 1e-9, "{half}");
+        let last = step_toward(0.0, 0.0, 12.0, 0.0, 10.0, 128.0).0;
+        assert!((last - full / 4.0).abs() < 1e-9, "{last}");
+        assert_eq!(step_toward(0.0, 0.0, 0.1, 0.0, 10.0, 128.0), (0.1, 0.0, true));
     }
 }

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { brightColor, fireworks, sparkAt } from '../src/yard/fireworks.js';
+import { brightColor, fireworks, sparkAt, twinkle } from '../src/yard/fireworks.js';
 
 const w = 1000,
   h = 600;
@@ -107,4 +107,59 @@ test('a spark flies out fast, slows, then droops and fades', () => {
   assert.ok(Math.abs(end.x - 200) < 2 && end.y > 120, 'it ends at its place, sunk by its fall');
   assert.ok(end.alpha < 0.05);
   assert.equal(at(3000), null, 'gone');
+});
+
+test('each burst leaves a soft glow of its colour that lingers after its flash and fades', () => {
+  const { sparks, bursts } = fireworks(w, h, 0, friends, seeded(13));
+  for (const b of bursts) {
+    const flash = sparks.find(s => s.flash && s.since === b.at && s.cx === b.x),
+      glow = sparks.find(s => s.glow && s.cx === b.x && s.cy === b.y && s.since >= b.at);
+    assert.ok(glow, `${b.kind} at ${b.at}`);
+    assert.equal(glow.color, b.color);
+    assert.ok(glow.r >= b.r, 'as wide as its stars fly');
+    assert.ok(glow.since + glow.life > flash.since + flash.life + 1000, 'it stays after the flash');
+  }
+});
+
+test('the heart dissolves into glitter that drifts down slowly after it, the last light of the show', () => {
+  const { sparks, bursts } = fireworks(w, h, 0, friends, seeded(17));
+  const heart = bursts.at(-1),
+    stars = sparks.filter(s => s.since === heart.at && s.cx === heart.x && !s.flash && !s.glow),
+    dust = sparks.filter(s => s.dust);
+  assert.ok(dust.length >= stars.length / 3);
+  for (const d of dust) {
+    assert.ok(d.glitter);
+    assert.ok(d.since > heart.at + 1500, 'once the heart has hung a while');
+    assert.ok(d.ty > d.cy, 'down');
+    assert.ok(d.life >= 1500, 'slowly');
+    assert.ok(Math.abs(d.cx - heart.x) <= heart.r * 1.1, 'from the heart');
+  }
+  const end = s => s.since + s.life;
+  assert.ok(Math.max(...dust.map(end)) > Math.max(...stars.map(end)), 'after the heart is gone');
+  assert.equal(Math.max(...sparks.map(end)), Math.max(...dust.map(end)), 'nothing after it');
+});
+
+test('a star shimmers smoothly in its own phase, never flickering from one frame to the next', () => {
+  const { sparks } = fireworks(w, h, 0, friends, seeded(19));
+  const stars = sparks.filter(s => !s.rise && !s.flash && !s.glow);
+  assert.ok(new Set(stars.map(s => s.phase)).size > stars.length / 2, 'phases of their own');
+  const glitter = stars.find(s => s.glitter),
+    fading = { ...stars.find(s => !s.glitter), glitter: false };
+  for (const s of [glitter, fading]) {
+    let low = 1,
+      high = 0;
+    // The yard draws a show every 66 ms: a frame apart, a star changes only a little.
+    for (let t = s.since; t < s.since + s.life; t += 66) {
+      const a = twinkle(s, t),
+        b = twinkle(s, t + 66);
+      assert.ok(a >= 0 && a <= 1);
+      assert.ok(Math.abs(a - b) < 0.45, `${a} → ${b}`);
+      low = Math.min(low, a);
+      high = Math.max(high, a);
+    }
+    assert.ok(high - low > 0.2, 'it does shimmer');
+  }
+  // While a plain star still burns bright it holds steady.
+  const bright = stars.find(s => !s.glitter);
+  assert.equal(twinkle(bright, bright.since + 10), 1);
 });

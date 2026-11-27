@@ -1,0 +1,85 @@
+{
+  "generated": "2026-11-24",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "prompt": "Use case: production sprite atlas for the cozy PlayPets desktop game. ONE CHARACTER IN ONE FIXED OUTFIT: exactly the character in the reference image (same face, markings, outfit, colors and proportions), drawn in its style: fine warm-brown outlines, matte painted color planes, soft gentle shading. Landscape canvas 1536x1024 split into an exact grid of FOUR equal columns by TWO equal rows (tiles of 384x512). Each tile holds ONE isolated full-body pose, centered, whole body inside its tile with generous empty margins, feet or seat on a common baseline near the bottom of the tile; nothing crosses into another tile. Fixed three-quarter camera facing right in every tile, head and body drawn at exactly the same scale in every tile. TOP ROW left to right: tile 1 knees bending to sit down, one hand reaching back toward the ground; tile 2 sitting on the ground, legs stretched forward, hands resting on its lap, relaxed smile; tile 3 the same sitting pose with eyes gently closed, content and sleepy; tile 4 standing, both arms raised high above the head in a big happy stretch, feet flat on the ground. BOTTOM ROW left to right: tile 5 standing, a yawn with one hand covering the open mouth, eyes squeezed shut; tile 6 standing, arms lowering after the stretch, pleased smile; tile 7 completely EMPTY; tile 8 standing relaxed and neutral, exactly like the reference. Background: one flat pure white #FFFFFF everywhere, with no shadow, ground patch, haze, texture or vignette. No text, labels, numbers, props, effects, sparkles, frames or borders. <outfitLock>",
+  "note": "Each sheet was generated once with the common prompt followed by its outfit lock and was reviewed beside the idle cells for identity, outfit, scale and clean edges before packing.",
+  "sources": [
+    {
+      "friend": "pip",
+      "outfit": "base",
+      "file": "pip/base/rest-generated.png",
+      "reference": "its idle and wave cells from the sheet of that outfit, doubled, on white",
+      "outfitLock": "Pip is the exact upright caramel floppy-eared puppy: ivory muzzle, warm dark eyes, fluffy tail, furry bare paws. BASE OUTFIT ONLY: washed medium-indigo denim chore jacket with small rounded collar, ivory topstitch and cream buttons over an ivory tee, ivory CUFFED SHORTS. White five-petal yellow-center daisy on the anatomical LEFT chest. Never a hat, scarf, bag or overalls. Cheerful, eager."
+    },
+    {
+      "friend": "pip",
+      "outfit": "summer",
+      "file": "pip/summer/rest-generated.png",
+      "reference": "its idle and wave cells from the sheet of that outfit, doubled, on white",
+      "outfitLock": "Pip is the exact upright caramel floppy-eared puppy: ivory muzzle, warm dark eyes, fluffy tail, furry bare paws. SUMMER OUTFIT ONLY: short-sleeve lightweight indigo denim camp-collar shirt over an ivory tee, ivory CUFFED SHORTS. White five-petal yellow-center daisy on the anatomical LEFT chest. Never shearling, hat, scarf, bag or overalls. Cheerful."
+    },
+    {
+      "friend": "pip",
+      "outfit": "winter",
+      "file": "pip/winter/rest-generated.png",
+      "reference": "its idle and wave cells from the sheet of that outfit, doubled, on white",
+      "outfitLock": "Pip is the exact upright caramel floppy-eared puppy: ivory muzzle, warm dark eyes, fluffy tail, bare furry paws. WINTER OUTFIT ONLY: lined indigo denim jacket with ivory SHEARLING collar and cuffs, full-length ivory TROUSERS covering both legs. White five-petal yellow-center daisy on the anatomical LEFT chest. Never a hat, scarf, bag, overalls or shorts. Cheerful and warm."
+    },
+    {
+      "friend": "miso",
+      "outfit": "base",
+      "file": "miso/base/rest-generated.png",
+      "reference": "its idle and wave cells from the sheet of that outfit, doubled, on white",
+      "outfitLock": "Miso is the exact upright chestnut river otter: round ears, cream muzzle, cream eyebrow spots, brown eyes, short thick tapered tail. BASE OUTFIT ONLY: lavender cable-knit sleeveless vest over an ivory short-sleeved collared shirt, warm-gray pleated SHORTS, exposed furry paws. White-petal yellow-center daisy on the anatomical LEFT chest. No hat, scarf or bag. Thoughtful, unhurried."
+    },
+    {
+      "friend": "miso",
+      "outfit": "summer",
+      "file": "miso/summer/rest-generated.png",
+      "reference": "its idle and wave cells from the sheet of that outfit, doubled, on white",
+      "outfitLock": "Miso is the exact upright chestnut river otter: round ears, cream muzzle, cream eyebrow spots, brown eyes, short thick tapered tail. SUMMER OUTFIT ONLY: airy pale lavender light-knit sleeveless vest over an ivory short-sleeved collared cotton shirt, warm-gray linen SHORTS, exposed paws. White-petal yellow-center daisy on the anatomical LEFT chest. No hat, scarf, cardigan or bag. Thoughtful, unhurried."
+    },
+    {
+      "friend": "miso",
+      "outfit": "winter",
+      "file": "miso/winter/rest-generated.png",
+      "reference": "its idle and wave cells from the sheet of that outfit, doubled, on white",
+      "outfitLock": "Miso is the exact upright chestnut river otter: round ears, cream muzzle, cream eyebrow spots, brown eyes, short thick tapered tail. WINTER OUTFIT ONLY: lavender buttoned wool CARDIGAN over an ivory collared shirt, full-length warm-gray tailored TROUSERS, exposed furry paws. White-petal yellow-center daisy on the anatomical LEFT chest. No hat, scarf, bag or shorts. Thoughtful, unhurried."
+    },
+    {
+      "friend": "clover",
+      "outfit": "base",
+      "file": "clover/base/rest-generated.png",
+      "reference": "its idle and wave cells from the sheet of that outfit, doubled, on white",
+      "outfitLock": "Clover is the exact upright ginger-and-cream tabby kitten: green eyes, white-cream muzzle and toes, fluffy tail. OUTFIT ONLY as in the reference: straw hat and teal short overalls as drawn there. No scarf, coat or bag. Gentle, curious gardener."
+    },
+    {
+      "friend": "clover",
+      "outfit": "winter",
+      "file": "clover/winter/rest-generated.png",
+      "reference": "its idle and wave cells from the sheet of that outfit, doubled, on white",
+      "outfitLock": "Clover is the exact upright ginger-and-cream tabby kitten: green eyes, white-cream muzzle and toes, fluffy tail. WINTER OUTFIT ONLY: sage knitted BEANIE with a white daisy with yellow center, ivory knitted SCARF, dark teal buttoned COAT and matching dark teal TROUSERS, cream paws. No straw hat, overalls or bare legs. Gentle, careful."
+    },
+    {
+      "friend": "daisy",
+      "outfit": "base",
+      "file": "daisy/base/rest-generated.png",
+      "reference": "tile 0 of her new idle row, on white (2026-11-24)",
+      "outfitLock": "Daisy is the exact chestnut-haired girl explorer of about 11-12 in the reference: warm brown eyes, calm smile, chestnut hair just past the shoulders. BASE OUTFIT ONLY: cream felt beret with a pure white daisy and two green leaves, cream cable-knit cardigan over a white collared blouse and a butter-yellow dress, white socks, brown lace-up boots, moss-green satchel on a thin brown leather strap worn crossbody from her right shoulder to her left hip. When she sits, the dress covers her knees neatly. Gentle and curious."
+    },
+    {
+      "friend": "daisy",
+      "outfit": "summer",
+      "file": "daisy/summer/rest-generated.png",
+      "reference": "tile 0 of her new idle row, on white (2026-11-24)",
+      "outfitLock": "Daisy is the exact chestnut-haired girl explorer of about 11-12 in the reference: warm brown eyes, calm smile, chestnut hair just past the shoulders. SUMMER OUTFIT ONLY: no hat, a soft cream fabric headband with one pure white daisy and two small leaves at its side, a sleeveless lemon-yellow sundress with a white peter-pan collar and a small white daisy print, bare arms, white ankle socks, tan strapped shoes, moss-green satchel on a thin brown leather strap worn crossbody from her right shoulder to her left hip. When she sits, the dress covers her knees neatly. Gentle and curious."
+    },
+    {
+      "friend": "daisy",
+      "outfit": "winter",
+      "file": "daisy/winter/rest-generated.png",
+      "reference": "tile 0 of her new idle row, on white (2026-11-24)",
+      "outfitLock": "Daisy is the exact chestnut-haired girl explorer of about 11-12 in the reference: warm brown eyes, calm smile, chestnut hair just past the shoulders. WINTER OUTFIT ONLY: cream felt beret with a pure white daisy and two green leaves, honey-yellow wool coat with toggle buttons, long cream knitted scarf, dark brown tights, brown fur-trimmed boots, moss-green satchel on a thin brown leather strap worn crossbody over the coat. Gentle and curious."
+    }
+  ]
+}

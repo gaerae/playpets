@@ -25,10 +25,12 @@ export const plantStature = (plant, stage) =>
   stage === 'bloom' || stage === 'bud' ? flowerKind(plant.kind)?.stature || 1 : 1;
 /** How long until it flowers (0 once it has). */
 export const untilBloom = (planted, now) => Math.max(0, STAGES.at(-1).at - Math.max(0, now - planted));
+/** The flowers a seed planted in this season may grow into (the album marks them as there now). */
+export const seasonFlowers = season => FLOWERS.filter(f => f.season === season);
 /** What a seed planted in this season grows into: one of the season's flowers, each as likely as its
  * weight (catalog.json "weight", 1 if left out). */
 export function flowerFor(season, rng = Math.random) {
-  const here = FLOWERS.filter(f => f.season === season);
+  const here = seasonFlowers(season);
   return here.length ? weighted(here, f => f.weight ?? 1, rng).id : FLOWERS[0].id;
 }
 /** A duration said briefly: "1 h 20 min" style parts, for a plant's tooltip. */

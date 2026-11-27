@@ -49,3 +49,19 @@ The seed-finding cue in the original proposal is historical. Spontaneous seed
 pickups and their unused cue are removed; digging is the source of flower seeds
 and saplings. Planted growth artwork and the other yard sounds remain. See
 [calm collection information](2026-10-19-calm-collection-information.md).
+
+## Follow-up: calls only, no beds (2026-11-26)
+
+The beds (breeze, leaves, the lake, rain) read as a constant hiss, and a sound that never stops does not suit the app. The yard now has only calls, now and then, with silence between.
+
+| Change | Now |
+|---|---|
+| Beds | removed: no loop, no brown or pink noise, no gusts or lapping water |
+| A scene's mix | how often each call comes, a time or so a minute (`mixFor` in `src/yard/soundmix.js`) |
+| Calls | birds by day; cicadas on summer days; geese in autumn; frogs by the lake on spring and summer nights; crickets on autumn evenings and nights, as the album finds them; a raindrop now and then |
+| Indoors | the workshop hears the outside through its window: calls lowpassed at 2400 Hz, at 0.6 of their loudness, no room; rain ticks on the glass; no frogs without the lake |
+| The audio | runs for a call or a cue and 1.5 s after it, and is suspended in between (`hear` in `src/yard/sound.js`) |
+| Checks | `tests/soundmix.test.mjs`, `tests/soundscape-lifecycle.test.mjs` (nothing runs on its own; each call says how long it lasts), `tests/sound-rests.test.mjs` |
+
+The Performance and Changes rows above describe the beds and are historical.
+

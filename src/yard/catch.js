@@ -12,25 +12,25 @@ import {
   playCompanionAction,
   prepareCompanionAction,
 } from '../core/companion-actions.js';
-import { put } from '../core/dom.js';
+import { put, replay } from '../core/dom.js';
 import { list, t } from '../core/i18n.js';
 import { between, pick } from '../core/math.js';
 import { reduced } from '../core/sprites.js';
 import { $, aiming, call, data, game, guard, remember, selected, toast, views } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
 import { befriend, levelOf } from './bond.js';
-import { showCard } from './card.js';
+import { rareKind, showCard } from './card.js';
 import { setAimingMode } from './care.js';
 import { bite, kindOf } from './catalog.js';
 import { bugSvg, fishSvg } from './creatures.js';
-import { environmentFishingSpot, environmentLake } from './environment.js';
-import { drawnBox, field, footTarget, inYard, petHeight, sizeOf } from './field.js';
+import { environmentFishingSpot } from './environment.js';
+import { drawnBox, field, footTarget, inYard, lakeNow, petHeight, sizeOf } from './field.js';
 import { authoredRodTip, castGeometry, castLandingX, linePath, ROD, rodPlacement, rodUrl } from './fishing-rod.js';
 import { hint } from './hint.js';
-import { composition, lakeShape, trace } from './layout.js';
 import { cue } from './sound.js';
 import { forPerson, isFree, nearestFree, release, rest, sendTo, setDoing } from './trips.js';
 import { bubble, cheer, place } from './views.js';
+import { walkHere } from './walk-here.js';
 import { scene, scenery } from './world.js';
 import { worldAllows } from './worlds.js';
 
@@ -40,26 +40,10 @@ const BITE_WINDOW = 1700;
 // A friend fishing alone has to catch the person's eye first.
 const SOLO_BITE_WINDOW = 4000;
 
-// The lake as it lies in the yard now: the same shape the painter draws (layout.js lakeShape),
-// made again only when the yard changes size.
-let lakeKey = '',
-  lakeArea = null;
-function lake() {
-  const { width, height } = field(),
-    illustrated = $('yard').dataset.environment === 'illustrated',
-    key = `${width}x${height}:${illustrated}:${scene.world}`;
-  if (key !== lakeKey) {
-    lakeKey = key;
-    lakeArea = illustrated
-      ? environmentLake(width, height, scene)
-      : lakeShape(width, height, trace(composition.curves[composition.lake.under], width, height));
-  }
-  return lakeArea;
-}
 /** Whether a point in the yard is on the lake's water (a few pixels in from where it shows). */
 export function onLake(x, y) {
   if (!worldAllows(scene.world, 'fishing')) return false;
-  const l = lake();
+  const l = lakeNow();
   return x > l.ends[0] + 6 && x < l.ends[1] - 6 && l.onWater(x, y + 2);
 }
 
@@ -97,7 +81,7 @@ function stopFishing(retainArtwork = false) {
 function startFishing(x, friend, solo = false) {
   if (!worldAllows(scene.world, 'fishing')) return;
   if (fishing) return;
-  const l = lake(),
+  const l = lakeNow(),
     shore = l.ridgeAt(x),
     v = solo ? (friend && isFree(friend) ? friend : null) || nearestFree(x, shore) : forPerson(x, shore, friend);
   if (!v) return toast(t('catch.busy'));
@@ -115,7 +99,7 @@ function standAt(v, x) {
   const area = field();
   const stance =
     $('yard').dataset.environment === 'illustrated' ? environmentFishingSpot(area.width, area.height, scene) : null;
-  return footTarget(v, stance?.x ?? x - sizeOf(v.pet) * 0.55, stance?.y ?? lake().ridgeAt(x) + 6);
+  return footTarget(v, stance?.x ?? x - sizeOf(v.pet) * 0.55, stance?.y ?? lakeNow().ridgeAt(x) + 6);
 }
 // Where the float rests for a cast landing at `x`: a little out from the shore.
 const floatY = (water, x) => water.shoreAt(x) + (water.ridgeAt(x) - water.shoreAt(x)) * 0.45;
@@ -145,7 +129,7 @@ function fishArrived(v) {
     float = document.createElement('button'),
     rod = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
     line = document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
-    water = lake();
+    water = lakeNow();
   fishing.x = castLandingX(gripX(v), fishing.x, sizeOf(v.pet), water.ends);
   fishing.y = floatY(water, fishing.x);
   float.type = 'button';
@@ -199,6 +183,8 @@ const land = guard(async () => {
   const world = scene.world,
     { v } = fishing,
     { fish, size } = bite(scene.season, scene.period, scene.weather, Math.random, scene.event);
+  // The biggest of its kind before this one, read before the catch is kept: a bigger one is a record.
+  const best = data.album?.fish?.[fish.id]?.best || 0;
   const tackle = stopFishing(true);
   let reelTimer;
   let finishReel = () => {};
@@ -245,12 +231,18 @@ const land = guard(async () => {
       fishingAction(v, 'discover');
     }
   }
-  showCard(fishSvg(fish), t(`catch.fish_${fish.id}`), t('catch.size', { size: size.toFixed(1) }), first, 'fish');
+  showCard(fishSvg(fish), t(`catch.fish_${fish.id}`), t('catch.size', { size: size.toFixed(1) }), first, 'fish', null, {
+    keep: true,
+    rare: rareKind('fish', fish),
+    record: !first && best > 0 && size > best,
+  });
 });
+// Too soon, the float only bobs (play.css .early); its label says to wait for the dip.
+const EARLY_MS = 300;
 function reel() {
   if (!fishing) return;
-  if (!fishing.biting) return toast(t('catch.too_soon'));
-  land();
+  if (fishing.biting) return land();
+  replay(fishing.float, 'early', EARLY_MS);
 }
 
 // Where a friend holds its rod: from the friend as drawn, shrunk by its depth, so the rod is in its
@@ -309,7 +301,7 @@ export function soloFishing(now) {
   if (!worldAllows(scene.world, 'fishing') || !solo.due(now) || fishing || game || aiming) return;
   const keen = [...views.values()].filter(v => isFree(v) && levelOf(v.pet.id) >= 3);
   if (!keen.length) return;
-  const l = lake();
+  const l = lakeNow();
   const [a, b] = l.ends,
     x = a + (b - a) * (0.3 + Math.random() * 0.4);
   // Only where the water shows (a lake drawn lower than the hill in front shows none).
@@ -370,7 +362,10 @@ const catchBug = guard(async caught => {
       cheer(v, 'catch.bug_caught', { say: 2600 });
     }
   }
-  showCard(bugSvg(bug), t(`catch.bug_${bug.id}`), t('catch.count', { count: entry.count }), first, 'bug');
+  showCard(bugSvg(bug), t(`catch.bug_${bug.id}`), t('catch.count', { count: entry.count }), first, 'bug', null, {
+    keep: true,
+    rare: rareKind('bug', bug),
+  });
 });
 
 // What a point in the yard can be caught at: a creature in the air, a falling petal, or the lake.
@@ -420,7 +415,7 @@ export function setupCatch({ wish = () => {} } = {}) {
         fishing.float?.focus();
         return;
       }
-      const water = lake();
+      const water = lakeNow();
       const x = (water.ends[0] + water.ends[1]) / 2;
       const y = (water.shoreAt(x) + water.ridgeAt(x)) / 2;
       if (water.onWater(x, y)) {
@@ -477,6 +472,7 @@ export function setupCatch({ wish = () => {} } = {}) {
       const petal = scenery.catchPetal(x, y);
       if (petal) wish(petal);
       else if (onLake(x, y)) startFishing(x);
+      else walkHere(x, y);
     }
   });
   // Something to catch under the pointer shows as a hand.
@@ -505,7 +501,7 @@ export function refitFishing() {
   for (const v of reelingFriends) release(v);
   $('yard').classList.remove('can-catch');
   if (!fishing) return;
-  const water = lake(),
+  const water = lakeNow(),
     { width } = field(),
     middle = (water.ends[0] + water.ends[1]) / 2;
   const x = [(fishing.x * width) / fishing.width, middle].find(spot => water.onWater(spot, floatY(water, spot)));

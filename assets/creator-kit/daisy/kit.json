@@ -10,78 +10,100 @@
     "motion-reference.png",
     "wardrobe-reference.png"
   ],
+  "guides": [
+    "guides/gait-guide.png",
+    "guides/gait-guide-front.png",
+    "guides/gait-guide-back.png",
+    "guides/gait-guide-run.png"
+  ],
   "availability": {
     "detail": "available",
     "seasons": ["summer", "winter"]
   },
   "files": {
     "turnaround.png": {
-      "bytes": 1834826,
-      "sha256": "6a0b19a5fcd391ef8ea8a0bc1880cddbbc681836bc331e2d89f25030c549d335"
+      "bytes": 1896118,
+      "sha256": "95c8b54ce1a8938a24e5440bb6e4864ba7eecb02ce20c3f1edec3e9284109437"
     },
     "face-detail.png": {
-      "bytes": 2044920,
-      "sha256": "58d236bf8ab6660ba4bcbbde5c1f7b3bf0249e3c0c479da9b9a09472cfd3b480"
+      "bytes": 2311087,
+      "sha256": "4173f16fe0120dc30536683c844a26fbf2096777a4de751873bd52141f3f1bc1"
     },
     "identity-reference.png": {
-      "bytes": 211433,
-      "sha256": "86a9c1eb40c891651d37cbed44bd4adab9f6ebec9d46c1c108305d4542f03524"
+      "bytes": 226833,
+      "sha256": "8b1417dd643b819ea114be6a54072326e63247cc98d4675944d9f8d5e22feb50"
     },
     "expression-reference.png": {
-      "bytes": 212132,
-      "sha256": "9e95dd3bf3b3ff4f5f764cbb9f5748b84798aa82e23940c72ee07ea202659cbe"
+      "bytes": 217755,
+      "sha256": "c51c9e03267c3e4b5da4f729f279567fa240ecd2e4400edcd94d28bbf7b25fa3"
     },
     "motion-reference.png": {
-      "bytes": 2921977,
-      "sha256": "d8596f506139a6da10559755e73c59cd31a681a1eb35887bca285cfe94a9877e"
+      "bytes": 3085715,
+      "sha256": "508c7b1dbf68504a634f0a43fe967b6de03c90f76e7574fa8981fa6b460b971c"
     },
     "wardrobe-reference.png": {
-      "bytes": 110472,
-      "sha256": "96797011cb3eade590a8bd65b551d39e50c8016611106512e94f054d07c516f1"
+      "bytes": 110136,
+      "sha256": "c8f4fd07153a9cdec9faaf17963fd8a2c913b9061278c662cde6fb582c4678a3"
     },
     "spritesheet.png": {
-      "bytes": 2619646,
-      "sha256": "24edc4edf3ef84a0d1d28b35bafeaed1cedb2011d7d9b5ef66a399d390a98c71"
+      "bytes": 2849498,
+      "sha256": "4853158b4c536b7b9fbcb5286e6ce7f11959f7493b67f91035940fffeadaff9b"
     },
     "summer.png": {
-      "bytes": 2573847,
-      "sha256": "1d02ac40e39534dae020e56707f440d7663105a14bacb4da54fb4b3d932f6ed7"
+      "bytes": 2859429,
+      "sha256": "81271bb8d2f7e71bb6c89cb2a5459674276df0f1fcb0a02c2d631003bdea1b14"
     },
     "winter.png": {
-      "bytes": 2632908,
-      "sha256": "dd2d07918d5e16950fa4ffadab8ee2d7ffc4124aa7241ad024af2c990ea1dcee"
+      "bytes": 2796857,
+      "sha256": "0d859cf816676db7f1e69d1625ab50a63e83a7c47aa245c31af6b0d98b644615"
+    },
+    "guides/gait-guide.png": {
+      "bytes": 126104,
+      "sha256": "41b40e99b993771b25c2d98624b5634b3b83c7bf82cb3cf787b10f4d5ff4faa2"
+    },
+    "guides/gait-guide-front.png": {
+      "bytes": 98017,
+      "sha256": "7915a92e785c98adc7a994697668a8cb96fb1d59bed0ff886f0a6296ddaaa03b"
+    },
+    "guides/gait-guide-back.png": {
+      "bytes": 96871,
+      "sha256": "a22b35c2aeb3cc42d7488e3525f195b7d02193f3c0361979c1344179bf590e28"
+    },
+    "guides/gait-guide-run.png": {
+      "bytes": 149461,
+      "sha256": "001e1209a41783a938e825c6252b1924a5e20f4d178e9fdd8e5fd313294fdcfd"
     },
     "identity.json": {
-      "bytes": 2704,
-      "sha256": "ec0adca9ac37020db5e2ed46257b487c30a2fe34ded2a16ae53760e1d5bb7fb5"
+      "bytes": 3056,
+      "sha256": "8b97ca41387c2cd5089bd9b7f8ec95dec78b1b3badf0f8cc8e970212fa7973bf"
     },
     "prompts/01-identity-lock.txt": {
-      "bytes": 2049,
-      "sha256": "cbec7e8357b3aeba54a265e4a6129d161b79ec651b07b3c0cc97d28e56dc2ac5"
+      "bytes": 2332,
+      "sha256": "421c76847b0db9f45b56ea372bfe8a3d9610ff602412043dd8f74a69dc1ff3c4"
     },
     "prompts/02-face-detail.txt": {
-      "bytes": 1991,
-      "sha256": "640b65787e951e46701dad6b3c4ab816f939ae29846ab5d09a05f5de31dd399e"
+      "bytes": 2274,
+      "sha256": "f4f83eab9d32098fda24211ad845df903269dabf26d3e6697333e2acfc461b42"
     },
     "prompts/03-wardrobe.txt": {
-      "bytes": 2517,
-      "sha256": "4a7513826fc0c47a9b77191a658eb115e44beb06d462efcfc3cabf5369419377"
+      "bytes": 2869,
+      "sha256": "dea173e6265ce1d3601d6e7a831de4fe0e6d99b635475e4c329fda43005f0f0a"
     },
     "prompts/04-state-row.txt": {
-      "bytes": 2354,
-      "sha256": "1cc692dba11b343f0e33b44d6fb479f8db525b472dc5e37cf28b0bba7cf83a12"
+      "bytes": 3181,
+      "sha256": "b4d3ecd01b2b6c0db9510c0279e5b7f5074b4504305777d3df6898d2bc1c9227"
     },
     "prompts/05-canonical-export.txt": {
-      "bytes": 2212,
-      "sha256": "713dc8ea21ea94700ea30bb14e614f619d7dc1edf54a1cabd117cc61dcec99ea"
+      "bytes": 2495,
+      "sha256": "81075109ec7c2fd1ea4d4a68296cc054354a297be0865f6947a3947cdd58186d"
     },
     "pet.json": {
-      "bytes": 575,
-      "sha256": "faaaa9ab7c4a77bbefbbe1f5419422bc52b1f996ddf0058dbc24044a594e1aea"
+      "bytes": 589,
+      "sha256": "5c09ec2e4c6bc158d0d57b935b910de52aa4018319c60b2578803ed6e7918732"
     },
     "README.txt": {
-      "bytes": 958,
-      "sha256": "81a63e6cf075317f46cb071092e4bd0e4dbbf32a933eaa8319582a089f55f4ff"
+      "bytes": 1073,
+      "sha256": "da0144cc3606b373b47265fd2a258a31e245e992f34e4782ad685763d664be47"
     }
   }
 }

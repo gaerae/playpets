@@ -23,14 +23,17 @@ test('the garden workshop keeps outdoor life out under its glass, and shows the 
       const scene = { world: 'workshop', period: 'day', weather, season };
       assert.equal(environmentLook(scene).art, 'workshop');
       assert.equal(environmentLake(1000, 700, scene), null);
-      assert.deepEqual(mixFor(scene), { breeze: 0, leaves: 0, water: 0, rain: 0, birds: 0, crickets: 0 });
+      // Inside, the outside comes through the window: softer, and no frogs without the lake.
+      assert.equal(mixFor(scene).indoors, true);
+      assert.equal(mixFor(scene).frogs, 0);
     }
 });
 
 test('woodland retains seasonal art, outdoor sounds and the visible pond', () => {
   const scene = { world: 'woodland', period: 'day', weather: 'rain', season: 'summer' };
   assert.equal(environmentLook(scene).art, 'green');
-  assert.equal(mixFor(scene).rain, 1);
+  assert.ok(mixFor(scene).drops > 0);
+  assert.equal(mixFor(scene).indoors, false);
   assert.equal(environmentLake(1000, 700, scene).onWater(550, 416), true);
   assert.equal(worldFor('woodland').capabilities.fishing, true);
 });

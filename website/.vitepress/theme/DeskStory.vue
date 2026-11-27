@@ -1,18 +1,21 @@
-<!-- The first screen as one moment on someone's desktop: the four friends in the yard, and a coding
-     agent at work in a small terminal beside it. When the agent finishes, the friend who keeps it
-     company says so and the others cheer. The terminal's steps are Claude Code's from the replay
-     further down (agent-demo.mjs); the yard to play with is in the play section. -->
+<!-- The friends out on someone's desktop, as desktop mode puts them: on a strip of grass along the
+     bottom of the screen, in front of the windows, while a coding agent works in a terminal. When
+     the agent finishes, the friend who keeps it company says so and the others cheer. The
+     terminal's steps are Claude Code's from the replay further down (agent-demo.mjs). -->
 <script setup lang="ts">
 import { withBase } from 'vitepress';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import grass from '../../../src/art/ambient/desktop-grass.webp';
+import pebble from '../../../src/art/ambient/desktop-pebble.webp';
+import tuftLeft from '../../../src/art/ambient/tuft-left.webp';
+import tuftRight from '../../../src/art/ambient/tuft-right.webp';
 import { LANDING_PETS } from '../../../scripts/site-content.mjs';
 import { AGENT_DEMOS } from './agent-demo.mjs';
-import { sceneryUrl } from './scenery';
 import VisibleSprite from './VisibleSprite.vue';
 
 type Step = { kind?: string; line?: string; state?: string };
 const props = defineProps<{
-  words: { agentPrompt: string; agentReply: string; agentStatus: Record<string, string>; places: string[] };
+  words: { agentPrompt: string; agentReply: string; agentStatus: Record<string, string> };
   paused: boolean;
 }>();
 
@@ -94,25 +97,22 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-  <div ref="stage" class="hero-desk">
-    <div class="desk-yard">
-      <div class="desk-titlebar" aria-hidden="true"><i /><i /><i /><span>PlayPets</span></div>
-      <div class="desk-scene">
-        <img :src="sceneryUrl('lakeside-spring')" :alt="words.places[2]" width="1536" height="1024" fetchpriority="high" draggable="false" />
-        <div v-for="(pet, index) in friends" :key="pet.id" class="desk-friend" :class="`desk-friend-${index}`">
-          <span v-if="index === 0" class="desk-bubble" :class="{ quiet: !finished }" aria-live="polite">{{ words.agentStatus.done }}</span>
-          <VisibleSprite equal-height :pet="pet.id" :state="stateOf(index)" :scale="0.48" />
-          <span class="desk-name">{{ pet.displayName }}</span>
-        </div>
-      </div>
-    </div>
-    <div class="desk-terminal">
+  <div ref="stage" class="desk-stage" :class="{ 'preview-paused': still }">
+    <div class="desk-window desk-page" aria-hidden="true"><div class="desk-titlebar"><i /><i /><i /></div><p v-for="width in [58, 82, 74, 40, 66, 52]" :key="width" :style="{ width: `${width}%` }" /></div>
+    <div class="desk-window desk-terminal">
       <div class="desk-titlebar" aria-hidden="true"><i /><i /><i /><span>{{ demo.name }}</span></div>
       <div class="desk-log">
         <div class="desk-prompt"><span aria-hidden="true">›</span> {{ words.agentPrompt.slice(0, typed) }}</div>
         <div v-for="(text, index) in lines" :key="text" class="desk-line" :class="{ 'desk-later': index >= shown, 'desk-pass': text.includes('✓') }">{{ text }}</div>
         <div class="desk-reply" :class="{ 'desk-later': !finished }">{{ words.agentReply }}</div>
       </div>
+    </div>
+    <!-- The app's own desktop grass (src/art/ambient), tufts at its ends, a pebble along it. -->
+    <div class="desk-grass" aria-hidden="true" :style="{ '--grass': `url(${grass})` }"><img class="desk-tuft left" :src="tuftLeft" alt="" width="369" height="512" /><img class="desk-pebble" :src="pebble" alt="" width="195" height="96" /><img class="desk-tuft right" :src="tuftRight" alt="" width="369" height="512" /></div>
+    <div v-for="(pet, index) in friends" :key="pet.id" class="desk-friend" :class="`desk-friend-${index}`">
+      <span v-if="index === 0" class="desk-bubble" :class="{ quiet: !finished }" aria-live="polite">{{ words.agentStatus.done }}</span>
+      <VisibleSprite equal-height :pet="pet.id" :state="stateOf(index)" :scale="0.5" />
+      <span class="desk-name">{{ pet.displayName }}</span>
     </div>
     <div class="desk-dock" aria-hidden="true"><i /><img :src="withBase('/icon.png')" alt="" width="24" height="24" /><i /><i /></div>
   </div>

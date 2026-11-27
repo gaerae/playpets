@@ -209,3 +209,34 @@ test('with automatic chatter off, the first connection says nothing about it', a
   assert.ok(!get('toast').textContent.includes(words));
   assert.equal(recall('chatter-tip'), null);
 });
+
+// Japanese and Chinese run one sentence into the next with no space; a fixed space left a gap after
+// the full stop in the question that deletes a connection friends still use.
+test('deleting a connection says both of its sentences the way the language runs them on', async t2 => {
+  const { setLanguageForTests } = await import('../src/core/i18n.js');
+  const { renderConnections } = await import('../src/panel/settings.js');
+  setLanguageForTests('ja');
+  t2.after(() => setLanguageForTests('en'));
+  const get = page(t2, { providers: [claude], pets: [friend('a', 'one')] });
+  renderConnections();
+  get('ai-connections').children[0].children.at(-1).onclick();
+  get('delete-provider').onclick();
+  await Promise.resolve();
+  assert.equal(
+    get('confirm-body').textContent,
+    t('connection.delete_body') + t('connection.delete_uses', { count: 1 }),
+  );
+});
+
+// Settings → Friends & AI says the same lead above the list; the form unfolded there does not say it again.
+test('the connection form says its lead once: as a dialog, not inside Settings', async t2 => {
+  const { openConnectionDialog } = await import('../src/panel/connection.js');
+  const get = page(t2, { providers: [], pets: [] });
+  const lead = document.createElement('p');
+  lead.className = 'dialog-description';
+  get('connection-form').append(lead);
+  openConnectionDialog(null, () => {}, { forFriend: null, inline: get('ai-editor') });
+  assert.equal(lead.hidden, true);
+  openConnectionDialog(null, () => {}, { forFriend: null });
+  assert.equal(lead.hidden, false);
+});

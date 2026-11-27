@@ -179,7 +179,7 @@ const scenario = `(async()=>{
 
     const trayAt=async()=>(await window.__TAURI__.core.invoke('call',{name:'e2eTray',args:[]})).data||{items:[],tooltip:''};
     const tray0=await until(async()=>(await trayAt()).items.length&&await trayAt());
-    await L('trayEmpty='+(!tray0.items.some(i=>/^(mini|desktop|wander)/.test(i))&&tray0.items.includes('alwaysOnTop:off')&&tray0.items.includes('invite')&&tray0.items.some(i=>i.startsWith('sound:'))&&!tray0.items.includes('friends')&&tray0.items[0]==='open'&&tray0.items.at(-1)==='quit'?'no-switches':'err:'+tray0.items.join(',')));
+    await L('trayEmpty='+(!tray0.items.some(i=>/^(mini|desktop|wander)/.test(i))&&tray0.items.includes('alwaysOnTop:off')&&tray0.items.includes('invite')&&tray0.items.some(i=>i.startsWith('sound:'))&&!tray0.items.includes('friends')&&!tray0.items.includes('play')&&tray0.items.includes('scene')&&!tray0.items.some((x,i)=>x==='-'&&tray0.items[i+1]==='-')&&tray0.items[0]==='open'&&tray0.items.at(-1)==='quit'?'no-switches':'err:'+tray0.items.join(',')));
     const starterButtons=[...document.querySelectorAll('#starter-picks .starter')];
     const starterBounds=starterButtons.map(button=>button.getBoundingClientRect());
     const visibleStarters=starterButtons.length===adults.length&&starterBounds.every(rect=>rect.left>=0&&rect.top>=0&&rect.right<=innerWidth&&rect.bottom<=innerHeight);
@@ -500,10 +500,13 @@ const scenario = `(async()=>{
     await window.__TAURI__.core.invoke('call',{name:'e2eWindow',args:['main',{...settingsWindow,width:840,height:420}]});await until(()=>Math.abs(innerWidth-840)<2);await wait(100);
     const settingsNav=document.querySelector('.settings-index'),settingsHead=$('panel-title'),settingsBody=$('settings-content');
     document.querySelector('.settings-index [data-section=agent-link-title]').click();await wait(150);
+    // The other coding tools, open, make the section taller than the window whatever fits beside a name.
+    $('agents-more').open=true;await wait(50);
     const navTop=settingsNav.getBoundingClientRect().top,headTop=settingsHead.getBoundingClientRect().top;
     settingsBody.scrollTop=settingsBody.scrollHeight;await wait(150);
     const settingsMetrics={scrollTop:settingsBody.scrollTop,scrollHeight:settingsBody.scrollHeight,clientHeight:settingsBody.clientHeight,visible:[...document.querySelectorAll('.settings-section[data-settings-section]')].filter(el=>!el.hidden).length,navShift:settingsNav.getBoundingClientRect().top-navTop,headShift:settingsHead.getBoundingClientRect().top-headTop,outerScroll:$('side-panel').scrollTop};
     const bodyOnly=$('settings-home').hidden&&settingsBody.scrollTop>0&&[...document.querySelectorAll('.settings-section[data-settings-section]')].filter(el=>!el.hidden).length===1&&Math.abs(settingsNav.getBoundingClientRect().top-navTop)<1&&Math.abs(settingsHead.getBoundingClientRect().top-headTop)<1&&$('side-panel').scrollTop===0;
+    $('agents-more').open=false;
     $('panel-menu').click();document.querySelector('.settings-index [data-section=general-title]').click();await wait(150);
     await L('settingsScroll='+(bodyOnly&&settingsBody.scrollTop===0&&!$('settings-general').hidden?'fixed-navigation-single-body':'err:'+JSON.stringify({...settingsMetrics,resetTop:settingsBody.scrollTop,generalHidden:$('settings-general').hidden})));
     $('close-panel').click();
@@ -810,7 +813,7 @@ const scenario = `(async()=>{
       const asked=()=>$('banner-label').textContent===${say('hide.find_label')}?$('banner-title').textContent:null,byName=n=>{const l=[...document.querySelectorAll('.pet-label.hiding')].find(l=>l.querySelector('.tag-name').textContent===n);return l&&document.querySelector('.yard-pet[data-id="'+l.dataset.id+'"]');};
       const first=asked(),other=[...document.querySelectorAll('.yard-pet.hiding')].find(b=>b!==byName(first));
       press(other);await wait(200);
-      const miss=document.querySelectorAll('.yard-pet.hiding').length===2&&!$('game-banner').hidden&&$('banner-sub').textContent.includes(${say('hide.miss')})&&asked()===first;
+      const miss=document.querySelectorAll('.yard-pet.hiding').length===2&&!$('game-banner').hidden&&other.classList.contains('missed')&&$('friend-speech').textContent.includes(${say('hide.miss')})&&asked()===first;
       press(byName(first));await wait(300);const second=asked();press(byName(second));await wait(2200);
       const cleared=$('game-banner').hidden;
       await L('hide='+hiding+'/'+document.querySelectorAll('.yard-pet.hiding').length+'/'+gameLabel()+'/'+(miss&&cleared&&second!==first?'by-name':'err:'+miss+':'+first+':'+second));
@@ -819,7 +822,13 @@ const scenario = `(async()=>{
     document.querySelector('[data-game=tag]').click();await wait(400);
     const tagger=document.querySelectorAll('.yard-pet.tagger').length;
     const gameState=await import('./core/state.js'),gamePlay=await import('./yard/play.js');
+    // Pressing whoever is it holds it still; pressing a runner only shakes it. Who is it is read,
+    // pressed and checked with no wait in between: on a slow runner the friends were already running
+    // and it could pass to someone during a wait, so the press landed on the wrong one.
     const previousIt=gameState.game.it,catcher=gameState.views.get(previousIt),caught=[...gameState.views.values()].find(v=>v.pet.id!==previousIt);
+    press(caught.button);const runnerShook=caught.button.classList.contains('missed')&&!caught.frozen;
+    press(catcher.button);const tagHeld=catcher.frozen&&catcher.frozenUntil>performance.now();
+    await L('tagHold='+(runnerShook&&tagHeld?'it-held-runner-shook':'err:'+runnerShook+':'+tagHeld));
     caught.px=catcher.px;caught.py=catcher.py;gamePlay.judge(Math.max(performance.now(),gameState.game.safeUntil,catcher.frozenUntil)+1);
     const transferred=gameState.game.it===caught.pet.id&&caught.frozen&&caught.button.classList.contains('tagger');
     gamePlay.playGame(gameState.game.until+1,40);
@@ -944,7 +953,9 @@ const scenario = `(async()=>{
       const range=document.createRange();range.selectNodeContents(node);
       const lines=[...range.getClientRects()].filter(rect=>rect.width>0&&rect.height>0);
       const box=node.getBoundingClientRect(),style=getComputedStyle(node);
-      return lines.length===1&&lines[0].height<=(parseFloat(style.lineHeight)||parseFloat(style.fontSize)*1.5)+1&&node.scrollWidth<=Math.max(node.clientWidth,box.width)+1&&parseFloat(style.fontSize)>=12;
+      // A line's box is the font's own height, which Segoe UI and Malgun Gothic make taller than a
+      // tight line-height (1.2): one line is up to one and a half times the font size, two are more.
+      return lines.length===1&&lines[0].height<=Math.max(parseFloat(style.lineHeight)||0,parseFloat(style.fontSize)*1.5)+1&&node.scrollWidth<=Math.max(node.clientWidth,box.width)+1&&parseFloat(style.fontSize)>=12;
     };
     const rewardCatalog=await import('./yard/catalog.js'),rewardState=(await playPets.bootstrap()).data;
     const rareSeed=rewardState.garden.digs.find(dig=>dig.attemptId==='saved-rare-fixture');
@@ -959,7 +970,9 @@ const scenario = `(async()=>{
       let correct=cards.length===kinds.length;
       for(const [i,kind] of kinds.entries()){
         const hint=localeUi.t('album.favored',{conditions:localeUi.joinList([...(kind.affinity?.seasons||[]).map(value=>localeUi.t('catch.season_'+value)),...(kind.affinity?.weather||[]).map(value=>localeUi.t('weather.'+value)),...(kind.affinity?.places||[]).map(value=>localeUi.t('world.'+value))])});
-        correct&&=!cards[i]?.querySelector('.album-chance')&&cards[i]?.textContent.includes(hint);
+        // The card's pictures say their sentence as their label (album-clues.js), as a screen reader hears it.
+        const heard=cards[i]?.querySelector('.album-hint')?.getAttribute('aria-label')||cards[i]?.textContent||'';
+        correct&&=!cards[i]?.querySelector('.album-chance')&&heard.includes(hint);
       }
       const status=$('album-dig-status'),expiry=new Date((rareSeed?.at??0)+86400000).toLocaleString(localeUi.language(),{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
       const rawPlace=localeUi.t('world.'+context.place),customPlace=rawPlace==='world.'+context.place,placeName=customPlace?localeUi.t('album.custom_place'):rawPlace;
@@ -1245,7 +1258,7 @@ const scenario = `(async()=>{
     document.querySelector('.yard-pet').dispatchEvent(new MouseEvent('contextmenu',{bubbles:true,cancelable:true,clientX:200,clientY:200}));await wait(40);
     const friendItems=[...$('yard-context-menu').querySelectorAll('[data-context-action]')].filter(item=>!item.hidden).map(item=>item.dataset.contextAction).join(',');
     $('yard-context-menu').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
-    await L('playTag='+(tagChat&&friendItems==='talk,play-friend,dig-friend,desktop-friend'?'tag-talks-right-click-offers-play':'err:'+friendItems));
+    await L('playTag='+(tagChat&&friendItems==='talk,play-friend,dig-friend,desktop-friend,settings-friend'?'tag-talks-right-click-offers-play':'err:'+friendItems));
     // Inviting from the shelf and opening the AI dialog go through the page's own buttons.
     const before=(await playPets.bootstrap()).data.pets.length;
     openMenu();$('menu-invite').click();await until(()=>!$('panel-invite').hidden);
@@ -1354,7 +1367,7 @@ const scenario = `(async()=>{
     await L('overlayLayout='+b2.data.desktopLayout.length);
     await must('wanderOn',playPets.toggleDesktopWander());
     const trayDesk=await until(async()=>{const t=await trayAt();return t.items.includes('wander:on')&&t;},5000);
-    await L('traySwitches='+(trayDesk&&trayDesk.items.includes('friends')&&trayDesk.items.some(i=>i.startsWith('sound:'))&&trayDesk.items.includes('desktop:on')&&trayDesk.items.includes('alwaysOnTop:off')?'checked':'err:'+JSON.stringify(await trayAt())));
+    await L('traySwitches='+(trayDesk&&trayDesk.items.includes('friends')&&trayDesk.items.includes('play')&&trayDesk.items.some(i=>i.startsWith('grass:'))&&trayDesk.items.some(i=>i.startsWith('sound:'))&&trayDesk.items.includes('desktop:on')&&trayDesk.items.includes('alwaysOnTop:off')?'checked':'err:'+JSON.stringify(await trayAt())));
     // One at a time: a gift out of the album goes out on its own, and a friend comes in on its own.
     const gardenOut=(await playPets.bootstrap()).data.garden;
     const outKind=gardenOut.received.find(k=>![...gardenOut.decor,...gardenOut.boxed].some(d=>d.kind===k));
@@ -1498,12 +1511,15 @@ const scenario = `(async()=>{
         await until(()=>world.scene.season===season&&sceneState.data.scene?.season===season);await wait(80);
         for(const v of authoredViews){
           companionTrips.release(v);companionViews.pose(v,'idle',Infinity);v.nextWander=Infinity;
-          const canonicalBox=v.button.getBoundingClientRect(),canonicalHeight=v.canvas.style.height;
           for(const clipName of authoredClips){
-            const clip=companionUi.prepareCompanionAction(v.asset,clipName);
-            let clipOk=!!clip&&clip.frames.length>=2;
+            const clip=companionUi.prepareCompanionAction(v.asset,clipName),fails=[];
+            if(!clip||clip.frames.length<2)fails.push('clip');
             if(clip){
               const decoded=await until(()=>companionUi.companionImage({clip}),10000);
+              // Read from the ordinary drawing after the wait and checked without another one: a friend
+              // still settling after the season change (its size follows its depth) cannot move between.
+              sprites.drawSprite(v.canvas,v.asset,'idle',0);
+              const canonicalBox=v.button.getBoundingClientRect(),canonicalHeight=v.canvas.style.height;
               const action=companionUi.beginCompanionAction(v,clipName),hashes=[];
               let elapsed=0;
               for(const frame of clip.frames){
@@ -1514,14 +1530,14 @@ const scenario = `(async()=>{
               const after=v.button.getBoundingClientRect(),offset=clip.offset||[0,0];
               const cell=clip.canvas||[192,208],motionFrames=sprites.reduced.matches?1:Math.min(3,clip.frames.length);
               const overscanOk=cell[0]>=192&&cell[0]<=384&&cell[1]>=208&&cell[1]<=416&&clip.frames.every(frame=>frame.rect[2]===cell[0]&&frame.rect[3]===cell[1])&&(!offset.some(Boolean)||(clip.anchor[0]+offset[0]===96&&clip.anchor[1]+offset[1]===199));
-              clipOk&&=!!decoded&&new Set(hashes).size>=motionFrames&&v.canvas.width===cell[0]&&v.canvas.height===cell[1]&&v.canvas.style.height===canonicalHeight&&Math.abs(after.width-canonicalBox.width)<1&&Math.abs(after.height-canonicalBox.height)<1&&overscanOk&&v.canvas._pk.includes(':action:');
+              for(const [name,ok] of Object.entries({decoded:!!decoded,motion:new Set(hashes).size>=motionFrames,cell:v.canvas.width===cell[0]&&v.canvas.height===cell[1],height:v.canvas.style.height===canonicalHeight,box:Math.abs(after.width-canonicalBox.width)<1&&Math.abs(after.height-canonicalBox.height)<1,overscan:overscanOk,drawn:v.canvas._pk.includes(':action:')}))if(!ok)fails.push(name);
               const motionDescriptor=Object.getOwnPropertyDescriptor(sprites.reduced,'matches');
               try{
                 Object.defineProperty(sprites.reduced,'matches',{configurable:true,value:true});
                 sprites.drawSprite(v.canvas,v.asset,'idle',0,null,companionUi.companionAction(v,action.since));
                 const stillHash=pixelHash(v.canvas);
                 sprites.drawSprite(v.canvas,v.asset,'idle',0,null,companionUi.companionAction(v,action.since+elapsed-1));
-                clipOk&&=pixelHash(v.canvas)===stillHash;
+                if(pixelHash(v.canvas)!==stillHash)fails.push('still');
               }finally{
                 if(motionDescriptor)Object.defineProperty(sprites.reduced,'matches',motionDescriptor);
                 else delete sprites.reduced.matches;
@@ -1529,7 +1545,7 @@ const scenario = `(async()=>{
               companionUi.clearCompanionAction(v);
               cancellationOk&&=companionUi.companionAction(v,performance.now())===null;
             }
-            authoredOk&&=clipOk;authoredTrace.push([innerWidth,season,v.asset.sourceId,clipName,clipOk]);
+            authoredOk&&=!fails.length;authoredTrace.push([innerWidth,season,v.asset.sourceId,clipName,fails.join('+')||true]);
           }
           const identity=JSON.stringify(v.asset)===sourceIdentities.get(v.pet.id);
           authoredOk&&=identity;
@@ -1941,6 +1957,7 @@ const expect = [
     'hide and seek (find by name, try again when wrong)',
   ],
   [new RegExp(`^games=1/${literal(stopGame('game.parade'))}/none$`), 'tag and parade start and stop'],
+  [/^tagHold=it-held-runner-shook$/, 'in tag, pressing whoever is it holds it still and a runner only shakes'],
   [/^treeMoved=dragged$/, 'a drag moves a planted tree onto ground it may stand on, and it stays moved'],
   [
     /^discovery=arrival-replay-and-tree$/,
@@ -2059,9 +2076,12 @@ const expect = [
     'a word for a friend with no AI is sent once one is connected from the dialog cards',
   ],
   [/^welcome=starters\/no-toolbar$/, 'an empty yard shows the starter pets to pick'],
-  [/^trayEmpty=no-switches$/, 'with no friend the tray menu has no switches for showing friends'],
+  [
+    /^trayEmpty=no-switches$/,
+    'with no friend the tray menu has no switches for showing friends and no game, and still opens the place',
+  ],
   [/^trayWaiting=tooltip$/, 'a coding agent waiting for the person shows in the tray tooltip'],
-  [/^traySwitches=checked$/, 'the tray shows desktop mode and strolling with check marks'],
+  [/^traySwitches=checked$/, 'the tray opens Play and shows desktop mode, strolling and the grass with check marks'],
   [/^sendAway=asks-then-removes$/, 'send a friend away from the friend tab (Cancel keeps, confirm removes)'],
   [/^desktopOn=ok/, 'turn on desktop mode'],
   [/^overlayLayout=[1-9]/, 'overlay layout created'],
