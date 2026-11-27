@@ -368,11 +368,12 @@ const catchBug = guard(async caught => {
   });
 });
 
+// What in the yard is not open ground: a friend, its name, what grows or stands there, the float, a
+// button, and the first-run card, whose words a press on sent the friend walking (render.js renderSteps).
+const NOT_GROUND = '.yard-pet, .pet-tag, .plant, .decor, .bobber, button, .empty-yard';
 // What a point in the yard can be caught at: a creature in the air, a falling petal, or the lake.
 function free(e) {
-  return (
-    !aiming && !game && data.pets.length && !e.target.closest('.yard-pet, .pet-tag, .plant, .decor, .bobber, button')
-  );
+  return !aiming && !game && data.pets.length && !e.target.closest(NOT_GROUND);
 }
 // Creatures fly on the weather layer, in front of friends and of everything in the garden (plants,
 // gifts, trees, snowballs, the float), yet a press on one there reaches what is underneath. With an
@@ -390,8 +391,7 @@ function inFront(e, press = true) {
 // still fishes or catches: the press puts the tool away first, so nothing in the yard is hidden by it.
 const TOOLS = ['dig', 'tree', 'seed'];
 function toolGivesWay(e) {
-  if (!TOOLS.includes(aiming) || game || e.target.closest('.yard-pet, .pet-tag, .plant, .decor, .bobber, button'))
-    return false;
+  if (!TOOLS.includes(aiming) || game || e.target.closest(NOT_GROUND)) return false;
   const [x, y] = inYard(e);
   return !!scenery.near(x, y) || onLake(x, y);
 }
