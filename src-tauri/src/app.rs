@@ -306,11 +306,20 @@ fn held_text(error: &std::io::Error) -> String {
     }
 }
 
+/// Whether a warning is the notice that saves fail: either cause, in any language, as the warning
+/// keeps the words it was shown in.
+fn is_held(warning: &str) -> bool {
+    i18n::Lang::all().any(|lang| {
+        ["store.full", "store.held"]
+            .iter()
+            .any(|key| i18n::t_in(lang, key) == warning)
+    })
+}
+
 /// Takes back the notice that saves fail, whichever it was; true when the warnings changed.
 fn take_back_held(warnings: &mut Vec<String>) -> bool {
-    let notices = [i18n::t("store.full"), i18n::t("store.held")];
     let before = warnings.len();
-    warnings.retain(|w| !notices.contains(w));
+    warnings.retain(|w| !is_held(w));
     warnings.len() != before
 }
 
@@ -696,13 +705,17 @@ pub fn flush(app: &AppHandle) {
 }
 
 /// Puts the notice that saves fail among the warnings the pages show (`on`), or takes it back;
-/// true when the warnings changed. Never twice: a failing write is tried again and again.
+/// true when the warnings changed. Never twice: a failing write is tried again and again, and the
+/// notice shown for another cause or in another language gives way to it.
 fn held_warning(warnings: &mut Vec<String>, on: bool, held: &str) -> bool {
+    let before = warnings.len();
+    warnings.retain(|w| w == held || !is_held(w));
+    let other = warnings.len() != before;
     let shown = warnings.iter().any(|w| w == held);
     match (on, shown) {
         (true, false) => warnings.push(held.to_string()),
         (false, true) => warnings.retain(|w| w != held),
-        _ => return false,
+        _ => return other,
     }
     true
 }
@@ -1239,6 +1252,21 @@ pub(crate) mod tests {
         let mut warnings = vec![i18n::t("store.full")];
         assert!(take_back_held(&mut warnings));
         assert!(warnings.is_empty());
+    }
+
+    // The notice is kept as words in the language it was shown in: one shown before the language
+    // changed, or for a full disk before the disk was full no more, is the same notice, never a
+    // second one beside it, and a save that goes through takes it back too.
+    #[test]
+    fn one_save_notice_at_a_time_whatever_the_language_or_the_cause() {
+        let ko = i18n::Lang::parse("ko").unwrap();
+        let en = i18n::Lang::parse("en").unwrap();
+        let mut warnings = vec!["other".to_string(), i18n::t_in(ko, "store.held")];
+        assert!(held_warning(&mut warnings, true, &i18n::t_in(en, "store.full")));
+        assert_eq!(warnings, ["other".to_string(), i18n::t_in(en, "store.full")]);
+        warnings.push(i18n::t_in(ko, "store.full"));
+        assert!(take_back_held(&mut warnings));
+        assert_eq!(warnings, ["other"]);
     }
 
     #[test]

@@ -121,15 +121,35 @@ fn friend(p: &Pet) -> Item {
     }
 }
 
-fn decoration(d: &crate::pets::garden::Decor) -> Item {
+/// A decoration's box on the desktop at `scale` of its kind's own size, in whole pixels.
+fn decor_box(d: &crate::pets::garden::Decor, scale: f64) -> (f64, f64) {
     let (w, h) = catalog().gift_size(&d.kind).unwrap_or((64.0, 64.0));
-    // A fish out is drawn by its length (content.rs find_scale), as in the yard.
-    let scale = DECOR_SCALE * catalog().find_scale(&d.kind, &d.holds);
+    ((w * DECOR_SCALE * scale).round(), (h * DECOR_SCALE * scale).round())
+}
+
+/// How far the top left of a decoration's box is from that of the box its spot is kept as,
+/// standing on the same foot. A find out is drawn by its length (content.rs find_scale), as in the
+/// yard; 1.10.0 drew only a fish so, and anything else at its kind's own size, and kept the top left
+/// of that box. A spot is kept as that box's still, so a find left out then stands where it was left.
+fn from_kept(d: &crate::pets::garden::Decor) -> (i64, i64) {
+    let scale = catalog().find_scale(&d.kind, &d.holds);
+    let kept = if catalog().book_of(&d.kind) == Some("fish") {
+        scale
+    } else {
+        1.0
+    };
+    let ((kw, kh), (w, h), foot) = (decor_box(d, kept), decor_box(d, scale), catalog().gift_foot(&d.kind));
+    (((kw - w) / 2.0).round() as i64, (kh * foot - h * foot).round() as i64)
+}
+
+fn decoration(d: &crate::pets::garden::Decor) -> Item {
+    let (w, h) = decor_box(d, catalog().find_scale(&d.kind, &d.holds));
+    let (dx, dy) = from_kept(d);
     Item {
         id: d.id.clone(),
         size: 0.0,
-        saved: spot(d.desktop_position),
-        decor: Some((d.kind.clone(), (w * scale).round(), (h * scale).round())),
+        saved: d.desktop_position.map(|q| ((q.x + dx) as f64, (q.y + dy) as f64)),
+        decor: Some((d.kind.clone(), w, h)),
         foot: catalog().gift_foot(&d.kind),
         hangs: catalog().hangs(&d.kind),
     }
@@ -222,13 +242,15 @@ pub fn set(pets: &mut [Pet], garden: &mut Garden, id: &str, on: bool) -> Result<
 }
 
 /// Keeps where a friend, decoration, flower or planted tree was left on the desktop (`x`, `y`: its
-/// box's top left); a flower's as its one bloom's (from_bloom).
+/// box's top left); a flower's as its one bloom's (from_bloom), a find's as its kept box's
+/// (from_kept).
 pub fn place(pets: &mut [Pet], garden: &mut Garden, id: &str, x: i64, y: i64) {
     let at = Some(crate::pets::model::Pos { x, y });
     if let Some(p) = pets.iter_mut().find(|p| p.id == id) {
         p.desktop_position = at;
     } else if let Some(d) = garden.decor.iter_mut().find(|d| d.id == id) {
-        d.desktop_position = at;
+        let (dx, dy) = from_kept(d);
+        d.desktop_position = Some(crate::pets::model::Pos { x: x - dx, y: y - dy });
     } else if let Some(p) = garden.plants.iter_mut().find(|p| p.id == id) {
         p.desktop_position = Some(kept(p, x, y, crate::app::now_ms()));
     } else if let Some(t) = garden.trees.iter_mut().find(|t| t.id == id) {
@@ -375,6 +397,47 @@ mod tests {
             p.desktop_position = Some(kept(p, x as i64, y as i64, p.planted + bloom));
             assert_eq!(plant(p, p.planted + bloom).saved, grown.saved);
         }
+    }
+
+    // 1.10.0 drew a bug, a keepsake or an animal out at its kind's own size and kept the top left of
+    // that box; now it is sized by its length (content.rs find_scale). One left out then stands on
+    // the same foot, and one saved again comes back to the very same spot. A fish was sized by its
+    // length already, so its spot is its box's as before.
+    #[test]
+    fn a_find_left_on_the_desktop_keeps_its_foot_when_it_is_sized_by_its_length() {
+        let close = |a: (f64, f64), b: (f64, f64)| (a.0 - b.0).abs() <= 0.5 && (a.1 - b.1).abs() <= 0.5;
+        let mut garden = Garden::default();
+        garden.decor.push(Decor {
+            id: "bug".into(),
+            kind: "bug_out".into(),
+            holds: vec!["ladybug".into()],
+            desktop_position: Some(crate::pets::model::Pos { x: 500, y: 700 }),
+            ..Decor::default()
+        });
+        garden.decor.push(Decor {
+            id: "fish".into(),
+            kind: "fish_out".into(),
+            holds: vec!["crucian".into()],
+            desktop_position: Some(crate::pets::model::Pos { x: 200, y: 300 }),
+            ..Decor::default()
+        });
+        let ladybug = decoration(&garden.decor[0]);
+        let (_, w, _) = ladybug.decor.clone().unwrap();
+        assert!(w < 40.0, "a ladybug is drawn smaller than its kind's box: {w}");
+        // Its 1.10.0 box: 52 x 46 at DECOR_SCALE, its drawing ending 98% down.
+        let then = ((52.0 * DECOR_SCALE).round(), (46.0 * DECOR_SCALE).round());
+        let stood = (500.0 + then.0 / 2.0, 700.0 + then.1 * 0.98);
+        assert!(close(foot_of(&ladybug), stood), "{:?} {stood:?}", foot_of(&ladybug));
+        let (x, y) = ladybug.saved.unwrap();
+        let mut pets = Vec::new();
+        place(&mut pets, &mut garden, "bug", x as i64, y as i64);
+        assert_eq!(decoration(&garden.decor[0]).saved, ladybug.saved, "nothing creeps");
+        assert_eq!(decoration(&garden.decor[1]).saved, Some((200.0, 300.0)));
+        place(&mut pets, &mut garden, "fish", 210, 320);
+        assert_eq!(
+            garden.decor[1].desktop_position,
+            Some(crate::pets::model::Pos { x: 210, y: 320 })
+        );
     }
 
     // A drawing may end above its box's edge (catalog.json "foot"); the overlay stands it there.
