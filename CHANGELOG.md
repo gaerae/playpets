@@ -26,6 +26,9 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - On a large screen, friends and what stands on the grass grow with the place's picture, so they stay as big next to the cottage as in a smaller window. Smaller windows are unchanged.
 - Every place keeps its main part in view from 4:3 to 16:9: the cottage's roof, the big tree, the workshop's windows. In a wider window the place's own edge, blurred, fills a little of each side; in a tall, narrow window outdoors the whole width of the scene shows, with sky above.
 - A bug, a keepsake or an animal taken out of the album is sized by what it is, as a fish is: a ladybug comes out small and a swallowtail large, a pearl smaller than a toy robot, and a water deer larger than a sparrow.
+- Trees grow as tall as their kind: a metasequoia, a ginkgo or an oak stands well over a cherry, and a lilac, a yuzu or a fig stays small. Seedlings are alike, and a young tree is halfway there.
+- In the footprint book, an animal followed once or twice shows its own prints in the card's corner beside its tail, so a hare and a water deer behind the same snowy bush can be told apart.
+- The Christmas tree has no daily count: hang as many album finds in a day as it has free spots. Taking one down frees its spot, and the tray says how many are left instead of showing dots.
 - Seven pictures that were easy to misread are drawn again: the freshwater pearl, the field cricket, the pond snail, the damselfly, the water deer, the morel and the wild garlic.
 - When a change cannot be saved, PlayPets tries again a few times at once, and its notice no longer blames the disk unless the disk really is full. If it keeps happening, Settings > About PlayPets > Copy problem report copies what went wrong since the app opened, failed saves and every other error, to paste into a report.
 
@@ -47,6 +50,11 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 - A click on the sky or the painting behind the field no longer sends a friend walking, and the star pin stands where the friend stops, at the yard's sides too.
 - A sapling a friend is on its way to plant counts as spent: the tool strip's count drops at once, and the spot greys when none is left or the yard already holds all its trees.
 - In a short, wide window the garden workshop draws friends and gifts no taller than outdoors, instead of almost as tall as the window.
+- In a window wider than the place's picture, digging, planting and seeds stay on the picture instead of its blurred sides, and friends, flowers, trees and gifts kept near the yard's edge stand on the picture. On older macOS, the sides are blurred instead of drawn sharp.
+- Dragging the window wider into a strip along the screen changes the scene and friends a little at a time, instead of jumping at once.
+- In a tall, narrow window outdoors, friends shrink with the picture, so they stay as big next to the cottage.
+- A bug, a keepsake or an animal left on the desktop before the update stays where it was left, instead of floating up or sinking now that it is sized by what it is.
+- A notice that changes could not be saved shows once, also after the language changes.
 - With a tool in hand, no soil is marked over a creature or the lake, where a click catches or fishes instead. Indoors, the strip no longer offers digging or a tree beside the seeds.
 
 ### Website and docs
