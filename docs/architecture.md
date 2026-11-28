@@ -307,7 +307,7 @@ What each arrow in the diagram carries, path by path.
 | AI and chat | `saveProvider`, `chat`, `chatWith` |
 | Yard chatter | `chatter`, `setAutoChatter` |
 | Yard sounds | `setSound` |
-| The garden and its gifts | `plant`, `pullPlant`, `receiveGift`, `moveDecor`, `putAway` |
+| The garden and its gifts | `plant`, `pullPlant`, `setSingleBloom`, `receiveGift`, `moveDecor`, `putAway` |
 | The scene and imported backgrounds | `setScene`, `listBackgrounds`, `saveBackground`, `removeBackground` |
 | Discoveries and trees | `dig`, `plantTree`, `moveTree`, `removeTree`, `growTrees` |
 | The album | `catch`, `bloomed` |
@@ -332,6 +332,12 @@ What each arrow in the diagram carries, path by path.
 | `pets/` | Pets imported from an address or a ZIP |
 | `backgrounds/` | Imported backgrounds, one JSON file each (`app/backgrounds.rs`); the page checks a package again when it reads it |
 | `builtin/` | The four illustrated starter entries bundled in the executable, unpacked at launch |
+
+Problems are not kept in the data folder:
+
+- `problems.rs` keeps the run's problems in memory: every command that failed (`commands.rs` `dispatch`), every write the system refused (`store.rs`, with the error kind and code) and every page error (`core/problems.js`, at most 20 a minute).
+- The same problem in a row is one line with its count; 200 are kept; the home folder is written `~`.
+- Settings > About copies the report (`copyProblemReport`). A file would fail with the writes it is meant to explain.
 
 - API keys are not in this folder. They are in the OS secure storage.
 

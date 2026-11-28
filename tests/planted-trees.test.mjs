@@ -231,3 +231,20 @@ test('growth keeps the root fixed and seasonal art applies only to mature trees'
   assert.match(button.innerHTML, /cherry-mature-autumn/);
   assert.equal(button.style.transform, `translate(${foot.x - 80 * zoomAt(tree)}px,${foot.y - 170 * zoomAt(tree)}px)`);
 });
+
+test('the planting spot shows a see-through sapling of the kind in hand, at the size it starts at there', async t => {
+  fixture(t);
+  const { saplingPreview, treeBox } = await import('../src/yard/planted-trees.js');
+  const { treeArt } = await import('../src/yard/catalog.js');
+  const near = { x: 300, y: 400 },
+    look = saplingPreview('maple', near, 'autumn'),
+    box = treeBox('maple', near, 0);
+  // The sapling it is planted as, not the grown tree.
+  assert.equal(look.art, treeArt('maple', 0, 'autumn'));
+  // A seedling is small: shown half again its size so its kind reads at a glance.
+  assert.equal(look.width, box.width * 1.5);
+  assert.equal(look.height, box.height * 1.5);
+  // The soil under it follows the depth, within bounds.
+  assert.ok(look.zoom >= 0.7 && look.zoom <= 1.4);
+  assert.equal(saplingPreview('no-such-tree', near, 'autumn'), null);
+});

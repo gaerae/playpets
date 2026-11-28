@@ -291,10 +291,36 @@ impl Unsaved {
         }
     }
     pub fn write(self) -> Result<(), String> {
-        self.saving
-            .write(&self.store, &WRITTEN)
-            .map_err(|_| i18n::t("store.held"))
+        self.saving.write(&self.store, &WRITTEN).map_err(|e| held_text(&e))
     }
+}
+
+/// What the person is told when the state cannot be saved: a full disk by name, anything else
+/// without a guess, pointing to the problem report that keeps what the system said (problems.rs).
+fn held_text(error: &std::io::Error) -> String {
+    use std::io::ErrorKind::{QuotaExceeded, StorageFull};
+    if matches!(error.kind(), StorageFull | QuotaExceeded) {
+        i18n::t("store.full")
+    } else {
+        i18n::t("store.held")
+    }
+}
+
+/// Whether a warning is the notice that saves fail: either cause, in any language, as the warning
+/// keeps the words it was shown in.
+fn is_held(warning: &str) -> bool {
+    i18n::Lang::all().any(|lang| {
+        ["store.full", "store.held"]
+            .iter()
+            .any(|key| i18n::t_in(lang, key) == warning)
+    })
+}
+
+/// Takes back the notice that saves fail, whichever it was; true when the warnings changed.
+fn take_back_held(warnings: &mut Vec<String>) -> bool {
+    let before = warnings.len();
+    warnings.retain(|w| !is_held(w));
+    warnings.len() != before
 }
 
 /// Takes what to write and shows the change while holding the lock, then writes without it.
@@ -650,7 +676,8 @@ pub fn flush(app: &AppHandle) {
     let wanted = hold(&SAVE_LATER).take();
     if wanted && let Some(state) = app.try_state::<Shared>() {
         let unsaved = Unsaved::of(&lock(&state));
-        let failed = unsaved.write().is_err();
+        let failure = unsaved.write().err();
+        let failed = failure.is_some();
         let (retry, notice) = {
             let mut later = hold(&SAVE_LATER);
             if failed {
@@ -665,7 +692,11 @@ pub fn flush(app: &AppHandle) {
         }
         if notice {
             let mut d = lock(&state);
-            if held_warning(&mut d.warnings, failed, &i18n::t("store.held")) {
+            let shown = match &failure {
+                Some(text) => held_warning(&mut d.warnings, true, text),
+                None => take_back_held(&mut d.warnings),
+            };
+            if shown {
                 changed(app, &d);
             }
         }
@@ -674,13 +705,17 @@ pub fn flush(app: &AppHandle) {
 }
 
 /// Puts the notice that saves fail among the warnings the pages show (`on`), or takes it back;
-/// true when the warnings changed. Never twice: a failing write is tried again and again.
+/// true when the warnings changed. Never twice: a failing write is tried again and again, and the
+/// notice shown for another cause or in another language gives way to it.
 fn held_warning(warnings: &mut Vec<String>, on: bool, held: &str) -> bool {
+    let before = warnings.len();
+    warnings.retain(|w| w == held || !is_held(w));
+    let other = warnings.len() != before;
     let shown = warnings.iter().any(|w| w == held);
     match (on, shown) {
         (true, false) => warnings.push(held.to_string()),
         (false, true) => warnings.retain(|w| w != held),
-        _ => return false,
+        _ => return other,
     }
     true
 }
@@ -726,12 +761,12 @@ impl Saving {
         }
     }
 
-    fn write(&self, store: &store::Store, written: &Mutex<u64>) -> Result<(), String> {
+    fn write(&self, store: &store::Store, written: &Mutex<u64>) -> std::io::Result<()> {
         let mut last = hold(written);
         if self.order <= *last {
             return Ok(());
         }
-        store.write("state.json", &self.state)?;
+        store.put("state.json", &self.state, false)?;
         *last = self.order;
         Ok(())
     }
@@ -1201,6 +1236,36 @@ pub(crate) mod tests {
         assert_eq!(warnings, ["other", "held"]);
         assert!(held_warning(&mut warnings, false, "held"));
         assert!(!held_warning(&mut warnings, false, "held"));
+        assert_eq!(warnings, ["other"]);
+    }
+
+    // The notice says the disk is full only when it is; otherwise it does not guess, and points to
+    // the problem report that keeps what the system said (problems.rs).
+    #[test]
+    fn the_save_notice_names_a_full_disk_only_when_it_is_one() {
+        use std::io::{Error, ErrorKind};
+        assert_eq!(held_text(&Error::from(ErrorKind::StorageFull)), i18n::t("store.full"));
+        assert_eq!(held_text(&Error::from(ErrorKind::QuotaExceeded)), i18n::t("store.full"));
+        let held = held_text(&Error::from(ErrorKind::PermissionDenied));
+        assert_eq!(held, i18n::t("store.held"));
+        // A save that goes through takes back either notice.
+        let mut warnings = vec![i18n::t("store.full")];
+        assert!(take_back_held(&mut warnings));
+        assert!(warnings.is_empty());
+    }
+
+    // The notice is kept as words in the language it was shown in: one shown before the language
+    // changed, or for a full disk before the disk was full no more, is the same notice, never a
+    // second one beside it, and a save that goes through takes it back too.
+    #[test]
+    fn one_save_notice_at_a_time_whatever_the_language_or_the_cause() {
+        let ko = i18n::Lang::parse("ko").unwrap();
+        let en = i18n::Lang::parse("en").unwrap();
+        let mut warnings = vec!["other".to_string(), i18n::t_in(ko, "store.held")];
+        assert!(held_warning(&mut warnings, true, &i18n::t_in(en, "store.full")));
+        assert_eq!(warnings, ["other".to_string(), i18n::t_in(en, "store.full")]);
+        warnings.push(i18n::t_in(ko, "store.full"));
+        assert!(take_back_held(&mut warnings));
         assert_eq!(warnings, ["other"]);
     }
 

@@ -6,6 +6,7 @@ import { decorShown, yardSeason } from './decor-shown.js';
 import { projectFootprint, treeStage } from './discovery-rules.js';
 import { environmentLake } from './environment.js';
 import { decorFloor, depthScaleAt, EDGE, field, hasEdge, propZoom, topAt } from './field.js';
+import { plantBreadth, stageOf } from './growth.js';
 import { giftSize } from './props.js';
 import { scene } from './world.js';
 import { worldFor } from './worlds.js';
@@ -63,21 +64,24 @@ export function buildGroundProfile({
   const validField =
     bounds &&
     [bounds.width, bounds.height, bounds.top, bounds.bottom, scale, giftFloor].every(Number.isFinite) &&
-    bounds.width > EDGE * 2 &&
+    (bounds.right ?? bounds.width) - (bounds.left ?? 0) > EDGE * 2 &&
     bounds.bottom > bounds.top &&
     scale > 0;
   if (!validField) profile.soil = false;
   if (!profile.soil) return profile;
   profile.floor = Math.max(1, giftFloor);
 
-  const width = bounds.width - EDGE * 2,
+  // Across the picture (field.js field), the yard's own edges by default.
+  const left = bounds.left ?? 0,
+    right = bounds.right ?? bounds.width,
+    width = right - left - EDGE * 2,
     height = bounds.bottom - bounds.top;
   profile.unit = { x: scale / width, y: scale / height };
   // A place (0 to 1 each way) in yard pixels, from where the field begins at its x.
   const top = px => topAt?.(px) ?? bounds.top,
-    floorAt = x => giftFloorAt?.(EDGE + x * width) ?? giftFloor,
+    floorAt = x => giftFloorAt?.(left + EDGE + x * width) ?? giftFloor,
     foot = item => {
-      const x = EDGE + item.x * width,
+      const x = left + EDGE + item.x * width,
         y0 = top(x);
       return { x, y: y0 + item.y * (bounds.bottom - y0) };
     };
@@ -86,7 +90,7 @@ export function buildGroundProfile({
   // back that is (0 where nothing raises it). A trail ends in front of it (trail-rules.js).
   if (topAt)
     profile.line = Array.from({ length: LINE_SAMPLES }, (_, i) => {
-      const y0 = top(EDGE + (i / (LINE_SAMPLES - 1)) * width);
+      const y0 = top(left + EDGE + (i / (LINE_SAMPLES - 1)) * width);
       return clamp((bounds.top - y0) / Math.max(1, bounds.bottom - y0));
     });
   // A drawing of w x h yard pixels with its foot at `at`, as setDown places it: `foot` is the share
@@ -95,8 +99,8 @@ export function buildGroundProfile({
     const y0 = top(at.x),
       deep = Math.max(1, bounds.bottom - y0);
     const box = {
-      left: (at.x - w / 2 - EDGE) / width,
-      right: (at.x + w / 2 - EDGE) / width,
+      left: (at.x - w / 2 - left - EDGE) / width,
+      right: (at.x + w / 2 - left - EDGE) / width,
       top: (at.y - h * foot - y0) / deep,
       bottom: (at.y + h * (1 - foot) - y0) / deep,
     };
@@ -128,7 +132,7 @@ export function buildGroundProfile({
     // how far in it stands, so it is measured again where it is moved to.
     let depth = depthScaleAt(at.x, at.y);
     for (let pass = 0; pass < 2; pass++) {
-      at.x = clamp(at.x, (w * scale * depth) / 2 + 4, bounds.width - (w * scale * depth) / 2 - 4);
+      at.x = clamp(at.x, left + (w * scale * depth) / 2 + 4, right - (w * scale * depth) / 2 - 4);
       depth = depthScaleAt(at.x, at.y);
     }
     const zoom = scale * depth * (treeScale[stage] ?? treeScale[0]);
@@ -147,7 +151,7 @@ export function buildGroundProfile({
       h = size.h * depth,
       flat = gift?.flat;
     // Furniture drawing clamps its foot inward by half its rendered width plus four pixels.
-    at.x = clamp(at.x, w / 2 + 4, bounds.width - w / 2 - 4);
+    at.x = clamp(at.x, left + w / 2 + 4, right - w / 2 - 4);
     add(profile.obstacles, {
       x: at.x,
       y: at.y - (flat ? h / 2 : 0),
@@ -159,8 +163,10 @@ export function buildGroundProfile({
   }
   for (const plant of garden.plants || []) {
     // Drawn as garden.js places it, no lower than the floor.
+    // As wide as it is drawn: a patch takes the ground of its patch.
     const at = foot({ x: plant.x, y: Math.min(plant.y, floorAt(plant.x)) }),
-      zoom = scale * depthScaleAt(at.x, at.y);
+      breadth = plantBreadth(plant, stageOf(plant.planted ?? now, now).name, { outdoors: profile.soil }),
+      zoom = scale * depthScaleAt(at.x, at.y) * breadth;
     add(profile.obstacles, { ...at, rx: 10 * zoom, ry: 5 * zoom });
   }
   return profile;

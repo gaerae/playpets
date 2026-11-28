@@ -49,11 +49,17 @@ function menu(t, { pets = [], decor = [], plants = [], trees = [] } = {}) {
     item('decor', 'desktop-decor', 'menuitemcheckbox'),
     item('decor', 'dress-decor'),
     item('decor', 'put-away'),
+    item('plant', 'one-bloom', 'menuitemradio'),
+    item('plant', 'patch', 'menuitemradio'),
     item('plant', 'desktop-plant', 'menuitemcheckbox'),
     item('plant', 'pull-plant'),
     item('tree', 'desktop-tree', 'menuitemcheckbox'),
     item('tree', 'remove-tree'),
   ];
+  for (const button of all) {
+    const picture = element('span', { className: 'context-picture' });
+    button.querySelector = () => picture;
+  }
   context.querySelectorAll = () => all;
   context.querySelector = selector =>
     all.find(button => selector.includes(`"${button.dataset.contextAction}"`))?.children[0] || null;
@@ -156,4 +162,27 @@ test("a flower's and a planted tree's menus send them out or pull them up", asyn
   await context.dispatch('click', { target: find('remove-tree') });
   assert.deepEqual(removed, ['t1']);
   assert.deepEqual(pulled, ['p1'], 'a tree is not pulled as a flower is');
+});
+
+// Review: the tick moved to the choice pressed before it was saved, and stayed there when saving
+// failed. It goes back to what the flower still is.
+test("a flower's one bloom or patch tick goes back when the choice is not saved", async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const { context, find } = menu(t, { plants: [{ id: 'p1', kind: 'tulip', x: 0.5, y: 0.5, planted: 1 }] });
+  globalThis.requestAnimationFrame = () => 0;
+  let saved = false;
+  setupControls({
+    bloomChoice: () => ({ single: false, one: '<svg/>', patch: '<svg/>' }),
+    setSingleBloom: async () => saved,
+  });
+  openPlantMenu('p1', { x: 40, y: 40 });
+  assert.equal(find('patch').getAttribute('aria-checked'), 'true');
+  await context.dispatch('click', { target: find('one-bloom') });
+  await flush();
+  assert.equal(find('patch').getAttribute('aria-checked'), 'true', 'still a patch');
+  assert.equal(find('one-bloom').getAttribute('aria-checked'), 'false');
+  saved = true;
+  await context.dispatch('click', { target: find('one-bloom') });
+  await flush();
+  assert.equal(find('one-bloom').getAttribute('aria-checked'), 'true', 'saved, and the state is on its way');
 });

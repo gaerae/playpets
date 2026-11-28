@@ -17,12 +17,36 @@ export function stageOf(planted, now) {
   const next = STAGES[i + 1];
   return { name: STAGES[i].name, index: i, untilNext: next ? next.at - age : 0 };
 }
-/** What a plant is drawn with at a stage (a name from stageOf): the stage's drawing, or in bloom its
- * flower's. The yard and the desktop draw it the same. */
-export const plantArt = (plant, stage) => STAGES.find(s => s.name === stage)?.art || flowerKind(plant.kind)?.art || '';
-/** How much taller than its drawing a plant stands at a stage: a tall flower once it buds. */
-export const plantStature = (plant, stage) =>
-  stage === 'bloom' || stage === 'bud' ? flowerKind(plant.kind)?.stature || 1 : 1;
+/** Whether a flower kind can bloom as a planted patch (catalog.json "patch") as well as one bloom. */
+export const hasPatch = kind => !!flowerKind(kind)?.patch;
+/** Whether a plant at a stage offers one bloom or its planted patch: in bloom (before, its kind is
+ * still a surprise), outdoors (indoors it is one bloom in a pot), and of a kind that has a patch. */
+export const offersPatch = (plant, stage, outdoors) => stage === 'bloom' && outdoors && hasPatch(plant.kind);
+/** How a plant looks at a stage (a name from stageOf): its drawing (`art`), how much taller than
+ * that it stands (`tall`: a tall flower once it buds) and where its drawing ends (`foot`, a share
+ * of its height from the top). In bloom it is its flower's drawing, or the planted patch of a kind
+ * that has one unless it is set to one bloom (`single`); `outdoors` false, it stands in a pot as one
+ * bloom at its box's edge. The yard and the desktop draw it the same (desktop/items.rs sizes it). */
+export function plantLook(plant, stage, { outdoors = true } = {}) {
+  const kind = flowerKind(plant.kind),
+    grown = stage === 'bloom' || stage === 'bud',
+    patch = stage === 'bloom' && outdoors && !plant.single ? kind?.patch : null;
+  if (patch) return { art: patch.art, tall: 1, foot: patch.foot ?? 1 };
+  return {
+    art: STAGES.find(s => s.name === stage)?.art || kind?.art || '',
+    tall: grown ? kind?.stature || 1 : 1,
+    foot: stage === 'bloom' && outdoors ? (kind?.foot ?? 1) : 1,
+  };
+}
+// How wide one bloom's drawing is, in drawing units (src/art/flowers): every flower's is.
+const ONE_BLOOM = 40;
+/** How many times one bloom's width `plant` at `stage` is drawn (plantLook): its patch's width, or
+ * one bloom's, times its stature. What it stands on and where a friend waters it from follow it. */
+export function plantBreadth(plant, stage, options) {
+  const { art, tall } = plantLook(plant, stage, options),
+    patch = flowerKind(plant.kind)?.patch;
+  return ((patch && art === patch.art ? patch.size[0] : ONE_BLOOM) / ONE_BLOOM) * tall;
+}
 /** How long until it flowers (0 once it has). */
 export const untilBloom = (planted, now) => Math.max(0, STAGES.at(-1).at - Math.max(0, now - planted));
 /** The flowers a seed planted in this season may grow into (the album marks them as there now). */

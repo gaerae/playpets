@@ -39,6 +39,10 @@ test('the footprint book shows each print until it is followed, then the tail an
   assert.equal(foxName.textContent, translate('track.fox'));
   assert.match(foxStage.innerHTML, /tail-peek/);
   assert.ok(foxStage.innerHTML.includes(artHref('tracks/tail_fox.svg')));
+  // Its own prints stay in the card's corner: two tails behind the same snowy bush (a hare's and a
+  // water deer's) read alike, their prints do not.
+  assert.match(foxStage.innerHTML, /print-run[^"]*corner/);
+  assert.ok(foxStage.innerHTML.includes(artHref('prints/fox.svg')));
   assert.equal(fox.children.at(-1).textContent, translate('album.followed_closer', { count: 2, left: 1 }));
   // Followed three times, the animal turned to look: the card draws it whole, face and all.
   const squirrel = cards[byId.indexOf('squirrel')],

@@ -129,6 +129,8 @@ export function setupControls({
   removeTree = () => {},
   dress = () => {},
   canDress = () => false,
+  bloomChoice = () => null,
+  setSingleBloom = async () => true,
   closeness = () => 0,
   letterReadable = () => false,
   openLetter = () => {},
@@ -274,10 +276,31 @@ export function setupControls({
       if (forWhat === 'decor')
         for (const item of context.querySelectorAll('[data-context-for]'))
           if (item.dataset.contextAction === 'dress-decor') item.hidden = !canDress(id);
+      // A flower in bloom with a planted patch blooms as one flower or as that patch, each shown.
+      if (forWhat === 'plant') showBloomChoice(id);
       // Its choices come in one after another (shell.css).
       let order = 0;
       for (const item of context.querySelectorAll('[data-context-for]'))
         if (!item.hidden) item.style.setProperty('--order', String(order++));
+    };
+    const showBloomChoice = id => {
+      const choice = bloomChoice(id);
+      for (const [action, single] of [
+        ['one-bloom', true],
+        ['patch', false],
+      ]) {
+        const item = row(action);
+        if (!item) continue;
+        item.hidden = !choice;
+        if (!choice) continue;
+        item.setAttribute('aria-checked', String(choice.single === single));
+        const picture = item.querySelector('.context-picture'),
+          drawn = single ? choice.one : choice.patch;
+        if (picture.dataset.drawn !== drawn) {
+          picture.dataset.drawn = drawn;
+          picture.innerHTML = drawn;
+        }
+      }
     };
     const place = () => {
       if (context.hidden) return;
@@ -395,6 +418,19 @@ export function setupControls({
     context.addEventListener('click', event => {
       const action = event.target.closest('[data-context-action]')?.dataset.contextAction;
       if (!action) return;
+      // One bloom or the patch: the menu stays to compare the two, and follows the flower's new size.
+      if (action === 'one-bloom' || action === 'patch') {
+        const id = friend,
+          single = action === 'one-bloom';
+        row('one-bloom').setAttribute('aria-checked', String(single));
+        row('patch').setAttribute('aria-checked', String(!single));
+        // Not saved, the tick goes back to what the flower still is.
+        setSingleBloom(id, single).then(saved => {
+          if (saved === false && friend === id && !context.hidden) showBloomChoice(id);
+          requestAnimationFrame(place);
+        });
+        return;
+      }
       closeControls();
       if (action === 'scene') {
         $('scene-button').click();

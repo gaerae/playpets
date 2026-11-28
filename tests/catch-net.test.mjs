@@ -156,6 +156,46 @@ test('a click catches a bug first, then a petal, and a tool in hand never gives 
   }
 });
 
+// The first-run card stands in the yard (render.js renderSteps, #empty-yard.aside): a press on its words
+// sent the friend walking there, or cast into a lake under it. It is not open ground.
+test('a press on the first-run card catches nothing and sends no friend there', async context => {
+  const { nodes, element } = installDom(context, {
+    ids: ['yard', 'catch-card', 'toast', 'yard-hint', 'agent-summary'],
+    props: { rect: { width: 800, height: 560 } },
+  });
+  nodes.get('catch-card').querySelector = () => element();
+  const pet = { id: 'friend', size: 112 },
+    view = { pet, px: 100, py: 200, z: 40, pose: 'idle', bubble: element(), button: element() };
+  views.set(pet.id, view);
+  setData({ pets: [pet], assets: [], statuses: {} });
+  const asked = [];
+  setScenery({
+    catchAt: (x, y) => {
+      asked.push([x, y]);
+      return null;
+    },
+    near: () => false,
+    nearPetal: () => false,
+    catchPetal: () => null,
+  });
+  setupCatch();
+  const yard = nodes.get('yard'),
+    card = element('div'),
+    words = element('p');
+  card.classList.add('empty-yard', 'aside');
+  card.append(words);
+  yard.append(card);
+  try {
+    yard.dispatch('click', { target: words, clientX: 100, clientY: 200 });
+    assert.deepEqual(asked, [], 'the card is not looked under for a creature, the lake or ground to walk to');
+    yard.dispatch('click', { clientX: 100, clientY: 200 });
+    assert.deepEqual(asked, [[100, 200]], 'the open yard beside it still is');
+  } finally {
+    endFishing();
+    views.clear();
+  }
+});
+
 test('a creature flying in front of anything in the yard is caught by a press on its body', async context => {
   const { nodes, element } = installDom(context, {
     ids: ['yard', 'pet-layer', 'label-layer', 'garden-layer', 'catch-card', 'toast', 'yard-hint', 'agent-summary'],

@@ -1,0 +1,39 @@
+{
+  "generated": "2026-11-23",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "references": "A sheet of the desktop grass tufts (assets/art/ambient/tuft-left.png, tuft-right.png) for the style, and the flower's own album crop (src/art/album/flowers/<kind>.webp) for its species and colours",
+  "sources": [
+    {
+      "name": "tulip",
+      "file": "tulip.png",
+      "prompt": "Use the built-in image_gen tool to make one game asset: a small planted clump of pink tulips (three or four blooms on stems, broad blue-green tulip leaves), growing out of a soft low mound of grass, in exactly the painterly style of the first reference image (soft rounded cozy cottage-garden game art, gentle warm light from the upper left, fresh greens, soft shading, no outlines). The second reference image only shows the species and its colours; keep those colours and the flower's shape, but make it a living planted clump like the first reference, not a single specimen. One clump only, centered, seen from the front, filling most of the frame, flat grass base at the bottom. Transparent background, no ground shadow, no text, no border."
+    },
+    {
+      "name": "cosmos",
+      "file": "cosmos.png",
+      "prompt": "Use the built-in image_gen tool to make one game asset: a small planted clump of pink cosmos (four or five open blooms on thin stems, feathery thread-like leaves), growing out of a soft low mound of grass, in exactly the painterly style of the first reference image (soft rounded cozy cottage-garden game art, gentle warm light from the upper left, fresh greens, soft shading, no outlines). The second reference image only shows the species and its colours; keep those colours and the flower's shape, but make it a living planted clump like the first reference, not a single specimen. One clump only, centered, seen from the front, filling most of the frame, flat grass base at the bottom. Transparent background, no ground shadow, no text, no border."
+    },
+    {
+      "name": "sunflower",
+      "file": "sunflower.png",
+      "prompt": "Use the built-in image_gen tool to make one game asset: a small planted clump of sunflowers (one big sunflower head and one smaller, broad heart-shaped leaves; it stands taller than the others), growing out of a soft low mound of grass, in exactly the painterly style of the first reference image (soft rounded cozy cottage-garden game art, gentle warm light from the upper left, fresh greens, soft shading, no outlines). The second reference image only shows the species and its colours; keep those colours and the flower's shape, but make it a living planted clump like the first reference, not a single specimen. One clump only, centered, seen from the front, filling most of the frame, flat grass base at the bottom. Transparent background, no ground shadow, no text, no border."
+    },
+    {
+      "name": "lavender",
+      "file": "lavender.png",
+      "prompt": "Use the built-in image_gen tool to make one game asset: a small planted clump of lavender (many tall purple flower spikes, thin grey-green leaves), growing out of a soft low mound of grass, in exactly the painterly style of the first reference image (soft rounded cozy cottage-garden game art, gentle warm light from the upper left, fresh greens, soft shading, no outlines). The second reference image only shows the species and its colours; keep those colours and the flower's shape, but make it a living planted clump like the first reference, not a single specimen. One clump only, centered, seen from the front, filling most of the frame, flat grass base at the bottom. Transparent background, no ground shadow, no text, no border."
+    },
+    {
+      "name": "hydrangea",
+      "file": "hydrangea.png",
+      "prompt": "Use the built-in image_gen tool to make one game asset: a small planted clump of a blue-violet hydrangea bush (two or three round mophead clusters of small four-petal florets, broad toothed leaves), growing out of a soft low mound of grass, in exactly the painterly style of the first reference image (soft rounded cozy cottage-garden game art, gentle warm light from the upper left, fresh greens, soft shading, no outlines). The second reference image only shows the species and its colours; keep those colours and the flower's shape, but make it a living planted clump like the first reference, not a single specimen. One clump only, centered, seen from the front, filling most of the frame, flat grass base at the bottom. Transparent background, no ground shadow, no text, no border."
+    },
+    {
+      "name": "camellia",
+      "file": "camellia.png",
+      "prompt": "Use the built-in image_gen tool to make one game asset: a small planted clump of a red camellia shrub (three or four rose-like red blooms with yellow centers, glossy dark green oval leaves), growing out of a soft low mound of grass, in exactly the painterly style of the first reference image (soft rounded cozy cottage-garden game art, gentle warm light from the upper left, fresh greens, soft shading, no outlines). The second reference image only shows the species and its colours; keep those colours and the flower's shape, but make it a living planted clump like the first reference, not a single specimen. One clump only, centered, seen from the front, filling most of the frame, flat grass base at the bottom. Transparent background, no ground shadow, no text, no border."
+    }
+  ],
+  "review": "Each compared with its one-bloom drawing at album, yard and mini sizes, on light, dark and the desktop grass, in the 2026-11-23 desktop spike.",
+  "processing": "pack.py: each painting keeps its largest opaque piece and the soft edge beside it, drops the faint haze, is cropped and scaled to its height in yard units at 3 sheet pixels a unit, and stands on the floor of assets/art/flowers/patches.png; it writes src/art/flowers/patch-<kind>.svg. pnpm run assets:webp makes src/art/flowers/patches.webp."
+}

@@ -31,6 +31,7 @@ import {
   companionCast,
   composeWindow,
   desktopWindow,
+  learnYard,
   mainDisplay,
   playGarden,
   seasonalScenes,
@@ -169,6 +170,7 @@ function scenario(lang) {
   const shot=async(name,rect)=>{if(${desktopOnly}&&name!=='desktop')return;if(${smallOnly}&&!['mini','mini-chat'].includes(name))return;if(${chatOnly}&&!['friend-chat','companions'].includes(name))return;const card=$('catch-card');if(card&&!card.hidden){card.click();await wait(700);}clearFocus(document);await wait(350);if(['friend-chat','companions'].includes(name)){const {views}=await import('./core/state.js');const bounds=r=>({left:r.left,top:r.top,right:r.right,bottom:r.bottom});const bodies=[...views.values()].map(v=>({id:v.pet.id,...bounds(v.canvas.getBoundingClientRect())}));const panel=bounds($('side-panel').getBoundingClientRect());const yard=bounds($('yard').getBoundingClientRect());await L('chat-bounds '+JSON.stringify({bodies,panel,yard}));checkChat(bodies,panel,yard);}const r=rect||(await inv('e2eWindow',['main'])).data;await L('shot '+name+' '+JSON.stringify(r));await wait(1800);};
   try{
     if(document.documentElement.lang!=='${lang}'){localStorage.setItem('lang','${lang}');await L('RELANG');await playPets.quitApp();return;}
+    (${learnYard.toString()})(localStorage);
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
     // Native webview choices survive an isolated backend; each capture starts in its intended place.
     $('world').value='woodland';$('world').dispatchEvent(new Event('change'));
@@ -336,6 +338,7 @@ function playScenario(lang) {
   const scene=async(world,season='spring')=>{for(const [id,value] of [['world',world],['scene-season',season],['period','day'],['weather','clear']]){$(id).value=value;$(id).dispatchEvent(new Event('change'));}await settledScene();};
   try{
     if(document.documentElement.lang!=='${lang}'){localStorage.setItem('lang','${lang}');await L('RELANG');await playPets.quitApp();return;}
+    (${learnYard.toString()})(localStorage);
     await inv('e2eWindow',['main',${JSON.stringify(WINDOW)}]);
     await scene('woodland');
     const boot=await playPets.bootstrap();

@@ -326,6 +326,12 @@
   }
 }
 
+/* A small window's conversation is as tall as it is, from the top, up to the window, as Play and
+   Friends & settings are there: a new one is not a tall blank page over the yard. */
+body.compact .layout.panel-open .side-panel:has(#panel-pet:not([hidden])) {
+  bottom: auto;
+  max-height: calc(100% - 16px);
+}
 /* Small windows (body.compact, window.js): the conversation takes the room that is left. */
 body.compact .chat-log {
   flex: 1;
@@ -342,6 +348,12 @@ body.compact .composer textarea {
 }
 /* A rare conversation in a tiny yard keeps the next action visible, without introductory copy. */
 @media (max-height: 280px) {
+  /* The whole height, new or not: the friend's menu spreads over the sheet here (panel.css), and a
+     sheet as short as a new chat cut its last item. */
+  body.compact .layout.panel-open .side-panel:has(#panel-pet:not([hidden])) {
+    bottom: 8px;
+    max-height: none;
+  }
   body.compact .chat-placeholder {
     display: none;
   }

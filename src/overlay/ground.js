@@ -46,6 +46,25 @@ export function setupGround({ api, displayId, reduced }) {
     drag = null;
     clearInterval(telling);
   }
+  // Each call runs on a backend thread of its own, so two sent together may be heard in either
+  // order, and a pull heard after its let-go leaves the screen taking every click until grass.rs
+  // DRAG_STALE. One goes at a time; a pull still waiting gives way to what is told after it.
+  const waiting = [];
+  let sending = false;
+  async function tell(left, right, dragging) {
+    if (waiting.at(-1)?.[2]) waiting.pop();
+    waiting.push([left, right, dragging]);
+    if (sending) return;
+    sending = true;
+    while (waiting.length) {
+      try {
+        await api.setGrass(...waiting.shift());
+      } catch {
+        // Not heard: the next one still goes, and a let-go after it says where the grass ends.
+      }
+    }
+    sending = false;
+  }
   const flurry = setupFlurry({ host: ground, reduced });
   const grips = [...ground.querySelectorAll('.ground-grip')];
 
@@ -128,7 +147,7 @@ export function setupGround({ api, displayId, reduced }) {
     if (event?.pointerId !== undefined && grip.hasPointerCapture?.(event.pointerId))
       grip.releasePointerCapture(event.pointerId);
     if (view) view = { ...view, left, right };
-    api.setGrass(left, right, false);
+    tell(left, right, false);
   }
 
   for (const grip of grips) {
@@ -146,9 +165,9 @@ export function setupGround({ api, displayId, reduced }) {
       drag = { end: grip.dataset.end, left: view.left, right: view.right, told: event.timeStamp };
       grip.setPointerCapture(event.pointerId);
       ground.classList.add('ground-resizing');
-      api.setGrass(view.left, view.right, true);
+      tell(view.left, view.right, true);
       clearInterval(telling);
-      telling = setInterval(() => drag && api.setGrass(drag.left, drag.right, true), TELL_MS);
+      telling = setInterval(() => drag && tell(drag.left, drag.right, true), TELL_MS);
     };
     grip.onpointermove = event => {
       if (!drag || !view) return;
@@ -158,7 +177,7 @@ export function setupGround({ api, displayId, reduced }) {
       place(drag.left, drag.right);
       if (event.timeStamp - drag.told > TELL_MS) {
         drag.told = event.timeStamp;
-        api.setGrass(drag.left, drag.right, true);
+        tell(drag.left, drag.right, true);
       }
     };
     grip.onpointerup = event => end(grip, event);
@@ -170,7 +189,7 @@ export function setupGround({ api, displayId, reduced }) {
       if (!view) return;
       view = { ...view, left: view.areaLeft, right: view.areaRight };
       place(view.left, view.right);
-      api.setGrass(view.left, view.right, false);
+      tell(view.left, view.right, false);
     };
   }
 

@@ -10,6 +10,57 @@ Changes people can see in PlayPets, release by release. The format follows [Keep
 
 ## [Unreleased]
 
+### Added
+
+- Every flower can bloom as a patch outdoors and on the desktop. Its menu offers **One bloom** or **A patch**, so each one can be a single stem again; in the garden workshop flowers stay one bloom in a pot.
+- A flower, a tree or a gift answers a press, in the yard and on the desktop: a flower bobs and drops a few of its petals, a tree rustles and lets a few leaves go in its season's colours (snow in winter), and a gift bobs. Nothing moves with reduced motion.
+- A gift or a find set out in the yard answers a press as it does on the desktop: a pinwheel spins, a wind chime swings, a lamp switches, and a fish swims, a bug flutters or a treasure twinkles. As it moves, each album book's finds let out their own bits: bubbles, glints, sparkles or hearts.
+- Now and then a friend standing near what you pressed says something about it, in the yard and on the desktop.
+- Something sent to the desktop while PlayPets runs arrives: a friend drops in from above, lands in a puff of dust and waves, and a gift, a flower or a tree pops up from its foot while the nearest friend hops over to greet it. Nothing moves with reduced motion.
+
+### Changed
+
+- Digging, planting a tree and planting seeds choose a spot the same way: a patch of soil under the pointer holds a see-through sapling or seed at the size it will be (indoors, the pot a seed goes in); where nothing can go it greys and leans with a small "no" sign beside it.
+- The tool strip shows what is in hand as a picture, a name and a count, and each sapling in its menu has its picture. With no seeds left the seed tool stays in hand, says where seeds come from and offers digging, as the tree tool does with no saplings; with the field full it says so before anyone walks off.
+- A click on the grass marks where a friend is walking with a small star pin bobbing over the spot, instead of a ring of bent grass. It is as big as a friend standing there, and smaller farther back.
+- On a large screen, friends and what stands on the grass grow with the place's picture, so they stay as big next to the cottage as in a smaller window. Smaller windows are unchanged.
+- Every place keeps its main part in view from 4:3 to 16:9: the cottage's roof, the big tree, the workshop's windows. In a wider window the place's own edge, blurred, fills a little of each side; in a tall, narrow window outdoors the whole width of the scene shows, with sky above.
+- A bug, a keepsake or an animal taken out of the album is sized by what it is, as a fish is: a ladybug comes out small and a swallowtail large, a pearl smaller than a toy robot, and a water deer larger than a sparrow.
+- Trees grow as tall as their kind: a metasequoia, a ginkgo or an oak stands well over a cherry, and a lilac, a yuzu or a fig stays small. Seedlings are alike, and a young tree is halfway there.
+- In the footprint book, an animal followed once or twice shows its own prints in the card's corner beside its tail, so a hare and a water deer behind the same snowy bush can be told apart.
+- The Christmas tree has no daily count: hang as many album finds in a day as it has free spots. Taking one down frees its spot, and the tray says how many are left instead of showing dots.
+- Seven pictures that were easy to misread are drawn again: the freshwater pearl, the field cricket, the pond snail, the damselfly, the water deer, the morel and the wild garlic.
+- When a change cannot be saved, PlayPets tries again a few times at once, and its notice no longer blames the disk unless the disk really is full. If it keeps happening, Settings > About PlayPets > Copy problem report copies what went wrong since the app opened, failed saves and every other error, to paste into a report.
+
+### Fixed
+
+- A friend walking toward you grows steadily, instead of shrinking and growing again on the woodland and lakeside places, whose far edge curves.
+- A friend strolling on its own walks straight across a place whose far edge rises, instead of bending up toward it and shrinking.
+- In the garden workshop friends walk around the tables, the shelves and the bench instead of over them, and reach a desk from behind it.
+- Resizing the window in winter no longer leaves a thin pink line across the snow beside a footprint trail.
+- Opening **Play** no longer shows a sideways scrollbar on Windows.
+- Album cards stand the same height in every row, found or not, and can be chosen with the keyboard: arrow keys move between them, Enter or Space chooses one.
+- In a small window the chat is as wide as the other panels and only as tall as the conversation.
+- Clicking the first-run card no longer sends a friend walking there.
+- Friends on the desktop's grass keep walking in it, instead of wandering a little higher with each stroll until they walk in the air above it.
+- Pulling an end of the desktop's grass keeps going when the pointer slips down onto the Dock or the taskbar, or past the screen's side, until you let go.
+- Letting go of an end of the desktop's grass no longer leaves its screen taking clicks for a few seconds now and then.
+- The desktop follows a screen whose usable area changes while things are out (the Dock hidden or moved, the taskbar resized, a new resolution): the grass moves down to the new bottom, and what is out there takes clicks where it is drawn.
+- A flower left on the desktop stays where it was left when it grows or blooms while PlayPets is closed, instead of shifting off its spot or below the floor.
+- A click on the sky or the painting behind the field no longer sends a friend walking, and the star pin stands where the friend stops, at the yard's sides too.
+- A sapling a friend is on its way to plant counts as spent: the tool strip's count drops at once, and the spot greys when none is left or the yard already holds all its trees.
+- In a short, wide window the garden workshop draws friends and gifts no taller than outdoors, instead of almost as tall as the window.
+- In a window wider than the place's picture, digging, planting and seeds stay on the picture instead of its blurred sides, and friends, flowers, trees and gifts kept near the yard's edge stand on the picture. On older macOS, the sides are blurred instead of drawn sharp.
+- Dragging the window wider into a strip along the screen changes the scene and friends a little at a time, instead of jumping at once.
+- In a tall, narrow window outdoors, friends shrink with the picture, so they stay as big next to the cottage.
+- A bug, a keepsake or an animal left on the desktop before the update stays where it was left, instead of floating up or sinking now that it is sized by what it is.
+- A notice that changes could not be saved shows once, also after the language changes.
+- With a tool in hand, no soil is marked over a creature or the lake, where a click catches or fishes instead. Indoors, the strip no longer offers digging or a tree beside the seeds.
+
+### Website and docs
+
+- The website's and the README's pictures of the yard show it as it is played, without the painted hand that points at a friend until it has been patted.
+
 ## [1.10.0] - 2026-11-27
 
 ### Added

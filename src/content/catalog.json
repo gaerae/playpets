@@ -38,7 +38,8 @@
         "petal-hi": "#f9a3b5",
         "petal-lo": "#c9496a",
         "heart": "#f6c445"
-      }
+      },
+      "patch": { "art": "flowers/patch-tulip.svg", "size": [76.33, 74], "foot": 0.96 }
     },
     {
       "id": "daffodil",
@@ -50,7 +51,8 @@
         "petal-hi": "#fffbe9",
         "petal-lo": "#e6d496",
         "heart": "#f4a53a"
-      }
+      },
+      "patch": { "art": "flowers/patch-daffodil.svg", "size": [57.33, 74], "foot": 0.96 }
     },
     {
       "id": "sunflower",
@@ -63,7 +65,8 @@
         "petal-hi": "#ffd864",
         "petal-lo": "#d39a12",
         "heart": "#7a4b26"
-      }
+      },
+      "patch": { "art": "flowers/patch-sunflower.svg", "size": [66.67, 102], "foot": 0.96 }
     },
     {
       "id": "hydrangea",
@@ -75,7 +78,8 @@
         "petal-hi": "#c6dbf7",
         "petal-lo": "#7290d2",
         "heart": "#eef2ff"
-      }
+      },
+      "patch": { "art": "flowers/patch-hydrangea.svg", "size": [83, 74], "foot": 0.96 }
     },
     {
       "id": "cosmos",
@@ -87,7 +91,8 @@
         "petal-hi": "#fbc6dc",
         "petal-lo": "#d0709c",
         "heart": "#f5c542"
-      }
+      },
+      "patch": { "art": "flowers/patch-cosmos.svg", "size": [73, 77], "foot": 0.96 }
     },
     {
       "id": "chrysanthemum",
@@ -99,7 +104,8 @@
         "petal-hi": "#f9dd8c",
         "petal-lo": "#d8982a",
         "heart": "#b5762a"
-      }
+      },
+      "patch": { "art": "flowers/patch-chrysanthemum.svg", "size": [74.33, 72], "foot": 0.96 }
     },
     {
       "id": "camellia",
@@ -112,7 +118,8 @@
         "petal-hi": "#f07386",
         "petal-lo": "#a92a40",
         "heart": "#f8d04f"
-      }
+      },
+      "patch": { "art": "flowers/patch-camellia.svg", "size": [79.33, 77], "foot": 0.96 }
     },
     {
       "id": "snowdrop",
@@ -124,7 +131,8 @@
         "petal-hi": "#ffffff",
         "petal-lo": "#e3ebe6",
         "heart": "#7cc47f"
-      }
+      },
+      "patch": { "art": "flowers/patch-snowdrop.svg", "size": [60.33, 58], "foot": 0.96 }
     },
     {
       "id": "crocus",
@@ -135,7 +143,8 @@
         "petal-hi": "#d5b7ee",
         "petal-lo": "#7655a6",
         "heart": "#edb94e"
-      }
+      },
+      "patch": { "art": "flowers/patch-crocus.svg", "size": [55, 55], "foot": 0.96 }
     },
     {
       "id": "grape_hyacinth",
@@ -146,7 +155,8 @@
         "petal-hi": "#b3c4ec",
         "petal-lo": "#4d63a1",
         "heart": "#f0e6c8"
-      }
+      },
+      "patch": { "art": "flowers/patch-grape_hyacinth.svg", "size": [60.67, 58], "foot": 0.96 }
     },
     {
       "id": "lavender",
@@ -157,7 +167,8 @@
         "petal-hi": "#cbb6df",
         "petal-lo": "#755b99",
         "heart": "#d5bf7c"
-      }
+      },
+      "patch": { "art": "flowers/patch-lavender.svg", "size": [80, 77], "foot": 0.96 }
     },
     {
       "id": "bellflower",
@@ -169,7 +180,8 @@
         "petal-hi": "#bcc8ed",
         "petal-lo": "#5c66a3",
         "heart": "#eee9ce"
-      }
+      },
+      "patch": { "art": "flowers/patch-bellflower.svg", "size": [83.67, 76], "foot": 0.96 }
     },
     {
       "id": "dahlia",
@@ -181,7 +193,8 @@
         "petal-hi": "#f6c3b2",
         "petal-lo": "#be7062",
         "heart": "#e6ad51"
-      }
+      },
+      "patch": { "art": "flowers/patch-dahlia.svg", "size": [73.67, 82], "foot": 0.96 }
     },
     {
       "id": "aster",
@@ -192,7 +205,8 @@
         "petal-hi": "#dbc4ed",
         "petal-lo": "#8a6baa",
         "heart": "#efc76d"
-      }
+      },
+      "patch": { "art": "flowers/patch-aster.svg", "size": [69.33, 76], "foot": 0.96 }
     },
     {
       "id": "hellebore",
@@ -204,7 +218,8 @@
         "petal-hi": "#f0f3e6",
         "petal-lo": "#a4b995",
         "heart": "#e4c776"
-      }
+      },
+      "patch": { "art": "flowers/patch-hellebore.svg", "size": [62.67, 62], "foot": 0.96 }
     },
     {
       "id": "cyclamen",
@@ -215,7 +230,8 @@
         "petal-hi": "#e9a6c0",
         "petal-lo": "#a14d74",
         "heart": "#eee1c1"
-      }
+      },
+      "patch": { "art": "flowers/patch-cyclamen.svg", "size": [66.67, 60], "foot": 0.96 }
     },
     {
       "id": "dandelion",
@@ -227,7 +243,8 @@
         "petal-hi": "#f8e07c",
         "petal-lo": "#c99a1e",
         "heart": "#e6a81c"
-      }
+      },
+      "patch": { "art": "flowers/patch-dandelion.svg", "size": [48.67, 62], "foot": 0.96 }
     },
     {
       "id": "azalea",
@@ -239,7 +256,8 @@
         "petal-hi": "#f2a2c4",
         "petal-lo": "#b54378",
         "heart": "#8a2f58"
-      }
+      },
+      "patch": { "art": "flowers/patch-azalea.svg", "size": [84.33, 74], "foot": 0.96 }
     },
     {
       "id": "morning_glory",
@@ -252,7 +270,8 @@
         "petal-hi": "#9aa8ec",
         "petal-lo": "#3f4fa8",
         "heart": "#f4f0e4"
-      }
+      },
+      "patch": { "art": "flowers/patch-morning_glory.svg", "size": [64, 86], "foot": 0.96 }
     },
     {
       "id": "balsam",
@@ -264,7 +283,8 @@
         "petal-hi": "#f29aa6",
         "petal-lo": "#b23a4e",
         "heart": "#f2d6c8"
-      }
+      },
+      "patch": { "art": "flowers/patch-balsam.svg", "size": [66, 78], "foot": 0.96 }
     },
     {
       "id": "spider_lily",
@@ -276,7 +296,8 @@
         "petal-hi": "#f07a6a",
         "petal-lo": "#a8251e",
         "heart": "#f2c8a0"
-      }
+      },
+      "patch": { "art": "flowers/patch-spider_lily.svg", "size": [60, 80], "foot": 0.96 }
     },
     {
       "id": "celosia",
@@ -288,7 +309,8 @@
         "petal-hi": "#e05a80",
         "petal-lo": "#8a1436",
         "heart": "#f0c060"
-      }
+      },
+      "patch": { "art": "flowers/patch-celosia.svg", "size": [60.67, 76], "foot": 0.96 }
     },
     {
       "id": "adonis",
@@ -300,7 +322,8 @@
         "petal-hi": "#f8dc6e",
         "petal-lo": "#c8961a",
         "heart": "#8a6a1e"
-      }
+      },
+      "patch": { "art": "flowers/patch-adonis.svg", "size": [69, 58], "foot": 0.96 }
     },
     {
       "id": "pansy",
@@ -312,7 +335,8 @@
         "petal-hi": "#a68ae0",
         "petal-lo": "#4a3088",
         "heart": "#f2d24a"
-      }
+      },
+      "patch": { "art": "flowers/patch-pansy.svg", "size": [69, 56], "foot": 0.96 }
     },
     {
       "id": "bleeding_heart",
@@ -324,7 +348,8 @@
         "petal-hi": "#f6a3bf",
         "petal-lo": "#b83e68",
         "heart": "#fbf3f4"
-      }
+      },
+      "patch": { "art": "flowers/patch-bleeding_heart.svg", "size": [71, 80], "foot": 0.96 }
     },
     {
       "id": "pasque_flower",
@@ -336,7 +361,8 @@
         "petal-hi": "#c9a7c0",
         "petal-lo": "#64162e",
         "heart": "#f2b833"
-      }
+      },
+      "patch": { "art": "flowers/patch-pasque_flower.svg", "size": [55.33, 62], "foot": 0.96 }
     },
     {
       "id": "daylily",
@@ -348,7 +374,8 @@
         "petal-hi": "#f8b860",
         "petal-lo": "#c95f12",
         "heart": "#e04a1c"
-      }
+      },
+      "patch": { "art": "flowers/patch-daylily.svg", "size": [65.33, 90], "foot": 0.96 }
     },
     {
       "id": "hollyhock",
@@ -361,7 +388,8 @@
         "petal-hi": "#ffffff",
         "petal-lo": "#e2e2d4",
         "heart": "#f2d24a"
-      }
+      },
+      "patch": { "art": "flowers/patch-hollyhock.svg", "size": [75.67, 108], "foot": 0.96 }
     },
     {
       "id": "buckwheat",
@@ -373,7 +401,8 @@
         "petal-hi": "#ffffff",
         "petal-lo": "#e8dcd0",
         "heart": "#c8504a"
-      }
+      },
+      "patch": { "art": "flowers/patch-buckwheat.svg", "size": [61.67, 76], "foot": 0.96 }
     },
     {
       "id": "gentian",
@@ -385,7 +414,8 @@
         "petal-hi": "#6f8fe6",
         "petal-lo": "#1f3a96",
         "heart": "#e8eef8"
-      }
+      },
+      "patch": { "art": "flowers/patch-gentian.svg", "size": [79.33, 72], "foot": 0.96 }
     },
     {
       "id": "flowering_kale",
@@ -397,7 +427,8 @@
         "petal-hi": "#fffdf2",
         "petal-lo": "#7fa6a0",
         "heart": "#e8e6b8"
-      }
+      },
+      "patch": { "art": "flowers/patch-flowering_kale.svg", "size": [88.33, 52], "foot": 0.96 }
     },
     {
       "id": "winter_heath",
@@ -409,7 +440,8 @@
         "petal-hi": "#f07cb8",
         "petal-lo": "#a82468",
         "heart": "#4a6a34"
-      }
+      },
+      "patch": { "art": "flowers/patch-winter_heath.svg", "size": [63.67, 58], "foot": 0.96 }
     },
     {
       "id": "lily_of_the_valley",
@@ -421,7 +453,8 @@
         "petal-hi": "#ffffff",
         "petal-lo": "#cdd2bc",
         "heart": "#7aa848"
-      }
+      },
+      "patch": { "art": "flowers/patch-lily_of_the_valley.svg", "size": [44.67, 60], "foot": 0.96 }
     },
     {
       "id": "peony",
@@ -433,7 +466,8 @@
         "petal-hi": "#f9bcd2",
         "petal-lo": "#d0588a",
         "heart": "#f4c84a"
-      }
+      },
+      "patch": { "art": "flowers/patch-peony.svg", "size": [65.33, 80], "foot": 0.96 }
     },
     {
       "id": "rose",
@@ -445,7 +479,8 @@
         "petal-hi": "#f0525a",
         "petal-lo": "#9a1022",
         "heart": "#8a0f1e"
-      }
+      },
+      "patch": { "art": "flowers/patch-rose.svg", "size": [60.67, 82], "foot": 0.96 }
     },
     {
       "id": "lily",
@@ -458,7 +493,8 @@
         "petal-hi": "#ffffff",
         "petal-lo": "#d8d0c0",
         "heart": "#c63238"
-      }
+      },
+      "patch": { "art": "flowers/patch-lily.svg", "size": [85.67, 94], "foot": 0.96 }
     },
     {
       "id": "marigold",
@@ -470,7 +506,8 @@
         "petal-hi": "#f2b41c",
         "petal-lo": "#7a1614",
         "heart": "#f0a818"
-      }
+      },
+      "patch": { "art": "flowers/patch-marigold.svg", "size": [70.67, 62], "foot": 0.96 }
     },
     {
       "id": "japanese_anemone",
@@ -482,7 +519,8 @@
         "petal-hi": "#ffffff",
         "petal-lo": "#d5d8ca",
         "heart": "#9ccc3c"
-      }
+      },
+      "patch": { "art": "flowers/patch-japanese_anemone.svg", "size": [76, 84], "foot": 0.96 }
     },
     {
       "id": "poinsettia",
@@ -494,7 +532,8 @@
         "petal-hi": "#f45e6a",
         "petal-lo": "#a6162a",
         "heart": "#f0c42c"
-      }
+      },
+      "patch": { "art": "flowers/patch-poinsettia.svg", "size": [76.67, 74], "foot": 0.96 }
     },
     {
       "id": "amaryllis",
@@ -507,7 +546,8 @@
         "petal-hi": "#fbe6e0",
         "petal-lo": "#a6161e",
         "heart": "#c4d468"
-      }
+      },
+      "patch": { "art": "flowers/patch-amaryllis.svg", "size": [71.67, 92], "foot": 0.96 }
     }
   ],
   "gifts": [
@@ -1025,6 +1065,10 @@
   "findsOut": [
     {
       "id": "fish_out",
+      "grow": [
+        [4, 0.7],
+        [150, 1.45]
+      ],
       "list": "fish",
       "poke": "swim",
       "size": [84, 54],
@@ -1034,6 +1078,10 @@
     },
     {
       "id": "bug_out",
+      "grow": [
+        [0.7, 0.55],
+        [12, 1.3]
+      ],
       "list": "bugs",
       "size": [52, 46],
       "foot": 0.98,
@@ -1042,6 +1090,10 @@
     },
     {
       "id": "treasure_out",
+      "grow": [
+        [1, 0.65],
+        [12, 1.25]
+      ],
       "list": "treasures",
       "poke": "twinkle",
       "size": [44, 44],
@@ -1051,6 +1103,10 @@
     },
     {
       "id": "track_out",
+      "grow": [
+        [14, 0.75],
+        [100, 1.3]
+      ],
       "list": "tracks",
       "drawing": "whole",
       "onceAfter": 3,
@@ -1592,6 +1648,7 @@
   "bugs": [
     {
       "id": "cabbage_white",
+      "length": 5,
       "kind": "butterfly",
       "seasons": ["spring", "summer", "autumn"],
       "periods": ["morning", "day"],
@@ -1605,6 +1662,7 @@
     },
     {
       "id": "yellow_butterfly",
+      "length": 4.5,
       "kind": "butterfly",
       "seasons": ["spring", "summer", "autumn"],
       "periods": ["morning", "day"],
@@ -1617,6 +1675,7 @@
     },
     {
       "id": "blue_butterfly",
+      "length": 3,
       "kind": "butterfly",
       "seasons": ["spring", "summer"],
       "periods": ["morning", "day"],
@@ -1630,6 +1689,7 @@
     },
     {
       "id": "swallowtail",
+      "length": 10,
       "kind": "butterfly",
       "seasons": ["summer"],
       "periods": ["morning", "day"],
@@ -1644,6 +1704,7 @@
     },
     {
       "id": "black_swallowtail",
+      "length": 11,
       "kind": "butterfly",
       "seasons": ["summer"],
       "periods": ["morning", "day"],
@@ -1659,6 +1720,7 @@
     },
     {
       "id": "peacock",
+      "length": 6,
       "kind": "butterfly",
       "seasons": ["autumn"],
       "periods": ["morning", "day"],
@@ -1672,6 +1734,7 @@
     },
     {
       "id": "dragonfly",
+      "length": 7,
       "kind": "dragonfly",
       "seasons": ["spring", "summer", "autumn"],
       "periods": ["morning", "day"],
@@ -1684,6 +1747,7 @@
     },
     {
       "id": "red_dragonfly",
+      "length": 6,
       "kind": "dragonfly",
       "seasons": ["summer", "autumn"],
       "periods": ["morning", "day"],
@@ -1696,6 +1760,7 @@
     },
     {
       "id": "firefly",
+      "length": 1.5,
       "kind": "firefly",
       "seasons": ["spring", "summer"],
       "periods": ["evening", "night"],
@@ -1708,6 +1773,7 @@
     },
     {
       "id": "orange_tip",
+      "length": 4.5,
       "kind": "butterfly",
       "seasons": ["spring"],
       "periods": ["morning", "day"],
@@ -1721,6 +1787,7 @@
     },
     {
       "id": "purple_emperor",
+      "length": 7,
       "kind": "butterfly",
       "seasons": ["summer"],
       "periods": ["morning", "day"],
@@ -1735,6 +1802,7 @@
     },
     {
       "id": "brimstone",
+      "length": 6,
       "kind": "butterfly",
       "seasons": ["spring", "autumn"],
       "periods": ["morning", "day"],
@@ -1748,6 +1816,7 @@
     },
     {
       "id": "damselfly",
+      "length": 4,
       "kind": "dragonfly",
       "seasons": ["spring", "summer"],
       "periods": ["morning", "day"],
@@ -1761,6 +1830,7 @@
     },
     {
       "id": "emperor_dragonfly",
+      "length": 10,
       "kind": "dragonfly",
       "seasons": ["summer"],
       "periods": ["morning", "day"],
@@ -1773,6 +1843,7 @@
     },
     {
       "id": "heike_firefly",
+      "length": 0.9,
       "kind": "firefly",
       "seasons": ["summer"],
       "periods": ["evening", "night"],
@@ -1787,6 +1858,7 @@
     },
     {
       "id": "late_firefly",
+      "length": 1.2,
       "kind": "firefly",
       "seasons": ["summer"],
       "periods": ["evening", "night"],
@@ -1801,6 +1873,7 @@
     },
     {
       "id": "golden_firefly",
+      "length": 1.5,
       "kind": "firefly",
       "seasons": ["summer"],
       "periods": ["evening", "night"],
@@ -1816,6 +1889,7 @@
     },
     {
       "id": "ladybug",
+      "length": 0.7,
       "kind": "beetle",
       "seasons": ["spring", "summer", "autumn"],
       "periods": ["morning", "day"],
@@ -1830,20 +1904,23 @@
     },
     {
       "id": "field_cricket",
+      "length": 2.5,
       "kind": "cricket",
       "seasons": ["summer", "autumn"],
       "periods": ["morning", "day"],
       "weight": 10,
       "rarity": "common",
       "look": {
-        "body": "#9a5a34",
-        "wing": "#7e4a2c",
-        "edge": "#4a2a18"
+        "body": "#2b2421",
+        "wing": "#1f1a18",
+        "edge": "#0e0c0b",
+        "spots": "#f3dc8a"
       },
       "art": "bugs/field_cricket.svg"
     },
     {
       "id": "tiger_beetle",
+      "length": 2,
       "kind": "beetle",
       "seasons": ["spring"],
       "periods": ["morning", "day"],
@@ -1857,6 +1934,7 @@
     },
     {
       "id": "longhorn_beetle",
+      "length": 4,
       "kind": "beetle",
       "seasons": ["summer"],
       "periods": ["morning", "day"],
@@ -1870,6 +1948,7 @@
     },
     {
       "id": "rhinoceros_beetle",
+      "length": 7,
       "kind": "beetle",
       "seasons": ["summer"],
       "periods": ["morning", "day"],
@@ -1884,6 +1963,7 @@
     },
     {
       "id": "mantis",
+      "length": 8,
       "kind": "beetle",
       "seasons": ["autumn"],
       "periods": ["morning", "day"],
@@ -1897,6 +1977,7 @@
     },
     {
       "id": "longheaded_grasshopper",
+      "length": 6,
       "kind": "cricket",
       "seasons": ["summer"],
       "periods": ["morning", "day"],
@@ -1910,6 +1991,7 @@
     },
     {
       "id": "butterfly_dragonfly",
+      "length": 7,
       "kind": "dragonfly",
       "seasons": ["summer"],
       "periods": ["morning", "day"],
@@ -1923,6 +2005,7 @@
     },
     {
       "id": "hawk_moth",
+      "length": 9,
       "kind": "butterfly",
       "seasons": ["summer", "autumn"],
       "periods": ["morning", "day"],
@@ -1936,6 +2019,7 @@
     },
     {
       "id": "emma_cricket",
+      "length": 3,
       "kind": "cricket",
       "seasons": ["autumn"],
       "periods": ["evening", "night"],
@@ -1949,6 +2033,7 @@
     },
     {
       "id": "katydid",
+      "length": 5,
       "kind": "cricket",
       "seasons": ["autumn"],
       "periods": ["evening", "night"],
@@ -1997,6 +2082,7 @@
     },
     {
       "id": "maple",
+      "stature": 1.05,
       "stages": [
         {
           "name": "seedling",
@@ -2025,6 +2111,7 @@
     },
     {
       "id": "pine",
+      "stature": 1.25,
       "stages": [
         {
           "name": "seedling",
@@ -2049,6 +2136,7 @@
     },
     {
       "id": "oak",
+      "stature": 1.3,
       "stages": [
         {
           "name": "seedling",
@@ -2087,6 +2175,7 @@
     },
     {
       "id": "birch",
+      "stature": 1.2,
       "stages": [
         {
           "name": "seedling",
@@ -2115,6 +2204,7 @@
     },
     {
       "id": "willow",
+      "stature": 1.15,
       "stages": [
         {
           "name": "seedling",
@@ -2143,6 +2233,7 @@
     },
     {
       "id": "ginkgo",
+      "stature": 1.3,
       "stages": [
         {
           "name": "seedling",
@@ -2209,6 +2300,7 @@
     },
     {
       "id": "bamboo",
+      "stature": 1.05,
       "stages": [
         {
           "name": "seedling",
@@ -2260,6 +2352,7 @@
     },
     {
       "id": "crape_myrtle",
+      "stature": 0.85,
       "stages": [
         {
           "name": "seedling",
@@ -2288,6 +2381,7 @@
     },
     {
       "id": "metasequoia",
+      "stature": 1.45,
       "stages": [
         {
           "name": "seedling",
@@ -2316,6 +2410,7 @@
     },
     {
       "id": "wisteria",
+      "stature": 0.9,
       "stages": [
         {
           "name": "seedling",
@@ -2344,6 +2439,7 @@
     },
     {
       "id": "fringe_tree",
+      "stature": 0.85,
       "stages": [
         {
           "name": "seedling",
@@ -2372,6 +2468,7 @@
     },
     {
       "id": "fig",
+      "stature": 0.8,
       "stages": [
         {
           "name": "seedling",
@@ -2438,6 +2535,7 @@
     },
     {
       "id": "chestnut",
+      "stature": 1.15,
       "stages": [
         {
           "name": "seedling",
@@ -2476,6 +2574,7 @@
     },
     {
       "id": "red_plum",
+      "stature": 0.85,
       "stages": [
         {
           "name": "seedling",
@@ -2520,6 +2619,7 @@
     },
     {
       "id": "yuzu",
+      "stature": 0.75,
       "stages": [
         {
           "name": "seedling",
@@ -2581,6 +2681,7 @@
     },
     {
       "id": "lilac",
+      "stature": 0.75,
       "stages": [
         {
           "name": "seedling",
@@ -2609,6 +2710,7 @@
     },
     {
       "id": "silk_tree",
+      "stature": 0.95,
       "stages": [
         {
           "name": "seedling",
@@ -2637,6 +2739,7 @@
     },
     {
       "id": "osmanthus",
+      "stature": 0.8,
       "stages": [
         {
           "name": "seedling",
@@ -2665,6 +2768,7 @@
     },
     {
       "id": "holly",
+      "stature": 0.95,
       "stages": [
         {
           "name": "seedling",
@@ -2695,6 +2799,7 @@
   "treasures": [
     {
       "id": "striped_pebble",
+      "length": 4,
       "art": "discovery/striped_pebble.svg",
       "rarity": "common",
       "weight": 1,
@@ -2707,6 +2812,7 @@
     },
     {
       "id": "sea_glass",
+      "length": 3,
       "art": "discovery/sea_glass.svg",
       "rarity": "common",
       "weight": 1,
@@ -2719,6 +2825,7 @@
     },
     {
       "id": "leaf_fossil",
+      "length": 8,
       "art": "discovery/leaf_fossil.svg",
       "rarity": "common",
       "weight": 1,
@@ -2731,6 +2838,7 @@
     },
     {
       "id": "clay_shard",
+      "length": 6,
       "art": "discovery/clay_shard.svg",
       "rarity": "common",
       "weight": 1,
@@ -2743,6 +2851,7 @@
     },
     {
       "id": "old_button",
+      "length": 2,
       "art": "discovery/old_button.svg",
       "rarity": "common",
       "weight": 1,
@@ -2755,6 +2864,7 @@
     },
     {
       "id": "tiny_shell",
+      "length": 2,
       "art": "discovery/tiny_shell.svg",
       "rarity": "common",
       "weight": 1,
@@ -2767,6 +2877,7 @@
     },
     {
       "id": "quartz",
+      "length": 4,
       "art": "discovery/quartz.svg",
       "rarity": "uncommon",
       "weight": 1,
@@ -2779,6 +2890,7 @@
     },
     {
       "id": "amber",
+      "length": 3,
       "art": "discovery/amber.svg",
       "rarity": "uncommon",
       "weight": 1,
@@ -2791,6 +2903,7 @@
     },
     {
       "id": "bottle_cap",
+      "length": 3,
       "art": "discovery/bottle_cap.svg",
       "rarity": "common",
       "weight": 1,
@@ -2803,6 +2916,7 @@
     },
     {
       "id": "toy_robot",
+      "length": 10,
       "art": "discovery/toy_robot.svg",
       "rarity": "common",
       "weight": 1,
@@ -2815,6 +2929,7 @@
     },
     {
       "id": "tiny_crown",
+      "length": 5,
       "art": "discovery/tiny_crown.svg",
       "rarity": "uncommon",
       "weight": 1,
@@ -2827,6 +2942,7 @@
     },
     {
       "id": "star_fragment",
+      "length": 3,
       "art": "discovery/star_fragment.svg",
       "rarity": "uncommon",
       "weight": 1,
@@ -2839,6 +2955,7 @@
     },
     {
       "id": "glass_marble",
+      "length": 1.6,
       "art": "discovery/glass_marble.svg",
       "rarity": "common",
       "weight": 1,
@@ -2851,6 +2968,7 @@
     },
     {
       "id": "wooden_whale",
+      "length": 10,
       "art": "discovery/wooden_whale.svg",
       "rarity": "common",
       "weight": 1,
@@ -2863,6 +2981,7 @@
     },
     {
       "id": "felt_mushroom",
+      "length": 6,
       "art": "discovery/felt_mushroom.svg",
       "rarity": "common",
       "weight": 1,
@@ -2875,6 +2994,7 @@
     },
     {
       "id": "acorn_teacup",
+      "length": 3,
       "art": "discovery/acorn_teacup.svg",
       "rarity": "common",
       "weight": 1,
@@ -2887,6 +3007,7 @@
     },
     {
       "id": "sleeping_fox",
+      "length": 8,
       "art": "discovery/sleeping_fox.svg",
       "rarity": "common",
       "weight": 1,
@@ -2899,6 +3020,7 @@
     },
     {
       "id": "old_coin",
+      "length": 2.5,
       "art": "discovery/old_coin.svg",
       "rarity": "common",
       "weight": 1,
@@ -2911,6 +3033,7 @@
     },
     {
       "id": "blue_feather",
+      "length": 12,
       "art": "discovery/blue_feather.svg",
       "rarity": "common",
       "weight": 1,
@@ -2923,6 +3046,7 @@
     },
     {
       "id": "pinecone",
+      "length": 8,
       "art": "discovery/pinecone.svg",
       "rarity": "common",
       "weight": 1,
@@ -2935,6 +3059,7 @@
     },
     {
       "id": "old_key",
+      "length": 6,
       "art": "discovery/old_key.svg",
       "rarity": "common",
       "weight": 1,
@@ -2947,6 +3072,7 @@
     },
     {
       "id": "paper_boat",
+      "length": 10,
       "art": "discovery/paper_boat.svg",
       "rarity": "common",
       "weight": 1,
@@ -2959,6 +3085,7 @@
     },
     {
       "id": "spinning_top",
+      "length": 5,
       "art": "discovery/spinning_top.svg",
       "rarity": "common",
       "weight": 1,
@@ -2971,6 +3098,7 @@
     },
     {
       "id": "freshwater_pearl",
+      "length": 1,
       "art": "discovery/freshwater_pearl.svg",
       "rarity": "uncommon",
       "weight": 1,
@@ -2983,6 +3111,7 @@
     },
     {
       "id": "four_leaf_clover",
+      "length": 3,
       "art": "discovery/four_leaf_clover.svg",
       "rarity": "uncommon",
       "weight": 1,
@@ -2995,6 +3124,7 @@
     },
     {
       "id": "heart_locket",
+      "length": 3,
       "art": "discovery/heart_locket.svg",
       "rarity": "common",
       "weight": 1,
@@ -3008,6 +3138,7 @@
     },
     {
       "id": "perfume_bottle",
+      "length": 8,
       "art": "discovery/perfume_bottle.svg",
       "rarity": "uncommon",
       "weight": 1,
@@ -3021,6 +3152,7 @@
     },
     {
       "id": "pearl_hair_clip",
+      "length": 6,
       "art": "discovery/pearl_hair_clip.svg",
       "rarity": "common",
       "weight": 1,
@@ -3033,6 +3165,7 @@
     },
     {
       "id": "shell_mirror",
+      "length": 8,
       "art": "discovery/shell_mirror.svg",
       "rarity": "common",
       "weight": 1,
@@ -3047,6 +3180,7 @@
   "tracks": [
     {
       "id": "hare",
+      "length": 50,
       "print": "prints/hare.svg",
       "tail": "tracks/tail_hare.svg",
       "whole": "tracks/whole_hare.svg",
@@ -3056,6 +3190,7 @@
     },
     {
       "id": "fox",
+      "length": 70,
       "print": "prints/fox.svg",
       "tail": "tracks/tail_fox.svg",
       "whole": "tracks/whole_fox.svg",
@@ -3065,6 +3200,7 @@
     },
     {
       "id": "water_deer",
+      "length": 100,
       "print": "prints/water_deer.svg",
       "tail": "tracks/tail_water_deer.svg",
       "whole": "tracks/whole_water_deer.svg",
@@ -3074,6 +3210,7 @@
     },
     {
       "id": "raccoon_dog",
+      "length": 60,
       "print": "prints/raccoon_dog.svg",
       "tail": "tracks/tail_raccoon_dog.svg",
       "whole": "tracks/whole_raccoon_dog.svg",
@@ -3083,6 +3220,7 @@
     },
     {
       "id": "squirrel",
+      "length": 22,
       "print": "prints/squirrel.svg",
       "tail": "tracks/tail_squirrel.svg",
       "whole": "tracks/whole_squirrel.svg",
@@ -3092,6 +3230,7 @@
     },
     {
       "id": "sparrow",
+      "length": 14,
       "print": "prints/sparrow.svg",
       "tail": "tracks/tail_sparrow.svg",
       "whole": "tracks/whole_sparrow.svg",
@@ -3101,6 +3240,7 @@
     },
     {
       "id": "magpie",
+      "length": 45,
       "print": "prints/magpie.svg",
       "tail": "tracks/tail_magpie.svg",
       "whole": "tracks/whole_magpie.svg",
@@ -3110,6 +3250,7 @@
     },
     {
       "id": "cat",
+      "length": 50,
       "print": "prints/cat.svg",
       "tail": "tracks/tail_cat.svg",
       "whole": "tracks/whole_cat.svg",

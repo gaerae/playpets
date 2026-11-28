@@ -67,7 +67,8 @@ test('a gift waiting in the box comes out of its own card, a memento marked with
   ctx.mock.timers.enable({ apis: ['setTimeout'] });
   const { GIFTS } = await import('../src/yard/catalog.js');
   const cardOf = (nodes, kind) => nodes.get('album-grid').children[GIFTS.findIndex(g => g.id === kind)];
-  const heartOf = card => card.children[0].children.find(c => c.classList?.contains('album-heart'));
+  // On the card beside its picture, not inside the picture's button, so a reader hears it.
+  const heartOf = card => card.children.find(c => c.classList?.contains('album-heart'));
   const nodes = album(ctx, {
     received: ['bench', 'lantern', 'pond'],
     decor: [{ id: 'l', kind: 'lantern', x: 0.5, y: 0.5, memento: true, from: 'gone' }],

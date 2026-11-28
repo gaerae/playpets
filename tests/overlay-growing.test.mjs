@@ -7,11 +7,14 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 const { growing, growingArt, growingLook, visitKey } = await import('../src/overlay/growing.js');
-const { STAGES } = await import('../src/yard/catalog.js');
+const { STAGES, flowerKind } = await import('../src/yard/catalog.js');
 
 const MIN = 60 * 1000;
 const garden = {
-  plants: [{ id: 'p', kind: 'sunflower', x: 0.5, y: 0.5, planted: 0 }],
+  plants: [
+    { id: 'p', kind: 'sunflower', x: 0.5, y: 0.5, planted: 0, single: true },
+    { id: 'q', kind: 'sunflower', x: 0.5, y: 0.5, planted: 0 },
+  ],
   trees: [{ id: 't', kind: 'cherry', world: 'meadow', x: 0.5, y: 0.5, planted: 0, stage: 0 }],
   decor: [{ id: 'g', kind: 'bench', x: 0.5, y: 0.5 }],
 };
@@ -36,6 +39,18 @@ test('a flower grows on the desktop as in the yard and stands tall once it buds'
   assert.match(bloom.art, /flowers\//);
   // The backend's box for a sunflower is 70 × 105 (items.rs): the bloom fills it.
   assert.deepEqual([bloom.width, bloom.height], [70, 105]);
+});
+
+test('a flower with a patch blooms on the desktop as that patch, in the box the backend gives it', () => {
+  const patch = flowerKind('sunflower').patch;
+  const bloom = growingLook(growing(garden, 'q'), 'summer', STAGES.at(-1).at + MIN, () => patch.size);
+  assert.equal(bloom.art, patch.art);
+  // items.rs: its size in yard pixels at full size, rounded as the backend rounds the box.
+  assert.deepEqual(
+    [bloom.width, bloom.height],
+    patch.size.map(n => Math.round(n * 1.25)),
+  );
+  assert.ok(growingArt('sunflower').includes(patch.art));
 });
 
 test("a planted tree is drawn at its saved stage's size, and grown in the yard's season", () => {

@@ -239,3 +239,15 @@ test('the live snapshot leaves out what the shown season hides', t => {
   scene.season = 'winter';
   assert.equal(groundAllows({ x: 0.5, y: 0.8 }, groundProfile()), false);
 });
+
+// Review: a flower blooming as its patch took one flower's ground, so friends walked into the patch
+// and stood in it to water it. A patch takes the ground it is drawn on; one bloom keeps its own.
+test('a flower blooming as a patch takes the ground of its patch', () => {
+  const bloomed = { x: 0.5, y: 0.6, kind: 'tulip', planted: 0 },
+    now = 10 * 24 * 3600 * 1000;
+  const [patch] = base({ garden: { plants: [bloomed] }, now }).obstacles,
+    [one] = base({ garden: { plants: [{ ...bloomed, single: true }] }, now }).obstacles;
+  assert.ok(patch.rx > one.rx * 1.6, `${patch.rx} against ${one.rx}`);
+  const [sprout] = base({ garden: { plants: [{ ...bloomed, planted: now }] }, now }).obstacles;
+  assert.equal(sprout.rx, one.rx, 'a sprout takes one flower’s ground');
+});

@@ -45,9 +45,10 @@ Every friend at once:
 | Pat | Left-click a friend once |
 | Move | Drag a friend and drop it, onto another monitor too |
 | Chat | Point at a friend: its name shows below it with a speech mark. Click the name and the yard opens on that friend's chat |
-| Menu | Right-click a friend for **Talk to** or **Take off the desktop**. A gift, a flower, a tree and a fish, bug or keepsake from the album have **Take off the desktop** |
+| Menu | Right-click a friend for **Talk to** or **Take off the desktop**. A gift, a flower, a tree and a fish, bug or keepsake from the album have **Take off the desktop**; a flower in bloom with a patch also has **One bloom** and **A patch** |
 | Eye contact | Move the mouse over a resting friend's face and its eyes follow. Only v2 pets with 16-direction gaze artwork can do this |
 
+- Send something out while PlayPets runs and it arrives: a friend drops in from above, lands in a puff of dust and waves; a gift, a flower or a tree pops up, and the nearest friend hops over to greet it. With reduced motion it is just there.
 - A double-click does nothing, so no window opens by accident while you move a friend.
 - The first time you send something out, a notice shows three gestures: click the name to chat, drag to move, right-click to take it off.
 - Names stay hidden until you point at a friend, so friends blend in with your desk.
@@ -60,7 +61,7 @@ Right-click a gift in the yard, such as the bench or a flowerpot, and choose **S
 - Drag it to move it, onto another monitor too. It stays where you leave it.
 - Friends strolling on the desktop walk over to a gift now and then, stand beside it and say something about it. On the bench, swing, hammock, stump or picnic blanket they stand on it.
 - The lantern and the campfire light up from evening, by your computer's clock.
-- A click answers: the pinwheel spins, the wind chime swings and rings, and the lantern switches off and on until the time of day changes. With reduced motion nothing turns, but the light still switches and the chime still rings.
+- A click answers: the pinwheel spins, the wind chime swings and rings, the lantern switches off and on until the time of day changes, and the others bob. Now and then a friend standing near says something about it. With reduced motion nothing turns, but the light still switches and the chime still rings.
 - Set the wind chime, the hanging pot or the mobile down near the top of a screen and it hangs from there on a cord, swinging when clicked.
 - A fish, bug, keepsake or footprint animal set out from the album goes out like a gift, or straight from its card with the small screen button ([Album](./play.md#album)). Each answers a click its own way: a fish swims a turn with a few bubbles, a butterfly flaps, a firefly blinks, a keepsake sparkles and an animal hops.
 - Putting a gift away in the yard takes it off the desktop too. A gift that came before can be set out again from the album ([Gifts](./play.md#gifts)).
@@ -75,6 +76,7 @@ Right-click a flower or a tree you planted and choose **Show on desktop**. It st
 - A grown tree wears the season the yard shows.
 - A tree from another place stays out whichever place the yard shows.
 - Drag it to move it, like a gift. Friends strolling on the desktop walk over to it now and then.
+- A click answers as in the yard: a flower bobs and drops a few petals, a tree rustles and lets a few leaves go, or snow in winter.
 - A flower or tree in the album can come out grown: the small screen button on its card sets one out in the yard and on the desktop at once ([Album](./play.md#album)).
 - Pull it up or remove it in the yard and it leaves the desktop too.
 

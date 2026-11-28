@@ -12,10 +12,13 @@ import { artSvg } from './art.js';
 import { befriend } from './bond.js';
 import { rareKind, showCard } from './card.js';
 import { onAimingChange, setAimingMode } from './care.js';
-import { TREES, treasureKind } from './catalog.js';
+import { treeArt, TREES, treasureKind } from './catalog.js';
+import { toolGivesWay } from './catch.js';
 import { groundAllows } from './discovery-rules.js';
-import { field, fieldToYard, petHeight, sizeOf, topAt, yardToDecor, yardToField } from './field.js';
+import { EDGE, field, fieldToYard, petHeight, sizeOf, topAt, yardToDecor, yardToField } from './field.js';
+import { noRoomForSeed, seedLook, seedSpot, spareSeeds } from './garden.js';
 import { groundProfile } from './ground.js';
+import { saplingPreview } from './planted-trees.js';
 import { atRainbowEnd, clearRainbowEnd } from './rainbow-end.js';
 import { learn } from './show-how.js';
 import { atTrailEnd, reservedForTrail } from './trails.js';
@@ -48,20 +51,52 @@ const TOOLS = [
 ];
 const ownAim = () => intent && aiming === intent.action;
 const stock = kind => data.garden?.saplings?.[kind] || 0;
+// The saplings of a kind left to plant: one a friend is on its way to plant is already promised, as a
+// seed is (garden.js spareSeeds).
+const spare = kind => Math.max(0, stock(kind) - planting().filter(task => task.kind === kind).length);
+const saplingArt = kind => treeArt(kind, 0, scene.season) || '';
+/** The tool in hand that marks the ground: a dig or a tree chosen here, or a seed (garden.js). */
+const inHand = () => (ownAim() ? intent.action : aiming === 'seed' ? 'seed' : null);
+// The sapling in hand, here and in the menu: its picture, its name and how many.
+// The picture is drawn again only when it changes, as the strip is updated on every state change.
+function inHandRow(picture, name, art, { text }) {
+  if (picture && picture.dataset.art !== art) {
+    picture.dataset.art = art;
+    picture.innerHTML = art ? artSvg(art) : '';
+  }
+  if (name) name.textContent = text;
+}
+// The seeds in hand, as the sapling picker shows a sapling; with none, where seeds come from and
+// the dig that finds them, as for a sapling.
+function seedHand() {
+  const seeds = spareSeeds();
+  $('discovery-seed-hand').hidden = !seeds;
+  // No friend digs a floor (beginDiscovery), so a room offers no dig it would refuse.
+  $('discovery-find').hidden = !!seeds || !groundProfile().soil;
+  // Its picture is the seed packet (index.html), as a planted seed is a speck at that size.
+  if (seeds) $('discovery-seed-current').textContent = t('garden.seeds_in_hand', { count: seeds });
+  stripSays(seeds ? 'hint.plant' : 'garden.no_seeds');
+}
 
 function treeChoices() {
   const choices = $('discovery-tree-choices');
   if (intent?.action !== 'tree' || !choices) return;
-  if (!stock(intent.kind)) intent.kind = TREES.find(tree => stock(tree.id))?.id || null;
+  if (!spare(intent.kind)) intent.kind = TREES.find(tree => spare(tree.id))?.id || null;
   // Every state change comes here; the choices are made once and updated in place, so a keyboard
   // user keeps focus on one.
   if (choices.children.length !== TREES.length)
     choices.replaceChildren(
       ...TREES.map(tree => {
-        const button = document.createElement('button');
+        const button = document.createElement('button'),
+          picture = document.createElement('span'),
+          name = document.createElement('span');
         button.type = 'button';
         button.setAttribute('role', 'menuitemradio');
         button.dataset.treeKind = tree.id;
+        picture.className = 'hand-picture';
+        picture.setAttribute('aria-hidden', 'true');
+        name.className = 'hand-name';
+        button.append(picture, name);
         return button;
       }),
     );
@@ -69,20 +104,21 @@ function treeChoices() {
   // many kinds are found; the menu lists only the saplings in the pocket (the album lists every kind).
   for (const button of choices.children) {
     const kind = button.dataset.treeKind;
-    button.disabled = !stock(kind);
-    button.hidden = !stock(kind);
-    button.textContent = t('discovery.pocket', { kind: t(`tree.${kind}`), count: stock(kind) });
+    button.disabled = !spare(kind);
+    button.hidden = !spare(kind);
+    inHandRow(button.querySelector('.hand-picture'), button.querySelector('.hand-name'), saplingArt(kind), {
+      text: t('discovery.pocket', { kind: t(`tree.${kind}`), count: spare(kind) }),
+    });
     button.title = t('discovery.sapling_source');
     button.setAttribute('aria-checked', String(kind === intent.kind));
   }
   if (intent.kind)
-    $('discovery-tree-current').textContent = t('discovery.pocket', {
-      kind: t(`tree.${intent.kind}`),
-      count: stock(intent.kind),
+    inHandRow($('discovery-tree-picture'), $('discovery-tree-current'), saplingArt(intent.kind), {
+      text: t('discovery.pocket', { kind: t(`tree.${intent.kind}`), count: spare(intent.kind) }),
     });
   $('discovery-tree-picker').hidden = !intent.kind;
   stripSays(intent.kind ? 'discovery.choose_tree' : 'discovery.no_saplings');
-  $('discovery-find-saplings').hidden = !!intent.kind;
+  $('discovery-find').hidden = !!intent.kind;
 }
 
 export function cancelDiscovery() {
@@ -101,6 +137,11 @@ export function cancelDiscoveryWork() {
 export function syncDiscovery() {
   if (intent && (!ownAim() || !views.has(intent.petId) || intent.world !== scene.world || game)) cancelDiscovery();
   for (const [v, task] of tasks) if (!views.has(v.pet.id) || task.world !== scene.world) release(v);
+  syncSoilTools();
+  syncHand();
+}
+// The dig and the tree, on the yard's tools and on the strip: no friend digs or plants a floor.
+function syncSoilTools() {
   const soil = groundProfile().soil;
   for (const id of ['dig-tool', 'tree-tool']) {
     const button = $(id);
@@ -108,7 +149,16 @@ export function syncDiscovery() {
     put(button, 'disabled', !soil || !views.size || !!game);
     put(button, 'title', t(soil ? `discovery.${id === 'dig-tool' ? 'dig' : 'tree'}_hint` : 'discovery.indoors'));
   }
+  for (const button of $('discovery-tools')?.children || []) {
+    if (button.dataset.tool === 'seed') continue;
+    put(button, 'disabled', !soil);
+    put(button, 'title', soil ? '' : t('discovery.indoors'));
+  }
+}
+// The hand row, again whenever what is in hand changes: the state, or a friend setting off to plant.
+function syncHand() {
   if (intent?.action === 'tree') treeChoices();
+  if (aiming === 'seed') seedHand();
 }
 
 // Trees friends are on their way to plant: not saved yet, or saved but not yet in the state the
@@ -123,6 +173,8 @@ function noRoomForTree() {
   const count = (data.garden?.trees || []).length + planting().length;
   return count >= limit(data, 'trees') ? t('discovery.tree_total', { limit: limit(data, 'trees') }) : '';
 }
+// Why a sapling of `kind` cannot be planted now; nothing when it can. The marker and the press ask here.
+const treeRefused = kind => noRoomForTree() || (spare(kind) > 0 ? '' : t('discovery.no_saplings'));
 
 export function beginDiscovery(action) {
   const v = views.get(selected) || views.values().next().value;
@@ -137,7 +189,8 @@ export function beginDiscovery(action) {
   setAimingMode(action);
   stripSays(action === 'dig' ? 'discovery.choose_dig' : 'discovery.choose_tree');
   $('discovery-tree-picker').hidden = true;
-  $('discovery-find-saplings').hidden = true;
+  $('discovery-seed-hand').hidden = true;
+  $('discovery-find').hidden = true;
   treeChoices();
   $('discovery-target').hidden = false;
   clearAllOfDock();
@@ -148,12 +201,12 @@ export function beginDiscovery(action) {
 const reach = action => ({ planting: action === 'tree' });
 function positionAt(event) {
   const tree = intent?.action === 'tree';
-  if (tree && !stock(intent.kind)) return null;
+  if (tree && !spare(intent.kind)) return null;
   const r = $('yard').getBoundingClientRect(),
     x = event.clientX - r.left,
     y = event.clientY - r.top,
     f = field();
-  if (x < 14 || x > f.width - 14 || y < topAt(x)) return null;
+  if (x < f.left + EDGE || x > f.right - EDGE || y < topAt(x)) return null;
   if (!tree && y > f.bottom) return null;
   const point = tree ? yardToDecor(x, y) : yardToField(x, y);
   // Below the floor, the click is not on the ground at all.
@@ -161,18 +214,56 @@ function positionAt(event) {
   return groundAllows(point, groundProfile(), reach(intent?.action)) ? point : null;
 }
 
+// Every tool that marks the ground marks it here, each by its own rule for where it may go: a dig and
+// a sapling on soil (positionAt), a seed on the field, in a pot indoors too (garden.js seedSpot).
 function showMarker(event) {
-  const marker = $('discovery-marker');
-  if (!ownAim()) {
+  const marker = $('discovery-marker'),
+    tool = inHand();
+  // Nor where the press would put the tool away to catch or fish instead (catch.js).
+  if (!tool || toolGivesWay(event)) {
     marker.hidden = true;
     return;
   }
   const r = $('yard').getBoundingClientRect(),
-    valid = !!positionAt(event);
+    at = { x: event.clientX - r.left, y: event.clientY - r.top },
+    valid =
+      tool === 'seed'
+        ? spareSeeds() > 0 && !noRoomForSeed() && !!seedSpot(at.x, at.y)
+        : !!positionAt(event) && !(tool === 'tree' && treeRefused(intent.kind));
   marker.hidden = false;
   marker.classList.toggle('invalid', !valid);
-  marker.style.left = `${event.clientX - r.left}px`;
-  marker.style.top = `${event.clientY - r.top}px`;
+  marker.style.left = `${at.x}px`;
+  marker.style.top = `${at.y}px`;
+  markSpot(marker, at, tool);
+}
+// The spot shows what will happen there: a patch of turned soil (the season's; none on a floor), and
+// in it a see-through look of what goes in, the sapling in hand or a seed, at the size it starts at
+// that depth (garden.css).
+function markSpot(marker, at, tool) {
+  marker.dataset.soil = !groundProfile().soil ? 'none' : scene.season === 'winter' ? 'winter' : 'base';
+  if (!marker.parts) {
+    const soil = document.createElement('span'),
+      look = document.createElement('span');
+    soil.className = 'marker-soil';
+    look.className = 'marker-sapling';
+    marker.replaceChildren(soil, look);
+    marker.parts = { soil, look };
+  }
+  const sapling = marker.parts.look,
+    look =
+      tool === 'seed'
+        ? seedLook(at)
+        : tool === 'tree' && intent.kind
+          ? saplingPreview(intent.kind, at, scene.season)
+          : null;
+  if (sapling.dataset.art !== (look?.art || '')) {
+    sapling.dataset.art = look?.art || '';
+    sapling.innerHTML = look ? artSvg(look.art) : '';
+  }
+  if (!look) return marker.style.removeProperty('--zoom');
+  sapling.style.width = `${look.width}px`;
+  sapling.style.height = `${look.height}px`;
+  marker.style.setProperty('--zoom', String(look.zoom));
 }
 
 /** A task owns its timer and effect. Taking the friend away cancels only the presentation. `own` is
@@ -199,9 +290,11 @@ export function sendDiscovery(v, point, action, kind, own = false) {
     stopWork(v);
     if (tasks.get(v) === task) tasks.delete(v);
     task.reveal?.();
+    syncHand();
   };
   release(v);
   tasks.set(v, task);
+  syncHand();
   sendToDig(v, point, stroke, {
     own,
     cancel: cleanup,
@@ -333,12 +426,8 @@ function actorFor(point) {
 function order(point, v = actorFor(point)) {
   if (!v) return toast(t('catch.busy'));
   const { action, kind } = intent;
-  if (action === 'tree') {
-    const full = noRoomForTree();
-    if (full) return toast(full);
-    if (stock(kind) - planting().filter(task => task.kind === kind).length <= 0)
-      return toast(t('discovery.no_saplings'));
-  }
+  const refused = action === 'tree' && treeRefused(kind);
+  if (refused) return toast(refused);
   sendDiscovery(v, point, action, kind);
 }
 /** With Let them dig on (Settings → Friends & AI): an idle friend digs a spot of its own choosing.
@@ -364,7 +453,7 @@ export function canDigAt(clientX, clientY) {
     x = clientX - r.left,
     y = clientY - r.top,
     f = field();
-  if (x < 14 || x > f.width - 14 || y < topAt(x) || y > f.bottom) return false;
+  if (x < f.left + EDGE || x > f.right - EDGE || y < topAt(x) || y > f.bottom) return false;
   return groundAllows(yardToField(x, y), groundProfile());
 }
 /** Digs at a right-clicked point at once, leaving the dig tool in hand for the next spot. */
@@ -379,13 +468,15 @@ function syncTools(kind = aiming) {
   const strip = $('discovery-tools');
   if (!strip) return;
   for (const button of strip.children) button.setAttribute('aria-pressed', String(button.dataset.tool === kind));
-  const count = strip.querySelector('.tool-count');
-  if (count) count.textContent = data.garden?.seeds ? String(data.garden.seeds) : '';
+  if (kind !== 'seed') $('discovery-seed-hand').hidden = true;
   if (kind === 'seed' || kind === 'treat') {
-    stripSays(kind === 'seed' ? 'hint.plant' : 'hint.treat');
     treeMenu?.close();
     $('discovery-tree-picker').hidden = true;
-    $('discovery-find-saplings').hidden = true;
+    if (kind === 'seed') seedHand();
+    else {
+      stripSays('hint.treat');
+      $('discovery-find').hidden = true;
+    }
     if ($('discovery-target').hidden) {
       $('discovery-target').hidden = false;
       clearAllOfDock();
@@ -424,11 +515,6 @@ export function setupDiscovery() {
       mark.dataset.icon = icon;
       label.textContent = t(key);
       button.append(mark, label);
-      if (tool === 'seed') {
-        const count = document.createElement('span');
-        count.className = 'tool-count';
-        button.append(count);
-      }
       button.onclick = () => useTool(tool);
       return button;
     }),
@@ -444,7 +530,7 @@ export function setupDiscovery() {
     event.preventDefault?.();
     useTool(tool);
   });
-  $('discovery-find-saplings').onclick = () => beginDiscovery('dig');
+  $('discovery-find').onclick = () => beginDiscovery('dig');
   // A popup menu that opens on the sapling in hand rather than the first in the list.
   const saplings = menuNavigation($('discovery-tree-choices'));
   treeMenu = dropdown($('discovery-tree-button'), $('discovery-tree-choices'), () =>

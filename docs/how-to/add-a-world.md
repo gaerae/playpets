@@ -60,9 +60,19 @@
 | `edge` | `[[x, y], …]` from `x` 0 to 1; each `y` is where walkable ground ends at that `x` |
 | `far` | Optional, for ground reaching far back (a meadow, not a path): the picture `y` a friend is drawn smallest at, usually the edge's highest point |
 | `depthFar` | How small a friend at the back is drawn (default 0.84) |
+| `safe` | `[x0, y0, x1, y1]`: the part of the picture always in view, at most 0.88 wide and 0.84 tall |
 
 - Without `far`, a friend's size follows its saved `y`: one at the top of a raised path is as small as one at the line beside it.
 - With `far`, its size follows its height on the screen, alike at every `x`, from `depthFar` at `far` to its own size at the field's foot. The Wild garden uses `far` 0.48 and `depthFar` 0.68.
+
+`safe` decides how the picture is framed (`environment.js environmentFrame`):
+- From 4:3 to 16:9 the picture covers the window and the whole rect shows. 0.88 is the width a 4:3 window shows, 0.84 the height a 16:9 one shows.
+- Wider, the picture shrinks to the rect's height. Its own edge, mirrored, blurred and shaded, fills each side. Without canvas filters (Safari before 18) a side is drawn from a copy shrunk to a sixteenth instead.
+- The sides are not floor: across, the field spans the picture (`field.js field`, `left` and `right`), so a saved x of 0 to 1 stands on it, and nothing walks, is planted or is dug in the blur.
+- Narrower, an outdoor picture shrinks to the rect's width and stands on the window's bottom; the yard's sky fills the top, and the picture's top edge fades into it. Friends shrink as much as the picture does from a 4:3 window as tall, down to 0.6 (`field.js zoomFor`). A `cover-bottom` room keeps covering its height and crops its sides, keeping the rect's middle.
+- From 2.4 times as wide as tall the picture eases toward covering the window, and from 3 times (a strip) it covers it and crops, keeping as much of the rect as fits (`environment.js stripShare`); friends' size eases with it.
+- A place without `safe` (an imported background) covers the window and crops.
+- Put the house, the big tree and the windows inside it, and leave out the corners' flowers and the empty sky.
 
 To trace one:
 1. Open the summer picture at full size (1536 × 1024).

@@ -625,11 +625,14 @@ body.compact .toast > span {
   height: 18px;
   stroke-width: 2px;
 }
+/* It scrolls up and down only: overflow-y alone leaves the other axis at auto, and Windows then drew
+   a second bar under Play's tiles for the painted hand on Album, a few pixels past the edge. */
 .dock-panel-body {
   display: flex;
   flex-direction: column;
   gap: 8px;
   min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -1015,6 +1018,23 @@ body.compact .toast > span {
 .thing-bar .context-check {
   margin-left: 2px;
   color: var(--garden-honey-deep);
+}
+/* A flower's one bloom and its patch are shown as themselves (controls.js showBloomChoice), drawn in
+   their own colours; the one it blooms as now is picked out as a selected tab is. */
+.yard-context-menu .context-picture {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+}
+.yard-context-menu .context-picture > svg {
+  width: 28px;
+  height: 28px;
+  color: inherit;
+}
+.yard-context-menu > [role="menuitemradio"][aria-checked="true"] {
+  background: var(--control-selected);
 }
 /* A list keeps an unticked check's slot so its rows line up; a bar has no column to keep, and the
    slot left a wider gap after Show on desktop than between any other two choices. */

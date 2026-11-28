@@ -1,6 +1,6 @@
 // Finds out of the album come alive: a fish's size follows its length, every find answers a poke on
 // the desktop in its own way, friends who visit one name it, and sixteen new entries join the album
-// (src/yard/find-out.js, src/overlay/poke.js; docs/design/2026-11-20-finds-come-alive.md).
+// (src/yard/find-out.js, src/yard/poke.js; docs/design/2026-11-20-finds-come-alive.md).
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -12,7 +12,7 @@ const { STRINGS, loadStrings } = await import('../src/core/strings.js');
 const { list, t } = await import('../src/core/i18n.js');
 const { drawHeld, findScale, heldLayers, pokeOf, visitLines } = await import('../src/yard/find-out.js');
 const { giftSize } = await import('../src/yard/props.js');
-const { poke } = await import('../src/overlay/poke.js');
+const { poke } = await import('../src/yard/poke.js');
 
 const NEW = {
   flowers: ['lily_of_the_valley', 'peony', 'rose', 'lily', 'marigold', 'japanese_anemone', 'poinsettia', 'amaryllis'],
@@ -41,15 +41,44 @@ test('a fish comes out sized by its length, from a killifish to a sturgeon', () 
   const goldfish = findScale('fish_out', ['goldfish']);
   assert.ok(goldfish > 0.9 && goldfish < 1.05, `goldfish ${goldfish}`);
   assert.ok(findScale('fish_out', ['minnow']) < findScale('fish_out', ['carp']));
-  // Bugs and treasures keep their book's size, and a gift its own.
-  assert.equal(findScale('bug_out', ['ladybug']), 1);
-  assert.equal(findScale('treasure_out', ['heart_locket']), 1);
+  // A gift keeps its own size.
   assert.equal(findScale('bench'), 1);
   assert.equal(findScale('fish_out', []), 1);
   const big = giftSize('fish_out', undefined, ['sturgeon']),
     small = giftSize('fish_out', undefined, ['killifish']);
   assert.ok(Math.abs(big.w / small.w - 1.45 / 0.7) < 1e-9);
   assert.equal(giftSize('fish_out').w, giftSize('fish_out', undefined, []).w);
+});
+
+// Every book's finds are sized by their length as a fish is (catalog.json "length", in cm, on the
+// log scale of the book's find out, "grow"): a ladybug comes out smaller than a lantern, not as big
+// as a swallowtail; the backend sizes them the same (content.rs find_scale).
+test('bugs, treasures and footprint animals come out sized by their length, as fish do', () => {
+  const s = (kind, id) => findScale(kind, [id]);
+  for (const [book, kind] of [
+    ['bugs', 'bug_out'],
+    ['treasures', 'treasure_out'],
+    ['tracks', 'track_out'],
+  ]) {
+    const [[, least], [, most]] = catalog.findsOut.find(k => k.id === kind).grow;
+    for (const found of catalog[book]) {
+      assert.ok(found.length > 0, `${found.id} has a length`);
+      const scale = s(kind, found.id);
+      assert.ok(scale >= least && scale <= most, `${found.id}: ${scale}`);
+    }
+  }
+  assert.equal(s('bug_out', 'ladybug'), 0.55, 'the smallest bug');
+  assert.ok(s('bug_out', 'ladybug') < s('bug_out', 'firefly'));
+  assert.ok(s('bug_out', 'firefly') < s('bug_out', 'cabbage_white'));
+  assert.ok(s('bug_out', 'cabbage_white') < s('bug_out', 'swallowtail'));
+  const ladybug = giftSize('bug_out', undefined, ['ladybug']),
+    lantern = giftSize('lantern');
+  assert.ok(ladybug.w <= lantern.w && ladybug.h < lantern.h, 'a ladybug is smaller than a lantern');
+  assert.equal(s('treasure_out', 'freshwater_pearl'), 0.65, 'the smallest treasure');
+  assert.ok(s('treasure_out', 'old_coin') < s('treasure_out', 'toy_robot'));
+  assert.equal(s('track_out', 'water_deer'), 1.3, 'the largest animal');
+  assert.ok(s('track_out', 'sparrow') < s('track_out', 'cat'));
+  assert.equal(s('bug_out', 'no-such-bug'), 1);
 });
 
 test('every find answers a poke in its own way, and a few make a sound', () => {
@@ -63,16 +92,15 @@ test('every find answers a poke in its own way, and a few make a sound', () => {
   assert.equal(motion('treasure', 'heart_locket'), 'rock');
   assert.equal(pokeOf('bug', 'no-such-bug'), null);
   // Every find of every book has a motion the stylesheet draws.
-  const css = readFileSync(new URL('../src/overlay/overlay.css', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../src/styles/answer.css', import.meta.url), 'utf8');
   for (const [b, list] of Object.entries(catalog).filter(([b]) => b in book))
     for (const k of list) {
       const m = motion(book[b], k.id);
       assert.ok(m, `${b}: ${k.id}`);
       assert.match(css, new RegExp(`\\.held\\.moving\\[data-motion="${m}"\\]`), `${k.id}: ${m}`);
     }
-  // A treasure that twinkles has sparkles to show; the locket only sways.
+  // Every treasure has sparkles to show, the locket that sways too (yard-pokes.test.mjs).
   assert.equal(heldLayers('treasure_out', ['quartz']).match(/class="sparkle"/g).length, 1);
-  assert.doesNotMatch(heldLayers('treasure_out', ['heart_locket']), /sparkle/);
 });
 
 test('a poke plays the find’s motion, and its sound even with reduced motion', () => {

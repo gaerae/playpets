@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="styles/yard.css">
     <link rel="stylesheet" href="styles/friends.css">
     <link rel="stylesheet" href="styles/garden.css">
+    <link rel="stylesheet" href="styles/answer.css">
     <link rel="stylesheet" href="styles/worn.css">
     <link rel="stylesheet" href="styles/caption.css">
     <link rel="stylesheet" href="styles/tools.css">
@@ -43,8 +44,9 @@
 <div id="discovery-target" class="discovery-target" role="group" data-i18n-aria-label="discovery.explore" hidden>
   <div class="discovery-target-heading"><strong id="discovery-target-label"></strong><button id="discovery-cancel" type="button" class="icon-button corner-close" data-i18n-aria-label="common.close"><span data-icon="close"></span></button></div>
   <div id="discovery-tools" class="discovery-tools" role="group" data-i18n-aria-label="play.tools"></div>
-  <div id="discovery-tree-picker" class="tree-picker" hidden><button id="discovery-tree-button" type="button" class="tree-button" aria-haspopup="menu" aria-expanded="false" aria-controls="discovery-tree-choices" data-i18n-title="discovery.tree_pick"><span id="discovery-tree-current"></span><span data-icon="chevron"></span></button><div id="discovery-tree-choices" class="tree-menu" role="menu" data-i18n-aria-label="discovery.tree_pick" hidden></div></div>
-  <button id="discovery-find-saplings" type="button" class="button secondary" data-i18n="discovery.dig" hidden></button>
+  <div id="discovery-tree-picker" class="tree-picker" hidden><button id="discovery-tree-button" type="button" class="tree-button" aria-haspopup="menu" aria-expanded="false" aria-controls="discovery-tree-choices" data-i18n-title="discovery.tree_pick"><span id="discovery-tree-picture" class="hand-picture" aria-hidden="true"></span><span id="discovery-tree-current" class="hand-name"></span><span data-icon="chevron"></span></button><div id="discovery-tree-choices" class="tree-menu" role="menu" data-i18n-aria-label="discovery.tree_pick" hidden></div></div>
+  <div id="discovery-seed-hand" class="tree-picker" hidden><span class="tree-button hand-only"><span id="discovery-seed-picture" class="hand-picture" data-clue="seeds" aria-hidden="true"></span><span id="discovery-seed-current" class="hand-name"></span></span></div>
+  <button id="discovery-find" type="button" class="button secondary" data-i18n="discovery.dig" hidden></button>
 </div>
               <div id="scene-menu" class="scene-menu dock-panel" role="group" data-i18n-aria-label="scene.title" hidden>
                 <div class="dock-panel-head"><strong data-i18n="controls.scene"></strong><button id="scene-close" type="button" class="icon-button corner-close" data-i18n-aria-label="common.close"><span data-icon="close"></span></button></div>
@@ -119,6 +121,8 @@
   <button type="button" role="menuitemcheckbox" aria-checked="false" data-context-for="decor" data-context-action="desktop-decor" hidden><span data-icon="monitor"></span><span data-i18n="desktop.show"></span><span class="context-check" data-icon="check" aria-hidden="true"></span></button>
   <button type="button" role="menuitem" data-context-for="decor" data-context-action="dress-decor" hidden><span data-icon="spark"></span><span data-i18n="decor.dress"></span></button>
   <button type="button" role="menuitem" data-context-for="decor" data-context-action="put-away" hidden><span data-icon="close"></span><span data-i18n="decor.put_away"></span></button>
+  <button type="button" role="menuitemradio" aria-checked="false" data-context-for="plant" data-context-action="one-bloom" hidden><span class="context-picture" aria-hidden="true"></span><span data-i18n="garden.one_bloom"></span></button>
+  <button type="button" role="menuitemradio" aria-checked="false" data-context-for="plant" data-context-action="patch" hidden><span class="context-picture" aria-hidden="true"></span><span data-i18n="garden.patch"></span></button>
   <button type="button" role="menuitemcheckbox" aria-checked="false" data-context-for="plant" data-context-action="desktop-plant" hidden><span data-icon="monitor"></span><span data-i18n="desktop.show"></span><span class="context-check" data-icon="check" aria-hidden="true"></span></button>
   <button type="button" role="menuitem" data-context-for="plant" data-context-action="pull-plant" hidden><span data-icon="close"></span><span data-i18n="garden.pull"></span></button>
   <button type="button" role="menuitemcheckbox" aria-checked="false" data-context-for="tree" data-context-action="desktop-tree" hidden><span data-icon="monitor"></span><span data-i18n="desktop.show"></span><span class="context-check" data-icon="check" aria-hidden="true"></span></button>
@@ -145,6 +149,10 @@
                 <filter id="rain-light-drawing" filterUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.418 0.117 0.012 0 0.107 0.035 0.5 0.012 0 0.142 0.035 0.117 0.394 0 0.174 0 0 0 1 0"/></filter>
                 <filter id="morning-rain-light-drawing" filterUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.459 0.171 0.017 0 0.169 0.051 0.579 0.017 0 0.142 0.051 0.171 0.425 0 0.109 0 0 0 1 0"/></filter>
                 <filter id="evening-rain-light-drawing" filterUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.318 0.135 0.014 0 0.248 0.04 0.413 0.014 0 0.172 0.04 0.135 0.291 0 0.127 0 0 0 1 0"/></filter>
+                <!-- The footprints' softness (garden.css --print-soft), over the whole yard: a CSS blur() is cut off at the prints' own box. -->
+                <filter id="print-soft" filterUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%"><feGaussianBlur stdDeviation="0.45"/></filter>
+                <filter id="print-soft-evening" filterUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%"><feGaussianBlur stdDeviation="0.5"/></filter>
+                <filter id="print-soft-night" filterUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%"><feGaussianBlur stdDeviation="0.4"/></filter>
                 <!-- Christmas night's sleigh over the moon (scenery.css): its shape in the night sky's darkest blue. -->
                 <filter id="sleigh-silhouette" color-interpolation-filters="sRGB"><feFlood flood-color="#161e36"/><feComposite in2="SourceAlpha" operator="in"/></filter>
               </defs></svg>
@@ -182,7 +190,7 @@
               </div>
               <div id="treat" class="treat" hidden>
               </div>
-              <span id="discovery-marker" class="discovery-marker" aria-hidden="true" hidden></span><span id="walk-mark" class="walk-mark" aria-hidden="true" hidden></span><canvas id="trail-layer" class="trail-layer" aria-hidden="true" hidden></canvas><div id="pet-layer">
+              <span id="discovery-marker" class="discovery-marker" aria-hidden="true" hidden></span><span id="walk-mark" class="walk-mark" aria-hidden="true" hidden><i class="walk-pin"></i></span><canvas id="trail-layer" class="trail-layer" aria-hidden="true" hidden></canvas><div id="pet-layer">
                 <div id="garden-layer" class="garden-layer"></div>
               </div>
               <div id="label-layer" class="label-layer"></div>
@@ -392,7 +400,7 @@
         </svg>
         <span class="brand-sub" data-i18n="app.tagline"></span></a><span id="app-version" class="version"></span></div>
               <h4 class="settings-group" data-i18n="about.help"></h4>
-              <ul class="link-list"><li><button type="button" class="link-button" data-link="guide"><span data-i18n="about.guide"></span><span data-icon="external"></span></button></li><li><button type="button" class="link-button" data-link="report"><span data-i18n="about.report"></span><span data-icon="external"></span></button></li><li><button type="button" class="link-button" data-link="aiReport"><span data-i18n="about.ai_report"></span><span data-icon="external"></span></button></li><li><button type="button" id="open-data" class="link-button"><span><span data-i18n="about.data_folder"></span><small data-i18n="about.data_folder_note"></small></span><span data-icon="folder"></span></button></li></ul>
+              <ul class="link-list"><li><button type="button" class="link-button" data-link="guide"><span data-i18n="about.guide"></span><span data-icon="external"></span></button></li><li><button type="button" class="link-button" data-link="report"><span data-i18n="about.report"></span><span data-icon="external"></span></button></li><li><button type="button" class="link-button" data-link="aiReport"><span data-i18n="about.ai_report"></span><span data-icon="external"></span></button></li><li><button type="button" id="open-data" class="link-button"><span><span data-i18n="about.data_folder"></span><small data-i18n="about.data_folder_note"></small></span><span data-icon="folder"></span></button></li><li><button type="button" id="copy-problems" class="link-button"><span><span data-i18n="about.problems"></span><small data-i18n="about.problems_note"></small></span><span data-icon="copy"></span></button></li></ul>
               <h4 class="settings-group" data-i18n="about.project"></h4>
               <ul class="link-list"><li><button type="button" class="link-button" data-link="site"><span data-i18n="about.site"></span><span data-icon="external"></span></button></li><li><button type="button" class="link-button" data-link="releases"><span data-i18n="about.releases"></span><span data-icon="external"></span></button></li><li><button type="button" class="link-button" data-link="github"><span data-i18n="about.github"></span><span data-icon="external"></span></button></li><li><button type="button" class="link-button" data-link="privacy"><span data-i18n="about.privacy"></span><span data-icon="external"></span></button></li><li><button type="button" class="link-button" data-link="license"><span data-i18n="about.license"></span><span data-icon="external"></span></button></li></ul>
               <p class="tiny"><span data-i18n="about.publication_note"></span> <span data-i18n="about.lead"></span></p>

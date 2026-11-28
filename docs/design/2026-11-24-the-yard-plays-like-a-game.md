@@ -273,3 +273,30 @@ The grass came out on its own, but nothing showed that its pebbles move or how t
 - **The hand shows the pull** the first three times the grass comes out (`ground.js` `demo`): the yard's hand, mirrored so the screen's corner cuts none of it, pulls the right pebble in twice and lets it spring back. Pulling a pebble ends it for good. With reduced motion the hand rests on the pebble without moving; with no storage it does not show, so it cannot come back every time.
 - **No scatter.** The season's daisies, petals, leaves and winter tufts laid over the lawn were 4 to 8 px at the strip's size and read as specks, so they are gone. Winter keeps its snowy lawn and pebble; the other seasons show in what falls around a friend (`flurry.js`), which comes from something the person did.
 - **Kept as it was:** the grass starts across the whole floor. A pointer resting 300ms on a corner still lets the pebble take the next click there, as over a full window's scrollbar or resize corner; this is looked at again only if it is reported.
+
+## Follow-up: flower patches and press answers (2026-11-27)
+Two parts of the desktop-first spike that were tried and left out are brought over:
+- **One bloom or a patch.** Six flowers have a patch drawing (`patch` in `catalog.json`). In bloom, outdoors and on the desktop, they draw as the patch unless the plant is set to one bloom (`single` in the garden, `setSingleBloom`).
+  - The yard's thing bar and the desktop's native menu offer **One bloom** and **A patch** as a checked pair, only in bloom, so a flower's kind stays a surprise until then.
+  - The workshop has no soil: flowers there stay one bloom in a pot, and the pair is not offered.
+- **A press answers** (`yard/press-answer.js`, `styles/answer.css`): a flower bobs and drops three of its own petals, a tree rustles and lets three leaves go (autumn colours only on a tree that turns, snow in winter), a gift bobs.
+  - The same in the yard and on the desktop. A desktop gift with its own answer (a part that spins, a lamp, a find) keeps that answer instead.
+  - One CSS animation on `scale` or `rotate`, so the breeze on `transform` goes on under it, and at most eight bits per thing that remove themselves; nothing joins the frame loop. Reduced motion shows none.
+
+## Follow-up: 1.10.1 review and feedback (2026-11-27)
+The rest of the desktop-first spike, and what a review and a tester found:
+- **A friend's remark** (`press-answer.js` `remarker`): two presses in five, the nearest friend within 360 px says one of its visit lines about what was pressed, in the yard and on the desktop.
+- **Arrivals** (`overlay/arrive.js`): `overlay.rs` marks what came out after the first sync as `arriving` for six seconds. A friend drops in and waves; a thing pops up and the nearest friend hops over. Once per coming out; reduced motion shows it in place.
+- **The planting marker** shows the sapling on soil at the size it grows from (`planted-trees.js` `saplingPreview`); a spot refused greys and leans it with a drawn "no" sign.
+- **Depth from one far line** (`field.js` `depthScaleAt`): on a place whose field top curves, depth was measured from the top at the friend's own x, so a walk toward the viewer that drifted sideways could shrink. It is measured from the place's far line now.
+- **Walking around furniture** (`workspace.js` `wayAround`): a walk that would cross a workspace's furniture passes its corners, the shortest way; a seat on its back half is reached and left from behind. The way is measured once per target (`motion.js` `aimOf`), and strolls over furniture are not chosen.
+- **Sizes follow the friend:** the walk ring scales by the friend's size and depth, and a patch takes its own width of ground (`growth.js` `plantBreadth`), so strolls and the waterer stay out of it.
+- **Saving:** a failed write is retried five times, 80 ms apart, unless the disk is full or read-only, and each failure is kept in the run's problem report (`problems.rs`), in memory, which Settings > About copies. The notice names a full disk only when it is one.
+
+## Follow-up: one ground tool (2026-11-27)
+Digging, a tree and a seed chose a spot three ways; they are one tool now (`discovery.js`, the seed's rules in `garden.js`):
+- **One marker.** Every tool marks the spot with soil and a see-through look of what goes in: nothing for a dig, the sapling, or the seed as it lies planted (`seedLook`). Indoors a seed shows the pot it goes in.
+- **One rule.** The marker and the press ask the same thing: ground for a dig or a tree, `seedSpot` for a seed, plus seeds in hand and room in the field (`noRoomForSeed`, as `noRoomForTree`).
+- **One hand row.** The strip shows what is spent as a picture, a name and a count: the sapling in hand, or the seed packet (a planted seed is a speck at 22 px). Each sapling in the menu has its picture. A dig spends nothing, so it has no row.
+- **Out of stock.** With no seeds the tool stays in hand, as a tree with no sapling, says where seeds come from and offers Dig; a room offers no dig it would refuse. A full field refuses the tool as a full yard of trees does.
+- The seed's flower stays a surprise chosen by the season.

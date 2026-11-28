@@ -15,8 +15,9 @@ const round = n => Math.round(n * 10) / 10;
 /** The follow on which an animal turns to look: from then on the album draws it whole. */
 export const SEEN_WHOLE = 3;
 
-/** Three of an animal's prints along a diagonal, lower left to upper right, as it walks. */
-export function printSpecimen(track) {
+/** Three of an animal's prints along a diagonal, lower left to upper right, as it walks; `classes`
+ * are added. */
+export function printSpecimen(track, classes = '') {
   const { group, step, side, size } = track.gait,
     room = BOX / 2 - 1,
     // As large as the album draws prints, as far apart as the gait steps; where three would leave
@@ -32,7 +33,7 @@ export function printSpecimen(track) {
       y = BOX / 2 + (-i * gap + off) / Math.SQRT2;
     return `<use href="${artHref(track.print)}" x="${round(-mark / 2)}" y="${round(-mark / 2)}" width="${round(mark)}" height="${round(mark)}" transform="translate(${round(x)} ${round(y)}) rotate(45)"/>`;
   });
-  return `<svg class="print-run" viewBox="0 0 ${BOX} ${BOX}" aria-hidden="true">${stamps.join('')}</svg>`;
+  return `<svg class="print-run${classes ? ` ${classes}` : ''}" viewBox="0 0 ${BOX} ${BOX}" aria-hidden="true">${stamps.join('')}</svg>`;
 }
 
 /** The animal's tail behind a bush (`bush`, `twigs`), never the whole animal; `classes` are added. */

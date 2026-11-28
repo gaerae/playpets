@@ -4,16 +4,20 @@
 
 import { openTreeMenu } from '../core/controls.js';
 import { put, putAttribute } from '../core/dom.js';
-import { joinList, t } from '../core/i18n.js';
-import { clamp } from '../core/math.js';
-import { call, data, guard } from '../core/state.js';
+import { joinList, list, t } from '../core/i18n.js';
+import { clamp, pick } from '../core/math.js';
+import { reduced } from '../core/sprites.js';
+import { aiming, call, data, guard, views } from '../core/state.js';
 import { artSvg } from './art.js';
 import { treeArt, treeKind, treeSize } from './catalog.js';
 import { freeSpot, groundAllows, treesIn, treeStage } from './discovery-rules.js';
-import { depthAt, field, measureYard, standAt } from './field.js';
+import { depthAt, field, footOf, measureYard, standAt } from './field.js';
 import { groundProfile } from './ground.js';
 import { shapeHits } from './hit-shape.js';
+import { answer, answerOf, remarker } from './press-answer.js';
 import { movable, moveSaved, propButton, propScale, reconcile, removeWithUndo, setDown } from './props.js';
+import { isFree } from './trips.js';
+import { bubble } from './views.js';
 import { scene } from './world.js';
 
 const shown = new Map();
@@ -40,16 +44,27 @@ export function treeBox(kind, foot, stage = 2) {
   return { width: width * zoom, height: height * zoom, zoom };
 }
 
+/** How the planting spot at `foot` (yard pixels) shows a sapling of `kind` in `season` before it is
+ * planted: its drawing, its size (half again a seedling's there, so its kind reads at a glance) and
+ * the soil's zoom by the depth; null for a kind the catalogue does not have. */
+export function saplingPreview(kind, foot, season) {
+  const art = treeKind(kind) && treeArt(kind, 0, season);
+  if (!art) return null;
+  const { width, height, zoom } = treeBox(kind, foot, 0);
+  return { art, width: width * 1.5, height: height * 1.5, zoom: clamp(zoom * 1.2, 0.7, 1.4) };
+}
+
 /** Where a tree whose place is `point` (its own by default) is drawn at `stage`, in yard pixels: its
  * foot, no lower than a gift may stand and far enough from the yard's sides that the whole tree
  * shows, as a wide gift is (decor.js placement). Its ground (ground.js), fruit and visits are
  * measured from here. */
 export function treeFoot(tree, stage = 2, point = tree) {
-  const foot = standAt(point);
+  const foot = standAt(point),
+    { left, right } = field();
   // Smaller farther back, so its width is measured again where it is moved in to.
   for (let pass = 0; pass < 2; pass++) {
     const { width } = treeBox(tree.kind, foot, stage);
-    foot.x = clamp(foot.x, width / 2 + 4, field().width - width / 2 - 4);
+    foot.x = clamp(foot.x, left + width / 2 + 4, right - width / 2 - 4);
   }
   return foot;
 }
@@ -126,6 +141,23 @@ function create(tree) {
     menu: at => openTreeMenu(view.id, at),
     remove: () => remove(view),
     settle: renderTrees,
+    // A press rustles it and lets a few leaves go, and now and then a friend standing free near it
+    // says something about it; the ground behind takes no click.
+    press: e => {
+      if (aiming) return;
+      e.stopPropagation();
+      const tree = current(view.id);
+      if (!tree) return;
+      answer(view.button, answerOf({ what: 'tree', kind: tree.kind, season: scene.season }), {
+        reduced: reduced.matches,
+      });
+      const foot = standAt(tree),
+        friend = remarker([...views.values()].filter(isFree), v => {
+          const at = footOf(v);
+          return Math.hypot(at.x - foot.x, at.y - foot.y);
+        });
+      if (friend) bubble(friend, pick(list('tree.visit')), 3000);
+    },
     // The ground does not change under one drag: measured at its first move, not at every one.
     allowed: (at, drag) => groundAllows(at, (drag.ground ??= groundProfile({ skipTreeId: view.id })), PLANTING),
   });

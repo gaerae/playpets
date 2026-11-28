@@ -67,3 +67,20 @@ test('every kind has a name the album keeps', () => {
   for (const k of [...FISH, ...BUGS])
     assert.match(k.id, /^[a-z_]{1,24}$/, 'the backend takes lowercase names with underscores');
 });
+
+// Trees stand as tall as their kind grows (catalog.json "stature" on a tree): a metasequoia over
+// a cherry, a lilac bush under it. A seedling is a seedling whatever it becomes; a young tree is
+// halfway there. The desktop reads the same sizes (content.rs tree_size).
+test('a grown tree stands as tall as its kind, a seedling as any other', async () => {
+  const { treeKind, treeSize } = await import('../src/yard/catalog.js');
+  const [cw, ch] = treeSize('cherry', 2),
+    [mw, mh] = treeSize('metasequoia', 2),
+    [lw, lh] = treeSize('lilac', 2);
+  assert.ok(mh > ch * 1.25 && lh < ch * 0.85, `${mh} ${ch} ${lh}`);
+  assert.ok(Math.abs(mw / mh - cw / ch) < 1e-9, 'the box keeps its shape, so the drawing is not stretched');
+  assert.ok(Math.abs(lw / lh - cw / ch) < 1e-9);
+  assert.deepEqual(treeSize('metasequoia', 0), treeSize('lilac', 0));
+  const young = treeSize('metasequoia', 1)[1] / treeSize('cherry', 1)[1];
+  assert.ok(Math.abs(young - (1 + treeKind('metasequoia').stature) / 2) < 1e-9);
+  assert.deepEqual(treeSize('cherry', 2), [cw, ch], 'a new box each time, not one to change');
+});

@@ -104,10 +104,6 @@ const stopGame = game => KO['game.stop'].replace('{name}', KO[game]);
 const TRAY_KO_WAITING = (await readFile(path.join(here, '../src-tauri/src/i18n/ko.rs'), 'utf8')).match(
   /"tray\.state_waiting", "([^"]+)"/,
 )[1];
-// A fourth ornament on one day is refused with the backend's own Korean sentence.
-const ORNAMENTS_TODAY_KO = (await readFile(path.join(here, '../src-tauri/src/i18n/ko.rs'), 'utf8')).match(
-  /"error\.ornaments_today", "([^"]+)"/,
-)[1];
 const literal = text => text.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
 const scenario = `(async()=>{
   const L=m=>window.__TAURI__.core.invoke('call',{name:'e2eLog',args:[m]});
@@ -517,7 +513,9 @@ const scenario = `(async()=>{
     const autoBefore=!!(await playPets.bootstrap()).data.autoPlay;$('auto-play').click();
     // The switch stays disabled until its save returns; a press before then is ignored, as for a person.
     const autoOn=await until(async()=>!!(await playPets.bootstrap()).data.autoPlay!==autoBefore&&!$('auto-play').disabled);
-    $('auto-play').click();const autoBack=await until(async()=>!!(await playPets.bootstrap()).data.autoPlay===autoBefore);
+    // The first save's state can reach the page after the second press and show it a moment; the
+    // second save's state follows it, so the switch settles on what was saved (seen on Linux CI).
+    $('auto-play').click();const autoBack=await until(async()=>!!(await playPets.bootstrap()).data.autoPlay===autoBefore&&!$('auto-play').disabled&&$('auto-play').checked===autoBefore);
     $('close-panel').click();
     await L('autoPlay='+(autoOn&&autoBack&&$('auto-play').checked===autoBefore?'saved-both-ways':'err:'+JSON.stringify({autoBefore,autoOn:!!autoOn,autoBack:!!autoBack})));
     // The relationship shows beside the friend's closeness, and a click on it opens the settings at the relationship cards.
@@ -594,8 +592,10 @@ const scenario = `(async()=>{
     // The friend walks to the spot first, from wherever it happened to be.
     await until(()=>document.querySelectorAll('.plant').length===1,15000);
     const gb=(await playPets.bootstrap()).data.garden;
-    const planted=gb.seeds===0&&gb.plants.length===1&&document.querySelector('.plant')?.dataset.stage==='seed'&&!$('yard').classList.contains('aiming')&&$('plant-tool').getAttribute('aria-disabled')==='true',gardenNow={...yardNow(),spot:[spotX,spotY],garden:gb,plants:document.querySelectorAll('.plant').length,aiming:$('yard').classList.contains('aiming'),tool:$('plant-tool').getAttribute('aria-disabled')};
+    const planted=gb.seeds===0&&gb.plants.length===1&&document.querySelector('.plant')?.dataset.stage==='seed'&&$('yard').classList.contains('aiming')&&!$('discovery-find').hidden&&$('plant-tool').getAttribute('aria-disabled')==='true',gardenNow={...yardNow(),spot:[spotX,spotY],garden:gb,plants:document.querySelectorAll('.plant').length,aiming:$('yard').classList.contains('aiming'),tool:$('plant-tool').getAttribute('aria-disabled')};
     await L('garden='+(planted?'found-planted':'err:'+JSON.stringify({...gardenNow,frames:await framesIn(500)})));
+    // With the last seed spent the tool stays in hand, offering digging for more, until put away.
+    $('discovery-cancel').click();
     // A drag moves a plant to another spot, and it stays moved.
     const plantEl=document.querySelector('.plant'),plantBox=plantEl.getBoundingClientRect(),plantPress={bubbles:true,pointerId:8,button:0,clientX:plantBox.left+plantBox.width/2,clientY:plantBox.bottom-4},plantX=gb.plants[0].x;
     plantEl.dispatchEvent(new PointerEvent('pointerdown',plantPress));plantEl.dispatchEvent(new PointerEvent('pointermove',{...plantPress,clientX:plantPress.clientX-80}));plantEl.dispatchEvent(new PointerEvent('pointerup',{...plantPress,clientX:plantPress.clientX-80}));
@@ -615,19 +615,19 @@ const scenario = `(async()=>{
     // A seasonal event: its gift comes on its days (the backend checks them), and the label beside the scene shows the event on now.
     const snow=(await giftOn(0.6,0.3,'2025-12-20','lights')).data;await until(async()=>(await playPets.bootstrap()).data.garden.decor.some(d=>d.id===snow.id));await playPets.putAway(snow.id);
     const boxedTree=await until(async()=>(await playPets.bootstrap()).data.garden.boxed.some(d=>d.kind==='xmas_tree'));
-    // Ornaments: three more gifts come (the capacity check below clears them all), the tree is set out of the box, and three
-    // gifts that came hang on its hooks on the day the last of them came; a fourth waits for the next day, and one taken
-    // down frees its hook without giving that day's hang back.
+    // Ornaments: three more gifts come (the capacity check below clears them all), the tree is set out of the box, and all
+    // four gifts that came hang on its free hooks on one day, with no daily count; one taken down frees its hook, and a hook
+    // already taken refuses another.
     const hangable=[];for(const day of ['2025-12-22','2025-12-24','2025-12-26']){const r=(await giftOn(0.2+hangable.length*0.2,0.6,day)).data;if(r)hangable.push(r);}
     const treeOut=(await playPets.setOut(snow.id,0.6,0.3)).ok,hangKinds=['bench',...hangable.map(g=>g.kind)];
     const hung=[];for(const [hook,kind] of hangKinds.slice(0,3).entries())hung.push(await playPets.hangOrnament('gift',kind,hook,'2025-12-26'));
-    const fourthHang=await playPets.hangOrnament('gift',hangKinds[3],3,'2025-12-26');
-    const three=treeOut&&hangKinds.length===4&&hung.every(r=>r.ok)&&(await playPets.bootstrap()).data.garden.ornaments.length===3,refused=fourthHang.ok===false&&fourthHang.error===${JSON.stringify(ORNAMENTS_TODAY_KO)};
+    const fourthHang=await playPets.hangOrnament('gift',hangKinds[3],3,'2025-12-26'),takenHook=await playPets.hangOrnament('gift','bench',3,'2025-12-26');
+    const four=treeOut&&hangKinds.length===4&&hung.every(r=>r.ok)&&fourthHang.ok&&(await playPets.bootstrap()).data.garden.ornaments.length===4,refused=takenHook.ok===false;
     const down=await playPets.takeDownOrnament('gift','bench','2025-12-26'),downAgain=await playPets.takeDownOrnament('gift','bench','2025-12-26'),afterDown=(await playPets.bootstrap()).data.garden;
-    const takenDown=down.ok&&downAgain.ok===false&&afterDown.ornaments.length===2&&!afterDown.ornaments.some(o=>o.hook===0)&&afterDown.ornamentDay.count===3;
+    const takenDown=down.ok&&downAgain.ok===false&&afterDown.ornaments.length===3&&!afterDown.ornaments.some(o=>o.hook===0)&&afterDown.ornamentDay.day==='2025-12-26';
     for(const item of [snow,...hangable])await playPets.putAway(item.id);
-    await L('ornaments='+(three&&refused?'ok':'err:'+JSON.stringify([three,hangKinds,fourthHang])));
-    await L('ornamentDown='+(takenDown?'hook-freed-count-kept':'err:'+JSON.stringify([down,downAgain,afterDown.ornaments,afterDown.ornamentDay])));
+    await L('ornaments='+(four&&refused?'ok':'err:'+JSON.stringify([four,hangKinds,fourthHang,takenHook])));
+    await L('ornamentDown='+(takenDown?'hook-freed':'err:'+JSON.stringify([down,downAgain,afterDown.ornaments,afterDown.ornamentDay])));
     // A snowman: one a day, dressed in its own parts only, and a new one replaces the old.
     await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});
     const snowA=await playPets.buildSnowman(0.5,0.7,'2025-12-30'),snowTwice=await playPets.buildSnowman(0.4,0.7,'2025-12-30');
@@ -1397,6 +1397,15 @@ const scenario = `(async()=>{
     const grownToast=document.querySelector('.toast')?.textContent;
     $('close-album').click();
     await L('albumTakeOut='+(grownFlower&&grownTree?'grown-out':'err:'+JSON.stringify({grownFlower,grownTree,grownToast,world:(await playPets.bootstrap()).data.world})));
+    // A tulip in bloom stands on the desktop as its patch, and One bloom makes it a single stem
+    // there too: the box the backend lays out follows the choice.
+    const deskBox=async()=>{const i=(await playPets.bootstrap()).data.desktopLayout.find(x=>x.id===grownFlower?.id);return i&&[i.width,i.height];};
+    const patchBox=grownFlower&&await until(async()=>{const b=await deskBox();return b?.[0]===95&&b[1]===93&&b;},8000);
+    if(grownFlower)await must('oneBloom',playPets.setSingleBloom(grownFlower.id,true));
+    const oneBox=grownFlower&&await until(async()=>{const b=await deskBox();return b&&b[0]<95&&b[1]<93&&b;},8000);
+    if(grownFlower)await must('patchAgain',playPets.setSingleBloom(grownFlower.id,false));
+    const backBox=grownFlower&&await until(async()=>{const b=await deskBox();return b?.[0]===95&&b;},8000);
+    await L('desktopPatch='+(patchBox&&oneBox&&backBox?'patch-one-patch':'err:'+JSON.stringify({patchBox,oneBox,backBox,now:await deskBox()})));
     // The flower's card brings it back: its screen takes it off the desktop and leaves it in the yard,
     // then Put back takes it in.
     $('album-button').click();await until(()=>document.querySelectorAll('.album-card').length>0);
@@ -2034,12 +2043,9 @@ const expect = [
   [/^viewing=day-kept$/, 'the day friends viewed the blossom is kept and an odd day is refused'],
   [
     /^ornaments=ok$/,
-    'three gifts that came hang on the Christmas tree on a December day, and a fourth waits for the next day',
+    'four gifts that came hang on the Christmas tree on one December day, and a hook already taken refuses another',
   ],
-  [
-    /^ornamentDown=hook-freed-count-kept$/,
-    "an ornament taken down frees its hook and does not give that day's hang back",
-  ],
+  [/^ornamentDown=hook-freed$/, 'an ornament taken down frees its hook'],
   [
     /^snowman=once-a-day-dressed-replaced$/,
     'a snowman is built once a day, wears only its own parts in drawing order, and a new one replaces the old',
@@ -2088,6 +2094,10 @@ const expect = [
   [/^wanderOn=ok/, 'roaming toggle'],
   [/^desktopPlant=out-and-in$/, 'a flower goes out on the desktop from its menu and comes back in'],
   [/^albumTakeOut=grown-out$/, 'a flower and a tree come out of the album grown, the flower onto the desktop too'],
+  [
+    /^desktopPatch=patch-one-patch$/,
+    'a tulip in bloom stands on the desktop as its patch, and One bloom makes it a single stem',
+  ],
   [/^albumBringIn=off-then-in$/, 'the flower comes off the desktop and back into the album through its card'],
   [
     /^albumFindOut=on-its-own$/,

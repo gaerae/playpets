@@ -40,14 +40,133 @@ export function environmentLook({ season, weather, period, world }) {
   };
 }
 
-/** Keeps the source's proportions while aligning its walkable floor with the yard's. */
+// Between `low` and `high`; when they cross (a safe rect too large for the window), halfway.
+const within = (value, low, high) => (low > high ? (low + high) / 2 : Math.min(high, Math.max(low, value)));
+// A window more than 2.4 times as wide as tall begins to be a strip along the screen, and from 3
+// times it is one: a strip shows a slice across the picture instead of all of it shrunk to its
+// height. In between the yard eases from one to the other, so a window dragged wider never jumps.
+const STRIP_FROM = 2.4,
+  STRIP = 3;
+/** How much a window of w by h is a strip, from 0 (up to 2.4 times as wide as tall) to 1 (from 3). */
+export function stripShare(w, h) {
+  const t = Math.min(1, Math.max(0, (w / Math.max(1, h) - STRIP_FROM) / (STRIP - STRIP_FROM)));
+  return t * t * (3 - 2 * t);
+}
+/** Where the picture is drawn in a window of w by h: its proportions kept, and its floor line,
+ * outdoors, where the window's is. A place that names the part always seen (geometry.safe,
+ * [x0, y0, x1, y1] of the picture) keeps it whole in every window from 4:3 to 16:9, the picture
+ * covering the window. Wider, the picture shrinks to the safe height and its own edge, mirrored
+ * and out of focus, fills the sides (paintSides); narrower, outdoors it shrinks to the safe width
+ * and stands on the window's bottom with the yard's sky above (paintTop), while a room keeps
+ * covering its height and crops its sides. A strip along the screen (stripShare) covers it and
+ * crops, as a place without a safe rect always does, keeping as much of the rect as it can. */
 export function environmentFrame(w, h, scene = {}, sourceWidth = 1536, sourceHeight = 1024) {
   const place = worldFor(scene.world),
-    scale = Math.max(w / sourceWidth, h / sourceHeight),
-    width = sourceWidth * scale,
+    room = place.fit === 'cover-bottom',
+    safe = place.geometry?.safe,
+    cover = Math.max(w / sourceWidth, h / sourceHeight);
+  let scale = cover;
+  if (safe) {
+    scale = Math.min(cover, h / ((safe[3] - safe[1]) * sourceHeight), w / ((safe[2] - safe[0]) * sourceWidth));
+    if (room) scale = Math.max(scale, h / sourceHeight);
+    scale *= (cover / scale) ** stripShare(w, h);
+  }
+  const width = sourceWidth * scale,
     height = sourceHeight * scale,
-    floor = place.fit === 'cover-bottom' ? 1 : (place.geometry?.fieldTop ?? 0.6);
-  return { x: (w - width) / 2, y: (h - height) * floor, width, height };
+    centered = (w - width) / 2,
+    // A room framed from its foot shows its floor's front; outdoors the floor line stays put.
+    anchored = room ? h - height : (h - height) * (place.geometry?.fieldTop ?? 0.6);
+  if (!safe) return { x: centered, y: anchored, width, height };
+  const x =
+      width > w ? within(centered, Math.max(w - width, -safe[0] * width), Math.min(0, w - safe[2] * width)) : centered,
+    // Too short for the whole rect (a strip), as near the floor's own place as its two ends allow.
+    low = Math.max(h - height, -safe[1] * height),
+    high = Math.min(0, h - safe[3] * height),
+    y = height < h ? h - height : low > high ? Math.min(low, Math.max(high, anchored)) : within(anchored, low, high);
+  return { x, y, width, height };
+}
+// A side the picture leaves is its own edge mirrored there, out of focus and shaded toward the
+// window's edge, so it reads as the place going on into shadow; sharp, a vase at the edge showed
+// twice, face to face. Each mirror reaches past the seam and the window's edge (SIDE_REACH), so
+// its blur has pixels to sample there; cut at the seam, it faded into a light line. The shade falls
+// only on what is painted, not on the sky behind the land.
+const SIDE_SHADE = 'rgba(64, 40, 22, 0.5)';
+const SIDE_BLUR = 'blur(10px)';
+const SIDE_REACH = 24;
+// A webview without canvas filters (Safari before 18) would ignore the blur and draw a side sharp,
+// its mirror's offset plain to see: there a side is drawn from a copy of the edge shrunk to a
+// sixteenth, smoothed back up, as soft.
+const canFilter = () =>
+  typeof CanvasRenderingContext2D === 'undefined' || 'filter' in CanvasRenderingContext2D.prototype;
+const SOFT = 16;
+function softened(image, source, strip) {
+  const copy = document.createElement('canvas');
+  copy.width = Math.max(1, Math.round(strip / SOFT));
+  copy.height = Math.max(1, Math.round(image.height / SOFT));
+  copy.getContext('2d')?.drawImage(image, source, 0, strip, image.height, 0, 0, copy.width, copy.height);
+  return copy;
+}
+function paintSides(ctx, image, w, h, frame) {
+  if (frame.x <= 0) return;
+  const reach = frame.x + 2 * SIDE_REACH,
+    strip = (reach / frame.width) * image.width,
+    right = frame.x + frame.width,
+    look = ctx.filter && ctx.filter !== 'none' ? `${ctx.filter} ${SIDE_BLUR}` : SIDE_BLUR;
+  // [the mirror's axis, where its drawing starts from it, the source's left, the side's left]
+  // Each side's clip ends on a whole pixel under the picture: at a seam halfway through a pixel,
+  // the picture and the side each covered half of it, and the sky showed through as a line.
+  const inner = Math.ceil(frame.x),
+    outer = Math.floor(right);
+  for (const [axis, from, source, left, wide] of [
+    [frame.x + SIDE_REACH, 0, 0, 0, inner],
+    [right - SIDE_REACH, -reach, image.width - strip, outer, w - outer],
+  ]) {
+    ctx.save();
+    // Kept to its side: the blur would spread over the picture's own edge.
+    ctx.beginPath?.();
+    ctx.rect?.(left, 0, wide, h);
+    ctx.clip?.();
+    ctx.translate(axis, 0);
+    ctx.scale(-1, 1);
+    if (canFilter()) {
+      ctx.filter = look;
+      ctx.drawImage(image, source, 0, strip, image.height, from, frame.y, reach, frame.height);
+    } else {
+      const copy = softened(image, source, strip);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(copy, 0, 0, copy.width, copy.height, from, frame.y, reach, frame.height);
+    }
+    ctx.restore();
+  }
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-atop';
+  for (const [from, to] of [
+    [0, frame.x],
+    [w, right],
+  ]) {
+    const shade = ctx.createLinearGradient(from, 0, to, 0);
+    shade.addColorStop(0, SIDE_SHADE);
+    shade.addColorStop(1, 'rgba(64, 40, 22, 0)');
+    ctx.fillStyle = shade;
+    ctx.fillRect(Math.min(from, to), 0, frame.x, h);
+  }
+  ctx.restore();
+}
+// The share of the picture's height over which its top edge fades into the sky above it, so a
+// tree's crown that the picture cuts off thins out instead of ending in a straight line.
+const TOP_FADE = 0.08;
+function paintTop(ctx, frame) {
+  if (frame.y <= 0) return;
+  const band = frame.height * TOP_FADE,
+    fade = ctx.createLinearGradient(0, frame.y, 0, frame.y + band);
+  fade.addColorStop(0, '#000');
+  fade.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-out';
+  ctx.fillStyle = fade;
+  ctx.fillRect(frame.x, frame.y, frame.width, band);
+  ctx.restore();
 }
 
 /** Visible window glass in the same cropped coordinates as the painted room; null means outdoors. */
@@ -71,7 +190,9 @@ export function paintEnvironment(ctx, image, w, h, scene) {
   ctx.filter = filter;
   const frame = environmentFrame(w, h, scene, image.width, image.height);
   ctx.drawImage(image, frame.x, frame.y, frame.width, frame.height);
+  paintSides(ctx, image, w, h, frame);
   ctx.filter = 'none';
+  paintTop(ctx, frame);
   if (tint) {
     ctx.globalCompositeOperation = 'source-atop';
     ctx.fillStyle = tint;

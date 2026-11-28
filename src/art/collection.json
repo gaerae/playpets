@@ -282,9 +282,9 @@
   {
     "id": "damselfly",
     "kind": "bugs",
-    "atlas": "bugs/specimens.webp",
-    "atlasSize": [1254, 1254],
-    "crop": [17, 926, 281, 294],
+    "atlas": "fixes/damselfly.webp",
+    "atlasSize": [156, 640],
+    "crop": [0, 0, 156, 640],
     "size": [60, 50],
     "art": "bugs/damselfly.svg"
   },
@@ -554,9 +554,9 @@
   {
     "id": "field_cricket",
     "kind": "bugs",
-    "atlas": "collection-extension/field-cricket.webp",
-    "atlasSize": [1254, 1254],
-    "crop": [138, 51, 977, 1167],
+    "atlas": "fixes/field_cricket.webp",
+    "atlasSize": [512, 640],
+    "crop": [0, 0, 512, 640],
     "size": [60, 60],
     "art": "bugs/field_cricket.svg"
   },
@@ -581,9 +581,9 @@
   {
     "id": "pond_snail",
     "kind": "fish",
-    "atlas": "collection-extension/aquatic.webp",
-    "atlasSize": [2172, 724],
-    "crop": [1575, 187, 573, 378],
+    "atlas": "fixes/pond_snail.webp",
+    "atlasSize": [618, 640],
+    "crop": [0, 0, 618, 640],
     "size": [100, 65],
     "art": "fish/pond_snail.svg"
   },
@@ -1131,9 +1131,9 @@
   {
     "id": "whole_water_deer",
     "kind": "tracks",
-    "atlas": "collection-extension/winter-animals.webp",
-    "atlasSize": [1536, 1024],
-    "crop": [780, 54, 322, 425],
+    "atlas": "fixes/whole_water_deer.webp",
+    "atlasSize": [524, 640],
+    "crop": [0, 0, 524, 640],
     "size": [30, 40],
     "art": "tracks/whole_water_deer.svg"
   },
@@ -1239,9 +1239,9 @@
   {
     "id": "wild_garlic",
     "kind": "shoot",
-    "atlas": "collection-extension/spring-shoots.webp",
-    "atlasSize": [1536, 1024],
-    "crop": [1133, 145, 375, 320],
+    "atlas": "fixes/wild_garlic.webp",
+    "atlasSize": [590, 640],
+    "crop": [0, 0, 590, 640],
     "size": [40, 34],
     "art": "shoots/wild_garlic.svg"
   },
@@ -1275,9 +1275,9 @@
   {
     "id": "morel",
     "kind": "shoot",
-    "atlas": "collection-extension/spring-shoots.webp",
-    "atlasSize": [1536, 1024],
-    "crop": [1211, 602, 223, 312],
+    "atlas": "fixes/morel.webp",
+    "atlasSize": [325, 640],
+    "crop": [0, 0, 325, 640],
     "size": [29, 40],
     "art": "shoots/morel.svg"
   },

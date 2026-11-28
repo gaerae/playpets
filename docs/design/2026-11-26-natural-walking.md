@@ -184,3 +184,7 @@ Friends move like characters in a game: legs pass each other and arms swing agai
 - The exact clamps (stride, cadence floor, bob height, turn rate) tuned by eye within the ranges above.
 - The mark's size and how long it fades.
 - How tries are named in the source folder.
+
+## Follow-up (2026-11-27)
+
+- The ring of bent grass read as a target painted on the ground, and it was large. The mark is now a small star pin over the spot (a paw print was dropped: friends are not all animals) (`ambient/walk-pin.png`), dropping in and bobbing, with only a small soft shadow on the ground (garden.css `.walk-mark`, `.walk-pin`). It still scales by the friend's size and depth.

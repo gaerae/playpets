@@ -67,19 +67,21 @@ test('a damselfly flies smaller than the blue dragonfly it shares the pond with'
   assert.ok(size('blue_butterfly') <= size('cabbage_white') * 0.8, 'and so is the little blue butterfly');
 });
 
-test('the field cricket is not the green of the katydid that hops beside it', () => {
-  const [cricket, katydid] = [rgb(bug('field_cricket').look.body), rgb(bug('katydid').look.body)];
-  assert.ok(cricket[0] > cricket[1], 'the cricket is a warm brown');
+test('the field cricket is neither the green katydid nor the brown Emma cricket', () => {
+  const [cricket, katydid, emma] = ['field_cricket', 'katydid', 'emma_cricket'].map(id => rgb(bug(id).look.body));
+  assert.ok(cricket[0] >= cricket[1], 'the cricket is not green');
   assert.ok(katydid[1] > katydid[0], 'the katydid stays green');
-  // The album and the yard draw the art, so it is the brown redraw that is checked, not only the
-  // colours above: the atlas its provenance records.
+  assert.ok(Math.max(...cricket) < Math.max(...emma), 'the field cricket is blacker than the Emma cricket');
+  // The album and the yard draw the art, so it is the redraw that is checked, not only the colours
+  // above: the 2026-11-27 picture, black with two cream spots, which its provenance records.
   const art = id => json('../src/art/collection.json').find(entry => entry.id === id);
-  const redraw = json('../assets/sources/look-alikes-2026-11-10/accepted-art.json').sources.find(source =>
-    source.acceptedIds.includes('field_cricket'),
+  const redraw = json('../assets/sources/art-fixes-2026-11-27/accepted-art.json').sources.find(
+    source => source.name === 'field_cricket',
   );
   assert.equal(art('field_cricket').atlas, redraw.runtimeAtlas.replace(/\.png$/, '.webp'));
-  assert.deepEqual(art('field_cricket').crop, redraw.boxes.field_cricket);
-  assert.notEqual(art('katydid').atlas, art('field_cricket').atlas, 'the katydid keeps its own drawing');
+  assert.match(redraw.prompt, /TWO bold round CREAM-YELLOW spots/);
+  for (const other of ['katydid', 'emma_cricket'])
+    assert.notEqual(art(other).atlas, art('field_cricket').atlas, `the ${other} keeps its own drawing`);
 });
 
 test('a damselfly drawn before its art is ready is still smaller than the dragonfly', () => {

@@ -9,7 +9,7 @@ import { $, aiming, dropLine, game, toast } from '../core/state.js';
 import { spoken } from '../core/text.js';
 import { artSize } from './art.js';
 import { giftKind } from './catalog.js';
-import { decorFloor, depthScaleAt, EDGE, field, fieldToYard, propZoom, yardToDecor } from './field.js';
+import { decorFloor, depthScaleAt, field, fieldAcross, fieldToYard, propZoom, yardToDecor } from './field.js';
 import { findScale } from './find-out.js';
 import { thingAt, thingGone } from './veil.js';
 import { scene } from './world.js';
@@ -172,7 +172,7 @@ export function movable(view, { current, show, save, menu, remove, settle, allow
     event.stopPropagation();
     const f = field();
     view.drag = beginDrag(button, event, current(), {
-      width: Math.max(1, f.width - EDGE * 2),
+      width: fieldAcross(f).span,
       height: Math.max(1, f.bottom - f.top),
       world: scene.world,
       foot: view.at ?? fieldToYard(current()),

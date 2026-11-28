@@ -180,3 +180,17 @@ New `geometry.stations` in `worlds.json`, in source-image fractions like `geomet
 - Furniture keeps the friends' size: a seated friend's tag rests on the table top, and the bench is about two friends wide.
 - The bench, the post and its lantern are one front, cut along their outline.
 - The tables' fronts follow the top board and the legs too, not their boxes: a lantern's ground glow or a gift's shade behind a table stops at the table, not at a straight edge beside it.
+
+## Follow-up: a very wide window (2026-11-27)
+
+- At 2560×1080 the workshop's picture, framed from its foot, lost its top 37%: the windows and the roof were gone and only floor showed.
+- The workshop names the band it keeps in view (`geometry.keep`, 0.13 to 0.93 of its height). A wider window loses the empty floor below the bench first, then the top.
+- Past what that allows, the picture stops covering the window's width. Up to 7% of each side shows the picture's own edge, mirrored, blurred and shaded (`environment.js paintSides`). A sharp mirror showed a vase twice, face to face.
+- The sides are not floor (`workspace.js blocked`), and friends grow with the picture as shown, so they stay as big next to a desk.
+- A strip along the screen (wider than three times its height) still crops, as decided in [places](2026-10-11-places.md).
+- In a strip, friends and gifts grow no taller than its height allows, as outdoors (`field.js zoomFor`): at 2400×300 a friend stood 224px tall, now about 90px. The painted furniture keeps the picture's scale, so there a friend is smaller beside the bench than in a full window.
+
+## Follow-up: the part always seen (2026-11-28)
+
+- `geometry.keep` and its 7% limit are replaced by `geometry.safe`, the rule every place now follows ([places](2026-10-11-places.md#follow-up-the-part-always-seen-2026-11-28)).
+- The workshop keeps 0.13 to 0.93 of its height and 0.06 to 0.94 of its width. At 2560×1080 each side is about 10% of the window.

@@ -71,3 +71,10 @@ Follows [album finds out on their own](2026-11-19-album-finds-out.md): a find ou
 - The trail test's common-find share goes from over 40% to over 35%: three new common keepsakes widen the pool.
 - Every new entry was compared with the older entries most like it. Three flowers were redrawn so they stand apart: a white Japanese anemone (not the cosmos's pink), a red-and-gold French marigold (not the chrysanthemum's orange) and long-stemmed roses (not a bush like the peony).
 - The rose's thorns were painted red like its blooms and drew the eye down the stems. They are repainted a muted olive, a little darker than the stems, keeping their shading.
+
+## Follow-up: every find by its length (2026-11-27)
+
+- Only fish came out sized by their length; every bug, keepsake and footprint animal came out at its book's one size, so a ladybug stood larger than a lantern.
+- Each bug, keepsake and footprint animal has a `length` in cm (a butterfly's or a dragonfly's wingspan), and each find out a `grow`: the two `[cm, scale]` ends of its log scale. Fish keep their numbers (4 cm at 0.7 to 150 cm at 1.45).
+- Bugs run from a ladybug's 0.7 cm at 0.55 to 12 cm at 1.3, keepsakes from a pearl's 1 cm at 0.65 to 12 cm at 1.25, and animals from a sparrow's 14 cm at 0.75 to a water deer's 100 cm at 1.3.
+- The page (`find-out.js findScale`) and the desktop (`content.rs find_scale`) read the same numbers from the catalogue.

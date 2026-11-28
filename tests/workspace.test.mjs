@@ -10,14 +10,14 @@ globalThis.playPets = { updatePet: async () => ({ ok: true, data: null }) };
 const { reduced } = await import('../src/core/sprites.js');
 const { setData, views } = await import('../src/core/state.js');
 const { FADE_MS } = await import('../src/core/status.js');
-const { DEPTH_FAR, depthScale, EDGE, field, footTarget, geometry, measureYard, sizeOf, yardZoom } =
+const { DEPTH_FAR, depthScale, EDGE, field, footOf, footTarget, geometry, measureYard, propZoom, sizeOf, yardZoom } =
   await import('../src/yard/field.js');
 const { moveFriends } = await import('../src/yard/motion.js');
 const { scene } = await import('../src/yard/world.js');
 const { useWorlds, worldHasSoil, worlds } = await import('../src/yard/worlds.js');
-const { blocked, frontsIn, stationAt } = await import('../src/yard/workspace.js');
+const { blocked, crossesFurniture, frontsIn, stationAt, wayAround } = await import('../src/yard/workspace.js');
 const { loungeTarget, sitOut } = await import('../src/yard/lounge.js');
-const { forPerson, release, rest } = await import('../src/yard/trips.js');
+const { forPerson, release, rest, sendTo } = await import('../src/yard/trips.js');
 const { dutyAfresh, station } = await import('../src/yard/duty.js');
 
 // A picture of 1536 by 1024 in a yard of the same size: its fractions are the yard's.
@@ -139,16 +139,36 @@ test('in a room, friends grow with the picture past the size it was drawn for, a
   scene.world = 'workshop';
   wide(1920, 1080);
   assert.ok(close(yardZoom(), 1920 / 1536 / (850 / 1024)), 'the garden workshop is a room too');
+  // Wider than 16:9, the workshop shows its safe rect's height and leaves its sides to its mirrored
+  // edge: friends stay as big next to a desk as the picture shown is.
+  const [, top, , bottom] = shipped.find(w => w.id === 'workshop').geometry.safe;
+  wide(2560, 1080);
+  assert.ok(close(yardZoom(), 1080 / ((bottom - top) * 1024) / (850 / 1024)), `a very wide workshop ${yardZoom()}`);
   // Small, friends keep the size that reads, larger than the picture shrinks them to.
   scene.world = room.id;
   wide(300, 210);
   assert.equal(yardZoom(), 0.375);
+  // A strip shows a slice of the picture: friends, and gifts with them, grow no taller than its
+  // height allows, as outdoors, though the painted furniture is larger.
   wide(900, 260);
-  assert.ok(close(yardZoom(), 900 / 1536 / (850 / 1024)), 'a strip: the larger of the two');
-  // Outdoors, friends keep the size they always had.
+  assert.ok(close(yardZoom(), 260 / 380), `a strip ${yardZoom()}`);
+  wide(2400, 300);
+  assert.ok(close(yardZoom(), 300 / 380), `a long strip ${yardZoom()}`);
+  assert.ok(close(propZoom(), 300 / 380), 'a gift too');
+  // Outdoors too, friends grow with the painting, so they stay as big next to the house.
   scene.world = 'woodland';
-  wide(2560, 1440);
+  wide(1180, 850);
   assert.equal(yardZoom(), 1);
+  wide(1920, 1080);
+  assert.ok(close(yardZoom(), 1920 / 1536 / (850 / 1024)), `outdoors ${yardZoom()}`);
+  assert.equal(propZoom(), yardZoom(), 'and what stands on the grass with them');
+  wide(2560, 1440);
+  assert.equal(yardZoom(), 2);
+  wide(300, 210);
+  assert.equal(yardZoom(), 0.375, 'small, as before');
+  // A strip along the screen's edge shows a slice of a wide picture: friends still fit its height.
+  wide(2400, 300);
+  assert.ok(yardZoom() <= 300 / 380 + 1e-9, `strip ${yardZoom()}`);
 });
 
 test("in a window wider than the picture, the floor begins where the picture's floor shows, and the back desks are seats", t => {
@@ -167,6 +187,24 @@ test("in a window wider than the picture, the floor begins where the picture's f
   const deep = depthScale(a.target.y);
   wide(1536, 1024);
   assert.ok(Math.abs(depthScale(footTarget(a, 1536 * 0.3, 1024 * 0.55, 0).y) - deep) < 0.01);
+});
+
+// Outdoors the picture is placed to keep its safe rect in view (environment.js environmentFrame),
+// so the field's top is where the picture's own line falls in the window, at any shape.
+test("outdoors the field begins at the picture's own line, wherever the window puts the picture", t => {
+  inRoom(t);
+  scene.world = 'woodland';
+  const line = shipped.find(w => w.id === 'woodland').geometry.fieldTop;
+  for (const [width, height] of [
+    [1180, 850],
+    [2560, 1080],
+    [1920, 1080],
+    [820, 1000],
+  ]) {
+    wide(width, height);
+    const want = stationAt({ x: 0.5, y: line }).y;
+    assert.ok(Math.abs(field().top - want) < 1e-6, `${width}x${height}: ${field().top} against ${want}`);
+  }
 });
 
 test('a station is where the picture puts it, and cropped away it lies outside the window', t => {
@@ -352,6 +390,57 @@ test('furniture blocks the end of a stroll, as a tree does', t => {
   assert.equal(blocked(1536 * 0.3 + 1536 * 0.059, 1024 * 0.58), true);
   assert.equal(blocked(1536 * 0.5, 1024 * 0.58), false);
   assert.equal(blocked(1536 * 0.3, 1024 * 0.62), false);
+});
+
+// Feedback: in the garden workshop friends walked over the tables, as only a stroll's end kept off
+// them. A walk across furniture goes around it, and into or out of a seat behind it from behind.
+const P = (x, y) => ({ x: 1536 * x, y: 1024 * y });
+const clearAll = path => path.slice(1).every((p, i) => !crossesFurniture(path[i], p));
+test('a walk across furniture goes around it; one clear of it goes straight', t => {
+  inRoom(t);
+  assert.equal(crossesFurniture(P(0.3, 0.7), P(0.3, 0.5)), true);
+  assert.equal(crossesFurniture(P(0.5, 0.7), P(0.5, 0.5)), false);
+  // Set down on it, a friend walks off it.
+  assert.equal(crossesFurniture(P(0.3, 0.6), P(0.3, 0.7)), false);
+  assert.deepEqual(wayAround(P(0.5, 0.7), P(0.5, 0.5)), []);
+  const way = wayAround(P(0.3, 0.7), P(0.3, 0.5));
+  assert.ok(way.length >= 2, 'by a front corner and a back one');
+  assert.ok(clearAll([P(0.3, 0.7), ...way, P(0.3, 0.5)]));
+  for (const p of way) assert.equal(blocked(p.x, p.y), false);
+});
+
+test('a friend goes to a seat behind furniture from behind it, and leaves it the same way', t => {
+  inRoom(t);
+  const seat = P(0.3, 0.57),
+    back = 1024 * (0.58 - 0.03);
+  assert.equal(blocked(seat.x, seat.y), true, 'the seat is on the furniture, under its front');
+  const into = wayAround(P(0.3, 0.75), seat);
+  assert.ok(into.at(-1).y < back, 'the last step in comes from behind');
+  assert.ok(clearAll([P(0.3, 0.75), ...into]));
+  const out = wayAround(seat, P(0.3, 0.75));
+  assert.ok(out[0].y < back, 'the first step out goes behind');
+  assert.ok(clearAll([...out, P(0.3, 0.75)]));
+  // Already behind it, a friend sits straight down.
+  assert.deepEqual(wayAround(P(0.3, 0.45), seat), []);
+});
+
+test('a friend sent across furniture walks around it and arrives', t => {
+  inRoom(t);
+  const a = friend('a');
+  Object.assign(a, at(a, 0.3, 0.72));
+  const { w, h, top } = geometry(a.pet, a.x);
+  a.px = EDGE + a.x * w;
+  a.py = top + a.y * h;
+  let arrived = 0;
+  sendTo(a, at(a, 0.3, 0.46), { save: false, arrive: () => arrived++ });
+  a.leftAt = 0;
+  let now = 1000;
+  for (let i = 0; i < 2000 && !arrived; i++) {
+    moveFriends((now += 16), 16);
+    const feet = footOf(a);
+    assert.equal(blocked(feet.x, feet.y), false, `step ${i} at ${Math.round(feet.x)},${Math.round(feet.y)}`);
+  }
+  assert.equal(arrived, 1);
 });
 
 test("a desk's front is drawn over a friend whose feet are behind its foot line", async t => {
@@ -565,4 +654,64 @@ test('outdoors and in rooms without stations, an idle friend strolls as before',
     }),
     null,
   );
+});
+
+// The workshop's sides in a very wide window are its edge out of focus (environment.js
+// environmentFrame, paintSides), not floor: friends keep to the picture.
+test('the blurred sides of a very wide workshop are not floor', t => {
+  inRoom(t);
+  scene.world = 'workshop';
+  wide(2560, 1080);
+  const side = stationAt({ x: -0.03, y: 0.8 }),
+    floor = stationAt({ x: 0.03, y: 0.8 });
+  assert.ok(side.x > 0, 'the side is in the window');
+  assert.equal(blocked(side.x, side.y), true);
+  assert.equal(blocked(floor.x, floor.y), false);
+  wide(1920, 1080);
+  const edge = stationAt({ x: 0.01, y: 0.8 });
+  assert.equal(blocked(Math.max(edge.x, 2), edge.y), false, 'a window the picture covers has no sides');
+});
+
+// Friends and gifts are sized by the picture and the window's height (field.js zoomFor): dragged
+// wider into a strip, they ease to a strip's size with the picture instead of jumping at 3:1.
+test('friends dragged from a wide window into a strip change size a little at a time', t => {
+  inRoom(t);
+  for (const world of ['woodland', 'workshop'])
+    for (const h of [260, 500, 800]) {
+      scene.world = world;
+      let last = null;
+      for (let w = Math.round(h * 2.2); w <= h * 3.3; w += 2) {
+        wide(w, h);
+        const now = [yardZoom(), propZoom()];
+        if (last)
+          now.forEach((z, i) => assert.ok(Math.abs(z / last[i] - 1) < 0.02, `${world} ${w}x${h}: ${last[i]} -> ${z}`));
+        last = now;
+      }
+    }
+});
+
+// Narrower than 4:3, an outdoor picture shrinks to the part always seen across, with sky above
+// (environment.js environmentFrame): friends shrink as much as it does from a 4:3 window as tall,
+// so they stay as big next to the cottage, though never below a size that reads. A room covers
+// its height there and keeps its friends.
+test('in a tall, narrow window outdoors friends shrink with the picture, down to a size that reads', async t => {
+  const { environmentFrame } = await import('../src/yard/environment.js');
+  inRoom(t);
+  scene.world = 'woodland';
+  const picture = (w, h) => environmentFrame(w, h, { world: 'woodland' }).width;
+  wide(1334, 1000);
+  const square = yardZoom();
+  wide(820, 1000);
+  const close = (a, b) => Math.abs(a - b) < 0.01;
+  assert.ok(close(yardZoom(), (square * picture(820, 1000)) / picture(1334, 1000)), `${yardZoom()} ${square}`);
+  assert.ok(close(propZoom(), yardZoom()), 'what stands on the grass with them');
+  wide(400, 1000);
+  assert.ok(yardZoom() >= 0.6 - 1e-9, `a very narrow window ${yardZoom()}`);
+  wide(1180, 850);
+  assert.equal(yardZoom(), 1, 'a usual window is as before');
+  scene.world = 'workshop';
+  wide(820, 1000);
+  const narrowRoom = yardZoom();
+  wide(1334, 1000);
+  assert.ok(close(narrowRoom, yardZoom()), 'a room keeps its friends');
 });

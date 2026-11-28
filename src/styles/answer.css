@@ -1,0 +1,329 @@
+/* A press on a flower, a tree or a gift answers (yard/press-answer.js), in the yard and on the
+   desktop alike: its drawing bobs or rustles once from its foot, and a few petals, leaves or flakes
+   fall from it to about its foot and fade. Bob and rustle move only `scale` and `rotate`, so the
+   breeze's lean (garden.css, on `transform`) goes on under them. A gift's drawing moves with all
+   it wears (worn.css): the ornaments, a snowman's dress, what a display holds and the grand tree,
+   each standing on the same foot. Loaded by both pages; reduced motion makes none (press-answer.js). */
+.yard :is(.plant, .planted-tree).answering > svg,
+.yard .decor.answering > :is(svg, .ornaments, .dress-layers, .held-layer, .xmas-night),
+#friends .decor.answering > :is(svg, .ornaments, .dress-layers, .held-layer, .xmas-night) {
+  transform-origin: 50% 100%;
+}
+.yard .plant.answering[data-answer="bob"] > svg,
+.yard .decor.answering[data-answer="bob"] > :is(svg, .ornaments, .dress-layers, .held-layer, .xmas-night),
+#friends .decor.answering[data-answer="bob"] > :is(svg, .ornaments, .dress-layers, .held-layer, .xmas-night) {
+  animation: answer-bob 520ms cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.yard .planted-tree.answering[data-answer="rustle"] > svg,
+#friends .decor.answering[data-answer="rustle"] > svg {
+  animation: answer-rustle 760ms ease-out;
+}
+/* Outdoors the breeze keeps swaying it while it answers. */
+.yard:not([data-soil="false"]) .plant.answering[data-answer="bob"]:not([data-stage="seed"]) > svg {
+  animation:
+    breeze-flower 4.6s ease-in-out var(--sway, 0s) infinite alternate,
+    answer-bob 520ms cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.yard:not([data-soil="false"]) .planted-tree.answering[data-answer="rustle"] > svg {
+  animation:
+    breeze 7s ease-in-out var(--sway, 0s) infinite alternate,
+    answer-rustle 760ms ease-out;
+}
+@keyframes answer-bob {
+  0%,
+  100% {
+    scale: 1 1;
+  }
+  30% {
+    scale: 1.07 0.93;
+  }
+  62% {
+    scale: 0.97 1.04;
+  }
+}
+@keyframes answer-rustle {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  18% {
+    rotate: -1.8deg;
+  }
+  42% {
+    rotate: 1.4deg;
+  }
+  68% {
+    rotate: -0.7deg;
+  }
+}
+/* A bit falls slowly, drifting aside and turning, and fades before it lands. */
+.answer-bit {
+  position: absolute;
+  z-index: 1;
+  width: 7px;
+  height: 5px;
+  margin: -2px -3px;
+  border-radius: 60% 40% 60% 40%;
+  /* Lit from the upper left as the paintings are, so a petal reads as a petal on any ground. */
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 55%, white), var(--c) 70%);
+  box-shadow: 0 1px 1px rgb(60 40 20 / 0.22);
+  pointer-events: none;
+  opacity: 0;
+  animation: answer-fall 1500ms cubic-bezier(0.35, 0.1, 0.6, 1) forwards;
+}
+.answer-bit[data-bit="leaf"] {
+  width: 8px;
+  height: 5px;
+  border-radius: 0 80% 0 80%;
+}
+.answer-bit[data-bit="snow"] {
+  width: 4px;
+  height: 4px;
+  margin: -2px;
+  border-radius: 50%;
+  box-shadow: 0 0 2px rgb(255 255 255 / 0.9);
+}
+@keyframes answer-fall {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  12% {
+    opacity: 1;
+  }
+  45% {
+    translate: calc(var(--dx) * 0.7) calc(var(--fall) * 0.4);
+  }
+  80% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    translate: var(--dx) var(--fall);
+    rotate: var(--turn);
+  }
+}
+
+/* A gift's moving part turns once when poked (yard/poke.js, laid in worn.css): a pinwheel spins, a
+   wind chime or a hanging pot swings. */
+.decor .part.moving[data-motion="spin"] {
+  animation: part-spin 1.6s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.decor .part.moving[data-motion="sway"] {
+  animation: part-sway 1.4s ease-out;
+}
+@keyframes part-spin {
+  to {
+    rotate: 1080deg;
+  }
+}
+@keyframes part-sway {
+  15% {
+    rotate: 10deg;
+  }
+  38% {
+    rotate: -7deg;
+  }
+  60% {
+    rotate: 4deg;
+  }
+  80% {
+    rotate: -1.5deg;
+  }
+}
+/* A find out (yard/find-out.js) answers a poke its own way, in the yard and on the desktop alike. A
+   fish swims ahead, turns, swims back past the middle and turns to face ahead again. The album's
+   fish face right. Three bubbles rise from where it set off, one after another, each gone before
+   the swim ends. */
+.decor .held.moving[data-motion="swim"] {
+  animation: held-swim 2s ease-in-out;
+}
+.decor .held.moving ~ .bubbles i {
+  animation: bubble-rise 0.9s ease-out both;
+}
+.decor .held.moving ~ .bubbles i:nth-child(2) {
+  animation-delay: 0.3s;
+}
+.decor .held.moving ~ .bubbles i:nth-child(3) {
+  animation-delay: 0.8s;
+}
+@keyframes bubble-rise {
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    translate: 0 -18px;
+  }
+}
+@keyframes held-swim {
+  25% {
+    translate: 16% 0;
+    scale: 1 1;
+  }
+  32% {
+    translate: 16% 0;
+    scale: -1 1;
+  }
+  68% {
+    translate: -16% 0;
+    scale: -1 1;
+  }
+  75% {
+    translate: -16% 0;
+    scale: 1 1;
+  }
+}
+/* Every other find answers a poke its own way (find-out.js pokeOf), once, in a second or two: a
+   butterfly or a moth flaps, a dragonfly darts ahead (the album's bugs face up), a firefly blinks,
+   a beetle or a cricket hops, as an animal does; a treasure twinkles and a locket sways. A bug
+   lets out a few glints, a treasure its sparkles and an animal a heart or two (worn.css). */
+.decor .held.moving[data-motion="flutter"] {
+  animation: held-flutter 1.2s ease-in-out;
+}
+.decor .held.moving[data-motion="dart"] {
+  animation: held-dart 1.1s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.decor .held.moving[data-motion="blink"] {
+  animation: held-blink 1.4s ease-in-out;
+}
+.decor .held.moving[data-motion="hop"] {
+  animation: held-hop 0.9s ease-out;
+}
+.decor .held.moving[data-motion="twinkle"] {
+  animation: held-twinkle 1.3s ease-out;
+}
+.decor .held.moving[data-motion="rock"] {
+  transform-origin: 50% 92%;
+  animation: held-rock 1.6s ease-in-out;
+}
+.decor .held.moving ~ .sparkle i {
+  animation: sparkle-pop 0.7s ease-out both;
+}
+.decor .held.moving ~ .sparkle i:nth-child(2) {
+  animation-delay: 0.25s;
+}
+.decor .held.moving ~ .sparkle i:nth-child(3) {
+  animation-delay: 0.5s;
+}
+.decor .held.moving ~ .glints i {
+  animation: sparkle-pop 0.6s ease-out both;
+}
+.decor .held.moving ~ .glints i:nth-child(2) {
+  animation-delay: 0.3s;
+}
+.decor .held.moving ~ .glints i:nth-child(3) {
+  animation-delay: 0.55s;
+}
+.decor .held.moving ~ .hearts i {
+  animation: heart-rise 1.1s ease-out both;
+}
+.decor .held.moving ~ .hearts i:nth-child(2) {
+  animation-delay: 0.25s;
+}
+.decor .held.moving ~ .hearts i:nth-child(3) {
+  animation-delay: 0.5s;
+}
+@keyframes heart-rise {
+  25% {
+    opacity: 1;
+    scale: 1;
+  }
+  100% {
+    opacity: 0;
+    scale: 0.8;
+    translate: 0 -22px;
+  }
+}
+@keyframes held-flutter {
+  10%,
+  30%,
+  50%,
+  70% {
+    scale: 0.55 1;
+  }
+  20%,
+  40%,
+  60% {
+    scale: 1 1;
+    translate: 0 -6%;
+  }
+}
+@keyframes held-dart {
+  25% {
+    translate: 0 -24%;
+  }
+  50% {
+    translate: 6% -12%;
+  }
+  75% {
+    translate: -3% 0;
+  }
+}
+@keyframes held-blink {
+  15%,
+  55% {
+    filter: brightness(1.7) drop-shadow(0 0 6px #fff3a0);
+  }
+  35%,
+  80% {
+    filter: brightness(1);
+  }
+}
+@keyframes held-hop {
+  25% {
+    translate: 0 -18%;
+  }
+  45% {
+    translate: 0 0;
+  }
+  60% {
+    translate: 0 -7%;
+  }
+  75% {
+    translate: 0 0;
+  }
+}
+@keyframes held-twinkle {
+  25% {
+    scale: 1.08;
+  }
+  50% {
+    scale: 0.98;
+  }
+  70% {
+    scale: 1.03;
+  }
+}
+@keyframes held-rock {
+  15% {
+    rotate: 9deg;
+  }
+  35% {
+    rotate: -7deg;
+  }
+  55% {
+    rotate: 5deg;
+  }
+  75% {
+    rotate: -2deg;
+  }
+}
+@keyframes sparkle-pop {
+  30% {
+    opacity: 1;
+    scale: 1;
+  }
+  100% {
+    opacity: 0;
+    scale: 0.4;
+  }
+}
+/* A lamp switched by a poke (yard/poke.js showLamp) holds its light against the hour's (worn.css). */
+:is(.yard, #friends) .decor.lamp-on :is(.fx-glow, .fx-pool) {
+  opacity: 1;
+}
+:is(.yard, #friends) .decor.lamp-off :is(.fx-glow, .fx-pool) {
+  opacity: 0;
+}

@@ -33,7 +33,6 @@ import {
   depthAt,
   depthScaleAt,
   dockBox,
-  EDGE,
   field,
   footOf,
   footTarget,
@@ -334,8 +333,8 @@ export function clearAllOfDock() {
 /** Sets the friend's body and label where it stands (v.x, v.y). With `glide`, the frame loop's own
  * step of a walk or a parade, it glides there (GLIDE_MS); anything else puts it there at once. */
 export function place(v, { glide = false } = {}) {
-  const { w, h, top } = geometry(v.pet, v.x);
-  v.px = EDGE + v.x * w;
+  const { w, h, top, left } = geometry(v.pet, v.x);
+  v.px = left + v.x * w;
   v.py = top + v.y * h;
   // The body goes by translate, so its depth (scale, below) shrinks it about its feet and not its
   // place; the canvas inside keeps transform for a press, a tilt or a step. A held friend follows

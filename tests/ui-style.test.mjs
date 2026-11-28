@@ -191,6 +191,25 @@ test('a tool name in a small window takes a second line instead of running into 
   assert.match(css, /@media\(max-width:360px\)\{body\.compact \.discovery-tool svg\{display:none;\}\}/);
 });
 
+// overflow-y: auto alone turns the other axis to auto too, and Windows draws its scrollbars inside
+// the box: with Play's body scrolling, the painted hand tapping Album passed its right edge by a few
+// pixels and a second bar showed under the tiles. A box meant to scroll up and down never scrolls
+// sideways; what passes its edge is cut, as it was already.
+test('a panel, sheet or page that scrolls up and down never scrolls sideways', async () => {
+  const css = await styles();
+  for (const selector of [
+    '\\.dock-panel-body',
+    '\\.side-panel',
+    '#panel-invite',
+    'body\\.compact \\.panel-body',
+    '\\.album-grid',
+  ]) {
+    const rule = css.match(new RegExp(`(?:^|\\})${selector}\\{([^}]*)\\}`))?.[1] || '';
+    assert.match(rule, /overflow-y:auto/, selector);
+    assert.match(rule, /overflow-x:(?:hidden|clip)/, selector);
+  }
+});
+
 test('a button in a scrolling dock panel draws its focus ring inside, where the scroller cannot cut it', async () => {
   const css = await styles();
   assert.match(css, /\.dock-panel-body button:focus-visible\{outline-offset:-3px;/);
@@ -258,6 +277,19 @@ test('the menu sets its three places side by side in every window, so Close wind
     /(?:^|\})\.management-destinations \.menu-destination\{[^}]*flex-direction:column;[^}]*text-align:center/,
   );
   assert.equal(css.match(/\.management-destinations\{display:grid/g).length, 1, 'said once, for every window');
+});
+
+// A row of cards not found yet was shorter than a row with a find. Every row is at least the
+// book's tallest card (album.js evenCards), and grows if a card is taller still, so nothing is cut.
+// A small window's one column is a list, not rows of cards: there each card keeps its own height,
+// or one card would fill a 320px window.
+test("every row of album cards is at least the book's tallest card, where cards stand side by side", async () => {
+  const css = await styles();
+  assert.match(css, /(?:^|\})\.album-grid\{[^}]*grid-auto-rows:minmax\(var\(--album-card,auto\),auto\)/);
+  const small = css.match(
+    /@media\(max-width:640px\),\(max-height:480px\)\{\.album-tabs\{display:none;?\}(.*?)\}\}/,
+  )?.[1];
+  assert.match(small, /\.album-grid\{grid-template-columns:1fr;[^}]*grid-auto-rows:auto/);
 });
 
 // At 760 by 520 the album's large picture pushed the hint on where to find a kind below the left
@@ -461,6 +493,30 @@ test('compact settings reserve height for their scroller and panels clear the do
   // At 300 by 210 in Japanese the list of sections is taller than the sheet: it scrolls, so About
   // stays in reach under its title row.
   assert.match(css, /body\.compact #settings-home\{[^}]*min-height:0;[^}]*overflow-y:auto/);
+});
+
+// At 560 by 400 a friend's chat was the large window's 440px sheet from top to bottom, over all but
+// a strip of the yard, while Play and Friends & settings there are 360px and as tall as what they
+// hold. A small window's sheet is the dock panels' width at its right, and a conversation is as tall
+// as it is, from the top, up to the window.
+test("a small window's chat is a dock panel's width and as tall as the conversation", async () => {
+  const css = await styles();
+  const sheet = css.match(/(?:^|\})body\.compact \.layout\.panel-open \.side-panel\{([^}]*)\}/)?.[1] || '';
+  assert.match(sheet, /left:auto;/);
+  assert.match(sheet, /width:min\(var\(--dock-panel-width\),calc\(100% - 16px\)\)/);
+  const chat =
+    css.match(
+      /(?:^|\})body\.compact \.layout\.panel-open \.side-panel:has\(#panel-pet:not\(\[hidden\]\)\)\{([^}]*)\}/,
+    )?.[1] || '';
+  assert.match(chat, /bottom:auto;/);
+  assert.match(chat, /max-height:calc\(100% - 16px\)/);
+  // A window 280px tall or less keeps the whole height: the friend's menu spreads over the sheet
+  // there (panel.css), and a sheet as short as a new chat cut its last item.
+  const short = [...css.matchAll(/@media\(max-height:280px\)\{((?:[^{}]*\{[^}]*\})*)\}/g)].map(m => m[1]).join('');
+  assert.match(
+    short,
+    /body\.compact \.layout\.panel-open \.side-panel:has\(#panel-pet:not\(\[hidden\]\)\)\{bottom:8px;max-height:none;?\}/,
+  );
 });
 
 test('compact chat keeps its composer visible while the log owns scrolling', async () => {
@@ -920,6 +976,7 @@ const SET_FROM_CODE = {
   '--bubble-shift': 'src/yard/views.js',
   '--depth': 'src/yard/views.js',
   '--album-found': 'src/panel/album.js',
+  '--album-card': 'src/panel/album.js',
   '--trail-opacity': 'src/yard/trails.js',
   '--petal-x': 'src/yard/petals.js',
   '--petal-turn': 'src/yard/petals.js',
@@ -1226,11 +1283,12 @@ test('the narrowest windows keep the Invite title on one line', async () => {
 
 // The interface's colours come from tokens with a light and a dark value (base.css), and a themed
 // surface (the decorating night) names its palette as tokens on its own root. Only drawn things
-// keep colours of their own: the yard's art files, and the marks listed here. Before, 240 raw
+// keep colours of their own: the yard's art files (and the petals, leaves and flakes a pressed thing
+// lets fall, answer.css), and the marks listed here. Before, 240 raw
 // colours were spread over the rules, and some (the Remove button, the Quit hover, the Settings
 // shadow) stayed light in dark mode.
 test('the interface takes its colours from tokens', async () => {
-  const art = new Set(['scenery.css', 'garden.css', 'play.css', 'worn.css']);
+  const art = new Set(['scenery.css', 'garden.css', 'play.css', 'worn.css', 'answer.css']);
   const drawn =
     /\.(?:sun-dot|treat|yard-pet|pet-state-dot|particle|head-petal|album-specimen|album-card\.rare|decorating-stage|decorating-tree|ornament-glint|ornament-hook|decorating-bubble|decorating-status|decorating-kind|ornament-chip::before|pet-label\.dear)\b/;
   const raw = /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?)\(|:(?:white|black)\b/i;
@@ -1478,14 +1536,15 @@ test('a news card in a large window shows its picture and name, its sentence on 
   assert.doesNotMatch(rule, /display:none/);
 });
 
-// The tool in hand looked like the one under the pointer; it wears the rim, and its seed count stays a pill.
-test('the tool in hand wears a rim a hovered one never has, and keeps its seed count', async () => {
+// The tool in hand looked like the one under the pointer; it wears the rim. Its seed count is in the
+// hand row now (ground-tools.test.mjs), not a pill on the tool.
+test('the tool in hand wears a rim a hovered one never has', async () => {
   const css = await styles();
   const pressed = css.match(/\.discovery-target \[aria-pressed="true"\]\{([^}]*)\}/)?.[1] || '';
   assert.match(pressed, /box-shadow:inset 0 0 0 2px var\(--garden-rim\)/);
   assert.match(pressed, /font-weight:750/);
   assert.doesNotMatch(css.match(/\.discovery-tool:hover\{([^}]*)\}/)?.[1] || '', /box-shadow/);
-  assert.match(css, /\.discovery-target \[aria-pressed="true"\] \.tool-count\{[^}]*background:var\(--garden-paper\)/);
+  assert.doesNotMatch(css, /\.discovery-target \[aria-pressed="true"\] \.tool-count/);
 });
 
 test('Back stands before the title, away from Close', async () => {

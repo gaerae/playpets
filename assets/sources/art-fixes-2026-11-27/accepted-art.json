@@ -1,0 +1,65 @@
+{
+  "generated": "2026-11-27",
+  "tool": "Built-in image_gen imagegen, through the Codex CLI",
+  "references": "Each item's own album crop (src/art/album/<book>/<id>.webp) for the style; the glass marble for the pearl and the Emma cricket for the field cricket.",
+  "sources": [
+    {
+      "name": "freshwater_pearl",
+      "file": "freshwater_pearl.png",
+      "reference": "src/art/album/…/glass_marble.webp",
+      "prompt": "Use the built-in image_gen tool to make one game asset: a single perfectly ROUND freshwater pearl: a smooth glossy spherical bead, soft cream with a pink-silver sheen and one small bright highlight, seen slightly from above; no shell, nothing under it, in exactly the style of the reference image (warm sculpted hand-painted cozy game sprite, soft top-left light, crisp clean edges, natural tactile finish). One whole object only, centered, filling about 70% of the frame, readable at 40 pixels. Transparent background, no ground shadow, no text, no border, no other objects.",
+      "runtimeAtlas": "fixes/freshwater_pearl.png",
+      "why": "The more-finds cell asked for an irregular pearl on a half mussel shell; it read as a shell or a stone. A pearl reads by its round bead."
+    },
+    {
+      "name": "field_cricket",
+      "file": "field_cricket.png",
+      "reference": "src/art/album/…/emma_cricket.webp",
+      "prompt": "Use the built-in image_gen tool to make one game asset: a field cricket seen from directly above with the head up, as an album specimen: a slim glossy jet-BLACK body (blacker and slimmer than the dark brown cricket in the reference), a round shiny black head, short folded black wings with TWO bold round CREAM-YELLOW spots at the base of the wings near the thorax, two very thick folded jumping hind legs, six legs, two long antennae and two short tail feelers; clearly a cricket, never a cockroach, in exactly the style of the reference image (warm sculpted hand-painted cozy game sprite, soft top-left light, crisp clean edges, natural tactile finish). One whole object only, centered, filling about 70% of the frame, readable at 40 pixels. Transparent background, no ground shadow, no text, no border, no other objects.",
+      "runtimeAtlas": "fixes/field_cricket.png",
+      "why": "The 11-10 recolour made it russet and flat, which read as a cockroach; a first redraw in dark brown matched the Emma cricket. Jet black with two cream spots tells it from both and from the katydid."
+    },
+    {
+      "name": "pond_snail",
+      "file": "pond_snail.png",
+      "reference": "src/art/album/…/pond_snail.webp",
+      "prompt": "Use the built-in image_gen tool to make one game asset: a freshwater pond snail seen from the side: a tall POINTED cone-shaped spiral shell in olive-brown with fine growth lines, a soft grey body with two short flat triangular feelers and no eye stalks, in exactly the style of the reference image (warm sculpted hand-painted cozy game sprite, soft top-left light, crisp clean edges, natural tactile finish). One whole object only, centered, filling about 70% of the frame, readable at 40 pixels. Transparent background, no ground shadow, no text, no border, no other objects.",
+      "runtimeAtlas": "fixes/pond_snail.png",
+      "why": "The prompt described a land snail (round shell, eye stalks); a pond snail has a pointed spire and short flat feelers."
+    },
+    {
+      "name": "damselfly",
+      "file": "damselfly.png",
+      "reference": "src/art/album/…/damselfly.webp",
+      "prompt": "Use the built-in image_gen tool to make one game asset: a damselfly seen from DIRECTLY ABOVE with the head up, as an album specimen: a needle-thin long turquoise-blue abdomen pointing down, a short wide head with two round eyes set far apart at its sides, six thin legs, and its four narrow clear wings FOLDED together and laid back along the abdomen in one slim bundle (not spread out to the sides like a dragonfly), in exactly the style of the reference image (warm sculpted hand-painted cozy game sprite, soft top-left light, crisp clean edges, natural tactile finish). One whole object only, centered, filling about 70% of the frame, readable at 40 pixels. Transparent background, no ground shadow, no text, no border, no other objects.",
+      "runtimeAtlas": "fixes/damselfly.png",
+      "why": "Its wings were spread like the dragonfly beside it; a damselfly folds them along its body. Drawn from above, as the book's bugs are."
+    },
+    {
+      "name": "whole_water_deer",
+      "file": "whole_water_deer.png",
+      "reference": "src/art/album/…/whole_water_deer.webp",
+      "prompt": "Use the built-in image_gen tool to make one game asset: a small Korean water deer standing seen from the side: plain tawny-brown coat with NO spots, a pale throat, big ROUND teddy-bear ears, dark round eyes and nose, slim legs, and two small curved tusks showing from the upper lip; no antlers, in exactly the style of the reference image (warm sculpted hand-painted cozy game sprite, soft top-left light, crisp clean edges, natural tactile finish). One whole object only, centered, filling about 70% of the frame, readable at 40 pixels. Transparent background, no ground shadow, no text, no border, no other objects.",
+      "runtimeAtlas": "fixes/whole_water_deer.png",
+      "why": "A spotted fawn was asked for; a water deer is plain tawny with round ears and small tusks."
+    },
+    {
+      "name": "morel",
+      "file": "morel.png",
+      "reference": "src/art/album/…/morel.webp",
+      "prompt": "Use the built-in image_gen tool to make one game asset: one morel mushroom: a tall CONE-shaped pointed tan-brown cap covered in a honeycomb pattern of ridges and pits, on a short thick hollow cream stem, a little soil at its foot, in exactly the style of the reference image (warm sculpted hand-painted cozy game sprite, soft top-left light, crisp clean edges, natural tactile finish). One whole object only, centered, filling about 70% of the frame, readable at 40 pixels. Transparent background, no ground shadow, no text, no border, no other objects.",
+      "runtimeAtlas": "fixes/morel.png",
+      "why": "A round holey dome read as any mushroom; a morel is a tall pointed honeycomb cone."
+    },
+    {
+      "name": "wild_garlic",
+      "file": "wild_garlic.png",
+      "reference": "src/art/album/…/wild_garlic.webp",
+      "prompt": "Use the built-in image_gen tool to make one game asset: a clump of wild garlic (ramsons): two or three broad glossy green leaves and one upright stem topped by a round ball of small white STAR-shaped six-petal flowers, a pale white bulb neck at the base, in exactly the style of the reference image (warm sculpted hand-painted cozy game sprite, soft top-left light, crisp clean edges, natural tactile finish). One whole object only, centered, filling about 70% of the frame, readable at 40 pixels. Transparent background, no ground shadow, no text, no border, no other objects.",
+      "runtimeAtlas": "fixes/wild_garlic.png",
+      "why": "Broad leaves alone read as any sprout; its round ball of white star flowers makes it wild garlic."
+    }
+  ],
+  "review": "Each beside its old drawing on one contact sheet; the field cricket also beside the Emma cricket and the katydid.",
+  "processing": "pack.py clears the generator's faint halo (alpha under 50 to 0), crops each to its silhouette with a 14-pixel margin and scales its longer side to 640, into assets/art/fixes/<id>.png (and the pearl's keepsake source). The manifests cut the whole picture; pnpm run art:pack writes the wrappers and WebP files."
+}

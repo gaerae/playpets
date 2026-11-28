@@ -13,22 +13,22 @@ import { t } from '../core/i18n.js';
 import { limit } from '../core/limits.js';
 import { between, clamp, pick } from '../core/math.js';
 import { systemSouth } from '../core/season.js';
+import { reduced } from '../core/sprites.js';
 import { aiming, call, data, game, guard, name, views } from '../core/state.js';
 import { cadence } from '../core/ticker.js';
-import { artSvg } from './art.js';
 import { befriend, levelOf } from './bond.js';
 import { rareKind, showCard } from './card.js';
 import { GIFTS, eventGifts, giftKind } from './catalog.js';
 import { giftSvg } from './creatures.js';
 import { decorShown, hiddenKinds, yardSeason } from './decor-shown.js';
 import { dressLayers } from './dress-layers.js';
-import { effectLayers, effectsVisited } from './effects.js';
+import { effectsVisited } from './effects.js';
 import { giftEvent } from './events.js';
 import {
   decorFloor,
   depthAt,
-  EDGE,
   field,
+  fieldAcross,
   fieldToYard,
   footTarget,
   petHeight,
@@ -38,6 +38,8 @@ import {
 } from './field.js';
 import { decorName, drawHeld, findOutEffects, findOutKind, giftsOut, visitLines } from './find-out.js';
 import { FIRST_GIFT, GIFT_WAIT, giftDue, giftWait, localDay } from './growth.js';
+import { giftLayers, poke, quietLook, showLamp } from './poke.js';
+import { answer } from './press-answer.js';
 import {
   beginDrag,
   dragPoint,
@@ -104,7 +106,8 @@ function placement(kind, point, holds = point.holds) {
   const at = standOn(kind) ? fieldToYard({ x: point.x, y: Math.min(point.y, 1) }) : standAt(point),
     { w, h, foot } = size(kind, at, holds);
   // Saved coordinates locate the foot; wide furniture still needs room at either edge.
-  at.x = clamp(at.x, w / 2 + 4, field().width - w / 2 - 4);
+  const { left, right } = field();
+  at.x = clamp(at.x, left + w / 2 + 4, right - w / 2 - 4);
   return { ...at, w, h, foot };
 }
 // In a room a gift is not set down inside the furniture, as a stroll does not end there
@@ -130,7 +133,8 @@ function create(d) {
     // A firefly out glows as a lit gift does (find-out.js).
     effects = [...(gift?.effects || []), ...findOutEffects(d.kind, d.holds)];
   if (effects.length) button.dataset.effects = effects.join(' ');
-  button.innerHTML = `${effectLayers(effects, gift?.light)}${gift?.art ? artSvg(gift.art) : ''}`;
+  // Drawn as the desktop draws it (poke.js): its light, and a moving part laid over the rest.
+  button.innerHTML = giftLayers(d.kind, d.holds);
   // A drawing with no ground of its own stands on a contact shade, under it (garden.css); one on
   // spread feet has a small dark one under each foot, over a wide soft one under it all.
   if (gift?.shade) {
@@ -174,7 +178,7 @@ function create(d) {
     if (!current) return;
     const from = drawnPlace(v.kind, current, v.holds);
     v.drag = beginDrag(button, e, from, {
-      width: Math.max(1, f.width - EDGE * 2),
+      width: fieldAcross(f).span,
       height: Math.max(1, f.bottom - f.top),
       foot: fieldToYard(from),
       toField: yardToDecor,
@@ -194,7 +198,13 @@ function create(d) {
     const drag = endDrag(v, button, event);
     button.classList.remove('dragging', 'invalid');
     if (!drag) return;
-    if (!drag.moved) return pressed(v);
+    if (!drag.moved) {
+      // It answers as it does on the desktop (poke.js): a lamp switches, a part turns, a find moves
+      // its own way; only a gift with none of these bobs.
+      poke(v, { period: scene.period, reduced: reduced.matches, ring: cue });
+      answer(button, quietLook(v.kind), { reduced: reduced.matches });
+      return pressed(v);
+    }
     // Let go on the furniture, it goes back where it stood.
     if (drag.at && !drag.free) return renderDecor();
     if (drag.at) return save(v.id, drawnPlace(v.kind, drag.at, v.holds));
@@ -285,6 +295,8 @@ export function renderDecor() {
   reconcile(shown, decor, make, (v, d) => {
     // What a find out holds sizes it, so it is known before it is placed.
     v.holds = d.holds || [];
+    // A lamp switched by a press keeps to it until the yard's part of the day changes.
+    showLamp(v, scene.period);
     if (!v.drag?.moved) position(v, d.x, d.y);
     const until = d.memento && d.came_at ? d.came_at + MEMENTO_NEW_MS : 0;
     if (until > now) fadeAt = Math.min(fadeAt, until);

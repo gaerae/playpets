@@ -76,6 +76,8 @@ export function artOf(catalog, events = { events: [] }) {
     ...events.events,
     ...catalog.garden.stages,
     ...catalog.flowers,
+    // A flower's planted patch, for the kinds that bloom as one.
+    ...catalog.flowers.flatMap(f => (f.patch ? [f.patch] : [])),
     ...catalog.gifts,
     ...(catalog.findsOut || []),
     // A gift's Christmas night is a second look (the grand tree) and the sleigh that comes only with it.
@@ -128,8 +130,18 @@ export const treeKind = id => TREES.find(tree => tree.id === id) || null;
 // A tree's drawn size at each stage when its drawing names none (catalog.json "treeSizes", which
 // the backend reads too for a tree out on the desktop).
 let treeSizes = [];
-/** A tree's drawn size at `stage`, before the yard's zoom: its drawing's own, else the stage's. */
-export const treeSize = (kind, stage) => treeKind(kind)?.stages[stage]?.size || treeSizes[stage];
+// A grown tree stands as tall as its kind (catalog.json "stature": a metasequoia over a cherry, a
+// lilac under it); a seedling is a seedling whatever it becomes, and a young tree is halfway there.
+const STATURE_BY_STAGE = [0, 0.5, 1];
+/** A tree's drawn size at `stage`, before the yard's zoom: its drawing's own, else the stage's, at
+ * its kind's stature. */
+export function treeSize(kind, stage) {
+  const tree = treeKind(kind),
+    box = tree?.stages[stage]?.size || treeSizes[stage];
+  if (!box) return box;
+  const k = 1 + ((tree?.stature ?? 1) - 1) * (STATURE_BY_STAGE[stage] ?? 1);
+  return [box[0] * k, box[1] * k];
+}
 /** A tree's drawing at `stage`: grown, its season's when it has one. */
 export const treeArt = (kind, stage, season) =>
   (stage === 2 && treeKind(kind)?.seasonArt?.[season]) || treeKind(kind)?.stages[stage]?.art;

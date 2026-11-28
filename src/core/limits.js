@@ -21,7 +21,6 @@ export const LIMITS = {
   giftEveryDays: 2,
   mementoLevel: 4,
   ornamentHooks: 12,
-  ornamentsPerDay: 3,
   bondLevels: [0, 60, 200, 500, 1000],
 };
 /** A limit as the backend sent it in `data`, or its usual value before then. */

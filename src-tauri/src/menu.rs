@@ -80,11 +80,16 @@ pub fn act(app: &AppHandle, id: &str) {
     }
 }
 
-/// What a right click on the desktop offers, as (menu id, label): talking to a friend, and taking
-/// a friend, a decoration, a flower or a planted tree off the desktop (it stays in the yard). None for what is not out there.
-pub fn desktop_choices(d: &crate::app::AppData, id: &str) -> Option<Vec<(String, String)>> {
+/// A choice in a right-click menu on the desktop: its menu id, its label, and whether it is checked
+/// (None for a plain choice).
+pub type Choice = (String, String, Option<bool>);
+
+/// What a right click on the desktop offers: talking to a friend; for a flower in bloom with a
+/// patch, blooming as one flower or as its patch; and taking a friend, a decoration, a flower or a
+/// planted tree off the desktop (it stays in the yard). None for what is not out there.
+pub fn desktop_choices(d: &crate::app::AppData, id: &str) -> Option<Vec<Choice>> {
     let name = |p: &crate::pets::model::Pet| crate::app::pet_name(d, p, &crate::i18n::t("chat.a_friend"));
-    choices_for(&d.pets, &d.garden, id, name)
+    choices_for(&d.pets, &d.garden, id, name, crate::app::now_ms())
 }
 
 fn choices_for(
@@ -92,14 +97,30 @@ fn choices_for(
     garden: &crate::pets::garden::Garden,
     id: &str,
     name: impl Fn(&crate::pets::model::Pet) -> String,
-) -> Option<Vec<(String, String)>> {
+    now: u64,
+) -> Option<Vec<Choice>> {
     use crate::i18n::{t, tr};
-    let take_in = (format!("desktop-in:{id}"), t("desktop.take_in"));
+    use crate::pets::content::catalog;
+    let take_in = (format!("desktop-in:{id}"), t("desktop.take_in"), None);
     if let Some(p) = pets.iter().find(|p| p.id == id && p.on_desktop) {
         return Some(vec![
-            (format!("desktop-talk:{id}"), tr("desktop.talk", &[("name", &name(p))])),
+            (
+                format!("desktop-talk:{id}"),
+                tr("desktop.talk", &[("name", &name(p))]),
+                None,
+            ),
             take_in,
         ]);
+    }
+    if let Some(p) = garden.plants.iter().find(|p| p.id == id && p.on_desktop) {
+        let bloomed = now.saturating_sub(p.planted) >= catalog().bloom_after_ms();
+        if bloomed && catalog().patch(&p.kind).is_some() {
+            return Some(vec![
+                (format!("desktop-one:{id}"), t("desktop.one_bloom"), Some(p.single)),
+                (format!("desktop-patch:{id}"), t("desktop.patch"), Some(!p.single)),
+                take_in,
+            ]);
+        }
     }
     let out = garden.decor.iter().any(|g| g.id == id && g.on_desktop)
         || garden.plants.iter().any(|p| p.id == id && p.on_desktop)
@@ -107,24 +128,27 @@ fn choices_for(
     out.then(|| vec![take_in])
 }
 
-/// What a right click on a grass end offers, as (menu id, label): the whole floor again, or none.
-pub fn grass_choices() -> Vec<(String, String)> {
+/// What a right click on a grass end offers: the whole floor again, or none.
+pub fn grass_choices() -> Vec<Choice> {
     use crate::i18n::t;
     vec![
-        ("grass-full".to_string(), t("desktop.grass_full")),
-        ("grass-off".to_string(), t("desktop.grass_off")),
+        ("grass-full".to_string(), t("desktop.grass_full"), None),
+        ("grass-off".to_string(), t("desktop.grass_off"), None),
     ]
 }
 
 /// Shows `choices` where the pointer is, over the overlay window `label`.
-pub fn pop_desktop_menu(app: &AppHandle, label: &str, choices: &[(String, String)]) -> tauri::Result<()> {
-    use tauri::menu::{Menu, MenuItem};
+pub fn pop_desktop_menu(app: &AppHandle, label: &str, choices: &[Choice]) -> tauri::Result<()> {
+    use tauri::menu::{CheckMenuItem, Menu, MenuItem};
     let Some(win) = app.get_webview_window(label) else {
         return Ok(());
     };
     let menu = Menu::new(app)?;
-    for (id, text) in choices {
-        menu.append(&MenuItem::with_id(app, id, text, true, None::<&str>)?)?;
+    for (id, text, checked) in choices {
+        match checked {
+            Some(on) => menu.append(&CheckMenuItem::with_id(app, id, text, true, *on, None::<&str>)?)?,
+            None => menu.append(&MenuItem::with_id(app, id, text, true, None::<&str>)?)?,
+        }
     }
     win.popup_menu(&menu)
 }
@@ -140,6 +164,24 @@ fn desktop_act(app: &AppHandle, id: &str) {
         tauri::async_runtime::spawn_blocking(move || {
             let state = app.state::<Shared>();
             if let Err(e) = crate::app::put_on_desktop(&app, lock(&state), &item, false) {
+                warn(&app, &mut lock(&state), e);
+            }
+        });
+    } else if let Some((item, single)) = id
+        .strip_prefix("desktop-one:")
+        .map(|item| (item, true))
+        .or_else(|| id.strip_prefix("desktop-patch:").map(|item| (item, false)))
+    {
+        // The flower's box changes with it; the overlay keeps its feet where they stood.
+        let (app, item) = (app.clone(), item.to_string());
+        tauri::async_runtime::spawn_blocking(move || {
+            let state = app.state::<Shared>();
+            let mut d = lock(&state);
+            let done = d
+                .garden
+                .set_single(&item, single)
+                .and_then(|()| crate::app::show_and_save(&app, d));
+            if let Err(e) = done {
                 warn(&app, &mut lock(&state), e);
             }
         });
@@ -261,12 +303,16 @@ mod tests {
     use crate::pets::garden::{Decor, Garden};
     use crate::pets::model::create_pet;
 
+    fn choices_at(pets: &[crate::pets::model::Pet], garden: &Garden, id: &str, now: u64) -> Option<Vec<Choice>> {
+        choices_for(pets, garden, id, |_| "Miso".into(), now)
+    }
+
     #[test]
     fn a_right_click_on_the_grass_spreads_it_again_or_rolls_it_up() {
         let choices = grass_choices();
-        let ids: Vec<&str> = choices.iter().map(|(id, _)| id.as_str()).collect();
+        let ids: Vec<&str> = choices.iter().map(|(id, ..)| id.as_str()).collect();
         assert_eq!(ids, ["grass-full", "grass-off"]);
-        for (id, label) in &choices {
+        for (id, label, _) in &choices {
             assert!(!label.starts_with("desktop."), "{id} has its words");
         }
     }
@@ -287,12 +333,12 @@ mod tests {
         }
         let pets = vec![miso];
         let ids = |id: &str| {
-            choices_for(&pets, &garden, id, |_| "Miso".into())
-                .map(|c| c.into_iter().map(|(id, _)| id).collect::<Vec<_>>())
+            choices_for(&pets, &garden, id, |_| "Miso".into(), 0)
+                .map(|c| c.into_iter().map(|(id, ..)| id).collect::<Vec<_>>())
         };
         assert_eq!(ids("miso").unwrap(), ["desktop-talk:miso", "desktop-in:miso"]);
         assert!(
-            choices_for(&pets, &garden, "miso", |_| "Miso".into()).unwrap()[0]
+            choices_for(&pets, &garden, "miso", |_| "Miso".into(), 0).unwrap()[0]
                 .1
                 .contains("Miso")
         );
@@ -301,8 +347,8 @@ mod tests {
         assert_eq!(ids("nobody"), None);
         // A flower or a planted tree out there is taken in as a gift is.
         let taken_in = |garden: &Garden, id: &str| {
-            choices_for(&pets, garden, id, |_| "Miso".into())
-                .map(|c| c.into_iter().map(|(id, _)| id).collect::<Vec<_>>())
+            choices_for(&pets, garden, id, |_| "Miso".into(), 0)
+                .map(|c| c.into_iter().map(|(id, ..)| id).collect::<Vec<_>>())
         };
         garden.seeds = 1;
         garden.plant("tulip", 0.5, 0.5, 1).unwrap();
@@ -323,5 +369,26 @@ mod tests {
         });
         assert_eq!(taken_in(&garden, "tulip").unwrap(), ["desktop-in:tulip"]);
         assert_eq!(taken_in(&garden, "cherry").unwrap(), ["desktop-in:cherry"]);
+        // In bloom, a flower with a patch also blooms as one flower or as its patch: the one it is
+        // now is checked.
+        garden.plants[0].planted = 0;
+        let bloom = crate::pets::content::catalog().bloom_after_ms();
+        let tulip = choices_at(&pets, &garden, "tulip", bloom).unwrap();
+        let shown: Vec<_> = tulip.iter().map(|(id, _, on)| (id.as_str(), *on)).collect();
+        assert_eq!(
+            shown,
+            [
+                ("desktop-one:tulip", Some(false)),
+                ("desktop-patch:tulip", Some(true)),
+                ("desktop-in:tulip", None)
+            ]
+        );
+        garden.plants[0].single = true;
+        assert_eq!(choices_at(&pets, &garden, "tulip", bloom).unwrap()[0].2, Some(true));
+        assert_eq!(
+            choices_at(&pets, &garden, "tulip", bloom - 1).unwrap().len(),
+            1,
+            "not before it blooms"
+        );
     }
 }

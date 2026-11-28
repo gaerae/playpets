@@ -8,6 +8,7 @@ import { icons } from './core/icons.js';
 import { setupInteractions } from './core/interactions.js';
 import { onShortcut } from './core/keys.js';
 import { setupNotices } from './core/notices.js';
+import { setupProblemReports } from './core/problems.js';
 import { setSpriteSeason } from './core/sprites.js';
 import {
   $,
@@ -71,7 +72,7 @@ import {
 } from './yard/discovery.js';
 import { dutyAfresh } from './yard/duty.js';
 import { cancelFruitPicks, fruitMinute, renderFruit, setupFruit } from './yard/fallen-fruit.js';
-import { pullPlant, renderGarden, setupGarden } from './yard/garden.js';
+import { bloomChoice, pullPlant, renderGarden, setSingleBloom, setupGarden } from './yard/garden.js';
 import { hint } from './yard/hint.js';
 import { setupLetterCard } from './yard/letter-card.js';
 import { answered, letterPress, letterReadable, openReadable, setupLetters, syncLetter } from './yard/letter.js';
@@ -153,6 +154,7 @@ setupConfirm();
 setupLetterCard({ onClosed: syncLetter, onAnswered: answered });
 setupNotices();
 setupToast();
+setupProblemReports();
 setupInteractions();
 setupWindow();
 setupTabs({ beforeOpen: cancelDiscovery });
@@ -163,6 +165,8 @@ setupControls({
   removeTree,
   dress: openDress,
   canDress,
+  bloomChoice,
+  setSingleBloom,
   closeness: levelOf,
   canDigAt,
   digAt,

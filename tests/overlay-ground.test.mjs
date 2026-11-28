@@ -18,7 +18,10 @@ const VIEW = {
   gripWidth: 48,
 };
 
-async function lawn(t, displayId = '0', reduced = { matches: true }) {
+// Lets the page's calls to the backend that are waiting go out (ground.js sends one at a time).
+const settle = () => new Promise(resolve => setImmediate(resolve));
+
+async function lawn(t, displayId = '0', reduced = { matches: true }, setGrass = undefined) {
   const { document } = installDom(t);
   const grips = ['left', 'right'].map(end => element('div', { dataset: { end } }));
   for (const grip of grips) {
@@ -35,7 +38,7 @@ async function lawn(t, displayId = '0', reduced = { matches: true }) {
   };
   const told = [];
   const menus = [];
-  const api = { setGrass: (...args) => told.push(args), grassMenu: () => menus.push('grass') };
+  const api = { setGrass: setGrass ?? ((...args) => told.push(args)), grassMenu: () => menus.push('grass') };
   const { setupGround } = await import('../src/overlay/ground.js');
   const ground = setupGround({ api, displayId, reduced });
   return { ground, node: made, grips, told, menus };
@@ -83,18 +86,22 @@ test('a dragged end stays on the screen and the least width away, and the backen
   left.onpointerdown({ button: 0, pointerId: 1, timeStamp: 0 });
   assert.deepEqual(told.at(-1), [100, 1540, true]);
   left.onpointermove({ clientX: 1300, timeStamp: 1000 });
+  await settle();
   assert.deepEqual(told.at(-1), [1120, 1540, true], 'no nearer the other end than min');
   assert.equal(node.style.left, '1020px', 'placed from the window, which starts at the area');
   // The layout pushed mid-drag does not pull the grass back from under the pointer.
   ground.show({ ...VIEW, areaLeft: 100, areaRight: 1540, left: 100, right: 1540 });
   assert.equal(node.style.left, '1020px');
   left.onpointerup({ pointerId: 1 });
+  await settle();
   assert.deepEqual(told.at(-1), [1120, 1540, false]);
   right.onpointerdown({ button: 0, pointerId: 2, timeStamp: 2000 });
   right.onpointermove({ clientX: 5000, timeStamp: 2600 });
   right.onpointercancel({ pointerId: 2 });
+  await settle();
   assert.deepEqual(told.at(-1), [1120, 1540, false], 'kept on the screen');
   right.ondblclick();
+  await settle();
   assert.deepEqual(told.at(-1), [100, 1540, false], 'a double click spreads it across the floor');
 });
 
@@ -107,14 +114,58 @@ test('an end held still is still told about, so the backend keeps the pointer un
   left.onpointermove({ clientX: 300, timeStamp: 500 });
   const before = told.length;
   // Held there longer than the backend waits (grass.rs DRAG_STALE, 8 s) without a move.
-  t.mock.timers.tick(9000);
+  for (let ms = 0; ms < 9000; ms += 500) {
+    t.mock.timers.tick(500);
+    await settle();
+  }
   assert.ok(told.length - before >= 9, 'told while it is held');
   assert.deepEqual(told.at(-1), [300, 1440, true]);
   left.onpointerup({ pointerId: 1 });
+  await settle();
   const ended = told.length;
   t.mock.timers.tick(5000);
+  await settle();
   assert.equal(told.length, ended, 'nothing more once it is let go');
   assert.deepEqual(told.at(-1), [300, 1440, false]);
+});
+
+// Each call runs on its own backend thread, so two sent together may be heard in either order: a
+// pull heard after the let-go would leave the screen taking every click for a while (grass.rs
+// DRAG_STALE). The page sends one at a time, and a pull still waiting gives way to what follows.
+test('the backend hears a pull and its let-go in the order they happened', async t => {
+  const told = [];
+  const answers = [];
+  const setGrass = (...args) => {
+    told.push(args);
+    return new Promise(resolve => answers.push(resolve));
+  };
+  const { ground, grips } = await lawn(t, '0', { matches: true }, setGrass);
+  ground.show(VIEW);
+  const [left] = grips;
+  left.onpointerdown({ button: 0, pointerId: 1, timeStamp: 0 });
+  left.onpointermove({ clientX: 300, timeStamp: 1000 });
+  left.onpointermove({ clientX: 320, timeStamp: 1500 });
+  left.onpointerup({ pointerId: 1 });
+  await settle();
+  assert.deepEqual(told, [[0, 1440, true]], 'nothing more while the first is unanswered');
+  answers.shift()();
+  await settle();
+  assert.deepEqual(told.at(-1), [320, 1440, false], 'the let-go goes next, in place of the pulls');
+  answers.shift()();
+  await settle();
+  assert.equal(told.length, 2, 'and nothing after it');
+  // A let-go that is waiting is still sent before a new pull: it is what gets kept.
+  left.ondblclick();
+  left.onpointerdown({ button: 0, pointerId: 2, timeStamp: 3000 });
+  assert.deepEqual(told.at(-1), [0, 1440, false]);
+  answers.shift()();
+  await settle();
+  assert.deepEqual(told.at(-1), [0, 1440, true]);
+  // A call that fails does not hold up the next.
+  left.onpointerup({ pointerId: 2 });
+  answers.shift()(Promise.reject(new Error('gone')));
+  await settle();
+  assert.deepEqual(told.at(-1), [0, 1440, false]);
 });
 
 test('the grass wears the season the yard shows: snow in winter, the plain lawn otherwise', async t => {

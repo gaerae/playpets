@@ -145,6 +145,21 @@ static COMMANDS: &[Command] = &[
         Ok(Value::Null)
     }),
     main("openFolder", |c| open_folder(&c.state, c.text(0))),
+    // An error in a page (a window's error or a promise no one caught), kept with the backend's.
+    overlay("noteProblem", |c| {
+        let area = if c.sender == "main" { "page" } else { "overlay" };
+        crate::problems::note(area, c.text(0));
+        Ok(Value::Null)
+    }),
+    // The problem report, on the clipboard, to send with an issue.
+    main("copyProblemReport", |c| {
+        let report = crate::problems::report(&c.app.package_info().version.to_string());
+        c.app
+            .clipboard()
+            .write_text(report)
+            .map_err(|_| i18n::t("clipboard.failed"))?;
+        Ok(Value::Null)
+    }),
     main("openExternal", |c| open_external(c.text(0))),
     // AI connections and chat.
     main("saveProvider", |c| providers::save(c.app, &c.state, &c.cli, c.arg(0))),
@@ -369,6 +384,13 @@ static COMMANDS: &[Command] = &[
             d.garden.move_plant(c.text(0), x, y).map(|_| Value::Null)
         })
     }),
+    // (id, single): a flower with a planted patch blooms as one flower, or as its patch again.
+    main("setSingleBloom", |c| {
+        let single = c.arg(1).as_bool().ok_or_else(|| i18n::t("error.bad_request"))?;
+        commit(c.app, &c.state, |d| {
+            d.garden.set_single(c.text(0), single).map(|_| Value::Null)
+        })
+    }),
     main("pullPlant", |c| {
         commit(c.app, &c.state, |d| d.garden.pull(c.text(0)).map(|_| Value::Null))
     }),
@@ -588,7 +610,7 @@ static COMMANDS: &[Command] = &[
             Ok(json!(tree))
         })
     }),
-    // (book, id, hook, local day): an ornament on the Christmas tree, three a day.
+    // (book, id, hook, local day): an ornament on the Christmas tree, on a free hook.
     main("hangOrnament", hang_ornament),
     // (book, id, local day): an ornament taken down, its hook free for another.
     main("takeDownOrnament", take_down_ornament),
@@ -852,7 +874,11 @@ fn dispatch(app: AppHandle, sender: String, name: String, args: Vec<Value>) -> V
     };
     match (command.run)(&ctx) {
         Ok(v) => ok(v),
-        Err(e) => fail(e),
+        Err(e) => {
+            // Every failed command is kept for the problem report, whatever it was.
+            crate::problems::note(&name, &e);
+            fail(e)
+        }
     }
 }
 
@@ -1017,6 +1043,7 @@ mod tests {
             [
                 "bootstrap",
                 "play",
+                "noteProblem",
                 "openChat",
                 "desktopMenu",
                 "dragStart",

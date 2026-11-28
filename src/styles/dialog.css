@@ -955,14 +955,18 @@ dialog:not(#confirm-dialog) .dialog-heading h2:not(:empty)::after {
   --album-ground: #e4e5f2;
   --album-ground-hi: #f6f6fb;
 }
+/* Every row at least the book's tallest card, found or not (album.js evenCards), and taller where a
+   card is taller still, so nothing is cut. */
 .album-grid {
   flex: 1;
   min-height: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+  grid-auto-rows: minmax(var(--album-card, auto), auto);
   gap: 10px;
   align-content: start;
   padding: 4px 16px 16px;
+  overflow-x: hidden;
   overflow-y: auto;
 }
 .album-card {
@@ -982,6 +986,7 @@ dialog:not(#confirm-dialog) .dialog-heading h2:not(:empty)::after {
 }
 /* The drawing on its own little ground, like a specimen on a card. */
 .album-specimen {
+  position: relative;
   display: grid;
   place-items: center;
   width: 100%;
@@ -1010,6 +1015,16 @@ dialog:not(#confirm-dialog) .dialog-heading h2:not(:empty)::after {
 }
 .album-specimen > .tail-peek {
   --u: 1.8px;
+}
+/* A tail still hiding keeps its own prints small in the card's corner. */
+.album-specimen > svg.print-run.corner {
+  position: absolute;
+  right: 6%;
+  bottom: 6%;
+  width: 30%;
+  max-width: 44px;
+  height: auto;
+  aspect-ratio: 1;
 }
 /* A card's place in its book and its Rare mark are the same small paper tag, in the picture's two
    top corners, so neither is stamped on the drawing nor caught on its frame. */
@@ -1140,6 +1155,18 @@ dialog:not(#confirm-dialog) .dialog-heading h2:not(:empty)::after {
 .album-card[aria-current="true"] {
   border-color: var(--rare-gold);
   box-shadow: inset 0 0 0 1px var(--rare-gold);
+}
+/* The picture is the card's button (album.js card): it keeps the picture's own look, and the
+   keyboard's ring goes round the whole card, inside its edge so the scrolling page cannot cut it. */
+.album-pick {
+  padding: 0;
+}
+.album-pick:focus-visible {
+  outline: none;
+}
+.album-card:has(> .album-pick:focus-visible) {
+  outline: var(--focus-ring);
+  outline-offset: -2px;
 }
 /* On the book's page a card shows its picture, its number and its name; where to look is read on
    the left page (and still heard on the card). A small window has no left page: there they show. */
@@ -1565,7 +1592,7 @@ dialog:not(#confirm-dialog) .dialog-heading h2:not(:empty)::after {
   text-align: center;
   overflow-wrap: anywhere;
 }
-/* What can still be done today, and the day's three as dots (the spent ones quiet). */
+/* What can be done now: what was just done, then why the tray rests or how many hooks are free. */
 .decorating-status {
   display: flex;
   flex-wrap: wrap;
@@ -1576,18 +1603,6 @@ dialog:not(#confirm-dialog) .dialog-heading h2:not(:empty)::after {
   margin: 10px 0 8px;
   font-size: var(--font-md);
   text-align: center;
-}
-.decorating-status .dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #e3b04b;
-}
-.decorating-status .dot:first-of-type {
-  margin-left: 6px;
-}
-.decorating-status .dot.used {
-  background: var(--line);
 }
 .decorating-kinds {
   display: flex;
@@ -1941,9 +1956,12 @@ dialog:not(#confirm-dialog) .dialog-heading h2:not(:empty)::after {
   .album-dialog {
     padding: 12px;
   }
+  /* One column is a list, not rows of cards side by side: each card keeps its own height, or the
+     book's tallest would leave one card to a 320px window. */
   .album-grid {
     grid-template-columns: 1fr;
     gap: 6px;
+    grid-auto-rows: auto;
   }
   /* A narrow page lists the specimens as rows: the drawing on its ground, then the words. */
   .album-card {

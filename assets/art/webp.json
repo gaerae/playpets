@@ -25,9 +25,9 @@
     "webp": "3ba8e955eeb831dcf280d811a6b87fca5dabf05db01d69ff7ca74db9d31743ba"
   },
   "album/bugs/damselfly.webp": {
-    "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
-    "svg": "b70ed178d5968c863d90b6ff206fb20e72230fda6b7c4e1634d8bb491a4fcbe3",
-    "webp": "a41df7a140a6319bb7c8ea9acc37351661f718f67994281148ffe45196579ac7"
+    "png": "fa11edb7e98ab8b21139e999bd160740f6c8fb5115d19505274727d7841a5c0d",
+    "svg": "eb7d175603bf0a1f5da75c38be56e151d5bdaae2b8adcfeea84805cda42cf103",
+    "webp": "4abbf5cfe259f167d80e97259e1e080164391eb0ee3ea902b81f32e1ee0589c6"
   },
   "album/bugs/dragonfly.webp": {
     "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
@@ -45,9 +45,9 @@
     "webp": "07b5ffdbba77183c8d8a31440a9ec7feb7fdb5d0fd2b12be622a028ac9b8c36a"
   },
   "album/bugs/field_cricket.webp": {
-    "png": "878d0c1a0d5a5139733b0f950a6d4c43c69a902cb25c258f736eea51310ca562",
-    "svg": "5d6d15679783e0b40b0622fe69bd6735ec25bb90f4247add1a8fc3d8fd45c729",
-    "webp": "580ce070ce594476895143a2b80aaa0d9770677694c0b5eced74fc2e39bc22ce"
+    "png": "b0c9dae021835c8a73ead48efacf5f624baffceee28e761492ff2efba2e8efdb",
+    "svg": "2f5db44fe41dca04b2aecc0a0e7f76926a46e999b229516ab48e69792f8f37d3",
+    "webp": "0610b5c68acc547f59289d1f662bc165cbea5e3a3043253da7f418cb62493506"
   },
   "album/bugs/firefly.webp": {
     "png": "deffae088dfc25fa73b486e6891878aa6c1e1736f3b20baad59bbb6d366180de",
@@ -355,7 +355,7 @@
     "webp": "ee1752d9a9ec0d84d17157ee94cc59472c0ea59e559e6840e64c84b704540600"
   },
   "album/discovery/blue_feather.webp": {
-    "png": "f2807f915a79f823b5935c67cbfd64e2da132f4046ddb3982fe38009506597e1",
+    "png": "40d5d0981874f3b5fd57feb7640a744c7c991a62388e21c21ecc5e609808579b",
     "svg": "5e44adb180996e9af72ba233523bdf7cb475ab769410f99334af2e5ebaa431b5",
     "webp": "5fc75e4d93ca31ca52bcc69b3a1930725cf6af3b39391c7e2ec0e5153a74aa95"
   },
@@ -375,14 +375,14 @@
     "webp": "113db0a66c24a5034e82d18056b310e6f5f3a4ead80ad6830fd826cbe2afedbb"
   },
   "album/discovery/four_leaf_clover.webp": {
-    "png": "f2807f915a79f823b5935c67cbfd64e2da132f4046ddb3982fe38009506597e1",
+    "png": "40d5d0981874f3b5fd57feb7640a744c7c991a62388e21c21ecc5e609808579b",
     "svg": "b1d950155091fbf50eab335e82b4b412cff2b5bb3393d42f74ef01bae88fe9d8",
     "webp": "eca60e010d2ae81510a222f55e54de8a4b035adedb0f26e650a54f3d8e3730a9"
   },
   "album/discovery/freshwater_pearl.webp": {
-    "png": "f2807f915a79f823b5935c67cbfd64e2da132f4046ddb3982fe38009506597e1",
-    "svg": "9493f420013d928bb55120e8700d69779ba7bdf4aa2145f0ecb00075751d607e",
-    "webp": "4df4bbd9b97b164a7a24c8f7bdd18f25db7b04fca03be09d7bc68a60ea06c108"
+    "png": "0a008c1a3650f4074e5933c213b130e9604453e9566502b9c012b2bbc61b9437",
+    "svg": "fb97ecd69cfb80d30ee35401714c6eb477fbccf48739722f0af9ad37f0247a97",
+    "webp": "099c464d5cbe80e8c2195ea76c7802816ef831436a49c22f9ebdb038de8e9dc7"
   },
   "album/discovery/glass_marble.webp": {
     "png": "e9068b8381ea45e5fd68718b2223a7535227feb6e3e948a2c52f91762b330544",
@@ -415,7 +415,7 @@
     "webp": "034c9808ff0f24e12ef1e0b17189f3ed7a818b4e058de27398613fa7d32328bf"
   },
   "album/discovery/paper_boat.webp": {
-    "png": "f2807f915a79f823b5935c67cbfd64e2da132f4046ddb3982fe38009506597e1",
+    "png": "40d5d0981874f3b5fd57feb7640a744c7c991a62388e21c21ecc5e609808579b",
     "svg": "b30dafda1ecfb02b24d0a2fdedcdbf2ac4d6f919a2171ac2db07aae384847673",
     "webp": "b5de88467c97a1b70478f83cb4ea7f70deb6c08e315ba89ac0def688390fa753"
   },
@@ -430,7 +430,7 @@
     "webp": "2551d1045e3e9de69552568fd0e38d79c45d1c622593017afcd92c17291a844f"
   },
   "album/discovery/pinecone.webp": {
-    "png": "f2807f915a79f823b5935c67cbfd64e2da132f4046ddb3982fe38009506597e1",
+    "png": "40d5d0981874f3b5fd57feb7640a744c7c991a62388e21c21ecc5e609808579b",
     "svg": "dab8fe7e56c073b7fb5ae27c416bf1f10ac075633ff3663cdc11ec0df144179f",
     "webp": "02202a1e2524d7a5a0fb84a0757a276ae2a420eddc94bb8fafc8463bdd6abf4f"
   },
@@ -455,7 +455,7 @@
     "webp": "ae12729bd53d7f73fa25b0b830c2b53789d874100b830194b4ecfcf302e1a794"
   },
   "album/discovery/spinning_top.webp": {
-    "png": "f2807f915a79f823b5935c67cbfd64e2da132f4046ddb3982fe38009506597e1",
+    "png": "40d5d0981874f3b5fd57feb7640a744c7c991a62388e21c21ecc5e609808579b",
     "svg": "95bc00db0d28a3a7a74d3681cd29e37508d41ad2b22f079103bee97d59223c4e",
     "webp": "6b1df05996387f4d81de717bd672824bf8ba36ba138193d22e9898a24820173a"
   },
@@ -610,9 +610,9 @@
     "webp": "8a290c86822e395859c87cf0acad09c20e8ac0b4bf4d6034fb77c10deee92960"
   },
   "album/fish/pond_snail.webp": {
-    "png": "0742fb0721a97cad17e66a3833c26e2a2a7780bcb5788f0f280b0b2eb142f884",
-    "svg": "187499c26a4ff0464c99c42ef8db24554df4ba85a17c3e7ef37333ba8c90c8ae",
-    "webp": "890b0a52a4e2d6eca16f30eb818dd9a2e12d2a4bb9e7503fc5b33448625d882b"
+    "png": "c0c94d9de1b9132acb35c96d96e2f485a6f7e2640b460c2060be6ca792f7825a",
+    "svg": "6ce32a730426dfc4d3b36f851248084713f3ed5a4f141431e8916de734d90bea",
+    "webp": "7a30f4d0c64f103658a3e85d53436a91b7442aa94515aafdef536f355efd604b"
   },
   "album/fish/salmon.webp": {
     "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
@@ -885,9 +885,9 @@
     "webp": "99ba9074e77cd302c692f17e562500f2037db9fa26fab26583e4d7526b232658"
   },
   "album/shoots/morel.webp": {
-    "png": "2bd4bb4460eac500066f073236161d6c784162b120603b9d1c6e2a98a7b4308e",
-    "svg": "d3672f3c3349e2171abf1647b04f51bb88c6a94e538d79055c646588e57198a9",
-    "webp": "7338dba333a5fe9109328a9cad69561381492488f19649e8091447b202c3f99f"
+    "png": "db0477759c8597de47f57d7fb5d685ee510db499b9be1b0f7594085e262f0d1a",
+    "svg": "4773d0969f98b5fa3ad37a312fff92225ab5587d47985871c5618b9188e38d96",
+    "webp": "dbe90bffafddcfcad1f3aa9e90c70c7d862603e21055e0e3adc6f48c9d765012"
   },
   "album/shoots/mugwort.webp": {
     "png": "2bd4bb4460eac500066f073236161d6c784162b120603b9d1c6e2a98a7b4308e",
@@ -900,9 +900,9 @@
     "webp": "c309f143e690b71a405c3f1320694677f287280d79ab4f5a7b62fc4cb679d738"
   },
   "album/shoots/wild_garlic.webp": {
-    "png": "2bd4bb4460eac500066f073236161d6c784162b120603b9d1c6e2a98a7b4308e",
-    "svg": "38df84ed0eae1a78048568d9af4af227831e5873af0c7bd320a1e1247647ce35",
-    "webp": "22e7971f9bb78c2c8f473c929272032ae60dadc64b0ce1553e61b7bd2081a04f"
+    "png": "68031789a2bf9d4675e813777739db8574bb6ce76a263b9915c956738e2d3018",
+    "svg": "69670439d20d4174d10f3873fd7508b9ca6d0b8396c42095a9f1eeb4ab18027f",
+    "webp": "d9c84a8100853ab04556fc7c50914b26589f9a3b1e07289ba3244cce568fca5f"
   },
   "album/tracks/whole_cat.webp": {
     "png": "258fd4c291c532963a4db751a8192f840c44f1cb68ff9bd6ce296e2ee3c8a193",
@@ -940,9 +940,9 @@
     "webp": "4cf165e863aafe67a5a80e5246675000b9e5aa7e7cc5c7c28ab24fef79bb9d08"
   },
   "album/tracks/whole_water_deer.webp": {
-    "png": "258fd4c291c532963a4db751a8192f840c44f1cb68ff9bd6ce296e2ee3c8a193",
-    "svg": "da8bda5964e918925ecbc170c833a3a76e40740c8175110c375b2ae82d14994d",
-    "webp": "2af00901a7655f18a0e9182d541a506e9f726d5167d030020eb3b73828278847"
+    "png": "24b681655a51800d9b50d62479fb3a40b848093a507263de39100d129c48b55b",
+    "svg": "f298508a6b3b733c89290b813f67b26a72aa030382818bf684d996745b7273c9",
+    "webp": "36bd30fb1b246bd0d64486466fc535ea782e11052025b348c10a7d126c681ea3"
   },
   "album/trees/bamboo-mature.webp": {
     "png": "2308990b8de34e59f5744ec2e426e998480e5cc4629a341ed8b9d045fe8860d5",
@@ -1100,9 +1100,9 @@
     "png": "1d777a85251ebf1eca42fb5c3afefd8c4b1321e28820af7c77927cee7f742a18",
     "webp": "739d1fefc3bfb8a5cd51dbcc86be21f630035fd60ef6e2495f236ffc6d446f49"
   },
-  "ambient/walk-mark.png": {
-    "png": "440f670c19a1c542509a2489d2439216ecc473985827454de773eec3d58d0ff0",
-    "webp": "4e268458ea467c68b37629e41d749458b72443c74ae29b590f14e44c259ef155"
+  "ambient/walk-pin.png": {
+    "png": "1ea10c0d3f629b2cb5c3ecddc59d2a03d80f26435da5a1230465b076b16c111d",
+    "webp": "0d5e711cc92b4988dbde21aa2faeaa1e68dabbb0f73dba26b6c6e0e09651b178"
   },
   "bugs/specimens.png": {
     "png": "b64a065f053e0ba572150f59246b7095017d53d988bf191a1192c211caccbfb9",
@@ -1135,10 +1135,6 @@
   "collection-extension/cute-props.png": {
     "png": "7a58be8547a157deba8d6e66d4d0afc50400006dfcac176f3a65e6b02e2d926e",
     "webp": "49352e2f24caacab4148518b1f458aaa42d3c488f8f4fc9598169be75c5d9be0"
-  },
-  "collection-extension/field-cricket.png": {
-    "png": "878d0c1a0d5a5139733b0f950a6d4c43c69a902cb25c258f736eea51310ca562",
-    "webp": "3cec095e7ffd86138206022cb0478f111c1b9a1cc5a6c65a259dbafacbe56637"
   },
   "collection-extension/finds.png": {
     "png": "e9068b8381ea45e5fd68718b2223a7535227feb6e3e948a2c52f91762b330544",
@@ -1289,8 +1285,8 @@
     "webp": "0dee4a3de203158f63b414b459e1820dba2891a739ea316e0d7ad8971ee0dd25"
   },
   "discovery/more-finds.png": {
-    "png": "f2807f915a79f823b5935c67cbfd64e2da132f4046ddb3982fe38009506597e1",
-    "webp": "671f35df9a267cd5329d1769be3d01092a636fcb6dc6698e3ff173e9cf10292f"
+    "png": "40d5d0981874f3b5fd57feb7640a744c7c991a62388e21c21ecc5e609808579b",
+    "webp": "f6c7f2d0d398c83e95da862956684aacf060d5ba0b839bc1373a67e1bfcc6724"
   },
   "discovery/persimmon-fruit.png": {
     "png": "d54da2fc529948051968c28a4773459917a20a4090593e98b456fb656aed207b",
@@ -1379,6 +1375,38 @@
   "fish/specimens.png": {
     "png": "446331c983f82a086b322cbd949b9ce2d461087c290e1819f41adcf72af82944",
     "webp": "7b33f650d966f0ec989f3becb76a29cd7f9a56437c78c274dbb956d69ba04ea2"
+  },
+  "fixes/damselfly.png": {
+    "png": "fa11edb7e98ab8b21139e999bd160740f6c8fb5115d19505274727d7841a5c0d",
+    "webp": "b8137eb787f4819d59326f453b7d867b5587e471feaa90b1d805309ac8bda603"
+  },
+  "fixes/field_cricket.png": {
+    "png": "b0c9dae021835c8a73ead48efacf5f624baffceee28e761492ff2efba2e8efdb",
+    "webp": "4bf286004635cb4fd38225d7f1c0d40971008db59d9a3a591b1675499fc640d8"
+  },
+  "fixes/freshwater_pearl.png": {
+    "png": "0a008c1a3650f4074e5933c213b130e9604453e9566502b9c012b2bbc61b9437",
+    "webp": "bd0e5ef632b4657fdd31902368db5b74520f58d5bd86c1c355a8a83c0999e0e7"
+  },
+  "fixes/morel.png": {
+    "png": "db0477759c8597de47f57d7fb5d685ee510db499b9be1b0f7594085e262f0d1a",
+    "webp": "8c75bcc4f36f85f9ea15936ba19cc876cb55cf28a25e5ebc73a34b7e029905aa"
+  },
+  "fixes/pond_snail.png": {
+    "png": "c0c94d9de1b9132acb35c96d96e2f485a6f7e2640b460c2060be6ca792f7825a",
+    "webp": "886d3205d4be69fdc1d66198dced53e1370908caa7fa7f3ee4abdf5c837ea042"
+  },
+  "fixes/whole_water_deer.png": {
+    "png": "24b681655a51800d9b50d62479fb3a40b848093a507263de39100d129c48b55b",
+    "webp": "00047e95290f34c492fee51194a3285ceab244b51835605ed6e61c1fb7b812c6"
+  },
+  "fixes/wild_garlic.png": {
+    "png": "68031789a2bf9d4675e813777739db8574bb6ce76a263b9915c956738e2d3018",
+    "webp": "2a9e8efc573076dc2af63c87d55500ed1a8050a25b8acd4369d879c963c91fcc"
+  },
+  "flowers/patches.png": {
+    "png": "b24236bd41bc7b2ef7da6659c0242e6ac6f1b92cce7ed76034b5e2725b888206",
+    "webp": "d4419695fbf88c3bd41ddf9057c930084e79fa40d2e9feb79813a20e6be057a2"
   },
   "flowers/specimens.png": {
     "png": "4facb70ea74cd5db0592bc7cd68d02d3067a183c3f1bbd26070c7fabab284194",

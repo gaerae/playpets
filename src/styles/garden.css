@@ -492,7 +492,7 @@
   background: radial-gradient(closest-side, rgb(38 26 14 / 0.85), rgb(38 26 14 / 0.5) 55%, rgb(38 26 14 / 0));
 }
 /* a gift that just came pops into place */
-.decor.arrive > svg,
+.decor.arrive > :is(svg, .part-still, .part),
 .decor.arrive > .ornaments {
   animation: arrive 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -1005,18 +1005,15 @@
   grid-row: 1;
   grid-column: 2;
 }
-:is(#discovery-tree-picker, #discovery-find-saplings) {
+:is(#discovery-tree-picker, #discovery-seed-hand, #discovery-find) {
   grid-column: 1 / -1;
 }
-/* The tool in hand wears the rim, which a hovered one never does, and its seed count stays a pill on
-   the paper rather than melting into the chosen fill. */
+/* The tool in hand wears the rim, which a hovered one never does. How many are in hand is in the row
+   under the tools (the sapling picker, the seeds), not on the tool. */
 .discovery-target [aria-pressed="true"] {
   background: var(--control-selected);
   box-shadow: inset 0 0 0 2px var(--garden-rim);
   font-weight: 750;
-}
-.discovery-target [aria-pressed="true"] .tool-count {
-  background: var(--garden-paper);
 }
 /* While a tool is in hand, one press switches to another or (with Close) puts it away. */
 .discovery-tools {
@@ -1059,8 +1056,9 @@
 .discovery-tool:hover {
   background: var(--control-hover);
 }
-/* The sapling in hand is one button that opens the others (discovery.js treeChoices), so the strip
-   keeps one row however many kinds are found. */
+/* What is in hand to spend, as a picture, a name and a count: the sapling in hand is one button that
+   opens the others (discovery.js treeChoices), so the strip keeps one row however many kinds are
+   found; the seeds are the same row with nothing to choose (.hand-only). */
 .tree-picker {
   position: relative;
   padding-top: 4px;
@@ -1083,12 +1081,12 @@
   font-size: var(--font-sm);
   cursor: pointer;
 }
-.tree-button > span:first-child {
+.hand-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.tree-button svg {
+.tree-button > [data-icon] svg {
   width: 14px;
   height: 14px;
   flex: none;
@@ -1096,6 +1094,28 @@
 }
 .tree-button:hover {
   background: var(--control-hover);
+}
+.tree-button.hand-only {
+  cursor: default;
+}
+.tree-button.hand-only:hover {
+  background: var(--control-selected);
+}
+/* The drawing of what is in hand, small, standing on the row's line. */
+.hand-picture {
+  display: block;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  /* Seeds show their packet (base.css [data-clue="seeds"]): a planted seed is a speck at this size. */
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.hand-picture > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 /* A menu above the strip, which stands on the ground's edge; a long list scrolls in it. */
 .tree-menu {
@@ -1120,6 +1140,9 @@
 }
 .tree-menu [role="menuitemradio"] {
   min-height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 6px 10px;
   border: 0;
   border-radius: 10px;
@@ -1149,62 +1172,173 @@
     min-height: 44px;
   }
 }
+/* The spot under the pointer while digging or planting (discovery.js markSpot): a patch of turned
+   soil, with a see-through sapling of the kind in hand or a seed in it when planting; greyed, leaning
+   and with a small "no" sign where nothing can go. */
 .discovery-marker {
+  --zoom: 1;
   position: absolute;
   z-index: 4;
-  width: 26px;
-  height: 12px;
-  transform: translate(-50%, -50%);
-  border: 2px solid var(--green-ink);
-  border-radius: 50%;
-  background: var(--green-soft);
+  width: 0;
+  height: 0;
   pointer-events: none;
 }
-/* Where a press sends a friend (yard/walk-here.js): a ring of grass bent outward, under the friends,
-   until it gets there. */
+.marker-soil {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(52px * var(--zoom));
+  height: calc(30px * var(--zoom));
+  translate: -50% -55%;
+  background: url("../art/discovery/dug-soil.webp") center / contain no-repeat;
+  filter: drop-shadow(0 0 3px rgb(255 250 220 / 0.9));
+  opacity: 0.9;
+  transition:
+    opacity 160ms ease,
+    filter 160ms ease;
+}
+.discovery-marker[data-soil="winter"] .marker-soil {
+  background-image: url("../art/discovery/dug-soil-winter.webp");
+}
+/* A seed indoors goes in a pot, not in the floor: the marker shows the pot a planted one stands in
+   (.yard[data-soil="false"] .plant above), the seed in its mouth. */
+.discovery-marker[data-soil="none"] .marker-soil {
+  display: none;
+}
+.discovery-marker[data-soil="none"] .marker-sapling::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -12%;
+  width: 100%;
+  height: 45%;
+  background: url("../art/decor/indoor-planter.webp") center / 100% 100% no-repeat;
+}
+.discovery-marker[data-soil="none"] .marker-sapling > svg {
+  position: relative;
+  top: -12%;
+}
+.marker-sapling {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  translate: -50% 0;
+  transform-origin: 50% 100%;
+  opacity: 0.72;
+  filter: drop-shadow(0 0 4px rgb(255 252 230 / 0.95));
+  transition:
+    opacity 160ms ease,
+    filter 160ms ease,
+    rotate 220ms cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.marker-sapling > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.discovery-marker.invalid .marker-soil {
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+.discovery-marker.invalid .marker-sapling {
+  opacity: 0.4;
+  filter: grayscale(1) brightness(1.15);
+  rotate: -14deg;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marker-soil,
+  .marker-sapling {
+    transition: none;
+  }
+}
+/* Where a press sends a friend (yard/walk-here.js): a small pin over the spot, pointing down at it,
+   until the friend gets there. It drops in, then bobs gently, and only its soft shadow lies on the
+   ground, shrinking as the pin rises. Its box's top left is the spot; --zoom sizes it to the friend. */
 .walk-mark {
   position: absolute;
   left: 0;
   top: 0;
   z-index: 0;
-  width: 64px;
-  height: 22px;
-  margin: -11px 0 0 -32px;
-  background: url("../art/ambient/walk-mark.webp") center / contain no-repeat;
+  width: 0;
+  height: 0;
   pointer-events: none;
-  animation: walk-mark-in 0.25s ease-out;
   transition: opacity 0.4s ease-out;
 }
 .walk-mark.gone {
   opacity: 0;
 }
-@keyframes walk-mark-in {
+.walk-mark::before {
+  content: "";
+  position: absolute;
+  left: calc(-9px * var(--zoom, 1));
+  top: calc(-3px * var(--zoom, 1));
+  width: calc(18px * var(--zoom, 1));
+  height: calc(6px * var(--zoom, 1));
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(48 34 18 / 0.38), rgb(48 34 18 / 0));
+  animation: walk-pin-shadow 1.2s ease-in-out infinite;
+}
+.walk-pin {
+  position: absolute;
+  left: calc(-11px * var(--zoom, 1));
+  bottom: calc(4px * var(--zoom, 1));
+  width: calc(22px * var(--zoom, 1));
+  height: calc(28px * var(--zoom, 1));
+  background: url("../art/ambient/walk-pin.webp") center bottom / contain no-repeat;
+  transform-origin: 50% 100%;
+  animation: walk-pin-bob 1.2s ease-in-out infinite;
+}
+.walk-mark.drop .walk-pin {
+  animation:
+    walk-pin-drop 0.34s cubic-bezier(0.3, 1.5, 0.6, 1),
+    walk-pin-bob 1.2s ease-in-out 0.34s infinite;
+}
+/* Once the friend is there nothing bobs on, unseen (after the drop's
+   shorthand, which would set it running). */
+.walk-mark.gone::before,
+.walk-mark.gone .walk-pin {
+  animation-play-state: paused;
+}
+@keyframes walk-pin-drop {
   from {
-    scale: 0.6;
     opacity: 0;
+    translate: 0 calc(-18px * var(--zoom, 1));
+  }
+  70% {
+    scale: 1.08 0.9;
+  }
+}
+@keyframes walk-pin-bob {
+  50% {
+    translate: 0 calc(-5px * var(--zoom, 1));
+  }
+}
+@keyframes walk-pin-shadow {
+  50% {
+    scale: 0.75;
+    opacity: 0.7;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .walk-mark {
+  .walk-mark::before,
+  .walk-pin,
+  .walk-mark.drop .walk-pin {
     animation: none;
   }
 }
-.discovery-marker.invalid {
-  border-color: var(--danger);
-  background: var(--soft);
-}
+/* Where nothing can go, a small round "no" sign beside the spot, drawn rather than typed. */
 .discovery-marker.invalid::after {
-  /* a cross of two strokes, drawn rather than typed */
   content: "";
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  transform: translate(-50%, -50%);
-  background:
-    linear-gradient(45deg, transparent 42%, var(--danger) 42% 58%, transparent 58%),
-    linear-gradient(-45deg, transparent 42%, var(--danger) 42% 58%, transparent 58%);
+  left: calc(14px * var(--zoom));
+  top: calc(-22px * var(--zoom));
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, transparent 44%, var(--danger) 44% 58%, transparent 58%), rgb(255 253 247);
+  box-shadow:
+    inset 0 0 0 2px var(--danger),
+    0 1px 3px rgb(60 40 20 / 0.25);
 }
 .dig-effect {
   position: absolute;
@@ -1486,23 +1620,25 @@
 /* ---- footprint trails across the winter yard (yard/trails.js) ---- */
 /* The prints are the snow's own cool shadow, the shade the snowman's rolling ball leaves
    (snow-trail.js TRAIL_RGB), softened and blurred; at night a deeper blue, a little stronger and
-   sharper, so they stay faint but can still be found on the darker snow. */
+   sharper, so they stay faint but can still be found on the darker snow. The blur is an SVG filter
+   over the whole yard (index.html #print-soft): a CSS blur() is cut off at the prints' own box, and
+   after a resize WebKit can leave a magenta line along that box's edge. */
 .trail,
 .trail-end {
   --snow-print: rgb(150 176 214);
   --print-strength: 1.7;
-  --print-blur: 0.45px;
+  --print-soft: url(#print-soft);
 }
 .period-evening .trail,
 .period-evening .trail-end {
   --snow-print: rgb(112 132 176);
-  --print-blur: 0.5px;
+  --print-soft: url(#print-soft-evening);
 }
 .period-night .trail,
 .period-night .trail-end {
   --snow-print: rgb(42 52 86);
   --print-strength: 1.05;
-  --print-blur: 0.4px;
+  --print-soft: url(#print-soft-night);
 }
 /* The bush keeps its shape at night and loses its daylight toward the night's blue, as the gifts do. */
 .period-night .trail-end svg {
@@ -1516,7 +1652,7 @@
   overflow: visible;
   color: var(--snow-print);
   opacity: calc(var(--trail-opacity, 0.6) * var(--print-strength));
-  filter: blur(var(--print-blur));
+  filter: var(--print-soft);
   pointer-events: none;
   transition: opacity 3s;
 }

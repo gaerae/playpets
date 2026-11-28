@@ -99,8 +99,8 @@ test('a seed promised to a walking friend cannot be planted again by a second cl
   t.mock.timers.enable({ apis: ['setTimeout'] });
   const { v, click } = page(t);
   await click();
-  assert.equal(state.aiming, false);
-  setAiming('seed');
+  // The tool stays in hand, as a sapling's does, and offers digging for more (ground-tools.test.mjs).
+  assert.equal(state.aiming, 'seed');
   await click();
   assert.equal(planted.length, 0);
   const trip = v.trip;
