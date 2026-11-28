@@ -986,6 +986,7 @@ dialog:not(#confirm-dialog) .dialog-heading h2:not(:empty)::after {
 }
 /* The drawing on its own little ground, like a specimen on a card. */
 .album-specimen {
+  position: relative;
   display: grid;
   place-items: center;
   width: 100%;
@@ -1014,6 +1015,16 @@ dialog:not(#confirm-dialog) .dialog-heading h2:not(:empty)::after {
 }
 .album-specimen > .tail-peek {
   --u: 1.8px;
+}
+/* A tail still hiding keeps its own prints small in the card's corner. */
+.album-specimen > svg.print-run.corner {
+  position: absolute;
+  right: 6%;
+  bottom: 6%;
+  width: 30%;
+  max-width: 44px;
+  height: auto;
+  aspect-ratio: 1;
 }
 /* A card's place in its book and its Rare mark are the same small paper tag, in the picture's two
    top corners, so neither is stamped on the drawing nor caught on its frame. */

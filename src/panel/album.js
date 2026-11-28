@@ -180,15 +180,20 @@ const BOOKS = {
     rare: k => rareKind('treasure', k),
     action: (k, entry) => findButtons('treasure', k.id, entry),
   },
-  // Winter animals whose prints a friend followed: the print is the clue, the tail what was seen,
-  // and, followed often enough, the animal itself, which turned to look.
+  // Winter animals whose prints a friend followed: the print is the clue, the tail what was seen
+  // (its prints kept in the corner: two tails behind the same snowy bush read alike), and, followed
+  // often enough, the animal itself, which turned to look.
   track: {
     tab: 'album.tracks',
     kinds: TRACKS,
     list: 'tracks',
     found: () => data.album?.tracks || {},
     draw: (k, unknown, entry) =>
-      unknown ? printSpecimen(k) : entry.count >= SEEN_WHOLE ? wholeAnimal(k) : tailPeek(k),
+      unknown
+        ? printSpecimen(k)
+        : entry.count >= SEEN_WHOLE
+          ? wholeAnimal(k)
+          : `${tailPeek(k)}${printSpecimen(k, 'corner')}`,
     unknown: 'album.whose_prints',
     hint: () => t('album.tracks_hint'),
     record: ({ count }) =>
