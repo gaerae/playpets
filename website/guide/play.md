@@ -282,9 +282,9 @@ In Hill garden, Wild garden or Lakeside cottage, with the little Christmas tree 
 
 Press the Christmas tree to decorate it.
 
-- Each day, hang up to three things you've found in the album: flowers, trees, gifts and keepsakes. Aquatic life and bugs stay in the water and the grass.
+- Hang things you've found in the album on the tree's free spots, as many as there are: flowers, trees, gifts and keepsakes. Aquatic life and bugs stay in the water and the grass.
 - Each becomes a small ornament tinted by kind; point at one to see what it is.
-- To change the tree, take an ornament down from its card. The day's three stay used.
+- To change the tree, take an ornament down from its card; its spot is free again.
 - Ornaments stay on the tree in the yard, the grand tree too, until the next November 15 starts with a bare tree.
 
 ### Flower viewing

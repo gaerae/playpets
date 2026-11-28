@@ -6,8 +6,8 @@
 //! limit, and which gift comes next, is kept here. Growth is not stored: a plant's stage follows
 //! from when it was planted (src/yard/garden.js). What can grow and what friends bring are the
 //! catalogue's (content.rs).
-//! What the album found hangs on the Christmas tree whenever it is out, three a day on its twelve
-//! hooks; each Christmas's first hang (from November 15) takes last year's down, so every Christmas
+//! What the album found hangs on the Christmas tree whenever it is out, on its twelve hooks, as
+//! many in a day as there are free; each Christmas's first hang (from November 15) takes last year's down, so every Christmas
 //! starts a fresh tree.
 //! Design: docs/design/2026-10-09-a-yard-that-grows.md, docs/design/2026-10-29-gifts-from-friends.md.
 use super::album::Album;
@@ -42,8 +42,6 @@ pub const THANKS_LEVELS: std::ops::RangeInclusive<u32> = 2..=5;
 pub const MEMENTO_LEVEL: u32 = 4;
 /// Hooks on the Christmas tree, the same places on its small and grand drawings (catalog.json).
 pub const ORNAMENT_HOOKS: u32 = 12;
-/// Ornaments hung in a day.
-pub const ORNAMENTS_PER_DAY: u32 = 3;
 /// The gift the ornaments hang on, which never hangs on itself.
 const ORNAMENT_TREE: &str = "xmas_tree";
 /// The gift the person builds from snow in winter; it is built, never brought or set out.
@@ -79,7 +77,7 @@ pub struct Garden {
     /// What hangs on the Christmas tree in the Christmas of `ornament_year` (ornament_season).
     #[serde(default)]
     pub ornaments: Vec<Ornament>,
-    /// The page's local day of the last hang and how many were hung on it.
+    /// The page's local day of the last hang, so a clock set back cannot hang into the past.
     #[serde(default)]
     pub ornament_day: OrnamentDay,
     /// The decorating season (ornament_season) of the last hang; 0 before the first.
@@ -107,11 +105,11 @@ pub struct Ornament {
     pub hook: u32,
 }
 
-/// The day ornaments were last hung (YYYY-MM-DD) and how many that day.
+/// The day ornaments were last hung (YYYY-MM-DD). Until 1.10.1 three hung a day, and a `count`
+/// kept how many; a save that has it reads as before.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
 pub struct OrnamentDay {
     pub day: String,
-    pub count: u32,
 }
 
 /// The Christmas a day decorates for: its year from November 15, when the winter lights start
@@ -349,20 +347,12 @@ fn day_at(raw: &Value, key: &str) -> String {
         .to_string()
 }
 
-/// The last hang's day as state.json has it: a date, and no more than a day's hangs.
+/// The last hang's day as state.json has it: a date.
 fn restore_ornament_day(raw: Option<&Value>) -> OrnamentDay {
-    let day = raw
-        .and_then(|d| d.get("day"))
+    raw.and_then(|d| d.get("day"))
         .and_then(Value::as_str)
-        .filter(|d| is_day(d));
-    let count = raw.and_then(|d| d.get("count")).and_then(Value::as_u64);
-    match (day, count) {
-        (Some(day), Some(count)) => OrnamentDay {
-            day: day.into(),
-            count: count.min(u64::from(ORNAMENTS_PER_DAY)) as u32,
-        },
-        _ => OrnamentDay::default(),
-    }
+        .filter(|d| is_day(d))
+        .map_or_else(OrnamentDay::default, |day| OrnamentDay { day: day.into() })
 }
 
 impl Garden {
@@ -501,7 +491,7 @@ impl Garden {
     }
 
     /// Hangs a find from the album on hook `hook` of the Christmas tree, on the page's local `day`:
-    /// one of the four books' finds (a gift that came), once a season, on a free hook, three a day.
+    /// one of the four books' finds (a gift that came), once a season, on a free hook.
     /// Everything is checked before anything changes; the first hang of a Christmas takes last
     /// year's ornaments down.
     pub fn hang_ornament(
@@ -526,32 +516,21 @@ impl Garden {
         if !found || id == ORNAMENT_TREE || hook >= ORNAMENT_HOOKS || taken {
             return Err(i18n::t("error.bad_request"));
         }
-        if this_season && self.ornament_day.day == day && self.ornament_day.count >= ORNAMENTS_PER_DAY {
-            return Err(i18n::t("error.ornaments_today"));
-        }
         if !this_season {
             self.ornaments.clear();
-            self.ornament_day = OrnamentDay::default();
             self.ornament_year = season;
         }
-        if self.ornament_day.day != day {
-            self.ornament_day = OrnamentDay {
-                day: day.into(),
-                count: 0,
-            };
-        }
+        self.ornament_day = OrnamentDay { day: day.into() };
         let ornament = Ornament {
             book: book.into(),
             id: id.into(),
             hook,
         };
         self.ornaments.push(ornament.clone());
-        self.ornament_day.count += 1;
         Ok(ornament)
     }
 
-    /// Takes an ornament of this Christmas down on the page's local `day`, freeing its hook. The
-    /// day's count stays: a hang taken down is not given back.
+    /// Takes an ornament of this Christmas down on the page's local `day`, freeing its hook.
     pub fn take_down_ornament(&mut self, book: &str, id: &str, day: &str) -> Result<Ornament, String> {
         let season = self.decorating(day)?;
         let at = self
@@ -2023,32 +2002,24 @@ mod tests {
         }
     }
 
+    // No count a day: the tree takes what was found on its free hooks, all in one go if wanted.
     #[test]
-    fn ornaments_hang_three_a_day_on_free_hooks_from_what_was_found() {
+    fn ornaments_hang_on_free_hooks_from_what_was_found_as_many_as_wanted_in_a_day() {
         let (mut g, album) = (tree_out(), found());
         let day = "2026-12-20";
-        for (book, id, hook) in [("flower", "camellia", 0), ("tree", "pine", 5), ("gift", "bench", 11)] {
+        for (book, id, hook) in [
+            ("flower", "camellia", 0),
+            ("tree", "pine", 5),
+            ("gift", "bench", 11),
+            ("treasure", "pinecone", 3),
+        ] {
             assert_eq!(
                 g.hang_ornament(&album, book, id, hook, day),
                 Ok(ornament(book, id, hook))
             );
         }
-        assert_eq!(
-            g.hang_ornament(&album, "treasure", "pinecone", 3, day),
-            Err(i18n::t("error.ornaments_today"))
-        );
-        assert_eq!(
-            g.ornament_day,
-            OrnamentDay {
-                day: day.into(),
-                count: 3
-            }
-        );
-        assert_eq!(
-            g.hang_ornament(&album, "treasure", "pinecone", 3, "2026-12-21"),
-            Ok(ornament("treasure", "pinecone", 3))
-        );
-        assert_eq!((g.ornament_day.count, g.ornament_year, g.ornaments.len()), (1, 2026, 4));
+        assert_eq!(g.ornament_day, OrnamentDay { day: day.into() });
+        assert_eq!((g.ornament_year, g.ornaments.len()), (2026, 4));
     }
 
     #[test]
@@ -2096,7 +2067,7 @@ mod tests {
         );
         let again = g.hang_ornament(&album, "flower", "camellia", 0, "2027-12-01").unwrap();
         assert_eq!(g.ornaments, [again]);
-        assert_eq!((g.ornament_year, g.ornament_day.count), (2027, 1));
+        assert_eq!(g.ornament_year, 2027);
         assert_eq!(g.ornament_day.day, "2027-12-01");
     }
 
@@ -2104,11 +2075,7 @@ mod tests {
     fn a_tree_out_in_a_winter_yard_is_decorated_on_any_day_until_the_next_christmas() {
         let (mut g, album) = (tree_out(), found());
         g.hang_ornament(&album, "flower", "camellia", 0, "2027-07-15").unwrap();
-        assert_eq!(
-            (g.ornament_year, g.ornament_day.count),
-            (2026, 1),
-            "July belongs to the Christmas before"
-        );
+        assert_eq!(g.ornament_year, 2026, "July belongs to the Christmas before");
         g.hang_ornament(&album, "tree", "pine", 1, "2027-11-14").unwrap();
         g.take_down_ornament("tree", "pine", "2027-11-14").unwrap();
         assert_eq!(g.ornaments, [ornament("flower", "camellia", 0)]);
@@ -2138,10 +2105,10 @@ mod tests {
         }
         let before = g.clone();
         assert!(
-            g.hang_ornament(&album, "treasure", "pinecone", 3, "2026-12-20")
+            g.hang_ornament(&album, "treasure", "pinecone", 0, "2026-12-20")
                 .is_err()
         );
-        assert_eq!(g, before, "the fourth of a day");
+        assert_eq!(g, before, "a hook already taken");
         g.hang_ornament(&album, "treasure", "pinecone", 3, "2026-12-21")
             .unwrap();
         g.received.push("lantern".into());
@@ -2164,7 +2131,7 @@ mod tests {
     }
 
     #[test]
-    fn an_ornament_taken_down_frees_its_hook_and_keeps_the_days_count() {
+    fn an_ornament_taken_down_frees_its_hook() {
         let (mut g, album) = (tree_out(), found());
         g.hang_ornament(&album, "flower", "camellia", 0, "2026-12-20").unwrap();
         g.hang_ornament(&album, "tree", "pine", 1, "2026-12-20").unwrap();
@@ -2186,14 +2153,6 @@ mod tests {
         );
         assert_eq!(g.ornaments, [ornament("tree", "pine", 1)]);
         assert_eq!(
-            g.ornament_day,
-            OrnamentDay {
-                day: "2026-12-20".into(),
-                count: 2
-            },
-            "taking one down gives no hang back"
-        );
-        assert_eq!(
             g.take_down_ornament("flower", "camellia", "2026-12-21"),
             bad,
             "down already"
@@ -2214,8 +2173,8 @@ mod tests {
     }
 
     #[test]
-    fn a_new_december_starts_its_days_count_fresh() {
-        // A hand-edited save: last year's season, with a full count on a day of the next December.
+    fn a_new_december_starts_a_bare_tree() {
+        // A hand-edited save: last year's season, hung last on a day of the next December.
         let mut g = Garden::restore(
             Some(&json!({
                 "decor": [{"id": "t", "kind": "xmas_tree", "x": 0.5, "y": 0.5}],
@@ -2230,7 +2189,7 @@ mod tests {
             g.hang_ornament(&found(), "flower", "camellia", 0, "2027-12-02"),
             Ok(ornament("flower", "camellia", 0))
         );
-        assert_eq!((g.ornament_year, g.ornament_day.count), (2027, 1));
+        assert_eq!(g.ornament_year, 2027);
         assert_eq!(g.ornaments, [ornament("flower", "camellia", 0)]);
     }
 
@@ -2263,7 +2222,7 @@ mod tests {
             })
         };
         let g = Garden::restore(Some(&saved("2026-11-18")), 0);
-        assert_eq!((g.ornament_year, g.ornaments.len(), g.ornament_day.count), (2026, 1, 1));
+        assert_eq!((g.ornament_year, g.ornaments.len()), (2026, 1));
         let mut g = g;
         g.hang_ornament(&found(), "tree", "pine", 1, "2026-12-01").unwrap();
         assert_eq!(g.ornaments.len(), 2, "still up in December");
@@ -2305,10 +2264,7 @@ mod tests {
             g.ornaments,
             [ornament("flower", "camellia", 0), ornament("treasure", "pinecone", 3)]
         );
-        assert_eq!(
-            (g.ornament_day.day.as_str(), g.ornament_day.count, g.ornament_year),
-            ("2026-12-20", 3, 2026)
-        );
+        assert_eq!((g.ornament_day.day.as_str(), g.ornament_year), ("2026-12-20", 2026));
         for raw in [
             json!({"ornamentDay": {"day": "soon", "count": 1}, "ornamentYear": -4, "ornaments": "x"}),
             json!({"ornaments": [{"book": "flower", "id": "camellia", "hook": 0}], "ornamentYear": 12}),

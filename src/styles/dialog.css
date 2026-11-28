@@ -1592,7 +1592,7 @@ dialog:not(#confirm-dialog) .dialog-heading h2:not(:empty)::after {
   text-align: center;
   overflow-wrap: anywhere;
 }
-/* What can still be done today, and the day's three as dots (the spent ones quiet). */
+/* What can be done now: what was just done, then why the tray rests or how many hooks are free. */
 .decorating-status {
   display: flex;
   flex-wrap: wrap;
@@ -1603,18 +1603,6 @@ dialog:not(#confirm-dialog) .dialog-heading h2:not(:empty)::after {
   margin: 10px 0 8px;
   font-size: var(--font-md);
   text-align: center;
-}
-.decorating-status .dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #e3b04b;
-}
-.decorating-status .dot:first-of-type {
-  margin-left: 6px;
-}
-.decorating-status .dot.used {
-  background: var(--line);
 }
 .decorating-kinds {
   display: flex;

@@ -104,10 +104,6 @@ const stopGame = game => KO['game.stop'].replace('{name}', KO[game]);
 const TRAY_KO_WAITING = (await readFile(path.join(here, '../src-tauri/src/i18n/ko.rs'), 'utf8')).match(
   /"tray\.state_waiting", "([^"]+)"/,
 )[1];
-// A fourth ornament on one day is refused with the backend's own Korean sentence.
-const ORNAMENTS_TODAY_KO = (await readFile(path.join(here, '../src-tauri/src/i18n/ko.rs'), 'utf8')).match(
-  /"error\.ornaments_today", "([^"]+)"/,
-)[1];
 const literal = text => text.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
 const scenario = `(async()=>{
   const L=m=>window.__TAURI__.core.invoke('call',{name:'e2eLog',args:[m]});
@@ -619,19 +615,19 @@ const scenario = `(async()=>{
     // A seasonal event: its gift comes on its days (the backend checks them), and the label beside the scene shows the event on now.
     const snow=(await giftOn(0.6,0.3,'2025-12-20','lights')).data;await until(async()=>(await playPets.bootstrap()).data.garden.decor.some(d=>d.id===snow.id));await playPets.putAway(snow.id);
     const boxedTree=await until(async()=>(await playPets.bootstrap()).data.garden.boxed.some(d=>d.kind==='xmas_tree'));
-    // Ornaments: three more gifts come (the capacity check below clears them all), the tree is set out of the box, and three
-    // gifts that came hang on its hooks on the day the last of them came; a fourth waits for the next day, and one taken
-    // down frees its hook without giving that day's hang back.
+    // Ornaments: three more gifts come (the capacity check below clears them all), the tree is set out of the box, and all
+    // four gifts that came hang on its free hooks on one day, with no daily count; one taken down frees its hook, and a hook
+    // already taken refuses another.
     const hangable=[];for(const day of ['2025-12-22','2025-12-24','2025-12-26']){const r=(await giftOn(0.2+hangable.length*0.2,0.6,day)).data;if(r)hangable.push(r);}
     const treeOut=(await playPets.setOut(snow.id,0.6,0.3)).ok,hangKinds=['bench',...hangable.map(g=>g.kind)];
     const hung=[];for(const [hook,kind] of hangKinds.slice(0,3).entries())hung.push(await playPets.hangOrnament('gift',kind,hook,'2025-12-26'));
-    const fourthHang=await playPets.hangOrnament('gift',hangKinds[3],3,'2025-12-26');
-    const three=treeOut&&hangKinds.length===4&&hung.every(r=>r.ok)&&(await playPets.bootstrap()).data.garden.ornaments.length===3,refused=fourthHang.ok===false&&fourthHang.error===${JSON.stringify(ORNAMENTS_TODAY_KO)};
+    const fourthHang=await playPets.hangOrnament('gift',hangKinds[3],3,'2025-12-26'),takenHook=await playPets.hangOrnament('gift','bench',3,'2025-12-26');
+    const four=treeOut&&hangKinds.length===4&&hung.every(r=>r.ok)&&fourthHang.ok&&(await playPets.bootstrap()).data.garden.ornaments.length===4,refused=takenHook.ok===false;
     const down=await playPets.takeDownOrnament('gift','bench','2025-12-26'),downAgain=await playPets.takeDownOrnament('gift','bench','2025-12-26'),afterDown=(await playPets.bootstrap()).data.garden;
-    const takenDown=down.ok&&downAgain.ok===false&&afterDown.ornaments.length===2&&!afterDown.ornaments.some(o=>o.hook===0)&&afterDown.ornamentDay.count===3;
+    const takenDown=down.ok&&downAgain.ok===false&&afterDown.ornaments.length===3&&!afterDown.ornaments.some(o=>o.hook===0)&&afterDown.ornamentDay.day==='2025-12-26';
     for(const item of [snow,...hangable])await playPets.putAway(item.id);
-    await L('ornaments='+(three&&refused?'ok':'err:'+JSON.stringify([three,hangKinds,fourthHang])));
-    await L('ornamentDown='+(takenDown?'hook-freed-count-kept':'err:'+JSON.stringify([down,downAgain,afterDown.ornaments,afterDown.ornamentDay])));
+    await L('ornaments='+(four&&refused?'ok':'err:'+JSON.stringify([four,hangKinds,fourthHang,takenHook])));
+    await L('ornamentDown='+(takenDown?'hook-freed':'err:'+JSON.stringify([down,downAgain,afterDown.ornaments,afterDown.ornamentDay])));
     // A snowman: one a day, dressed in its own parts only, and a new one replaces the old.
     await window.__TAURI__.core.invoke('call',{name:'e2eFreshGifts',args:[]});
     const snowA=await playPets.buildSnowman(0.5,0.7,'2025-12-30'),snowTwice=await playPets.buildSnowman(0.4,0.7,'2025-12-30');
@@ -2047,12 +2043,9 @@ const expect = [
   [/^viewing=day-kept$/, 'the day friends viewed the blossom is kept and an odd day is refused'],
   [
     /^ornaments=ok$/,
-    'three gifts that came hang on the Christmas tree on a December day, and a fourth waits for the next day',
+    'four gifts that came hang on the Christmas tree on one December day, and a hook already taken refuses another',
   ],
-  [
-    /^ornamentDown=hook-freed-count-kept$/,
-    "an ornament taken down frees its hook and does not give that day's hang back",
-  ],
+  [/^ornamentDown=hook-freed$/, 'an ornament taken down frees its hook'],
   [
     /^snowman=once-a-day-dressed-replaced$/,
     'a snowman is built once a day, wears only its own parts in drawing order, and a new one replaces the old',

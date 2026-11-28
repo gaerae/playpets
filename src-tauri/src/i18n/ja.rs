@@ -91,7 +91,6 @@ const TABLE: &[(&str, &str)] = &[
     ("error.tree_missing", "その木が見つかりません。"),
     ("error.plant_missing", "その植物が見つかりません。"),
     ("error.gift_today", "プレゼントは2日に1回届きます。次のプレゼントまで少し待ってください。"),
-    ("error.ornaments_today", "オーナメントは1日3個までです。また明日飾りましょう。"),
     ("error.snowman_today", "今日はもう雪だるまを作りました。また明日作れます。"),
     ("error.album_all_out", "見つけた数（{count}）だけ、もう出ています。もっと見つけると、さらに出せます。"),
     ("error.decor_full", "庭に置ける飾りは{limit}個までです。ひとつ片付けると置けます。"),

@@ -91,7 +91,6 @@ const TABLE: &[(&str, &str)] = &[
     ("error.tree_missing", "找不到那棵树。"),
     ("error.plant_missing", "找不到那株植物。"),
     ("error.gift_today", "礼物每两天来一次，下一份请再等等。"),
-    ("error.ornaments_today", "每天最多挂三个装饰，明天再来挂吧。"),
     ("error.snowman_today", "今天已经堆过雪人了，明天可以再堆。"),
     ("error.album_all_out", "找到的数量（{count}）已经全都摆出来了。再找到一些，就能多摆一个。"),
     ("error.decor_full", "乐园最多放 {limit} 件摆设。收起一件就有地方了。"),

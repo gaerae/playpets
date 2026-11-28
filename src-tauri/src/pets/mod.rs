@@ -104,7 +104,6 @@ pub fn limits() -> serde_json::Value {
         "giftEveryDays": garden::GIFT_EVERY_DAYS,
         "mementoLevel": garden::MEMENTO_LEVEL,
         "ornamentHooks": garden::ORNAMENT_HOOKS,
-        "ornamentsPerDay": garden::ORNAMENTS_PER_DAY,
         "trees": discovery::TREE_YARD_MAX,
         "treeYoungMs": discovery::TREE_YOUNG_MS,
         "treeMatureMs": discovery::TREE_MATURE_MS,
@@ -187,7 +186,7 @@ mod tests {
             0,
         );
         forget_days_after(&mut bonds, &mut garden, "2026-12-25");
-        assert_eq!(garden.ornament_day.count, 2, "the day itself has come");
+        assert_eq!(garden.ornament_day.day, "2026-12-25", "the day itself has come");
         forget_days_after(&mut bonds, &mut garden, "2026-12-20");
         assert_eq!(garden.ornament_day, garden::OrnamentDay::default());
         assert_eq!(garden.ornament_year, 2026, "what hangs stays");

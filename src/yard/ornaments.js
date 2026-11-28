@@ -1,6 +1,6 @@
 // Ornaments on the Christmas tree (docs/design/2026-11-09-a-winter-to-share.md, "Decorating the
-// tree"): found flowers, trees, gifts and small finds hang on the tree's twelve hooks, three a day,
-// and stay all winter; the first hang of the next Christmas (from November 15, when the lights start)
+// tree"): found flowers, trees, gifts and small finds hang on the tree's twelve hooks, as many in
+// a day as are free, and stay all winter; the first hang of the next Christmas (from November 15, when the lights start)
 // takes them down, so each Christmas starts a fresh tree. The backend keeps them and the rule
 // (src-tauri/src/pets/garden.rs hang_ornament); this module says what hangs this Christmas and what
 // still could, and draws it.
@@ -22,7 +22,6 @@ import { percent } from '../core/math.js';
 import { artSvg } from './art.js';
 import { FLOWERS, GIFTS, TREASURES, TREES, flowerKind, giftKind, treasureKind, treeKind } from './catalog.js';
 import { flowerSvg, giftSvg } from './creatures.js';
-import { localDay } from './growth.js';
 
 /** The books an ornament comes from, in the order they are offered (album.js BOOKS ids). */
 export const ORNAMENT_BOOKS = ['flower', 'tree', 'gift', 'treasure'];
@@ -79,12 +78,6 @@ export function ornamentSeason(date) {
 /** What hangs on the tree at `date`: the garden's ornaments while they are this Christmas's. */
 export function treeOrnaments(garden, date) {
   return garden?.ornamentYear === ornamentSeason(date) ? garden.ornaments || [] : [];
-}
-/** How many more can hang today, of `perDay`: today's count is this Christmas's and today's only. */
-export function leftToday(garden, date, perDay) {
-  const day = garden?.ornamentDay;
-  if (garden?.ornamentYear !== ornamentSeason(date) || day?.day !== localDay(date)) return perDay;
-  return Math.max(0, perDay - day.count);
 }
 /** The hooks (0 to `hooks` - 1) nothing hangs on at `date`, in order. */
 export function freeHooks(garden, date, hooks) {

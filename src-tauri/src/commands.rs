@@ -610,7 +610,7 @@ static COMMANDS: &[Command] = &[
             Ok(json!(tree))
         })
     }),
-    // (book, id, hook, local day): an ornament on the Christmas tree, three a day.
+    // (book, id, hook, local day): an ornament on the Christmas tree, on a free hook.
     main("hangOrnament", hang_ornament),
     // (book, id, local day): an ornament taken down, its hook free for another.
     main("takeDownOrnament", take_down_ornament),

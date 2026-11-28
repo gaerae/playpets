@@ -130,7 +130,7 @@ export const sections = {
       fireflies: 'More fireflies, a golden one among them. A friend brings a watermelon.',
       harvest: 'A big golden moon rises, and moonlight carp come to the lake. A friend brings a pumpkin.',
       lights: 'Lights glow along the trees. Friends bring a little tree, a baby reindeer and Santa.',
-      ornaments: 'Click the tree to hang up to three album finds a day.',
+      ornaments: 'Click the tree to hang album finds on its free spots.',
       christmas: 'The tree grows into a grand tree, and the one on your desktop grows too.',
       sleigh: 'A sleigh crosses the moon.',
       snowman: 'Roll and stack three snowballs with friends, then pick a hat, scarf and nose.',

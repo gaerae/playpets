@@ -17,7 +17,7 @@ const { giftKind, treeKind } = await import('../src/yard/catalog.js');
 const { renderDecor, shownDecor } = await import('../src/yard/decor.js');
 const { christmasNightCheck, setupChristmasNight } = await import('../src/yard/christmas-night.js');
 const { percent } = await import('../src/core/math.js');
-const { drawTreeOrnaments, freeHooks, hangable, leftToday, ornamentLook, ornamentSeason, treeOrnaments } =
+const { drawTreeOrnaments, freeHooks, hangable, ornamentLook, ornamentSeason, treeOrnaments } =
   await import('../src/yard/ornaments.js');
 const { drawYard } = await import('./support/yard.mjs');
 
@@ -84,19 +84,14 @@ test('the lights, the Christmas window and the ornament season start on the same
   assert.equal(ornamentSeason(new Date(2026, month - 1, day - 1, 23, 59)), 2025);
 });
 
-test('three a day, counted from today only', () => {
-  const g = { ornamentYear: 2026, ornamentDay: { day: '2026-12-20', count: 2 }, ornaments: [] };
-  assert.equal(leftToday(g, new Date(2026, 11, 20, 23), 3), 1);
-  assert.equal(leftToday(g, new Date(2026, 11, 21, 0), 3), 3);
-  assert.equal(leftToday({ ...g, ornamentYear: 2025 }, new Date(2026, 11, 20, 12), 3), 3);
-  assert.equal(leftToday({ ...g, ornamentDay: { day: '2026-12-20', count: 5 } }, new Date(2026, 11, 20), 3), 0);
-  assert.equal(leftToday({}, new Date(2026, 11, 20), 3), 3, 'an older save has hung none');
+test('the free hooks are those nothing of this Christmas hangs on', () => {
+  const g = { ornamentYear: 2026, ornamentDay: { day: '2026-12-20' }, ornaments: [] };
   const taken = { ...g, ornaments: [camellia(0), pinecone(5)] };
   assert.deepEqual(freeHooks(taken, new Date(2026, 11, 20), 12), [1, 2, 3, 4, 6, 7, 8, 9, 10, 11]);
 });
 
-// Last December's tree, seen on December 1: bare, every hook free, three to hang.
-test('a new December starts with every hook free and three to hang', () => {
+// Last December's tree, seen on December 1: bare, every hook free.
+test('a new December starts with every hook free', () => {
   const last = {
     ornamentYear: 2025,
     ornamentDay: { day: '2026-01-07', count: 3 },
@@ -104,7 +99,6 @@ test('a new December starts with every hook free and three to hang', () => {
   };
   const december = new Date(2026, 11, 1, 9);
   assert.deepEqual(freeHooks(last, december, 12), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
-  assert.equal(leftToday(last, december, 3), 3);
   assert.deepEqual(treeOrnaments(last, december), []);
 });
 

@@ -81,6 +81,8 @@ Follow-up (2026-11-12): a hook is a bauble's centre and width as shares of the t
 
 Follow-up (2026-11-20, [Christmas from mid-November](2026-11-20-christmas-from-mid-november.md)): the `lights` event starts on November 15, so the tree, the baby reindeer and Santa come and show from then. A tree's decorating season starts on November 15 too, so ornaments hung in late November stay up in December.
 
+Follow-up (2026-11-28): there is no daily count any more. A tree takes as many ornaments in a day as it has free hooks, so the tray's dots are gone and its line says how many spots are left. `garden.ornamentDay` keeps only `day`, which still catches a clock set back and dates an old save's season; a saved `count` is ignored.
+
 ## Building a snowman
 
 | What | Rule |

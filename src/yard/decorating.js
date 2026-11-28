@@ -32,7 +32,6 @@ import {
   bookName,
   freeHooks,
   hangable,
-  leftToday,
   ORNAMENT_BOOKS,
   ornamentLook,
   ornamentSeason,
@@ -158,7 +157,8 @@ export function renderDecorating() {
     // The tree as it shows: the hang on its way on it, the one taken down off it.
     shown = { ...garden, ornaments: hanging, ornamentYear: ornamentSeason(now) },
     free = freeHooks(shown, now, limit(data, 'ornamentHooks')),
-    left = Math.max(0, leftToday(garden, now, limit(data, 'ornamentsPerDay')) - coming.length),
+    // As many as there are free hooks, in a day or at once.
+    left = free.length,
     // What could hang, with the hang on its way off the list and the one taken down back on it.
     items = hangable({ ...data, garden: shown }, now);
   if (view.picked && !items.some(i => same(i, view.picked))) view.picked = null;
@@ -167,7 +167,7 @@ export function renderDecorating() {
   $('decorating-tree').classList.toggle('placing', picking);
   drawBaubles(hanging);
   drawSpots(picking ? free : []);
-  drawStatus({ left, free, items, picking });
+  drawStatus({ left, items, picking });
   drawKinds(items);
   drawTray(items, left > 0 && free.length > 0);
   syncTakeDown();
@@ -304,31 +304,19 @@ function drawSpots(free) {
   });
 }
 
-// What can be done today, in words, and the day's hangs as dots (spent ones dimmed).
-function drawStatus({ left, free, items, picking }) {
-  const perDay = limit(data, 'ornamentsPerDay'),
-    empty = !items.length && left > 0 && free.length > 0,
-    // What was just done (a take-down) goes first, and never hides why the tray rests.
+// What can be done now, in words: what was just done (a take-down) first, then why the tray rests
+// or how many hooks are free.
+function drawStatus({ left, items, picking }) {
+  const empty = !items.length && left > 0,
     reason =
       (picking && t('decorating.pick')) ||
-      (!free.length && t('decorating.full')) ||
-      (!left && t('decorating.done_today')) ||
+      (!left && t('decorating.full')) ||
       (empty && t('decorating.empty')) ||
-      (!view.note && t('decorating.left', { count: left })),
-    text = joinSentences([view.note, reason].filter(Boolean)),
-    dots = free.length && !empty ? perDay : 0,
-    key = `${text}|${dots}|${left}`;
-  if (key === view.statusKey) return;
-  view.statusKey = key;
-  $('decorating-status').replaceChildren(
-    text,
-    ...Array.from({ length: dots }, (_, i) => {
-      const dot = document.createElement('i');
-      dot.className = i < perDay - left ? 'dot used' : 'dot';
-      dot.setAttribute('aria-hidden', 'true');
-      return dot;
-    }),
-  );
+      t('decorating.left', { count: left }),
+    text = joinSentences([view.note, reason].filter(Boolean));
+  if (text === view.statusKey) return;
+  view.statusKey = text;
+  $('decorating-status').replaceChildren(text);
 }
 
 // The books to choose from: all, then each book with something to hang.

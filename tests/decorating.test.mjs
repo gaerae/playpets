@@ -185,22 +185,21 @@ test('pressing the Christmas tree opens the decorating view; dragging it does no
   assert.ok(v.near.target || v.far.target, 'a friend walks to the bench');
 });
 
-test('the dots say how many are left today, and a new day has three again', async ctx => {
+// No count a day (it was three until 1.10.1): the status says how many hooks are free, whatever
+// was hung today, and a save that still keeps a day's count changes nothing.
+test('the status says how many hooks are free, however many hung today', async ctx => {
   const v = await decorating(ctx, {
     garden: {
       ...hung({}, camellia(0), { book: 'tree', id: 'maple', hook: 1 }),
-      ornamentDay: { day: '2026-12-20', count: 2 },
+      ornamentDay: { day: '2026-12-20', count: 3 },
     },
   });
   openDecorating();
-  assert.ok(v.status().startsWith(t('decorating.left', { count: 1 })));
-  assert.equal(v.dots().length, 3);
-  assert.equal(v.dots().filter(d => has(d, 'used')).length, 2);
-  assert.ok(v.dots().every(d => d.getAttribute('aria-hidden') === 'true'));
-  ctx.mock.timers.setTime(new Date(2026, 11, 21, 9).getTime());
-  renderDecorating();
-  assert.ok(v.status().startsWith(t('decorating.left', { count: 3 })));
-  assert.equal(v.dots().filter(d => has(d, 'used')).length, 0);
+  assert.equal(v.status(), t('decorating.left', { count: 10 }));
+  assert.equal(v.dots().length, 0, 'no dots for a day');
+  assert.ok(v.chips().length > 0 && v.chips().every(c => !c.disabled), 'the tray stays open');
+  await v.chips()[0].dispatch('click');
+  assert.equal(v.spots().length, 10);
 });
 
 test('last December’s ornaments are not on the view’s tree from December 1', async ctx => {
@@ -214,8 +213,7 @@ test('last December’s ornaments are not on the view’s tree from December 1',
   });
   openDecorating();
   assert.equal(v.baubles().length, 0);
-  assert.equal(v.dots().length, 3);
-  assert.equal(v.dots().filter(d => has(d, 'used')).length, 0);
+  assert.equal(v.status(), t('decorating.left', { count: 12 }));
   assert.ok(v.chipFor('camellia'), 'last year’s camellia can hang again');
 });
 
@@ -318,7 +316,7 @@ test('a hook sends book, id, hook and today once, and the new bauble shows', asy
   assert.ok(early && has(early, 'bauble', 'flower', 'hanging'));
   assert.equal(v.spots().length, 0, 'picking ends');
   assert.equal(v.chipFor('camellia'), undefined);
-  assert.ok(v.status().startsWith(t('decorating.left', { count: 1 })), 'the hang on its way counts');
+  assert.ok(v.status().startsWith(t('decorating.left', { count: 11 })), 'the hang on its way counts');
   // A render while the backend answers keeps that node.
   renderDecorating();
   assert.equal(byHook(v.$('decorating-tree'), 3).filter(n => has(n, 'bauble'))[0], early);
@@ -345,7 +343,7 @@ test('a hook sends book, id, hook and today once, and the new bauble shows', asy
   );
   assert.ok(find(shown[0], 'bauble-ball').innerHTML.includes('<svg'), 'holding its art');
   assert.equal(v.spots().length, 0);
-  assert.ok(v.status().startsWith(t('decorating.left', { count: 1 })));
+  assert.ok(v.status().startsWith(t('decorating.left', { count: 11 })));
   assert.equal(v.baubles().length, 1);
 });
 
@@ -353,7 +351,7 @@ test('a refused hang says why and leaves the tree as it was', async ctx => {
   const v = await decorating(ctx);
   globalThis.playPets.hangOrnament = async (...args) => {
     calls.push(['hangOrnament', ...args]);
-    return { ok: false, error: t('error.ornaments_today') };
+    return { ok: false, error: t('error.generic') };
   };
   ctx.after(() => {
     globalThis.playPets.hangOrnament = hangs;
@@ -363,23 +361,17 @@ test('a refused hang says why and leaves the tree as it was', async ctx => {
   await v.spots()[0].dispatch('click');
   await flush();
   const notice = v.$('toast');
-  assert.ok(kids(notice).some(line => line.textContent === t('error.ornaments_today') && has(line, 'error')));
+  assert.ok(kids(notice).some(line => line.textContent === t('error.generic') && has(line, 'error')));
   assert.equal(v.baubles().length, 0);
   assert.ok(v.chipFor('camellia'), 'the chip is still there');
-  assert.ok(v.status().startsWith(t('decorating.left', { count: 3 })));
+  assert.ok(v.status().startsWith(t('decorating.left', { count: 12 })));
 });
 
-test('with the day’s three hung the tray waits for tomorrow; with every hook taken it says the tree is full', async ctx => {
+test('with every hook taken the tray rests and says the tree is full', async ctx => {
   const v = await decorating(ctx, {
     garden: { ...hung({}, camellia(0)), ornamentDay: { day: '2026-12-20', count: 3 } },
   });
   openDecorating();
-  assert.ok(v.status().startsWith(t('decorating.done_today')));
-  assert.ok(v.chips().length > 0);
-  assert.ok(v.chips().every(c => c.disabled));
-  await v.chips()[0].dispatch('click');
-  assert.equal(v.spots().length, 0, 'nothing can be picked');
-
   const twelve = Array.from({ length: 12 }, (_, hook) => ({ book: 'gift', id: `g${hook}`, hook }));
   state.setData({
     ...state.data,
@@ -387,8 +379,9 @@ test('with the day’s three hung the tray waits for tomorrow; with every hook t
   });
   renderDecorating();
   assert.equal(v.status(), t('decorating.full'));
-  assert.equal(v.dots().length, 0);
-  assert.ok(v.chips().every(c => c.disabled));
+  assert.ok(v.chips().length > 0 && v.chips().every(c => c.disabled));
+  await v.chips()[0].dispatch('click');
+  assert.equal(v.spots().length, 0, 'nothing can be picked');
 });
 
 test('with nothing found the view says what can hang', async ctx => {
@@ -539,11 +532,10 @@ test('a card takes its ornament down: the hook frees, the item returns to the tr
   assert.ok(v.chipFor('camellia'), 'back in the tray');
   assert.equal(globalThis.document.activeElement, v.chipFor('camellia'));
   assert.ok(v.status().startsWith(t('decorating.taken_down', { name: ornamentLook('flower', 'camellia').name })));
-  // The garden catches up; the day's count is as it was.
+  // The garden catches up.
   state.setData({ ...state.data, garden: { ...state.data.garden, ornaments: [] } });
   renderDecorating();
   assert.equal(v.baubles().length, 0);
-  assert.equal(v.dots().filter(d => has(d, 'used')).length, 1, 'a hang taken down is not given back');
   await v.chipFor('camellia').dispatch('click');
   assert.ok(
     v.spots().some(s => s.dataset.hook === '4'),
@@ -552,7 +544,7 @@ test('a card takes its ornament down: the hook frees, the item returns to the tr
   assert.equal(v.spots().length, 12);
 });
 
-test('after a take-down on a day with its three hung, the status still says why the tray rests', async ctx => {
+test('after a take-down the status says what came down and how many hooks are free', async ctx => {
   const v = await decorating(ctx, {
     garden: { ...hung({}, camellia(4)), ornamentDay: { day: '2026-12-20', count: 3 } },
   });
@@ -562,8 +554,8 @@ test('after a take-down on a day with its three hung, the status still says why 
   await flush();
   const name = ornamentLook('flower', 'camellia').name;
   assert.ok(v.status().includes(t('decorating.taken_down', { name })));
-  assert.ok(v.status().includes(t('decorating.done_today')));
-  assert.ok(v.chips().every(c => c.disabled));
+  assert.ok(v.status().includes(t('decorating.left', { count: 12 })));
+  assert.ok(v.chips().every(c => !c.disabled));
 });
 
 test('in Japanese and Chinese the take-down note and the reason run on without a space', async ctx => {
@@ -578,7 +570,7 @@ test('in Japanese and Chinese the take-down note and the reason run on without a
     await flush();
     const note = t('decorating.taken_down', { name: ornamentLook('flower', 'camellia').name }),
       gap = lang === 'en' ? ' ' : '';
-    assert.equal(v.status(), `${note}${gap}${t('decorating.done_today')}`, lang);
+    assert.equal(v.status(), `${note}${gap}${t('decorating.left', { count: 12 })}`, lang);
     v.dialog.close();
     await v.dialog.dispatch('close');
   }
