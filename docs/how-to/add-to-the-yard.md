@@ -364,6 +364,7 @@ Reachability:
 
 Trees:
 - Trees in `catalog.json` have an ID, three `stages` (seedling, young, mature), an optional `seasonArt` map for mature art, and a `footprint` root ellipse in authored pixels.
+- An optional `stature` sets how tall a grown tree of the kind stands against the stage's size (`treeSizes`), 1 by default: about `(height in metres / 10) ** 0.3`, so a metasequoia is 1.45 and a lilac 0.75. A young tree takes half of it, and a seedling none. The yard (`catalog.js treeSize`) and the desktop (`content.rs tree_size`) read it.
 - New species need a `tree.<id>` string in every language.
 - Drawings use a bottom-centre anchor and share the yard zoom.
 - A tree's field coordinate stays fixed through growth and season changes.

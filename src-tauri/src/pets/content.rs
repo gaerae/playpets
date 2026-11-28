@@ -42,7 +42,7 @@ struct Kind {
     /// A planted tree's stages, each with the size it is drawn at when its own differs.
     #[serde(default)]
     stages: Vec<SizedStage>,
-    /// How much taller a flower stands than others once grown.
+    /// How much taller a flower, or a tree, stands than others once grown.
     #[serde(default)]
     stature: Option<f64>,
     /// A flower's planted patch, what it blooms as unless set to one bloom.
@@ -313,7 +313,11 @@ impl Catalog {
         let kind = self.trees.iter().find(|k| k.id == id)?;
         let own = kind.stages.get(stage).and_then(|s| s.size);
         let [w, h] = own.or_else(|| self.tree_sizes.get(stage).copied())?;
-        Some((w, h))
+        // As tall as its kind grows (src/yard/catalog.js treeSize): a seedling as any other, a
+        // young tree halfway there.
+        let grown = [0.0, 0.5, 1.0].get(stage).copied().unwrap_or(1.0);
+        let k = 1.0 + (kind.stature.unwrap_or(1.0) - 1.0) * grown;
+        Some((w * k, h * k))
     }
     /// How much taller a flower stands `age_ms` after it was planted: its stature once it buds
     /// (src/yard/growth.js plantStature), as tall as the others before.
@@ -747,6 +751,13 @@ mod tests {
         }
         assert_eq!(c.tree_size("cherry", 3), None);
         assert_eq!(c.tree_size("bench", 0), None);
+        // As tall as its kind grows (src/yard/catalog.js treeSize): a seedling as any other, a young
+        // tree halfway there.
+        let (meta, lilac) = (c.tree_size("metasequoia", 2).unwrap(), c.tree_size("lilac", 2).unwrap());
+        assert!((meta.1 - 170.0 * 1.45).abs() < 1e-9 && (meta.0 - 160.0 * 1.45).abs() < 1e-9);
+        assert!((lilac.1 - 170.0 * 0.75).abs() < 1e-9);
+        assert_eq!(c.tree_size("metasequoia", 0), Some((35.0, 40.0)));
+        assert!((c.tree_size("metasequoia", 1).unwrap().1 - 95.0 * 1.225).abs() < 1e-9);
         assert_eq!(c.stature("sunflower"), 1.4);
         assert_eq!(c.stature("tulip"), 1.0);
     }
