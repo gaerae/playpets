@@ -671,3 +671,47 @@ test('the blurred sides of a very wide workshop are not floor', t => {
   const edge = stationAt({ x: 0.01, y: 0.8 });
   assert.equal(blocked(Math.max(edge.x, 2), edge.y), false, 'a window the picture covers has no sides');
 });
+
+// Friends and gifts are sized by the picture and the window's height (field.js zoomFor): dragged
+// wider into a strip, they ease to a strip's size with the picture instead of jumping at 3:1.
+test('friends dragged from a wide window into a strip change size a little at a time', t => {
+  inRoom(t);
+  for (const world of ['woodland', 'workshop'])
+    for (const h of [260, 500, 800]) {
+      scene.world = world;
+      let last = null;
+      for (let w = Math.round(h * 2.2); w <= h * 3.3; w += 2) {
+        wide(w, h);
+        const now = [yardZoom(), propZoom()];
+        if (last)
+          now.forEach((z, i) => assert.ok(Math.abs(z / last[i] - 1) < 0.02, `${world} ${w}x${h}: ${last[i]} -> ${z}`));
+        last = now;
+      }
+    }
+});
+
+// Narrower than 4:3, an outdoor picture shrinks to the part always seen across, with sky above
+// (environment.js environmentFrame): friends shrink as much as it does from a 4:3 window as tall,
+// so they stay as big next to the cottage, though never below a size that reads. A room covers
+// its height there and keeps its friends.
+test('in a tall, narrow window outdoors friends shrink with the picture, down to a size that reads', async t => {
+  const { environmentFrame } = await import('../src/yard/environment.js');
+  inRoom(t);
+  scene.world = 'woodland';
+  const picture = (w, h) => environmentFrame(w, h, { world: 'woodland' }).width;
+  wide(1334, 1000);
+  const square = yardZoom();
+  wide(820, 1000);
+  const close = (a, b) => Math.abs(a - b) < 0.01;
+  assert.ok(close(yardZoom(), (square * picture(820, 1000)) / picture(1334, 1000)), `${yardZoom()} ${square}`);
+  assert.ok(close(propZoom(), yardZoom()), 'what stands on the grass with them');
+  wide(400, 1000);
+  assert.ok(yardZoom() >= 0.6 - 1e-9, `a very narrow window ${yardZoom()}`);
+  wide(1180, 850);
+  assert.equal(yardZoom(), 1, 'a usual window is as before');
+  scene.world = 'workshop';
+  wide(820, 1000);
+  const narrowRoom = yardZoom();
+  wide(1334, 1000);
+  assert.ok(close(narrowRoom, yardZoom()), 'a room keeps its friends');
+});

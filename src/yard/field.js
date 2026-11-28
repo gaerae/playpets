@@ -5,7 +5,7 @@
 import { clamp } from '../core/math.js';
 import { cellHeight } from '../core/sprites.js';
 import { $ } from '../core/state.js';
-import { environmentFrame, environmentLake } from './environment.js';
+import { environmentFrame, environmentLake, stripShare } from './environment.js';
 import { composition, lakeShape, trace } from './layout.js';
 import { scene } from './world.js';
 import { worldAllows, worldFor, worldHasSoil } from './worlds.js';
@@ -19,13 +19,32 @@ import { worldAllows, worldFor, worldHasSoil } from './worlds.js';
 // The picture is placed to keep the part always seen in view (environment.js environmentFrame), so
 // its floor line is not always at the same share of the yard: the field follows the picture's own.
 const paintedLand = () => worldAllows(scene.world, 'sky') && $('yard')?.dataset.environment === 'painted';
+// Where the picture lies in the yard, made again only when the yard or the place changes: the field
+// asks it at every friend's step.
+let framed = { key: '' };
+function frameNow() {
+  const place = worldFor(scene.world),
+    key = `${scene.world} ${yardSize.width} ${yardSize.height}`;
+  if (framed.key !== key || framed.place !== place || framed.geometry !== place.geometry)
+    framed = { key, place, geometry: place.geometry, frame: environmentFrame(yardSize.width, yardSize.height, scene) };
+  return framed.frame;
+}
 export const fieldTop = () => {
   const place = worldFor(scene.world),
     top = (paintedLand() ? composition.fieldTop : place.geometry?.fieldTop) ?? composition.fieldTop ?? 0.6;
   if (paintedLand() || !yardSize.height) return top;
-  const frame = environmentFrame(yardSize.width, yardSize.height, scene);
-  return (frame.y + top * frame.height) / yardSize.height;
+  const frame = frameNow();
+  // Never above the window: a short, wide room crops its floor's far end away.
+  return Math.max(0, (frame.y + top * frame.height) / yardSize.height);
 };
+// Across, the field is the picture: in a window wider than it, its sides are its own edge out of
+// focus (environment.js paintSides), not ground. A place's x, 0 to 1, spans the picture there, so a
+// flower planted by the cottage stays by it, and nothing stands, is planted or dug in the blur.
+function across() {
+  const { width } = yardSize,
+    frame = width && !paintedLand() ? frameNow() : null;
+  return frame && frame.x > 0 ? { left: frame.x, right: frame.x + frame.width } : { left: 0, right: width };
+}
 // Where the picture shows walkable ground reaching back past the line (a path to a door, a gate, a
 // dock), the field's top rises with it: geometry.edge in worlds.json, [x, y] points of the picture
 // from left to right, joined by straight lines; past its ends, and below the line, the line holds.
@@ -44,7 +63,7 @@ function edgeShape() {
   if (!points?.length || paintedLand() || place.fit === 'cover-bottom' || !yardSize.width) return null;
   const key = `${scene.world} ${yardSize.width} ${yardSize.height}`;
   if (edgeAt?.key !== key || edgeAt.geometry !== place.geometry) {
-    const frame = environmentFrame(yardSize.width, yardSize.height, scene);
+    const frame = frameNow();
     const yard = points.map(([x, y]) => [frame.x + x * frame.width, frame.y + y * frame.height]);
     const far = place.geometry.far;
     edgeAt = {
@@ -80,7 +99,8 @@ export const hasEdge = () => !!edgeShape();
 export function topAt(px) {
   const line = yardSize.height * fieldTop(),
     shape = edgeShape();
-  return shape ? edgeTop(shape, px, line) : line;
+  // Never above the window: in a strip a path's far end can be cut off at the top.
+  return shape ? Math.max(0, edgeTop(shape, px, line)) : line;
 }
 let zoom = { friends: 1, props: 1 },
   zoomWorld = null;
@@ -89,6 +109,8 @@ let zoom = { friends: 1, props: 1 },
 const ROOM_SCALE = 850 / 1024;
 // Up to twice the friend size: a sprite's own pixels at the default size and more.
 const ROOM_ZOOM_MAX = 2;
+// The smallest a tall, narrow window shrinks friends to with its picture: still readable.
+const NARROW_MIN = 0.6;
 // How big friends, and the things set on the field, are drawn in a yard of this size. By the
 // height, so a small window still reads as a whole scene; a strip (much wider than tall, like a bar
 // along the screen's edge) gives the sky away and keeps the friends larger, and a narrow column
@@ -102,12 +124,18 @@ const ROOM_ZOOM_MAX = 2;
 // A strip shows a slice of a wide picture, so nothing grows taller than its height allows; in a room
 // at 2400 by 300 a friend stood 224px tall in it, though the painted furniture stays as large.
 function zoomFor(width, height, world) {
-  const strip = width > height * 3,
-    tall = height / (strip ? 380 : 560),
+  // Eased from a wide window's to a strip's between 2.4 and 3 times as wide as tall, as the
+  // picture is (environment.js stripShare), so a window dragged wider never jumps.
+  const tall = height / (560 - 180 * stripShare(width, height)),
+    framedAt = w => environmentFrame(w, height, { world }).width / 1536,
+    framed = framedAt(width) / ROOM_SCALE,
+    // Narrower than 4:3 an outdoor picture shrinks to the part always seen across, sky above:
+    // friends shrink as much as it does from a 4:3 window as tall, down to NARROW_MIN, so they stay
+    // as big next to the cottage. A room covers its height there, so nothing shrinks.
+    narrow = framedAt(width) / framedAt(Math.max(width, (height * 4) / 3)),
     fit = clamp(Math.min(tall, width / 640), 0.35, 1),
-    framed = environmentFrame(width, height, { world }).width / 1536 / ROOM_SCALE,
     picture = Math.min(ROOM_ZOOM_MAX, framed, tall),
-    friends = Math.max(fit, picture);
+    friends = Math.max(Math.min(fit, Math.max(NARROW_MIN, fit * narrow)), picture);
   return { friends, props: worldHasSoil(world) ? friends : picture };
 }
 // The zoom follows the place as well as the size: another place measures it again.
@@ -175,17 +203,17 @@ export function measureYard() {
  * (geometry, views.js place), not the yard's: the field is the yard's lower band, so a step down is
  * a far larger share of it than a step across. */
 export function bodyInField(pet, x = 0.5, y) {
-  const { w, h, top } = geometry(pet, x),
+  const { w, h, top, left } = geometry(pet, x),
     // As drawn where its feet are, when it is said where (`y`): farther back it is smaller.
-    depth = y === undefined ? 1 : depthScaleAt(EDGE + x * w + sizeOf(pet) / 2, top + y * h + petHeight(pet)),
+    depth = y === undefined ? 1 : depthScaleAt(left + x * w + sizeOf(pet) / 2, top + y * h + petHeight(pet)),
     body = (sizeOf(pet) || 1) * depth;
   return { x: body / w, y: body / h };
 }
 /** Where the feet of the friend `pet` standing at `at` (field shares, 0 to 1 each way) are in the
  * yard, in pixels (views.js place). */
 export function feetAt(pet, at) {
-  const { w, h, top } = geometry(pet, at.x);
-  return { x: EDGE + at.x * w + sizeOf(pet) / 2, y: top + at.y * h + petHeight(pet) };
+  const { w, h, top, left } = geometry(pet, at.x);
+  return { x: left + at.x * w + sizeOf(pet) / 2, y: top + at.y * h + petHeight(pet) };
 }
 /** How far apart two places (field shares) are on the screen, from feet to feet, in body lengths of
  * the friend `pet` as it is drawn at the first (motion.js paces a walk by it): farther back a body
@@ -210,12 +238,18 @@ const footRoom = () => (document.body.classList.contains('compact') ? 42 : 76);
 // A friend itself needs only its name tag's room below its feet (friends.css .pet-tag), so it walks
 // on down past the field's foot; the dock floats over it there, and strolls end clear of it.
 export const TAG_ROOM = 28;
-/** The field friends and plants stand on, in yard pixels: its width, the ridge (top) and the
- * front edge (bottom) a foot can reach. */
+/** The field friends and plants stand on, in yard pixels: the yard's width and height, the ridge
+ * (top) and the front edge (bottom) a foot can reach, and the picture's left and right edges
+ * (across; the yard's own, unless the window is wider than the picture). */
 export function field() {
   if (!yardSize.width) measureYard();
   const { width, height } = yardSize;
-  return { width, height, top: height * fieldTop(), bottom: height - footRoom() };
+  return { width, height, top: height * fieldTop(), bottom: height - footRoom(), ...across() };
+}
+/** Where a place's x (0 to 1) starts across the yard, in pixels, and how many pixels it spans: the
+ * picture less EDGE each side. */
+export function fieldAcross(f = field()) {
+  return { from: f.left + EDGE, span: Math.max(1, f.right - f.left - EDGE * 2) };
 }
 // The lake as it lies in the yard now: the same shape the painter draws (layout.js lakeShape), or the
 // picture's own water once the illustrated yard shows; made again only when the yard changes.
@@ -234,15 +268,17 @@ export function lakeNow() {
   }
   return lakeArea;
 }
-/** The box a friend's place (0 to 1 each way) spans, in yard pixels: its width, and its top and
- * height at the field's line, or, given the place's `x`, where the field begins at its feet. */
+/** The box a friend's place (0 to 1 each way) spans, in yard pixels: its left and width, and its
+ * top and height at the field's line, or, given the place's `x`, where the field begins at its feet. */
 export function geometry(p, x) {
   if (!yardSize.width) measureYard();
   const r = yardSize,
-    w = Math.max(1, r.width - sizeOf(p) - EDGE * 2),
-    ground = x === undefined ? r.height * fieldTop() : topAt(EDGE + x * w + sizeOf(p) / 2),
+    { left: from, right } = across(),
+    left = from + EDGE,
+    w = Math.max(1, right - from - sizeOf(p) - EDGE * 2),
+    ground = x === undefined ? r.height * fieldTop() : topAt(left + x * w + sizeOf(p) / 2),
     top = Math.max(12, ground - petHeight(p));
-  return { w, top, h: Math.max(1, r.height - petHeight(p) - TAG_ROOM - top) };
+  return { w, top, h: Math.max(1, r.height - petHeight(p) - TAG_ROOM - top), left };
 }
 /** What floats over the yard's foot, in yard pixels: the strip of a tool in hand, which takes the
  * dock's place (garden.css .discovery-target), the dock (shell.css .yard-dock), or, in a small
@@ -268,16 +304,18 @@ export function underDock(px, py, half, box = dockBox()) {
  * past 1, decorFloor) in yard pixels. */
 export function fieldToYard({ x, y }) {
   const f = field(),
-    px = EDGE + x * Math.max(1, f.width - EDGE * 2),
+    { from, span } = fieldAcross(f),
+    px = from + x * span,
     top = topAt(px);
   return { x: px, y: top + y * Math.max(1, f.bottom - top) };
 }
 /** A point in the yard, in pixels, as a place on the field. */
 export function yardToField(px, py) {
   const f = field(),
+    { from, span } = fieldAcross(f),
     top = topAt(px);
   return {
-    x: clamp((px - EDGE) / Math.max(1, f.width - EDGE * 2)),
+    x: clamp((px - from) / span),
     y: clamp((py - top) / Math.max(1, f.bottom - top)),
   };
 }
@@ -304,9 +342,10 @@ export function standAt(point) {
 /** A point in the yard, in pixels, as a gift's place: as yardToField, reaching down to decorFloor. */
 export function yardToDecor(px, py) {
   const f = field(),
+    { from, span } = fieldAcross(f),
     top = topAt(px);
   return {
-    x: clamp((px - EDGE) / Math.max(1, f.width - EDGE * 2)),
+    x: clamp((px - from) / span),
     y: clamp((py - top) / Math.max(1, f.bottom - top), 0, decorFloor(px)),
   };
 }
@@ -321,7 +360,8 @@ export function depthAt(py) {
 }
 /** Where a friend heads (its place, 0 to 1 each way) so that its feet come to (px, py) in the yard. */
 export function footTarget(v, px, py, lift = 4) {
-  const x = clamp((px - EDGE - sizeOf(v.pet) / 2) / geometry(v.pet).w),
+  const { left, w } = geometry(v.pet),
+    x = clamp((px - left - sizeOf(v.pet) / 2) / w),
     { h, top } = geometry(v.pet, x);
   return { x, y: clamp((py - top - petHeight(v.pet) + lift) / h) };
 }

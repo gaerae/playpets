@@ -357,3 +357,71 @@ test('the mirrored sides are painted from the picture’s own edges', async () =
   paintEnvironment(ctx, image, 1920, 1080, scene);
   assert.equal(drawn.length, 1);
 });
+
+// A window dragged from wide to a strip along the screen goes from the whole picture shrunk to a
+// slice across it: the picture, and the friends sized by it (field.js zoomFor), ease from one to
+// the other between 2.4 and 3 times as wide as tall instead of jumping at once.
+test('a window dragged wider into a strip changes its picture a little at a time', async () => {
+  const { environmentFrame } = await shippedFrames();
+  for (const world of SHIPPED)
+    for (const h of [260, 500, 800]) {
+      let last = null;
+      for (let w = Math.round(h * 2.2); w <= h * 3.3; w++) {
+        const f = environmentFrame(w, h, { world });
+        if (last) {
+          assert.ok(Math.abs(f.width / last.width - 1) < 0.01, `${world} ${w}x${h}: scale ${last.width} -> ${f.width}`);
+          assert.ok(Math.abs(f.y - last.y) < h * 0.01 + 1, `${world} ${w}x${h}: y ${last.y} -> ${f.y}`);
+          assert.ok(Math.abs(f.x - last.x) < 3, `${world} ${w}x${h}: x ${last.x} -> ${f.x}`);
+        }
+        last = f;
+      }
+    }
+});
+
+// A webview without canvas filters (Safari before 18) would ignore the blur and draw the mirrored
+// sides sharp; there each side is drawn from a copy shrunk to a sixteenth and smoothed back up.
+test('without canvas filters the sides are drawn from a shrunk copy, as soft', async t => {
+  const { environmentFrame, paintEnvironment } = await import('../src/yard/environment.js');
+  const { useWorlds } = await import('../src/yard/worlds.js');
+  useWorlds(JSON.parse(await readFile(new URL('../src/content/worlds.json', import.meta.url))));
+  const before = { canvas: globalThis.CanvasRenderingContext2D, document: globalThis.document };
+  t.after(() => {
+    globalThis.CanvasRenderingContext2D = before.canvas;
+    globalThis.document = before.document;
+  });
+  globalThis.CanvasRenderingContext2D = class {};
+  const copies = [];
+  globalThis.document = {
+    createElement: () => {
+      const canvas = { width: 0, height: 0, drawn: [] };
+      canvas.getContext = () => ({ drawImage: (...args) => canvas.drawn.push(args) });
+      copies.push(canvas);
+      return canvas;
+    },
+  };
+  const drawn = [];
+  const ctx = {
+    save() {},
+    restore() {},
+    translate() {},
+    scale() {},
+    drawImage: (...args) => drawn.push(args),
+    fillRect() {},
+    createLinearGradient: () => ({ addColorStop() {} }),
+  };
+  const image = { width: 1536, height: 1024 };
+  const scene = { world: 'workshop', season: 'summer', weather: 'clear', period: 'day' };
+  const f = environmentFrame(2560, 1080, scene);
+  paintEnvironment(ctx, image, 2560, 1080, scene);
+  const sides = drawn.slice(1);
+  assert.equal(sides.length, 2);
+  assert.equal(copies.length, 2);
+  for (const [i, args] of sides.entries()) {
+    const copy = copies[i];
+    assert.equal(args[0], copy, 'drawn from the copy, not the picture');
+    assert.ok(copy.width < (f.x / f.width) * image.width && copy.width >= 1, `${copy.width}`);
+    assert.equal(copy.drawn[0][0], image);
+    assert.ok(args[7] > f.x, 'reaching past the seam as before');
+  }
+  assert.equal(ctx.imageSmoothingEnabled, true);
+});

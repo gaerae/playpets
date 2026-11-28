@@ -27,8 +27,8 @@ import { giftEvent } from './events.js';
 import {
   decorFloor,
   depthAt,
-  EDGE,
   field,
+  fieldAcross,
   fieldToYard,
   footTarget,
   petHeight,
@@ -106,7 +106,8 @@ function placement(kind, point, holds = point.holds) {
   const at = standOn(kind) ? fieldToYard({ x: point.x, y: Math.min(point.y, 1) }) : standAt(point),
     { w, h, foot } = size(kind, at, holds);
   // Saved coordinates locate the foot; wide furniture still needs room at either edge.
-  at.x = clamp(at.x, w / 2 + 4, field().width - w / 2 - 4);
+  const { left, right } = field();
+  at.x = clamp(at.x, left + w / 2 + 4, right - w / 2 - 4);
   return { ...at, w, h, foot };
 }
 // In a room a gift is not set down inside the furniture, as a stroll does not end there
@@ -177,7 +178,7 @@ function create(d) {
     if (!current) return;
     const from = drawnPlace(v.kind, current, v.holds);
     v.drag = beginDrag(button, e, from, {
-      width: Math.max(1, f.width - EDGE * 2),
+      width: fieldAcross(f).span,
       height: Math.max(1, f.bottom - f.top),
       foot: fieldToYard(from),
       toField: yardToDecor,

@@ -59,11 +59,12 @@ export function saplingPreview(kind, foot, season) {
  * shows, as a wide gift is (decor.js placement). Its ground (ground.js), fruit and visits are
  * measured from here. */
 export function treeFoot(tree, stage = 2, point = tree) {
-  const foot = standAt(point);
+  const foot = standAt(point),
+    { left, right } = field();
   // Smaller farther back, so its width is measured again where it is moved in to.
   for (let pass = 0; pass < 2; pass++) {
     const { width } = treeBox(tree.kind, foot, stage);
-    foot.x = clamp(foot.x, width / 2 + 4, field().width - width / 2 - 4);
+    foot.x = clamp(foot.x, left + width / 2 + 4, right - width / 2 - 4);
   }
   return foot;
 }

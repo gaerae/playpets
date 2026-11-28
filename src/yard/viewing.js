@@ -167,7 +167,9 @@ export function startViewing(by) {
     seats = viewingSeats({
       spot,
       count: free.length,
-      width: f.width,
+      // Across the picture (field.js field), not its blurred sides.
+      left: f.left,
+      width: f.right,
       top: f.top,
       bottom: f.bottom,
       zoom: yardZoom(),

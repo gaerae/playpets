@@ -42,23 +42,34 @@ export function environmentLook({ season, weather, period, world }) {
 
 // Between `low` and `high`; when they cross (a safe rect too large for the window), halfway.
 const within = (value, low, high) => (low > high ? (low + high) / 2 : Math.min(high, Math.max(low, value)));
+// A window more than 2.4 times as wide as tall begins to be a strip along the screen, and from 3
+// times it is one: a strip shows a slice across the picture instead of all of it shrunk to its
+// height. In between the yard eases from one to the other, so a window dragged wider never jumps.
+const STRIP_FROM = 2.4,
+  STRIP = 3;
+/** How much a window of w by h is a strip, from 0 (up to 2.4 times as wide as tall) to 1 (from 3). */
+export function stripShare(w, h) {
+  const t = Math.min(1, Math.max(0, (w / Math.max(1, h) - STRIP_FROM) / (STRIP - STRIP_FROM)));
+  return t * t * (3 - 2 * t);
+}
 /** Where the picture is drawn in a window of w by h: its proportions kept, and its floor line,
  * outdoors, where the window's is. A place that names the part always seen (geometry.safe,
  * [x0, y0, x1, y1] of the picture) keeps it whole in every window from 4:3 to 16:9, the picture
  * covering the window. Wider, the picture shrinks to the safe height and its own edge, mirrored
  * and out of focus, fills the sides (paintSides); narrower, outdoors it shrinks to the safe width
  * and stands on the window's bottom with the yard's sky above (paintTop), while a room keeps
- * covering its height and crops its sides. A strip along the screen (wider than three times its
- * height) crops, as a place without a safe rect always does. */
+ * covering its height and crops its sides. A strip along the screen (stripShare) covers it and
+ * crops, as a place without a safe rect always does, keeping as much of the rect as it can. */
 export function environmentFrame(w, h, scene = {}, sourceWidth = 1536, sourceHeight = 1024) {
   const place = worldFor(scene.world),
     room = place.fit === 'cover-bottom',
-    safe = w > h * 3 ? null : place.geometry?.safe,
+    safe = place.geometry?.safe,
     cover = Math.max(w / sourceWidth, h / sourceHeight);
   let scale = cover;
   if (safe) {
     scale = Math.min(cover, h / ((safe[3] - safe[1]) * sourceHeight), w / ((safe[2] - safe[0]) * sourceWidth));
     if (room) scale = Math.max(scale, h / sourceHeight);
+    scale *= (cover / scale) ** stripShare(w, h);
   }
   const width = sourceWidth * scale,
     height = sourceHeight * scale,
@@ -68,10 +79,10 @@ export function environmentFrame(w, h, scene = {}, sourceWidth = 1536, sourceHei
   if (!safe) return { x: centered, y: anchored, width, height };
   const x =
       width > w ? within(centered, Math.max(w - width, -safe[0] * width), Math.min(0, w - safe[2] * width)) : centered,
-    y =
-      height >= h
-        ? within(anchored, Math.max(h - height, -safe[1] * height), Math.min(0, h - safe[3] * height))
-        : h - height;
+    // Too short for the whole rect (a strip), as near the floor's own place as its two ends allow.
+    low = Math.max(h - height, -safe[1] * height),
+    high = Math.min(0, h - safe[3] * height),
+    y = height < h ? h - height : low > high ? Math.min(low, Math.max(high, anchored)) : within(anchored, low, high);
   return { x, y, width, height };
 }
 // A side the picture leaves is its own edge mirrored there, out of focus and shaded toward the
@@ -82,6 +93,19 @@ export function environmentFrame(w, h, scene = {}, sourceWidth = 1536, sourceHei
 const SIDE_SHADE = 'rgba(64, 40, 22, 0.5)';
 const SIDE_BLUR = 'blur(10px)';
 const SIDE_REACH = 24;
+// A webview without canvas filters (Safari before 18) would ignore the blur and draw a side sharp,
+// its mirror's offset plain to see: there a side is drawn from a copy of the edge shrunk to a
+// sixteenth, smoothed back up, as soft.
+const canFilter = () =>
+  typeof CanvasRenderingContext2D === 'undefined' || 'filter' in CanvasRenderingContext2D.prototype;
+const SOFT = 16;
+function softened(image, source, strip) {
+  const copy = document.createElement('canvas');
+  copy.width = Math.max(1, Math.round(strip / SOFT));
+  copy.height = Math.max(1, Math.round(image.height / SOFT));
+  copy.getContext('2d')?.drawImage(image, source, 0, strip, image.height, 0, 0, copy.width, copy.height);
+  return copy;
+}
 function paintSides(ctx, image, w, h, frame) {
   if (frame.x <= 0) return;
   const reach = frame.x + 2 * SIDE_REACH,
@@ -102,10 +126,17 @@ function paintSides(ctx, image, w, h, frame) {
     ctx.beginPath?.();
     ctx.rect?.(left, 0, wide, h);
     ctx.clip?.();
-    ctx.filter = look;
     ctx.translate(axis, 0);
     ctx.scale(-1, 1);
-    ctx.drawImage(image, source, 0, strip, image.height, from, frame.y, reach, frame.height);
+    if (canFilter()) {
+      ctx.filter = look;
+      ctx.drawImage(image, source, 0, strip, image.height, from, frame.y, reach, frame.height);
+    } else {
+      const copy = softened(image, source, strip);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(copy, 0, 0, copy.width, copy.height, from, frame.y, reach, frame.height);
+    }
     ctx.restore();
   }
   ctx.save();

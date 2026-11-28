@@ -73,14 +73,15 @@ function slots(odd, n) {
 
 /** Where each of up to `count` friends stands, in yard pixels (the foot), and `side`, which the tilt and
  * the look follow: 'left' when the spot is left of the seat. `spot` is in yard pixels too; `size` is the
- * widest friend's drawn width and `tag` its widest name tag. Neighbours keep apart so neither friends nor
+ * widest friend's drawn width and `tag` its widest name tag; `left` and `width` are the field's left
+ * and right edges (field.js field). Neighbours keep apart so neither friends nor
  * tags overlap: under a tree to both sides of the trunk, its crown left open; on a blanket in one row
  * across it; in the middle in a shallow arc in front. A full row sends the rest to a row behind it (or in
  * front, without room behind); a yard with no room for everyone gives fewer seats, never closer ones. */
-export function viewingSeats({ spot, count, width, top, bottom, zoom, size, tag = 0 }) {
+export function viewingSeats({ spot, count, left = 0, width, top, bottom, zoom, size, tag = 0 }) {
   const gap = Math.max(GAP * size, tag + 4 * zoom),
     step = ROW * gap,
-    lo = EDGE + size / 2,
+    lo = left + EDGE + size / 2,
     hi = width - EDGE - size / 2,
     fit = hi >= lo ? Math.floor((hi - lo) / gap + 1e-9) + 1 : 0,
     tree = spot.kind === 'tree',

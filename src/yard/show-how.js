@@ -63,7 +63,7 @@ const DEPTHS = [0.35, 0.2, 0.1, 0.5, 0.65],
  * nearer the ridge than the front edge, clear of the tool strip at the bottom right. One the hand
  * would put any of itself over the lane of news (`lane`, its box in yard pixels, or null) is left
  * out, for the same spots nearer the ridge, then nearer the front. */
-export function groundPatches({ width, bottom, topAt, lane = null }) {
+export function groundPatches({ left = 0, width, bottom, topAt, lane = null }) {
   const covered = p =>
     !!lane &&
     p.x - HAND.left < lane.right &&
@@ -73,7 +73,7 @@ export function groundPatches({ width, bottom, topAt, lane = null }) {
   const patches = [];
   for (const depth of DEPTHS)
     for (const share of ACROSS) {
-      const x = width * share,
+      const x = left + (width - left) * share,
         top = topAt(x),
         y = top + (bottom - top) * depth,
         p = { x: Math.round(x), y: Math.round(y) };
@@ -96,7 +96,7 @@ function newsLane(box) {
 // The first open patch with no friend on it, so the hand never taps someone it is not about.
 function openGround(friends, box) {
   const f = field(),
-    patches = groundPatches({ width: f.width, bottom: f.bottom, topAt, lane: newsLane(box) });
+    patches = groundPatches({ left: f.left, width: f.right, bottom: f.bottom, topAt, lane: newsLane(box) });
   const middles = friends.map(v => ({ x: v.px + sizeOf(v.pet) / 2, y: v.py + petHeight(v.pet) / 2 })),
     room = Math.max(0, ...friends.map(v => sizeOf(v.pet)));
   return clearPatch(patches, middles, room);

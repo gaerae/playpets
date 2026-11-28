@@ -15,7 +15,7 @@ import { onAimingChange, setAimingMode } from './care.js';
 import { treeArt, TREES, treasureKind } from './catalog.js';
 import { toolGivesWay } from './catch.js';
 import { groundAllows } from './discovery-rules.js';
-import { field, fieldToYard, petHeight, sizeOf, topAt, yardToDecor, yardToField } from './field.js';
+import { EDGE, field, fieldToYard, petHeight, sizeOf, topAt, yardToDecor, yardToField } from './field.js';
 import { noRoomForSeed, seedLook, seedSpot, spareSeeds } from './garden.js';
 import { groundProfile } from './ground.js';
 import { saplingPreview } from './planted-trees.js';
@@ -206,7 +206,7 @@ function positionAt(event) {
     x = event.clientX - r.left,
     y = event.clientY - r.top,
     f = field();
-  if (x < 14 || x > f.width - 14 || y < topAt(x)) return null;
+  if (x < f.left + EDGE || x > f.right - EDGE || y < topAt(x)) return null;
   if (!tree && y > f.bottom) return null;
   const point = tree ? yardToDecor(x, y) : yardToField(x, y);
   // Below the floor, the click is not on the ground at all.
@@ -453,7 +453,7 @@ export function canDigAt(clientX, clientY) {
     x = clientX - r.left,
     y = clientY - r.top,
     f = field();
-  if (x < 14 || x > f.width - 14 || y < topAt(x) || y > f.bottom) return false;
+  if (x < f.left + EDGE || x > f.right - EDGE || y < topAt(x) || y > f.bottom) return false;
   return groundAllows(yardToField(x, y), groundProfile());
 }
 /** Digs at a right-clicked point at once, leaving the dig tool in hand for the next spot. */

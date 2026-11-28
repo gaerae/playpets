@@ -76,7 +76,8 @@ function position(v, plant, now = Date.now(), point = plant) {
     h = ah * UNIT * scale * tall;
   v.button.style.setProperty('--foot', String(foot));
   // Whole inside the yard at either side, as a gift is (decor.js placement).
-  at.x = clamp(at.x, w / 2 + 4, field().width - w / 2 - 4);
+  const { left, right } = field();
+  at.x = clamp(at.x, left + w / 2 + 4, right - w / 2 - 4);
   // Nearer the front, drawn over the ones behind it.
   setDown(v.button, at.x, at.y, w, h, depthAt(at.y), foot);
   v.at = { x: at.x, y: at.y };

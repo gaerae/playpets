@@ -225,3 +225,30 @@ test("gifts stand below the friends' field, drawn in front of every friend above
   globalThis.document.body.classList.add('compact');
   assert.ok(decorFloor() > floor, 'a small window hides the dock');
 });
+
+// In a window wider than the picture its sides are the picture's edge out of focus
+// (environment.js paintSides): the field spans the picture, so a place kept as 0 to 1 across stands
+// on it, and a press beside it is not on the ground.
+test('in a window wider than the picture, the field spans the picture, not its blurred sides', async t => {
+  const { environmentFrame } = await import('../src/yard/environment.js');
+  const { sizeOf, yardToField } = await import('../src/yard/field.js');
+  const yard = yardIn(t, 'illustrated');
+  yard.getBoundingClientRect = () => ({ width: 2560, height: 1080 });
+  measureYard();
+  const frame = environmentFrame(2560, 1080, scene),
+    f = field();
+  assert.ok(frame.x > 100, 'the picture has sides here');
+  assert.equal(f.left, frame.x);
+  assert.equal(f.right, frame.x + frame.width);
+  assert.equal(fieldToYard({ x: 0, y: 0.5 }).x, frame.x + 14);
+  assert.equal(fieldToYard({ x: 1, y: 0.5 }).x, frame.x + frame.width - 14);
+  assert.equal(yardToField(frame.x + 14, 900).x, 0);
+  assert.ok(Math.abs(yardToDecor(frame.x + frame.width / 2, 900).x - 0.5) < 1e-9);
+  const pet = { size: 100 },
+    box = geometry(pet, 0);
+  assert.equal(box.left, frame.x + 14, "a friend's place starts at the picture's edge");
+  assert.ok(Math.abs(box.w - (frame.width - 28 - sizeOf(pet))) < 1e-9, 'and spans it');
+  yard.getBoundingClientRect = () => ({ width: 1920, height: 1080 });
+  measureYard();
+  assert.deepEqual([field().left, field().right], [0, 1920], 'a window the picture covers keeps the whole width');
+});

@@ -27,6 +27,7 @@ import {
   depthAt,
   EDGE,
   field,
+  fieldAcross,
   fieldToYard,
   footTarget,
   geometry,
@@ -159,7 +160,7 @@ const offered = () =>
     decorMax: limit(data, 'decor'),
   });
 
-const across = () => Math.max(1, field().width - EDGE * 2);
+const across = () => fieldAcross().span;
 const deep = () => Math.max(1, field().bottom - field().top);
 // The snowman as the yard will draw it where it is built: smaller farther back (props.js giftSize),
 // and its balls with it, so the stack settles into the drawing at its size.
@@ -173,7 +174,8 @@ function ballBox(size) {
 // A ball stays whole inside the yard, as a gift does.
 function keepX(x, size) {
   const half = ballBox(size).w / 2 + 4;
-  return clamp(x, (half - EDGE) / across(), (field().width - half - EDGE) / across());
+  const { left, right } = field();
+  return clamp(x, (half - EDGE) / across(), (right - left - half - EDGE) / across());
 }
 const keepY = y => clamp(y, TOP, decorFloor());
 const rolling = b => game?.kind === SNOWMAN && game.ball === b && game.stage === 'rolling';
